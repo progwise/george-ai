@@ -1,6 +1,4 @@
-import { OpenAI } from '@langchain/openai'
-
-const qaModel = new OpenAI({ modelName: 'gpt-4o-mini', temperature: 0.3 })
+import { getModel } from './assistant-model'
 
 export interface QAPair {
   prompt: string
@@ -11,6 +9,8 @@ export interface QAPair {
 }
 
 export const generateQAPairs = async (chunk: string, summary: string): Promise<QAPair[]> => {
+  const qaModel = await getModel('llama3.1:latest')
+
   const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
 Chunk: ${chunk}
@@ -29,16 +29,24 @@ Example:
 `
 
   const result = await qaModel.invoke(prompt)
-  const lines = result.split('\n').filter((line) => line.trim())
+  const lines = result.content
+    .toString()
+    .split('\n')
+    .filter((line: string) => line.trim())
   const qaPairs = lines
-    .map((line) => {
-      const obj = JSON.parse(line)
-      if (obj.prompt && obj.completion) {
-        return obj as QAPair
+    .map((line: string) => {
+      try {
+        const obj = JSON.parse(line)
+        if (obj.prompt && obj.completion) {
+          return obj as QAPair
+        }
+        return null
+      } catch {
+        console.warn('Failed to parse line as JSON:', line)
+        return null
       }
-      return null
     })
-    .filter((item): item is QAPair => item !== null)
+    .filter((item: QAPair | null): item is QAPair => item !== null)
 
   return qaPairs
 }

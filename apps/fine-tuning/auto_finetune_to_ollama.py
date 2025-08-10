@@ -123,12 +123,29 @@ def main(config_path):
 
     # Fine-tune the model
     print("Fine-tuning the model...")
-    subprocess.run([
+
+    # Build command with fine-tuning parameters
+    fine_tune_cmd = [
         "python3", "fine_tune.py",
         "--model", base_model,
         "--data", split_output_dir,
         "--adapter-dir", model_dir
-    ])
+    ]
+
+    # Add fine-tuning parameters if they exist
+    if "num_layers" in fine_tune_params:
+        fine_tune_cmd.extend(
+            ["--num-layers", str(fine_tune_params["num_layers"])])
+    if "learning_rate" in fine_tune_params:
+        fine_tune_cmd.extend(
+            ["--learning-rate", str(fine_tune_params["learning_rate"])])
+    if "iters" in fine_tune_params:
+        fine_tune_cmd.extend(["--iters", str(fine_tune_params["iters"])])
+    if "fine_tune_type" in fine_tune_params:
+        fine_tune_cmd.extend(
+            ["--fine-tune-type", fine_tune_params["fine_tune_type"]])
+
+    subprocess.run(fine_tune_cmd)
     print("[ok]")
 
     # Fuse adapter weights
@@ -139,6 +156,15 @@ def main(config_path):
         if entry.startswith("adapters_") and os.path.isdir(full_path):
             adapter_path = full_path
             break
+
+    if adapter_path is None:
+        print("❌ Error: No adapter weights found! Fine-tuning may have failed.")
+        print(f"Checked directory: {model_dir}")
+        print("Available directories:")
+        for entry in os.listdir(model_dir):
+            if os.path.isdir(os.path.join(model_dir, entry)):
+                print(f"  - {entry}")
+        return
 
     fused_model_dir = os.path.join(model_dir, "fused_model")
     fused_model_name = f"{model_name.replace('.', '').replace('-', '_')}_fused"

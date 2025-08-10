@@ -1,0 +1,56 @@
+{
+  "base_model": "microsoft/Phi-3-mini-4k-instruct",
+  "dataset_path": "jsonl/processed/train-original.jsonl",
+  "validation_path": "jsonl/processed/valid-original.jsonl",
+  "test_path": "jsonl/processed/test-original.jsonl",
+  "train_ratio": 0.80,
+  "valid_ratio": 0.15,
+  "test_ratio": 0.05,
+  "fine_tune_params": {
+    "num_layers": 8,
+    "learning_rate": 1e-4,
+    "iters": 1000,
+    "fine_tune_type": "lora",
+    "lora_rank": 64,
+    "lora_alpha": 128,
+    "lora_dropout": 0.05,
+    "batch_size": 4,
+    "gradient_accumulation_steps": 8,
+    "warmup_steps": 100,
+    "weight_decay": 0.01,
+    "scheduler": "cosine",
+    "max_seq_length": 1024,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    "save_strategy": "steps",
+    "logging_steps": 50,
+    "eval_strategy": "steps"
+  },
+  "ollama_model_name": "phi3-mini-verlag-qa-original",
+  "keep_split_data": true,
+  "keep_fused_model": true,
+  "keep_gguf_files": true,
+  "keep_adapter_weights": true,
+  "evaluation": {
+    "metrics": ["accuracy", "bleu", "rouge", "exact_match"],
+    "eval_steps": 100,
+    "save_steps": 200,
+    "load_best_model_at_end": true,
+    "metric_for_best_model": "accuracy",
+    "early_stopping_patience": 5,
+    "early_stopping_threshold": 0.001
+  },
+  "data_processing": {
+    "max_length": 512,
+    "truncation": true,
+    "padding": "max_length",
+    "remove_columns": ["sourceDocument", "chunkIndex", "section", "category", "difficulty"]
+  },
+  "training_args": {
+    "fp16": true,
+    "dataloader_pin_memory": false,
+    "dataloader_num_workers": 2,
+    "group_by_length": true,
+    "report_to": "none",
+    "run_name": "phi3-mini-qa-original-dataset"
+  }
+}

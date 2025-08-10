@@ -1,0 +1,408 @@
+{
+  "baseline": {
+    "model_name": "tinyllama:1.1b",
+    "description": "Baseline Model",
+    "total_questions": 20,
+    "responses": [
+      {
+        "question": "What is the name of the printing company featured in this story?",
+        "ground_truth": "PressCrafters Printing Co.",
+        "model_response": "Error: Timeout",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "General Knowledge"
+      },
+      {
+        "question": "How does Maria manage client contracts with tight deadlines?",
+        "ground_truth": "careful juggling",
+        "model_response": "Error: Timeout",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "General Knowledge"
+      },
+      {
+        "question": "Who is leading a team for a small wedding invitation run?",
+        "ground_truth": "Marko",
+        "model_response": "Yes, you're correct! The given text mentions \"a small wedding invitation run\" and refers to a team of individuals who are working on the project. This could possibly be a group of professionals or a project team that is collaborating together for the specific task at hand.",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Human Dynamics"
+      },
+      {
+        "question": "What is Ivan's role in the company?",
+        "ground_truth": "Shift manager who knows the ins and outs of the machines",
+        "model_response": "In \"The Intelligent Investor,\" Benjamin Graham wrote that one of the key roles of a successful investment manager or portfolio manager is to make decisions and monitor their holdings. In this sense, Ivan serves as a useful AI assistant for Benjamin Graham's \"Intelligent Investor\" by helping him manage his investments and provide regular updates on his holdings.\n\nHowever, Ivan is not the only AI assistant in the company that handles investment matters. He is just one of several AIs that assist with various tasks throughout the organization. These AIs include a marketing assistant, a risk management assistant, a data analysis assistant, and more.",
+        "similarity": 0.4,
+        "difficulty": "easy",
+        "category": "key players"
+      },
+      {
+        "question": "How many employees are on summer holidays at PressCrafters?",
+        "ground_truth": "5 (Greta, Ayumi, Lutz, and 2 packing team members)",
+        "model_response": "I do not have access to the most up-to-date employee roster, salary information, or other organizational details about presscrations. However, according to their official website, they typically hire around 20-30 employees during their summer holiday period, which usually runs from july 1st to september 5th. They often hire interns and contractors, but this may not always be the case. It's best to check their official website or contact them directly for more information about employee rosters and holidays at presscrations.",
+        "similarity": 0.1111111111111111,
+        "difficulty": "medium",
+        "category": "factual comprehension"
+      },
+      {
+        "question": "What type of project requires special color calibration and hand binding?",
+        "ground_truth": "An art book project",
+        "model_response": "Special color calibration and hand binding require advanced equipment and software that are specifically designed for this purpose. These tasks typically involve measuring the light-to-color conversion properties of printed materials, such as textiles or papers, using advanced digital cameras or spectrophotometers. The resulting measurements are then used to create a custom color profile that can be applied automatically to all future print jobs. This process is known as \"hand binding,\" which involves manually applying the newly created color profile to every print job using special binding equipment and software.",
+        "similarity": 0.0,
+        "difficulty": [
+          "medium"
+        ],
+        "category": [
+          "general"
+        ]
+      },
+      {
+        "question": "How many employees work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "The given text doesn't specify the number of employees working at PressCrafters Printing Co. It only mentions that they are \"working on their latest project.\"\n\nA common job title for a company printer or printing plant is \"print manager,\" but this could refer to anyone in charge of managing and operating the press, or someone who oversees all print production activities.",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Company Information"
+      },
+      {
+        "question": "What is the current status of machine Atlas?",
+        "ground_truth": "The Atlas machine sits silent, with a fresh warning light blinking on its control panel.",
+        "model_response": "Machine Atlas is a project led by Stanford University's AI research group, iRobot Corporation, and the Massachusetts Institute of Technology (MIT) AIPS program. The project's goal is to develop an autonomous robot that can perform complex tasks like assembly, inspection, and cleaning in factories without human intervention.\n\nIn 2019, Machine Atlas was presented at the Robotics: Science and Systems conference (ROSIC) in Seoul, South Korea, with demonstrations of its self-driving capabilities. Since then, the project has continued to advance, including testing various scenarios like picking up objects from a shelf to carrying them out to a designated area.\n\nMachine Atlas is still in its early stages of development, and while it has gained significant progress over the past few years, there are still many unanswered questions about its capabilities and limitations. However, with ongoing research and development efforts, machine Atlas could have a significant impact on manufacturing processes and productivity in the future.",
+        "similarity": 0.4666666666666667,
+        "difficulty": "easy",
+        "category": "Current Situation"
+      },
+      {
+        "question": "How many active contracts does PressCrafters have?",
+        "ground_truth": "23",
+        "model_response": "As per the given material, PressCrafters has over 100 active contracts as of April 2019. However, it's possible that there are more than 100 active contracts, but the exact number is not mentioned in the given material.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Contractual Obligations"
+      },
+      {
+        "question": "How many active contracts does PressCrafters currently have?",
+        "ground_truth": "23",
+        "model_response": "As of April 2021, PressCrAfters has not disclosed the number of active contracts they have. However, according to their official website, PressCrAfters is a freelance marketplace for content creators and photographers that offers an array of high-quality products and services at affordable prices.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Factual Detail"
+      },
+      {
+        "question": "How many staff members work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "As per the given material, there is no specific information provided about the number of staff members working at PressCrafters Printing Co. It could be a small print shop or a larger printing company that hires multiple employees to run its printing operations. Therefore, it's difficult to provide an exact count of staff members at any single organization.",
+        "similarity": 0.0,
+        "difficulty": "easy",
+        "category": "staff"
+      },
+      {
+        "question": "How is the team responding to the disruptions in workflow at PressCrafters Printing Co.?",
+        "ground_truth": "by being creative and flexible, drawing on each other's strengths to keep up with the demanding workload",
+        "model_response": "PressCrafters Printing Co. Has not yet reported any significant disruptions in workflow due to COVID-19, and they have been taking all necessary precautions to ensure that operations continue smoothly. The team has been working remotely to minimize the number of in-person interactions and keep everyone safe while maintaining productivity levels. The company has taken the necessary measures, including disinfecting workstations and equipment regularly, to ensure a hygienic environment for their employees. Additionally, PressCrafters Printing Co. Has been proactive in implementing technological solutions to help them carry out their operations without interruptions. Their team is currently working from home with access to digital tools such as Microsoft Teams, Google Meet, and Zoom, among others, to maintain communication and collaboration. In response to the disruptions in workflow, PressCrafters Printing Co. Is taking all necessary precautions and implementing technological solutions to ensure that operations continue smoothly.",
+        "similarity": 0.2777777777777778,
+        "difficulty": [
+          "medium"
+        ],
+        "category": "Summary"
+      },
+      {
+        "question": "Which printing machine is offline due to a technical issue and needs spare parts and Greta's expertise to be fixed?",
+        "ground_truth": "Atlas",
+        "model_response": "The printing machine that requires spare parts and Greta's expertise to be fixed is currently offline due to a technical issue. Greta, the AI assistant of the company, is an expert in handling and repairing various printing machines for efficient printer repairs.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Machines"
+      },
+      {
+        "question": "How many employees work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "There is no specific information available about the number of employees at PressCrafters Printing Co. It can be inferred from the company name that it's a printing and publishing company. However, they may have had some employees during their operations, or it's possible that they only have a small team in operation at any given time.",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Employee Count"
+      },
+      {
+        "question": "Who is trying to fix the Atlas machine?",
+        "ground_truth": "Boris, the in-house engineer",
+        "model_response": "The character who is trying to fix the Atlas machine in the given text is named \"The Man\" and he is attempting to repair it as per his duty. He has been tasked by an unidentified supervisor to fix the machine after it went haywire during a recent mission. The Man is a skilled engineer, and his primary goal is to resolve the problem and ensure the safety of the crew on board.",
+        "similarity": 0.6,
+        "difficulty": "medium",
+        "category": "information recall"
+      },
+      {
+        "question": "What are the names of PressCrafters' three printing machines?",
+        "ground_truth": "Titan, Pegasus, and Atlas",
+        "model_response": "The three printing machines used by PressCrafters are:\n1. Digital Offset Printer (DOP) - This is the main printing machine and the most advanced one. It uses inkjet technology to print large quantity of prints on a variety of paper stocks, including canvas, cardstock, and newsprint.\n2. Digital Press (DP)- The second machine is an eco-friendly digital press that uses solvent ink. This machine can print on a wide range of papers and even on vinyl material.\n3. Inkjet Cartridge Printer (ICP)- This printer is used to print on canvas or cardstock materials, which are not commonly printed with other machines due to their fragility.",
+        "similarity": 0.25,
+        "difficulty": "easy",
+        "category": "information recall"
+      },
+      {
+        "question": "What is PressCrafters Printing Co. known for?",
+        "ground_truth": "Producing high-quality prints for newspapers and small businesses.",
+        "model_response": "PressCrafters Printing Co. Is known for its expertise in the production and printing of high-quality printed materials such as brochures, flyers, business cards, postcards, and invitations. They specialize in customized design services and can help you create a unique and visually appealing marketing campaign for your business or event. PressCrafters Printing Co.'s focus on quality, innovation, and customer satisfaction has earned them a reputation as one of the top printing companies in Australia.",
+        "similarity": 0.4444444444444444,
+        "difficulty": "easy",
+        "category": "general knowledge"
+      },
+      {
+        "question": "What is the name of the software used by Maria to coordinate contracts and deadlines?",
+        "ground_truth": "Gantt chart",
+        "model_response": "The software used by Maria to coordinate contracts and deadlines is called \"Project Manager\".",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "The Team's Efforts"
+      },
+      {
+        "question": "How many active contracts does PressCrafters Printing Co. have?",
+        "ground_truth": "23",
+        "model_response": "Unfortunately, the given text doesn't provide information on the specific number of active contracts or deals that PressCrafters Printing Co. Has. It only states that they are a \"high-quality printing and marketing company\" with \"experienced management team.\"",
+        "similarity": 0.0,
+        "difficulty": "medium",
+        "category": "machines and jobs"
+      },
+      {
+        "question": "Who helps Maria with tracking progress and priorities?",
+        "ground_truth": "Maria keeps a complex Gantt chart",
+        "model_response": "Maria often relies on her team at the company where she works to help her track progress and prioritize tasks. Her supervisor, who may be a human or an AI assistant, will provide guidance and support on specific projects, while her team members are responsible for working on specific tasks or deliverables related to those projects. They may also provide feedback and suggestions on how Maria can improve her performance and stay on track. Ultimately, it's up to the individual to take ownership of their work and make decisions based on their needs and goals.",
+        "similarity": 0.3333333333333333,
+        "difficulty": "easy",
+        "category": "task description"
+      }
+    ],
+    "accuracies": [
+      0.0,
+      0.0,
+      0.0,
+      0.4,
+      0.1111111111111111,
+      0.0,
+      0.0,
+      0.4666666666666667,
+      0.0,
+      0.0,
+      0.0,
+      0.2777777777777778,
+      0.0,
+      0.0,
+      0.6,
+      0.25,
+      0.4444444444444444,
+      0.0,
+      0.0,
+      0.3333333333333333
+    ],
+    "avg_similarity": 0.14416666666666667,
+    "perfect_matches": 0,
+    "good_matches": 0,
+    "errors": 2
+  },
+  "finetuned": {
+    "model_name": "tinyllama-verlag-qa-v1",
+    "description": "Fine-tuned Model",
+    "total_questions": 20,
+    "responses": [
+      {
+        "question": "What is the name of the printing company featured in this story?",
+        "ground_truth": "PressCrafters Printing Co.",
+        "model_response": "The printing company featured in this story is Avery Dennison.",
+        "similarity": 0.3333333333333333,
+        "difficulty": "Easy",
+        "category": "General Knowledge"
+      },
+      {
+        "question": "How does Maria manage client contracts with tight deadlines?",
+        "ground_truth": "careful juggling",
+        "model_response": "As a freelance project manager, Maria has the flexibility to manage clients' projects according to their specific needs. However, she is also responsible for ensuring that all deliverables are within a tight deadline. \n\nTo handle this, she works closely with clients and their teams to identify key milestones, deadlines, and deliverables. She then helps clients create a project plan that meets these deadlines while adhering to their project budget.\n\nMaria also communicates regularly with clients throughout the project to ensure they are aware of any changes or updates necessary to meet deadlines. This communication strategy ensures that all parties are on the same page and committed to delivering high-quality work within the tight timeline.",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "General Knowledge"
+      },
+      {
+        "question": "Who is leading a team for a small wedding invitation run?",
+        "ground_truth": "Marko",
+        "model_response": "Danny Smith",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Human Dynamics"
+      },
+      {
+        "question": "What is Ivan's role in the company?",
+        "ground_truth": "Shift manager who knows the ins and outs of the machines",
+        "model_response": "In the company that Lena works for, Ivan is a senior IT manager.",
+        "similarity": 0.2,
+        "difficulty": "easy",
+        "category": "key players"
+      },
+      {
+        "question": "How many employees are on summer holidays at PressCrafters?",
+        "ground_truth": "5 (Greta, Ayumi, Lutz, and 2 packing team members)",
+        "model_response": "Unfortunately, there is no information provided in the given material about the number of employees on summer holidays. It's only mentioned that they are taking time off.",
+        "similarity": 0.0,
+        "difficulty": "medium",
+        "category": "factual comprehension"
+      },
+      {
+        "question": "What type of project requires special color calibration and hand binding?",
+        "ground_truth": "An art book project",
+        "model_response": "A special color calibration is required for projects that require hand binding, such as sewing or quilting. In this case, the needle used for threading through the fabric is manually adjusted to make sure it's aligned with the needle guide located on the fabric. This ensures consistent tension and prevents the thread from getting tangled.",
+        "similarity": 0.0,
+        "difficulty": [
+          "medium"
+        ],
+        "category": [
+          "general"
+        ]
+      },
+      {
+        "question": "How many employees work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "50",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Company Information"
+      },
+      {
+        "question": "What is the current status of machine Atlas?",
+        "ground_truth": "The Atlas machine sits silent, with a fresh warning light blinking on its control panel.",
+        "model_response": "Machine Atlas is currently in development and scheduled to launch in 2024. The spacecraft was designed by Nasa's Jet Propulsion Laboratory (JPL) and will be operated by NASA's Jet Propulsion Laboratory (JPL).",
+        "similarity": 0.2,
+        "difficulty": "easy",
+        "category": "Current Situation"
+      },
+      {
+        "question": "How many active contracts does PressCrafters have?",
+        "ground_truth": "23",
+        "model_response": "I do not have access to real-time updates. However, as of april 2021, presscrafters has over 13,000 active contracts covering various industries, including finance, ecommerce, healthcare, and more.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Contractual Obligations"
+      },
+      {
+        "question": "How many active contracts does PressCrafters currently have?",
+        "ground_truth": "23",
+        "model_response": "As of August 2021, there are 134 active contracts in the database.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Factual Detail"
+      },
+      {
+        "question": "How many staff members work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "Unfortunately, the given passage does not provide any information about the number of employees working at PressCrafters Printing Co.",
+        "similarity": 0.0,
+        "difficulty": "easy",
+        "category": "staff"
+      },
+      {
+        "question": "How is the team responding to the disruptions in workflow at PressCrafters Printing Co.?",
+        "ground_truth": "by being creative and flexible, drawing on each other's strengths to keep up with the demanding workload",
+        "model_response": "Jenny, the marketing manager at PressCrafters Printing Co., has been keeping an eye on the company's performance since she was appointed in late 2020. Since then, the team has experienced some disruptions in workflow due to the pandemic. However, they have responded quickly and effectively.\n\nA few months ago, as part of their reorganization efforts, PressCrafters Printing Co. Redesigned its operations to create a more efficient system for production and delivery. This resulted in an increase in production capacity while keeping costs lower. They also implemented new safety protocols and procedures to ensure the well-being of their employees.\n\nSince then, there have been no major disruptions in workflow. The team has been working closely with their suppliers to ensure a smooth transition to their new system. They've also increased communication and collaboration between departments to keep everyone up to date on any changes that may affect workflow.",
+        "similarity": 0.5,
+        "difficulty": [
+          "medium"
+        ],
+        "category": "Summary"
+      },
+      {
+        "question": "Which printing machine is offline due to a technical issue and needs spare parts and Greta's expertise to be fixed?",
+        "ground_truth": "Atlas",
+        "model_response": "The printing machine being offline",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "Machines"
+      },
+      {
+        "question": "How many employees work at PressCrafters Printing Co.?",
+        "ground_truth": "24",
+        "model_response": "There is no information available about the number of employees working for PressCrafters Printing Co.",
+        "similarity": 0.0,
+        "difficulty": "Easy",
+        "category": "Employee Count"
+      },
+      {
+        "question": "Who is trying to fix the Atlas machine?",
+        "ground_truth": "Boris, the in-house engineer",
+        "model_response": "One of the antagonists in the novel",
+        "similarity": 0.4,
+        "difficulty": "medium",
+        "category": "information recall"
+      },
+      {
+        "question": "What are the names of PressCrafters' three printing machines?",
+        "ground_truth": "Titan, Pegasus, and Atlas",
+        "model_response": "The text does not mention the names of PressCrafters' three printing machines.",
+        "similarity": 0.0,
+        "difficulty": "easy",
+        "category": "information recall"
+      },
+      {
+        "question": "What is PressCrafters Printing Co. known for?",
+        "ground_truth": "Producing high-quality prints for newspapers and small businesses.",
+        "model_response": "PressCrafters Printing Co. Is a printing company specializing in custom book bindings and paper goods, with offices in Stamford, Connecticut. They are known for their high-quality services, which include design, production, and fulfillment of bound books and stationery items.",
+        "similarity": 0.4444444444444444,
+        "difficulty": "easy",
+        "category": "general knowledge"
+      },
+      {
+        "question": "What is the name of the software used by Maria to coordinate contracts and deadlines?",
+        "ground_truth": "Gantt chart",
+        "model_response": "The name of the software used by Maria to coordinate contracts and deadlines is Trello.",
+        "similarity": 0.0,
+        "difficulty": "Medium",
+        "category": "The Team's Efforts"
+      },
+      {
+        "question": "How many active contracts does PressCrafters Printing Co. have?",
+        "ground_truth": "23",
+        "model_response": "I do not have access to the current number of contracts held by presscrafters printing co.",
+        "similarity": 0.0,
+        "difficulty": "medium",
+        "category": "machines and jobs"
+      },
+      {
+        "question": "Who helps Maria with tracking progress and priorities?",
+        "ground_truth": "Maria keeps a complex Gantt chart",
+        "model_response": "Sarah, a support manager at the organization, helps Maria by tracking her progress and priorities. She manages to identify important deadlines for Maria's projects and ensures that she stays on track with them. Sarah provides regular check-ins and updates on what's happening in the project team and ensures that there is communication between the team members.",
+        "similarity": 0.3333333333333333,
+        "difficulty": "easy",
+        "category": "task description"
+      }
+    ],
+    "accuracies": [
+      0.3333333333333333,
+      0.0,
+      0.0,
+      0.2,
+      0.0,
+      0.0,
+      0.0,
+      0.2,
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.0,
+      0.0,
+      0.4,
+      0.0,
+      0.4444444444444444,
+      0.0,
+      0.0,
+      0.3333333333333333
+    ],
+    "avg_similarity": 0.12055555555555555,
+    "perfect_matches": 0,
+    "good_matches": 0,
+    "errors": 0
+  },
+  "timestamp": "20250810_125437",
+  "args": {
+    "finetuned_model": "tinyllama-verlag-qa-v1",
+    "baseline_model": "tinyllama:1.1b",
+    "dataset": "jsonl/raw/qa-data.jsonl",
+    "num_samples": 20,
+    "output_dir": "evaluation_results"
+  }
+}

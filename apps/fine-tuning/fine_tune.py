@@ -58,12 +58,11 @@ def convert_to_chat_format(data_folder: str, model_name: str) -> str:
     Returns:
         Path to the processed dataset folder with chat-formatted data
     """
-    
+
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     temp_dir = tempfile.mkdtemp(prefix="chat_formatted_")
     processed_folder = Path(temp_dir)
-
 
     data_path = Path(data_folder)
     for file_path in data_path.rglob("*.jsonl"):
@@ -87,48 +86,75 @@ def convert_to_chat_format(data_folder: str, model_name: str) -> str:
                     output_file_handle.write(line)
                     continue
 
-                # Convert prompt/completion format to chat format
+                # Convert various formats to chat format
                 if 'prompt' in data and 'completion' in data:
                     # Create messages for chat template
                     messages = [
                         {"role": "user", "content": data['prompt']},
                         {"role": "assistant", "content": data['completion']}
                     ]
-
-                    # Apply chat template
-                    try:
-                        formatted_text = tokenizer.apply_chat_template(
-                            messages,
-                            tokenize=False,
-                            add_generation_prompt=False
-                        )
-
-                        # Create new data entry with formatted text
-                        new_data = {
-                            "text": formatted_text,
-                            **{k: v for k, v in data.items() if k not in ['prompt', 'completion']}
-                        }
-
-                        output_file_handle.write(json.dumps(
-                            new_data, ensure_ascii=False) + '\n')
-
-                    except Exception as e:
-                        print(
-                            f"Warning: Failed to apply chat template for line in {file_path}: {e}")
-                        print(f"Using fallback format for this entry")
-
-                        # Fallback: create a simple chat format
-                        fallback_text = f"User: {data['prompt']}\n\nAssistant: {data['completion']}"
-                        new_data = {
-                            "text": fallback_text,
-                            **{k: v for k, v in data.items() if k not in ['prompt', 'completion']}
-                        }
-                        output_file_handle.write(json.dumps(
-                            new_data, ensure_ascii=False) + '\n')
-
+                elif 'instruction' in data and 'input' in data and 'output' in data:
+                    # Handle instruction/input/output format
+                    user_content = f"{data['instruction']}\n\n{data['input']}" if data['input'] else data['instruction']
+                    messages = [
+                        {"role": "user", "content": user_content},
+                        {"role": "assistant", "content": data['output']}
+                    ]
+                elif 'instruction' in data and 'output' in data:
+                    # Handle instruction/output format (no separate input)
+                    messages = [
+                        {"role": "user", "content": data['instruction']},
+                        {"role": "assistant", "content": data['output']}
+                    ]
                 else:
                     # Unknown format, copy as-is
                     output_file_handle.write(line)
+                    continue
+
+                # Apply chat template
+                try:
+                    formatted_text = tokenizer.apply_chat_template(
+                        messages,
+                        tokenize=False,
+                        add_generation_prompt=False
+                    )
+
+                    # Create new data entry with formatted text
+                    # Remove old format fields and preserve metadata
+                    excluded_fields = {'prompt', 'completion',
+                                       'instruction', 'input', 'output'}
+                    new_data = {
+                        "text": formatted_text,
+                        **{k: v for k, v in data.items() if k not in excluded_fields}
+                    }
+
+                    output_file_handle.write(json.dumps(
+                        new_data, ensure_ascii=False) + '\n')
+
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to apply chat template for line in {file_path}: {e}")
+                    print(f"Using fallback format for this entry")
+
+                    # Fallback: create a simple chat format
+                    if 'prompt' in data and 'completion' in data:
+                        fallback_text = f"User: {data['prompt']}\n\nAssistant: {data['completion']}"
+                        excluded_fields = {'prompt', 'completion'}
+                    elif 'instruction' in data and 'output' in data:
+                        user_part = f"{data['instruction']}\n\n{data['input']}" if data.get(
+                            'input') else data['instruction']
+                        fallback_text = f"User: {user_part}\n\nAssistant: {data['output']}"
+                        excluded_fields = {'instruction', 'input', 'output'}
+                    else:
+                        fallback_text = str(data)
+                        excluded_fields = set()
+
+                    new_data = {
+                        "text": fallback_text,
+                        **{k: v for k, v in data.items() if k not in excluded_fields}
+                    }
+                    output_file_handle.write(json.dumps(
+                        new_data, ensure_ascii=False) + '\n')
 
     # Copy any non-JSONL files (like README, etc.)
     for file_path in data_path.rglob("*"):
@@ -141,7 +167,7 @@ def convert_to_chat_format(data_folder: str, model_name: str) -> str:
     return str(processed_folder)
 
 
-def run_finetune(model_name: str, data_folder: str, adapter_dir: str = "."):
+def run_finetune(model_name: str, data_folder: str, adapter_dir: str = ".", fine_tune_params: dict = None):
     adapter_path = f"{adapter_dir}/adapters_{model_name.split('/')[-1].replace('.', '').replace('-', '_')}"
 
     print(f"Preprocessing data with chat template for model: {model_name}")
@@ -152,15 +178,24 @@ def run_finetune(model_name: str, data_folder: str, adapter_dir: str = "."):
     print(f"Data preprocessed and saved to: {processed_data_folder}")
     print(f"🚀 Starting LoRA fine-tuning...")
 
+    # Use configuration parameters if provided, otherwise use defaults
+    if fine_tune_params is None:
+        fine_tune_params = {
+            "num_layers": 4,
+            "learning_rate": 1e-5,
+            "iters": 100,
+            "fine_tune_type": "lora"
+        }
+
     sys.argv = [
         "lora",
         "--model", model_name,
         "--train",
         "--data", processed_data_folder,
-        "--num-layers", "4",
-        "--learning-rate", "1e-5",
-        "--iters", "100",
-        "--fine-tune-type", "lora",
+        "--num-layers", str(fine_tune_params.get("num_layers", 4)),
+        "--learning-rate", str(fine_tune_params.get("learning_rate", 1e-5)),
+        "--iters", str(fine_tune_params.get("iters", 100)),
+        "--fine-tune-type", fine_tune_params.get("fine_tune_type", "lora"),
         "--adapter-path", adapter_path
     ]
 
@@ -184,6 +219,26 @@ if __name__ == "__main__":
                         help="Path to the dataset folder")
     parser.add_argument("--adapter-dir", default=".",
                         help="Directory to store adapter weights (default: current directory)")
+    parser.add_argument("--num-layers", type=int, default=4,
+                        help="Number of layers to fine-tune (default: 4)")
+    parser.add_argument("--learning-rate", type=float, default=1e-5,
+                        help="Learning rate for fine-tuning (default: 1e-5)")
+    parser.add_argument("--iters", type=int, default=100,
+                        help="Number of training iterations (default: 100)")
+    parser.add_argument("--fine-tune-type", default="lora",
+                        help="Fine-tuning type (default: lora)")
 
     args = parser.parse_args()
-    run_finetune(args.model, args.data, args.adapter_dir)
+
+    # Parse fine-tuning parameters from command line or use defaults
+    fine_tune_params = {}
+    if hasattr(args, 'num_layers'):
+        fine_tune_params['num_layers'] = args.num_layers
+    if hasattr(args, 'learning_rate'):
+        fine_tune_params['learning_rate'] = args.learning_rate
+    if hasattr(args, 'iters'):
+        fine_tune_params['iters'] = args.iters
+    if hasattr(args, 'fine_tune_type'):
+        fine_tune_params['fine_tune_type'] = args.fine_tune_type
+
+    run_finetune(args.model, args.data, args.adapter_dir, fine_tune_params)
