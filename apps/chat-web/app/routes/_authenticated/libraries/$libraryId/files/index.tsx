@@ -52,6 +52,10 @@ function RouteComponent() {
             // TODO: Add prefetching here
             navigate({ search: { skip: (page - 1) * take, take } })
           }}
+          showPageSizeSelector={true}
+          onPageSizeChange={(newPageSize) => {
+            navigate({ search: { skip: 0, take: newPageSize } })
+          }}
         />
       </h1>
       <FilesActionsBar

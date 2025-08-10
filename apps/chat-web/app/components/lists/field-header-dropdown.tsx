@@ -1,35 +1,55 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { graphql } from '../../gql'
-import { ListFieldsTable_ListFragment } from '../../gql/graphql'
-import { backendRequest } from '../../server-functions/backend'
-
-const removeListFieldMutation = graphql(`
-  mutation removeListField($id: String!) {
-    removeListField(id: $id) {
-      id
-    }
-  }
-`)
+import { FieldModal_EditableFieldFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { EditIcon } from '../../icons/edit-icon'
+import { TrashIcon } from '../../icons/trash-icon'
+import { toastSuccess } from '../georgeToaster'
+import { removeListField } from './remove-list-field'
 
 interface FieldHeaderDropdownProps {
   field: ListFieldsTable_ListFragment['fields'][0]
   listId: string
   isOpen: boolean
   onClose: () => void
-  onEdit: (field: ListFieldsTable_ListFragment['fields'][0]) => void
+  onEdit: (field: FieldModal_EditableFieldFragment) => void
 }
 
 export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsConfirmingDelete(false)
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen, onClose])
 
   const removeFieldMutation = useMutation({
     mutationFn: async (fieldId: string) => {
-      return backendRequest(removeListFieldMutation, { id: fieldId })
+      const formData = new FormData()
+      formData.append('id', fieldId)
+      return await removeListField({ data: formData })
     },
     onSuccess: () => {
+      // Show success toast with field name
+      toastSuccess(t('lists.fields.removeSuccess', { name: field.name }))
+
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
       onClose()
       setIsConfirmingDelete(false)
@@ -37,7 +57,16 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
   })
 
   const handleEdit = () => {
-    onEdit(field)
+    // Convert field to FieldData format
+    const editFieldData = {
+      id: field.id,
+      name: field.name,
+      type: field.type,
+      prompt: field.prompt || '',
+      languageModel: field.languageModel || '',
+      order: field.order,
+    }
+    onEdit(editFieldData)
     onClose()
   }
 
@@ -55,28 +84,27 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
   if (!isOpen) return null
 
   return (
-    <div className="absolute right-0 top-full z-50 mt-1 w-48 bg-base-100 rounded-lg shadow-lg border border-base-300">
+    <div
+      ref={dropdownRef}
+      className="bg-base-100 border-base-300 absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border shadow-lg"
+    >
       <div className="py-2">
         {canEdit && (
           <button
             type="button"
-            className="flex w-full items-center px-4 py-2 text-sm hover:bg-base-200 transition-colors"
+            className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
             onClick={handleEdit}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <EditIcon className="mr-2" />
             Edit Field
           </button>
         )}
-        
+
         {canDelete && (
           <button
             type="button"
             className={`flex w-full items-center px-4 py-2 text-sm transition-colors ${
-              isConfirmingDelete
-                ? 'text-error bg-error/10 hover:bg-error/20'
-                : 'hover:bg-base-200 text-base-content'
+              isConfirmingDelete ? 'text-error bg-error/10 hover:bg-error/20' : 'hover:bg-base-200 text-base-content'
             }`}
             onClick={handleDelete}
             disabled={removeFieldMutation.isPending}
@@ -88,9 +116,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
               </>
             ) : (
               <>
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+                <TrashIcon className="mr-2" />
                 {isConfirmingDelete ? 'Click again to confirm' : 'Delete Field'}
               </>
             )}
@@ -98,22 +124,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
         )}
 
         {!canEdit && !canDelete && (
-          <div className="px-4 py-2 text-sm text-base-content/60">
-            File property fields cannot be modified
-          </div>
-        )}
-
-        {(canEdit || canDelete) && (
-          <button
-            type="button"
-            className="flex w-full items-center px-4 py-2 text-sm hover:bg-base-200 transition-colors"
-            onClick={() => {
-              setIsConfirmingDelete(false)
-              onClose()
-            }}
-          >
-            Cancel
-          </button>
+          <div className="text-base-content/60 px-4 py-2 text-sm">File property fields cannot be modified</div>
         )}
       </div>
     </div>

@@ -1,32 +1,30 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { useState } from 'react'
 
 import { graphql } from '../../gql'
-import { AiListFieldInput } from '../../gql/graphql'
+import { FieldModal_EditableFieldFragment } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
-import { backendRequest } from '../../server-functions/backend'
+import { addListField } from './add-list-field'
+import { updateListField } from './update-list-field'
 
-const addListFieldMutation = graphql(`
-  mutation addListField($listId: String!, $data: AiListFieldInput!) {
-    addListField(listId: $listId, data: $data) {
-      id
-      name
-      type
-      order
-      sourceType
-      fileProperty
-      prompt
-      languageModel
-    }
+graphql(`
+  fragment FieldModal_EditableField on AiListField {
+    id
+    name
+    type
+    prompt
+    languageModel
+    order
   }
 `)
 
-
-interface AddFieldModalProps {
+interface FieldModalProps {
   listId: string
   isOpen: boolean
   onClose: () => void
   maxOrder: number
+  editField?: FieldModal_EditableFieldFragment | null
 }
 
 const FIELD_TYPES = [
@@ -37,50 +35,54 @@ const FIELD_TYPES = [
   { value: 'datetime', label: 'Date & Time' },
 ]
 
-export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldModalProps) => {
+export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   // Query available AI chat models
   const { data: aiModelsData } = useSuspenseQuery(getChatModelsQueryOptions())
 
   const availableModels = aiModelsData?.aiChatModels || []
 
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'string',
-    prompt: '',
-    languageModel: '',
-  })
+  const isEditMode = !!editField
 
   const addFieldMutation = useMutation({
-    mutationFn: async (data: AiListFieldInput) => {
-      return backendRequest(addListFieldMutation, { listId, data })
+    mutationFn: async (formData: FormData) => {
+      return await addListField({ data: formData })
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Show success toast with field name
+      toastSuccess(t('lists.fields.addSuccess', { name: data.addListField.name }))
+
       // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
       onClose()
-      setFormData({ name: '', type: 'string', prompt: '', languageModel: '' })
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const updateFieldMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return await updateListField({ data: formData })
+    },
+    onSuccess: (data) => {
+      // Show success toast with field name
+      toastSuccess(t('lists.fields.updateSuccess', { name: data.updateListField.name }))
+
+      // Invalidate queries to refetch list data
+      queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
+      onClose()
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.prompt.trim() || !formData.languageModel) return
+    const formData = new FormData(e.currentTarget)
 
-    addFieldMutation.mutate({
-      name: formData.name.trim(),
-      type: formData.type,
-      order: maxOrder + 1,
-      sourceType: 'llm_computed',
-      prompt: formData.prompt.trim(),
-      languageModel: formData.languageModel,
-      fileProperty: null,
-    })
-  }
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    if (isEditMode) {
+      updateFieldMutation.mutate(formData)
+    } else {
+      addFieldMutation.mutate(formData)
+    }
   }
 
   if (!isOpen) return null
@@ -88,11 +90,17 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
   return (
     <div className="modal modal-open">
       <div className="modal-box w-11/12 max-w-2xl">
-        <h3 className="text-lg font-bold mb-4">Add Enrichment Field</h3>
-        
+        <h3 className="mb-4 text-lg font-bold">{t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}</h3>
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Hidden Fields */}
+          <input type="hidden" name="id" value={editField?.id || ''} />
+          <input type="hidden" name="listId" value={listId} />
+          <input type="hidden" name="sourceType" value="llm_computed" />
+          <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
+
           {/* Grid Layout for Form Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+          <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
             {/* Field Name */}
             <label className="label justify-start">
               <span className="label-text font-medium">Field Name *</span>
@@ -100,10 +108,10 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
             <div className="md:col-span-3">
               <input
                 type="text"
+                name="name"
                 className="input input-bordered w-full"
                 placeholder="e.g., Sentiment, Category, Priority"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                defaultValue={editField?.name || ''}
                 required
               />
             </div>
@@ -113,11 +121,7 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
               <span className="label-text font-medium">Data Type</span>
             </label>
             <div className="md:col-span-3">
-              <select
-                className="select select-bordered w-full"
-                value={formData.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
-              >
+              <select name="type" className="select select-bordered w-full" defaultValue={editField?.type || 'string'}>
                 {FIELD_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
                     {type.label}
@@ -132,9 +136,9 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
             </label>
             <div className="md:col-span-3">
               <select
+                name="languageModel"
                 className="select select-bordered w-full"
-                value={formData.languageModel}
-                onChange={(e) => handleInputChange('languageModel', e.target.value)}
+                defaultValue={editField?.languageModel || ''}
                 required
               >
                 <option value="">Select an AI model...</option>
@@ -152,14 +156,14 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
             </label>
             <div className="md:col-span-3">
               <textarea
+                name="prompt"
                 className="textarea textarea-bordered h-24 w-full"
                 placeholder="Describe what you want the AI to extract or analyze from each file. Example: 'Analyze the sentiment of this document and return either Positive, Negative, or Neutral'"
-                value={formData.prompt}
-                onChange={(e) => handleInputChange('prompt', e.target.value)}
+                defaultValue={editField?.prompt || ''}
                 required
               />
               <div className="mt-1">
-                <span className="text-xs text-base-content/60">
+                <span className="text-base-content/60 text-xs">
                   The AI will analyze each file's content using this prompt
                 </span>
               </div>
@@ -172,27 +176,31 @@ export const AddFieldModal = ({ listId, isOpen, onClose, maxOrder }: AddFieldMod
               type="button"
               className="btn btn-ghost"
               onClick={onClose}
-              disabled={addFieldMutation.isPending}
+              disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={addFieldMutation.isPending || !formData.name.trim() || !formData.prompt.trim() || !formData.languageModel}
+              disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
-              {addFieldMutation.isPending && <span className="loading loading-spinner loading-sm" />}
-              Add Field
+              {(addFieldMutation.isPending || updateFieldMutation.isPending) && (
+                <span className="loading loading-spinner loading-sm" />
+              )}
+              {isEditMode ? 'Update Field' : 'Add Field'}
             </button>
           </div>
         </form>
 
-        {addFieldMutation.isError && (
+        {(addFieldMutation.isError || updateFieldMutation.isError) && (
           <div className="alert alert-error mt-4">
             <span>
               {addFieldMutation.error instanceof Error
                 ? addFieldMutation.error.message
-                : 'Failed to add field'}
+                : updateFieldMutation.error instanceof Error
+                  ? updateFieldMutation.error.message
+                  : `Failed to ${isEditMode ? 'update' : 'add'} field`}
             </span>
           </div>
         )}

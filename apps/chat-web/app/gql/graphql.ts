@@ -2797,13 +2797,6 @@ export type AddListFieldMutation = {
   }
 }
 
-export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
-
-export type AiChatModelsQuery = {
-  __typename?: 'Query'
-  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
-}
-
 export type AddListSourceMutationVariables = Exact<{
   listId: Scalars['String']['input']
   data: AiListSourceInput
@@ -2845,13 +2838,14 @@ export type ListEditForm_ListFragment = {
   updatedAt?: string | null
 }
 
-export type RemoveListFieldMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type RemoveListFieldMutation = {
-  __typename?: 'Mutation'
-  removeListField: { __typename?: 'AiListField'; id: string }
+export type FieldModal_EditableFieldFragment = {
+  __typename?: 'AiListField'
+  id: string
+  name: string
+  type: string
+  prompt?: string | null
+  languageModel?: string | null
+  order: number
 }
 
 export type AiListFilesQueryVariables = Exact<{
@@ -2959,7 +2953,29 @@ export type GetUserListsQuery = {
 
 export type ListDeleteButton_ListFragment = { __typename?: 'AiList'; id: string; name: string }
 
-export type ListFilesTable_ListFilesFragment = {
+export type ListFilesTable_FileFragment = {
+  __typename?: 'AiLibraryFile'
+  id: string
+  name: string
+  originUri?: string | null
+  mimeType: string
+  size?: number | null
+  processedAt?: string | null
+  originModificationDate?: string | null
+  libraryId: string
+  crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+  AiListItemCache: Array<{
+    __typename?: 'AiListItemCache'
+    id: string
+    fieldId: string
+    valueString?: string | null
+    valueNumber?: number | null
+    valueDate?: string | null
+    valueBoolean?: boolean | null
+  }>
+}
+
+export type ListFilesTable_FilesQueryResultFragment = {
   __typename?: 'AiListFilesQueryResult'
   listId: string
   count: number
@@ -2988,6 +3004,18 @@ export type ListFilesTable_ListFilesFragment = {
       valueBoolean?: boolean | null
     }>
   }>
+}
+
+export type ListFieldsTable_FieldFragment = {
+  __typename?: 'AiListField'
+  id: string
+  name: string
+  type: string
+  order: number
+  sourceType: string
+  fileProperty?: string | null
+  prompt?: string | null
+  languageModel?: string | null
 }
 
 export type ListFieldsTable_ListFragment = {
@@ -3032,6 +3060,15 @@ export type ListSourcesManager_ListFragment = {
   }>
 }
 
+export type RemoveListFieldMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RemoveListFieldMutation = {
+  __typename?: 'Mutation'
+  removeListField: { __typename?: 'AiListField'; id: string }
+}
+
 export type RemoveListSourceMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -3041,12 +3078,39 @@ export type RemoveListSourceMutation = {
   removeListSource: { __typename?: 'AiListSource'; id: string }
 }
 
+export type UpdateListFieldMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiListFieldInput
+}>
+
+export type UpdateListFieldMutation = {
+  __typename?: 'Mutation'
+  updateListField: {
+    __typename?: 'AiListField'
+    id: string
+    name: string
+    type: string
+    order: number
+    sourceType: string
+    fileProperty?: string | null
+    prompt?: string | null
+    languageModel?: string | null
+  }
+}
+
 export type UpdateListMutationVariables = Exact<{
   id: Scalars['String']['input']
   data: AiListInput
 }>
 
 export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typename?: 'AiList'; id: string } | null }
+
+export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiChatModelsQuery = {
+  __typename?: 'Query'
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
+}
 
 export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -5906,6 +5970,27 @@ export const ListEditForm_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListEditForm_ListFragment, unknown>
+export const FieldModal_EditableFieldFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_EditableField' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FieldModal_EditableFieldFragment, unknown>
 export const ListsBaseFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5942,12 +6027,61 @@ export const ListDeleteButton_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListDeleteButton_ListFragment, unknown>
-export const ListFilesTable_ListFilesFragmentDoc = {
+export const ListFilesTable_FileFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFilesTable_ListFiles' },
+      name: { kind: 'Name', value: 'ListFilesTable_File' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawledByCrawler' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'AiListItemCache' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFilesTable_FileFragment, unknown>
+export const ListFilesTable_FilesQueryResultFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilesQueryResult' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5963,41 +6097,50 @@ export const ListFilesTable_ListFilesFragmentDoc = {
             name: { kind: 'Name', value: 'files' },
             selectionSet: {
               kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_File' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_File' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawledByCrawler' },
+            selectionSet: {
+              kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'crawledByCrawler' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'AiListItemCache' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'AiListItemCache' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
               ],
             },
           },
@@ -6005,7 +6148,30 @@ export const ListFilesTable_ListFilesFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<ListFilesTable_ListFilesFragment, unknown>
+} as unknown as DocumentNode<ListFilesTable_FilesQueryResultFragment, unknown>
+export const ListFieldsTable_FieldFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFieldsTable_FieldFragment, unknown>
 export const ListFieldsTable_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -6022,18 +6188,27 @@ export const ListFieldsTable_ListFragmentDoc = {
             name: { kind: 'Name', value: 'fields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } }],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
         ],
       },
     },
@@ -10575,32 +10750,6 @@ export const AddListFieldDocument = {
     },
   ],
 } as unknown as DocumentNode<AddListFieldMutation, AddListFieldMutationVariables>
-export const AiChatModelsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiChatModels' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiChatModels' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
 export const AddListSourceDocument = {
   kind: 'Document',
   definitions: [
@@ -10747,43 +10896,6 @@ export const DeleteListDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
-export const RemoveListFieldDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeListField' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeListField' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveListFieldMutation, RemoveListFieldMutationVariables>
 export const AiListFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -10853,7 +10965,9 @@ export const AiListFilesDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_ListFiles' } }],
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' } },
+              ],
             },
           },
         ],
@@ -10861,7 +10975,51 @@ export const AiListFilesDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFilesTable_ListFiles' },
+      name: { kind: 'Name', value: 'ListFilesTable_File' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawledByCrawler' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'AiListItemCache' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilesQueryResult' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -10877,42 +11035,7 @@ export const AiListFilesDocument = {
             name: { kind: 'Name', value: 'files' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'crawledByCrawler' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'AiListItemCache' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
-                    ],
-                  },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_File' } }],
             },
           },
         ],
@@ -10957,6 +11080,24 @@ export const GetListDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
         ],
       },
     },
@@ -11044,16 +11185,7 @@ export const GetListDocument = {
             name: { kind: 'Name', value: 'fields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } }],
             },
           },
         ],
@@ -11139,6 +11271,43 @@ export const GetUserListsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserListsQuery, GetUserListsQueryVariables>
+export const RemoveListFieldDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeListField' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeListField' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveListFieldMutation, RemoveListFieldMutationVariables>
 export const RemoveListSourceDocument = {
   kind: 'Document',
   definitions: [
@@ -11176,6 +11345,62 @@ export const RemoveListSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveListSourceMutation, RemoveListSourceMutationVariables>
+export const UpdateListFieldDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateListField' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateListField' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateListFieldMutation, UpdateListFieldMutationVariables>
 export const UpdateListDocument = {
   kind: 'Document',
   definitions: [
@@ -11223,6 +11448,32 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
+export const AiChatModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiChatModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiChatModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
 export const AiEmbeddingModelsDocument = {
   kind: 'Document',
   definitions: [

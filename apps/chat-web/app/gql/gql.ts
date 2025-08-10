@@ -100,23 +100,26 @@ type Documents = {
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      ...AiLibraryDetail\n    }\n  }\n': typeof types.ChangeAiLibraryDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
-  '\n  mutation addListField($listId: String!, $data: AiListFieldInput!) {\n    addListField(listId: $listId, data: $data) {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n': typeof types.AddListFieldDocument
-  '\n  query aiChatModels {\n    aiChatModels {\n      name\n      model\n    }\n  }\n': typeof types.AiChatModelsDocument
+  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ': typeof types.CreateListDocument
   '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ': typeof types.DeleteListDocument
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
-  '\n  mutation removeListField($id: String!) {\n    removeListField(id: $id) {\n      id\n    }\n  }\n': typeof types.RemoveListFieldDocument
-  '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_ListFiles\n    }\n  }\n': typeof types.AiListFilesDocument
+  '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    order\n  }\n': typeof types.FieldModal_EditableFieldFragmentDoc
+  '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n': typeof types.AiListFilesDocument
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ': typeof types.GetListDocument
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ': typeof types.GetUserListsDocument
   '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n': typeof types.ListDeleteButton_ListFragmentDoc
-  '\n  fragment ListFilesTable_ListFiles on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      id\n      name\n      originUri\n      mimeType\n      size\n      processedAt\n      originModificationDate\n      libraryId\n      crawledByCrawler {\n        id\n        uri\n      }\n      AiListItemCache {\n        id\n        fieldId\n        valueString\n        valueNumber\n        valueDate\n        valueBoolean\n      }\n    }\n  }\n': typeof types.ListFilesTable_ListFilesFragmentDoc
-  '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
+  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    AiListItemCache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n': typeof types.ListFilesTable_FileFragmentDoc
+  '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
+  '\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    languageModel\n  }\n': typeof types.ListFieldsTable_FieldFragmentDoc
+  '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
   '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n': typeof types.ListSelector_ListFragmentDoc
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n        owner {\n          name\n        }\n      }\n    }\n  }\n': typeof types.ListSourcesManager_ListFragmentDoc
+  '\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ': typeof types.RemoveListFieldDocument
   '\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ': typeof types.RemoveListSourceDocument
+  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiChatModelsDocument
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiEmbeddingModelsDocument
@@ -318,9 +321,8 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
-  '\n  mutation addListField($listId: String!, $data: AiListFieldInput!) {\n    addListField(listId: $listId, data: $data) {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n':
+  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ':
     types.AddListFieldDocument,
-  '\n  query aiChatModels {\n    aiChatModels {\n      name\n      model\n    }\n  }\n': types.AiChatModelsDocument,
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ':
     types.AddListSourceDocument,
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ':
@@ -329,9 +331,9 @@ const documents: Documents = {
     types.DeleteListDocument,
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
-  '\n  mutation removeListField($id: String!) {\n    removeListField(id: $id) {\n      id\n    }\n  }\n':
-    types.RemoveListFieldDocument,
-  '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_ListFiles\n    }\n  }\n':
+  '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    order\n  }\n':
+    types.FieldModal_EditableFieldFragmentDoc,
+  '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n':
     types.AiListFilesDocument,
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ':
     types.GetListDocument,
@@ -340,16 +342,24 @@ const documents: Documents = {
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ':
     types.GetUserListsDocument,
   '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n': types.ListDeleteButton_ListFragmentDoc,
-  '\n  fragment ListFilesTable_ListFiles on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      id\n      name\n      originUri\n      mimeType\n      size\n      processedAt\n      originModificationDate\n      libraryId\n      crawledByCrawler {\n        id\n        uri\n      }\n      AiListItemCache {\n        id\n        fieldId\n        valueString\n        valueNumber\n        valueDate\n        valueBoolean\n      }\n    }\n  }\n':
-    types.ListFilesTable_ListFilesFragmentDoc,
-  '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n':
+  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    AiListItemCache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n':
+    types.ListFilesTable_FileFragmentDoc,
+  '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n':
+    types.ListFilesTable_FilesQueryResultFragmentDoc,
+  '\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    languageModel\n  }\n':
+    types.ListFieldsTable_FieldFragmentDoc,
+  '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n':
     types.ListFieldsTable_ListFragmentDoc,
   '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n':
     types.ListSelector_ListFragmentDoc,
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n        owner {\n          name\n        }\n      }\n    }\n  }\n':
     types.ListSourcesManager_ListFragmentDoc,
+  '\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ':
+    types.RemoveListFieldDocument,
   '\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ':
     types.RemoveListSourceDocument,
+  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ':
+    types.UpdateListFieldDocument,
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateListDocument,
   '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ':
@@ -943,14 +953,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation addListField($listId: String!, $data: AiListFieldInput!) {\n    addListField(listId: $listId, data: $data) {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n',
-): (typeof documents)['\n  mutation addListField($listId: String!, $data: AiListFieldInput!) {\n    addListField(listId: $listId, data: $data) {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  query aiChatModels {\n    aiChatModels {\n      name\n      model\n    }\n  }\n',
-): (typeof documents)['\n  query aiChatModels {\n    aiChatModels {\n      name\n      model\n    }\n  }\n']
+  source: '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -979,14 +983,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation removeListField($id: String!) {\n    removeListField(id: $id) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation removeListField($id: String!) {\n    removeListField(id: $id) {\n      id\n    }\n  }\n']
+  source: '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    order\n  }\n',
+): (typeof documents)['\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    order\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_ListFiles\n    }\n  }\n',
-): (typeof documents)['\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_ListFiles\n    }\n  }\n']
+  source: '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n',
+): (typeof documents)['\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1015,14 +1019,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListFilesTable_ListFiles on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      id\n      name\n      originUri\n      mimeType\n      size\n      processedAt\n      originModificationDate\n      libraryId\n      crawledByCrawler {\n        id\n        uri\n      }\n      AiListItemCache {\n        id\n        fieldId\n        valueString\n        valueNumber\n        valueDate\n        valueBoolean\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment ListFilesTable_ListFiles on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      id\n      name\n      originUri\n      mimeType\n      size\n      processedAt\n      originModificationDate\n      libraryId\n      crawledByCrawler {\n        id\n        uri\n      }\n      AiListItemCache {\n        id\n        fieldId\n        valueString\n        valueNumber\n        valueDate\n        valueBoolean\n      }\n    }\n  }\n']
+  source: '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    AiListItemCache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n',
+): (typeof documents)['\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    AiListItemCache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n',
-): (typeof documents)['\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      order\n      sourceType\n      fileProperty\n      prompt\n      languageModel\n    }\n  }\n']
+  source: '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n',
+): (typeof documents)['\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    languageModel\n  }\n',
+): (typeof documents)['\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    languageModel\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n',
+): (typeof documents)['\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1039,8 +1055,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            languageModel\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

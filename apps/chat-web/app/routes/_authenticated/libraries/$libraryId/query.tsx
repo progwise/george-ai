@@ -71,6 +71,12 @@ function RouteComponent() {
             search: { query, skip: (page - 1) * take, take },
           })
         }}
+        showPageSizeSelector={true}
+        onPageSizeChange={(newPageSize) => {
+          navigate({
+            search: { query, skip: 0, take: newPageSize },
+          })
+        }}
       />
       <LibraryQueryResult
         libraryId={libraryId}

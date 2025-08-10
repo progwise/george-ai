@@ -4,14 +4,48 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
-import { ListFilesTable_ListFilesFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
+import {
+  FieldModal_EditableFieldFragment,
+  ListFieldsTable_FieldFragment,
+  ListFieldsTable_ListFragment,
+  ListFilesTable_FileFragment,
+  ListFilesTable_FilesQueryResultFragment,
+} from '../../gql/graphql'
+import { useLocalstorage } from '../../hooks/use-local-storage'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { MenuEllipsisIcon } from '../../icons/menu-ellipsis-icon'
+import { PlusIcon } from '../../icons/plus-icon'
 import { Pagination } from '../table/pagination'
-import { AddFieldModal } from './add-field-modal'
 import { FieldHeaderDropdown } from './field-header-dropdown'
+import { FieldModal } from './field-modal'
 
 graphql(`
-  fragment ListFilesTable_ListFiles on AiListFilesQueryResult {
+  fragment ListFilesTable_File on AiLibraryFile {
+    id
+    name
+    originUri
+    mimeType
+    size
+    processedAt
+    originModificationDate
+    libraryId
+    crawledByCrawler {
+      id
+      uri
+    }
+    AiListItemCache {
+      id
+      fieldId
+      valueString
+      valueNumber
+      valueDate
+      valueBoolean
+    }
+  }
+`)
+
+graphql(`
+  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {
     listId
     count
     take
@@ -19,27 +53,21 @@ graphql(`
     orderBy
     orderDirection
     files {
-      id
-      name
-      originUri
-      mimeType
-      size
-      processedAt
-      originModificationDate
-      libraryId
-      crawledByCrawler {
-        id
-        uri
-      }
-      AiListItemCache {
-        id
-        fieldId
-        valueString
-        valueNumber
-        valueDate
-        valueBoolean
-      }
+      ...ListFilesTable_File
     }
+  }
+`)
+
+graphql(`
+  fragment ListFieldsTable_Field on AiListField {
+    id
+    name
+    type
+    order
+    sourceType
+    fileProperty
+    prompt
+    languageModel
   }
 `)
 
@@ -47,40 +75,11 @@ graphql(`
   fragment ListFieldsTable_List on AiList {
     id
     fields {
-      id
-      name
-      type
-      order
-      sourceType
-      fileProperty
-      prompt
-      languageModel
+      ...ListFieldsTable_Field
     }
   }
 `)
 
-interface Field {
-  id: string
-  name: string
-  type: string
-  order: number
-  sourceType: string
-  fileProperty?: string | null
-  prompt?: string | null
-  languageModel?: string | null
-}
-
-interface FileData {
-  id: string
-  libraryId: string
-  name: string
-  originUri?: string | null
-  mimeType: string
-  size?: number | null
-  processedAt?: string | null
-  originModificationDate?: string | null
-  crawledByCrawler?: { id: string; uri: string } | null
-}
 
 interface RowData {
   fileId: string
@@ -90,7 +89,7 @@ interface RowData {
 
 interface ListFieldsTableProps {
   list: ListFieldsTable_ListFragment
-  listFiles: ListFilesTable_ListFilesFragment
+  listFiles: ListFilesTable_FilesQueryResultFragment
   onPageChange?: (page: number, pageSize: number, orderBy?: string, orderDirection?: 'asc' | 'desc') => void
 }
 
@@ -110,49 +109,57 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   // Local UI state (not managed by URL)
   const [filters, setFilters] = useState<Record<string, string>>({})
-  const [visibleFields, setVisibleFields] = useState<Set<string>>(() => {
-    // Show all fields by default
-    return new Set(sortedFields.map(f => f.id))
-  })
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
-    // Initialize all field columns with default width
-    const initialWidths: Record<string, number> = {}
-    sortedFields.forEach((field) => {
-      initialWidths[field.id] = 150
-    })
-    return initialWidths
-  })
+  const [fieldVisibility, setFieldVisibility] = useLocalstorage<Record<string, boolean>>(
+    'listFieldsTable-fieldVisibility',
+  )
+  // Initialize column widths with localStorage persistence
+  const [columnWidths, setColumnWidths] = useLocalstorage<Record<string, number>>('listFieldsTable-columnWidths')
 
-  // Load from localStorage after mount to avoid SSR mismatch
+  // Ensure all fields have width values - only set defaults when needed
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | undefined
+    const timeoutId = setTimeout(() => {
+      setColumnWidths((prev) => {
+        const newWidths = prev || {}
+        let hasChanges = false
 
-    try {
-      const saved = localStorage.getItem('listFieldsTable-columnWidths')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        timeoutId = setTimeout(() => {
-          setColumnWidths((prev) => {
-            const newWidths: Record<string, number> = {}
-            Object.keys(prev).forEach((fieldId) => {
-              newWidths[fieldId] = parsed[fieldId] || prev[fieldId]
-            })
-            return newWidths
-          })
-        }, 0)
-      }
-    } catch {
-      // If localStorage fails, keep defaults
-    }
+        sortedFields.forEach((field) => {
+          if (!(field.id in newWidths) || typeof newWidths[field.id] !== 'number') {
+            newWidths[field.id] = 150
+            hasChanges = true
+          }
+        })
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [sortedFields])
+        return hasChanges ? newWidths : prev
+      })
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [sortedFields, setColumnWidths])
+
+  // Auto-show new fields when they're added
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFieldVisibility((prev) => {
+        const newVisibility = prev || {}
+        let hasChanges = false
+
+        sortedFields.forEach((field) => {
+          if (!(field.id in newVisibility)) {
+            newVisibility[field.id] = true // New fields are visible by default
+            hasChanges = true
+          }
+        })
+
+        return hasChanges ? newVisibility : prev
+      })
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [sortedFields, setFieldVisibility])
+
   const [isResizing, setIsResizing] = useState<string | null>(null)
-  const [isAddFieldModalOpen, setIsAddFieldModalOpen] = useState(false)
+  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
+  const [editField, setEditField] = useState<FieldModal_EditableFieldFragment | null>(null)
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
 
   const startXRef = useRef<number>(0)
@@ -160,45 +167,48 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   const resizingColumnRef = useRef<string | null>(null)
 
   // Get field value for a file
-  const getFieldValue = useCallback((file: FileData, field: Field): string | number | null => {
-    if (field.sourceType === 'file_property' && field.fileProperty) {
-      switch (field.fileProperty) {
-        case 'name':
-          return file.name
-        case 'originUri':
-          return file.originUri ?? null
-        case 'crawlerUrl':
-          return file.crawledByCrawler?.uri || null
-        case 'processedAt':
-          return file.processedAt ? dateTimeString(file.processedAt, language) : null
-        case 'originModificationDate':
-          return file.originModificationDate ? dateTimeString(file.originModificationDate, language) : null
-        case 'size':
-          return file.size ?? null
-        case 'mimeType':
-          return file.mimeType
-        default:
-          return null
+  const getFieldValue = useCallback(
+    (file: ListFilesTable_FileFragment, field: ListFieldsTable_FieldFragment): string | number | null => {
+      if (field.sourceType === 'file_property' && field.fileProperty) {
+        switch (field.fileProperty) {
+          case 'name':
+            return file.name
+          case 'originUri':
+            return file.originUri ?? null
+          case 'crawlerUrl':
+            return file.crawledByCrawler?.uri || null
+          case 'processedAt':
+            return file.processedAt ? dateTimeString(file.processedAt, language) : null
+          case 'originModificationDate':
+            return file.originModificationDate ? dateTimeString(file.originModificationDate, language) : null
+          case 'size':
+            return file.size ?? null
+          case 'mimeType':
+            return file.mimeType
+          default:
+            return null
+        }
       }
-    }
-    // For LLM computed fields, return placeholder for now
-    return null // Will be computed by LLM later
-  }, [language])
+      // For LLM computed fields, return placeholder for now
+      return null // Will be computed by LLM later
+    },
+    [language],
+  )
 
   // Transform data for display
   const transformedRows: RowData[] = useMemo(() => {
     return listFiles.files.map((file) => {
       const fieldValues: Record<string, string | number | boolean | null> = {}
-      
+
       // Calculate values for all fields
-      sortedFields.forEach(field => {
+      sortedFields.forEach((field) => {
         fieldValues[field.id] = getFieldValue(file, field)
       })
 
       return {
         fileId: file.id,
         libraryId: file.libraryId,
-        fieldValues
+        fieldValues,
       }
     })
   }, [listFiles.files, sortedFields, getFieldValue])
@@ -217,7 +227,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   // Pagination calculations for display (pagination component handles its own calculations)
 
   const handleSort = (fieldId: string) => {
-    const field = sortedFields.find(f => f.id === fieldId)
+    const field = sortedFields.find((f) => f.id === fieldId)
     if (field?.sourceType === 'file_property' && field.fileProperty) {
       const newSortDirection = field.fileProperty === sortBy ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc'
       onPageChange?.(0, pageSize, field.fileProperty, newSortDirection)
@@ -229,23 +239,38 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   }
 
   const toggleFieldVisibility = (fieldId: string) => {
-    const newVisible = new Set(visibleFields)
-    if (newVisible.has(fieldId)) {
-      newVisible.delete(fieldId)
-    } else {
-      newVisible.add(fieldId)
-    }
-    setVisibleFields(newVisible)
+    setFieldVisibility((prev) => ({
+      ...(prev || {}),
+      [fieldId]: !(prev?.[fieldId] ?? true),
+    }))
   }
 
-  const visibleFieldsArray = sortedFields.filter((field) => visibleFields.has(field.id))
+  const visibleFieldsArray = sortedFields.filter((field) => fieldVisibility?.[field.id] ?? true)
 
-  const isSortable = (field: Field) => {
-    return field.sourceType === 'file_property' && ['name', 'processedAt', 'originModificationDate'].includes(field.fileProperty || '')
+  const isSortable = (field: ListFieldsTable_FieldFragment) => {
+    return (
+      field.sourceType === 'file_property' &&
+      ['name', 'processedAt', 'originModificationDate'].includes(field.fileProperty || '')
+    )
   }
 
-  const isFilterable = (field: Field) => {
+  const isFilterable = (field: ListFieldsTable_FieldFragment) => {
     return field.sourceType === 'file_property' && field.type === 'string'
+  }
+
+  const handleAddField = () => {
+    setEditField(null)
+    setIsFieldModalOpen(true)
+  }
+
+  const handleEditField = (fieldData: FieldModal_EditableFieldFragment) => {
+    setEditField(fieldData)
+    setIsFieldModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsFieldModalOpen(false)
+    setEditField(null)
   }
 
   // Column resizing handlers
@@ -259,7 +284,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       startXRef.current = event.clientX
 
       // Get current column width or use default
-      const currentWidth = columnWidths[columnId] || 150
+      const currentWidth = (columnWidths && columnWidths[columnId]) || 150
       startWidthRef.current = currentWidth
 
       const handleMouseMove = (e: MouseEvent) => {
@@ -268,19 +293,10 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
         const diff = e.clientX - startXRef.current
         const newWidth = Math.max(60, startWidthRef.current + diff) // Minimum width of 60px
 
-        setColumnWidths((prev) => {
-          const newWidths = {
-            ...prev,
-            [resizingColumnRef.current!]: newWidth,
-          }
-          // Save to localStorage
-          try {
-            localStorage.setItem('listFieldsTable-columnWidths', JSON.stringify(newWidths))
-          } catch {
-            // Ignore localStorage errors
-          }
-          return newWidths
-        })
+        setColumnWidths((prev) => ({
+          ...prev,
+          [resizingColumnRef.current!]: newWidth,
+        }))
       }
 
       const handleMouseUp = () => {
@@ -295,7 +311,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       document.addEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'col-resize'
     },
-    [columnWidths],
+    [columnWidths, setColumnWidths],
   )
 
   return (
@@ -310,7 +326,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                checked={visibleFields.has(field.id)}
+                checked={fieldVisibility?.[field.id] ?? true}
                 onChange={() => toggleFieldVisibility(field.id)}
               />
               {field.name}
@@ -318,35 +334,15 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
           ))}
         </div>
 
-        {/* Right side controls */}
-        <div className="flex flex-col">
-          {/* Page size selector */}
-          <div className="text-xs">{t('lists.files.pageSize')}:</div>
-          <div className="flex items-center gap-2">
-            <select
-              className="select select-sm select-bordered h-full"
-              value={pageSize}
-              onChange={(e) => {
-                const newPageSize = Number(e.target.value)
-                onPageChange?.(0, newPageSize, sortBy, sortDirection)
-              }}
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-
-            {/* Pagination */}
-            <Pagination
-              totalItems={listFiles.count}
-              itemsPerPage={pageSize}
-              currentPage={currentPage + 1} // Convert from 0-based to 1-based
-              onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
-              className="flex-shrink-0"
-            />
-          </div>
-        </div>
+        {/* Pagination with page size selector */}
+        <Pagination
+          totalItems={listFiles.count}
+          itemsPerPage={pageSize}
+          currentPage={currentPage + 1} // Convert from 0-based to 1-based
+          onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
+          showPageSizeSelector={true}
+          onPageSizeChange={(newPageSize) => onPageChange?.(0, newPageSize, sortBy, sortDirection)}
+        />
       </div>
 
       {/* Grid Table */}
@@ -354,23 +350,23 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
         <div
           className="border-base-300 grid"
           style={{
-            gridTemplateColumns: `${visibleFieldsArray.map((field) => `${columnWidths[field.id] || 150}px`).join(' ')} 60px`,
+            gridTemplateColumns: `${visibleFieldsArray.map((field) => `${(columnWidths && columnWidths[field.id]) || 150}px`).join(' ')} 60px`,
           }}
         >
           {/* Header Row */}
           {visibleFieldsArray.map((field) => (
             <div
               key={`header-${field.id}`}
-              className="border-base-300 bg-base-200 relative border-b border-r text-sm group"
+              className="border-base-300 bg-base-200 group relative border-b border-r text-sm"
               style={{
-                minWidth: `${columnWidths[field.id] || 150}px`,
-                width: `${columnWidths[field.id] || 150}px`,
+                minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
+                width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
               }}
             >
               <div className="space-y-2 p-2">
                 {/* Field header with sorting and dropdown */}
                 <div className="flex items-center justify-between gap-1">
-                  <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap hover:overflow-visible flex-1">
+                  <div className="flex flex-1 items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap hover:overflow-visible">
                     {isSortable(field) ? (
                       <button
                         type="button"
@@ -378,38 +374,35 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                         onClick={() => handleSort(field.id)}
                       >
                         {field.name}
-                        {sortBy === field.fileProperty && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                        {sortBy === field.fileProperty && (
+                          <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
                       </button>
                     ) : (
                       <span>{field.name}</span>
                     )}
                   </div>
-                  
+
                   {/* Field dropdown trigger */}
                   <div className="relative">
                     <button
                       type="button"
-                      className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
                       onClick={(e) => {
                         e.stopPropagation()
                         setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
                       }}
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                      </svg>
+                      <MenuEllipsisIcon />
                     </button>
-                    
+
                     {/* Field dropdown */}
                     <FieldHeaderDropdown
                       field={field}
                       listId={list.id}
                       isOpen={fieldDropdownOpen === field.id}
                       onClose={() => setFieldDropdownOpen(null)}
-                      onEdit={(editField) => {
-                        // TODO: Implement edit functionality
-                        console.log('Edit field:', editField)
-                      }}
+                      onEdit={handleEditField}
                     />
                   </div>
                 </div>
@@ -439,16 +432,14 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
           ))}
 
           {/* Add Field Header */}
-          <div className="border-base-300 bg-base-200 relative border-b border-r text-sm flex items-center justify-center">
+          <div className="border-base-300 bg-base-200 relative flex items-center justify-center border-b border-r text-sm">
             <button
               type="button"
-              className="btn btn-ghost btn-sm w-full h-full rounded-none"
-              onClick={() => setIsAddFieldModalOpen(true)}
+              className="btn btn-ghost btn-sm h-full w-full rounded-none"
+              onClick={handleAddField}
               title="Add enrichment field"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <PlusIcon />
             </button>
           </div>
 
@@ -462,57 +453,59 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
             </div>
           ) : (
             filteredRows.map((row) =>
-              visibleFieldsArray.map((field) => {
-                const value = row.fieldValues[field.id]
-                const displayValue = value?.toString() || '-'
-                
-                return (
+              visibleFieldsArray
+                .map((field) => {
+                  const value = row.fieldValues[field.id]
+                  const displayValue = value?.toString() || '-'
+
+                  return (
+                    <div
+                      key={`${row.fileId}-${field.id}`}
+                      className="border-base-300 hover:bg-base-100 border-b border-r p-2 text-sm"
+                      style={{
+                        minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
+                        width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {field.fileProperty === 'name' ? (
+                        <Link
+                          to="/libraries/$libraryId/files/$fileId"
+                          params={{
+                            libraryId: row.libraryId,
+                            fileId: row.fileId,
+                          }}
+                          className="link link-primary block overflow-hidden text-nowrap"
+                          title={displayValue}
+                        >
+                          {displayValue}
+                        </Link>
+                      ) : field.fileProperty === 'originUri' && value ? (
+                        <a
+                          href={value.toString()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link link-primary block overflow-hidden text-nowrap"
+                          title={displayValue}
+                        >
+                          {displayValue}
+                        </a>
+                      ) : (
+                        <div className="overflow-hidden text-nowrap" title={displayValue}>
+                          {displayValue}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+                .concat(
+                  // Add empty cell for "Add Field" column
                   <div
-                    key={`${row.fileId}-${field.id}`}
-                    className="border-base-300 hover:bg-base-100 border-b border-r p-2 text-sm"
-                    style={{
-                      minWidth: `${columnWidths[field.id] || 150}px`,
-                      width: `${columnWidths[field.id] || 150}px`,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {field.fileProperty === 'name' ? (
-                      <Link
-                        to="/libraries/$libraryId/files/$fileId"
-                        params={{
-                          libraryId: row.libraryId,
-                          fileId: row.fileId,
-                        }}
-                        className="link link-primary block overflow-hidden text-nowrap"
-                        title={displayValue}
-                      >
-                        {displayValue}
-                      </Link>
-                    ) : field.fileProperty === 'originUri' && value ? (
-                      <a
-                        href={value.toString()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="link link-primary block overflow-hidden text-nowrap"
-                        title={displayValue}
-                      >
-                        {displayValue}
-                      </a>
-                    ) : (
-                      <div className="overflow-hidden text-nowrap" title={displayValue}>
-                        {displayValue}
-                      </div>
-                    )}
-                  </div>
-                )
-              }).concat(
-                // Add empty cell for "Add Field" column
-                <div
-                  key={`${row.fileId}-add-field`}
-                  className="border-base-300 border-b border-r"
-                  style={{ width: '60px', minWidth: '60px' }}
-                />
-              )
+                    key={`${row.fileId}-add-field`}
+                    className="border-base-300 border-b border-r"
+                    style={{ width: '60px', minWidth: '60px' }}
+                  />,
+                ),
             )
           )}
         </div>
@@ -527,14 +520,14 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
         })}
       </div>
 
-      {/* Add Field Modal */}
-      <AddFieldModal
+      {/* Field Modal (Add/Edit) */}
+      <FieldModal
         listId={list.id}
-        isOpen={isAddFieldModalOpen}
-        onClose={() => setIsAddFieldModalOpen(false)}
-        maxOrder={Math.max(0, ...sortedFields.map(f => f.order))}
+        isOpen={isFieldModalOpen}
+        onClose={handleCloseModal}
+        maxOrder={Math.max(0, ...sortedFields.map((f) => f.order))}
+        editField={editField}
       />
     </div>
   )
 }
-

@@ -128,7 +128,7 @@ builder.mutationField('addListSource', (t) =>
           libraryId: data.libraryId,
         },
       })
-      
+
       // Auto-create file property fields for this list if they don't exist
       const filePropertyFields = [
         { property: 'name', name: 'Filename', type: 'string' },
@@ -139,28 +139,28 @@ builder.mutationField('addListSource', (t) =>
         { property: 'size', name: 'File Size', type: 'number' },
         { property: 'mimeType', name: 'MIME Type', type: 'string' },
       ]
-      
+
       // Check which fields already exist
       const existingFields = await prisma.aiListField.findMany({
-        where: { 
+        where: {
           listId,
-          sourceType: 'file_property'
-        }
+          sourceType: 'file_property',
+        },
       })
-      
-      const existingProperties = new Set(existingFields.map(f => f.fileProperty))
-      
+
+      const existingProperties = new Set(existingFields.map((f) => f.fileProperty))
+
       // Create missing file property fields
-      const fieldsToCreate = filePropertyFields.filter(f => !existingProperties.has(f.property))
-      
+      const fieldsToCreate = filePropertyFields.filter((f) => !existingProperties.has(f.property))
+
       if (fieldsToCreate.length > 0) {
         // Get max order to add new fields at the end
         const maxOrderField = await prisma.aiListField.findFirst({
           where: { listId },
-          orderBy: { order: 'desc' }
+          orderBy: { order: 'desc' },
         })
         const startOrder = (maxOrderField?.order ?? -1) + 1
-        
+
         await prisma.aiListField.createMany({
           data: fieldsToCreate.map((field, index) => ({
             listId,
@@ -169,10 +169,10 @@ builder.mutationField('addListSource', (t) =>
             order: startOrder + index,
             sourceType: 'file_property',
             fileProperty: field.property,
-          }))
+          })),
         })
       }
-      
+
       return newSource
     },
   }),
@@ -396,7 +396,7 @@ builder.mutationField('computeFieldValue', (t) =>
             fileId_fieldId: {
               fileId: fileId,
               fieldId: fieldId,
-            }
+            },
           },
           create: {
             fileId: fileId,

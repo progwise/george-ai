@@ -16,7 +16,7 @@ const getListFilesSchema = z.object({
 const listFilesDocument = graphql(`
   query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {
     aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {
-      ...ListFilesTable_ListFiles
+      ...ListFilesTable_FilesQueryResult
     }
   }
 `)

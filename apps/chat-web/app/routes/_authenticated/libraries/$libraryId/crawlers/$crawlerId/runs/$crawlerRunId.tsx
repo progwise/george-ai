@@ -175,6 +175,16 @@ function RouteComponent() {
                     },
                   })
                 }}
+                showPageSizeSelector={true}
+                onPageSizeChange={(newPageSize) => {
+                  navigate({
+                    search: {
+                      ...search,
+                      skipUpdates: 0,
+                      takeUpdates: newPageSize,
+                    },
+                  })
+                }}
               />
 
               <div className="overflow-x-auto">
