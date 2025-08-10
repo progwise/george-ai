@@ -80,7 +80,6 @@ graphql(`
   }
 `)
 
-
 interface RowData {
   fileId: string
   libraryId: string
