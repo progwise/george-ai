@@ -36,6 +36,9 @@ CREATE TABLE "AiListField" (
     "listId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "type" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "sourceType" TEXT NOT NULL,
+    "fileProperty" TEXT,
     "languageModel" TEXT,
     "prompt" TEXT,
 
@@ -48,6 +51,7 @@ CREATE TABLE "AiListItemCache" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "fileId" TEXT NOT NULL,
+    "fieldId" TEXT NOT NULL,
     "valueString" TEXT,
     "valueNumber" DOUBLE PRECISION,
     "valueDate" TIMESTAMP(3),
@@ -58,6 +62,9 @@ CREATE TABLE "AiListItemCache" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AiListParticipant_listId_userId_key" ON "AiListParticipant"("listId", "userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AiListItemCache_fileId_fieldId_key" ON "AiListItemCache"("fileId", "fieldId");
 
 -- AddForeignKey
 ALTER TABLE "AiList" ADD CONSTRAINT "AiList_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -79,3 +86,6 @@ ALTER TABLE "AiListField" ADD CONSTRAINT "AiListField_listId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "AiListItemCache" ADD CONSTRAINT "AiListItemCache_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "AiLibraryFile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AiListItemCache" ADD CONSTRAINT "AiListItemCache_fieldId_fkey" FOREIGN KEY ("fieldId") REFERENCES "AiListField"("id") ON DELETE CASCADE ON UPDATE CASCADE;
