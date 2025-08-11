@@ -3,7 +3,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { getCrawlersQueryOptions } from '../../../../components/library/crawler/get-crawlers'
-import { UpdatesTable, getLibraryUpdateItemsQueryOptions } from '../../../../components/library/updates'
+import {
+  UpdatesActionBar,
+  UpdatesTable,
+  getLibraryUpdateItemsQueryOptions,
+} from '../../../../components/library/updates'
 import { Pagination } from '../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/updates')({
@@ -30,6 +34,7 @@ function RouteComponent() {
   const { skip, take } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { libraryId } = Route.useParams()
+  const { queryClient } = Route.useRouteContext()
   const {
     data: { aiLibraryUpdates },
   } = useSuspenseQuery(getLibraryUpdateItemsQueryOptions({ libraryId, skip, take }))
@@ -47,6 +52,15 @@ function RouteComponent() {
           }}
         />
       </h1>
+      <UpdatesActionBar
+        libraryId={libraryId}
+        tableDataChanged={() => {
+          queryClient.invalidateQueries({
+            queryKey: getLibraryUpdateItemsQueryOptions({ libraryId, skip, take }).queryKey,
+          })
+        }}
+        totalItems={aiLibraryUpdates.count}
+      />
       <UpdatesTable firstItemNumber={skip + 1} updates={aiLibraryUpdates.updates} />
     </div>
   )

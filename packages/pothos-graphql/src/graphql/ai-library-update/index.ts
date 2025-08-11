@@ -82,3 +82,27 @@ builder.queryField('aiLibraryUpdates', (t) =>
     },
   }),
 )
+
+async function deleteUpdatesByLibraryId(libraryId: string) {
+  await prisma.aiLibraryUpdate.deleteMany({
+    where: { libraryId },
+  })
+}
+
+builder.mutationField('deleteAiLibraryUpdates', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, args) => {
+      try {
+        await deleteUpdatesByLibraryId(args.libraryId)
+        return true
+      } catch (error) {
+        console.error('Deleting updates failed:', error)
+        return false
+      }
+    },
+  }),
+)
