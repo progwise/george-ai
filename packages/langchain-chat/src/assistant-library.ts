@@ -47,7 +47,7 @@ const getLibraryPrompt = async ({
   libraryName: string
   libraryUsedFor: string | null
 }) => {
-  const prompt = await ChatPromptTemplate.fromMessages([
+  const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
       `You need to determine whether the following library is relevant to the user's question.

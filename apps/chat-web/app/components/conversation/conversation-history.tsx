@@ -75,8 +75,8 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
   const selectedConversationId = conversation.id
 
   useEffect(() => {
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-    setNewMessages([])
+    const timeout = setTimeout(() => setNewMessages([]), 10)
+    return () => clearTimeout(timeout)
   }, [messages])
 
   useEffect(() => {

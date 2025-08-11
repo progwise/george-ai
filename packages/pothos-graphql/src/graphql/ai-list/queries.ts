@@ -131,3 +131,34 @@ builder.queryField('aiListFiles', (t) =>
     },
   }),
 )
+
+builder.queryField('aiListEnrichmentQueue', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['AiListEnrichmentQueue'],
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      status: t.arg.string({ required: false }),
+    },
+    resolve: async (query, _source, { listId, status }, context) => {
+      const list = await prisma.aiList.findFirstOrThrow({
+        where: { id: listId },
+        include: { participants: true },
+      })
+      canAccessListOrThrow(list, context.session.user)
+
+      return prisma.aiListEnrichmentQueue.findMany({
+        ...query,
+        where: {
+          listId,
+          ...(status ? { status } : {}),
+        },
+        orderBy: [
+          { status: 'asc' }, // processing first, then pending, then completed/failed
+          { priority: 'desc' },
+          { requestedAt: 'asc' },
+        ],
+      })
+    },
+  }),
+)

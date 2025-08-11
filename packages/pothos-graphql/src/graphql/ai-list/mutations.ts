@@ -430,3 +430,237 @@ builder.mutationField('computeFieldValue', (t) =>
     },
   }),
 )
+
+// Enrichment Queue Management Mutations
+
+const EnrichmentQueueResult = builder
+  .objectRef<{
+    success: boolean
+    queuedItems?: number
+    error?: string | null
+  }>('EnrichmentQueueResult')
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean('success'),
+      queuedItems: t.exposeInt('queuedItems', { nullable: true }),
+      error: t.exposeString('error', { nullable: true }),
+    }),
+  })
+
+builder.mutationField('startListEnrichment', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: EnrichmentQueueResult,
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      fieldId: t.arg.string({ required: true, description: 'Field ID to enrich' }),
+    },
+    resolve: async (_source, { listId, fieldId }, { session }) => {
+      console.log('🔍 Starting enrichment for listId:', listId, 'fieldId:', fieldId)
+      try {
+        const list = await prisma.aiList.findFirst({
+          where: { id: listId },
+          include: {
+            participants: true,
+            fields: { where: { sourceType: 'llm_computed', id: fieldId } },
+            sources: { include: { library: { include: { files: true } } } },
+          },
+        })
+        if (!list) {
+          throw new Error(`List with id ${listId} not found`)
+        }
+        canAccessListOrThrow(list, session.user)
+
+        // Get the specific field to enrich
+        const fieldToEnrich = list.fields.find((f) => f.id === fieldId)
+        console.log('🔍 Found field:', fieldToEnrich ? fieldToEnrich.name : 'null')
+        if (!fieldToEnrich) {
+          throw new Error('Field not found or not an LLM computed field')
+        }
+
+        // Get all files from all library sources
+        const allFiles = list.sources.flatMap((source) => source.library?.files || [])
+        console.log('🔍 Found files:', allFiles.length)
+        if (allFiles.length === 0) {
+          throw new Error('No files found in list sources')
+        }
+
+        // First, clean up any existing queue items for this field to allow fresh start
+        await prisma.aiListEnrichmentQueue.deleteMany({
+          where: {
+            listId,
+            fieldId: fieldToEnrich.id,
+          },
+        })
+
+        // Also clear cached values for this field to avoid showing stale data
+        await prisma.aiListItemCache.deleteMany({
+          where: {
+            fieldId: fieldToEnrich.id,
+          },
+        })
+
+        // Create queue items for the field x all files
+        const queueItems = []
+        for (const file of allFiles) {
+          queueItems.push({
+            listId,
+            fieldId: fieldToEnrich.id,
+            fileId: file.id,
+            status: 'pending',
+            priority: 0,
+          })
+        }
+
+        // Insert queue items (no need for skipDuplicates since we cleaned up above)
+        console.log('🔍 Creating queue items:', queueItems.length)
+        await prisma.aiListEnrichmentQueue.createMany({
+          data: queueItems,
+        })
+
+        console.log('✅ Successfully created', queueItems.length, 'queue items')
+
+        // Debug: Verify items were actually created
+        const verifyCount = await prisma.aiListEnrichmentQueue.count({
+          where: { listId, fieldId, status: 'pending' },
+        })
+        console.log('🔍 Verification: found', verifyCount, 'pending items in DB')
+
+        return {
+          success: true,
+          queuedItems: queueItems.length,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error starting enrichment:', error)
+        return {
+          success: false,
+          queuedItems: undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)
+
+builder.mutationField('stopListEnrichment', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: EnrichmentQueueResult,
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      fieldId: t.arg.string({ required: true, description: 'Field ID to stop enrichment for' }),
+    },
+    resolve: async (_source, { listId, fieldId }, { session }) => {
+      try {
+        const list = await prisma.aiList.findFirst({
+          where: { id: listId },
+          include: { participants: true },
+        })
+        if (!list) {
+          throw new Error(`List with id ${listId} not found`)
+        }
+        canAccessListOrThrow(list, session.user)
+
+        // Remove pending queue items for the specific field
+        const deletedItems = await prisma.aiListEnrichmentQueue.deleteMany({
+          where: {
+            listId,
+            fieldId,
+            status: 'pending',
+          },
+        })
+
+        return {
+          success: true,
+          queuedItems: deletedItems.count,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error stopping enrichment:', error)
+        return {
+          success: false,
+          queuedItems: undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)
+
+const CleanEnrichmentResult = builder
+  .objectRef<{
+    success: boolean
+    clearedItems?: number
+    error?: string | null
+  }>('CleanEnrichmentResult')
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean('success'),
+      clearedItems: t.exposeInt('clearedItems', { nullable: true }),
+      error: t.exposeString('error', { nullable: true }),
+    }),
+  })
+
+builder.mutationField('cleanListEnrichments', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: CleanEnrichmentResult,
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      fieldId: t.arg.string({ required: true, description: 'Field ID to clean' }),
+    },
+    resolve: async (_source, { listId, fieldId }, { session }) => {
+      try {
+        const list = await prisma.aiList.findFirst({
+          where: { id: listId },
+          include: {
+            participants: true,
+            fields: { where: { sourceType: 'llm_computed', id: fieldId } },
+          },
+        })
+        if (!list) {
+          throw new Error(`List with id ${listId} not found`)
+        }
+        canAccessListOrThrow(list, session.user)
+
+        // Get the specific field to clean
+        const fieldToClean = list.fields.find((f) => f.id === fieldId)
+        if (!fieldToClean) {
+          throw new Error('Field not found or not an LLM computed field')
+        }
+
+        // Clear cached values for the specified field
+        const deletedCacheItems = await prisma.aiListItemCache.deleteMany({
+          where: {
+            fieldId,
+          },
+        })
+
+        // Clear pending and failed queue items for the specified field
+        const deletedQueueItems = await prisma.aiListEnrichmentQueue.deleteMany({
+          where: {
+            listId,
+            fieldId,
+            status: { in: ['pending', 'failed'] },
+          },
+        })
+
+        const totalCleared = deletedCacheItems.count + deletedQueueItems.count
+
+        return {
+          success: true,
+          clearedItems: totalCleared,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error cleaning enrichments:', error)
+        return {
+          success: false,
+          clearedItems: undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)

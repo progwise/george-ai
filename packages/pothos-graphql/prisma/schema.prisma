@@ -154,10 +154,10 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String            @id @default(cuid())
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  library                AiLibrary         @relation(fields: [libraryId], references: [id])
+  id                     String                  @id @default(cuid())
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  library                AiLibrary               @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
@@ -173,11 +173,12 @@ model AiLibraryFile {
   processingErrorAt      DateTime?
   processingErrorMessage String?
   crawledByCrawlerId     String?
-  crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+  crawledByCrawler       AiLibraryCrawler?       @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
-  AiLibraryUpdate        AiLibraryUpdate[]
-  AiListItemCache        AiListItemCache[]
+  updates                AiLibraryUpdate[]
+  cache                  AiListItemCache[]
+  enrichmentQueue        AiListEnrichmentQueue[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
@@ -258,15 +259,16 @@ model AiLibraryParticipant {
 }
 
 model AiList {
-  id           String              @id @default(cuid())
-  ownerId      String
-  name         String
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  owner        User                @relation(fields: [ownerId], references: [id])
-  participants AiListParticipant[]
-  fields       AiListField[]
-  sources      AiListSource[]
+  id              String                  @id @default(cuid())
+  ownerId         String
+  name            String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  owner           User                    @relation(fields: [ownerId], references: [id])
+  participants    AiListParticipant[]
+  fields          AiListField[]
+  sources         AiListSource[]
+  enrichmentQueue AiListEnrichmentQueue[]
 }
 
 model AiListSource {
@@ -290,25 +292,26 @@ model AiListParticipant {
 }
 
 model AiListField {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  listId        String
-  name          String
-  type          String   // 'string', 'number', 'date', 'datetime', 'boolean'
-  order         Int      @default(0) // Display order in table
-  
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  listId    String
+  name      String
+  type      String // 'string', 'number', 'date', 'datetime', 'boolean'
+  order     Int      @default(0) // Display order in table
+
   // Source configuration
-  sourceType    String   // 'file_property' or 'llm_computed'
-  
+  sourceType String // 'file_property' or 'llm_computed'
+
   // For file_property source
-  fileProperty  String?  // 'name', 'originUri', 'processedAt', 'originModificationDate', 'size', 'mimeType', 'crawlerUrl'
-  
+  fileProperty String? // 'name', 'originUri', 'processedAt', 'originModificationDate', 'size', 'mimeType', 'crawlerUrl'
+
   // For llm_computed source
   languageModel String?
   prompt        String?
 
-  list AiList @relation(fields: [listId], references: [id], onDelete: Cascade)
-  cachedValues AiListItemCache[]
+  list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  cachedValues    AiListItemCache[]
+  enrichmentQueue AiListEnrichmentQueue[]
 }
 
 model AiListItemCache {
@@ -325,6 +328,26 @@ model AiListItemCache {
   field        AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   @@unique([fileId, fieldId])
+}
+
+model AiListEnrichmentQueue {
+  id          String        @id @default(cuid())
+  listId      String
+  fieldId     String
+  fileId      String
+  status      String // 'pending', 'processing', 'completed', 'failed'
+  priority    Int           @default(0) // Higher number = higher priority
+  requestedAt DateTime      @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  error       String?
+  list        AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  field       AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  file        AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, fieldId, fileId])
+  @@index([listId, status])
+  @@index([status, priority, requestedAt])
 }
 
 model AiConversation {

@@ -340,7 +340,7 @@ enum AiLibraryCrawlerUriType {
 }
 
 type AiLibraryFile {
-  AiListItemCache: [AiListItemCache!]!
+  cache: [AiListItemCache!]!
   chunks: Int
   crawledByCrawler: AiLibraryCrawler
   createdAt: DateTime!
@@ -454,6 +454,7 @@ type AiLibraryUsage {
 
 type AiList {
   createdAt: DateTime!
+  enrichmentQueue: [AiListEnrichmentQueue!]!
   fields: [AiListField!]!
   id: ID!
   name: String!
@@ -464,12 +465,29 @@ type AiList {
   updatedAt: DateTime
 }
 
+type AiListEnrichmentQueue {
+  completedAt: DateTime
+  error: String
+  field: AiListField!
+  fieldId: String!
+  file: AiLibraryFile!
+  fileId: String!
+  id: ID!
+  list: AiList!
+  listId: String!
+  priority: Int!
+  requestedAt: DateTime!
+  startedAt: DateTime
+  status: String!
+}
+
 type AiListField {
   fileProperty: String
   id: ID!
   languageModel: String
   name: String!
   order: Int!
+  pendingItemsCount: Int!
   prompt: String
   sourceType: String!
   type: String!
@@ -553,6 +571,12 @@ type AssistantParticipant implements AiConversationParticipant {
 
 scalar BigInt
 
+type CleanEnrichmentResult {
+  clearedItems: Int
+  error: String
+  success: Boolean
+}
+
 type ComputeFieldValueResult {
   error: String
   success: Boolean
@@ -576,6 +600,12 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTime
 
 scalar Decimal
+
+type EnrichmentQueueResult {
+  error: String
+  queuedItems: Int
+  success: Boolean
+}
 
 type FileChunk {
   chunkIndex: Int!
@@ -651,6 +681,13 @@ type Mutation {
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
+  cleanListEnrichments(
+    """
+    Field ID to clean
+    """
+    fieldId: String!
+    listId: String!
+  ): CleanEnrichmentResult!
   clearEmbeddedFiles(libraryId: String!): Boolean
   computeFieldValue(fieldId: String!, fileId: String!): ComputeFieldValueResult
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
@@ -693,7 +730,21 @@ type Mutation {
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  startListEnrichment(
+    """
+    Field ID to enrich
+    """
+    fieldId: String!
+    listId: String!
+  ): EnrichmentQueueResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
+  stopListEnrichment(
+    """
+    Field ID to stop enrichment for
+    """
+    fieldId: String!
+    listId: String!
+  ): EnrichmentQueueResult!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -734,6 +785,7 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
+  aiListEnrichmentQueue(listId: String!, status: String): [AiListEnrichmentQueue!]!
   aiListFiles(
     listId: String!
     orderBy: String = "asc"

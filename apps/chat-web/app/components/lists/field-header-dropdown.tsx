@@ -6,6 +6,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { EditIcon } from '../../icons/edit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { toastSuccess } from '../georgeToaster'
+import { EnrichmentControls } from './enrichment-controls'
+import { getListQueryOptions } from './get-list'
 import { removeListField } from './remove-list-field'
 
 interface FieldHeaderDropdownProps {
@@ -14,6 +16,7 @@ interface FieldHeaderDropdownProps {
   isOpen: boolean
   onClose: () => void
   onEdit: (field: FieldModal_EditableFieldFragment) => void
+  hasActiveQueue: boolean
 }
 
 export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {
@@ -50,7 +53,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
       // Show success toast with field name
       toastSuccess(t('lists.fields.removeSuccess', { name: field.name }))
 
-      queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
+      queryClient.invalidateQueries(getListQueryOptions(listId))
       onClose()
       setIsConfirmingDelete(false)
     },
@@ -80,15 +83,31 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
 
   const canEdit = field.sourceType === 'llm_computed'
   const canDelete = field.sourceType === 'llm_computed'
+  const canEnrich = field.sourceType === 'llm_computed'
 
   if (!isOpen) return null
 
+  console.log('pending items count', field)
   return (
     <div
       ref={dropdownRef}
-      className="bg-base-100 border-base-300 absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border shadow-lg"
+      className="bg-base-100 border-base-300 absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border shadow-lg"
     >
       <div className="py-2">
+        {canEnrich && (
+          <div className="border-base-300 border-b px-4 py-2">
+            <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
+              {t('lists.enrichment.title')}
+            </div>
+            <EnrichmentControls
+              listId={listId}
+              fieldId={field.id}
+              isProcessing={field.pendingItemsCount > 0}
+              onActionExecuted={() => onClose()}
+            />
+          </div>
+        )}
+
         {canEdit && (
           <button
             type="button"
@@ -96,7 +115,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
             onClick={handleEdit}
           >
             <EditIcon className="mr-2" />
-            Edit Field
+            {t('lists.fields.edit')}
           </button>
         )}
 
@@ -112,19 +131,19 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
             {removeFieldMutation.isPending ? (
               <>
                 <span className="loading loading-spinner loading-sm mr-2" />
-                Deleting...
+                {t('lists.fields.deleting')}
               </>
             ) : (
               <>
                 <TrashIcon className="mr-2" />
-                {isConfirmingDelete ? 'Click again to confirm' : 'Delete Field'}
+                {isConfirmingDelete ? t('lists.fields.confirmDelete') : t('lists.fields.delete')}
               </>
             )}
           </button>
         )}
 
-        {!canEdit && !canDelete && (
-          <div className="text-base-content/60 px-4 py-2 text-sm">File property fields cannot be modified</div>
+        {!canEdit && !canDelete && !canEnrich && (
+          <div className="text-base-content/60 px-4 py-2 text-sm">{t('lists.fields.filePropertyReadOnly')}</div>
         )}
       </div>
     </div>

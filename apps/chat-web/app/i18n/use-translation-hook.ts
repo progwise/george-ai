@@ -1,4 +1,4 @@
-import React, { JSX, createElement } from 'react'
+import React, { JSX, createElement, useCallback } from 'react'
 
 import de from './de'
 import en from './en'
@@ -86,14 +86,17 @@ const getTranslatedJSX = (
 const useTranslation = () => {
   const { language } = useLanguage()
 
-  const t = (key: string, values?: Record<string, string | number>) => {
-    try {
-      return getTranslatedString(key, language, values)
-    } catch (e) {
-      console.error(`Translation key not found: ${e}`, language)
-      return key
-    }
-  }
+  const t = useCallback(
+    (key: string, values?: Record<string, string | number>) => {
+      try {
+        return getTranslatedString(key, language, values)
+      } catch (e) {
+        console.error(`Translation key not found: ${e}`, language)
+        return key
+      }
+    },
+    [language],
+  )
 
   const tx = (key: string, values?: Record<string, string | number | JSX.Element>) => {
     return getTranslatedJSX(key, language, values)

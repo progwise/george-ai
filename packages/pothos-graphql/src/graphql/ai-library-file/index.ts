@@ -75,7 +75,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
         })
       },
     }),
-    AiListItemCache: t.relation('AiListItemCache', { nullable: false }),
+    cache: t.relation('cache', { nullable: false }),
   }),
 })
 

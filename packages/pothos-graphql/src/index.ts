@@ -1,6 +1,7 @@
 import { builder } from './graphql/builder'
 
 import './cron-jobs'
+import './enrichment-queue-worker'
 import './graphql/ai-act-assessment'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'

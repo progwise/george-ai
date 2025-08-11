@@ -42,7 +42,15 @@ export const getUploadFilePath = ({ fileId, libraryId }: { fileId: string; libra
   return `${fileDir}/upload`
 }
 
-export const getMarkdownFilePath = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
-  const fileDir = getFileDir({ fileId, libraryId })
+export const getMarkdownFilePath = ({
+  fileId,
+  libraryId,
+  errorIfNotExists = false,
+}: {
+  fileId: string
+  libraryId: string
+  errorIfNotExists?: boolean
+}) => {
+  const fileDir = getFileDir({ fileId, libraryId, errorIfNotExists })
   return `${fileDir}/converted.md`
 }
