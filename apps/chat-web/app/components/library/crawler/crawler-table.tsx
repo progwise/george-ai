@@ -24,7 +24,8 @@ interface CrawlerTableProps {
 graphql(`
   fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {
     id
-    url
+    uri
+    uriType
     maxDepth
     maxPages
     lastRun {
@@ -66,16 +67,16 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 }`}
               >
                 <div className="sm:items-center sm:justify-between">
-                  <div className="mb-2 w-full break-all text-sm font-semibold" title={crawler.url}>
-                    <a href={crawler.url} target="_blank" rel="noopener noreferrer" className="link">
-                      {index + 1}. {crawler.url}
+                  <div className="mb-2 w-full break-all text-sm font-semibold" title={crawler.uri}>
+                    <a href={crawler.uri} target="_blank" rel="noopener noreferrer" className="link">
+                      {index + 1}. {crawler.uri}
                     </a>
                   </div>
                   <div className="flex justify-center gap-2">
                     <RunCrawlerButton className="btn-xs" crawler={crawler} />
                     <DeleteCrawlerButton
                       crawlerId={crawler.id}
-                      crawlerUrl={crawler.url}
+                      crawlerUrl={crawler.uri}
                       filesCount={crawler.filesCount}
                       libraryId={libraryId}
                     />
@@ -119,7 +120,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
           <thead className="bg-base-200">
             <tr>
               <th>#</th>
-              <th>{t('crawlers.url')}</th>
+              <th>{t('crawlers.uri')}</th>
               <th>
                 {t('crawlers.maxDepth')}/{t('crawlers.maxPages')}
               </th>
@@ -132,9 +133,9 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             {aiLibrary?.crawlers.map((crawler, index) => (
               <tr key={crawler.id}>
                 <td className="align-top">{index + 1}</td>
-                <td className="max-w-3xl truncate align-top" title={crawler.url}>
-                  <a href={crawler.url} target="_blank" rel="noopener noreferrer" className="link">
-                    {crawler.url}
+                <td className="max-w-3xl truncate align-top" title={crawler.uri}>
+                  <a href={crawler.uri} target="_blank" rel="noopener noreferrer" className="link">
+                    {crawler.uri}
                   </a>
                 </td>
                 <td className="align-top">
@@ -162,7 +163,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                   </Link>
                   <DeleteCrawlerButton
                     crawlerId={crawler.id}
-                    crawlerUrl={crawler.url}
+                    crawlerUrl={crawler.uri}
                     filesCount={crawler.filesCount}
                     libraryId={libraryId}
                   />

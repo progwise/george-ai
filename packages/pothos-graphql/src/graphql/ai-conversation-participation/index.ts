@@ -33,7 +33,7 @@ const conversationParticipantInterface = builder.prismaInterface('AiConversation
           const user = await prisma.user.findUniqueOrThrow({
             where: { id: source.userId! },
           })
-          return user?.name
+          return user?.name ?? user?.username
         }
         if (source.assistantId) {
           const assistant = await prisma.aiAssistant.findUniqueOrThrow({

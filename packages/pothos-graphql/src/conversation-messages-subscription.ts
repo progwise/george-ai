@@ -4,7 +4,7 @@ interface Message {
   content: string
   createdAt: Date
   updatedAt: Date
-  sender: { id: string; name: string; isBot: boolean; assistantId?: string }
+  sender: { id: string; name: string; isBot: boolean; assistantId?: string; avatarUrl?: string | null }
 }
 type callback = (message: Message) => void
 

@@ -13,9 +13,11 @@ import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { backendRequest } from '../../server-functions/backend'
+import { AssistantIcon } from '../assistant/assistant-icon'
 import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { toastError } from '../georgeToaster'
+import { UserAvatar } from '../user-avatar'
 import { getConversationQueryOptions } from './get-conversation'
 
 const HideMessageDocument = graphql(`
@@ -89,7 +91,21 @@ interface ConversationMessageProps {
       assistantId?: string
       name: string
       isBot: boolean
-    }
+    } & (
+      | {
+          isBot: false
+          user?: {
+            avatarUrl?: string | null
+          }
+        }
+      | {
+          isBot: true
+          assistant?: {
+            iconUrl?: string | null
+            updatedAt?: string
+          }
+        }
+    )
   }
 }
 
@@ -142,21 +158,29 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
       className={twMerge('card text-base-content mx-1.5 border p-3 shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
       <div className="mb-2 flex items-center gap-2">
-        <div
-          className={twMerge(
-            'flex h-8 w-8 items-center justify-center rounded-full',
-            !message.sender.isBot && 'bg-primary text-primary-content',
-            message.sender.isBot && 'bg-accent text-accent-content',
-          )}
-        >
-          {message.sender.isBot ? (
-            <Link to="/assistants/$assistantId" params={{ assistantId: message.sender.assistantId! }}>
-              🤖
-            </Link>
-          ) : (
-            message.sender.name?.[0].toUpperCase()
-          )}
-        </div>
+        {message.sender.isBot ? (
+          <Link to="/assistants/$assistantId" params={{ assistantId: message.sender.assistantId! }}>
+            <AssistantIcon
+              assistant={{
+                id: message.sender.assistantId!,
+                name: message.sender.name,
+                description: null,
+                iconUrl: message.sender.assistant?.iconUrl || null,
+                updatedAt: message.sender.assistant?.updatedAt || '',
+                ownerId: '',
+              }}
+              className="h-8 w-8 overflow-hidden rounded-full"
+            />
+          </Link>
+        ) : (
+          <UserAvatar
+            user={{
+              name: message.sender.name,
+              avatarUrl: message.sender.user?.avatarUrl,
+            }}
+            className="size-8"
+          />
+        )}
 
         <div className="flex min-w-0 grow flex-col">
           <span className="truncate text-sm font-semibold">{message.sender.name}</span>

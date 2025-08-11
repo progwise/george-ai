@@ -4,7 +4,7 @@ import { IconProps } from './icon-props'
 
 export const TrashIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('mx-auto size-4', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"

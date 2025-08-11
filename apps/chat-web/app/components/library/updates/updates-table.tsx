@@ -17,7 +17,8 @@ graphql(`
       crawlerId
       crawler {
         id
-        url
+        uri
+        uriType
       }
     }
     fileId
@@ -59,7 +60,7 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
               <td>
                 {update?.crawlerRun?.crawler ? (
                   <Link to="/libraries/$libraryId/crawlers" params={{ libraryId: update.libraryId }}>
-                    {update.crawlerRun.crawler.url}
+                    {update.crawlerRun.crawler.uri}
                   </Link>
                 ) : (
                   'N/A'

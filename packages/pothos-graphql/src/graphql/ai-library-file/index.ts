@@ -80,6 +80,18 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       nullable: false,
     }),
     dropError: t.exposeString('dropError', { nullable: true }),
+    originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
+    lastUpdate: t.prismaField({
+      type: 'AiLibraryUpdate',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiLibraryUpdate.findFirst({
+          ...query,
+          where: { fileId: file.id },
+          orderBy: { createdAt: 'desc' },
+        })
+      },
+    }),
   }),
 })
 

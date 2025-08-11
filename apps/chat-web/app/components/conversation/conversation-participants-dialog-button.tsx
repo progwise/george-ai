@@ -11,7 +11,8 @@ import {
 } from '../../gql/graphql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { PlusIcon } from '../../icons/plus-icon'
+import ChatBubbleIcon from '../../icons/chat-bubble-icon'
+import { UserPlusIcon } from '../../icons/user-plus-icon'
 import { addConversationParticipants } from '../../server-functions/conversation-participations'
 import { createConversation } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
@@ -45,20 +46,16 @@ interface ConversationParticipantsDialogButtonProps {
   conversation?: ConversationParticipantsDialogButton_ConversationFragment
   assistants: ConversationParticipantsDialogButton_AssistantFragment[]
   users: UserFragment[]
-  dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
-  className?: string
 }
 
 export const ConversationParticipantsDialogButton = ({
   conversation,
   assistants,
   users,
-  dialogMode,
   isOpen,
   userId,
-  className,
 }: ConversationParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
@@ -98,7 +95,7 @@ export const ConversationParticipantsDialogButton = ({
     [users, assignedUserIds],
   )
 
-  const isCreatingNewConversation = dialogMode === 'new'
+  const isCreatingNewConversation = !conversation
   const isOwner = isCreatingNewConversation || userId === conversation?.ownerId
 
   const { mutateAsync: createNewConversation, isPending: isCreating } = useMutation({
@@ -142,7 +139,7 @@ export const ConversationParticipantsDialogButton = ({
   }
 
   const handleSubmit = async () => {
-    if (dialogMode === 'new') {
+    if (!conversation) {
       if (emailChips.length > 0) {
         const { invalidEmails } = validateEmails(emailChips)
 
@@ -220,20 +217,30 @@ export const ConversationParticipantsDialogButton = ({
     }
   }, [isOpen])
 
-  const title = dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
-  const description =
-    dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
-  const submitButtonText = dialogMode === 'new' ? t('actions.create') : t('actions.add')
-  const buttonText = dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
-  const buttonClass = dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
+  const title = !conversation ? t('texts.newConversation') : t('texts.addParticipants')
+  const description = !conversation
+    ? t('texts.newConversationConfirmation')
+    : t('conversations.addParticipantsConfirmation')
+  const submitButtonText = !conversation ? t('actions.create') : t('actions.add')
+  const buttonText = !conversation ? t('texts.newConversation') : `${t('actions.add')}`
   const isPending = isCreating || isAdding || isSendingInvitation
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={twMerge('btn btn-sm', buttonClass, className)} onClick={handleOpen}>
-        {dialogMode === 'add' && <PlusIcon />}
-        {buttonText}
+      <button
+        type="button"
+        className={twMerge('btn btn-ghost btn-sm', conversation && 'btn-square')}
+        onClick={handleOpen}
+      >
+        {conversation ? (
+          <UserPlusIcon className="size-6" />
+        ) : (
+          <>
+            <ChatBubbleIcon className="size-6" />
+            <span>{buttonText}</span>
+          </>
+        )}
       </button>
 
       <DialogForm

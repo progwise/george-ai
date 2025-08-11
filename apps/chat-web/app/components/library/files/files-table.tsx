@@ -27,6 +27,7 @@ graphql(`
     processedAt
     processingErrorMessage
     dropError
+    originModificationDate
   }
 `)
 interface FilesTableProps {
@@ -147,12 +148,18 @@ export const FilesTable = ({
               </div>
 
               <div className="grid grid-cols-2 gap-1 text-sm">
-                <span className="">{t('labels.size')}:</span>
+                <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
-                <span className="">{t('labels.chunks')}:</span>
+                <span>{t('labels.chunks')}:</span>
                 <span>{file.chunks ?? '-'}</span>
-                <span className="">{t('labels.processed')}:</span>
+                <span>{t('labels.processed')}:</span>
                 <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                {file.originModificationDate && (
+                  <>
+                    <span>{t('labels.originModified')}:</span>
+                    <span>{dateTimeString(file.originModificationDate, language)}</span>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -177,6 +184,7 @@ export const FilesTable = ({
               <th>#{t('labels.size')}</th>
               <th>#{t('labels.chunks')}</th>
               <th>{t('labels.processed')}</th>
+              <th>{t('labels.originModified')}</th>
               <th>{t('labels.actions')}</th>
             </tr>
           </thead>
@@ -194,7 +202,12 @@ export const FilesTable = ({
                 <td>{index + (firstItemNumber ?? 1)}</td>
 
                 <td className="flex max-w-2xl flex-col truncate" title={file.name}>
-                  <span>{truncateFileName(file.name, 49, 45)}</span>
+                  <Link
+                    to="/libraries/$libraryId/files/$fileId"
+                    params={{ libraryId: file.libraryId, fileId: file.id }}
+                  >
+                    <span>{truncateFileName(file.name, 49, 45)}</span>
+                  </Link>
                   <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
                     {file.originUri || 'n/a'}
                   </a>
@@ -202,6 +215,7 @@ export const FilesTable = ({
                 <td>{file.size ?? '-'}</td>
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                <td>{file.originModificationDate ? dateTimeString(file.originModificationDate, language) : '-'}</td>
                 <td className="flex items-center gap-2">
                   <Link
                     to="/libraries/$libraryId/files/$fileId"

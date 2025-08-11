@@ -1,51 +1,60 @@
-import OpenAI from 'openai'
-import { ResponseInputImage } from 'openai/resources/responses/responses'
-
 import { transformPdfToImages } from './pdf-to-images'
 
-export const transformPdfToImageToMarkdown = async (filePath: string): Promise<string> => {
-  const client = new OpenAI()
-  const convertedImages = await transformPdfToImages(filePath)
+export const transformPdfToImageToMarkdown = async (filePath: string, imageScale: number = 3.0): Promise<string> => {
+  const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
-  const images = convertedImages.map(
-    (image) =>
-      ({
-        type: 'input_image',
-        image_url: `data:image/png;base64,${image}`,
-      }) as ResponseInputImage,
-  )
+  // Process images sequentially to avoid resource exhaustion
+  const responses: string[] = []
 
-  const response = await client.responses.create({
-    model: 'o4-mini',
-    input: [
-      {
-        role: 'system',
-        content: 'You are a helpful assistant that can read text in images.',
-      },
-      {
-        role: 'user',
-        content: [
-          ...images,
-          {
-            type: 'input_text',
-            text: `I have created some images from a PDF document to have a general purpose format for the document.
-              The images are in the same order as the pages of the PDF document.
-              I want you to read the document carefully and write the text in the same order as it is in the images.
-              I need you to give me the text you can read from the images.
-              You should also describe the layout and non-text elements of the images.
-              The text you deliver will be used by myself to create a searchable index of the document.
-              Please do not include any other information or comments in your response that is not written in the images.
-              The goal is to extract the text word for word and describe the document as it is.
-              Please format your response as markdown text, with each page's content separated by a horizontal rule.
-              Do not include any additional explanations or comments.
-              Format your response as markdown text, with each page's content separated by a horizontal rule.`,
-          },
-        ],
-      },
-    ],
-  })
+  for (let index = 0; index < base64Images.length; index++) {
+    const base64Image = base64Images[index]
+    try {
+      // const imageBuffer = await fs.promises.readFile(imageFilePath)
+      console.log(`Processing image ${index + 1} from PDF: ${imageFilePaths[index]}`, base64Image.length)
 
-  const responseMarkdown = response.output_text || 'PDF2Image2Markdown conversion returned no text.'
-  console.log(`Rendering PDF response for ${filePath}`, response.output_text)
+      // Bypass Ollama client and use direct HTTP request like OpenWebUI
+      const httpResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'qwen2.5vl:latest',
+          stream: false,
+          messages: [
+            {
+              role: 'user',
+              content:
+                'Please describe the image in detail using markdown. Do not include any code blocks, just return plain markdown text.',
+              images: [base64Image], // Clean base64 string without data URL prefix
+            },
+          ],
+        }),
+      })
+
+      if (!httpResponse.ok) {
+        const response = await httpResponse.json()
+        throw new Error(
+          `HTTP ${httpResponse.status}: ${httpResponse.statusText} \nResponse: ${JSON.stringify(response)}`,
+        )
+      }
+
+      const response = (await httpResponse.json()) as { message?: { content?: string } }
+
+      if (!response || !response.message || !response.message.content) {
+        console.error(`No response or content for image ${index + 1}`)
+        responses.push(`# Image Content for Page ${index + 1}\n\nNo response for image ${index + 1}`)
+      } else {
+        console.log(`Response for image ${index + 1}:`, response.message.content)
+        responses.push(`# Image Content for Page ${index + 1}\n\n${response.message.content}`)
+      }
+    } catch (error) {
+      console.error(`Error processing image ${index + 1}:`, error)
+      responses.push(`# Image Content for Page ${index + 1}\n\nError processing image: ${(error as Error).message}`)
+    }
+  }
+
+  const responseMarkdown = responses.join('\n') || 'PDF2Image2Markdown conversion returned no text.'
+  console.log(`Rendering PDF response for ${filePath}`, responseMarkdown)
   return responseMarkdown
 }

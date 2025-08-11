@@ -12,3 +12,22 @@ build
 .typesense-data
 .postgres-data*
 CLAUDE.md
+.claude
+.smb-credentials
+.smb-mounts
+.sharepoint-credentials
+
+# Fine-tuning
+apps/fine-tuning/split_output
+apps/fine-tuning/adapters_*
+apps/fine-tuning/finetune-output/
+apps/fine-tuning/hf-to-gguf/
+apps/fine-tuning/jsonl/raw/qa-data.jsonl
+apps/fine-tuning/jsonl/george-ai/
+apps/fine-tuning/venv
+apps/fine-tuning/.venv
+apps/fine-tuning/*.env
+apps/fine-tuning/node_modules/
+apps/fine-tuning/models/
+apps/fine-tuning/fused_model/
+apps/fine-tuning/gguf_models/

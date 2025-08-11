@@ -5,12 +5,13 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiLibraryCrawlerCredentialsInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
+  AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
-  RetrievalFlow,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -25,7 +26,7 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
+export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -61,6 +62,14 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
   })
 }
 
+export function AiLibraryCrawlerCredentialsInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCredentialsInput>> {
+  return z.object({
+    password: z.string().nullish(),
+    sharepointAuth: z.string().nullish(),
+    username: z.string().nullish(),
+  })
+}
+
 export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCronJobInput>> {
   return z.object({
     active: z.boolean(),
@@ -81,7 +90,8 @@ export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryC
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
     maxDepth: z.number(),
     maxPages: z.number(),
-    url: z.string(),
+    uri: z.string(),
+    uriType: AiLibraryCrawlerUriTypeSchema,
   })
 }
 
@@ -97,6 +107,8 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
 export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
   return z.object({
     description: z.string().nullish(),
+    embeddingModelName: z.string().nullish(),
+    fileConverterOptions: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
@@ -113,6 +125,7 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
 
 export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
   return z.object({
+    avatarUrl: z.string().nullish(),
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),

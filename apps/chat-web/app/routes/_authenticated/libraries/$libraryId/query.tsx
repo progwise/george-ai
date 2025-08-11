@@ -72,7 +72,13 @@ function RouteComponent() {
           })
         }}
       />
-      <LibraryQueryResult hits={hits.hits} offset={skip} searchTerm={query ?? '*'} hitCount={hits.hitCount} />
+      <LibraryQueryResult
+        libraryId={libraryId}
+        hits={hits.hits}
+        offset={skip}
+        searchTerm={query ?? '*'}
+        hitCount={hits.hitCount}
+      />
     </article>
   )
 }

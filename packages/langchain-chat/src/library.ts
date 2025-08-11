@@ -3,4 +3,5 @@ export interface Library {
   name: string
   description: string
   usedFor: string
+  embeddingModelName: string
 }

@@ -28,6 +28,13 @@ const getFileInfo = createServerFn({ method: 'GET' })
             updatedAt
             processedAt
             processingErrorMessage
+            originModificationDate
+            lastUpdate {
+              id
+              createdAt
+              message
+              success
+            }
           }
         }
       `),
