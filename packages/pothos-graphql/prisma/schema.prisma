@@ -184,35 +184,43 @@ model AiLibraryFile {
 }
 
 model AiLibraryCrawler {
-  id        String                   @id @default(cuid())
-  uriType   String
-  uri       String
-  libraryId String
-  lastRun   DateTime?
-  maxDepth  Int
-  maxPages  Int
-  createdAt DateTime                 @default(now())
-  updatedAt DateTime                 @updatedAt
-  library   AiLibrary                @relation(fields: [libraryId], references: [id])
-  runs      AiLibraryCrawlerRun[]
-  files     AiLibraryFile[]
-  cronJob   AiLibraryCrawlerCronJob?
+  id              String                   @id @default(cuid())
+  uriType         String
+  uri             String
+  libraryId       String
+  lastRun         DateTime?
+  maxDepth        Int
+  maxPages        Int
+  // File filtering configuration
+  includePatterns String?                  // JSON array of regex patterns to include (if empty, include all)
+  excludePatterns String?                  // JSON array of regex patterns to exclude
+  maxFileSize     Int?                     // Maximum file size in bytes
+  minFileSize     Int?                     // Minimum file size in bytes
+  allowedMimeTypes String?                 // JSON array of allowed MIME types (if empty, allow all)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  library         AiLibrary                @relation(fields: [libraryId], references: [id])
+  runs            AiLibraryCrawlerRun[]
+  files           AiLibraryFile[]
+  cronJob         AiLibraryCrawlerCronJob?
+  omittedFiles    AiLibraryCrawlerOmittedFile[]
 }
 
 model AiLibraryCrawlerRun {
-  id            String            @id @default(cuid())
+  id            String                        @id @default(cuid())
   crawlerId     String
-  startedAt     DateTime          @default(now())
+  startedAt     DateTime                      @default(now())
   endedAt       DateTime?
   success       Boolean?
   errorMessage  String?
   pagesCrawled  Int?
   runByUserId   String?
-  runByCronJob  Boolean           @default(false)
+  runByCronJob  Boolean                       @default(false)
   stoppedByUser DateTime?
-  crawler       AiLibraryCrawler  @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
-  runBy         User?             @relation(fields: [runByUserId], references: [id])
+  crawler       AiLibraryCrawler              @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+  runBy         User?                         @relation(fields: [runByUserId], references: [id])
   updates       AiLibraryUpdate[]
+  omittedFiles  AiLibraryCrawlerOmittedFile[]
 }
 
 model AiLibraryCrawlerCronJob {
@@ -232,6 +240,26 @@ model AiLibraryCrawlerCronJob {
   updatedAt DateTime @updatedAt
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+}
+
+model AiLibraryCrawlerOmittedFile {
+  id               String               @id @default(cuid())
+  crawlerId        String
+  crawlerRunId     String?
+  filePath         String               // Full path to the omitted file
+  fileName         String               // Just the filename
+  fileSize         Int?                 // File size in bytes
+  mimeType         String?              // Detected MIME type
+  omittedReason    String               // Which filter rule caused the omission
+  filterType       String               // 'include_pattern', 'exclude_pattern', 'file_size', 'mime_type'
+  filterValue      String?              // The actual filter value that matched
+  discoveredAt     DateTime             @default(now())
+  modificationDate DateTime?            // File's last modification date
+  crawler          AiLibraryCrawler     @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+  crawlerRun       AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
+
+  @@index([crawlerId, discoveredAt])
+  @@index([crawlerRunId])
 }
 
 model AiLibraryUpdate {

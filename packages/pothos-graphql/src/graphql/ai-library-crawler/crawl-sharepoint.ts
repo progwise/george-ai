@@ -9,6 +9,7 @@ import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { calculateFileHash } from './file-hash'
+import { applyFileFilters, FileInfo } from './file-filter'
 import { parseSharePointUrl } from './sharepoint'
 import { getSharePointCredentials } from './sharepoint-credentials-manager'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
@@ -25,6 +26,45 @@ interface SharePointListItem {
     ServerRelativeUrl: string
     Length?: number
   }
+}
+
+const recordOmittedFile = async ({
+  crawlerId,
+  crawlerRunId,
+  filePath,
+  fileName,
+  fileSize,
+  mimeType,
+  reason,
+  filterType,
+  filterValue,
+  modificationDate,
+}: {
+  crawlerId: string
+  crawlerRunId?: string
+  filePath: string
+  fileName: string
+  fileSize?: number
+  mimeType?: string
+  reason: string
+  filterType: string
+  filterValue?: string
+  modificationDate?: Date
+}) => {
+  await prisma.aiLibraryCrawlerOmittedFile.create({
+    data: {
+      crawlerId,
+      crawlerRunId,
+      filePath,
+      fileName,
+      fileSize,
+      mimeType,
+      omittedReason: reason,
+      filterType,
+      filterValue,
+      modificationDate,
+    },
+  })
 }
 
 const saveSharepointCrawlerFile = async ({
@@ -210,6 +250,8 @@ export async function* crawlSharePoint({
   maxPages,
   crawlerId,
   libraryId,
+  crawlerRunId,
+  filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SharePoint crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using credentials for crawler: ${crawlerId}`)
@@ -323,13 +365,45 @@ export async function* crawlSharePoint({
             console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
-
-            // Check file size limits before processing
-            const sizeCheck = isFileSizeAcceptable(fileSize)
             const fileModifiedTime = new Date(item.Modified)
             const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
             const fileUri = `${siteUrl.origin}${item.FileRef}`
             const mimeType = getMimeTypeFromExtension(fileName)
+
+            // Apply file filters if configured
+            if (filterConfig) {
+              const fileInfo: FileInfo = {
+                fileName,
+                filePath: fileUri,
+                fileSize,
+                modificationDate: fileModifiedTime,
+              }
+
+              const filterResult = applyFileFilters(fileInfo, filterConfig)
+              if (!filterResult.allowed) {
+                console.log(`SharePoint file filtered out: ${fileUri} - ${filterResult.reason}`)
+
+                // Record the omitted file
+                await recordOmittedFile({
+                  crawlerId,
+                  crawlerRunId,
+                  filePath: fileUri,
+                  fileName,
+                  fileSize,
+                  mimeType,
+                  reason: filterResult.reason || 'File filtered',
+                  filterType: filterResult.filterType || 'unknown',
+                  filterValue: filterResult.filterValue,
+                  modificationDate: fileModifiedTime,
+                })
+
+                // Skip this file but continue processing others
+                continue
+              }
+            }
+
+            // Check file size limits before processing
+            const sizeCheck = isFileSizeAcceptable(fileSize)
 
             if (!sizeCheck.acceptable) {
               console.warn(`SharePoint file too large ${fileName}: ${sizeCheck.reason}`)

@@ -4,6 +4,7 @@ import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
 import { CrawledFileInfo } from './crawled-file-info'
+import { parseFilterConfig } from './file-filter'
 
 interface RunOptions {
   crawlerId: string
@@ -80,6 +81,11 @@ const startCrawling = async (
     maxDepth: number
     maxPages: number
     libraryId: string
+    includePatterns?: string | null
+    excludePatterns?: string | null
+    maxFileSize?: number | null
+    minFileSize?: number | null
+    allowedMimeTypes?: string | null
     library: { fileConverterOptions: string | null }
   },
   newRun: { id: string; startedAt: Date },
@@ -90,6 +96,10 @@ const startCrawling = async (
   console.log('Crawler max depth:', crawler.maxDepth, 'max pages:', crawler.maxPages)
   console.log('Crawler library ID:', crawler.libraryId)
   console.log('Crawler run started at:', newRun.startedAt)
+
+  // Parse filter configuration
+  const filterConfig = parseFilterConfig(crawler)
+  console.log('Filter configuration:', filterConfig)
 
   const crawl =
     crawler.uriType === 'http'
@@ -113,6 +123,8 @@ const startCrawling = async (
       maxPages: crawler.maxPages,
       crawlerId: crawler.id,
       libraryId: crawler.libraryId,
+      crawlerRunId: newRun.id,
+      filterConfig,
     })) {
       try {
         const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })

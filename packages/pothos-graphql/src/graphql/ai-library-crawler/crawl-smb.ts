@@ -9,6 +9,7 @@ import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { calculateFileHash } from './file-hash'
+import { applyFileFilters, FileInfo } from './file-filter'
 import { uriToMountedPath } from './smb-mount-manager'
 
 interface SmbFileToProcess {
@@ -17,6 +18,45 @@ interface SmbFileToProcess {
   size: number
   modifiedTime: Date
   depth: number
+}
+
+const recordOmittedFile = async ({
+  crawlerId,
+  crawlerRunId,
+  filePath,
+  fileName,
+  fileSize,
+  mimeType,
+  reason,
+  filterType,
+  filterValue,
+  modificationDate,
+}: {
+  crawlerId: string
+  crawlerRunId?: string
+  filePath: string
+  fileName: string
+  fileSize?: number
+  mimeType?: string
+  reason: string
+  filterType: string
+  filterValue?: string
+  modificationDate?: Date
+}) => {
+  await prisma.aiLibraryCrawlerOmittedFile.create({
+    data: {
+      crawlerId,
+      crawlerRunId,
+      filePath,
+      fileName,
+      fileSize,
+      mimeType,
+      omittedReason: reason,
+      filterType,
+      filterValue,
+      modificationDate,
+    },
+  })
 }
 
 const saveSmbCrawlerFile = async ({
@@ -186,6 +226,8 @@ export async function* crawlSmb({
   maxPages,
   crawlerId,
   libraryId,
+  crawlerRunId,
+  filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using mount for crawler: ${crawlerId}`)
@@ -208,12 +250,44 @@ export async function* crawlSmb({
       try {
         console.log(`Processing SMB file: ${fileToProcess.uri}`)
 
-        // Check file size limits before processing
-        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
-
         // Convert URI to mounted filesystem path and determine MIME type
         const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
+
+        // Apply file filters if configured
+        if (filterConfig) {
+          const fileInfo: FileInfo = {
+            fileName: fileToProcess.name,
+            filePath: fileToProcess.uri,
+            fileSize: fileToProcess.size,
+            modificationDate: fileToProcess.modifiedTime,
+          }
+
+          const filterResult = applyFileFilters(fileInfo, filterConfig)
+          if (!filterResult.allowed) {
+            console.log(`SMB file filtered out: ${fileToProcess.uri} - ${filterResult.reason}`)
+
+            // Record the omitted file
+            await recordOmittedFile({
+              crawlerId,
+              crawlerRunId,
+              filePath: fileToProcess.uri,
+              fileName: fileToProcess.name,
+              fileSize: fileToProcess.size,
+              mimeType,
+              reason: filterResult.reason || 'File filtered',
+              filterType: filterResult.filterType || 'unknown',
+              filterValue: filterResult.filterValue,
+              modificationDate: fileToProcess.modifiedTime,
+            })
+
+            // Skip this file but continue processing others
+            continue
+          }
+        }
+
+        // Check file size limits before processing
+        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
 
         if (!sizeCheck.acceptable) {
           console.warn(`SMB file too large ${fileToProcess.uri}: ${sizeCheck.reason}`)
