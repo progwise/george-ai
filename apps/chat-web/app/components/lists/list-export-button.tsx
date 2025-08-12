@@ -4,10 +4,9 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { graphql } from '../../gql'
-import { ListExport_FieldFragment, ListExport_FileFragment } from '../../gql/graphql'
+// NOTE: Field value computation is now centralized in pothos-graphql/utils/field-value-resolver.ts
+// We now use the GraphQL fieldValues field to get all values at once
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DownloadIcon } from '../../icons/download-icon'
 import { backendRequest } from '../../server-functions/backend'
@@ -59,15 +58,23 @@ graphql(`
   }
 `)
 
-// Query for export data
+// Query for export data - now uses centralized fieldValues
 const exportDataDocument = graphql(`
-  query ListExportData($listId: String!) {
+  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {
     aiList(id: $listId) {
       ...ListExport_List
     }
-    aiListFiles(listId: $listId, skip: 0, take: 10000, orderBy: "name", orderDirection: "asc") {
+    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {
+      count
       files {
-        ...ListExport_File
+        id
+        name
+        libraryId
+        fieldValues(fieldIds: $fieldIds, language: $language) {
+          fieldId
+          fieldName
+          displayValue
+        }
       }
     }
   }
@@ -75,16 +82,24 @@ const exportDataDocument = graphql(`
 
 // Server function for getting export data
 const getListExportData = createServerFn({ method: 'GET' })
-  .validator(z.object({ listId: z.string() }))
+  .validator(
+    z.object({
+      listId: z.string(),
+      skip: z.number(),
+      take: z.number(),
+      fieldIds: z.array(z.string()),
+      language: z.string(),
+    }),
+  )
   .handler(async (ctx) => {
     return await backendRequest(exportDataDocument, ctx.data)
   })
 
 // Query options for export data
-const getListExportDataOptions = (listId: string) =>
+const getListExportDataOptions = (listId: string, skip: number, take: number, fieldIds: string[], language: string) =>
   queryOptions({
-    queryKey: ['ListExportData', listId],
-    queryFn: () => getListExportData({ data: { listId } }),
+    queryKey: ['ListExportData', listId, skip, take, fieldIds, language],
+    queryFn: () => getListExportData({ data: { listId, skip, take, fieldIds, language } }),
   })
 
 interface ListExportButtonProps {
@@ -98,9 +113,10 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
   const [selectedFieldIds, setSelectedFieldIds] = useState<string[]>([])
   const [maxRows, setMaxRows] = useState(1000)
 
+  // First fetch just the list info to get fields and total count
   const {
     data: { aiList, aiListFiles },
-  } = useSuspenseQuery(getListExportDataOptions(listId))
+  } = useSuspenseQuery(getListExportDataOptions(listId, 0, 0, [], language))
 
   const handleOpenDialog = () => {
     // Initialize selected fields with all fields by default
@@ -125,8 +141,18 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
         return
       }
 
-      // Limit the number of files to export
-      const filesToExport = aiListFiles.files.slice(0, maxRows)
+      // Fetch data with field values
+      const exportData = await getListExportData({
+        data: {
+          listId,
+          skip: 0,
+          take: maxRows,
+          fieldIds: selectedFieldIds,
+          language,
+        },
+      })
+
+      const filesToExport = exportData.aiListFiles.files
 
       // Generate CSV header
       const headers = selectedFields.map((field) => field.name)
@@ -134,13 +160,9 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
 
       // Generate CSV data rows
       filesToExport.forEach((file) => {
-        const rowData = selectedFields.map((field) => {
-          let value = getFieldValue(file, field)
-
-          // Handle null/undefined values
-          if (value === null || value === undefined) {
-            value = ''
-          }
+        const rowData = selectedFieldIds.map((fieldId) => {
+          const fieldValue = file.fieldValues.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
+          const value = fieldValue?.displayValue || ''
 
           // Convert to string and escape CSV special characters
           const stringValue = String(value)
@@ -180,52 +202,6 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
     }
   }
 
-  // Helper function to get field value
-  const getFieldValue = (file: ListExport_FileFragment, field: ListExport_FieldFragment): string | number | null => {
-    if (field.sourceType === 'file_property' && field.fileProperty) {
-      switch (field.fileProperty) {
-        case 'name':
-          return file.name
-        case 'originUri':
-          return file.originUri ?? null
-        case 'crawlerUrl':
-          return file.crawledByCrawler?.uri || null
-        case 'processedAt':
-          return file.processedAt ? dateTimeString(file.processedAt, language) : null
-        case 'originModificationDate':
-          return file.originModificationDate ? dateTimeString(file.originModificationDate, language) : null
-        case 'size':
-          return file.size ?? null
-        case 'mimeType':
-          return file.mimeType
-        default:
-          return null
-      }
-    }
-
-    // For LLM computed fields, check cached values
-    if (field.sourceType === 'llm_computed') {
-      const cachedValue = file.cache?.find((cache: { fieldId: string }) => cache.fieldId === field.id)
-      if (cachedValue) {
-        switch (field.type) {
-          case 'string':
-            return cachedValue.valueString || null
-          case 'number':
-            return cachedValue.valueNumber ?? null
-          case 'boolean':
-            return cachedValue.valueBoolean ? 'Yes' : 'No'
-          case 'date':
-          case 'datetime':
-            return cachedValue.valueDate ? dateTimeString(cachedValue.valueDate, language) : null
-          default:
-            return cachedValue.valueString || null
-        }
-      }
-    }
-
-    return null
-  }
-
   const handleFieldToggle = (fieldId: string) => {
     setSelectedFieldIds((prev) => (prev.includes(fieldId) ? prev.filter((id) => id !== fieldId) : [...prev, fieldId]))
   }
@@ -247,8 +223,8 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
         type="button"
         className="btn btn-sm"
         onClick={handleOpenDialog}
-        disabled={isExporting || aiListFiles.files.length === 0}
-        title={aiListFiles.files.length === 0 ? t('lists.export.noData') : t('lists.export.tooltip')}
+        disabled={isExporting || aiListFiles.count === 0}
+        title={aiListFiles.count === 0 ? t('lists.export.noData') : t('lists.export.tooltip')}
       >
         {isExporting ? (
           <>
@@ -310,7 +286,7 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
                 max={10000}
               />
               <div className="text-base-content/60 mt-1 text-xs">
-                {t('lists.export.dialog.totalFiles', { count: aiListFiles.files.length })}
+                {t('lists.export.dialog.totalFiles', { count: aiListFiles.count })}
               </div>
             </div>
 

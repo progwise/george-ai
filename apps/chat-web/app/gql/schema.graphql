@@ -346,6 +346,7 @@ type AiLibraryFile {
   createdAt: DateTime!
   docPath: String
   dropError: String
+  fieldValues(fieldIds: [String!]!, language: String!): [FieldValueResult!]!
   id: ID!
   lastUpdate: AiLibraryUpdate
   libraryId: String!
@@ -619,6 +620,12 @@ type EnrichmentQueueResult {
   success: Boolean
 }
 
+type FieldValueResult {
+  displayValue: String
+  fieldId: String!
+  fieldName: String!
+}
+
 type FileChunk {
   chunkIndex: Int!
   headingPath: String!
@@ -811,7 +818,7 @@ type Query {
   aiListEnrichmentQueue(listId: String!, status: String): [AiListEnrichmentQueue!]!
   aiListFiles(
     listId: String!
-    orderBy: String = "asc"
+    orderBy: String
     orderDirection: String
     skip: Int! = 0
     take: Int! = 20

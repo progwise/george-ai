@@ -1,15 +1,13 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-
-import { dateTimeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import {
   FieldModal_EditableFieldFragment,
   ListFieldsTable_FieldFragment,
   ListFieldsTable_ListFragment,
-  ListFilesTable_FileFragment,
   ListFilesTable_FilesQueryResultFragment,
 } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
@@ -20,33 +18,18 @@ import { Pagination } from '../table/pagination'
 import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
+import { getListFilesWithValuesQueryOptions } from './get-list-files-with-values'
 import { EnrichmentQueueUpdate, useEnrichmentQueueSSE } from './use-enrichment-queue-sse'
 
 graphql(`
   fragment ListFilesTable_File on AiLibraryFile {
     id
     name
-    originUri
-    mimeType
-    size
-    processedAt
-    originModificationDate
     libraryId
-    crawledByCrawler {
-      id
-      uri
-    }
-    cache {
-      id
-      fieldId
-      valueString
-      valueNumber
-      valueDate
-      valueBoolean
-    }
   }
 `)
 
+// Note: We can't use variables in fragments, so fieldValues will be queried separately
 graphql(`
   fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {
     listId
@@ -131,6 +114,20 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     return [...(list.fields || [])].sort((a, b) => a.order - b.order)
   }, [list.fields])
 
+  // Fetch field values for all files
+  const fieldIds = useMemo(() => sortedFields.map((f) => f.id), [sortedFields])
+  const { data: filesWithValues } = useSuspenseQuery(
+    getListFilesWithValuesQueryOptions({
+      listId: listFiles.listId,
+      skip: listFiles.skip,
+      take: listFiles.take,
+      orderBy: listFiles.orderBy || undefined,
+      orderDirection: listFiles.orderDirection as 'asc' | 'desc' | undefined,
+      fieldIds,
+      language,
+    }),
+  )
+
   const [fieldVisibility, setFieldVisibility] = useLocalstorage<Record<string, boolean>>(
     'listFieldsTable-fieldVisibility',
   )
@@ -198,54 +195,18 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   // Use SSE hook for real-time enrichment updates
   useEnrichmentQueueSSE(list.id, reportUpdate)
 
-  // Get field value for a file
+  // Helper to get field value from the fetched data
   const getFieldValue = useCallback(
-    (file: ListFilesTable_FileFragment, field: ListFieldsTable_FieldFragment): string | number | null => {
-      if (field.sourceType === 'file_property' && field.fileProperty) {
-        switch (field.fileProperty) {
-          case 'name':
-            return file.name
-          case 'originUri':
-            return file.originUri ?? null
-          case 'crawlerUrl':
-            return file.crawledByCrawler?.uri || null
-          case 'processedAt':
-            return file.processedAt ? dateTimeString(file.processedAt, language) : null
-          case 'originModificationDate':
-            return file.originModificationDate ? dateTimeString(file.originModificationDate, language) : null
-          case 'size':
-            return file.size ?? null
-          case 'mimeType':
-            return file.mimeType
-          default:
-            return null
-        }
-      }
+    (fileId: string, fieldId: string): string | null => {
+      if (!filesWithValues) return null
 
-      // For LLM computed fields, check SSE computed values first, then cached values, then return null
-      if (field.sourceType === 'llm_computed') {
-        // Fall back to cached values from database
-        const cachedValue = file.cache?.find((cache) => cache.fieldId === field.id)
-        if (cachedValue) {
-          switch (field.type) {
-            case 'string':
-              return cachedValue.valueString || null
-            case 'number':
-              return cachedValue.valueNumber ?? null
-            case 'boolean':
-              return cachedValue.valueBoolean ? 'Yes' : 'No'
-            case 'date':
-            case 'datetime':
-              return cachedValue.valueDate ? dateTimeString(cachedValue.valueDate, language) : null
-            default:
-              return cachedValue.valueString || null
-          }
-        }
-      }
+      const file = filesWithValues.aiListFiles.files.find((f: { id: string }) => f.id === fileId)
+      if (!file) return null
 
-      return null // No value available
+      const fieldValue = file.fieldValues.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
+      return fieldValue?.displayValue || null
     },
-    [language],
+    [filesWithValues],
   )
 
   const handleSort = (fieldId: string) => {
@@ -459,7 +420,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
             listFiles.files.map((file) =>
               visibleFieldsArray
                 .map((field) => {
-                  const value = getFieldValue(file, field) //row.fieldValues[field.id]
+                  const value = getFieldValue(file.id, field.id) //row.fieldValues[field.id]
                   const displayValue = value?.toString() || '-'
 
                   return (

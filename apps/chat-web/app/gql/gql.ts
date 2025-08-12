@@ -108,6 +108,7 @@ type Documents = {
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
   '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    useMarkdown\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_EditableFieldFragmentDoc
+  '\n  query aiListFilesWithValues(\n    $listId: String!\n    $skip: Int!\n    $take: Int!\n    $orderBy: String\n    $orderDirection: String\n    $fieldIds: [String!]!\n    $language: String!\n  ) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      listId\n      count\n      take\n      skip\n      orderBy\n      orderDirection\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n': typeof types.AiListFilesWithValuesDocument
   '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n': typeof types.AiListFilesDocument
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ': typeof types.GetListDocument
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
@@ -116,8 +117,8 @@ type Documents = {
   '\n  fragment ListExport_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    crawledByCrawler {\n      id\n      uri\n    }\n    cache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n': typeof types.ListExport_FileFragmentDoc
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n': typeof types.ListExport_FieldFragmentDoc
   '\n  fragment ListExport_List on AiList {\n    id\n    name\n    fields {\n      ...ListExport_Field\n    }\n  }\n': typeof types.ListExport_ListFragmentDoc
-  '\n  query ListExportData($listId: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: 0, take: 10000, orderBy: "name", orderDirection: "asc") {\n      files {\n        ...ListExport_File\n      }\n    }\n  }\n': typeof types.ListExportDataDocument
-  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    cache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n': typeof types.ListFilesTable_FileFragmentDoc
+  '\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {\n      count\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n': typeof types.ListExportDataDocument
+  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    libraryId\n  }\n': typeof types.ListFilesTable_FileFragmentDoc
   '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
   '\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    languageModel\n    useMarkdown\n    pendingItemsCount\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.ListFieldsTable_FieldFragmentDoc
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
@@ -346,6 +347,8 @@ const documents: Documents = {
     types.FieldModal_ListFragmentDoc,
   '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    languageModel\n    useMarkdown\n    order\n    context {\n      contextFieldId\n    }\n  }\n':
     types.FieldModal_EditableFieldFragmentDoc,
+  '\n  query aiListFilesWithValues(\n    $listId: String!\n    $skip: Int!\n    $take: Int!\n    $orderBy: String\n    $orderDirection: String\n    $fieldIds: [String!]!\n    $language: String!\n  ) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      listId\n      count\n      take\n      skip\n      orderBy\n      orderDirection\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n':
+    types.AiListFilesWithValuesDocument,
   '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n':
     types.AiListFilesDocument,
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ':
@@ -361,9 +364,9 @@ const documents: Documents = {
     types.ListExport_FieldFragmentDoc,
   '\n  fragment ListExport_List on AiList {\n    id\n    name\n    fields {\n      ...ListExport_Field\n    }\n  }\n':
     types.ListExport_ListFragmentDoc,
-  '\n  query ListExportData($listId: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: 0, take: 10000, orderBy: "name", orderDirection: "asc") {\n      files {\n        ...ListExport_File\n      }\n    }\n  }\n':
+  '\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {\n      count\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n':
     types.ListExportDataDocument,
-  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    cache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n':
+  '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    libraryId\n  }\n':
     types.ListFilesTable_FileFragmentDoc,
   '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n':
     types.ListFilesTable_FilesQueryResultFragmentDoc,
@@ -1028,6 +1031,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query aiListFilesWithValues(\n    $listId: String!\n    $skip: Int!\n    $take: Int!\n    $orderBy: String\n    $orderDirection: String\n    $fieldIds: [String!]!\n    $language: String!\n  ) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      listId\n      count\n      take\n      skip\n      orderBy\n      orderDirection\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query aiListFilesWithValues(\n    $listId: String!\n    $skip: Int!\n    $take: Int!\n    $orderBy: String\n    $orderDirection: String\n    $fieldIds: [String!]!\n    $language: String!\n  ) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      listId\n      count\n      take\n      skip\n      orderBy\n      orderDirection\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n',
 ): (typeof documents)['\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n']
 /**
@@ -1076,14 +1085,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query ListExportData($listId: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: 0, take: 10000, orderBy: "name", orderDirection: "asc") {\n      files {\n        ...ListExport_File\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query ListExportData($listId: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: 0, take: 10000, orderBy: "name", orderDirection: "asc") {\n      files {\n        ...ListExport_File\n      }\n    }\n  }\n']
+  source: '\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {\n      count\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {\n      count\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    cache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n',
-): (typeof documents)['\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    processedAt\n    originModificationDate\n    libraryId\n    crawledByCrawler {\n      id\n      uri\n    }\n    cache {\n      id\n      fieldId\n      valueString\n      valueNumber\n      valueDate\n      valueBoolean\n    }\n  }\n']
+  source: '\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    libraryId\n  }\n',
+): (typeof documents)['\n  fragment ListFilesTable_File on AiLibraryFile {\n    id\n    name\n    libraryId\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
