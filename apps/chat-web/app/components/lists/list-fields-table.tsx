@@ -156,7 +156,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setColumnWidths to dependencies - it causes excessive re-rendering during column resize
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setColumnWidths to dependencies - it causes excessive re-rendering during column resize
   }, [sortedFields])
 
   // Auto-show new fields when they're added
@@ -178,7 +178,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setFieldVisibility to dependencies - it causes excessive re-rendering during column resize
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setFieldVisibility to dependencies - it causes excessive re-rendering during column resize
   }, [sortedFields])
 
   const [isResizing, setIsResizing] = useState<string | null>(null)
