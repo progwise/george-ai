@@ -514,6 +514,7 @@ export type AiListEnrichmentQueue = {
 
 export type AiListField = {
   __typename?: 'AiListField'
+  context: Array<AiListFieldContext>
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   languageModel?: Maybe<Scalars['String']['output']>
@@ -523,9 +524,20 @@ export type AiListField = {
   prompt?: Maybe<Scalars['String']['output']>
   sourceType: Scalars['String']['output']
   type: Scalars['String']['output']
+  useMarkdown?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type AiListFieldContext = {
+  __typename?: 'AiListFieldContext'
+  contextField: AiListField
+  contextFieldId: Scalars['String']['output']
+  createdAt: Scalars['DateTime']['output']
+  field: AiListField
+  fieldId: Scalars['String']['output']
 }
 
 export type AiListFieldInput = {
+  context?: InputMaybe<Array<Scalars['String']['input']>>
   fileProperty?: InputMaybe<Scalars['String']['input']>
   languageModel?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
@@ -535,6 +547,7 @@ export type AiListFieldInput = {
   sourceType: Scalars['String']['input']
   /** Field type: string, number, date, datetime, boolean */
   type: Scalars['String']['input']
+  useMarkdown?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Query result for AI list files from all source libraries */
@@ -743,6 +756,7 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startListEnrichment: EnrichmentQueueResult
+  startSingleEnrichment: EnrichmentQueueResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopListEnrichment: EnrichmentQueueResult
   toggleAdminStatus?: Maybe<User>
@@ -971,6 +985,12 @@ export type MutationSendMessageArgs = {
 
 export type MutationStartListEnrichmentArgs = {
   fieldId: Scalars['String']['input']
+  listId: Scalars['String']['input']
+}
+
+export type MutationStartSingleEnrichmentArgs = {
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
   listId: Scalars['String']['input']
 }
 
@@ -2910,6 +2930,12 @@ export type ListEditForm_ListFragment = {
   updatedAt?: string | null
 }
 
+export type FieldModal_ListFragment = {
+  __typename?: 'AiList'
+  id: string
+  fields: Array<{ __typename?: 'AiListField'; id: string; name: string; type: string; sourceType: string }>
+}
+
 export type FieldModal_EditableFieldFragment = {
   __typename?: 'AiListField'
   id: string
@@ -2917,7 +2943,9 @@ export type FieldModal_EditableFieldFragment = {
   type: string
   prompt?: string | null
   languageModel?: string | null
+  useMarkdown?: boolean | null
   order: number
+  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
 export type AiListFilesQueryVariables = Exact<{
@@ -2996,7 +3024,9 @@ export type GetListQuery = {
       fileProperty?: string | null
       prompt?: string | null
       languageModel?: string | null
+      useMarkdown?: boolean | null
       pendingItemsCount: number
+      context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
   }
 }
@@ -3089,7 +3119,9 @@ export type ListFieldsTable_FieldFragment = {
   fileProperty?: string | null
   prompt?: string | null
   languageModel?: string | null
+  useMarkdown?: boolean | null
   pendingItemsCount: number
+  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
 export type ListFieldsTable_ListFragment = {
@@ -3105,7 +3137,9 @@ export type ListFieldsTable_ListFragment = {
     fileProperty?: string | null
     prompt?: string | null
     languageModel?: string | null
+    useMarkdown?: boolean | null
     pendingItemsCount: number
+    context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
 
@@ -3166,6 +3200,17 @@ export type StartListEnrichmentMutation = {
     queuedItems?: number | null
     error?: string | null
   }
+}
+
+export type StartSingleEnrichmentMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type StartSingleEnrichmentMutation = {
+  __typename?: 'Mutation'
+  startSingleEnrichment: { __typename?: 'EnrichmentQueueResult'; success?: boolean | null; error?: string | null }
 }
 
 export type StopListEnrichmentMutationVariables = Exact<{
@@ -6075,6 +6120,35 @@ export const ListEditForm_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListEditForm_ListFragment, unknown>
+export const FieldModal_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'fields' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FieldModal_ListFragment, unknown>
 export const FieldModal_EditableFieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -6090,7 +6164,16 @@ export const FieldModal_EditableFieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -6272,7 +6355,16 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -6315,7 +6407,16 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -11256,7 +11357,16 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -11555,6 +11665,66 @@ export const StartListEnrichmentDocument = {
     },
   ],
 } as unknown as DocumentNode<StartListEnrichmentMutation, StartListEnrichmentMutationVariables>
+export const StartSingleEnrichmentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'startSingleEnrichment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'startSingleEnrichment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StartSingleEnrichmentMutation, StartSingleEnrichmentMutationVariables>
 export const StopListEnrichmentDocument = {
   kind: 'Document',
   definitions: [

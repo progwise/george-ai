@@ -1,4 +1,5 @@
 import { getEnrichedValue } from '@george-ai/langchain-chat'
+import type { Prisma } from '@george-ai/prismaClient'
 
 import { callEnrichmentQueueUpdateSubscriptions } from './enrichment-queue-subscription'
 import { prisma } from './prisma'
@@ -8,6 +9,59 @@ let workerInterval: NodeJS.Timeout | null = null
 
 const WORKER_INTERVAL_MS = 2000 // Process queue every 2 seconds
 const BATCH_SIZE = 5 // Process up to 5 items at a time
+
+// Helper function to get field value for a file
+async function getFieldValue(
+  file: Prisma.AiLibraryFileGetPayload<object>,
+  field: Prisma.AiListFieldGetPayload<object>,
+  cache?: Prisma.AiListItemCacheGetPayload<object> | null,
+): Promise<string | null> {
+  // Handle file property fields
+  if (field.sourceType === 'file_property' && field.fileProperty) {
+    switch (field.fileProperty) {
+      case 'name':
+        return file.name
+      case 'originUri':
+        return file.originUri
+      case 'crawlerUrl': {
+        if (!file.crawledByCrawlerId) return null
+        const crawler = await prisma.aiLibraryCrawler.findFirst({
+          where: { id: file.crawledByCrawlerId },
+        })
+        return crawler?.uri || null
+      }
+      case 'processedAt':
+        return file.processedAt?.toISOString() || null
+      case 'originModificationDate':
+        return file.originModificationDate?.toISOString() || null
+      case 'size':
+        return file.size?.toString() || null
+      case 'mimeType':
+        return file.mimeType
+      default:
+        return null
+    }
+  }
+
+  // Handle computed fields - use cached value if available
+  if (field.sourceType === 'llm_computed' && cache) {
+    switch (field.type) {
+      case 'string':
+        return cache.valueString
+      case 'number':
+        return cache.valueNumber?.toString() || null
+      case 'boolean':
+        return cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null
+      case 'date':
+      case 'datetime':
+        return cache.valueDate?.toISOString() || null
+      default:
+        return cache.valueString
+    }
+  }
+
+  return null
+}
 
 async function processQueueItem(queueItem: {
   id: string
@@ -40,6 +94,7 @@ async function processQueueItem(queueItem: {
 
     // Get field details
     const field = await prisma.aiListField.findUnique({
+      include: { context: { include: { contextField: true } } },
       where: { id: queueItem.fieldId },
     })
 
@@ -56,13 +111,38 @@ async function processQueueItem(queueItem: {
       throw new Error('File not found')
     }
 
-    // TODO: Implement actual LLM computation here
-    // For now, use a mock value
+    // Get actual values for context fields
+    const contextWithValues = await Promise.all(
+      field.context.map(async (item) => {
+        // Get cached value if this is a computed field
+        let cachedValue = null
+        if (item.contextField.sourceType === 'llm_computed') {
+          cachedValue = await prisma.aiListItemCache.findUnique({
+            where: {
+              fileId_fieldId: {
+                fileId: queueItem.fileId,
+                fieldId: item.contextFieldId,
+              },
+            },
+          })
+        }
+
+        const value = await getFieldValue(file, item.contextField, cachedValue)
+        return {
+          name: item.contextField.name,
+          value: value || '',
+        }
+      }),
+    )
 
     const computedValue = await getEnrichedValue({
       file: file,
       languageModel: field.languageModel,
       instruction: field.prompt,
+      context: contextWithValues,
+      options: {
+        useMarkdown: field.useMarkdown || false,
+      },
     }) //`[${field.type}] Computed for ${file.name}`
 
     // Simulate processing time

@@ -15,13 +15,22 @@ export const getUpdateListFieldSchema = (language: Language) =>
     prompt: z.string().nonempty(translate('lists.fields.promptRequired', language)),
     order: z.string().optional(),
     fileProperty: z.string().optional(),
+    useMarkdown: z
+      .string()
+      .optional()
+      .transform((val) => val === 'on'),
+    context: z.array(z.string()).optional(),
   })
 
 export const updateListField = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const entries = Object.fromEntries(data)
-    return getUpdateListFieldSchema(language).parse(entries)
+    const contextIds = data.getAll('context') as string[]
+    return getUpdateListFieldSchema(language).parse({
+      ...entries,
+      context: contextIds.length > 0 ? contextIds : undefined,
+    })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -50,6 +59,8 @@ export const updateListField = createServerFn({ method: 'POST' })
           prompt: data.prompt,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
+          useMarkdown: data.useMarkdown,
+          context: data.context || null,
         },
       },
     )

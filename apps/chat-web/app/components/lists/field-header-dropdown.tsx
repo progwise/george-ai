@@ -68,6 +68,8 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
       prompt: field.prompt || '',
       languageModel: field.languageModel || '',
       order: field.order,
+      useMarkdown: field.useMarkdown || false,
+      context: field.context || [],
     }
     onEdit(editFieldData)
     onClose()
@@ -91,7 +93,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
   return (
     <div
       ref={dropdownRef}
-      className="bg-base-100 border-base-300 absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border shadow-lg"
+      className="bg-base-100 border-base-300 absolute right-0 top-full z-[9999] mt-1 w-56 rounded-lg border shadow-lg"
     >
       <div className="py-2">
         {canEnrich && (

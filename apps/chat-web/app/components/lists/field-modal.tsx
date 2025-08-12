@@ -1,12 +1,24 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { graphql } from '../../gql'
-import { FieldModal_EditableFieldFragment } from '../../gql/graphql'
+import { FieldModal_EditableFieldFragment, FieldModal_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListField } from './add-list-field'
 import { updateListField } from './update-list-field'
+
+graphql(`
+  fragment FieldModal_List on AiList {
+    id
+    fields {
+      id
+      name
+      type
+      sourceType
+    }
+  }
+`)
 
 graphql(`
   fragment FieldModal_EditableField on AiListField {
@@ -15,12 +27,16 @@ graphql(`
     type
     prompt
     languageModel
+    useMarkdown
     order
+    context {
+      contextFieldId
+    }
   }
 `)
 
 interface FieldModalProps {
-  listId: string
+  list: FieldModal_ListFragment
   isOpen: boolean
   onClose: () => void
   maxOrder: number
@@ -35,7 +51,7 @@ const FIELD_TYPES = [
   { value: 'datetime', label: 'Date & Time' },
 ]
 
-export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
+export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
@@ -43,6 +59,10 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
   const { data: aiModelsData } = useSuspenseQuery(getChatModelsQueryOptions())
 
   const availableModels = aiModelsData?.aiChatModels || []
+  const availableFields = list.fields || []
+
+  // Get current context field IDs for edit mode
+  const currentContextIds = editField?.context?.map((c) => c.contextFieldId) || []
 
   const isEditMode = !!editField
 
@@ -55,7 +75,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
       toastSuccess(t('lists.fields.addSuccess', { name: data.addListField.name }))
 
       // Invalidate queries to refetch list data
-      queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
+      queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
       onClose()
     },
   })
@@ -69,7 +89,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
       toastSuccess(t('lists.fields.updateSuccess', { name: data.updateListField.name }))
 
       // Invalidate queries to refetch list data
-      queryClient.invalidateQueries({ queryKey: ['AiList', { listId }] })
+      queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
       onClose()
     },
   })
@@ -95,7 +115,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Hidden Fields */}
           <input type="hidden" name="id" value={editField?.id || ''} />
-          <input type="hidden" name="listId" value={listId} />
+          <input type="hidden" name="listId" value={list.id} />
           <input type="hidden" name="sourceType" value="llm_computed" />
           <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
 
@@ -103,14 +123,14 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
           <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
             {/* Field Name */}
             <label className="label justify-start">
-              <span className="label-text font-medium">Field Name *</span>
+              <span className="label-text font-medium">{t('lists.fields.fieldName')}</span>
             </label>
             <div className="md:col-span-3">
               <input
                 type="text"
                 name="name"
                 className="input input-bordered w-full"
-                placeholder="e.g., Sentiment, Category, Priority"
+                placeholder={t('lists.fields.fieldNamePlaceholder')}
                 defaultValue={editField?.name || ''}
                 required
               />
@@ -118,7 +138,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
 
             {/* Field Type */}
             <label className="label justify-start">
-              <span className="label-text font-medium">Data Type</span>
+              <span className="label-text font-medium">{t('lists.fields.dataType')}</span>
             </label>
             <div className="md:col-span-3">
               <select name="type" className="select select-bordered w-full" defaultValue={editField?.type || 'string'}>
@@ -132,7 +152,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
 
             {/* AI Model */}
             <label className="label justify-start">
-              <span className="label-text font-medium">AI Model *</span>
+              <span className="label-text font-medium">{t('lists.fields.aiModel')}</span>
             </label>
             <div className="md:col-span-3">
               <select
@@ -141,7 +161,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
                 defaultValue={editField?.languageModel || ''}
                 required
               >
-                <option value="">Select an AI model...</option>
+                <option value="">{t('lists.fields.selectAiModel')}</option>
                 {availableModels.map((model) => (
                   <option key={model.model} value={model.model}>
                     {model.name}
@@ -152,20 +172,63 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
 
             {/* Prompt */}
             <label className="label justify-start self-start">
-              <span className="label-text font-medium">AI Prompt *</span>
+              <span className="label-text font-medium">{t('lists.fields.aiPrompt')}</span>
             </label>
             <div className="md:col-span-3">
               <textarea
                 name="prompt"
                 className="textarea textarea-bordered h-24 w-full"
-                placeholder="Describe what you want the AI to extract or analyze from each file. Example: 'Analyze the sentiment of this document and return either Positive, Negative, or Neutral'"
+                placeholder={t('lists.fields.aiPromptPlaceholder')}
                 defaultValue={editField?.prompt || ''}
                 required
               />
               <div className="mt-1">
                 <span className="text-base-content/60 text-xs">
-                  The AI will analyze each file's content using this prompt
+                  {t('lists.fields.aiPromptHelp')}
                 </span>
+              </div>
+            </div>
+
+            {/* Context Fields */}
+            <label className="label justify-start self-start">
+              <span className="label-text font-medium">{t('lists.fields.contextFields')}</span>
+            </label>
+            <div className="md:col-span-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="useMarkdown"
+                    className="checkbox checkbox-sm"
+                    defaultChecked={editField?.useMarkdown || false}
+                  />
+                  <span className="truncate" title={t('lists.fields.useMarkdownHelp')}>
+                    {t('lists.fields.markdownLabel')}
+                  </span>
+                </label>
+                {availableFields
+                  .filter((field) => field.id !== editField?.id) // Don't allow self-reference
+                  .map((field) => (
+                    <label key={field.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="context"
+                        value={field.id}
+                        className="checkbox checkbox-sm"
+                        defaultChecked={currentContextIds.includes(field.id)}
+                      />
+                      <span className="truncate" title={field.name}>
+                        {field.name} (
+                        {field.sourceType === 'file_property'
+                          ? t('lists.fields.fileProperty')
+                          : t('lists.fields.computed')}
+                        )
+                      </span>
+                    </label>
+                  ))}
+              </div>
+              <div className="mt-1">
+                <span className="text-base-content/60 text-xs">{t('lists.fields.contextFieldsHelp')}</span>
               </div>
             </div>
           </div>
@@ -178,7 +241,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
               onClick={onClose}
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               type="submit"
@@ -188,7 +251,7 @@ export const FieldModal = ({ listId, isOpen, onClose, maxOrder, editField }: Fie
               {(addFieldMutation.isPending || updateFieldMutation.isPending) && (
                 <span className="loading loading-spinner loading-sm" />
               )}
-              {isEditMode ? 'Update Field' : 'Add Field'}
+              {isEditMode ? t('lists.fields.updateField') : t('lists.fields.addField')}
             </button>
           </div>
         </form>

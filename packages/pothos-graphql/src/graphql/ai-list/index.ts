@@ -28,6 +28,8 @@ builder.prismaObject('AiListField', {
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
     languageModel: t.exposeString('languageModel'),
+    useMarkdown: t.exposeBoolean('useMarkdown'),
+    context: t.relation('context', { nullable: false }),
     pendingItemsCount: t.field({
       type: 'Int',
       nullable: false,
@@ -38,6 +40,17 @@ builder.prismaObject('AiListField', {
         return count
       },
     }),
+  }),
+})
+
+builder.prismaObject('AiListFieldContext', {
+  name: 'AiListFieldContext',
+  fields: (t) => ({
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+    fieldId: t.exposeString('fieldId', { nullable: false }),
+    field: t.relation('field', { nullable: false }),
+    contextFieldId: t.exposeString('contextFieldId', { nullable: false }),
+    contextField: t.relation('contextField', { nullable: false }),
   }),
 })
 

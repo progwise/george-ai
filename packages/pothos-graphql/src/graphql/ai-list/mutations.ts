@@ -212,6 +212,8 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     fileProperty: t.string({ required: false }),
     prompt: t.string({ required: false }),
     languageModel: t.string({ required: false }),
+    useMarkdown: t.boolean({ required: false }),
+    context: t.stringList({ required: false }),
   }),
 })
 
@@ -250,8 +252,22 @@ builder.mutationField('addListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
+          useMarkdown: data.useMarkdown,
         },
       })
+
+      // Create context relations if context field IDs are provided
+      if (data.context && data.context.length > 0) {
+        const contextData = data.context.map((contextFieldId) => ({
+          fieldId: newField.id,
+          contextFieldId,
+        }))
+
+        await prisma.aiListFieldContext.createMany({
+          data: contextData,
+        })
+      }
+
       return newField
     },
   }),
@@ -292,8 +308,28 @@ builder.mutationField('updateListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
+          useMarkdown: data.useMarkdown,
         },
       })
+
+      // Update context relations
+      // First, delete existing context relations
+      await prisma.aiListFieldContext.deleteMany({
+        where: { fieldId: id },
+      })
+
+      // Then create new context relations if provided
+      if (data.context && data.context.length > 0) {
+        const contextData = data.context.map((contextFieldId) => ({
+          fieldId: id,
+          contextFieldId,
+        }))
+
+        await prisma.aiListFieldContext.createMany({
+          data: contextData,
+        })
+      }
+
       return updatedField
     },
   }),
@@ -533,6 +569,91 @@ builder.mutationField('startListEnrichment', (t) =>
         }
       } catch (error) {
         console.error('Error starting enrichment:', error)
+        return {
+          success: false,
+          queuedItems: undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)
+
+builder.mutationField('startSingleEnrichment', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: EnrichmentQueueResult,
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      fieldId: t.arg.string({ required: true, description: 'Field ID to enrich' }),
+      fileId: t.arg.string({ required: true, description: 'File ID to enrich' }),
+    },
+    resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
+      console.log('🔍 Starting single enrichment for listId:', listId, 'fieldId:', fieldId, 'fileId:', fileId)
+      try {
+        const list = await prisma.aiList.findFirst({
+          where: { id: listId },
+          include: {
+            participants: true,
+            fields: { where: { sourceType: 'llm_computed', id: fieldId } },
+            sources: { include: { library: { include: { files: { where: { id: fileId } } } } } },
+          },
+        })
+        if (!list) {
+          throw new Error(`List with id ${listId} not found`)
+        }
+        canAccessListOrThrow(list, session.user)
+
+        // Get the specific field to enrich
+        const fieldToEnrich = list.fields.find((f) => f.id === fieldId)
+        if (!fieldToEnrich) {
+          throw new Error('Field not found or not an LLM computed field')
+        }
+
+        // Get the specific file from all library sources
+        const allFiles = list.sources.flatMap((source) => source.library?.files || [])
+        const fileToEnrich = allFiles.find((f) => f.id === fileId)
+        if (!fileToEnrich) {
+          throw new Error('File not found in list sources')
+        }
+
+        // Clean up any existing queue item for this specific file+field combination
+        await prisma.aiListEnrichmentQueue.deleteMany({
+          where: {
+            listId,
+            fieldId,
+            fileId,
+          },
+        })
+
+        // Also clear cached value for this specific file+field to avoid showing stale data
+        await prisma.aiListItemCache.deleteMany({
+          where: {
+            fieldId,
+            fileId,
+          },
+        })
+
+        // Create single queue item
+        await prisma.aiListEnrichmentQueue.create({
+          data: {
+            listId,
+            fieldId,
+            fileId,
+            status: 'pending',
+            priority: 0,
+          },
+        })
+
+        console.log('✅ Successfully created single queue item')
+
+        return {
+          success: true,
+          queuedItems: 1,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error starting single enrichment:', error)
         return {
           success: false,
           queuedItems: undefined,

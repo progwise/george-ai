@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -17,6 +18,7 @@ import { MenuEllipsisIcon } from '../../icons/menu-ellipsis-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { Pagination } from '../table/pagination'
 import { FieldHeaderDropdown } from './field-header-dropdown'
+import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
 import { EnrichmentQueueUpdate, useEnrichmentQueueSSE } from './use-enrichment-queue-sse'
 
@@ -69,7 +71,11 @@ graphql(`
     fileProperty
     prompt
     languageModel
+    useMarkdown
     pendingItemsCount
+    context {
+      contextFieldId
+    }
   }
 `)
 
@@ -150,7 +156,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  }, [sortedFields, setColumnWidths])
+  }, [setColumnWidths, sortedFields])
 
   // Auto-show new fields when they're added
   useEffect(() => {
@@ -171,16 +177,21 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  }, [sortedFields, setFieldVisibility])
+  }, [setFieldVisibility, sortedFields])
 
   const [isResizing, setIsResizing] = useState<string | null>(null)
   const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
   const [editField, setEditField] = useState<FieldModal_EditableFieldFragment | null>(null)
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
+  const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
 
   const startXRef = useRef<number>(0)
   const startWidthRef = useRef<number>(0)
   const resizingColumnRef = useRef<string | null>(null)
+  const columnWidthsRef = useRef<Record<string, number> | null>(null)
+
+  // Keep column widths ref in sync
+  columnWidthsRef.current = columnWidths
 
   // Use SSE hook for real-time enrichment updates
   useEnrichmentQueueSSE(list.id, reportUpdate)
@@ -285,7 +296,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       startXRef.current = event.clientX
 
       // Get current column width or use default
-      const currentWidth = (columnWidths && columnWidths[columnId]) || 150
+      const currentWidth = (columnWidthsRef.current && columnWidthsRef.current[columnId]) || 150
       startWidthRef.current = currentWidth
 
       const handleMouseMove = (e: MouseEvent) => {
@@ -312,7 +323,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       document.addEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'col-resize'
     },
-    [columnWidths, setColumnWidths],
+    [setColumnWidths],
   )
 
   return (
@@ -456,15 +467,39 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                       style={{
                         minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
                         width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
-                        overflow: 'hidden',
                       }}
                     >
-                      {/* Show loading spinner for LLM fields that are queued/processing or have no value yet */}
-                      {field.sourceType === 'llm_computed' && !value ? (
-                        <div id={`${file.id}-${field.id}`} className="flex items-center gap-2">
-                          <span className="text-base-content/40 text-xs italic">
-                            {t('lists.enrichment.notEnriched')}
+                      {field.sourceType === 'llm_computed' ? (
+                        <div id={`${file.id}-${field.id}`} className="group relative flex items-center gap-1">
+                          <span
+                            className={twMerge(
+                              'flex-1 overflow-hidden text-nowrap',
+                              !value && 'text-base-content/40 text-xs italic',
+                            )}
+                            title={displayValue}
+                          >
+                            {value ? displayValue : t('lists.enrichment.notEnriched')}
                           </span>
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const itemKey = `${file.id}-${field.id}`
+                              setItemDropdownOpen(itemDropdownOpen === itemKey ? null : itemKey)
+                            }}
+                          >
+                            <MenuEllipsisIcon className="size-4" />
+                          </button>
+                          <FieldItemDropdown
+                            listId={list.id}
+                            fieldId={field.id}
+                            fileId={file.id}
+                            fieldName={field.name}
+                            fileName={file.name}
+                            isOpen={itemDropdownOpen === `${file.id}-${field.id}`}
+                            onClose={() => setItemDropdownOpen(null)}
+                          />
                         </div>
                       ) : field.fileProperty === 'name' ? (
                         <Link
@@ -520,7 +555,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
       {/* Field Modal (Add/Edit) */}
       <FieldModal
-        listId={list.id}
+        list={list}
         isOpen={isFieldModalOpen}
         onClose={handleCloseModal}
         maxOrder={Math.max(0, ...sortedFields.map((f) => f.order))}

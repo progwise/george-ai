@@ -482,6 +482,7 @@ type AiListEnrichmentQueue {
 }
 
 type AiListField {
+  context: [AiListFieldContext!]!
   fileProperty: String
   id: ID!
   languageModel: String
@@ -491,9 +492,19 @@ type AiListField {
   prompt: String
   sourceType: String!
   type: String!
+  useMarkdown: Boolean
+}
+
+type AiListFieldContext {
+  contextField: AiListField!
+  contextFieldId: String!
+  createdAt: DateTime!
+  field: AiListField!
+  fieldId: String!
 }
 
 input AiListFieldInput {
+  context: [String!]
   fileProperty: String
   languageModel: String
   name: String!
@@ -507,6 +518,7 @@ input AiListFieldInput {
   Field type: string, number, date, datetime, boolean
   """
   type: String!
+  useMarkdown: Boolean
 }
 
 """
@@ -735,6 +747,17 @@ type Mutation {
     Field ID to enrich
     """
     fieldId: String!
+    listId: String!
+  ): EnrichmentQueueResult!
+  startSingleEnrichment(
+    """
+    Field ID to enrich
+    """
+    fieldId: String!
+    """
+    File ID to enrich
+    """
+    fileId: String!
     listId: String!
   ): EnrichmentQueueResult!
   stopAiLibraryCrawler(crawlerId: String!): String!

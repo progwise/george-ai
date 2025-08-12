@@ -120,6 +120,7 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
 
 export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
   return z.object({
+    context: z.array(z.string()).nullish(),
     fileProperty: z.string().nullish(),
     languageModel: z.string().nullish(),
     name: z.string(),
@@ -127,6 +128,7 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     prompt: z.string().nullish(),
     sourceType: z.string(),
     type: z.string(),
+    useMarkdown: z.boolean().nullish(),
   })
 }
 

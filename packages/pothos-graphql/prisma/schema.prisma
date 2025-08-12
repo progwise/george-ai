@@ -308,10 +308,23 @@ model AiListField {
   // For llm_computed source
   languageModel String?
   prompt        String?
+  useMarkdown   Boolean?
 
   list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
   cachedValues    AiListItemCache[]
   enrichmentQueue AiListEnrichmentQueue[]
+  context         AiListFieldContext[]    @relation("fieldId")
+  usedAsContext   AiListFieldContext[]    @relation("contextFieldId")
+}
+
+model AiListFieldContext {
+  fieldId        String
+  field          AiListField @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
+  contextFieldId String
+  contextField   AiListField @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+
+  @@id([fieldId, contextFieldId])
 }
 
 model AiListItemCache {
