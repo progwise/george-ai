@@ -117,7 +117,7 @@ builder.queryField('aiListFiles', (t) =>
       listId: t.arg.string({ required: true }),
       skip: t.arg.int({ required: true, defaultValue: 0 }),
       take: t.arg.int({ required: true, defaultValue: 20 }),
-      orderBy: t.arg.string({ required: false, defaultValue: 'asc' }),
+      orderBy: t.arg.string({ required: false }),
       orderDirection: t.arg.string({ required: false }),
     },
     resolve: (_root, args) => {

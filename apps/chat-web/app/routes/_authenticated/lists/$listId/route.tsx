@@ -4,6 +4,7 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { getListQueryOptions } from '../../../../components/lists/get-list'
 import { getListsQueryOptions } from '../../../../components/lists/get-lists'
 import { ListDeleteButton } from '../../../../components/lists/list-delete-button'
+import { ListExportButton } from '../../../../components/lists/list-export-button'
 import { ListSelector } from '../../../../components/lists/list-selector'
 import { NewListButton } from '../../../../components/lists/new-list-button'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
@@ -62,6 +63,9 @@ function RouteComponent() {
             <EditIcon className="size-6" />
             {t('lists.edit')}
           </Link>
+        </li>
+        <li className="">
+          <ListExportButton listId={params.listId} />
         </li>
         <li className="grow-1"></li>
         <li className="justify-self-end">
