@@ -183,9 +183,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 required
               />
               <div className="mt-1">
-                <span className="text-base-content/60 text-xs">
-                  {t('lists.fields.aiPromptHelp')}
-                </span>
+                <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
               </div>
             </div>
 

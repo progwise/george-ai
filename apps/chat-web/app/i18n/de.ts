@@ -459,14 +459,16 @@ export default {
       contextFields: 'Kontext-Felder',
       fileProperty: 'Dateieigenschaft',
       computed: 'Berechnet',
-      contextFieldsHelp: 'Wählen Sie Felder für zusätzlichen Kontext aus. Wenn keines ausgewählt, wird nur der Dateiinhalt verwendet.',
+      contextFieldsHelp:
+        'Wählen Sie Felder für zusätzlichen Kontext aus. Wenn keines ausgewählt, wird nur der Dateiinhalt verwendet.',
       fieldName: 'Feldname *',
       fieldNamePlaceholder: 'z.B. Stimmung, Kategorie, Priorität',
       dataType: 'Datentyp',
       aiModel: 'KI-Modell *',
       selectAiModel: 'KI-Modell auswählen...',
       aiPrompt: 'KI-Prompt *',
-      aiPromptPlaceholder: 'Beschreiben Sie, was die KI aus jeder Datei extrahieren oder analysieren soll. Beispiel: \'Analysiere die Stimmung dieses Dokuments und gib entweder Positiv, Negativ oder Neutral zurück\'',
+      aiPromptPlaceholder:
+        "Beschreiben Sie, was die KI aus jeder Datei extrahieren oder analysieren soll. Beispiel: 'Analysiere die Stimmung dieses Dokuments und gib entweder Positiv, Negativ oder Neutral zurück'",
       aiPromptHelp: 'Die KI wird den Inhalt jeder Datei mit diesem Prompt analysieren',
       markdownLabel: 'Markdown',
       useMarkdownHelp: 'Markdown-Inhalt für Anreicherung verwenden',
