@@ -41,7 +41,10 @@ const yoga = createYoga({
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  credentials: true,
+  origin: true // Allow any origin in development, should be restricted in production
+}))
 app.use(cookieParser())
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', avatarMiddleware)
@@ -49,6 +52,7 @@ app.use('/upload', dataUploadMiddleware)
 app.get('/library-files/:libraryId/:fileId', libraryFiles)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 app.get('/enrichment-queue-sse', enrichmentQueueSSE)
+app.options('/enrichment-queue-sse', enrichmentQueueSSE)
 
 // Only check API key or user JWT for /graphql POST requests
 app.use('/graphql', (req, res, next) => {

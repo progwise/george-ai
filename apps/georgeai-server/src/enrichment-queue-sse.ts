@@ -11,6 +11,18 @@ import { getUserContext } from './getUserContext'
 const eventIds = new Map<string, number>()
 
 export const enrichmentQueueSSE = async (request: Request, response: Response) => {
+  // Handle CORS preflight request
+  if (request.method === 'OPTIONS') {
+    response.writeHead(200, {
+      'Access-Control-Allow-Origin': request.headers.origin || '*',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Cache-Control',
+    })
+    response.end()
+    return
+  }
+
   if (!request.query['listId']) {
     response.status(400).send('listId is required')
     return
@@ -18,11 +30,24 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
 
   // Authentication check using existing getUserContext
   const getToken = () => {
-    const authHeader = request.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null
+    // For SSE, check cookies since EventSource automatically sends them
+    // This matches how the GraphQL endpoint gets the token
+    const cookies = request.headers.cookie
+    if (cookies) {
+      // Parse the keycloak token cookie (matches backend.ts pattern)
+      const tokenMatch = cookies.match(/keycloak-token=([^;]+)/)
+      if (tokenMatch) {
+        return decodeURIComponent(tokenMatch[1])
+      }
     }
-    return authHeader.replace('Bearer ', '')
+    
+    // Fallback to Authorization header for other clients
+    const authHeader = request.headers.authorization
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.replace('Bearer ', '')
+    }
+    
+    return null
   }
 
   const context = await getUserContext(getToken)
@@ -62,8 +87,11 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
   response.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'access-control-allow-origin': '*',
-    Connection: 'keep-alive',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': request.headers.origin || '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Authorization, Content-Type, Cache-Control',
   })
 
   console.log('Enrichment queue SSE connection opened', listId, 'for user', user.id)
