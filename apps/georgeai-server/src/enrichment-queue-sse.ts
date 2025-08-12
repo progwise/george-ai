@@ -4,12 +4,58 @@ import {
   subscribeEnrichmentQueueUpdates,
   unsubscribeEnrichmentQueueUpdates,
 } from '@george-ai/pothos-graphql/src/enrichment-queue-subscription'
+import { prisma } from '@george-ai/pothos-graphql/src/prisma'
+
+import { getUserContext } from './getUserContext'
 
 const eventIds = new Map<string, number>()
 
 export const enrichmentQueueSSE = async (request: Request, response: Response) => {
   if (!request.query['listId']) {
     response.status(400).send('listId is required')
+    return
+  }
+
+  // Authentication check using existing getUserContext
+  const getToken = () => {
+    const authHeader = request.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null
+    }
+    return authHeader.replace('Bearer ', '')
+  }
+
+  const context = await getUserContext(getToken)
+  if (!context.session?.user) {
+    response.status(401).send('Unauthorized: Authentication required')
+    return
+  }
+
+  const user = context.session.user
+
+  const listId = request.query['listId'] as string
+
+  // Authorization check - verify user has access to the list
+  try {
+    const list = await prisma.aiList.findFirst({
+      where: { id: listId },
+      include: { participants: true },
+    })
+
+    if (!list) {
+      response.status(404).send('List not found')
+      return
+    }
+
+    const hasAccess = list.ownerId === user.id || list.participants.some((p) => p.userId === user.id)
+
+    if (!hasAccess) {
+      response.status(403).send('Forbidden: Access denied to list')
+      return
+    }
+  } catch (error) {
+    console.error('SSE authorization error:', error)
+    response.status(500).send('Internal server error')
     return
   }
 
@@ -20,8 +66,7 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
     Connection: 'keep-alive',
   })
 
-  const listId = request.query['listId'] as string
-  console.log('Enrichment queue SSE connection opened', listId)
+  console.log('Enrichment queue SSE connection opened', listId, 'for user', user.id)
 
   const subscriptionId = subscribeEnrichmentQueueUpdates(listId, (update) => {
     const id = eventIds.get(listId) || 0

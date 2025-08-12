@@ -3,6 +3,8 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { findCacheValue, getFieldValue } from '../../utils/field-value-resolver'
+import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
+import { canAccessListOrThrow } from '../ai-list/utils'
 import { builder } from '../builder'
 
 import './process-file'
@@ -94,18 +96,31 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       },
     }),
     cache: t.relation('cache', { nullable: false }),
-    fieldValues: t.field({
+    fieldValues: t.withAuth({ isLoggedIn: true }).field({
       type: [FieldValueResult],
       nullable: { list: false, items: false },
       args: {
         fieldIds: t.arg.stringList({ required: true }),
         language: t.arg.string({ required: true }),
       },
-      resolve: async (file, { fieldIds, language }) => {
-        // Get all field definitions at once
+      resolve: async (file, { fieldIds, language }, context) => {
+        // Verify user has access to the file's library
+        await canAccessLibraryOrThrow(context, file.libraryId)
+
+        // Get all field definitions with their associated lists
         const fields = await prisma.aiListField.findMany({
           where: { id: { in: fieldIds } },
+          include: {
+            list: {
+              include: { participants: true },
+            },
+          },
         })
+
+        // Check authorization for each field's list
+        for (const field of fields) {
+          canAccessListOrThrow(field.list, context.session.user)
+        }
 
         // Get file with required relations
         const fileWithRelations = await prisma.aiLibraryFile.findUnique({
