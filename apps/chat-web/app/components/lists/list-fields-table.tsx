@@ -156,7 +156,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  }, [setColumnWidths, sortedFields])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setColumnWidths to dependencies - it causes excessive re-rendering during column resize
+  }, [sortedFields])
 
   // Auto-show new fields when they're added
   useEffect(() => {
@@ -177,7 +178,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  }, [setFieldVisibility, sortedFields])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Do NOT add setFieldVisibility to dependencies - it causes excessive re-rendering during column resize
+  }, [sortedFields])
 
   const [isResizing, setIsResizing] = useState<string | null>(null)
   const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
@@ -470,8 +472,9 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                       }}
                     >
                       {field.sourceType === 'llm_computed' ? (
-                        <div id={`${file.id}-${field.id}`} className="group relative flex items-center gap-1">
+                        <div className="group relative flex items-center gap-1">
                           <span
+                            id={`${file.id}-${field.id}`}
                             className={twMerge(
                               'flex-1 overflow-hidden text-nowrap',
                               !value && 'text-base-content/40 text-xs italic',
