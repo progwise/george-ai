@@ -41,10 +41,12 @@ const yoga = createYoga({
 
 const app = express()
 
-app.use(cors({
-  credentials: true,
-  origin: true // Allow any origin in development, should be restricted in production
-}))
+app.use(
+  cors({
+    credentials: true,
+    origin: true, // Allow any origin in development, should be restricted in production
+  }),
+)
 app.use(cookieParser())
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', avatarMiddleware)
