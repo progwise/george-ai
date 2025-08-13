@@ -253,9 +253,9 @@ echo "Fine-tuning complete!"
                 logger.info(f"Accuracy: {accuracy:.2%}")
                 
                 if accuracy >= 0.8:
-                    logger.info("✅ SUCCESS: Achieved >80% accuracy target!")
+                    logger.info("SUCCESS: Achieved >80% accuracy target!")
                 else:
-                    logger.info("❌ Target not met. Model may need more training data or parameter tuning.")
+                    logger.info("Target not met. Model may need more training data or parameter tuning.")
                 
                 logger.info("="*50)
                 
