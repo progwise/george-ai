@@ -89,7 +89,6 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
 
   if (!isOpen) return null
 
-  console.log('pending items count', field)
   return (
     <div
       ref={dropdownRef}
