@@ -419,6 +419,7 @@ export default {
     createError: 'Error creating list: {message}',
     delete: 'Delete',
     deleteDialogTitle: 'Delete list forever',
+    deleteDialogConfirmation: 'You are about to delete the list "{name}". This cannot be undone.',
     deleteSuccess: 'Successfully deleted {name}.',
     deleteError: 'Error deleting list: {message}',
     edit: 'Edit',

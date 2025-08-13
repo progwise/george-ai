@@ -191,7 +191,11 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      
+      // Delay revoking the URL to ensure all browsers have time to start the download
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 100)
 
       toastSuccess(t('lists.export.success', { name: aiList.name }))
     } catch (error) {
