@@ -191,7 +191,7 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      
+
       // Delay revoking the URL to ensure all browsers have time to start the download
       setTimeout(() => {
         URL.revokeObjectURL(url)
