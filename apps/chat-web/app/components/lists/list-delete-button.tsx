@@ -57,7 +57,7 @@ export const ListDeleteButton = ({ list }: ListDeleteButtonProps) => {
         {t('lists.delete')}
       </button>
       <DialogForm ref={dialogRef} title={t('lists.deleteDialogTitle')} onSubmit={handleSubmit}>
-        Do you really?
+        {t('lists.deleteDialogConfirmation', { name: list.name })}
       </DialogForm>
     </>
   )

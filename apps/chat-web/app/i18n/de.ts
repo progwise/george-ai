@@ -429,6 +429,8 @@ export default {
     createError: 'Fehler beim Erstellen der Liste: {message}',
     delete: 'Löschen',
     deleteDialogTitle: 'Liste endgültig löschen',
+    deleteDialogConfirmation:
+      'Sie sind dabei, die Liste "{name}" zu löschen. Dies kann nicht rückgängig gemacht werden.',
     deleteSuccess: '{name} erfolgreich gelöscht.',
     deleteError: 'Fehler beim Löschen der Liste: {message}',
     edit: 'Bearbeiten',

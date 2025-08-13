@@ -11,18 +11,6 @@ import { getUserContext } from './getUserContext'
 const eventIds = new Map<string, number>()
 
 export const enrichmentQueueSSE = async (request: Request, response: Response) => {
-  // Handle CORS preflight request
-  if (request.method === 'OPTIONS') {
-    response.writeHead(200, {
-      'Access-Control-Allow-Origin': request.headers.origin || '*',
-      'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Cache-Control',
-    })
-    response.end()
-    return
-  }
-
   if (!request.query['listId']) {
     response.status(400).send('listId is required')
     return

@@ -44,7 +44,7 @@ const app = express()
 app.use(
   cors({
     credentials: true,
-    origin: true, // Allow any origin in development, should be restricted in production
+    origin: true,
   }),
 )
 app.use(cookieParser())
