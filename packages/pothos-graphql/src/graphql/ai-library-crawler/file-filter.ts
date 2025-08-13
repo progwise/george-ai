@@ -2,7 +2,6 @@
  * File filtering utilities for AI Library Crawlers
  * Supports regex patterns, file size limits, and MIME type filtering
  */
-
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 export interface FileFilterConfig {
@@ -48,10 +47,10 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         // Skip invalid regex patterns
       }
     }
-    
+
     if (!included) {
       // Find the first valid pattern for reporting
-      const firstValidPattern = config.includePatterns.find(pattern => {
+      const firstValidPattern = config.includePatterns.find((pattern) => {
         try {
           new RegExp(pattern, 'i')
           return true
@@ -63,7 +62,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         allowed: false,
         reason: `File "${fileName}" does not match any include patterns`,
         filterType: 'include_pattern',
-        filterValue: firstValidPattern || config.includePatterns[0]
+        filterValue: firstValidPattern || config.includePatterns[0],
       }
     }
   }
@@ -78,7 +77,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
             allowed: false,
             reason: `File "${fileName}" matches exclude pattern: ${pattern}`,
             filterType: 'exclude_pattern',
-            filterValue: pattern
+            filterValue: pattern,
           }
         }
       } catch (error) {
@@ -95,7 +94,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         allowed: false,
         reason: `File "${fileName}" size ${formatFileSize(fileSize)} exceeds maximum limit of ${formatFileSize(config.maxFileSize)}`,
         filterType: 'file_size',
-        filterValue: `max:${config.maxFileSize}`
+        filterValue: `max:${config.maxFileSize}`,
       }
     }
 
@@ -104,7 +103,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         allowed: false,
         reason: `File "${fileName}" size ${formatFileSize(fileSize)} is below minimum limit of ${formatFileSize(config.minFileSize)}`,
         filterType: 'file_size',
-        filterValue: `min:${config.minFileSize}`
+        filterValue: `min:${config.minFileSize}`,
       }
     }
   }
@@ -117,7 +116,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         allowed: false,
         reason: `File "${fileName}" MIME type "${detectedMimeType}" is not in allowed types: ${config.allowedMimeTypes.join(', ')}`,
         filterType: 'mime_type',
-        filterValue: config.allowedMimeTypes.join(',')
+        filterValue: config.allowedMimeTypes.join(','),
       }
     }
   }

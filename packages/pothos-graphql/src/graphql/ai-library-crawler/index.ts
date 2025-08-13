@@ -32,6 +32,11 @@ const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
     uriType: t.field({ type: AiLibraryCrawlerUriType }),
     maxDepth: t.int({ required: true }),
     maxPages: t.int({ required: true }),
+    includePatterns: t.stringList({ required: false }),
+    excludePatterns: t.stringList({ required: false }),
+    maxFileSize: t.int({ required: false }),
+    minFileSize: t.int({ required: false }),
+    allowedMimeTypes: t.stringList({ required: false }),
     cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
   }),
 })
@@ -91,6 +96,12 @@ builder.prismaObject('AiLibraryCrawler', {
         }
       },
     }),
+    // File filter fields
+    includePatterns: t.exposeString('includePatterns', { nullable: true }),
+    excludePatterns: t.exposeString('excludePatterns', { nullable: true }),
+    maxFileSize: t.exposeInt('maxFileSize', { nullable: true }),
+    minFileSize: t.exposeInt('minFileSize', { nullable: true }),
+    allowedMimeTypes: t.exposeString('allowedMimeTypes', { nullable: true }),
     lastRun: t.field({
       type: AiLibraryCrawlerRun,
       nullable: true,
@@ -187,13 +198,16 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
     resolve: async (_query, _source, { libraryId, data, credentials }) => {
-      const { cronJob, ...input } = data
+      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
 
       const crawler = await prisma.aiLibraryCrawler.create({
         include: { cronJob: true },
         data: {
           ...input,
           libraryId,
+          includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
+          excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
+          allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
@@ -238,7 +252,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
     resolve: async (_query, _source, { id, data, credentials }) => {
-      const { cronJob, ...input } = data
+      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
       const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
         where: { id },
         include: { cronJob: true },
@@ -275,6 +289,9 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
         where: { id },
         data: {
           ...input,
+          includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
+          excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
+          allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
           cronJob: existingCrawler.cronJob
             ? { update: cronJob ?? { active: false } }
             : { create: cronJob ?? undefined },

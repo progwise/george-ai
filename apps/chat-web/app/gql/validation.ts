@@ -90,9 +90,14 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
 
 export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
   return z.object({
+    allowedMimeTypes: z.array(z.string()).nullish(),
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
+    excludePatterns: z.array(z.string()).nullish(),
+    includePatterns: z.array(z.string()).nullish(),
     maxDepth: z.number(),
+    maxFileSize: z.number().nullish(),
     maxPages: z.number(),
+    minFileSize: z.number().nullish(),
     uri: z.string(),
     uriType: AiLibraryCrawlerUriTypeSchema,
   })

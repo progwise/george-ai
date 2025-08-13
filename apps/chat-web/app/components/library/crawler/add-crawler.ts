@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
+import { parseCommaList } from '@george-ai/web-utils'
+
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
@@ -73,6 +75,7 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
+
     return backendRequest(
       graphql(`
         mutation createAiLibraryCrawler(
@@ -92,6 +95,11 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
           uriType: data.uriType,
           maxDepth: data.maxDepth,
           maxPages: data.maxPages,
+          includePatterns: parseCommaList(data.includePatterns),
+          excludePatterns: parseCommaList(data.excludePatterns),
+          maxFileSize: data.maxFileSize,
+          minFileSize: data.minFileSize,
+          allowedMimeTypes: parseCommaList(data.allowedMimeTypes),
           cronJob: data.cronJob,
         },
         credentials:

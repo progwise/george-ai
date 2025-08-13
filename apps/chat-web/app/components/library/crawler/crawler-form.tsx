@@ -25,10 +25,6 @@ export const getSharePointAuthSchema = (language: Language) => {
       .min(20, translate('crawlers.validationSharePointAuthTooShort', language))
       .refine(
         (value) => {
-          // Check for valid cookie format (name=value pairs)
-          const cookiePattern = /^[^=;]+=.*/
-          if (!cookiePattern.test(value)) return false
-
           // Must contain at least one SharePoint authentication cookie
           const hasTraditionalAuth = value.includes('FedAuth=') || value.includes('rtFa=')
           const hasModernAuth = value.includes('SPOIDCRL=') || value.includes('SPOCC=')
@@ -46,8 +42,9 @@ export const getSharePointAuthSchema = (language: Language) => {
       )
       .refine(
         (value) => {
-          // Basic cookie format validation - should have key=value structure
-          return value.includes('=') && !value.startsWith('=') && !value.endsWith('=')
+          // Very basic cookie format validation - just check that it looks like cookies
+          // Should contain = signs and not start with = (but can end with = for base64 padding)
+          return value.includes('=') && !value.startsWith('=') && value.trim().length > 0
         },
         {
           message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
@@ -65,6 +62,12 @@ export const getCrawlerFormBaseSchema = (language: Language) =>
     uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
+    // File filtering options
+    includePatterns: z.string().optional(),
+    excludePatterns: z.string().optional(),
+    maxFileSize: z.coerce.number().min(0).optional(),
+    minFileSize: z.coerce.number().min(0).optional(),
+    allowedMimeTypes: z.string().optional(),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username: z.string().optional(),
     password: z.string().optional(),
@@ -110,6 +113,11 @@ export const getCrawlerFormData = (formData: FormData) => {
     'cronjob.friday': cronJobFriday,
     'cronjob.saturday': cronJobSaturday,
     'cronjob.sunday': cronJobSunday,
+    includePatterns,
+    excludePatterns,
+    maxFileSize,
+    minFileSize,
+    allowedMimeTypes,
     username,
     password,
     sharepointAuth,
@@ -120,6 +128,11 @@ export const getCrawlerFormData = (formData: FormData) => {
 
   return {
     ...dataObject,
+    includePatterns: includePatterns?.toString().trim() || undefined,
+    excludePatterns: excludePatterns?.toString().trim() || undefined,
+    maxFileSize: maxFileSize && maxFileSize !== '' ? Math.round(Number(maxFileSize) * 1024 * 1024) : undefined, // Convert MB to bytes
+    minFileSize: minFileSize && minFileSize !== '' ? Math.round(Number(minFileSize) * 1024 * 1024) : undefined, // Convert MB to bytes
+    allowedMimeTypes: allowedMimeTypes?.toString().trim() || undefined,
     username: username?.toString(),
     password: password?.toString(),
     sharepointAuth: sharepointAuth?.toString(),
@@ -147,6 +160,11 @@ export interface CrawlerFormData {
   uriType: 'http' | 'smb' | 'sharepoint'
   maxDepth: number
   maxPages: number
+  includePatterns?: string[]
+  excludePatterns?: string[]
+  maxFileSize?: number
+  minFileSize?: number
+  allowedMimeTypes?: string[]
   username?: string
   password?: string
   sharepointAuth?: string
@@ -172,6 +190,11 @@ graphql(`
     uriType
     maxDepth
     maxPages
+    includePatterns
+    excludePatterns
+    maxFileSize
+    minFileSize
+    allowedMimeTypes
     cronJob {
       id
       active
@@ -197,6 +220,15 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
   const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
+  const [filtersActive, setFiltersActive] = useState(
+    !!(
+      crawler?.includePatterns ||
+      crawler?.excludePatterns ||
+      crawler?.maxFileSize ||
+      crawler?.minFileSize ||
+      crawler?.allowedMimeTypes
+    ),
+  )
 
   // Create dynamic schema based on selected URI type
   const crawlerFormSchema = useMemo(() => {
@@ -217,8 +249,28 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const credentialsSchema = useMemo(() => getCrawlerCredentialsSchema(language), [language])
   const sharePointAuthSchema = useMemo(() => getSharePointAuthSchema(language), [language])
 
+  // Helper functions to parse existing filter data
+  const parseJsonArray = (jsonString: string | null | undefined): string[] => {
+    if (!jsonString) return []
+    try {
+      return JSON.parse(jsonString) || []
+    } catch {
+      return []
+    }
+  }
+
+  const formatPatterns = (patterns: string[]): string => {
+    return patterns.join(', ')
+  }
+
+  const formatFileSize = (bytes: number | null | undefined): string => {
+    if (!bytes) return ''
+    const mb = bytes / (1024 * 1024)
+    return mb.toString()
+  }
+
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <input type="hidden" name="libraryId" value={libraryId} />
       {crawler?.id && <input type="hidden" name="id" value={crawler.id} />}
       <div className="flex justify-end gap-4">
@@ -285,6 +337,73 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           required={true}
         />
       </div>
+
+      {/* File Filters Section */}
+      <div className="flex flex-col gap-2">
+        <fieldset className="fieldset flex">
+          <label className="label text-base-content mt-4 font-semibold">
+            <input
+              name="filtersActive"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={filtersActive}
+              onChange={(event) => setFiltersActive(event.currentTarget.checked)}
+            />
+            {t('crawlers.filtersActive')}
+          </label>
+        </fieldset>
+
+        {filtersActive && (
+          <div className="bg-base-300 space-y-4 rounded-lg p-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <Input
+                name="includePatterns"
+                label={t('crawlers.includePatterns')}
+                placeholder="\.pdf$, \.docx?$, \.txt$"
+                value={formatPatterns(parseJsonArray(crawler?.includePatterns))}
+                schema={crawlerFormSchema}
+              />
+
+              <Input
+                name="excludePatterns"
+                label={t('crawlers.excludePatterns')}
+                placeholder="archive, _old, backup, temp"
+                value={formatPatterns(parseJsonArray(crawler?.excludePatterns))}
+                schema={crawlerFormSchema}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  name="minFileSize"
+                  type="number"
+                  label={t('crawlers.minFileSize')}
+                  placeholder="0.1"
+                  value={formatFileSize(crawler?.minFileSize)}
+                  schema={crawlerFormSchema}
+                />
+
+                <Input
+                  name="maxFileSize"
+                  type="number"
+                  label={t('crawlers.maxFileSize')}
+                  placeholder="50"
+                  value={formatFileSize(crawler?.maxFileSize)}
+                  schema={crawlerFormSchema}
+                />
+              </div>
+
+              <Input
+                name="allowedMimeTypes"
+                label={t('crawlers.allowedMimeTypes')}
+                placeholder="application/pdf, text/plain, application/msword"
+                value={formatPatterns(parseJsonArray(crawler?.allowedMimeTypes))}
+                schema={crawlerFormSchema}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {selectedUriType === 'sharepoint' ? (
         <div className="flex flex-col gap-2">
           <div className="alert alert-info">

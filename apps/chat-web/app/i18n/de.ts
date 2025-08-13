@@ -228,6 +228,12 @@ export default {
     validationSharePointUnknownError:
       'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
     validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
+    filtersActive: 'Dateifilter aktivieren',
+    includePatterns: 'Einschlussmuster (kommagetrennte Regex)',
+    excludePatterns: 'Ausschlussmuster (kommagetrennte Regex)',
+    minFileSize: 'Min. Dateigröße (MB)',
+    maxFileSize: 'Max. Dateigröße (MB)',
+    allowedMimeTypes: 'Erlaubte MIME-Typen (kommagetrennt)',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',
@@ -654,7 +660,11 @@ export default {
     message: 'Nachricht',
     actions: 'Aktionen',
     status: 'Status',
-    skipped: 'Übersprungen',
     processed: 'Verarbeitet',
+    type: 'Typ',
+    added: 'Hinzugefügt',
+    updated: 'Aktualisiert',
+    omitted: 'Ausgelassen',
+    skipped: 'Übersprungen',
   },
 }

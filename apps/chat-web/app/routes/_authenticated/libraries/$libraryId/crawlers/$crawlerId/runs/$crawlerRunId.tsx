@@ -188,40 +188,57 @@ function RouteComponent() {
               />
 
               <div className="overflow-x-auto">
-                <table className="table-zebra table w-full table-fixed">
+                <table className="table-zebra table-xs table w-full table-fixed">
                   <colgroup>
-                    <col className="w-40" />
-                    <col className="w-20" />
                     <col className="w-24" />
+                    <col className="w-40" />
+
                     <col className="w-64" />
                     <col className="w-auto" />
                   </colgroup>
                   <thead>
                     <tr>
-                      <th>{t('updates.date')}</th>
-                      <th>{t('updates.success')}</th>
                       <th>{t('updates.status')}</th>
+                      <th>{t('updates.date')}</th>
                       <th>{t('updates.file')}</th>
                       <th>{t('updates.message')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {crawlerRun.updates.map((update) => {
-                      // Determine if file was skipped based on message content
-                      const isSkipped = update.message?.toLowerCase().includes('skip') || false
+                      // Use new updateType field if available, fallback to old logic
+                      const updateType = update.updateType || (update.success ? 'added' : 'error')
+                      const isOmitted = updateType === 'omitted'
+                      const displayFileName = isOmitted ? update.fileName : update.file?.name
+                      const displayFilePath = isOmitted ? update.filePath : null
+
                       return (
                         <tr key={update.id}>
+                          <td>
+                            <span
+                              className={`badge badge-xs ${
+                                update.success
+                                  ? updateType === 'updated'
+                                    ? 'badge-info'
+                                    : updateType === 'skipped'
+                                      ? 'badge-neutral'
+                                      : 'badge-success'
+                                  : updateType === 'omitted'
+                                    ? 'badge-warning'
+                                    : 'badge-error'
+                              }`}
+                            >
+                              {updateType === 'omitted'
+                                ? t('updates.omitted')
+                                : updateType === 'updated'
+                                  ? t('updates.updated')
+                                  : updateType === 'skipped'
+                                    ? t('updates.skipped')
+                                    : t('updates.added')}
+                            </span>
+                          </td>
                           <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
-                          <td>
-                            <span className={`badge ${update.success ? 'badge-success' : 'badge-error'}`}>
-                              {update.success ? t('updates.success') : t('updates.failed')}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`badge ${isSkipped ? 'badge-warning' : 'badge-info'}`}>
-                              {isSkipped ? t('updates.skipped') : t('updates.processed')}
-                            </span>
-                          </td>
+
                           <td className="truncate">
                             {update.file ? (
                               <Link
@@ -232,14 +249,27 @@ function RouteComponent() {
                               >
                                 {update.file.name}
                               </Link>
+                            ) : isOmitted && displayFileName ? (
+                              displayFilePath ? (
+                                <a
+                                  href={displayFilePath}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="link text-gray-600"
+                                  title={displayFilePath}
+                                >
+                                  {displayFileName}
+                                </a>
+                              ) : (
+                                <span title={displayFilePath || undefined} className="text-gray-600">
+                                  {displayFileName}
+                                </span>
+                              )
                             ) : (
                               'N/A'
                             )}
                           </td>
-                          <td className="break-words">
-                            {/* Only show message if there was an error (success = false) */}
-                            {!update.success ? update.message : ''}
-                          </td>
+                          <td className="break-words text-xs">{update.message || 'no info available'}</td>
                         </tr>
                       )
                     })}

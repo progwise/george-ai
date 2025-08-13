@@ -13,7 +13,7 @@ class EventSourcePolyfill extends EventTarget {
   public url: string
   public readyState: number
   public onopen: ((event: Event) => void) | null = null
-  public onmessage: ((event: MessageEvent) => void) | null = null  
+  public onmessage: ((event: MessageEvent) => void) | null = null
   public onerror: ((event: Event) => void) | null = null
 
   constructor(url: string, options: { withCredentials?: boolean } = {}) {
@@ -28,14 +28,14 @@ class EventSourcePolyfill extends EventTarget {
   private async connect(options: { withCredentials?: boolean }) {
     try {
       this.readyState = 0 // CONNECTING
-      
+
       const response = await fetch(this.url, {
         credentials: options.withCredentials ? 'include' : 'omit',
         signal: this.controller.signal,
         headers: {
-          'Accept': 'text/event-stream',
+          Accept: 'text/event-stream',
           'Cache-Control': 'no-cache',
-        }
+        },
       })
 
       if (!response.ok) {
@@ -57,10 +57,10 @@ class EventSourcePolyfill extends EventTarget {
 
         const chunk = decoder.decode(value)
         const lines = chunk.split('\n')
-        
+
         let eventType = 'message'
         let data = ''
-        
+
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             data = line.slice(6)
@@ -159,10 +159,10 @@ export const useEnrichmentQueueSSE = (
       return
     }
     console.log('Establishing SSE connection for list:', listId)
-    
+
     // Use fetch-based polyfill for EventSource with credentials support
     const evtSource = new EventSourcePolyfill(`${backend_url}/enrichment-queue-sse?listId=${listId}`, {
-      withCredentials: true
+      withCredentials: true,
     })
 
     const handleConnected = (event: MessageEvent) => {

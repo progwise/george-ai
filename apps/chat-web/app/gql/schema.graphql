@@ -259,15 +259,20 @@ type AiLibrary {
 }
 
 type AiLibraryCrawler {
+  allowedMimeTypes: String
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
+  excludePatterns: String
   filesCount: Int!
   id: ID!
+  includePatterns: String
   isRunning: Boolean!
   lastRun: AiLibraryCrawlerRun
   libraryId: String!
   maxDepth: Int!
+  maxFileSize: Int
   maxPages: Int!
+  minFileSize: Int
   runCount: Int!
   runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
@@ -312,9 +317,14 @@ input AiLibraryCrawlerCronJobInput {
 }
 
 input AiLibraryCrawlerInput {
+  allowedMimeTypes: [String!]
   cronJob: AiLibraryCrawlerCronJobInput
+  excludePatterns: [String!]
+  includePatterns: [String!]
   maxDepth: Int!
+  maxFileSize: Int
   maxPages: Int!
+  minFileSize: Int
   uri: String!
   uriType: AiLibraryCrawlerUriType!
 }
@@ -422,11 +432,17 @@ type AiLibraryUpdate {
   createdAt: DateTime!
   file: AiLibraryFile
   fileId: ID
+  fileName: String
+  filePath: String
+  fileSize: Int
+  filterType: String
+  filterValue: String
   id: ID!
   library: AiLibrary
   libraryId: ID!
   message: String
   success: Boolean!
+  updateType: String!
 }
 
 """

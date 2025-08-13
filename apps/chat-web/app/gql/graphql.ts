@@ -272,15 +272,20 @@ export type AiLibrary = {
 
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
+  allowedMimeTypes?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
+  excludePatterns?: Maybe<Scalars['String']['output']>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
+  includePatterns?: Maybe<Scalars['String']['output']>
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<AiLibraryCrawlerRun>
   libraryId: Scalars['String']['output']
   maxDepth: Scalars['Int']['output']
+  maxFileSize?: Maybe<Scalars['Int']['output']>
   maxPages: Scalars['Int']['output']
+  minFileSize?: Maybe<Scalars['Int']['output']>
   runCount: Scalars['Int']['output']
   runs: Array<AiLibraryCrawlerRun>
   updatedAt: Scalars['DateTime']['output']
@@ -331,9 +336,14 @@ export type AiLibraryCrawlerCronJobInput = {
 }
 
 export type AiLibraryCrawlerInput = {
+  allowedMimeTypes?: InputMaybe<Array<Scalars['String']['input']>>
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  excludePatterns?: InputMaybe<Array<Scalars['String']['input']>>
+  includePatterns?: InputMaybe<Array<Scalars['String']['input']>>
   maxDepth: Scalars['Int']['input']
+  maxFileSize?: InputMaybe<Scalars['Int']['input']>
   maxPages: Scalars['Int']['input']
+  minFileSize?: InputMaybe<Scalars['Int']['input']>
   uri: Scalars['String']['input']
   uriType: AiLibraryCrawlerUriType
 }
@@ -456,11 +466,17 @@ export type AiLibraryUpdate = {
   createdAt: Scalars['DateTime']['output']
   file?: Maybe<AiLibraryFile>
   fileId?: Maybe<Scalars['ID']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
+  filePath?: Maybe<Scalars['String']['output']>
+  fileSize?: Maybe<Scalars['Int']['output']>
+  filterType?: Maybe<Scalars['String']['output']>
+  filterValue?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   library?: Maybe<AiLibrary>
   libraryId: Scalars['ID']['output']
   message?: Maybe<Scalars['String']['output']>
   success: Scalars['Boolean']['output']
+  updateType: Scalars['String']['output']
 }
 
 /** Query result for AI library updates */
@@ -2252,6 +2268,11 @@ export type CrawlerForm_CrawlerFragment = {
   uriType: AiLibraryCrawlerUriType
   maxDepth: number
   maxPages: number
+  includePatterns?: string | null
+  excludePatterns?: string | null
+  maxFileSize?: number | null
+  minFileSize?: number | null
+  allowedMimeTypes?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -2321,6 +2342,12 @@ export type GetCrawlerRunQuery = {
       success: boolean
       createdAt: string
       message?: string | null
+      updateType: string
+      filePath?: string | null
+      fileName?: string | null
+      fileSize?: number | null
+      filterType?: string | null
+      filterValue?: string | null
       file?: {
         __typename?: 'AiLibraryFile'
         id: string
@@ -2373,6 +2400,11 @@ export type GetCrawlerQuery = {
     runCount: number
     maxDepth: number
     maxPages: number
+    includePatterns?: string | null
+    excludePatterns?: string | null
+    maxFileSize?: number | null
+    minFileSize?: number | null
+    allowedMimeTypes?: string | null
     lastRun?: {
       __typename?: 'AiLibraryCrawlerRun'
       id: string
@@ -2838,6 +2870,12 @@ export type LibraryUpdatesListQuery = {
       fileId?: string | null
       success: boolean
       message?: string | null
+      updateType: string
+      filePath?: string | null
+      fileName?: string | null
+      fileSize?: number | null
+      filterType?: string | null
+      filterValue?: string | null
       crawlerRun?: {
         __typename?: 'AiLibraryCrawlerRun'
         id: string
@@ -2858,6 +2896,12 @@ export type AiLibraryUpdate_TableItemFragment = {
   fileId?: string | null
   success: boolean
   message?: string | null
+  updateType: string
+  filePath?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  filterType?: string | null
+  filterValue?: string | null
   crawlerRun?: {
     __typename?: 'AiLibraryCrawlerRun'
     id: string
@@ -5849,6 +5893,11 @@ export const CrawlerForm_CrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'includePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'excludePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -6171,6 +6220,12 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
         ],
       },
     },
@@ -9292,6 +9347,12 @@ export const GetCrawlerRunDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'success' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'file' },
@@ -9504,6 +9565,11 @@ export const GetCrawlerDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'includePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'excludePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -11021,6 +11087,12 @@ export const LibraryUpdatesListDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
         ],
       },
     },

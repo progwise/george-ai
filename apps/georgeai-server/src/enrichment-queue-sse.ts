@@ -40,13 +40,13 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
         return decodeURIComponent(tokenMatch[1])
       }
     }
-    
+
     // Fallback to Authorization header for other clients
     const authHeader = request.headers.authorization
     if (authHeader && authHeader.startsWith('Bearer ')) {
       return authHeader.replace('Bearer ', '')
     }
-    
+
     return null
   }
 
@@ -87,7 +87,7 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
   response.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
     'Access-Control-Allow-Origin': request.headers.origin || '*',
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',

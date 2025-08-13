@@ -203,7 +203,6 @@ model AiLibraryCrawler {
   runs            AiLibraryCrawlerRun[]
   files           AiLibraryFile[]
   cronJob         AiLibraryCrawlerCronJob?
-  omittedFiles    AiLibraryCrawlerOmittedFile[]
 }
 
 model AiLibraryCrawlerRun {
@@ -220,7 +219,6 @@ model AiLibraryCrawlerRun {
   crawler       AiLibraryCrawler              @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
   runBy         User?                         @relation(fields: [runByUserId], references: [id])
   updates       AiLibraryUpdate[]
-  omittedFiles  AiLibraryCrawlerOmittedFile[]
 }
 
 model AiLibraryCrawlerCronJob {
@@ -242,25 +240,6 @@ model AiLibraryCrawlerCronJob {
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
 }
 
-model AiLibraryCrawlerOmittedFile {
-  id               String               @id @default(cuid())
-  crawlerId        String
-  crawlerRunId     String?
-  filePath         String               // Full path to the omitted file
-  fileName         String               // Just the filename
-  fileSize         Int?                 // File size in bytes
-  mimeType         String?              // Detected MIME type
-  omittedReason    String               // Which filter rule caused the omission
-  filterType       String               // 'include_pattern', 'exclude_pattern', 'file_size', 'mime_type'
-  filterValue      String?              // The actual filter value that matched
-  discoveredAt     DateTime             @default(now())
-  modificationDate DateTime?            // File's last modification date
-  crawler          AiLibraryCrawler     @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
-  crawlerRun       AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
-
-  @@index([crawlerId, discoveredAt])
-  @@index([crawlerRunId])
-}
 
 model AiLibraryUpdate {
   id           String               @id @default(cuid())
@@ -269,6 +248,13 @@ model AiLibraryUpdate {
   crawlerRunId String?
   success      Boolean
   message      String?
+  updateType   String               @default("added") // 'added', 'updated', 'omitted'
+  // Fields for omitted files (when fileId is null)
+  filePath     String?              // Full path for omitted files
+  fileName     String?              // File name for omitted files  
+  fileSize     Int?                 // File size for omitted files
+  filterType   String?              // Type of filter that caused omission
+  filterValue  String?              // Actual filter value that matched
   createdAt    DateTime             @default(now())
   library      AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
   crawlerRun   AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)

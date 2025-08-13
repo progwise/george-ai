@@ -150,13 +150,15 @@ const startCrawling = async (
         if (crawledPage.skipProcessing) {
           console.log(`Skipping processing for file ${crawledPage.name} - already processed with same content`)
           crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nFile skipped - already processed.` })
+
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: `Skipped file from ${crawledPage.originUri} - already processed with same content`,
+              message: crawledPage.hints,
               success: true,
+              updateType: 'skipped',
             },
           })
         } else {
@@ -167,8 +169,9 @@ const startCrawling = async (
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: `Crawled page from ${crawledPage.originUri} with title "${crawledPage.name}"`,
+              message: `${crawledPage.originUri || crawledPage.name}"`,
               success: true,
+              updateType: 'added',
             },
           })
           console.log('Successfully processed crawled page', crawledPage.name, 'from', crawledPage.originUri)
@@ -185,7 +188,7 @@ const startCrawling = async (
             libraryId: crawler.libraryId,
             crawlerRunId: newRun.id,
             fileId: null,
-            message: `Failed to process crawled page from ${crawledPage.originUri}: ${errorMessage}`,
+            message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage || 'Unknown error'}`,
             success: false,
           },
         })

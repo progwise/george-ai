@@ -28,6 +28,12 @@ graphql(`
     }
     success
     message
+    updateType
+    filePath
+    fileName
+    fileSize
+    filterType
+    filterValue
   }
 `)
 
@@ -44,47 +50,104 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
         <thead>
           <tr>
             <th></th>
+            <th>{t('updates.status')}</th>
             <th>{t('updates.date')}</th>
-            <th>{t('updates.crawler')}</th>
-            <th>{t('updates.file')}</th>
-            <th>{t('updates.success')}</th>
+            <th>
+              {t('updates.file')}/{t('updates.crawler')}
+            </th>
             <th>{t('updates.message')}</th>
-            <th>{t('updates.actions')}</th>
           </tr>
         </thead>
         <tbody>
-          {updates.map((update, index) => (
-            <tr key={update.id} className="hover:bg-base-300">
-              <td>{index + (firstItemNumber ?? 1)}</td>
-              <td>{dateTimeString(update.createdAt, language)}</td>
-              <td>
-                {update?.crawlerRun?.crawler ? (
-                  <Link to="/libraries/$libraryId/crawlers" params={{ libraryId: update.libraryId }}>
-                    {update.crawlerRun.crawler.uri}
-                  </Link>
-                ) : (
-                  'N/A'
-                )}
-              </td>
-              <td>
-                {update.file ? (
-                  <Link to="/libraries/$libraryId" params={{ libraryId: update.libraryId }}>
-                    {update.file.name}
-                  </Link>
-                ) : (
-                  'N/A'
-                )}
-              </td>
-              <td>{update.success ? 'Yes' : 'No'}</td>
-              <td>{update.message}</td>
-              <td>
-                {/* Placeholder for action buttons, e.g., view details, retry, etc. */}
-                <button type="button" className="btn btn-sm btn-ghost">
-                  {t('actions.details')}
-                </button>
-              </td>
-            </tr>
-          ))}
+          {updates.map((update, index) => {
+            const isOmitted = update.updateType === 'omitted'
+            const displayFileName = isOmitted ? update.fileName : update.file?.name
+            const displayFilePath = isOmitted ? update.filePath : null
+
+            return (
+              <tr key={update.id} className="hover:bg-base-300">
+                <td>{index + (firstItemNumber ?? 1)}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      update.success
+                        ? update.updateType === 'updated'
+                          ? 'badge-info'
+                          : update.updateType === 'skipped'
+                            ? 'badge-neutral'
+                            : 'badge-success'
+                        : update.updateType === 'omitted'
+                          ? 'badge-warning'
+                          : 'badge-error'
+                    }`}
+                  >
+                    {update.updateType === 'omitted'
+                      ? t('updates.omitted')
+                      : update.updateType === 'updated'
+                        ? t('updates.updated')
+                        : update.updateType === 'skipped'
+                          ? t('updates.skipped')
+                          : t('updates.added')}
+                  </span>
+                </td>
+                <td>{dateTimeString(update.createdAt, language)}</td>
+                <td>
+                  <div className="font-semibold">
+                    {update.file ? (
+                      <Link
+                        to="/libraries/$libraryId/files/$fileId"
+                        params={{ libraryId: update.libraryId, fileId: update.file.id }}
+                      >
+                        {update.file.name}
+                      </Link>
+                    ) : isOmitted && displayFileName ? (
+                      displayFilePath ? (
+                        <a
+                          href={displayFilePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link link-primary text-gray-600"
+                          title={displayFilePath}
+                        >
+                          {displayFileName}
+                        </a>
+                      ) : (
+                        <span title={displayFilePath || undefined} className="text-gray-600">
+                          {displayFileName}
+                        </span>
+                      )
+                    ) : (
+                      'N/A'
+                    )}
+                  </div>
+                  <div>
+                    {update?.crawlerRun?.crawler ? (
+                      <Link to="/libraries/$libraryId/crawlers" params={{ libraryId: update.libraryId }}>
+                        {update.crawlerRun.crawler.uri}
+                      </Link>
+                    ) : (
+                      'N/A'
+                    )}
+                  </div>
+                </td>
+
+                <td>
+                  {isOmitted ? (
+                    <div className="text-sm">
+                      <div>{update.message}</div>
+                      {update.filterType && update.filterValue && (
+                        <div className="mt-1 text-xs text-gray-500">
+                          {update.filterType}: {update.filterValue}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    update.message
+                  )}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

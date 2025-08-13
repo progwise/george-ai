@@ -8,8 +8,8 @@ import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { FileInfo, applyFileFilters } from './file-filter'
 import { calculateFileHash } from './file-hash'
-import { applyFileFilters, FileInfo } from './file-filter'
 import { parseSharePointUrl } from './sharepoint'
 import { getSharePointCredentials } from './sharepoint-credentials-manager'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
@@ -29,40 +29,36 @@ interface SharePointListItem {
 }
 
 const recordOmittedFile = async ({
-  crawlerId,
+  libraryId,
   crawlerRunId,
   filePath,
   fileName,
   fileSize,
-  mimeType,
   reason,
   filterType,
   filterValue,
-  modificationDate,
 }: {
-  crawlerId: string
+  libraryId: string
   crawlerRunId?: string
   filePath: string
   fileName: string
-  fileSize?: number
-  mimeType?: string
+  fileSize?: number | string
   reason: string
   filterType: string
   filterValue?: string
-  modificationDate?: Date
 }) => {
-  await prisma.aiLibraryCrawlerOmittedFile.create({
+  await prisma.aiLibraryUpdate.create({
     data: {
-      crawlerId,
+      libraryId,
       crawlerRunId,
+      success: false,
+      message: reason,
+      updateType: 'omitted',
       filePath,
       fileName,
-      fileSize,
-      mimeType,
-      omittedReason: reason,
+      fileSize: typeof fileSize === 'string' ? parseInt(fileSize, 10) : fileSize,
       filterType,
       filterValue,
-      modificationDate,
     },
   })
 }
@@ -385,16 +381,14 @@ export async function* crawlSharePoint({
 
                 // Record the omitted file
                 await recordOmittedFile({
-                  crawlerId,
+                  libraryId,
                   crawlerRunId,
                   filePath: fileUri,
                   fileName,
                   fileSize,
-                  mimeType,
                   reason: filterResult.reason || 'File filtered',
                   filterType: filterResult.filterType || 'unknown',
                   filterValue: filterResult.filterValue,
-                  modificationDate: fileModifiedTime,
                 })
 
                 // Skip this file but continue processing others
@@ -453,13 +447,21 @@ export async function* crawlSharePoint({
             // Check if we should skip processing
             if (fileInfo.skipProcessing) {
               console.log(`Skipping processing for ${fileName} - file unchanged`)
+
+              const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2)
+              const skipHints = [
+                `${fileInfo.name} skipped (already processed with same hash)`,
+                `Size: ${fileSizeMB} MB`,
+                `Origin: ${fileUri}`,
+              ].join(' | ')
+
               yield {
                 id: fileInfo.id,
                 name: fileInfo.name,
                 originUri: fileInfo.originUri,
                 mimeType: fileInfo.mimeType,
                 skipProcessing: true,
-                hints: `SharePoint crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+                hints: skipHints,
               }
             } else {
               yield {

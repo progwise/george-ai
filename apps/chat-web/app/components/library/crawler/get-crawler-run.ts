@@ -33,6 +33,12 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
               success
               createdAt
               message
+              updateType
+              filePath
+              fileName
+              fileSize
+              filterType
+              filterValue
               file {
                 id
                 name
