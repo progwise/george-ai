@@ -366,11 +366,17 @@ export type AiLibraryCrawlerRun = {
 }
 
 export type AiLibraryCrawlerRunFilteredUpdatesCountArgs = {
+  successFilter?: InputMaybe<Scalars['Boolean']['input']>
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+export type AiLibraryCrawlerRunUpdateStatsArgs = {
+  successFilter?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
+  successFilter?: InputMaybe<Scalars['Boolean']['input']>
   take?: Scalars['Int']['input']
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -2342,6 +2348,7 @@ export type GetCrawlerRunQueryVariables = Exact<{
   skipUpdates: Scalars['Int']['input']
   takeUpdates: Scalars['Int']['input']
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  successFilter?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetCrawlerRunQuery = {
@@ -9331,6 +9338,11 @@ export const GetCrawlerRunDocument = {
             type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9370,11 +9382,23 @@ export const GetCrawlerRunDocument = {
                       name: { kind: 'Name', value: 'updateTypeFilter' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
                     },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'successFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
+                    },
                   ],
                 },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'updateStats' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'successFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
+                    },
+                  ],
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
@@ -9401,6 +9425,11 @@ export const GetCrawlerRunDocument = {
                       kind: 'Argument',
                       name: { kind: 'Name', value: 'updateTypeFilter' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'successFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
                     },
                   ],
                   selectionSet: {
