@@ -131,7 +131,11 @@ const saveSharepointCrawlerFile = async ({
   let fileHash: string | undefined | null
   
   // Always build download URL for SharePoint files for reporting
-  const downloadUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
+  // Use alternative API for files with special characters (% or #)
+  const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
+  const downloadUrl = hasSpecialChars
+    ? `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
+    : `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
 
   // Handle processing errors - just update/create database record without downloading
   if (processingError) {
@@ -544,11 +548,12 @@ async function downloadSharePointFileToPath(
   authCookies: string,
   filePath: string,
 ): Promise<void> {
-  const fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
-
+  // Try primary API first
+  let fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
+  
   console.log(`Downloading SharePoint file from: ${fileUrl}`)
 
-  const response = await fetch(fileUrl, {
+  let response = await fetch(fileUrl, {
     method: 'GET',
     headers: {
       Cookie: authCookies,
@@ -557,6 +562,30 @@ async function downloadSharePointFileToPath(
   })
 
   console.log(`Download response status: ${response.status} ${response.statusText}`)
+
+  // If primary API fails with 404 and path contains special characters, try alternative API
+  if (!response.ok && response.status === 404) {
+    const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
+    
+    if (hasSpecialChars) {
+      console.log(`Primary API failed with 404 for file with special characters, trying GetFileByServerRelativePath...`)
+      
+      // Try alternative API for special characters
+      fileUrl = `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
+      
+      console.log(`Retrying with alternative API: ${fileUrl}`)
+      
+      response = await fetch(fileUrl, {
+        method: 'GET',
+        headers: {
+          Cookie: authCookies,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      })
+      
+      console.log(`Alternative API response status: ${response.status} ${response.statusText}`)
+    }
+  }
 
   if (!response.ok) {
     const errorText = await response.text()
