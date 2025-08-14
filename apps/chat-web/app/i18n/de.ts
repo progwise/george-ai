@@ -341,6 +341,7 @@ export default {
     details: 'Details',
     email: 'E-Mail',
     embeddingModelName: 'AI Modell für Embeddings',
+    error: 'Fehler',
     expiresAt: 'Läuft ab',
     files: 'Dateien',
     fileConverterOptions: 'Datei-Konverteroptionen',

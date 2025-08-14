@@ -374,13 +374,14 @@ export async function* crawlSharePoint({
 
           processedPages++
 
+          const fileUri = `${siteUrl.origin}${item.FileRef}`
+          
           try {
             console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
             const fileModifiedTime = new Date(item.Modified)
             const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
-            const fileUri = `${siteUrl.origin}${item.FileRef}`
             const mimeType = getMimeTypeFromExtension(fileName)
 
             // Apply file filters if configured
@@ -493,7 +494,12 @@ export async function* crawlSharePoint({
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
-            yield { hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`, errorMessage: errorMessage }
+            yield { 
+              hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`, 
+              errorMessage: errorMessage,
+              originUri: fileUri,
+              name: fileName
+            }
           }
         }
 
@@ -539,7 +545,7 @@ async function downloadSharePointFileToPath(
       throw new Error(`SharePoint file download authentication failed. Please refresh your authentication cookies.`)
     }
 
-    throw new Error(`Failed to download SharePoint file: ${response.status} ${response.statusText}`)
+    throw new Error(`Failed to download SharePoint file from ${fileUrl}: ${response.status} ${response.statusText}`)
   }
 
   // Create directory if it doesn't exist

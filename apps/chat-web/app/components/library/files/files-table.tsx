@@ -238,7 +238,6 @@ export const FilesTable = ({
                   ))}
                 </td>
                 <td>
-                  {' '}
                   {dateTimeStringArray(file.originModificationDate, language).map((item) => (
                     <div key={item} className="text-nowrap">
                       {item}

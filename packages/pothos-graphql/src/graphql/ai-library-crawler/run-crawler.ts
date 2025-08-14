@@ -57,9 +57,9 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     },
   })
 
-  startCrawling(crawler, newRun, userId).catch((error) => {
+  startCrawling(crawler, newRun, userId).catch(async (error) => {
     console.error('Error during crawling:', error)
-    prisma.aiLibraryCrawlerRun.update({
+    await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
         endedAt: new Date(),

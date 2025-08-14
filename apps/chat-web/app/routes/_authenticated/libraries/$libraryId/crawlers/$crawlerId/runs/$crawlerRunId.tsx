@@ -168,7 +168,7 @@ function RouteComponent() {
 
           {/* Updates Table */}
           <>
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between">
               {/* Pagination at top - only shown when there are updates */}
               <Pagination
                 totalItems={crawlerRun.filteredUpdatesCount}
@@ -194,65 +194,61 @@ function RouteComponent() {
                   })
                 }}
               />
-              <div className="flex items-end">
-                <div className="flex gap-2">
-                  {crawlerRun.updateStats &&
-                    crawlerRun.updateStats.map((stat) => {
-                      if (!stat.count || stat.count === 0) return null
+              <div className="flex gap-1">
+                {crawlerRun.updateStats &&
+                  crawlerRun.updateStats.map((stat) => {
+                    if (!stat.count || stat.count === 0) return null
 
-                      return (
-                        <UpdateStatusBadge
-                          key={stat.updateType || 'error'}
-                          updateType={stat.updateType}
-                          count={stat.count}
-                          size="sm"
-                          showCheckmark={true}
-                          checked={
-                            search.updateTypeFilter
-                              ? search.updateTypeFilter.includes(stat.updateType || 'error')
-                              : true
-                          }
-                          onCheckmarkChange={(updateType, checked) => {
-                            // Get all available update types from stats
-                            const allTypes = crawlerRun.updateStats?.map((s) => s.updateType || 'error') || []
-                            const currentFilter = search.updateTypeFilter
+                    return (
+                      <UpdateStatusBadge
+                        key={stat.updateType || 'error'}
+                        updateType={stat.updateType}
+                        count={stat.count}
+                        size="sm"
+                        showCheckmark={true}
+                        checked={
+                          search.updateTypeFilter ? search.updateTypeFilter.includes(stat.updateType || 'error') : true
+                        }
+                        onCheckmarkChange={(updateType, checked) => {
+                          // Get all available update types from stats
+                          const allTypes = crawlerRun.updateStats?.map((s) => s.updateType || 'error') || []
+                          const currentFilter = search.updateTypeFilter
 
-                            let newFilter: string[] | undefined
+                          let newFilter: string[] | undefined
 
-                            if (!currentFilter) {
-                              // No filter currently - if unchecking, filter out this type
-                              newFilter = checked ? undefined : allTypes.filter((type) => type !== updateType)
+                          if (!currentFilter) {
+                            // No filter currently - if unchecking, filter out this type
+                            newFilter = checked ? undefined : allTypes.filter((type) => type !== updateType)
+                          } else {
+                            // Filter exists - add/remove type
+                            if (checked) {
+                              newFilter = [...currentFilter, updateType].filter(
+                                (type, index, arr) => arr.indexOf(type) === index,
+                              )
+                              // If all types are selected, remove filter entirely
+                              if (newFilter.length === allTypes.length) {
+                                newFilter = undefined
+                              }
                             } else {
-                              // Filter exists - add/remove type
-                              if (checked) {
-                                newFilter = [...currentFilter, updateType].filter(
-                                  (type, index, arr) => arr.indexOf(type) === index,
-                                )
-                                // If all types are selected, remove filter entirely
-                                if (newFilter.length === allTypes.length) {
-                                  newFilter = undefined
-                                }
-                              } else {
-                                newFilter = currentFilter.filter((type) => type !== updateType)
-                                // If no types selected, undefined (show nothing? or show all?)
-                                if (newFilter.length === 0) {
-                                  newFilter = undefined
-                                }
+                              newFilter = currentFilter.filter((type) => type !== updateType)
+                              // If no types selected, undefined (show nothing? or show all?)
+                              if (newFilter.length === 0) {
+                                newFilter = undefined
                               }
                             }
+                          }
 
-                            navigate({
-                              search: {
-                                ...search,
-                                skipUpdates: 0,
-                                updateTypeFilter: newFilter,
-                              },
-                            })
-                          }}
-                        />
-                      )
-                    })}
-                </div>
+                          navigate({
+                            search: {
+                              ...search,
+                              skipUpdates: 0,
+                              updateTypeFilter: newFilter,
+                            },
+                          })
+                        }}
+                      />
+                    )
+                  })}
               </div>
             </div>
             <div className="overflow-x-auto">
