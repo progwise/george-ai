@@ -359,6 +359,7 @@ export type AiLibraryCrawlerRun = {
   startedAt: Scalars['DateTime']['output']
   stoppedByUser?: Maybe<Scalars['DateTime']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+  updateStats: Array<UpdateStats>
   updates: Array<AiLibraryUpdate>
   updatesCount: Scalars['Int']['output']
 }
@@ -1246,6 +1247,12 @@ export type SharePointValidationResult = {
   errorMessage?: Maybe<Scalars['String']['output']>
   errorType?: Maybe<Scalars['String']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type UpdateStats = {
+  __typename?: 'UpdateStats'
+  count?: Maybe<Scalars['Int']['output']>
+  updateType?: Maybe<Scalars['String']['output']>
 }
 
 export type User = {
@@ -2342,6 +2349,7 @@ export type GetCrawlerRunQuery = {
     errorMessage?: string | null
     runByUserId?: string | null
     updatesCount: number
+    updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
     updates: Array<{
       __typename?: 'AiLibraryUpdate'
       id: string
@@ -9337,6 +9345,17 @@ export const GetCrawlerRunDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'updateStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'updates' },

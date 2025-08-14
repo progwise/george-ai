@@ -339,6 +339,7 @@ type AiLibraryCrawlerRun {
   startedAt: DateTime!
   stoppedByUser: DateTime
   success: Boolean
+  updateStats: [UpdateStats!]!
   updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
   updatesCount: Int!
 }
@@ -863,6 +864,11 @@ type SharePointValidationResult {
   errorMessage: String
   errorType: String
   success: Boolean
+}
+
+type UpdateStats {
+  count: Int
+  updateType: String
 }
 
 type User {

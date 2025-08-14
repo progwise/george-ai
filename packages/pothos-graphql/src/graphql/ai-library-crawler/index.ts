@@ -41,6 +41,13 @@ const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
   }),
 })
 
+const UpdateStats = builder.simpleObject('UpdateStats', {
+  fields: (t) => ({
+    updateType: t.string({ nullable: true }),
+    count: t.int(),
+  }),
+})
+
 const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -55,6 +62,22 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     stoppedByUser: t.expose('stoppedByUser', { type: 'DateTime', nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
     updatesCount: t.relationCount('updates', { nullable: false }),
+    updateStats: t.field({
+      type: [UpdateStats],
+      nullable: false,
+      resolve: async (run) => {
+        const groups = await prisma.aiLibraryUpdate.groupBy({
+          by: ['updateType'],
+          where: { crawlerRunId: run.id },
+          _count: true,
+        })
+
+        return groups.map((group) => ({
+          updateType: group.updateType,
+          count: group._count,
+        }))
+      },
+    }),
     updates: t.prismaField({
       type: ['AiLibraryUpdate'],
       nullable: false,

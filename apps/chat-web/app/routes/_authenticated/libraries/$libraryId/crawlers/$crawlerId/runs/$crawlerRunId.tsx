@@ -3,9 +3,10 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString, duration } from '@george-ai/web-utils'
+import { dateTimeString, dateTimeStringArray, duration } from '@george-ai/web-utils'
 
 import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/get-crawler-run'
+import { UpdateStatusBadge } from '../../../../../../../components/library/crawler/update-status-badge'
 import { Pagination } from '../../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../../i18n/use-translation-hook'
 
@@ -161,39 +162,54 @@ function RouteComponent() {
           {/* Updates Table */}
           {crawlerRun.updates && crawlerRun.updates.length > 0 ? (
             <>
-              {/* Pagination at top - only shown when there are updates */}
-              <Pagination
-                totalItems={crawlerRun.updatesCount}
-                itemsPerPage={search.takeUpdates}
-                currentPage={1 + search.skipUpdates / search.takeUpdates}
-                onPageChange={(page) => {
-                  navigate({
-                    search: {
-                      ...search,
-                      skipUpdates: (page - 1) * search.takeUpdates,
-                      takeUpdates: search.takeUpdates,
-                    },
-                  })
-                }}
-                showPageSizeSelector={true}
-                onPageSizeChange={(newPageSize) => {
-                  navigate({
-                    search: {
-                      ...search,
-                      skipUpdates: 0,
-                      takeUpdates: newPageSize,
-                    },
-                  })
-                }}
-              />
+              <div className="flex items-center justify-between">
+                {/* Pagination at top - only shown when there are updates */}
+                <Pagination
+                  totalItems={crawlerRun.updatesCount}
+                  itemsPerPage={search.takeUpdates}
+                  currentPage={1 + search.skipUpdates / search.takeUpdates}
+                  onPageChange={(page) => {
+                    navigate({
+                      search: {
+                        ...search,
+                        skipUpdates: (page - 1) * search.takeUpdates,
+                        takeUpdates: search.takeUpdates,
+                      },
+                    })
+                  }}
+                  showPageSizeSelector={true}
+                  onPageSizeChange={(newPageSize) => {
+                    navigate({
+                      search: {
+                        ...search,
+                        skipUpdates: 0,
+                        takeUpdates: newPageSize,
+                      },
+                    })
+                  }}
+                />
+                <div className="flex gap-2">
+                  {crawlerRun.updateStats &&
+                    crawlerRun.updateStats.map((stat) => {
+                      if (!stat.count || stat.count === 0) return null
 
+                      return (
+                        <UpdateStatusBadge
+                          key={stat.updateType || 'error'}
+                          updateType={stat.updateType}
+                          count={stat.count}
+                          size="sm"
+                        />
+                      )
+                    })}
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="table-zebra table-xs table w-full table-fixed">
                   <colgroup>
                     <col className="w-24" />
-                    <col className="w-40" />
-
-                    <col className="w-64" />
+                    <col className="w-20" />
+                    <col className="w-54" />
                     <col className="w-auto" />
                   </colgroup>
                   <thead>
@@ -215,29 +231,15 @@ function RouteComponent() {
                       return (
                         <tr key={update.id}>
                           <td>
-                            <span
-                              className={`badge badge-xs ${
-                                update.success
-                                  ? updateType === 'updated'
-                                    ? 'badge-info'
-                                    : updateType === 'skipped'
-                                      ? 'badge-neutral'
-                                      : 'badge-success'
-                                  : updateType === 'omitted'
-                                    ? 'badge-warning'
-                                    : 'badge-error'
-                              }`}
-                            >
-                              {updateType === 'omitted'
-                                ? t('updates.omitted')
-                                : updateType === 'updated'
-                                  ? t('updates.updated')
-                                  : updateType === 'skipped'
-                                    ? t('updates.skipped')
-                                    : t('updates.added')}
-                            </span>
+                            <UpdateStatusBadge updateType={updateType} size="xs" />
                           </td>
-                          <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
+                          <td className="truncate">
+                            {dateTimeStringArray(update.createdAt, language).map((item) => (
+                              <div key={item} className="text-nowrap">
+                                {item}
+                              </div>
+                            ))}
+                          </td>
 
                           <td className="truncate">
                             {update.file ? (

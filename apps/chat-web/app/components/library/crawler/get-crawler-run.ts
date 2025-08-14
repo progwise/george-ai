@@ -28,6 +28,10 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
             errorMessage
             runByUserId
             updatesCount
+            updateStats {
+              updateType
+              count
+            }
             updates(take: $takeUpdates, skip: $skipUpdates) {
               id
               success

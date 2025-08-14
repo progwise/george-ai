@@ -128,14 +128,16 @@ export const FilesActionsBar = ({
           {t('actions.reprocess')}
         </button>
 
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-2">
           <input
             type="checkbox"
             className="toggle toggle-sm"
             checked={showArchived}
             onChange={(e) => onShowArchivedChange(e.target.checked)}
           />
-          <span className={`flex items-center gap-1 text-sm ${showArchived ? 'text-base-content' : 'text-base-content/60'}`}>
+          <span
+            className={`flex items-center gap-1 text-sm ${showArchived ? 'text-base-content' : 'text-base-content/60'}`}
+          >
             <ArchiveIcon className="h-4 w-4" />
             {t('actions.showArchived', { count: archivedCount })}
           </span>

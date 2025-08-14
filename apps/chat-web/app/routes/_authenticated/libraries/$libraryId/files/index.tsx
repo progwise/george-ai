@@ -53,10 +53,9 @@ function RouteComponent() {
   return (
     <div>
       <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {showArchived 
+        {showArchived
           ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
-          : t('files.activeFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
-        }
+          : t('files.activeFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })}
         <Pagination
           totalItems={aiLibraryFiles.count}
           itemsPerPage={take}
