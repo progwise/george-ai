@@ -253,6 +253,7 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
+  unprocessedFilesCount: Int!
   updatedAt: DateTime!
   url: String
   users: [User!]!
@@ -739,6 +740,7 @@ type Mutation {
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile!
+  processUnprocessedFiles(libraryId: String!): [Int!]
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
@@ -827,6 +829,7 @@ type Query {
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(fileId: String!, libraryId: String!): String!
+  unprocessedFilesInQueueCount: Int!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

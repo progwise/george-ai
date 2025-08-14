@@ -265,6 +265,7 @@ export type AiLibrary = {
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
+  unprocessedFilesCount: Scalars['Int']['output']
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
   users: Array<User>
@@ -758,6 +759,7 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
+  processUnprocessedFiles?: Maybe<Array<Scalars['Int']['output']>>
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -952,6 +954,10 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
+export type MutationProcessUnprocessedFilesArgs = {
+  libraryId: Scalars['String']['input']
+}
+
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
@@ -1113,6 +1119,7 @@ export type Query = {
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
+  unprocessedFilesInQueueCount: Scalars['Int']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -2490,6 +2497,15 @@ export type ClearEmbeddedFilesMutationVariables = Exact<{
 
 export type ClearEmbeddedFilesMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
 
+export type ProcessUnprocessedFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type ProcessUnprocessedFilesMutation = {
+  __typename?: 'Mutation'
+  processUnprocessedFiles?: Array<number> | null
+}
+
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -2505,6 +2521,10 @@ export type CancelFileUploadMutationVariables = Exact<{
 }>
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
+
+export type UnprocessedFilesInQueueCountQueryVariables = Exact<{ [key: string]: never }>
+
+export type UnprocessedFilesInQueueCountQuery = { __typename?: 'Query'; unprocessedFilesInQueueCount: number }
 
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
@@ -2601,7 +2621,7 @@ export type EmbeddingsTableQuery = {
     take: number
     skip: number
     count: number
-    library: { __typename?: 'AiLibrary'; name: string }
+    library: { __typename?: 'AiLibrary'; name: string; unprocessedFilesCount: number }
     files: Array<{
       __typename?: 'AiLibraryFile'
       id: string
@@ -9871,6 +9891,39 @@ export const ClearEmbeddedFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<ClearEmbeddedFilesMutation, ClearEmbeddedFilesMutationVariables>
+export const ProcessUnprocessedFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processUnprocessedFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processUnprocessedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessUnprocessedFilesMutation, ProcessUnprocessedFilesMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -9954,6 +10007,20 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
+export const UnprocessedFilesInQueueCountDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'unprocessedFilesInQueueCount' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'unprocessedFilesInQueueCount' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnprocessedFilesInQueueCountQuery, UnprocessedFilesInQueueCountQueryVariables>
 export const GetFileChunksDocument = {
   kind: 'Document',
   definitions: [
@@ -10215,7 +10282,10 @@ export const EmbeddingsTableDocument = {
                   name: { kind: 'Name', value: 'library' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unprocessedFilesCount' } },
+                    ],
                   },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
