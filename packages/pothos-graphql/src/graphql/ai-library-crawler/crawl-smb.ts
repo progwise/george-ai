@@ -114,6 +114,7 @@ const saveSmbCrawlerFile = async ({
 
   let fileHash: string | undefined
   let skipProcessing = false
+  let wasUpdated = false
 
   // If no processing error, handle file hash calculation and skip logic
   if (!processingError) {
@@ -154,9 +155,12 @@ const saveSmbCrawlerFile = async ({
           },
         })
 
-        return { ...existingFile, skipProcessing }
+        return { ...existingFile, skipProcessing, wasUpdated }
       }
 
+      // Determine if this is an update or new file
+      wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
+      
       // Create/update file with hash
       const file = await prisma.aiLibraryFile.upsert({
         where: {
@@ -192,18 +196,20 @@ const saveSmbCrawlerFile = async ({
       await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
       await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
 
-      return { ...file, skipProcessing }
+      return { ...file, skipProcessing, wasUpdated }
     } else if (existingFile) {
       // We have a hash from the existing file, check if it needs reprocessing
       if (existingFile.processedAt) {
         console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
         skipProcessing = true
       }
-      return { ...existingFile, skipProcessing }
+      return { ...existingFile, skipProcessing, wasUpdated }
     }
   }
 
   // For processing errors, just update database without copying
+  wasUpdated = !!existingFile
+  
   const fileUpdateData = {
     name: `${fileName}`,
     libraryId: libraryId,
@@ -230,7 +236,7 @@ const saveSmbCrawlerFile = async ({
     update: fileUpdateData,
   })
 
-  return { ...file, skipProcessing }
+  return { ...file, skipProcessing, wasUpdated }
 }
 
 export async function* crawlSmb({
@@ -368,6 +374,8 @@ export async function* crawlSmb({
             originUri: fileInfo.originUri,
             mimeType: fileInfo.mimeType,
             skipProcessing: false,
+            wasUpdated: fileInfo.wasUpdated,
+            downloadUrl: mountedFilePath, // Provide local file path for SMB files
             hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
           }
         }
