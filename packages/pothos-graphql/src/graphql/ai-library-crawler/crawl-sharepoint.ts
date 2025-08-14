@@ -375,7 +375,7 @@ export async function* crawlSharePoint({
           processedPages++
 
           const fileUri = `${siteUrl.origin}${item.FileRef}`
-          
+
           try {
             console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
@@ -494,11 +494,11 @@ export async function* crawlSharePoint({
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
-            yield { 
-              hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`, 
+            yield {
+              hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`,
               errorMessage: errorMessage,
               originUri: fileUri,
-              name: fileName
+              name: fileName,
             }
           }
         }
