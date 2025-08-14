@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
@@ -129,14 +128,18 @@ export const FilesActionsBar = ({
           {t('actions.reprocess')}
         </button>
 
-        <button
-          type="button"
-          className={twMerge('btn btn-xs text-base-content gap-2', showArchived ? 'btn-active' : '')}
-          onClick={() => onShowArchivedChange(!showArchived)}
-        >
-          <ArchiveIcon className="h-4 w-4" />
-          {t('actions.showArchived', { count: archivedCount })}
-        </button>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            checked={showArchived}
+            onChange={(e) => onShowArchivedChange(e.target.checked)}
+          />
+          <span className={`flex items-center gap-1 text-sm ${showArchived ? 'text-base-content' : 'text-base-content/60'}`}>
+            <ArchiveIcon className="h-4 w-4" />
+            {t('actions.showArchived', { count: archivedCount })}
+          </span>
+        </label>
       </div>
       <div className="text-right text-sm">
         <div className="font-semibold">{t('labels.remainingStorage')}</div>

@@ -43,7 +43,7 @@ export default {
     uploadAvatar: 'Upload Avatar',
     uploaded: 'Uploaded',
     view: 'View',
-    showArchived: 'Archived ({count})',
+    showArchived: 'Show Archived ({count})',
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',

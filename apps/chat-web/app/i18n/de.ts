@@ -43,7 +43,7 @@ export default {
     uploadAvatar: 'Avatar hochladen',
     uploaded: 'Hochgeladen',
     view: 'Ansehen',
-    showArchived: 'Archiviert ({count})',
+    showArchived: 'Archivierte anzeigen ({count})',
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
