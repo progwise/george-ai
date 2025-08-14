@@ -60,6 +60,12 @@ function RouteComponent() {
                   search: { ...search, skipRuns: (page - 1) * search.takeRuns, takeRuns: search.takeRuns },
                 })
               }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({
+                  search: { ...search, skipRuns: 0, takeRuns: newPageSize },
+                })
+              }}
             />
           </div>
           <ul className="menu bg-base-200 rounded-box">

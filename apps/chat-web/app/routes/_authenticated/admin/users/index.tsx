@@ -90,6 +90,10 @@ function UsersList() {
                   navigate({ search: { ...search, skip: newSkip } })
                 }
               }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({ search: { ...search, skip: 0, take: newPageSize } })
+              }}
             />
           )}
         </div>

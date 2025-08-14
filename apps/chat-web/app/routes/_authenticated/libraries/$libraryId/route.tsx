@@ -64,6 +64,16 @@ function RouteComponent() {
           {t('labels.details')}
         </Link>
         <Link
+          to="/libraries/$libraryId/postprocess"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.postprocess')}
+        </Link>
+        <Link
           to="/libraries/$libraryId/files"
           params={{ libraryId }}
           className="tab"

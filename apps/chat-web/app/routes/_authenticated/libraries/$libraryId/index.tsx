@@ -16,9 +16,5 @@ function RouteComponent() {
 
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
-  return (
-    <>
-      <LibraryForm library={aiLibrary} />
-    </>
-  )
+  return <LibraryForm library={aiLibrary} />
 }

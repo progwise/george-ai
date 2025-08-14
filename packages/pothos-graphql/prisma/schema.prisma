@@ -42,6 +42,8 @@ model User {
   conversations              AiConversation[]
   crawlerRuns                AiLibraryCrawlerRun[]
   conversationInvitation     AiConversationInvitation[]
+  lists                      AiList[]
+  listParticipations         AiListParticipant[]
 }
 
 model UserProfile {
@@ -77,8 +79,7 @@ model AiAssistant {
   conversationParticipations AiConversationParticipant[]
   languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
-
-  AiAssistantEUActAnswers AiAssistantEUActAnswers[]
+  euActAnswers               AiAssistantEUActAnswers[]
 }
 
 model AiAssistantBaseCase {
@@ -135,7 +136,8 @@ model AiLibrary {
   crawlers             AiLibraryCrawler[]
   participants         AiLibraryParticipant[]
 
-  AiLibraryUpdate AiLibraryUpdate[]
+  updates     AiLibraryUpdate[]
+  listSources AiListSource[]
 }
 
 model AiLibraryUsage {
@@ -152,10 +154,10 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String            @id @default(cuid())
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  library                AiLibrary         @relation(fields: [libraryId], references: [id])
+  id                     String                  @id @default(cuid())
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  library                AiLibrary               @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
@@ -171,64 +173,61 @@ model AiLibraryFile {
   processingErrorAt      DateTime?
   processingErrorMessage String?
   crawledByCrawlerId     String?
-  crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+  crawledByCrawler       AiLibraryCrawler?       @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
-  AiLibraryUpdate        AiLibraryUpdate[]
+  updates                AiLibraryUpdate[]
+  cache                  AiListItemCache[]
+  enrichmentQueue        AiListEnrichmentQueue[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
 
 model AiLibraryCrawler {
-  id        String    @id @default(cuid())
+  id        String                   @id @default(cuid())
   uriType   String
   uri       String
   libraryId String
   lastRun   DateTime?
   maxDepth  Int
   maxPages  Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  library AiLibrary                @relation(fields: [libraryId], references: [id])
-  runs    AiLibraryCrawlerRun[]
-  files   AiLibraryFile[]
-  cronJob AiLibraryCrawlerCronJob?
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+  library   AiLibrary                @relation(fields: [libraryId], references: [id])
+  runs      AiLibraryCrawlerRun[]
+  files     AiLibraryFile[]
+  cronJob   AiLibraryCrawlerCronJob?
 }
 
 model AiLibraryCrawlerRun {
-  id            String    @id @default(cuid())
+  id            String            @id @default(cuid())
   crawlerId     String
-  startedAt     DateTime  @default(now())
+  startedAt     DateTime          @default(now())
   endedAt       DateTime?
   success       Boolean?
   errorMessage  String?
   pagesCrawled  Int?
   runByUserId   String?
-  runByCronJob  Boolean   @default(false)
+  runByCronJob  Boolean           @default(false)
   stoppedByUser DateTime?
-
-  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
-  runBy   User?            @relation(fields: [runByUserId], references: [id])
-
-  updates AiLibraryUpdate[]
+  crawler       AiLibraryCrawler  @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+  runBy         User?             @relation(fields: [runByUserId], references: [id])
+  updates       AiLibraryUpdate[]
 }
 
 model AiLibraryCrawlerCronJob {
-  id        String  @id @default(cuid())
-  active    Boolean @default(true)
-  hour      Int     @default(0)
-  minute    Int     @default(0)
-  monday    Boolean @default(true)
-  tuesday   Boolean @default(true)
-  wednesday Boolean @default(true)
-  thursday  Boolean @default(true)
-  friday    Boolean @default(true)
-  saturday  Boolean @default(true)
-  sunday    Boolean @default(true)
-  crawlerId String  @unique
-
+  id        String   @id @default(cuid())
+  active    Boolean  @default(true)
+  hour      Int      @default(0)
+  minute    Int      @default(0)
+  monday    Boolean  @default(true)
+  tuesday   Boolean  @default(true)
+  wednesday Boolean  @default(true)
+  thursday  Boolean  @default(true)
+  friday    Boolean  @default(true)
+  saturday  Boolean  @default(true)
+  sunday    Boolean  @default(true)
+  crawlerId String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -236,38 +235,139 @@ model AiLibraryCrawlerCronJob {
 }
 
 model AiLibraryUpdate {
-  id           String   @id @default(cuid())
+  id           String               @id @default(cuid())
   libraryId    String
   fileId       String?
   crawlerRunId String?
   success      Boolean
   message      String?
-  createdAt    DateTime @default(now())
-
-  library    AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-  crawlerRun AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
-  file       AiLibraryFile?       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdAt    DateTime             @default(now())
+  library      AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  crawlerRun   AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
+  file         AiLibraryFile?       @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }
 
 model AiLibraryParticipant {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
   libraryId String
   userId    String
-
-  library AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  library   AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([libraryId, userId])
 }
 
-model AiConversation {
-  id      String @id @default(cuid())
-  ownerId String
+model AiList {
+  id              String                  @id @default(cuid())
+  ownerId         String
+  name            String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  owner           User                    @relation(fields: [ownerId], references: [id])
+  participants    AiListParticipant[]
+  fields          AiListField[]
+  sources         AiListSource[]
+  enrichmentQueue AiListEnrichmentQueue[]
+}
 
+model AiListSource {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  listId    String
+  list      AiList     @relation(fields: [listId], references: [id])
+  libraryId String?
+  library   AiLibrary? @relation(fields: [libraryId], references: [id])
+}
+
+model AiListParticipant {
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  listId    String
+  userId    String
+  list      AiList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([listId, userId])
+}
+
+model AiListField {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  listId    String
+  name      String
+  type      String // 'string', 'number', 'date', 'datetime', 'boolean'
+  order     Int      @default(0) // Display order in table
+
+  // Source configuration
+  sourceType String // 'file_property' or 'llm_computed'
+
+  // For file_property source
+  fileProperty String? // 'name', 'originUri', 'processedAt', 'originModificationDate', 'size', 'mimeType', 'crawlerUrl'
+
+  // For llm_computed source
+  languageModel String?
+  prompt        String?
+  useMarkdown   Boolean?
+
+  list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  cachedValues    AiListItemCache[]
+  enrichmentQueue AiListEnrichmentQueue[]
+  context         AiListFieldContext[]    @relation("fieldId")
+  usedAsContext   AiListFieldContext[]    @relation("contextFieldId")
+}
+
+model AiListFieldContext {
+  fieldId        String
+  field          AiListField @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
+  contextFieldId String
+  contextField   AiListField @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+
+  @@id([fieldId, contextFieldId])
+}
+
+model AiListItemCache {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  fileId       String
+  fieldId      String
+  valueString  String?
+  valueNumber  Float?
+  valueDate    DateTime?
+  valueBoolean Boolean?
+  file         AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  field        AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, fieldId])
+}
+
+model AiListEnrichmentQueue {
+  id          String        @id @default(cuid())
+  listId      String
+  fieldId     String
+  fileId      String
+  status      String // 'pending', 'processing', 'completed', 'failed'
+  priority    Int           @default(0) // Higher number = higher priority
+  requestedAt DateTime      @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  error       String?
+  list        AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  field       AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  file        AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, fieldId, fileId])
+  @@index([listId, status])
+  @@index([status, priority, requestedAt])
+}
+
+model AiConversation {
+  id                      String                      @id @default(cuid())
+  ownerId                 String
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
   messages                AiConversationMessage[]
   participants            AiConversationParticipant[]
   owner                   User                        @relation(fields: [ownerId], references: [id])
@@ -275,12 +375,11 @@ model AiConversation {
 }
 
 model AiConversationParticipant {
-  id             String   @id @default(cuid())
-  createdAt      DateTime @default(now())
-  conversationId String
-  userId         String?
-  assistantId    String?
-
+  id                  String                  @id @default(cuid())
+  createdAt           DateTime                @default(now())
+  conversationId      String
+  userId              String?
+  assistantId         String?
   conversation        AiConversation          @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user                User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   assistant           AiAssistant?            @relation(fields: [assistantId], references: [id], onDelete: Cascade)
@@ -302,20 +401,18 @@ model AiConversationMessage {
 }
 
 model AiConversationInvitation {
-  id                         String    @id @default(cuid())
+  id                         String         @id @default(cuid())
   email                      String
   inviterId                  String
   confirmedByEmail           String?
   confirmationDate           DateTime?
   conversationId             String
-  date                       DateTime  @default(now())
-  allowDifferentEmailAddress Boolean   @default(false)
-  allowMultipleParticipants  Boolean   @default(false)
-  isUsed                     Boolean   @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  inviter      User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  date                       DateTime       @default(now())
+  allowDifferentEmailAddress Boolean        @default(false)
+  allowMultipleParticipants  Boolean        @default(false)
+  isUsed                     Boolean        @default(false)
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
+  inviter                    User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  conversation               AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
