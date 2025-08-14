@@ -8,6 +8,7 @@ import { FilesActionsBar } from '../../../../../components/library/files/files-a
 import { FilesTable } from '../../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
 import { Pagination } from '../../../../../components/table/pagination'
+import { useTranslation } from '../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/')({
   component: RouteComponent,
@@ -42,6 +43,7 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
   const { queryClient } = Route.useRouteContext()
+  const { t } = useTranslation()
 
   const aiLibraryFilesQuery = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }))
   const aiLibraryFiles = aiLibraryFilesQuery.data.aiLibraryFiles
@@ -51,7 +53,10 @@ function RouteComponent() {
   return (
     <div>
       <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {aiLibraryFiles.count} Files for library {aiLibraryFiles.library.name}
+        {showArchived 
+          ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
+          : t('files.activeFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
+        }
         <Pagination
           totalItems={aiLibraryFiles.count}
           itemsPerPage={take}

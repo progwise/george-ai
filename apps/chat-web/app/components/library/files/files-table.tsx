@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { dateTimeString } from '@george-ai/web-utils'
+import { dateTimeString, dateTimeStringArray } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
@@ -230,8 +230,21 @@ export const FilesTable = ({
                 </td>
                 <td>{file.size ?? '-'}</td>
                 <td>{file.chunks ?? '-'}</td>
-                <td>{dateTimeString(file.processedAt, language) || '-'}</td>
-                <td>{file.originModificationDate ? dateTimeString(file.originModificationDate, language) : '-'}</td>
+                <td>
+                  {dateTimeStringArray(file.processedAt, language).map((item) => (
+                    <div key={item} className="text-nowrap">
+                      {item}
+                    </div>
+                  ))}
+                </td>
+                <td>
+                  {' '}
+                  {dateTimeStringArray(file.originModificationDate, language).map((item) => (
+                    <div key={item} className="text-nowrap">
+                      {item}
+                    </div>
+                  ))}
+                </td>
                 <td className="flex items-center gap-2">
                   <Link
                     to="/libraries/$libraryId/files/$fileId"
