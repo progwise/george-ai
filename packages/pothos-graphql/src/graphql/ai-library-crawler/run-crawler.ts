@@ -175,7 +175,7 @@ const startCrawling = async (
 
           // Include download URL if available for debugging
           const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
-          
+
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
@@ -187,14 +187,14 @@ const startCrawling = async (
           })
         } else {
           await processFile(crawledPage.id)
-          
+
           // Determine update type based on whether file was updated
           const updateType = crawledPage.wasUpdated ? 'updated' : 'added'
           const actionWord = crawledPage.wasUpdated ? 'updated' : 'added'
-          
+
           // Include download URL if available for debugging
           const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
-          
+
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
@@ -204,7 +204,12 @@ const startCrawling = async (
               updateType,
             },
           })
-          console.log(`Successfully processed crawled page (${updateType})`, crawledPage.name, 'from', crawledPage.originUri)
+          console.log(
+            `Successfully processed crawled page (${updateType})`,
+            crawledPage.name,
+            'from',
+            crawledPage.originUri,
+          )
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -214,7 +219,7 @@ const startCrawling = async (
         )
         // Include download URL if available for debugging
         const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
-        
+
         await prisma.aiLibraryUpdate.create({
           data: {
             libraryId: crawler.libraryId,

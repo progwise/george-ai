@@ -129,7 +129,7 @@ const saveSharepointCrawlerFile = async ({
   let skipProcessing = false
   let wasUpdated = false
   let fileHash: string | undefined | null
-  
+
   // Always build download URL for SharePoint files for reporting
   // Use alternative API for files with special characters (% or #)
   const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
@@ -164,11 +164,11 @@ const saveSharepointCrawlerFile = async ({
       },
       update: fileUpdateData,
     })
-    
+
     wasUpdated = !!existingFile
   } else {
     // No processing error - handle normal file processing
-    
+
     // Try to get hash from existing file on disk first
     if (existingFile && !existingFile.originFileHash) {
       const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
@@ -176,7 +176,7 @@ const saveSharepointCrawlerFile = async ({
         await fs.promises.access(existingFilePath)
         fileHash = await calculateFileHash(existingFilePath)
         console.log(`Generated hash for existing file ${fileName}: ${fileHash}`)
-        
+
         // Update the existing file with the hash
         await prisma.aiLibraryFile.update({
           where: { id: existingFile.id },
@@ -191,26 +191,27 @@ const saveSharepointCrawlerFile = async ({
     }
 
     // Download file if we don't have a hash yet OR if hash has changed
-    const needsDownload = !fileHash || (existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
-    
+    const needsDownload =
+      !fileHash || (existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
+
     if (!fileHash || needsDownload) {
       const uploadedFilePath = getUploadFilePath({ fileId: 'temp', libraryId })
       const tempFilePath = `${uploadedFilePath}_temp_${Date.now()}`
-      
+
       try {
         await downloadSharePointFileToPath(siteUrl, serverRelativeUrl, authCookies, tempFilePath)
         const newFileHash = await calculateFileHash(tempFilePath)
-        
+
         // Determine file status
         if (existingFile && existingFile.originFileHash === newFileHash && existingFile.processedAt) {
           // Same content, already processed
           skipProcessing = true
           wasUpdated = false
           fileRecord = existingFile
-          
+
           // Clean up temp file
           await fs.promises.unlink(tempFilePath).catch(() => {})
-          
+
           // Update modification date even if skipping
           await prisma.aiLibraryFile.update({
             where: { id: existingFile.id },
@@ -222,7 +223,7 @@ const saveSharepointCrawlerFile = async ({
         } else {
           // New file or updated content
           wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== newFileHash)
-          
+
           fileRecord = await prisma.aiLibraryFile.upsert({
             where: {
               crawledByCrawlerId_originUri: {
@@ -251,13 +252,13 @@ const saveSharepointCrawlerFile = async ({
               originFileHash: newFileHash,
             },
           })
-          
+
           // Move file to final location
           const finalPath = getUploadFilePath({ fileId: fileRecord.id, libraryId })
           await fs.promises.mkdir(path.dirname(finalPath), { recursive: true })
           await fs.promises.rename(tempFilePath, finalPath)
         }
-        
+
         fileHash = newFileHash
       } catch (error) {
         // Clean up temp file on error
@@ -275,7 +276,7 @@ const saveSharepointCrawlerFile = async ({
   if (!fileRecord) {
     throw new Error(`File record not created for ${fileName}`)
   }
-  
+
   return { ...fileRecord, skipProcessing, wasUpdated, downloadUrl }
 }
 
@@ -550,7 +551,7 @@ async function downloadSharePointFileToPath(
 ): Promise<void> {
   // Try primary API first
   let fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
-  
+
   console.log(`Downloading SharePoint file from: ${fileUrl}`)
 
   let response = await fetch(fileUrl, {
@@ -566,15 +567,15 @@ async function downloadSharePointFileToPath(
   // If primary API fails with 404 and path contains special characters, try alternative API
   if (!response.ok && response.status === 404) {
     const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
-    
+
     if (hasSpecialChars) {
       console.log(`Primary API failed with 404 for file with special characters, trying GetFileByServerRelativePath...`)
-      
+
       // Try alternative API for special characters
       fileUrl = `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
-      
+
       console.log(`Retrying with alternative API: ${fileUrl}`)
-      
+
       response = await fetch(fileUrl, {
         method: 'GET',
         headers: {
@@ -582,7 +583,7 @@ async function downloadSharePointFileToPath(
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
       })
-      
+
       console.log(`Alternative API response status: ${response.status} ${response.statusText}`)
     }
   }

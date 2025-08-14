@@ -160,7 +160,7 @@ const saveSmbCrawlerFile = async ({
 
       // Determine if this is an update or new file
       wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
-      
+
       // Create/update file with hash
       const file = await prisma.aiLibraryFile.upsert({
         where: {
@@ -209,7 +209,7 @@ const saveSmbCrawlerFile = async ({
 
   // For processing errors, just update database without copying
   wasUpdated = !!existingFile
-  
+
   const fileUpdateData = {
     name: `${fileName}`,
     libraryId: libraryId,
