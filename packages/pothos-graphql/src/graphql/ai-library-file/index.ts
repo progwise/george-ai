@@ -266,7 +266,7 @@ const LibraryFileQueryResult = builder
           }
           console.log('Counting AI library files for library:', root.libraryId)
           return prisma.aiLibraryFile.count({
-            where: { 
+            where: {
               libraryId: root.libraryId,
               ...(root.showArchived ? {} : { archivedAt: null }),
             },
@@ -289,7 +289,7 @@ const LibraryFileQueryResult = builder
           }
           console.log('Counting archived AI library files for library:', root.libraryId)
           return prisma.aiLibraryFile.count({
-            where: { 
+            where: {
               libraryId: root.libraryId,
               archivedAt: { not: null }, // Only archived files
             },
@@ -313,7 +313,7 @@ const LibraryFileQueryResult = builder
           console.log('Fetching AI library files for library:', query)
           return prisma.aiLibraryFile.findMany({
             ...query,
-            where: { 
+            where: {
               libraryId: root.libraryId,
               ...(root.showArchived ? {} : { archivedAt: null }),
             },

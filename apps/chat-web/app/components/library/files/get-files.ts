@@ -41,11 +41,28 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
     )
   })
 
-export const aiLibraryFilesQueryOptions = (params: { libraryId: string; skip: number; take: number; showArchived?: boolean }) =>
+export const aiLibraryFilesQueryOptions = (params: {
+  libraryId: string
+  skip: number
+  take: number
+  showArchived?: boolean
+}) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, params.libraryId, params.skip, params.take, params.showArchived ?? false, 'files'],
+    queryKey: [
+      queryKeys.AiLibraries,
+      params.libraryId,
+      params.skip,
+      params.take,
+      params.showArchived ?? false,
+      'files',
+    ],
     queryFn: async () =>
       getLibraryFiles({
-        data: { libraryId: params.libraryId, skip: params.skip, take: params.take, showArchived: params.showArchived ?? false },
+        data: {
+          libraryId: params.libraryId,
+          skip: params.skip,
+          take: params.take,
+          showArchived: params.showArchived ?? false,
+        },
       }),
   })

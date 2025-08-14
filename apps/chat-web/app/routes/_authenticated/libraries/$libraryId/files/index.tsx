@@ -25,11 +25,11 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
     await Promise.all([
       context.queryClient.ensureQueryData(getProfileQueryOptions()),
       context.queryClient.ensureQueryData(
-        aiLibraryFilesQueryOptions({ 
-          libraryId: params.libraryId, 
-          skip: deps.skip, 
+        aiLibraryFilesQueryOptions({
+          libraryId: params.libraryId,
+          skip: deps.skip,
           take: deps.take,
-          showArchived: deps.showArchived 
+          showArchived: deps.showArchived,
         }),
       ),
     ])
@@ -46,7 +46,7 @@ function RouteComponent() {
   const aiLibraryFilesQuery = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }))
   const aiLibraryFiles = aiLibraryFilesQuery.data.aiLibraryFiles
   const archivedCount = aiLibraryFiles.archivedCount
-  
+
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   return (
     <div>
@@ -73,7 +73,9 @@ function RouteComponent() {
         checkedFileIds={selectedFileIds}
         setCheckedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
-          queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey })
+          queryClient.invalidateQueries({
+            queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey,
+          })
         }}
         totalItems={aiLibraryFiles.count}
         showArchived={showArchived}
@@ -88,7 +90,9 @@ function RouteComponent() {
         selectedFileIds={selectedFileIds}
         setSelectedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
-          queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey })
+          queryClient.invalidateQueries({
+            queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey,
+          })
         }}
       />
     </div>
