@@ -6,6 +6,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { graphql } from '../../../gql'
 import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ArchiveIcon } from '../../../icons/archive-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
@@ -28,6 +29,7 @@ graphql(`
     processingErrorMessage
     dropError
     originModificationDate
+    archivedAt
   }
 `)
 interface FilesTableProps {
@@ -139,6 +141,12 @@ export const FilesTable = ({
                   </span>
                 </label>
                 <div className="flex flex-shrink-0 justify-end gap-2">
+                  {file.archivedAt && (
+                    <span className="badge badge-outline badge-sm gap-1">
+                      <ArchiveIcon className="h-3 w-3" />
+                      {t('labels.archived')}
+                    </span>
+                  )}
                   {file.processingErrorMessage && (
                     <span className="tooltip tooltip-left flex items-center" data-tip={file.processingErrorMessage}>
                       <ExclamationIcon />
@@ -168,7 +176,7 @@ export const FilesTable = ({
 
       {/* Desktop Table */}
       <div className="hidden lg:block">
-        <table className="table">
+        <table className="table-xs table">
           <thead className="bg-base-200">
             <tr>
               <th>
@@ -202,12 +210,20 @@ export const FilesTable = ({
                 <td>{index + (firstItemNumber ?? 1)}</td>
 
                 <td className="flex max-w-2xl flex-col truncate" title={file.name}>
-                  <Link
-                    to="/libraries/$libraryId/files/$fileId"
-                    params={{ libraryId: file.libraryId, fileId: file.id }}
-                  >
-                    <span>{truncateFileName(file.name, 49, 45)}</span>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/libraries/$libraryId/files/$fileId"
+                      params={{ libraryId: file.libraryId, fileId: file.id }}
+                    >
+                      <span>{truncateFileName(file.name, 49, 45)}</span>
+                    </Link>
+                    {file.archivedAt && (
+                      <span className="badge badge-warning badge-xs gap-1">
+                        <ArchiveIcon className="h-3 w-3" />
+                        {t('labels.archived')}
+                      </span>
+                    )}
+                  </div>
                   <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
                     {file.originUri || 'n/a'}
                   </a>

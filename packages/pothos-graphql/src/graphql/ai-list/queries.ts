@@ -48,6 +48,7 @@ const ListFilesQueryResult = builder
     skip: number
     orderBy?: string
     orderDirection?: 'asc' | 'desc'
+    showArchived?: boolean
   }>('AiListFilesQueryResult')
   .implement({
     description: 'Query result for AI list files from all source libraries',
@@ -57,6 +58,7 @@ const ListFilesQueryResult = builder
       skip: t.exposeInt('skip', { nullable: false }),
       orderBy: t.exposeString('orderBy', { nullable: true }),
       orderDirection: t.exposeString('orderDirection', { nullable: true }),
+      showArchived: t.exposeBoolean('showArchived', { nullable: true }),
       count: t.withAuth({ isLoggedIn: true }).field({
         type: 'Int',
         nullable: false,
@@ -73,6 +75,7 @@ const ListFilesQueryResult = builder
           return prisma.aiLibraryFile.count({
             where: {
               libraryId: { in: libraryIds },
+              ...(root.showArchived ? {} : { archivedAt: null }),
             },
           })
         },
@@ -99,6 +102,7 @@ const ListFilesQueryResult = builder
             ...query,
             where: {
               libraryId: { in: libraryIds },
+              ...(root.showArchived ? {} : { archivedAt: null }),
             },
             orderBy,
             take: root.take ?? 20,
@@ -119,6 +123,7 @@ builder.queryField('aiListFiles', (t) =>
       take: t.arg.int({ required: true, defaultValue: 20 }),
       orderBy: t.arg.string({ required: false }),
       orderDirection: t.arg.string({ required: false }),
+      showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: (_root, args) => {
       return {
@@ -127,6 +132,7 @@ builder.queryField('aiListFiles', (t) =>
         skip: args.skip ?? 0,
         orderBy: args.orderBy ?? undefined,
         orderDirection: args.orderDirection === 'desc' ? ('desc' as const) : ('asc' as const),
+        showArchived: args.showArchived ?? false,
       }
     },
   }),

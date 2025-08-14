@@ -376,6 +376,7 @@ export enum AiLibraryCrawlerUriType {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
+  archivedAt?: Maybe<Scalars['DateTime']['output']>
   cache: Array<AiListItemCache>
   chunks?: Maybe<Scalars['Int']['output']>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
@@ -415,10 +416,12 @@ export type AiLibraryFileInput = {
 /** Query result for AI library files */
 export type AiLibraryFileQueryResult = {
   __typename?: 'AiLibraryFileQueryResult'
+  archivedCount: Scalars['Int']['output']
   count: Scalars['Int']['output']
   files: Array<AiLibraryFile>
   library: AiLibrary
   libraryId: Scalars['String']['output']
+  showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
 }
@@ -580,6 +583,7 @@ export type AiListFilesQueryResult = {
   listId: Scalars['String']['output']
   orderBy?: Maybe<Scalars['String']['output']>
   orderDirection?: Maybe<Scalars['String']['output']>
+  showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
 }
@@ -1179,6 +1183,7 @@ export type QueryAiLibraryFileArgs = {
 
 export type QueryAiLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
 }
@@ -1208,6 +1213,7 @@ export type QueryAiListFilesArgs = {
   listId: Scalars['String']['input']
   orderBy?: InputMaybe<Scalars['String']['input']>
   orderDirection?: InputMaybe<Scalars['String']['input']>
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
 }
@@ -2552,6 +2558,7 @@ export type AiLibraryFile_TableItemFragment = {
   processingErrorMessage?: string | null
   dropError?: string | null
   originModificationDate?: string | null
+  archivedAt?: string | null
 }
 
 export type GetFileChunksQueryVariables = Exact<{
@@ -2623,6 +2630,7 @@ export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type EmbeddingsTableQuery = {
@@ -2632,7 +2640,9 @@ export type EmbeddingsTableQuery = {
     libraryId: string
     take: number
     skip: number
+    showArchived?: boolean | null
     count: number
+    archivedCount: number
     library: { __typename?: 'AiLibrary'; name: string }
     files: Array<{
       __typename?: 'AiLibraryFile'
@@ -2648,6 +2658,7 @@ export type EmbeddingsTableQuery = {
       processingErrorMessage?: string | null
       dropError?: string | null
       originModificationDate?: string | null
+      archivedAt?: string | null
     }>
   }
 }
@@ -6018,6 +6029,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
         ],
       },
     },
@@ -10248,6 +10260,12 @@ export const EmbeddingsTableDocument = {
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
           defaultValue: { kind: 'IntValue', value: '20' },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -10271,6 +10289,11 @@ export const EmbeddingsTableDocument = {
                 name: { kind: 'Name', value: 'take' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'showArchived' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
@@ -10286,7 +10309,9 @@ export const EmbeddingsTableDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'showArchived' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedCount' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'files' },
@@ -10320,6 +10345,7 @@ export const EmbeddingsTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
         ],
       },
     },

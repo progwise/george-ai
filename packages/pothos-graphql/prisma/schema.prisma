@@ -176,6 +176,7 @@ model AiLibraryFile {
   crawledByCrawler       AiLibraryCrawler?       @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
+  archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]

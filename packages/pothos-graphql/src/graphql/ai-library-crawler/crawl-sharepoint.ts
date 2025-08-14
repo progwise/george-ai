@@ -47,10 +47,28 @@ const recordOmittedFile = async ({
   filterType: string
   filterValue?: string
 }) => {
+  // Check if the file already exists in the database
+  const existingFile = await prisma.aiLibraryFile.findFirst({
+    where: {
+      libraryId,
+      originUri: filePath,
+      archivedAt: null, // Only consider non-archived files
+    },
+  })
+
+  // If the file exists, mark it as archived
+  if (existingFile) {
+    await prisma.aiLibraryFile.update({
+      where: { id: existingFile.id },
+      data: { archivedAt: new Date() },
+    })
+  }
+
   await prisma.aiLibraryUpdate.create({
     data: {
       libraryId,
       crawlerRunId,
+      fileId: existingFile?.id || null,
       success: false,
       message: reason,
       updateType: 'omitted',

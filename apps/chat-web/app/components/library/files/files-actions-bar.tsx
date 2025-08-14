@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { reprocessFiles } from './change-files'
@@ -17,6 +19,9 @@ interface FilesActionsBarProps {
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
   totalItems: number
+  showArchived: boolean
+  onShowArchivedChange: (show: boolean) => void
+  archivedCount: number
 }
 
 export const FilesActionsBar = ({
@@ -27,6 +32,9 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
   totalItems,
+  showArchived,
+  onShowArchivedChange,
+  archivedCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -119,6 +127,15 @@ export const FilesActionsBar = ({
           disabled={checkedFileIds.length === 0}
         >
           {t('actions.reprocess')}
+        </button>
+
+        <button
+          type="button"
+          className={twMerge('btn btn-xs text-base-content gap-2', showArchived ? 'btn-active' : '')}
+          onClick={() => onShowArchivedChange(!showArchived)}
+        >
+          <ArchiveIcon className="h-4 w-4" />
+          {t('actions.showArchived', { count: archivedCount })}
         </button>
       </div>
       <div className="text-right text-sm">

@@ -43,6 +43,7 @@ export default {
     uploadAvatar: 'Upload Avatar',
     uploaded: 'Uploaded',
     view: 'View',
+    showArchived: 'Archived ({count})',
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',
@@ -313,6 +314,7 @@ export default {
     active: 'Active',
     adminProfileActivation: 'Admin Profile Activation',
     allUsers: 'All Users',
+    archived: 'Archived',
     assistant: 'Assistant',
     awaitingActivation: 'Awaiting activation',
     awaitingConfirmation: 'Awaiting confirmation',

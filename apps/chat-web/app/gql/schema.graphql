@@ -350,6 +350,7 @@ enum AiLibraryCrawlerUriType {
 }
 
 type AiLibraryFile {
+  archivedAt: DateTime
   cache: [AiListItemCache!]!
   chunks: Int
   crawledByCrawler: AiLibraryCrawler
@@ -385,10 +386,12 @@ input AiLibraryFileInput {
 Query result for AI library files
 """
 type AiLibraryFileQueryResult {
+  archivedCount: Int!
   count: Int!
   files: [AiLibraryFile!]!
   library: AiLibrary!
   libraryId: String!
+  showArchived: Boolean
   skip: Int!
   take: Int!
 }
@@ -547,6 +550,7 @@ type AiListFilesQueryResult {
   listId: String!
   orderBy: String
   orderDirection: String
+  showArchived: Boolean
   skip: Int!
   take: Int!
 }
@@ -827,7 +831,12 @@ type Query {
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
   aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
-  aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
+  aiLibraryFiles(
+    libraryId: String!
+    showArchived: Boolean = false
+    skip: Int! = 0
+    take: Int! = 20
+  ): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
@@ -836,6 +845,7 @@ type Query {
     listId: String!
     orderBy: String
     orderDirection: String
+    showArchived: Boolean = false
     skip: Int! = 0
     take: Int! = 20
   ): AiListFilesQueryResult!

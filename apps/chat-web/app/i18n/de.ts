@@ -43,6 +43,7 @@ export default {
     uploadAvatar: 'Avatar hochladen',
     uploaded: 'Hochgeladen',
     view: 'Ansehen',
+    showArchived: 'Archiviert ({count})',
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
@@ -319,6 +320,7 @@ export default {
     active: 'Aktiv',
     adminProfileActivation: 'Admin-Profilaktivierung',
     allUsers: 'Alle Benutzer',
+    archived: 'Archiviert',
     assistant: 'Assistent',
     awaitingActivation: 'Warten auf Aktivierung',
     awaitingConfirmation: 'Warten auf Bestätigung',
