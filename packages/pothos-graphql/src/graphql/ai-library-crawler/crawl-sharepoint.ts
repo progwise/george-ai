@@ -124,46 +124,89 @@ const saveSharepointCrawlerFile = async ({
     },
   })
 
-  let fileHash: string | undefined
+  // Initialize result tracking
+  let fileRecord: typeof existingFile = null
   let skipProcessing = false
+  let wasUpdated = false
+  let fileHash: string | undefined | null
+  
+  // Always build download URL for SharePoint files for reporting
+  const downloadUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
 
-  // If no processing error, handle file download and hash calculation
-  if (!processingError) {
-    // Check if existing file has a hash stored
+  // Handle processing errors - just update/create database record without downloading
+  if (processingError) {
+    const fileUpdateData = {
+      name: `${fileName}`,
+      libraryId: libraryId,
+      mimeType,
+      size: parseInt(fileSize.toString()),
+      updatedAt: fileModifiedTime,
+      originModificationDate: fileModifiedTime,
+      processingErrorMessage: processingError,
+      processingErrorAt: new Date(),
+    }
+
+    fileRecord = await prisma.aiLibraryFile.upsert({
+      where: {
+        crawledByCrawlerId_originUri: {
+          crawledByCrawlerId: crawlerId,
+          originUri: fileUri,
+        },
+      },
+      create: {
+        ...fileUpdateData,
+        originUri: fileUri,
+        crawledByCrawlerId: crawlerId,
+      },
+      update: fileUpdateData,
+    })
+    
+    wasUpdated = !!existingFile
+  } else {
+    // No processing error - handle normal file processing
+    
+    // Try to get hash from existing file on disk first
     if (existingFile && !existingFile.originFileHash) {
-      // Try to generate hash from existing uploaded file
       const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
       try {
         await fs.promises.access(existingFilePath)
         fileHash = await calculateFileHash(existingFilePath)
         console.log(`Generated hash for existing file ${fileName}: ${fileHash}`)
-
+        
         // Update the existing file with the hash
         await prisma.aiLibraryFile.update({
           where: { id: existingFile.id },
           data: { originFileHash: fileHash },
         })
+        existingFile.originFileHash = fileHash // Update local copy
       } catch {
         console.log(`Existing file not found on disk for ${fileName}, will download`)
       }
+    } else if (existingFile) {
+      fileHash = existingFile.originFileHash || undefined
     }
 
-    // If we don't have a hash yet, download the file to calculate it
-    if (!fileHash) {
+    // Download file if we don't have a hash yet OR if hash has changed
+    const needsDownload = !fileHash || (existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
+    
+    if (!fileHash || needsDownload) {
       const uploadedFilePath = getUploadFilePath({ fileId: 'temp', libraryId })
       const tempFilePath = `${uploadedFilePath}_temp_${Date.now()}`
-
+      
       try {
         await downloadSharePointFileToPath(siteUrl, serverRelativeUrl, authCookies, tempFilePath)
-        fileHash = await calculateFileHash(tempFilePath)
-
-        // Check if this file was already processed with the same hash
-        if (existingFile && existingFile.originFileHash === fileHash && existingFile.processedAt) {
-          console.log(`Skipping file ${fileName} - already processed with same hash`)
+        const newFileHash = await calculateFileHash(tempFilePath)
+        
+        // Determine file status
+        if (existingFile && existingFile.originFileHash === newFileHash && existingFile.processedAt) {
+          // Same content, already processed
           skipProcessing = true
+          wasUpdated = false
+          fileRecord = existingFile
+          
           // Clean up temp file
           await fs.promises.unlink(tempFilePath).catch(() => {})
-
+          
           // Update modification date even if skipping
           await prisma.aiLibraryFile.update({
             where: { id: existingFile.id },
@@ -172,89 +215,64 @@ const saveSharepointCrawlerFile = async ({
               updatedAt: new Date(),
             },
           })
-
-          return { ...existingFile, skipProcessing }
-        }
-
-        // Move to final location after getting file ID
-        const file = await prisma.aiLibraryFile.upsert({
-          where: {
-            crawledByCrawlerId_originUri: {
-              crawledByCrawlerId: crawlerId,
-              originUri: fileUri,
+        } else {
+          // New file or updated content
+          wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== newFileHash)
+          
+          fileRecord = await prisma.aiLibraryFile.upsert({
+            where: {
+              crawledByCrawlerId_originUri: {
+                crawledByCrawlerId: crawlerId,
+                originUri: fileUri,
+              },
             },
-          },
-          create: {
-            name: `${fileName}`,
-            libraryId: libraryId,
-            mimeType,
-            size: parseInt(fileSize.toString()),
-            updatedAt: fileModifiedTime,
-            originUri: fileUri,
-            crawledByCrawlerId: crawlerId,
-            originModificationDate: fileModifiedTime,
-            originFileHash: fileHash,
-          },
-          update: {
-            name: `${fileName}`,
-            libraryId: libraryId,
-            mimeType,
-            size: parseInt(fileSize.toString()),
-            updatedAt: fileModifiedTime,
-            originModificationDate: fileModifiedTime,
-            originFileHash: fileHash,
-          },
-        })
-
-        // Move file to final location
-        const finalPath = getUploadFilePath({ fileId: file.id, libraryId })
-        await fs.promises.mkdir(path.dirname(finalPath), { recursive: true })
-        await fs.promises.rename(tempFilePath, finalPath)
-
-        return { ...file, skipProcessing }
+            create: {
+              name: `${fileName}`,
+              libraryId: libraryId,
+              mimeType,
+              size: parseInt(fileSize.toString()),
+              updatedAt: fileModifiedTime,
+              originUri: fileUri,
+              crawledByCrawlerId: crawlerId,
+              originModificationDate: fileModifiedTime,
+              originFileHash: newFileHash,
+            },
+            update: {
+              name: `${fileName}`,
+              libraryId: libraryId,
+              mimeType,
+              size: parseInt(fileSize.toString()),
+              updatedAt: fileModifiedTime,
+              originModificationDate: fileModifiedTime,
+              originFileHash: newFileHash,
+            },
+          })
+          
+          // Move file to final location
+          const finalPath = getUploadFilePath({ fileId: fileRecord.id, libraryId })
+          await fs.promises.mkdir(path.dirname(finalPath), { recursive: true })
+          await fs.promises.rename(tempFilePath, finalPath)
+        }
+        
+        fileHash = newFileHash
       } catch (error) {
         // Clean up temp file on error
         await fs.promises.unlink(tempFilePath).catch(() => {})
         throw error
       }
     } else if (existingFile) {
-      // We have a hash from the existing file, check if it needs reprocessing
-      if (existingFile.processedAt) {
-        console.log(`File ${fileName} already processed with hash ${fileHash}`)
-        skipProcessing = true
-      }
-      return { ...existingFile, skipProcessing }
+      // File exists with hash and no download needed
+      fileRecord = existingFile
+      skipProcessing = existingFile.processedAt ? true : false
+      wasUpdated = false
     }
   }
 
-  // For processing errors, just update database without downloading
-  const fileUpdateData = {
-    name: `${fileName}`,
-    libraryId: libraryId,
-    mimeType,
-    size: parseInt(fileSize.toString()),
-    updatedAt: fileModifiedTime,
-    originModificationDate: fileModifiedTime,
-    processingErrorMessage: processingError,
-    processingErrorAt: new Date(),
+  if (!fileRecord) {
+    throw new Error(`File record not created for ${fileName}`)
   }
-
-  const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
-    create: {
-      ...fileUpdateData,
-      originUri: fileUri,
-      crawledByCrawlerId: crawlerId,
-    },
-    update: fileUpdateData,
-  })
-
-  return { ...file, skipProcessing }
+  
+  return { ...fileRecord, skipProcessing, wasUpdated, downloadUrl }
 }
 
 export async function* crawlSharePoint({
@@ -467,10 +485,11 @@ export async function* crawlSharePoint({
               console.log(`Skipping processing for ${fileName} - file unchanged`)
 
               const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2)
+              const downloadInfo = fileInfo.downloadUrl ? ` | Download URL: ${fileInfo.downloadUrl}` : ''
               const skipHints = [
                 `${fileInfo.name} skipped (already processed with same hash)`,
                 `Size: ${fileSizeMB} MB`,
-                `Origin: ${fileUri}`,
+                `Origin: ${fileUri}${downloadInfo}`,
               ].join(' | ')
 
               yield {
@@ -488,6 +507,8 @@ export async function* crawlSharePoint({
                 originUri: fileInfo.originUri,
                 mimeType: fileInfo.mimeType,
                 skipProcessing: false,
+                wasUpdated: fileInfo.wasUpdated,
+                downloadUrl: fileInfo.downloadUrl,
                 hints: `Sharepoint crawler file success \n${JSON.stringify(fileInfo, null, 2)}`,
               }
             }
@@ -523,7 +544,7 @@ async function downloadSharePointFileToPath(
   authCookies: string,
   filePath: string,
 ): Promise<void> {
-  const fileUrl = `${siteUrl}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
+  const fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
 
   console.log(`Downloading SharePoint file from: ${fileUrl}`)
 

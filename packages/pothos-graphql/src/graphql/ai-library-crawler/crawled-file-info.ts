@@ -6,4 +6,6 @@ export interface CrawledFileInfo {
   originUri?: string | null
   name?: string | null
   skipProcessing?: boolean
+  wasUpdated?: boolean
+  downloadUrl?: string
 }

@@ -133,13 +133,16 @@ const startCrawling = async (
         if (crawledPage.errorMessage) {
           console.warn('Crawling error for page', crawledPage)
 
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
           // Create update record for this file error - but don't fail the entire run
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: null,
-              message: `${crawledPage.originUri || crawledPage.name}: ${crawledPage.errorMessage}`,
+              message: `${crawledPage.originUri || crawledPage.name}: ${crawledPage.errorMessage}${downloadInfo}`,
               updateType: 'error',
             },
           })
@@ -150,13 +153,16 @@ const startCrawling = async (
           const errorMessage = `Crawled page had no file id ${JSON.stringify(crawledPage, null, 2)} `
           console.warn(errorMessage)
 
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
           // Create update record for this file error
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: null,
-              message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage}`,
+              message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage}${downloadInfo}`,
               updateType: 'error',
             },
           })
@@ -167,27 +173,38 @@ const startCrawling = async (
         if (crawledPage.skipProcessing) {
           console.log(`Skipping processing for file ${crawledPage.name} - already processed with same content`)
 
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+          
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: crawledPage.hints,
+              message: `${crawledPage.hints}${downloadInfo}`,
               updateType: 'skipped',
             },
           })
         } else {
           await processFile(crawledPage.id)
+          
+          // Determine update type based on whether file was updated
+          const updateType = crawledPage.wasUpdated ? 'updated' : 'added'
+          const actionWord = crawledPage.wasUpdated ? 'updated' : 'added'
+          
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+          
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: `${crawledPage.originUri || crawledPage.name}"`,
-              updateType: 'added',
+              message: `${crawledPage.originUri || crawledPage.name} ${actionWord}${downloadInfo}`,
+              updateType,
             },
           })
-          console.log('Successfully processed crawled page', crawledPage.name, 'from', crawledPage.originUri)
+          console.log(`Successfully processed crawled page (${updateType})`, crawledPage.name, 'from', crawledPage.originUri)
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -195,12 +212,15 @@ const startCrawling = async (
           `Error during file processing in crawler ${crawler.id} for file ${JSON.stringify(crawledPage, null, 2)}`,
           error,
         )
+        // Include download URL if available for debugging
+        const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+        
         await prisma.aiLibraryUpdate.create({
           data: {
             libraryId: crawler.libraryId,
             crawlerRunId: newRun.id,
             fileId: null,
-            message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage || 'Unknown error'}`,
+            message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage || 'Unknown error'}${downloadInfo}`,
             updateType: 'error',
           },
         })
