@@ -9,13 +9,13 @@ interface UpdateStatusBadgeProps {
   onCheckmarkChange?: (updateType: string, checked: boolean) => void
 }
 
-export const UpdateStatusBadge = ({ 
-  updateType, 
-  count, 
-  size = 'xs', 
-  showCheckmark = false, 
+export const UpdateStatusBadge = ({
+  updateType,
+  count,
+  size = 'xs',
+  showCheckmark = false,
   checked = true,
-  onCheckmarkChange 
+  onCheckmarkChange,
 }: UpdateStatusBadgeProps) => {
   const { t } = useTranslation()
 

@@ -366,17 +366,11 @@ export type AiLibraryCrawlerRun = {
 }
 
 export type AiLibraryCrawlerRunFilteredUpdatesCountArgs = {
-  successFilter?: InputMaybe<Scalars['Boolean']['input']>
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
-}
-
-export type AiLibraryCrawlerRunUpdateStatsArgs = {
-  successFilter?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
-  successFilter?: InputMaybe<Scalars['Boolean']['input']>
   take?: Scalars['Int']['input']
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -491,7 +485,6 @@ export type AiLibraryUpdate = {
   library?: Maybe<AiLibrary>
   libraryId: Scalars['ID']['output']
   message?: Maybe<Scalars['String']['output']>
-  success: Scalars['Boolean']['output']
   updateType: Scalars['String']['output']
 }
 
@@ -2348,7 +2341,6 @@ export type GetCrawlerRunQueryVariables = Exact<{
   skipUpdates: Scalars['Int']['input']
   takeUpdates: Scalars['Int']['input']
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
-  successFilter?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetCrawlerRunQuery = {
@@ -2368,7 +2360,6 @@ export type GetCrawlerRunQuery = {
     updates: Array<{
       __typename?: 'AiLibraryUpdate'
       id: string
-      success: boolean
       createdAt: string
       message?: string | null
       updateType: string
@@ -2644,7 +2635,7 @@ export type GetFileInfoQuery = {
       id: string
       createdAt: string
       message?: string | null
-      success: boolean
+      updateType: string
     } | null
   }
 }
@@ -2902,7 +2893,6 @@ export type LibraryUpdatesListQuery = {
       libraryId: string
       crawlerRunId?: string | null
       fileId?: string | null
-      success: boolean
       message?: string | null
       updateType: string
       filePath?: string | null
@@ -2928,7 +2918,6 @@ export type AiLibraryUpdate_TableItemFragment = {
   libraryId: string
   crawlerRunId?: string | null
   fileId?: string | null
-  success: boolean
   message?: string | null
   updateType: string
   filePath?: string | null
@@ -6253,7 +6242,6 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
@@ -9338,11 +9326,6 @@ export const GetCrawlerRunDocument = {
             type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
           },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9382,23 +9365,11 @@ export const GetCrawlerRunDocument = {
                       name: { kind: 'Name', value: 'updateTypeFilter' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
                     },
-                    {
-                      kind: 'Argument',
-                      name: { kind: 'Name', value: 'successFilter' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
-                    },
                   ],
                 },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'updateStats' },
-                  arguments: [
-                    {
-                      kind: 'Argument',
-                      name: { kind: 'Name', value: 'successFilter' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
-                    },
-                  ],
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
@@ -9426,17 +9397,11 @@ export const GetCrawlerRunDocument = {
                       name: { kind: 'Name', value: 'updateTypeFilter' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
                     },
-                    {
-                      kind: 'Argument',
-                      name: { kind: 'Name', value: 'successFilter' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'successFilter' } },
-                    },
                   ],
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
@@ -10303,7 +10268,7 @@ export const GetFileInfoDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
                     ],
                   },
                 },
@@ -11191,7 +11156,6 @@ export const LibraryUpdatesListDocument = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },

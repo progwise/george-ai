@@ -5,6 +5,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { graphql } from '../../../gql'
 import { AiLibraryUpdate_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { UpdateStatusBadge } from '../crawler/update-status-badge'
 
 graphql(`
   fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {
@@ -26,7 +27,6 @@ graphql(`
       id
       name
     }
-    success
     message
     updateType
     filePath
@@ -68,27 +68,7 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
               <tr key={update.id} className="hover:bg-base-300">
                 <td>{index + (firstItemNumber ?? 1)}</td>
                 <td>
-                  <span
-                    className={`badge ${
-                      update.success
-                        ? update.updateType === 'updated'
-                          ? 'badge-info'
-                          : update.updateType === 'skipped'
-                            ? 'badge-neutral'
-                            : 'badge-success'
-                        : update.updateType === 'omitted'
-                          ? 'badge-warning'
-                          : 'badge-error'
-                    }`}
-                  >
-                    {update.updateType === 'omitted'
-                      ? t('updates.omitted')
-                      : update.updateType === 'updated'
-                        ? t('updates.updated')
-                        : update.updateType === 'skipped'
-                          ? t('updates.skipped')
-                          : t('updates.added')}
-                  </span>
+                  <UpdateStatusBadge updateType={update.updateType} size="xs" />
                 </td>
                 <td>{dateTimeString(update.createdAt, language)}</td>
                 <td>

@@ -12,7 +12,6 @@ builder.prismaObject('AiLibraryUpdate', {
     fileId: t.exposeID('fileId', { nullable: true }),
     file: t.relation('file', { nullable: true }),
     message: t.exposeString('message'),
-    success: t.exposeBoolean('success', { nullable: false }),
     updateType: t.exposeString('updateType', { nullable: false }),
     // Fields for omitted files
     filePath: t.exposeString('filePath', { nullable: true }),

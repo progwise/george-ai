@@ -334,14 +334,14 @@ type AiLibraryCrawlerRun {
   crawlerId: ID!
   endedAt: DateTime
   errorMessage: String
-  filteredUpdatesCount(successFilter: Boolean, updateTypeFilter: [String!]): Int!
+  filteredUpdatesCount(updateTypeFilter: [String!]): Int!
   id: ID!
   runByUserId: ID
   startedAt: DateTime!
   stoppedByUser: DateTime
   success: Boolean
-  updateStats(successFilter: Boolean): [UpdateStats!]!
-  updates(skip: Int! = 0, successFilter: Boolean, take: Int! = 10, updateTypeFilter: [String!]): [AiLibraryUpdate!]!
+  updateStats: [UpdateStats!]!
+  updates(skip: Int! = 0, take: Int! = 10, updateTypeFilter: [String!]): [AiLibraryUpdate!]!
   updatesCount: Int!
 }
 
@@ -446,7 +446,6 @@ type AiLibraryUpdate {
   library: AiLibrary
   libraryId: ID!
   message: String
-  success: Boolean!
   updateType: String!
 }
 

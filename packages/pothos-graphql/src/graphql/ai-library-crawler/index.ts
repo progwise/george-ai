@@ -67,48 +67,28 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
       nullable: false,
       args: {
         updateTypeFilter: t.arg.stringList({ required: false }),
-        successFilter: t.arg.boolean({ required: false }),
       },
       resolve: async (run, args) => {
-        const where: { 
-          crawlerRunId: string; 
-          updateType?: { in: string[] }; 
-          success?: boolean 
+        const where: {
+          crawlerRunId: string
+          updateType?: { in: string[] }
         } = { crawlerRunId: run.id }
-        
+
         // Add filter for update types if provided
         if (args.updateTypeFilter && args.updateTypeFilter.length > 0) {
           where.updateType = { in: args.updateTypeFilter }
         }
-        
-        // Add filter for success status if provided
-        if (args.successFilter !== undefined && args.successFilter !== null) {
-          where.success = args.successFilter
-        }
-        
+
         return await prisma.aiLibraryUpdate.count({ where })
       },
     }),
     updateStats: t.field({
       type: [UpdateStats],
       nullable: false,
-      args: {
-        successFilter: t.arg.boolean({ required: false }),
-      },
-      resolve: async (run, args) => {
-        const where: { 
-          crawlerRunId: string; 
-          success?: boolean 
-        } = { crawlerRunId: run.id }
-        
-        // Add filter for success status if provided
-        if (args.successFilter !== undefined && args.successFilter !== null) {
-          where.success = args.successFilter
-        }
-        
+      resolve: async (run) => {
         const groups = await prisma.aiLibraryUpdate.groupBy({
           by: ['updateType'],
-          where,
+          where: { crawlerRunId: run.id },
           _count: true,
         })
 
@@ -125,25 +105,18 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
         take: t.arg.int({ defaultValue: 10 }),
         skip: t.arg.int({ defaultValue: 0 }),
         updateTypeFilter: t.arg.stringList({ required: false }),
-        successFilter: t.arg.boolean({ required: false }),
       },
       resolve: async (query, run, args) => {
-        const where: { 
-          crawlerRunId: string; 
-          updateType?: { in: string[] }; 
-          success?: boolean 
+        const where: {
+          crawlerRunId: string
+          updateType?: { in: string[] }
         } = { crawlerRunId: run.id }
-        
+
         // Add filter for update types if provided
         if (args.updateTypeFilter && args.updateTypeFilter.length > 0) {
           where.updateType = { in: args.updateTypeFilter }
         }
-        
-        // Add filter for success status if provided
-        if (args.successFilter !== undefined && args.successFilter !== null) {
-          where.success = args.successFilter
-        }
-        
+
         return await prisma.aiLibraryUpdate.findMany({
           ...query,
           where,

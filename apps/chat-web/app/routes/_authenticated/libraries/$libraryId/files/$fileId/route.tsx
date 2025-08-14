@@ -4,6 +4,7 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
+import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
@@ -122,23 +123,13 @@ function RouteComponent() {
           <div className="mt-2 text-sm">
             <span className="text-gray-600">{t('texts.lastUpdate')}:</span>
             <span className="ml-2">
-              {/* Determine status based on message content and success */}
-              {(() => {
-                const isSkipped = fileInfo.aiLibraryFile.lastUpdate.message?.toLowerCase().includes('skip') || false
-                if (!fileInfo.aiLibraryFile.lastUpdate.success) {
-                  return <span className="badge badge-error">Error</span>
-                } else if (isSkipped) {
-                  return <span className="badge badge-warning">{t('updates.skipped')}</span>
-                } else {
-                  return <span className="badge badge-info">{t('updates.processed')}</span>
-                }
-              })()}
+              <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="xs" />
             </span>
             <span className="ml-2 text-gray-500">
               {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
             </span>
             {/* Only show message if there was an error */}
-            {!fileInfo.aiLibraryFile.lastUpdate.success && (
+            {fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
               <div className="mt-1 text-xs text-red-600">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
             )}
           </div>

@@ -16,13 +16,11 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
     skipUpdates: z.coerce.number().default(0),
     takeUpdates: z.coerce.number().default(20),
     updateTypeFilter: z.array(z.string()).optional(),
-    onlyErrors: z.coerce.boolean().default(false),
   }),
-  loaderDeps: ({ search: { skipUpdates, takeUpdates, updateTypeFilter, onlyErrors } }) => ({
+  loaderDeps: ({ search: { skipUpdates, takeUpdates, updateTypeFilter } }) => ({
     skipUpdates,
     takeUpdates,
     updateTypeFilter,
-    successFilter: onlyErrors ? false : undefined, // onlyErrors=true means successFilter=false
   }),
   loader: async ({ context, params, deps }) => {
     return await Promise.all([context.queryClient.ensureQueryData(getCrawlerRunQueryOptions({ ...params, ...deps }))])
@@ -42,7 +40,6 @@ function RouteComponent() {
     getCrawlerRunQueryOptions({
       ...params,
       ...search,
-      successFilter: search.onlyErrors ? false : undefined,
     }),
   )
 
@@ -197,24 +194,7 @@ function RouteComponent() {
                   })
                 }}
               />
-              <div className="flex flex-col items-end gap-1">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-xs toggle-error"
-                    checked={search.onlyErrors}
-                    onChange={(e) => {
-                      navigate({
-                        search: {
-                          ...search,
-                          skipUpdates: 0, // Reset to first page
-                          onlyErrors: e.target.checked,
-                        },
-                      })
-                    }}
-                  />
-                  <span className="text-xs">{t('crawlers.onlyErrors')}</span>
-                </label>
+              <div className="flex items-end">
                 <div className="flex gap-2">
                   {crawlerRun.updateStats &&
                     crawlerRun.updateStats.map((stat) => {
@@ -293,8 +273,8 @@ function RouteComponent() {
                 </thead>
                 <tbody>
                   {crawlerRun.updates.map((update) => {
-                    // Use new updateType field if available, fallback to old logic
-                    const updateType = update.updateType || (update.success ? 'added' : 'error')
+                    // Use updateType field
+                    const updateType = update.updateType || 'error'
                     const isOmitted = updateType === 'omitted'
                     const displayFileName = isOmitted ? update.fileName : update.file?.name
                     const displayFilePath = isOmitted ? update.filePath : null

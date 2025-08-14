@@ -69,7 +69,6 @@ const recordOmittedFile = async ({
       libraryId,
       crawlerRunId,
       fileId: existingFile?.id || null,
-      success: false,
       message: reason,
       updateType: 'omitted',
       filePath,

@@ -235,7 +235,6 @@ export default {
     minFileSize: 'Min. Dateigröße (MB)',
     maxFileSize: 'Max. Dateigröße (MB)',
     allowedMimeTypes: 'Erlaubte MIME-Typen (kommagetrennt)',
-    onlyErrors: 'Nur Fehler',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',

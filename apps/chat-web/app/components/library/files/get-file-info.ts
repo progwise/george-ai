@@ -33,7 +33,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
               id
               createdAt
               message
-              success
+              updateType
             }
           }
         }
