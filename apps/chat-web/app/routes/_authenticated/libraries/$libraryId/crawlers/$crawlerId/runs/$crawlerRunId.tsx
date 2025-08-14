@@ -15,10 +15,12 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
   validateSearch: z.object({
     skipUpdates: z.coerce.number().default(0),
     takeUpdates: z.coerce.number().default(20),
+    updateTypeFilter: z.array(z.string()).optional(),
   }),
-  loaderDeps: ({ search: { skipUpdates, takeUpdates } }) => ({
+  loaderDeps: ({ search: { skipUpdates, takeUpdates, updateTypeFilter } }) => ({
     skipUpdates,
     takeUpdates,
+    updateTypeFilter,
   }),
   loader: async ({ context, params, deps }) => {
     return await Promise.all([context.queryClient.ensureQueryData(getCrawlerRunQueryOptions({ ...params, ...deps }))])
@@ -165,7 +167,7 @@ function RouteComponent() {
               <div className="flex items-center justify-between">
                 {/* Pagination at top - only shown when there are updates */}
                 <Pagination
-                  totalItems={crawlerRun.updatesCount}
+                  totalItems={crawlerRun.filteredUpdatesCount}
                   itemsPerPage={search.takeUpdates}
                   currentPage={1 + search.skipUpdates / search.takeUpdates}
                   onPageChange={(page) => {
@@ -199,6 +201,43 @@ function RouteComponent() {
                           updateType={stat.updateType}
                           count={stat.count}
                           size="sm"
+                          showCheckmark={true}
+                          checked={search.updateTypeFilter ? search.updateTypeFilter.includes(stat.updateType || 'error') : true}
+                          onCheckmarkChange={(updateType, checked) => {
+                            // Get all available update types from stats
+                            const allTypes = crawlerRun.updateStats?.map(s => s.updateType || 'error') || []
+                            const currentFilter = search.updateTypeFilter
+                            
+                            let newFilter: string[] | undefined
+                            
+                            if (!currentFilter) {
+                              // No filter currently - if unchecking, filter out this type
+                              newFilter = checked ? undefined : allTypes.filter(type => type !== updateType)
+                            } else {
+                              // Filter exists - add/remove type
+                              if (checked) {
+                                newFilter = [...currentFilter, updateType].filter((type, index, arr) => arr.indexOf(type) === index)
+                                // If all types are selected, remove filter entirely
+                                if (newFilter.length === allTypes.length) {
+                                  newFilter = undefined
+                                }
+                              } else {
+                                newFilter = currentFilter.filter(type => type !== updateType)
+                                // If no types selected, undefined (show nothing? or show all?)
+                                if (newFilter.length === 0) {
+                                  newFilter = undefined
+                                }
+                              }
+                            }
+                            
+                            navigate({
+                              search: {
+                                ...search,
+                                skipUpdates: 0,
+                                updateTypeFilter: newFilter,
+                              },
+                            })
+                          }}
                         />
                       )
                     })}

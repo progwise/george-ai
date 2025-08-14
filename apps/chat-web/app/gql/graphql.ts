@@ -354,6 +354,7 @@ export type AiLibraryCrawlerRun = {
   crawlerId: Scalars['ID']['output']
   endedAt?: Maybe<Scalars['DateTime']['output']>
   errorMessage?: Maybe<Scalars['String']['output']>
+  filteredUpdatesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
@@ -364,9 +365,14 @@ export type AiLibraryCrawlerRun = {
   updatesCount: Scalars['Int']['output']
 }
 
+export type AiLibraryCrawlerRunFilteredUpdatesCountArgs = {
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
 export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export enum AiLibraryCrawlerUriType {
@@ -2335,6 +2341,7 @@ export type GetCrawlerRunQueryVariables = Exact<{
   crawlerRunId: Scalars['String']['input']
   skipUpdates: Scalars['Int']['input']
   takeUpdates: Scalars['Int']['input']
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
 }>
 
 export type GetCrawlerRunQuery = {
@@ -2349,6 +2356,7 @@ export type GetCrawlerRunQuery = {
     errorMessage?: string | null
     runByUserId?: string | null
     updatesCount: number
+    filteredUpdatesCount: number
     updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
     updates: Array<{
       __typename?: 'AiLibraryUpdate'
@@ -9315,6 +9323,14 @@ export const GetCrawlerRunDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'takeUpdates' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+          type: {
+            kind: 'ListType',
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9347,6 +9363,17 @@ export const GetCrawlerRunDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'filteredUpdatesCount' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'updateTypeFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+                    },
+                  ],
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'updateStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -9369,6 +9396,11 @@ export const GetCrawlerRunDocument = {
                       kind: 'Argument',
                       name: { kind: 'Name', value: 'skip' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'skipUpdates' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'updateTypeFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
                     },
                   ],
                   selectionSet: {

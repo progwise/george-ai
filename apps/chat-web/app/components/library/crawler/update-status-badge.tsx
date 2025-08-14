@@ -4,9 +4,19 @@ interface UpdateStatusBadgeProps {
   updateType: string | null | undefined
   count?: number
   size?: 'xs' | 'sm' | 'md' | 'lg'
+  showCheckmark?: boolean
+  checked?: boolean
+  onCheckmarkChange?: (updateType: string, checked: boolean) => void
 }
 
-export const UpdateStatusBadge = ({ updateType, count, size = 'xs' }: UpdateStatusBadgeProps) => {
+export const UpdateStatusBadge = ({ 
+  updateType, 
+  count, 
+  size = 'xs', 
+  showCheckmark = false, 
+  checked = true,
+  onCheckmarkChange 
+}: UpdateStatusBadgeProps) => {
   const { t } = useTranslation()
 
   // Map update types to badge classes (consistent colors for same types)
@@ -46,6 +56,22 @@ export const UpdateStatusBadge = ({ updateType, count, size = 'xs' }: UpdateStat
   })()
 
   const sizeClass = `badge-${size}`
+  const actualUpdateType = updateType || 'unknown'
+
+  if (showCheckmark && onCheckmarkChange) {
+    return (
+      <label className={`badge ${badgeClass} ${sizeClass} flex cursor-pointer items-center gap-1`}>
+        <input
+          type="checkbox"
+          className="checkbox checkbox-xs"
+          style={{ backgroundColor: 'white', borderColor: '#d1d5db' }}
+          checked={checked}
+          onChange={(e) => onCheckmarkChange(actualUpdateType, e.target.checked)}
+        />
+        <span>{count !== undefined ? `${label}: ${count}` : label}</span>
+      </label>
+    )
+  }
 
   return (
     <span className={`badge ${badgeClass} ${sizeClass}`}>{count !== undefined ? `${label}: ${count}` : label}</span>

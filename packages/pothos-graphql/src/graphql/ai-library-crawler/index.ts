@@ -62,6 +62,23 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     stoppedByUser: t.expose('stoppedByUser', { type: 'DateTime', nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
     updatesCount: t.relationCount('updates', { nullable: false }),
+    filteredUpdatesCount: t.field({
+      type: 'Int',
+      nullable: false,
+      args: {
+        updateTypeFilter: t.arg.stringList({ required: false }),
+      },
+      resolve: async (run, args) => {
+        const where: { crawlerRunId: string; updateType?: { in: string[] } } = { crawlerRunId: run.id }
+        
+        // Add filter for update types if provided
+        if (args.updateTypeFilter && args.updateTypeFilter.length > 0) {
+          where.updateType = { in: args.updateTypeFilter }
+        }
+        
+        return await prisma.aiLibraryUpdate.count({ where })
+      },
+    }),
     updateStats: t.field({
       type: [UpdateStats],
       nullable: false,
@@ -84,11 +101,19 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
       args: {
         take: t.arg.int({ defaultValue: 10 }),
         skip: t.arg.int({ defaultValue: 0 }),
+        updateTypeFilter: t.arg.stringList({ required: false }),
       },
       resolve: async (query, run, args) => {
+        const where: { crawlerRunId: string; updateType?: { in: string[] } } = { crawlerRunId: run.id }
+        
+        // Add filter for update types if provided
+        if (args.updateTypeFilter && args.updateTypeFilter.length > 0) {
+          where.updateType = { in: args.updateTypeFilter }
+        }
+        
         return await prisma.aiLibraryUpdate.findMany({
           ...query,
-          where: { crawlerRunId: run.id },
+          where,
           orderBy: { createdAt: 'desc' },
           take: args.take,
           skip: args.skip,
