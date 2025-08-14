@@ -33,7 +33,8 @@ CONFIG FILE FORMAT (JSON):
     "keep_split_data": true,
     "keep_fused_model": true,
     "keep_gguf_files": true,
-    "keep_adapter_weights": true
+    "keep_adapter_weights": true,
+    "test_prompt": "Why is the sky blue?"
 }
 
 Outputs:
@@ -53,9 +54,13 @@ import sys
 import shutil
 
 
-def create_modelfile(gguf_file, modelfile_path="modelfile"):
+def create_modelfile(gguf_file, modelfile_path):
+    # Ollama requires the FROM path to be relative to the Modelfile
+    modelfile_dir = os.path.dirname(modelfile_path)
+    relative_gguf_path = os.path.relpath(gguf_file, modelfile_dir)
+
     with open(modelfile_path, "w") as f:
-        f.write(f"FROM {gguf_file}\n")
+        f.write(f"FROM {relative_gguf_path}\n")
         f.write("# Optional parameters for model configuration:\n")
         f.write("# PARAMETER temperature 0.7\n")
         f.write('# SYSTEM "You are an expert George-AI assistant."\n')
@@ -83,6 +88,7 @@ def main(config_path):
     test_ratio = config["test_ratio"]
     fine_tune_params = config["fine_tune_params"]
     ollama_model_name = config["ollama_model_name"]
+    test_prompt = config.get("test_prompt")
 
     keep_split_data = config.get("keep_split_data", False)
     keep_fused_model = config.get("keep_fused_model", False)
@@ -158,7 +164,7 @@ def main(config_path):
             break
 
     if adapter_path is None:
-        print("❌ Error: No adapter weights found! Fine-tuning may have failed.")
+        print("Error: No adapter weights found! Fine-tuning may have failed.")
         print(f"Checked directory: {model_dir}")
         print("Available directories:")
         for entry in os.listdir(model_dir):
@@ -185,7 +191,8 @@ def main(config_path):
     subprocess.run([
         "python3", "hf-to-gguf/convert_hf_to_gguf.py",
         conversion_input_dir,
-        "--outfile", gguf_file
+        "--outfile", gguf_file,
+        "--outtype", "f16"
     ])
     print("[ok]")
 
@@ -196,13 +203,40 @@ def main(config_path):
 
     # Step 6: Register the model with Ollama
     print("Registering the model with Ollama...")
-    subprocess.run([
-        "ollama", "create", ollama_model_name, "-f", modelfile_path
-    ])
+    # Run ollama create from the model directory to handle relative paths correctly
+    subprocess.run(
+        ["ollama", "create", ollama_model_name, "-f", "modelfile"],
+        cwd=model_dir
+    )
     print("[ok]")
 
     print(
         f"Model '{ollama_model_name}' successfully created and registered with Ollama.")
+
+    # Step 7: Test the model with a prompt if provided
+    if test_prompt:
+        print(f"\n--- Testing model '{ollama_model_name}' ---")
+        print(f">>> Prompt: {test_prompt}")
+
+        # Use subprocess.run to send the prompt to `ollama run`
+        # The command will exit after processing the input.
+        result = subprocess.run(
+            ["ollama", "run", ollama_model_name],
+            input=test_prompt,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if result.returncode == 0:
+            print("<<< Response:")
+            print(result.stdout.strip())
+            print("--- Test complete ---")
+        else:
+            print("--- Test failed ---")
+            print("Error running the model with Ollama.")
+            print("Stderr:", result.stderr.strip())
+            print("-------------------")
 
     # Cleanup intermediary files and directories
     cleanup_targets = []
