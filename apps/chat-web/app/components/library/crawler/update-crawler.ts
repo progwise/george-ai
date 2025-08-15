@@ -1,16 +1,21 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 import { parseCommaList } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
-import { getCrawlerFormData, getCrawlerFormSchema } from './crawler-form'
+import { getCrawlerFormSchema } from './crawler-form'
 
 export const updateCrawlerFunction = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
+    const formData = Object.fromEntries(data)
     const language = await getLanguage()
-    const validatedData = getCrawlerFormSchema(language).parse(getCrawlerFormData(data))
+    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const crawlerId = data.get('id')?.toString()
+    const schema = getCrawlerFormSchema(crawlerId?.length ? 'update' : 'add', uriType, language)
+    const validatedData = schema.parse(formData)
 
     if (!validatedData.id) {
       throw new Error('Cannot update crawler without id')
@@ -108,6 +113,7 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
           maxFileSize: data.maxFileSize,
           minFileSize: data.minFileSize,
           allowedMimeTypes: parseCommaList(data.allowedMimeTypes),
+          // cronJobActive: data.cronJobActive,
           cronJob: data.cronJob,
         },
         credentials:

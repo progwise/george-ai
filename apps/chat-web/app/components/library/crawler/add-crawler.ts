@@ -1,19 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 import { parseCommaList } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
-import { getCrawlerFormData, getCrawlerFormSchema } from './crawler-form'
+import { getCrawlerFormSchema } from './crawler-form'
 
 export const addCrawlerFunction = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
+    const formData = Object.fromEntries(data)
     const language = await getLanguage()
-    const rawData = getCrawlerFormData(data)
-
-    // Parse and validate with Zod schema - this gives us proper typing
-    const validatedData = getCrawlerFormSchema(language).parse(rawData)
+    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const schema = getCrawlerFormSchema('add', uriType, language)
+    const validatedData = schema.parse(formData)
 
     // Additional validation for credentials
     if (validatedData.uriType === 'sharepoint' && !validatedData.sharepointAuth) {
