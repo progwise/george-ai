@@ -11,14 +11,14 @@ import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
-export const getCrawlerCredentialsSchema = (language: Language) => {
+const getCrawlerCredentialsSchema = (language: Language) => {
   return z.object({
     username: z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
     password: z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
   })
 }
 
-export const getSharePointAuthSchema = (language: Language) => {
+const getSharePointAuthSchema = (language: Language) => {
   return z.object({
     sharepointAuth: z
       .string()
@@ -54,7 +54,7 @@ export const getSharePointAuthSchema = (language: Language) => {
 }
 
 // Base schema for Input component validation
-export const getCrawlerFormBaseSchema = (language: Language) =>
+const getCrawlerFormBaseSchema = (language: Language) =>
   z.object({
     id: z.string().optional(),
     libraryId: z.string().optional(),
@@ -95,14 +95,7 @@ export const getCrawlerFormSchema = (language: Language) =>
 
 export const getCrawlerFormData = (formData: FormData) => {
   const formDataObject = Object.fromEntries(formData)
-  // Log form data but redact sensitive information
-  const safeFormData = {
-    ...formDataObject,
-    username: formDataObject.username ? '***' : undefined,
-    password: formDataObject.password ? '***' : undefined,
-    sharepointAuth: formDataObject.sharepointAuth ? '***' : undefined,
-  }
-  console.log('formData', safeFormData)
+
   const {
     'cronjob.active': cronJobActive,
     'cronjob.time': cronJobTime,
@@ -150,35 +143,6 @@ export const getCrawlerFormData = (formData: FormData) => {
           sunday: cronJobSunday === 'on',
         }
       : undefined,
-  }
-}
-
-export interface CrawlerFormData {
-  id?: string
-  libraryId?: string
-  uri: string
-  uriType: 'http' | 'smb' | 'sharepoint'
-  maxDepth: number
-  maxPages: number
-  includePatterns?: string[]
-  excludePatterns?: string[]
-  maxFileSize?: number
-  minFileSize?: number
-  allowedMimeTypes?: string[]
-  username?: string
-  password?: string
-  sharepointAuth?: string
-  cronJob?: {
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
   }
 }
 

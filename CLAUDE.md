@@ -104,7 +104,7 @@ George AI is a monorepo using pnpm workspaces with the following structure:
 ### Core Packages
 
 - **pothos-graphql**: GraphQL schema, resolvers, and Prisma database layer
-- **langchain-chat**: AI integration with LangChain, supports OpenAI, Gemini, and Ollama
+- **langchain-chat**: AI integration with LangChain, supports Ollama and Typesense
 - **ai-act**: EU AI Act compliance features
 - **web-utils**: Shared utilities
 
@@ -121,10 +121,11 @@ George AI is a monorepo using pnpm workspaces with the following structure:
 ### Document Processing Flow
 
 1. User uploads documents (PDF, Excel, Word) via GraphQL mutation
-2. Backend stores files and creates database records
+2. Backend stores files and creates database records for AiLibraries
 3. LangChain processes documents into embeddings
 4. Embeddings stored in Typesense for semantic search
 5. AI assistants use embeddings for context-aware responses
+6. Lists are used to enrich Libraries with fields
 
 ### GraphQL Schema Generation
 
