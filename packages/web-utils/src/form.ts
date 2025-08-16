@@ -1,20 +1,17 @@
 import { ZodRawShape, z } from 'zod'
 
-export interface validateFormParams<T extends ZodRawShape> {
-  formData: FormData
-  formSchema: z.ZodObject<T>
-}
-export const validateForm = <T extends ZodRawShape>({ formData, formSchema }: validateFormParams<T>) => {
-  const entries = Object.fromEntries(formData)
-  const parseResult = formSchema.safeParse(entries)
+export const validateForm = <T extends ZodRawShape>(form: HTMLFormElement, schema: z.ZodObject<T>) => {
+  const formData = getDataFromForm(form)
+  const formObject = Object.fromEntries(formData)
+  const parseResult = schema.safeParse(formObject)
   if (!parseResult.success) {
     const errors = parseResult.error.errors.map((error) => {
       const path = error.path.join('.')
       return `${path}: ${error.message}`
     })
-    return { parsedObject: parseResult.data, errors }
+    return { formData, errors }
   }
-  return { parsedObject: parseResult.data!, errors: [] }
+  return { formData, errors: null }
 }
 
 export const getDataFromForm = (form: HTMLFormElement) => {

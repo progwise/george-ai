@@ -571,6 +571,167 @@ const mutation = useMutation({
 5. **FormData Support**: Accept FormData for forms, use `Object.fromEntries(formData)`
 6. **Type Safety**: Reuse generated GraphQL schemas from `gql/validation.ts`
 
+## Form Validation Pattern
+
+The codebase uses a consistent pattern for form validation that provides type safety, internationalization, and reusability across client and server.
+
+### Pattern Overview
+
+1. **Shared Schema Definition**: Define Zod schemas that can be used both client-side and server-side
+2. **Internationalized Validation**: All validation messages use the translation system
+3. **FormData Handling**: Use `getDataFromForm` utility for handling multiple checkbox values
+4. **Client-Side Validation**: Validate before submission to provide immediate feedback
+5. **Server-Side Validation**: Always validate on server for security
+
+### Complete Example: Field Modal Pattern
+
+#### 1. Define Shared Schema (field-modal.tsx)
+
+```typescript
+import { z } from 'zod'
+import { Language, translate } from '../../i18n'
+
+// Export schema function for reuse in both client and server
+export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language) =>
+  z.object({
+    id:
+      editMode === 'update'
+        ? z.string().nonempty(translate('lists.fields.fieldIdRequired', language))
+        : z.string().optional(),
+    name: z
+      .string()
+      .min(2, translate('lists.fields.nameTooShort', language))
+      .max(100, translate('lists.fields.nameTooLong', language)),
+    prompt: z
+      .string()
+      .min(10, translate('lists.fields.promptTooShort', language))
+      .max(2000, translate('lists.fields.promptTooLong', language)),
+    // Handle comma-separated values for multiple checkboxes
+    context: z
+      .string()
+      .optional()
+      .transform((commaSeparatedList) => commaSeparatedList && commaSeparatedList.split(','))
+      .pipe(z.array(z.string()).optional()),
+    // Transform checkbox value to boolean
+    useMarkdown: z
+      .string()
+      .optional()
+      .transform((val) => val === 'on'),
+  })
+```
+
+#### 2. Server Function with Validation (add-list-field.ts)
+
+```typescript
+import { createServerFn } from '@tanstack/react-start'
+import { getLanguage } from '../../i18n'
+import { getListFieldFormSchema } from './field-modal'
+
+export const addListField = createServerFn({ method: 'POST' })
+  .validator(async (data: FormData) => {
+    const language = await getLanguage()
+    const entries = Object.fromEntries(data)
+    return getListFieldFormSchema('create', language).parse(entries)
+  })
+  .handler(async (ctx) => {
+    const data = await ctx.data
+    return await backendRequest(/* GraphQL mutation */, data)
+  })
+```
+
+#### 3. Client-Side Form Handling (field-modal.tsx)
+
+```typescript
+import { validateForm } from '@george-ai/web-utils'
+import { toastError, toastSuccess } from '../georgeToaster'
+
+const FieldModal = () => {
+  const { t, language } = useTranslation()
+  const schema = useMemo(
+    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language),
+    [isEditMode, language],
+  )
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    // Validate form and get processed FormData
+    const { formData, errors } = validateForm(e.currentTarget, schema)
+    
+    if (errors) {
+      // Show all validation errors as separate lines
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    
+    // If validation passes, submit to server
+    if (isEditMode) {
+      updateFieldMutation.mutate(formData)
+    } else {
+      addFieldMutation.mutate(formData)
+    }
+  }
+}
+```
+
+#### 4. FormData Utilities (web-utils/form.ts)
+
+```typescript
+// Validates form and returns processed FormData with errors
+export const validateForm = <T extends ZodRawShape>(
+  form: HTMLFormElement, 
+  schema: z.ZodObject<T>
+) => {
+  const formData = getDataFromForm(form)
+  const formObject = Object.fromEntries(formData)
+  const parseResult = schema.safeParse(formObject)
+  
+  if (!parseResult.success) {
+    const errors = parseResult.error.errors.map((error) => {
+      const path = error.path.join('.')
+      return `${path}: ${error.message}`
+    })
+    return { formData, errors }
+  }
+  
+  return { formData, errors: null }
+}
+
+// Handles multiple checkbox values by joining them with commas
+export const getDataFromForm = (form: HTMLFormElement) => {
+  const originalFormData = new FormData(form)
+  const newFormData = new FormData()
+  
+  for (const [key, value] of originalFormData.entries()) {
+    if (originalFormData.getAll(key).length > 1) {
+      // Join multiple values (e.g., checkboxes) with commas
+      newFormData.append(key, originalFormData.getAll(key).join(','))
+    } else {
+      newFormData.append(key, value)
+    }
+  }
+  
+  return newFormData
+}
+```
+
+### Key Benefits
+
+1. **Single Source of Truth**: One schema definition used everywhere
+2. **Type Safety**: Full TypeScript support through Zod
+3. **I18n Support**: All error messages in user's language
+4. **Immediate Feedback**: Client-side validation for better UX
+5. **Security**: Server-side validation ensures data integrity
+6. **Reusability**: Schemas can be imported and reused across components
+7. **Consistency**: Same validation logic on client and server
+
+### Important Notes
+
+- **Zod cannot parse FormData directly**: Always use `Object.fromEntries(formData)` before parsing
+- **Multiple checkbox handling**: Use `getDataFromForm` utility to handle multiple values
+- **Translation keys**: Add validation messages to both `en.ts` and `de.ts` files
+- **Error display**: Show all validation errors at once for better UX (not just the first one)
+
 #### FormData Processing Pattern
 
 For TanStack createServerFn with FormData, always use this pattern:

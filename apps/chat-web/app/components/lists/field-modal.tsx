@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { useMemo } from 'react'
 import { z } from 'zod'
 
-import { getDataFromForm } from '@george-ai/web-utils'
+import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { FieldModal_EditableFieldFragment, FieldModal_ListFragment } from '../../gql/graphql'
@@ -141,22 +141,15 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = getDataFromForm(e.currentTarget)
-    try {
-      schema.parse(Object.fromEntries(formData))
-      if (isEditMode) {
-        updateFieldMutation.mutate(formData)
-      } else {
-        addFieldMutation.mutate(formData)
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errorMessage = error.errors.map((item) => `${item.path}: ${item.message}`).join(', ') //firstError ? firstError.message : t('errors.validationFailed')
-        toastError(errorMessage)
-      } else {
-        // Handle unexpected errors
-        toastError(t('errors.unexpectedError'))
-      }
+    const { formData, errors } = validateForm(e.currentTarget, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    if (isEditMode) {
+      updateFieldMutation.mutate(formData)
+    } else {
+      addFieldMutation.mutate(formData)
     }
   }
 
