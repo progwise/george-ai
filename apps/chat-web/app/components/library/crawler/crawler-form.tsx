@@ -40,11 +40,11 @@ export const getCrawlerFormSchema = (
     allowedMimeTypes: z.string().optional(),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username:
-      uriType !== 'smb' && uriType !== 'sharepoint'
+      uriType !== 'smb'
         ? z.string().optional()
         : z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
     password:
-      uriType !== 'smb' && uriType !== 'sharepoint'
+      uriType !== 'smb'
         ? z.string().optional()
         : z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
     sharepointAuth:
