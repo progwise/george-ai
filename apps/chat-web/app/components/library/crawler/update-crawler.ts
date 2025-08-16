@@ -1,30 +1,22 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { parseCommaList } from '@george-ai/web-utils'
+import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getCrawlerFormSchema } from './crawler-form'
 
-export const updateCrawlerFunction = createServerFn({ method: 'POST' })
+export const updateCrawler = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
-    const formData = Object.fromEntries(data)
     const language = await getLanguage()
     const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
-    const crawlerId = data.get('id')?.toString()
-    const schema = getCrawlerFormSchema(crawlerId?.length ? 'update' : 'add', uriType, language)
-    const validatedData = schema.parse(formData)
+    const schema = getCrawlerFormSchema('update', uriType, language)
+    const { data: validatedData, errors } = validateFormData(data, schema)
 
-    if (!validatedData.id) {
-      throw new Error('Cannot update crawler without id')
-    }
-    if (validatedData.uriType === 'smb' && (!validatedData.username || !validatedData.password)) {
-      throw new Error('For smb crawlers you need to provide username and password')
-    }
-    if (validatedData.uriType === 'sharepoint' && !validatedData.sharepointAuth) {
-      throw new Error('For sharepoint crawlers you need to provide sharepointAuth')
+    if (errors) {
+      throw new Error(errors.join(', '))
     }
 
     // For SharePoint crawlers, validate the connection works using GraphQL mutation
