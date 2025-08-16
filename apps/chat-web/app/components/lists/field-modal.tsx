@@ -1,12 +1,52 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { z } from 'zod'
+
+import { getDataFromForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { FieldModal_EditableFieldFragment, FieldModal_ListFragment } from '../../gql/graphql'
+import { Language, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { toastSuccess } from '../georgeToaster'
+import { Input } from '../form/input'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListField } from './add-list-field'
 import { updateListField } from './update-list-field'
+
+export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language) =>
+  z.object({
+    id:
+      editMode === 'update'
+        ? z.string().nonempty(translate('lists.fields.fieldIdRequired', language))
+        : z.string().optional(),
+    listId:
+      editMode === 'create'
+        ? z.string().nonempty(translate('lists.fields.listIdRequired', language))
+        : z.string().optional(),
+    name: z
+      .string()
+      .min(2, translate('lists.fields.nameTooShort', language))
+      .max(100, translate('lists.fields.nameTooLong', language)),
+    type: z.string().nonempty(translate('lists.fields.typeRequired', language)),
+    sourceType: z.string().nonempty(translate('lists.fields.sourceTypeRequired', language)),
+    languageModel: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
+    prompt: z
+      .string()
+      .min(10, translate('lists.fields.promptTooShort', language))
+      .max(2000, translate('lists.fields.promptTooLong', language)),
+    order: z.string().optional(),
+    fileProperty: z.string().optional(),
+    useMarkdown: z
+      .string()
+      .optional()
+      .transform((val) => val === 'on'),
+    context: z
+      .string()
+      .optional()
+      .transform((commaSeparatedList) => commaSeparatedList && commaSeparatedList.split(','))
+      .pipe(z.array(z.string()).optional()),
+  })
 
 graphql(`
   fragment FieldModal_List on AiList {
@@ -53,7 +93,7 @@ const FIELD_TYPES = [
 
 export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   // Query available AI chat models
   const { data: aiModelsData } = useSuspenseQuery(getChatModelsQueryOptions())
@@ -65,6 +105,11 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   const currentContextIds = editField?.context?.map((c) => c.contextFieldId) || []
 
   const isEditMode = !!editField
+
+  const schema = useMemo(
+    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language),
+    [isEditMode, language],
+  )
 
   const addFieldMutation = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -96,12 +141,22 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-
-    if (isEditMode) {
-      updateFieldMutation.mutate(formData)
-    } else {
-      addFieldMutation.mutate(formData)
+    const formData = getDataFromForm(e.currentTarget)
+    try {
+      schema.parse(Object.fromEntries(formData))
+      if (isEditMode) {
+        updateFieldMutation.mutate(formData)
+      } else {
+        addFieldMutation.mutate(formData)
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.errors.map((item) => `${item.path}: ${item.message}`).join(', ') //firstError ? firstError.message : t('errors.validationFailed')
+        toastError(errorMessage)
+      } else {
+        // Handle unexpected errors
+        toastError(t('errors.unexpectedError'))
+      }
     }
   }
 
@@ -121,33 +176,32 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
           {/* Grid Layout for Form Fields */}
           <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-            {/* Field Name */}
-            <label className="label justify-start">
-              <span className="label-text font-medium">{t('lists.fields.fieldName')}</span>
-            </label>
-            <div className="md:col-span-3">
-              <input
-                type="text"
-                name="name"
-                className="input input-bordered w-full"
-                placeholder={t('lists.fields.fieldNamePlaceholder')}
-                defaultValue={editField?.name || ''}
-                required
-              />
-            </div>
-
-            {/* Field Type */}
-            <label className="label justify-start">
-              <span className="label-text font-medium">{t('lists.fields.dataType')}</span>
-            </label>
-            <div className="md:col-span-3">
-              <select name="type" className="select select-bordered w-full" defaultValue={editField?.type || 'string'}>
-                {FIELD_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+            <Input
+              label={t('lists.fields.fieldName')}
+              type="text"
+              name="name"
+              placeholder={t('lists.fields.fieldNamePlaceholder')}
+              value={editField?.name}
+              schema={schema}
+            />
+            <div>
+              {/* Field Type */}
+              <label className="label justify-start">
+                <span className="label-text font-medium">{t('lists.fields.dataType')}</span>
+              </label>
+              <div className="md:col-span-3">
+                <select
+                  name="type"
+                  className="select select-bordered w-full"
+                  defaultValue={editField?.type || 'string'}
+                >
+                  {FIELD_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* AI Model */}

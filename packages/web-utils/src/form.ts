@@ -16,3 +16,16 @@ export const validateForm = <T extends ZodRawShape>({ formData, formSchema }: va
   }
   return { parsedObject: parseResult.data!, errors: [] }
 }
+
+export const getDataFromForm = (form: HTMLFormElement) => {
+  const originalFormData = new FormData(form)
+  const newFormData = new FormData()
+  for (const [key, value] of originalFormData.entries()) {
+    if (originalFormData.getAll(key).length > 1) {
+      newFormData.append(key, originalFormData.getAll(key).join(','))
+    } else {
+      newFormData.append(key, value)
+    }
+  }
+  return newFormData
+}
