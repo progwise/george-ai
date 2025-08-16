@@ -113,7 +113,7 @@ function RouteComponent() {
           )}
           {fileInfo.aiLibraryFile.processingErrorMessage && (
             <>
-              <span className="text-red-500">
+              <span className="text-error">
                 {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
               </span>
             </>
@@ -130,7 +130,7 @@ function RouteComponent() {
             </span>
             {/* Only show message if there was an error */}
             {fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
-              <div className="mt-1 text-xs text-red-600">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+              <div className="text-error mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
             )}
           </div>
         )}

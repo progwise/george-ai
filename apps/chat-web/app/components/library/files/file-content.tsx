@@ -14,7 +14,7 @@ export const FileContent = ({
       <div className="breadcrumbs text-sm">
         <ul>
           <li>{t('files.sources')}</li>
-          {sources.length < 1 && <li>t{'files.noSourcesAvailable'}</li>}
+          {sources.length < 1 && <li>{t('files.noSourcesAvailable')}</li>}
           {sources.map((source) => (
             <li key={source.fileName}>
               <a className="link link-hover" href={source.link} target="_blank">

@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
-import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
@@ -48,14 +47,7 @@ export const aiLibraryFilesQueryOptions = (params: {
   showArchived?: boolean
 }) =>
   queryOptions({
-    queryKey: [
-      queryKeys.AiLibraries,
-      params.libraryId,
-      params.skip,
-      params.take,
-      params.showArchived ?? false,
-      'files',
-    ],
+    queryKey: ['AiLibraryFiles', { ...params }],
     queryFn: async () =>
       getLibraryFiles({
         data: {
