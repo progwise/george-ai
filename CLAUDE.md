@@ -282,6 +282,27 @@ import { EditIcon } from '../../icons/edit-icon'
 <EditIcon className="mr-2" />
 ```
 
+### Utility Functions
+
+#### String Helper Functions
+
+The project includes several utility functions in `@george-ai/web-utils` for handling common string operations:
+
+```typescript
+import { formatFileSize, jsonArrayToString, parseCommaList } from '@george-ai/web-utils'
+
+// formatFileSize: Converts bytes to MB for display
+formatFileSize(5242880) // Returns: "5" (MB)
+
+// jsonArrayToString: Converts array to comma-separated string for form fields
+jsonArrayToString(['*.pdf', '*.docx']) // Returns: "*.pdf, *.docx"
+
+// parseCommaList: Converts comma-separated string to array
+parseCommaList('*.pdf, *.docx') // Returns: ['*.pdf', '*.docx']
+```
+
+These functions are particularly useful for form handling where arrays need to be displayed as strings in input fields and parsed back to arrays for processing.
+
 ### React Patterns
 
 #### useLocalStorage Hook
