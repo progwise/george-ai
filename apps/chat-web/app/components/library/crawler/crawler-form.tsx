@@ -2,7 +2,13 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
+import {
+  HTTP_URI_PATTERN,
+  SHAREPOINT_URI_PATTERN,
+  SMB_URI_PATTERN,
+  formatFileSize,
+  jsonArrayToString,
+} from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
@@ -130,26 +136,6 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
     return schema
   }, [language, selectedUriType, crawler])
 
-  // Helper functions to parse existing filter data
-  const parseJsonArray = (jsonString: string | null | undefined): string[] => {
-    if (!jsonString) return []
-    try {
-      return JSON.parse(jsonString) || []
-    } catch {
-      return []
-    }
-  }
-
-  const formatPatterns = (patterns: string[]): string => {
-    return patterns.join(', ')
-  }
-
-  const formatFileSize = (bytes: number | null | undefined): string => {
-    if (!bytes) return ''
-    const mb = bytes / (1024 * 1024)
-    return mb.toString()
-  }
-
   return (
     <div className="flex flex-col gap-2">
       <input type="hidden" name="libraryId" value={libraryId} />
@@ -241,7 +227,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                 name="includePatterns"
                 label={t('crawlers.includePatterns')}
                 placeholder="\.pdf$, \.docx?$, \.txt$"
-                value={formatPatterns(parseJsonArray(crawler?.includePatterns))}
+                value={jsonArrayToString(crawler?.includePatterns)}
                 schema={crawlerFormSchema}
               />
 
@@ -249,7 +235,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                 name="excludePatterns"
                 label={t('crawlers.excludePatterns')}
                 placeholder="archive, _old, backup, temp"
-                value={formatPatterns(parseJsonArray(crawler?.excludePatterns))}
+                value={jsonArrayToString(crawler?.excludePatterns)}
                 schema={crawlerFormSchema}
               />
 
@@ -277,7 +263,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                 name="allowedMimeTypes"
                 label={t('crawlers.allowedMimeTypes')}
                 placeholder="application/pdf, text/plain, application/msword"
-                value={formatPatterns(parseJsonArray(crawler?.allowedMimeTypes))}
+                value={jsonArrayToString(crawler?.allowedMimeTypes)}
                 schema={crawlerFormSchema}
               />
             </div>
