@@ -589,6 +589,7 @@ The codebase uses a consistent pattern for form validation that provides type sa
 
 ```typescript
 import { z } from 'zod'
+
 import { Language, translate } from '../../i18n'
 
 // Export schema function for reuse in both client and server
@@ -654,16 +655,16 @@ const FieldModal = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     // Validate form and get processed FormData
     const { formData, errors } = validateForm(e.currentTarget, schema)
-    
+
     if (errors) {
       // Show all validation errors as separate lines
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
-    
+
     // If validation passes, submit to server
     if (isEditMode) {
       updateFieldMutation.mutate(formData)
@@ -678,14 +679,11 @@ const FieldModal = () => {
 
 ```typescript
 // Validates form and returns processed FormData with errors
-export const validateForm = <T extends ZodRawShape>(
-  form: HTMLFormElement, 
-  schema: z.ZodObject<T>
-) => {
+export const validateForm = <T extends ZodRawShape>(form: HTMLFormElement, schema: z.ZodObject<T>) => {
   const formData = getDataFromForm(form)
   const formObject = Object.fromEntries(formData)
   const parseResult = schema.safeParse(formObject)
-  
+
   if (!parseResult.success) {
     const errors = parseResult.error.errors.map((error) => {
       const path = error.path.join('.')
@@ -693,7 +691,7 @@ export const validateForm = <T extends ZodRawShape>(
     })
     return { formData, errors }
   }
-  
+
   return { formData, errors: null }
 }
 
@@ -701,7 +699,7 @@ export const validateForm = <T extends ZodRawShape>(
 export const getDataFromForm = (form: HTMLFormElement) => {
   const originalFormData = new FormData(form)
   const newFormData = new FormData()
-  
+
   for (const [key, value] of originalFormData.entries()) {
     if (originalFormData.getAll(key).length > 1) {
       // Join multiple values (e.g., checkboxes) with commas
@@ -710,7 +708,7 @@ export const getDataFromForm = (form: HTMLFormElement) => {
       newFormData.append(key, value)
     }
   }
-  
+
   return newFormData
 }
 ```
