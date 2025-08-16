@@ -9,6 +9,7 @@ import { FieldModal_EditableFieldFragment, FieldModal_ListFragment } from '../..
 import { Language, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
+import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListField } from './add-list-field'
@@ -168,66 +169,51 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
           <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
 
           {/* Grid Layout for Form Fields */}
-          <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-            <Input
-              label={t('lists.fields.fieldName')}
-              type="text"
-              name="name"
-              placeholder={t('lists.fields.fieldNamePlaceholder')}
-              value={editField?.name}
-              schema={schema}
-            />
-            <div>
-              {/* Field Type */}
-              <label className="label justify-start">
-                <span className="label-text font-medium">{t('lists.fields.dataType')}</span>
-              </label>
-              <div className="md:col-span-3">
-                <select
-                  name="type"
-                  className="select select-bordered w-full"
-                  defaultValue={editField?.type || 'string'}
-                >
-                  {FIELD_TYPES.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          <div className="items-start gap-4">
+            <div className="flex items-baseline gap-2">
+              <Input
+                label={t('lists.fields.fieldName')}
+                type="text"
+                name="name"
+                placeholder={t('lists.fields.fieldNamePlaceholder')}
+                value={editField?.name}
+                schema={schema}
+                className="flex-1"
+              />
+              <Select
+                label={t('lists.fields.dataType')}
+                name="type"
+                options={FIELD_TYPES.map((type) => ({ id: type.value, name: type.label }))}
+                value={FIELD_TYPES.map((type) => ({ id: type.value, name: type.label })).find(
+                  (type) => type.id === (editField?.type || 'string'),
+                )}
+                schema={schema}
+                required
+              />
 
-            {/* AI Model */}
-            <label className="label justify-start">
-              <span className="label-text font-medium">{t('lists.fields.aiModel')}</span>
-            </label>
-            <div className="md:col-span-3">
-              <select
+              <Select
+                label={t('lists.fields.aiModel')}
                 name="languageModel"
-                className="select select-bordered w-full"
-                defaultValue={editField?.languageModel || ''}
+                options={availableModels.map((model) => ({ id: model.model, name: model.name }))}
+                value={availableModels
+                  .map((model) => ({ id: model.model, name: model.name }))
+                  .find((model) => model.id === editField?.languageModel)}
+                placeholder={t('lists.fields.selectAiModel')}
+                schema={schema}
                 required
-              >
-                <option value="">{t('lists.fields.selectAiModel')}</option>
-                {availableModels.map((model) => (
-                  <option key={model.model} value={model.model}>
-                    {model.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
-            {/* Prompt */}
-            <label className="label justify-start self-start">
-              <span className="label-text font-medium">{t('lists.fields.aiPrompt')}</span>
-            </label>
-            <div className="md:col-span-3">
-              <textarea
+            <div className="md:col-span-4">
+              <Input
+                label={t('lists.fields.aiPrompt')}
+                type="textarea"
                 name="prompt"
-                className="textarea textarea-bordered h-24 w-full"
                 placeholder={t('lists.fields.aiPromptPlaceholder')}
-                defaultValue={editField?.prompt || ''}
+                value={editField?.prompt}
+                schema={schema}
                 required
+                className="h-44"
               />
               <div className="mt-1">
                 <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
@@ -235,9 +221,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
             </div>
 
             {/* Context Fields */}
-            <label className="label justify-start self-start">
-              <span className="label-text font-medium">{t('lists.fields.contextFields')}</span>
-            </label>
+            <div className="fieldset-legend mb-2 flex w-full justify-between">
+              <span className="text-xs">{t('lists.fields.contextFields')}</span>
+            </div>
             <div className="md:col-span-3">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <label className="flex items-center gap-2 text-sm">
@@ -247,7 +233,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                     className="checkbox checkbox-sm"
                     defaultChecked={editField?.useMarkdown || false}
                   />
-                  <span className="truncate" title={t('lists.fields.useMarkdownHelp')}>
+                  <span className="truncate text-xs" title={t('lists.fields.useMarkdownHelp')}>
                     {t('lists.fields.markdownLabel')}
                   </span>
                 </label>
@@ -262,7 +248,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                         className="checkbox checkbox-sm"
                         defaultChecked={currentContextIds.includes(field.id)}
                       />
-                      <span className="truncate" title={field.name}>
+                      <span className="truncate text-xs" title={field.name}>
                         {field.name} (
                         {field.sourceType === 'file_property'
                           ? t('lists.fields.fileProperty')
@@ -282,7 +268,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
           <div className="modal-action">
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-ghost btn-sm"
               onClick={onClose}
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
@@ -290,7 +276,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm"
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
               {(addFieldMutation.isPending || updateFieldMutation.isPending) && (
