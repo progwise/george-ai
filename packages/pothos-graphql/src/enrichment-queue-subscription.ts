@@ -10,6 +10,7 @@ interface EnrichmentQueueUpdate {
     valueNumber?: number | null
     valueDate?: Date | null
     valueBoolean?: boolean | null
+    enrichmentErrorMessage?: string | null
   } | null
 }
 

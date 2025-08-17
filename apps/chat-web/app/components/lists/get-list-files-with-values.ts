@@ -40,6 +40,8 @@ const listFilesWithValuesDocument = graphql(`
           fieldId
           fieldName
           displayValue
+          enrichmentErrorMessage
+          queueStatus
         }
       }
     }

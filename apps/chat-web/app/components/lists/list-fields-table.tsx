@@ -57,6 +57,7 @@ graphql(`
     languageModel
     useVectorStore
     pendingItemsCount
+    processingItemsCount
     context {
       contextFieldId
     }
@@ -196,16 +197,20 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   // Use SSE hook for real-time enrichment updates
   useEnrichmentQueueSSE(list.id, reportUpdate)
 
-  // Helper to get field value from the fetched data
-  const getFieldValue = useCallback(
-    (fileId: string, fieldId: string): string | null => {
-      if (!filesWithValues) return null
+  // Helper to get field value and error from the fetched data
+  const getFieldData = useCallback(
+    (fileId: string, fieldId: string): { value: string | null; error: string | null; queueStatus: string | null } => {
+      if (!filesWithValues) return { value: null, error: null, queueStatus: null }
 
       const file = filesWithValues.aiListFiles.files.find((f: { id: string }) => f.id === fileId)
-      if (!file) return null
+      if (!file) return { value: null, error: null, queueStatus: null }
 
       const fieldValue = file.fieldValues.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
-      return fieldValue?.displayValue || null
+      return {
+        value: fieldValue?.displayValue || null,
+        error: fieldValue?.enrichmentErrorMessage || null,
+        queueStatus: fieldValue?.queueStatus || null,
+      }
     },
     [filesWithValues],
   )
@@ -419,7 +424,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
             listFiles.files.map((file) =>
               visibleFieldsArray
                 .map((field) => {
-                  const value = getFieldValue(file.id, field.id) //row.fieldValues[field.id]
+                  const { value, error, queueStatus } = getFieldData(file.id, field.id)
                   const displayValue = value?.toString() || '-'
 
                   return (
@@ -437,11 +442,21 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                             id={`${file.id}-${field.id}`}
                             className={twMerge(
                               'flex-1 overflow-hidden text-nowrap',
-                              !value && 'text-base-content/40 text-xs italic',
+                              !value && error && 'text-error text-xs',
+                              !value && !error && queueStatus && 'text-info text-xs',
+                              !value && !error && !queueStatus && 'text-base-content/40 text-xs italic',
                             )}
-                            title={displayValue}
+                            title={error || queueStatus || displayValue}
                           >
-                            {value ? displayValue : t('lists.enrichment.notEnriched')}
+                            {error 
+                              ? `❌ ${error}` 
+                              : value 
+                                ? displayValue 
+                                : queueStatus 
+                                  ? queueStatus === 'processing' 
+                                    ? '⚙️ processing...' 
+                                    : '⏳ pending...'
+                                  : t('lists.enrichment.notEnriched')}
                           </span>
                           <button
                             type="button"
@@ -462,6 +477,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                             fileName={file.name}
                             isOpen={itemDropdownOpen === `${file.id}-${field.id}`}
                             onClose={() => setItemDropdownOpen(null)}
+                            queueStatus={queueStatus}
                           />
                         </div>
                       ) : field.fileProperty === 'name' ? (

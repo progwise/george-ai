@@ -42,6 +42,16 @@ builder.prismaObject('AiListField', {
         return count
       },
     }),
+    processingItemsCount: t.field({
+      type: 'Int',
+      nullable: false,
+      resolve: async (parent) => {
+        const count = await prisma.aiListEnrichmentQueue.count({
+          where: { listId: parent.listId, fieldId: parent.id, status: 'processing' },
+        })
+        return count
+      },
+    }),
   }),
 })
 
@@ -65,6 +75,7 @@ builder.prismaObject('AiListItemCache', {
     valueNumber: t.exposeFloat('valueNumber'),
     valueDate: t.expose('valueDate', { type: 'DateTime' }),
     valueBoolean: t.exposeBoolean('valueBoolean'),
+    enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage'),
   }),
 })
 

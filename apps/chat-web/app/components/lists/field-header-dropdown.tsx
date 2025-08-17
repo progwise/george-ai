@@ -90,30 +90,35 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
   return (
     <div
       ref={dropdownRef}
-      className="bg-base-100 border-base-300 absolute right-0 top-full z-[9999] mt-1 w-56 rounded-lg border shadow-lg"
+      className="bg-base-100 border-base-300 absolute right-0 top-full z-[9999] mt-1 w-60 rounded-lg border shadow-lg"
     >
       <div className="py-2">
         {canEnrich && (
-          <div className="border-base-300 border-b px-4 py-2">
+          <div className="border-base-300 border-b px-3">
             <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
-              {field.pendingItemsCount > 0 ? (
+              {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) ? (
                 <div className="flex items-center gap-2">
                   <div className="loading loading-ring text-primary"></div>
-                  <span>{field.pendingItemsCount} pending</span>
+                  <span>
+                    {field.processingItemsCount > 0 && `${field.processingItemsCount} processing`}
+                    {field.processingItemsCount > 0 && field.pendingItemsCount > 0 && ', '}
+                    {field.pendingItemsCount > 0 && `${field.pendingItemsCount} pending`}
+                  </span>
                 </div>
               ) : (
                 <span>{t('lists.enrichment.title')}</span>
               )}
             </div>
-            <EnrichmentControls
-              listId={field.listId}
-              fieldId={field.id}
-              isProcessing={field.pendingItemsCount > 0}
-              onActionExecuted={() => onClose()}
-            />
           </div>
         )}
-
+        <div className="border-base-300 border-b">
+          <EnrichmentControls
+            listId={field.listId}
+            fieldId={field.id}
+            isProcessing={field.pendingItemsCount > 0 || field.processingItemsCount > 0}
+            onActionExecuted={() => onClose()}
+          />
+        </div>
         {canEdit && (
           <button
             type="button"

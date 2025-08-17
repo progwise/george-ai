@@ -512,6 +512,7 @@ type AiListField {
   name: String!
   order: Int!
   pendingItemsCount: Int!
+  processingItemsCount: Int!
   prompt: String
   sourceType: String!
   type: String!
@@ -563,6 +564,7 @@ input AiListInput {
 }
 
 type AiListItemCache {
+  enrichmentErrorMessage: String
   fieldId: String!
   id: ID!
   valueBoolean: Boolean
@@ -645,8 +647,10 @@ type EnrichmentQueueResult {
 
 type FieldValueResult {
   displayValue: String
+  enrichmentErrorMessage: String
   fieldId: String!
   fieldName: String!
+  queueStatus: String
 }
 
 type FileChunk {
@@ -764,6 +768,17 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
+  removeFromEnrichmentQueue(
+    """
+    Field ID to remove from queue
+    """
+    fieldId: String!
+    """
+    File ID to remove from queue
+    """
+    fileId: String!
+    listId: String!
+  ): EnrichmentQueueResult!
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!

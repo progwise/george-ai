@@ -554,6 +554,7 @@ export type AiListField = {
   name: Scalars['String']['output']
   order: Scalars['Int']['output']
   pendingItemsCount: Scalars['Int']['output']
+  processingItemsCount: Scalars['Int']['output']
   prompt?: Maybe<Scalars['String']['output']>
   sourceType: Scalars['String']['output']
   type: Scalars['String']['output']
@@ -602,6 +603,7 @@ export type AiListInput = {
 
 export type AiListItemCache = {
   __typename?: 'AiListItemCache'
+  enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   id: Scalars['ID']['output']
   valueBoolean?: Maybe<Scalars['Boolean']['output']>
@@ -677,8 +679,10 @@ export type EnrichmentQueueResult = {
 export type FieldValueResult = {
   __typename?: 'FieldValueResult'
   displayValue?: Maybe<Scalars['String']['output']>
+  enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
+  queueStatus?: Maybe<Scalars['String']['output']>
 }
 
 export type FileChunk = {
@@ -788,6 +792,7 @@ export type Mutation = {
   processFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeFromEnrichmentQueue: EnrichmentQueueResult
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -987,6 +992,12 @@ export type MutationRemoveAssistantParticipantArgs = {
 
 export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
+}
+
+export type MutationRemoveFromEnrichmentQueueArgs = {
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+  listId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryParticipantArgs = {
@@ -3061,6 +3072,8 @@ export type AiListFilesWithValuesQuery = {
         fieldId: string
         fieldName: string
         displayValue?: string | null
+        enrichmentErrorMessage?: string | null
+        queueStatus?: string | null
       }>
     }>
   }
@@ -3125,6 +3138,7 @@ export type GetListQuery = {
       languageModel?: string | null
       useVectorStore?: boolean | null
       pendingItemsCount: number
+      processingItemsCount: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
   }
@@ -3269,6 +3283,7 @@ export type ListFieldsTable_FieldFragment = {
   languageModel?: string | null
   useVectorStore?: boolean | null
   pendingItemsCount: number
+  processingItemsCount: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -3288,6 +3303,7 @@ export type ListFieldsTable_ListFragment = {
     languageModel?: string | null
     useVectorStore?: boolean | null
     pendingItemsCount: number
+    processingItemsCount: number
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
@@ -3316,6 +3332,22 @@ export type ListSourcesManager_ListFragment = {
       owner: { __typename?: 'User'; name?: string | null }
     } | null
   }>
+}
+
+export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type RemoveFromEnrichmentQueueMutation = {
+  __typename?: 'Mutation'
+  removeFromEnrichmentQueue: {
+    __typename?: 'EnrichmentQueueResult'
+    success?: boolean | null
+    queuedItems?: number | null
+    error?: string | null
+  }
 }
 
 export type RemoveListFieldMutationVariables = Exact<{
@@ -6566,6 +6598,7 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -6619,6 +6652,7 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -11552,6 +11586,8 @@ export const AiListFilesWithValuesDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
                           ],
                         },
                       },
@@ -11740,6 +11776,7 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -12093,6 +12130,67 @@ export const ListExportDataDocument = {
     },
   ],
 } as unknown as DocumentNode<ListExportDataQuery, ListExportDataQueryVariables>
+export const RemoveFromEnrichmentQueueDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'queuedItems' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveFromEnrichmentQueueMutation, RemoveFromEnrichmentQueueMutationVariables>
 export const RemoveListFieldDocument = {
   kind: 'Document',
   definitions: [

@@ -5,6 +5,7 @@ import { prisma } from '../prisma'
 /**
  * Resolves the display value for a given field and file combination.
  * This utility handles both file property fields and computed fields with cached values.
+ * Returns both the value and any enrichment error message.
  */
 export async function getFieldValue(
   file: Prisma.AiLibraryFileGetPayload<{
@@ -15,57 +16,72 @@ export async function getFieldValue(
   }>,
   field: Prisma.AiListFieldGetPayload<object>,
   cache?: Prisma.AiListItemCacheGetPayload<object> | null,
-): Promise<string | null> {
-  // Handle file property fields
+): Promise<{ value: string | null; errorMessage: string | null }> {
+  // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
+    let value: string | null = null
     switch (field.fileProperty) {
       case 'name':
-        return file.name
+        value = file.name
+        break
       case 'originUri':
-        return file.originUri
+        value = file.originUri
+        break
       case 'crawlerUrl': {
         // Check if we have the crawler data already loaded
         if (file.crawledByCrawler) {
-          return file.crawledByCrawler.uri || null
+          value = file.crawledByCrawler.uri || null
+        } else if (file.crawledByCrawlerId) {
+          // Fallback: query the crawler if we have the ID
+          const crawler = await prisma.aiLibraryCrawler.findFirst({
+            where: { id: file.crawledByCrawlerId },
+          })
+          value = crawler?.uri || null
         }
-        // Fallback: query the crawler if we have the ID
-        if (!file.crawledByCrawlerId) return null
-        const crawler = await prisma.aiLibraryCrawler.findFirst({
-          where: { id: file.crawledByCrawlerId },
-        })
-        return crawler?.uri || null
+        break
       }
       case 'processedAt':
-        return file.processedAt?.toISOString() || null
+        value = file.processedAt?.toISOString() || null
+        break
       case 'originModificationDate':
-        return file.originModificationDate?.toISOString() || null
+        value = file.originModificationDate?.toISOString() || null
+        break
       case 'size':
-        return file.size?.toString() || null
+        value = file.size?.toString() || null
+        break
       case 'mimeType':
-        return file.mimeType
+        value = file.mimeType
+        break
       default:
-        return null
+        value = null
     }
+    return { value, errorMessage: null }
   }
 
   // Handle computed fields - use cached value if available
   if (field.sourceType === 'llm_computed' && cache) {
+    let value: string | null = null
     switch (field.type) {
       case 'string':
-        return cache.valueString
+        value = cache.valueString
+        break
       case 'number':
-        return cache.valueNumber?.toString() || null
+        value = cache.valueNumber?.toString() || null
+        break
       case 'boolean':
-        return cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null
+        value = cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null
+        break
       case 'date':
       case 'datetime':
-        return cache.valueDate?.toISOString() || null
+        value = cache.valueDate?.toISOString() || null
+        break
       default:
-        return cache.valueString
+        value = cache.valueString
     }
+    return { value, errorMessage: cache.enrichmentErrorMessage || null }
   }
 
-  return null
+  return { value: null, errorMessage: null }
 }
 
 /**

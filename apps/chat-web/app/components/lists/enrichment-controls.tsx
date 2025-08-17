@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlayIcon } from '../../icons/play-icon'
+import SparklesIcon from '../../icons/sparkles-icon'
 import { StopIcon } from '../../icons/stop-icon'
-import { TrashIcon } from '../../icons/trash-icon'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { cleanEnrichments } from './clean-enrichments'
 import { getListQueryOptions } from './get-list'
@@ -111,44 +111,38 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing, onActionExec
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        {!isProcessing ? (
-          <button
-            type="button"
-            className="btn btn-primary btn-xs w-full"
-            onClick={handleStartEnrichment}
-            disabled={startEnrichmentMutation.isPending}
-          >
-            <PlayIcon className="size-4" />
-            {t('lists.enrichment.start')}
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-error btn-xs w-full"
-            onClick={handleStopEnrichment}
-            disabled={stopEnrichmentMutation.isPending}
-          >
-            <StopIcon className="size-4" />
-            {t('lists.enrichment.stop')}
-          </button>
-        )}
-      </div>
+    <>
+      {!isProcessing ? (
+        <button
+          type="button"
+          className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+          onClick={handleStartEnrichment}
+          disabled={startEnrichmentMutation.isPending}
+        >
+          <PlayIcon className="mr-2" />
+          {t('lists.enrichment.start')}
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+          onClick={handleStopEnrichment}
+          disabled={stopEnrichmentMutation.isPending}
+        >
+          <StopIcon className="mr-2" />
+          {t('lists.enrichment.stop')}
+        </button>
+      )}
 
       <button
         type="button"
-        className="btn btn-warning btn-xs w-full"
+        className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
         onClick={handleCleanEnrichments}
         disabled={cleanEnrichmentMutation.isPending}
       >
-        {cleanEnrichmentMutation.isPending ? (
-          <span className="loading loading-spinner loading-sm" />
-        ) : (
-          <TrashIcon className="size-4" />
-        )}
+        <SparklesIcon className="mr-2" />
         {t('lists.enrichment.clean')}
       </button>
-    </div>
+    </>
   )
 }

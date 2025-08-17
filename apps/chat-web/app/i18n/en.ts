@@ -487,6 +487,7 @@ export default {
       useVectorStoreHelp: 'Use markdown content for enrichment',
       addField: 'Add Field',
       updateField: 'Update Field',
+      vectorStoreLabel: 'Vector Store',
     },
     sources: {
       title: 'Library Sources',
@@ -510,6 +511,7 @@ export default {
       filterPlaceholder: 'Filter...',
       noFiles: 'No files found',
       showing: 'Showing {start} to {end} of {total} files',
+      fileIdRequired: 'File ID is required.',
       previousPage: 'Previous',
       nextPage: 'Next',
       pageInfo: 'Page {current} of {total}',
@@ -538,6 +540,10 @@ export default {
       notEnriched: 'Not enriched',
       enrichSingle: 'Enrich This Cell',
       singleStarted: 'Started enrichment for {field} in {file}',
+      removeFromQueue: 'Remove from Queue',
+      removing: 'Removing...',
+      removedFromQueue: 'Removed {field} for {file} from queue',
+      removeError: 'Failed to remove from queue',
     },
     export: {
       button: 'Export CSV',

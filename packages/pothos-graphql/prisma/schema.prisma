@@ -340,17 +340,18 @@ model AiListFieldContext {
 }
 
 model AiListItemCache {
-  id           String        @id @default(cuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  fileId       String
-  fieldId      String
-  valueString  String?
-  valueNumber  Float?
-  valueDate    DateTime?
-  valueBoolean Boolean?
-  file         AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  field        AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  id                     String        @id @default(cuid())
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  fileId                 String
+  fieldId                String
+  valueString            String?
+  valueNumber            Float?
+  valueDate              DateTime?
+  valueBoolean           Boolean?
+  enrichmentErrorMessage String?       // Store enrichment errors
+  file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  field                  AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   @@unique([fileId, fieldId])
 }

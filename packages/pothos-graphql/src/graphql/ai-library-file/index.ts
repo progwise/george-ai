@@ -17,12 +17,16 @@ const FieldValueResult = builder
     fieldId: string
     fieldName: string
     displayValue: string | null
+    enrichmentErrorMessage: string | null
+    queueStatus: string | null
   }>('FieldValueResult')
   .implement({
     fields: (t) => ({
       fieldId: t.exposeString('fieldId', { nullable: false }),
       fieldName: t.exposeString('fieldName', { nullable: false }),
       displayValue: t.exposeString('displayValue', { nullable: true }),
+      enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
+      queueStatus: t.exposeString('queueStatus', { nullable: true }),
     }),
   })
 
@@ -138,6 +142,8 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
               fieldId,
               fieldName: field?.name || 'Unknown',
               displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
             }
           })
         }
@@ -151,12 +157,28 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
               fieldId,
               fieldName: 'Unknown',
               displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
             })
             continue
           }
 
           const cache = findCacheValue(fileWithRelations, fieldId)
-          const computedValue = await getFieldValue(fileWithRelations, field, cache)
+          const { value: computedValue, errorMessage } = await getFieldValue(fileWithRelations, field, cache)
+
+          // Check queue status for this file-field combination
+          let queueStatus: string | null = null
+          if (field.sourceType === 'llm_computed' && !computedValue && !errorMessage) {
+            const queueItem = await prisma.aiListEnrichmentQueue.findFirst({
+              where: { 
+                fieldId: fieldId,
+                fileId: file.id,
+                status: { in: ['pending', 'processing'] }
+              },
+              orderBy: { requestedAt: 'desc' }
+            })
+            queueStatus = queueItem?.status || null
+          }
 
           // Format display value based on field type
           let displayValue = computedValue
@@ -185,6 +207,8 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
             fieldId,
             fieldName: field.name,
             displayValue,
+            enrichmentErrorMessage: errorMessage,
+            queueStatus,
           })
         }
 

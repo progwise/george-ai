@@ -37,11 +37,11 @@ export const getEnrichedValue = async ({
     const messages: { name: string; label: string; value: string }[] = []
     if (options.useVectorStore) {
       const searchResult = await similaritySearch(instruction, file.libraryId, file.embeddingModelName, file.name, 4)
-
+      const searchValue = searchResult.map((result) => result.pageContent).join('\n')
       messages.push({
-        name: 'markdown',
+        name: 'vector search',
         label: 'Here is the search result in the vector store',
-        value: searchResult.map((result) => result.pageContent).join('\n'),
+        value: searchValue.length ? searchValue : 'No result from vector search',
       })
     }
 
@@ -80,7 +80,7 @@ const getEnrichmentPrompt = async ({
   const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You help to extract data from a markdown to use your result as column values in a table sheet.
+      `You help to extract data to use your result as column values in a table sheet. The context consists of several sources attached.
         You have to answer with this value only that fits into a cell of a spreadsheet. No additional text, explanation or white space is allowed.
         `,
     ],

@@ -515,6 +515,7 @@ export default {
       filterPlaceholder: 'Filter...',
       noFiles: 'Keine Dateien gefunden',
       showing: 'Zeige {start} bis {end} von {total} Dateien',
+      fileIdRequired: 'Datei-ID ist erforderlich.',
       previousPage: 'Zurück',
       nextPage: 'Weiter',
       pageInfo: 'Seite {current} von {total}',
@@ -543,6 +544,10 @@ export default {
       notEnriched: 'Nicht angereichert',
       enrichSingle: 'Diese Zelle anreichern',
       singleStarted: 'Anreicherung für {field} in {file} gestartet',
+      removeFromQueue: 'Aus Warteschlange entfernen',
+      removing: 'Wird entfernt...',
+      removedFromQueue: '{field} für {file} aus Warteschlange entfernt',
+      removeError: 'Fehler beim Entfernen aus Warteschlange',
     },
     export: {
       button: 'CSV Exportieren',
