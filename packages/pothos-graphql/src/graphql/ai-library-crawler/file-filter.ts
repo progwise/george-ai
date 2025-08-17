@@ -91,7 +91,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
   if (fileSize !== undefined) {
     const maxFileSizeBytes = config.maxFileSize ? config.maxFileSize * 1024 * 1024 : undefined
     const minFileSizeBytes = config.minFileSize ? config.minFileSize * 1024 * 1024 : undefined
-    
+
     if (maxFileSizeBytes && fileSize > maxFileSizeBytes) {
       return {
         allowed: false,

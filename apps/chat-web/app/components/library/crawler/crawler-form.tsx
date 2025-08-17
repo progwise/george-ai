@@ -2,12 +2,7 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import {
-  HTTP_URI_PATTERN,
-  SHAREPOINT_URI_PATTERN,
-  SMB_URI_PATTERN,
-  jsonArrayToString,
-} from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN, jsonArrayToString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
