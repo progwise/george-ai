@@ -55,6 +55,7 @@ async function processQueueItem(queueItem: {
       include: {
         crawledByCrawler: true,
         cache: true,
+        library: true,
       },
     })
 
@@ -86,13 +87,17 @@ async function processQueueItem(queueItem: {
       }),
     )
 
+    if (!file.library.embeddingModelName) {
+      throw new Error('Embedding Model for Library not set, enrichment is not possible')
+    }
+
     const computedValue = await getEnrichedValue({
-      file: file,
+      file: { ...file, embeddingModelName: file.library.embeddingModelName },
       languageModel: field.languageModel,
       instruction: field.prompt,
       context: contextWithValues,
       options: {
-        useMarkdown: field.useMarkdown || false,
+        useVectorStore: field.useVectorStore || false,
       },
     }) //`[${field.type}] Computed for ${file.name}`
 

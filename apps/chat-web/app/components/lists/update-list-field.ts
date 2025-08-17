@@ -39,7 +39,7 @@ export const updateListField = createServerFn({ method: 'POST' })
           prompt: data.prompt,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
           context: data.context || null,
         },
       },

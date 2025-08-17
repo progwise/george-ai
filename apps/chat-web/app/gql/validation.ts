@@ -133,7 +133,7 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     prompt: z.string().nullish(),
     sourceType: z.string(),
     type: z.string(),
-    useMarkdown: z.boolean().nullish(),
+    useVectorStore: z.boolean().nullish(),
   })
 }
 

@@ -513,7 +513,7 @@ type AiListField {
   prompt: String
   sourceType: String!
   type: String!
-  useMarkdown: Boolean
+  useVectorStore: Boolean
 }
 
 type AiListFieldContext {
@@ -539,7 +539,7 @@ input AiListFieldInput {
   Field type: string, number, date, datetime, boolean
   """
   type: String!
-  useMarkdown: Boolean
+  useVectorStore: Boolean
 }
 
 """

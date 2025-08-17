@@ -484,7 +484,7 @@ export default {
         "Describe what you want the AI to extract or analyze from each file. Example: 'Analyze the sentiment of this document and return either Positive, Negative, or Neutral'",
       aiPromptHelp: "The AI will analyze each file's content using this prompt",
       markdownLabel: 'Markdown',
-      useMarkdownHelp: 'Use markdown content for enrichment',
+      useVectorStoreHelp: 'Use markdown content for enrichment',
       addField: 'Add Field',
       updateField: 'Update Field',
     },

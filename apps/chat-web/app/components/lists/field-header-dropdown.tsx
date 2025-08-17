@@ -68,7 +68,7 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
       prompt: field.prompt || '',
       languageModel: field.languageModel || '',
       order: field.order,
-      useMarkdown: field.useMarkdown || false,
+      useVectorStore: field.useVectorStore || false,
       context: field.context || [],
     }
     onEdit(editFieldData)

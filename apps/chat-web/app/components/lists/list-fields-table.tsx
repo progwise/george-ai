@@ -54,7 +54,7 @@ graphql(`
     fileProperty
     prompt
     languageModel
-    useMarkdown
+    useVectorStore
     pendingItemsCount
     context {
       contextFieldId

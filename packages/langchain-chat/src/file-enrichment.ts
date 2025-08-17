@@ -1,12 +1,12 @@
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { ChatOllama } from '@langchain/ollama'
-import fs from 'fs'
 
-import { getMarkdownFilePath } from '@george-ai/file-management'
+import { similaritySearch } from './typesense-vectorstore'
 
 interface File {
   id: string
   libraryId: string
+  embeddingModelName: string
   name: string
   originUri: string | null
 }
@@ -23,11 +23,10 @@ export const getEnrichedValue = async ({
   languageModel: string | null
   context: { name: string; value: string }[]
   options: {
-    useMarkdown: boolean
+    useVectorStore: boolean
   }
 }) => {
   console.log(`Getting enriched value for ${file.id}`)
-  console.log('context', context)
   if (!languageModel) {
     throw new Error('Cannot enrich file without language model')
   }
@@ -36,10 +35,14 @@ export const getEnrichedValue = async ({
   }
   try {
     const messages: { name: string; label: string; value: string }[] = []
-    if (options.useMarkdown) {
-      const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId, errorIfNotExists: true }) //TODO?: error handling check
-      const markdown = await fs.promises.readFile(markdownPath, 'utf-8')
-      messages.push({ name: 'markdown', label: 'Here is the Markdown Summary for the file', value: markdown })
+    if (options.useVectorStore) {
+      const searchResult = await similaritySearch(instruction, file.libraryId, file.embeddingModelName, file.name, 4)
+
+      messages.push({
+        name: 'markdown',
+        label: 'Here is the search result in the vector store',
+        value: searchResult.map((result) => result.pageContent).join('\n'),
+      })
     }
 
     context.forEach((item) => {
@@ -81,12 +84,6 @@ const getEnrichmentPrompt = async ({
         You have to answer with this value only that fits into a cell of a spreadsheet. No additional text, explanation or white space is allowed.
         `,
     ],
-    // ['system', 'Here is the Markdown:'],
-    // new MessagesPlaceholder('markdown'),
-    // ['system', 'Here is the filename:'],
-    // new MessagesPlaceholder('filename'),
-    // ['system', 'Here is the URL of the original file:'],
-    // new MessagesPlaceholder('originUri'),
     ['user', 'This is the instruction what information to extract:'],
     new MessagesPlaceholder('instruction'),
     ...contextItems,

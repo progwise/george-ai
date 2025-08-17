@@ -38,7 +38,7 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       .max(2000, translate('lists.fields.promptTooLong', language)),
     order: z.string().optional(),
     fileProperty: z.string().optional(),
-    useMarkdown: z
+    useVectorStore: z
       .string()
       .optional()
       .transform((val) => val === 'on'),
@@ -68,7 +68,7 @@ graphql(`
     type
     prompt
     languageModel
-    useMarkdown
+    useVectorStore
     order
     context {
       contextFieldId
@@ -229,12 +229,12 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 <label className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
-                    name="useMarkdown"
+                    name="useVectorStore"
                     className="checkbox checkbox-sm"
-                    defaultChecked={editField?.useMarkdown || false}
+                    defaultChecked={editField?.useVectorStore || false}
                   />
-                  <span className="truncate text-xs" title={t('lists.fields.useMarkdownHelp')}>
-                    {t('lists.fields.markdownLabel')}
+                  <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
+                    {t('lists.fields.vectorStoreLabel')}
                   </span>
                 </label>
                 {availableFields

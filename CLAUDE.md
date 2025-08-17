@@ -148,7 +148,7 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       .transform((commaSeparatedList) => commaSeparatedList && commaSeparatedList.split(','))
       .pipe(z.array(z.string()).optional()),
     // Transform checkbox value to boolean
-    useMarkdown: z
+    useVectorStore: z
       .string()
       .optional()
       .transform((val) => val === 'on'),

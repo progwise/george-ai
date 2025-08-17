@@ -28,7 +28,7 @@ builder.prismaObject('AiListField', {
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
     languageModel: t.exposeString('languageModel'),
-    useMarkdown: t.exposeBoolean('useMarkdown'),
+    useVectorStore: t.exposeBoolean('useVectorStore'),
     context: t.relation('context', { nullable: false }),
     pendingItemsCount: t.field({
       type: 'Int',

@@ -488,8 +488,8 @@ export default {
       aiPromptPlaceholder:
         "Beschreiben Sie, was die KI aus jeder Datei extrahieren oder analysieren soll. Beispiel: 'Analysiere die Stimmung dieses Dokuments und gib entweder Positiv, Negativ oder Neutral zurück'",
       aiPromptHelp: 'Die KI wird den Inhalt jeder Datei mit diesem Prompt analysieren',
-      markdownLabel: 'Markdown',
-      useMarkdownHelp: 'Markdown-Inhalt für Anreicherung verwenden',
+      vectorStoreLabel: 'Vector Store',
+      useVectorStoreHelp: 'Vector Suche für Anreicherung verwenden',
       addField: 'Feld hinzufügen',
       updateField: 'Feld aktualisieren',
     },

@@ -555,7 +555,7 @@ export type AiListField = {
   prompt?: Maybe<Scalars['String']['output']>
   sourceType: Scalars['String']['output']
   type: Scalars['String']['output']
-  useMarkdown?: Maybe<Scalars['Boolean']['output']>
+  useVectorStore?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type AiListFieldContext = {
@@ -578,7 +578,7 @@ export type AiListFieldInput = {
   sourceType: Scalars['String']['input']
   /** Field type: string, number, date, datetime, boolean */
   type: Scalars['String']['input']
-  useMarkdown?: InputMaybe<Scalars['Boolean']['input']>
+  useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Query result for AI list files from all source libraries */
@@ -3024,7 +3024,7 @@ export type FieldModal_EditableFieldFragment = {
   type: string
   prompt?: string | null
   languageModel?: string | null
-  useMarkdown?: boolean | null
+  useVectorStore?: boolean | null
   order: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
@@ -3120,7 +3120,7 @@ export type GetListQuery = {
       fileProperty?: string | null
       prompt?: string | null
       languageModel?: string | null
-      useMarkdown?: boolean | null
+      useVectorStore?: boolean | null
       pendingItemsCount: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
@@ -3263,7 +3263,7 @@ export type ListFieldsTable_FieldFragment = {
   fileProperty?: string | null
   prompt?: string | null
   languageModel?: string | null
-  useMarkdown?: boolean | null
+  useVectorStore?: boolean | null
   pendingItemsCount: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
@@ -3281,7 +3281,7 @@ export type ListFieldsTable_ListFragment = {
     fileProperty?: string | null
     prompt?: string | null
     languageModel?: string | null
-    useMarkdown?: boolean | null
+    useVectorStore?: boolean | null
     pendingItemsCount: number
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
@@ -6319,7 +6319,7 @@ export const FieldModal_EditableFieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -6558,7 +6558,7 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
           {
             kind: 'Field',
@@ -6610,7 +6610,7 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
           {
             kind: 'Field',
@@ -11730,7 +11730,7 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
           {
             kind: 'Field',

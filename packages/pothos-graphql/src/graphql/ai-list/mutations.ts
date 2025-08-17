@@ -212,7 +212,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     fileProperty: t.string({ required: false }),
     prompt: t.string({ required: false }),
     languageModel: t.string({ required: false }),
-    useMarkdown: t.boolean({ required: false }),
+    useVectorStore: t.boolean({ required: false }),
     context: t.stringList({ required: false }),
   }),
 })
@@ -252,7 +252,7 @@ builder.mutationField('addListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
         },
       })
 
@@ -308,7 +308,7 @@ builder.mutationField('updateListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
         },
       })
 
