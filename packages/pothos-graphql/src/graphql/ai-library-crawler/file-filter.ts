@@ -7,8 +7,8 @@ import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 export interface FileFilterConfig {
   includePatterns?: string[] // Regex patterns to include (if empty, include all)
   excludePatterns?: string[] // Regex patterns to exclude
-  maxFileSize?: number // Maximum file size in bytes
-  minFileSize?: number // Minimum file size in bytes
+  maxFileSize?: number // Maximum file size in MB
+  minFileSize?: number // Minimum file size in MB
   allowedMimeTypes?: string[] // Allowed MIME types (if empty, allow all)
 }
 
@@ -87,21 +87,24 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
     }
   }
 
-  // Check file size limits
+  // Check file size limits (convert MB to bytes for comparison)
   if (fileSize !== undefined) {
-    if (config.maxFileSize && fileSize > config.maxFileSize) {
+    const maxFileSizeBytes = config.maxFileSize ? config.maxFileSize * 1024 * 1024 : undefined
+    const minFileSizeBytes = config.minFileSize ? config.minFileSize * 1024 * 1024 : undefined
+    
+    if (maxFileSizeBytes && fileSize > maxFileSizeBytes) {
       return {
         allowed: false,
-        reason: `File "${fileName}" size ${formatFileSize(fileSize)} exceeds maximum limit of ${formatFileSize(config.maxFileSize)}`,
+        reason: `File "${fileName}" size ${formatFileSize(fileSize)} exceeds maximum limit of ${config.maxFileSize} MB`,
         filterType: 'file_size',
         filterValue: `max:${config.maxFileSize}`,
       }
     }
 
-    if (config.minFileSize && fileSize < config.minFileSize) {
+    if (minFileSizeBytes && fileSize < minFileSizeBytes) {
       return {
         allowed: false,
-        reason: `File "${fileName}" size ${formatFileSize(fileSize)} is below minimum limit of ${formatFileSize(config.minFileSize)}`,
+        reason: `File "${fileName}" size ${formatFileSize(fileSize)} is below minimum limit of ${config.minFileSize} MB`,
         filterType: 'file_size',
         filterValue: `min:${config.minFileSize}`,
       }
@@ -160,6 +163,7 @@ export function parseFilterConfig(crawler: {
     }
   }
 
+  // File sizes are stored in MB in the database
   if (crawler.maxFileSize !== null && crawler.maxFileSize !== undefined) {
     config.maxFileSize = crawler.maxFileSize
   }

@@ -322,7 +322,7 @@ export async function* crawlSharePoint({
   }
 
   // Iterate week by week backwards from now for 2 years (104 weeks)
-  const WEEKS_TO_SEARCH = 104 // 2 years worth of weeks
+  const WEEKS_TO_SEARCH = 1040 // 20 years worth of weeks
 
   const currentDate = new Date()
 

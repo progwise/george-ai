@@ -6,7 +6,6 @@ import {
   HTTP_URI_PATTERN,
   SHAREPOINT_URI_PATTERN,
   SMB_URI_PATTERN,
-  formatFileSize,
   jsonArrayToString,
 } from '@george-ai/web-utils'
 
@@ -245,7 +244,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                   type="number"
                   label={t('crawlers.minFileSize')}
                   placeholder="0.1"
-                  value={formatFileSize(crawler?.minFileSize)}
+                  value={crawler?.minFileSize}
                   schema={crawlerFormSchema}
                 />
 
@@ -254,7 +253,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                   type="number"
                   label={t('crawlers.maxFileSize')}
                   placeholder="50"
-                  value={formatFileSize(crawler?.maxFileSize)}
+                  value={crawler?.maxFileSize}
                   schema={crawlerFormSchema}
                 />
               </div>
