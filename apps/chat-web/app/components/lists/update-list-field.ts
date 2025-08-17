@@ -13,7 +13,6 @@ export const updateListField = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    console.log('data', data)
     return await backendRequest(
       graphql(`
         mutation updateListField($id: String!, $data: AiListFieldInput!) {
