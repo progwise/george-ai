@@ -549,6 +549,8 @@ export type AiListField = {
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   languageModel?: Maybe<Scalars['String']['output']>
+  list: AiList
+  listId: Scalars['String']['output']
   name: Scalars['String']['output']
   order: Scalars['Int']['output']
   pendingItemsCount: Scalars['Int']['output']
@@ -3113,6 +3115,7 @@ export type GetListQuery = {
     fields: Array<{
       __typename?: 'AiListField'
       id: string
+      listId: string
       name: string
       type: string
       order: number
@@ -3256,6 +3259,7 @@ export type ListFilesTable_FilesQueryResultFragment = {
 export type ListFieldsTable_FieldFragment = {
   __typename?: 'AiListField'
   id: string
+  listId: string
   name: string
   type: string
   order: number
@@ -3274,6 +3278,7 @@ export type ListFieldsTable_ListFragment = {
   fields: Array<{
     __typename?: 'AiListField'
     id: string
+    listId: string
     name: string
     type: string
     order: number
@@ -6551,6 +6556,7 @@ export const ListFieldsTable_FieldFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -6603,6 +6609,7 @@ export const ListFieldsTable_ListFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -11723,6 +11730,7 @@ export const GetListDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },

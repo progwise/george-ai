@@ -47,6 +47,7 @@ graphql(`
 graphql(`
   fragment ListFieldsTable_Field on AiListField {
     id
+    listId
     name
     type
     order
@@ -362,7 +363,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                   <div className="relative">
                     <button
                       type="button"
-                      className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                      className="btn btn-ghost btn-xs opacity-100"
                       onClick={(e) => {
                         e.stopPropagation()
                         setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
@@ -374,11 +375,9 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                     {/* Field dropdown */}
                     <FieldHeaderDropdown
                       field={field}
-                      listId={list.id}
                       isOpen={fieldDropdownOpen === field.id}
                       onClose={() => setFieldDropdownOpen(null)}
                       onEdit={handleEditField}
-                      hasActiveQueue={field.pendingItemsCount > 0}
                     />
                   </div>
                 </div>

@@ -12,14 +12,12 @@ import { removeListField } from './remove-list-field'
 
 interface FieldHeaderDropdownProps {
   field: ListFieldsTable_ListFragment['fields'][0]
-  listId: string
   isOpen: boolean
   onClose: () => void
   onEdit: (field: FieldModal_EditableFieldFragment) => void
-  hasActiveQueue: boolean
 }
 
-export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {
+export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
@@ -98,10 +96,17 @@ export const FieldHeaderDropdown = ({ field, listId, isOpen, onClose, onEdit }: 
         {canEnrich && (
           <div className="border-base-300 border-b px-4 py-2">
             <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
-              {t('lists.enrichment.title')}
+              {field.pendingItemsCount > 0 ? (
+                <div className="flex items-center gap-2">
+                  <div className="loading loading-ring text-primary"></div>
+                  <span>{field.pendingItemsCount} pending</span>
+                </div>
+              ) : (
+                <span>{t('lists.enrichment.title')}</span>
+              )}
             </div>
             <EnrichmentControls
-              listId={listId}
+              listId={field.listId}
               fieldId={field.id}
               isProcessing={field.pendingItemsCount > 0}
               onActionExecuted={() => onClose()}

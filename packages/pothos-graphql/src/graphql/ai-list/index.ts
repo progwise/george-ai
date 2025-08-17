@@ -21,6 +21,8 @@ builder.prismaObject('AiListField', {
   name: 'AiListField',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
+    listId: t.exposeString('listId', { nullable: false }),
+    list: t.relation('list', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     type: t.exposeString('type', { nullable: false }),
     order: t.exposeInt('order', { nullable: false }),
@@ -35,7 +37,7 @@ builder.prismaObject('AiListField', {
       nullable: false,
       resolve: async (parent) => {
         const count = await prisma.aiListEnrichmentQueue.count({
-          where: { listId: parent.listId, status: 'pending' },
+          where: { listId: parent.listId, fieldId: parent.id, status: 'pending' },
         })
         return count
       },

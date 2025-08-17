@@ -507,6 +507,8 @@ type AiListField {
   fileProperty: String
   id: ID!
   languageModel: String
+  list: AiList!
+  listId: String!
   name: String!
   order: Int!
   pendingItemsCount: Int!
