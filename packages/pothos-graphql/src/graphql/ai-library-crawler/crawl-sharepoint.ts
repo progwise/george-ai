@@ -8,6 +8,7 @@ import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { FileInfo, applyFileFilters } from './file-filter'
 import { calculateFileHash } from './file-hash'
 import { parseSharePointUrl } from './sharepoint'
 import { getSharePointCredentials } from './sharepoint-credentials-manager'
@@ -25,6 +26,58 @@ interface SharePointListItem {
     ServerRelativeUrl: string
     Length?: number
   }
+}
+
+const recordOmittedFile = async ({
+  libraryId,
+  crawlerRunId,
+  filePath,
+  fileName,
+  fileSize,
+  reason,
+  filterType,
+  filterValue,
+}: {
+  libraryId: string
+  crawlerRunId?: string
+  filePath: string
+  fileName: string
+  fileSize?: number | string
+  reason: string
+  filterType: string
+  filterValue?: string
+}) => {
+  // Check if the file already exists in the database
+  const existingFile = await prisma.aiLibraryFile.findFirst({
+    where: {
+      libraryId,
+      originUri: filePath,
+      archivedAt: null, // Only consider non-archived files
+    },
+  })
+
+  // If the file exists, mark it as archived
+  if (existingFile) {
+    await prisma.aiLibraryFile.update({
+      where: { id: existingFile.id },
+      data: { archivedAt: new Date() },
+    })
+  }
+
+  await prisma.aiLibraryUpdate.create({
+    data: {
+      libraryId,
+      crawlerRunId,
+      fileId: existingFile?.id || null,
+      message: reason,
+      updateType: 'omitted',
+      filePath,
+      fileName,
+      fileSize: typeof fileSize === 'string' ? parseInt(fileSize, 10) : fileSize,
+      filterType,
+      filterValue,
+    },
+  })
 }
 
 const saveSharepointCrawlerFile = async ({
@@ -71,14 +124,53 @@ const saveSharepointCrawlerFile = async ({
     },
   })
 
-  let fileHash: string | undefined
+  // Initialize result tracking
+  let fileRecord: typeof existingFile = null
   let skipProcessing = false
+  let wasUpdated = false
+  let fileHash: string | undefined | null
 
-  // If no processing error, handle file download and hash calculation
-  if (!processingError) {
-    // Check if existing file has a hash stored
+  // Always build download URL for SharePoint files for reporting
+  // Use alternative API for files with special characters (% or #)
+  const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
+  const downloadUrl = hasSpecialChars
+    ? `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
+    : `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
+
+  // Handle processing errors - just update/create database record without downloading
+  if (processingError) {
+    const fileUpdateData = {
+      name: `${fileName}`,
+      libraryId: libraryId,
+      mimeType,
+      size: parseInt(fileSize.toString()),
+      updatedAt: fileModifiedTime,
+      originModificationDate: fileModifiedTime,
+      processingErrorMessage: processingError,
+      processingErrorAt: new Date(),
+    }
+
+    fileRecord = await prisma.aiLibraryFile.upsert({
+      where: {
+        crawledByCrawlerId_originUri: {
+          crawledByCrawlerId: crawlerId,
+          originUri: fileUri,
+        },
+      },
+      create: {
+        ...fileUpdateData,
+        originUri: fileUri,
+        crawledByCrawlerId: crawlerId,
+      },
+      update: fileUpdateData,
+    })
+
+    wasUpdated = !!existingFile
+  } else {
+    // No processing error - handle normal file processing
+
+    // Try to get hash from existing file on disk first
     if (existingFile && !existingFile.originFileHash) {
-      // Try to generate hash from existing uploaded file
       const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
       try {
         await fs.promises.access(existingFilePath)
@@ -90,118 +182,93 @@ const saveSharepointCrawlerFile = async ({
           where: { id: existingFile.id },
           data: { originFileHash: fileHash },
         })
+        existingFile.originFileHash = fileHash // Update local copy
       } catch {
         console.log(`Existing file not found on disk for ${fileName}, will download`)
       }
+    } else if (existingFile) {
+      fileHash = existingFile.originFileHash || undefined
     }
 
-    // If we don't have a hash yet, download the file to calculate it
-    if (!fileHash) {
+    // Download file if we don't have a hash yet OR if hash has changed
+    const needsDownload =
+      !fileHash || (existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
+
+    if (!fileHash || needsDownload) {
       const uploadedFilePath = getUploadFilePath({ fileId: 'temp', libraryId })
       const tempFilePath = `${uploadedFilePath}_temp_${Date.now()}`
 
       try {
         await downloadSharePointFileToPath(siteUrl, serverRelativeUrl, authCookies, tempFilePath)
-        fileHash = await calculateFileHash(tempFilePath)
+        const newFileHash = await calculateFileHash(tempFilePath)
 
-        // Check if this file was already processed with the same hash
-        if (existingFile && existingFile.originFileHash === fileHash && existingFile.processedAt) {
-          console.log(`Skipping file ${fileName} - already processed with same hash`)
+        // Determine file status
+        if (existingFile && existingFile.originFileHash === newFileHash && existingFile.processedAt) {
+          // Same content, already processed - let the general runner handle database updates
           skipProcessing = true
+          wasUpdated = false
+          fileRecord = existingFile
+
           // Clean up temp file
           await fs.promises.unlink(tempFilePath).catch(() => {})
+        } else {
+          // New file or updated content
+          wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== newFileHash)
 
-          // Update modification date even if skipping
-          await prisma.aiLibraryFile.update({
-            where: { id: existingFile.id },
-            data: {
+          fileRecord = await prisma.aiLibraryFile.upsert({
+            where: {
+              crawledByCrawlerId_originUri: {
+                crawledByCrawlerId: crawlerId,
+                originUri: fileUri,
+              },
+            },
+            create: {
+              name: `${fileName}`,
+              libraryId: libraryId,
+              mimeType,
+              size: parseInt(fileSize.toString()),
+              updatedAt: fileModifiedTime,
+              originUri: fileUri,
+              crawledByCrawlerId: crawlerId,
               originModificationDate: fileModifiedTime,
-              updatedAt: new Date(),
+              originFileHash: newFileHash,
+            },
+            update: {
+              name: `${fileName}`,
+              libraryId: libraryId,
+              mimeType,
+              size: parseInt(fileSize.toString()),
+              updatedAt: fileModifiedTime,
+              originModificationDate: fileModifiedTime,
+              originFileHash: newFileHash,
             },
           })
 
-          return { ...existingFile, skipProcessing }
+          // Move file to final location
+          const finalPath = getUploadFilePath({ fileId: fileRecord.id, libraryId })
+          await fs.promises.mkdir(path.dirname(finalPath), { recursive: true })
+          await fs.promises.rename(tempFilePath, finalPath)
         }
 
-        // Move to final location after getting file ID
-        const file = await prisma.aiLibraryFile.upsert({
-          where: {
-            crawledByCrawlerId_originUri: {
-              crawledByCrawlerId: crawlerId,
-              originUri: fileUri,
-            },
-          },
-          create: {
-            name: `${fileName}`,
-            libraryId: libraryId,
-            mimeType,
-            size: parseInt(fileSize.toString()),
-            updatedAt: fileModifiedTime,
-            originUri: fileUri,
-            crawledByCrawlerId: crawlerId,
-            originModificationDate: fileModifiedTime,
-            originFileHash: fileHash,
-          },
-          update: {
-            name: `${fileName}`,
-            libraryId: libraryId,
-            mimeType,
-            size: parseInt(fileSize.toString()),
-            updatedAt: fileModifiedTime,
-            originModificationDate: fileModifiedTime,
-            originFileHash: fileHash,
-          },
-        })
-
-        // Move file to final location
-        const finalPath = getUploadFilePath({ fileId: file.id, libraryId })
-        await fs.promises.mkdir(path.dirname(finalPath), { recursive: true })
-        await fs.promises.rename(tempFilePath, finalPath)
-
-        return { ...file, skipProcessing }
+        fileHash = newFileHash
       } catch (error) {
         // Clean up temp file on error
         await fs.promises.unlink(tempFilePath).catch(() => {})
         throw error
       }
     } else if (existingFile) {
-      // We have a hash from the existing file, check if it needs reprocessing
-      if (existingFile.processedAt) {
-        console.log(`File ${fileName} already processed with hash ${fileHash}`)
-        skipProcessing = true
-      }
-      return { ...existingFile, skipProcessing }
+      // File exists with hash and no download needed
+      fileRecord = existingFile
+      skipProcessing = existingFile.processedAt ? true : false
+      wasUpdated = false
     }
   }
 
-  // For processing errors, just update database without downloading
-  const fileUpdateData = {
-    name: `${fileName}`,
-    libraryId: libraryId,
-    mimeType,
-    size: parseInt(fileSize.toString()),
-    updatedAt: fileModifiedTime,
-    originModificationDate: fileModifiedTime,
-    processingErrorMessage: processingError,
-    processingErrorAt: new Date(),
+  if (!fileRecord) {
+    throw new Error(`File record not created for ${fileName}`)
   }
 
-  const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
-    create: {
-      ...fileUpdateData,
-      originUri: fileUri,
-      crawledByCrawlerId: crawlerId,
-    },
-    update: fileUpdateData,
-  })
-
-  return { ...file, skipProcessing }
+  return { ...fileRecord, skipProcessing, wasUpdated, downloadUrl }
 }
 
 export async function* crawlSharePoint({
@@ -210,6 +277,8 @@ export async function* crawlSharePoint({
   maxPages,
   crawlerId,
   libraryId,
+  crawlerRunId,
+  filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SharePoint crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using credentials for crawler: ${crawlerId}`)
@@ -244,7 +313,7 @@ export async function* crawlSharePoint({
   }
 
   // Iterate week by week backwards from now for 2 years (104 weeks)
-  const WEEKS_TO_SEARCH = 104 // 2 years worth of weeks
+  const WEEKS_TO_SEARCH = 1040 // 20 years worth of weeks
 
   const currentDate = new Date()
 
@@ -319,17 +388,48 @@ export async function* crawlSharePoint({
 
           processedPages++
 
+          const fileUri = `${siteUrl.origin}${item.FileRef}`
+
           try {
             console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
+            const fileModifiedTime = new Date(item.Modified)
+            const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
+            const mimeType = getMimeTypeFromExtension(fileName)
+
+            // Apply file filters if configured
+            if (filterConfig) {
+              const fileInfo: FileInfo = {
+                fileName,
+                filePath: fileUri,
+                fileSize,
+                modificationDate: fileModifiedTime,
+              }
+
+              const filterResult = applyFileFilters(fileInfo, filterConfig)
+              if (!filterResult.allowed) {
+                console.log(`SharePoint file filtered out: ${fileUri} - ${filterResult.reason}`)
+
+                // Record the omitted file
+                await recordOmittedFile({
+                  libraryId,
+                  crawlerRunId,
+                  filePath: fileUri,
+                  fileName,
+                  fileSize,
+                  reason: filterResult.reason || 'File filtered',
+                  filterType: filterResult.filterType || 'unknown',
+                  filterValue: filterResult.filterValue,
+                })
+
+                // Skip this file but continue processing others
+                continue
+              }
+            }
 
             // Check file size limits before processing
             const sizeCheck = isFileSizeAcceptable(fileSize)
-            const fileModifiedTime = new Date(item.Modified)
-            const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
-            const fileUri = `${siteUrl.origin}${item.FileRef}`
-            const mimeType = getMimeTypeFromExtension(fileName)
 
             if (!sizeCheck.acceptable) {
               console.warn(`SharePoint file too large ${fileName}: ${sizeCheck.reason}`)
@@ -379,13 +479,22 @@ export async function* crawlSharePoint({
             // Check if we should skip processing
             if (fileInfo.skipProcessing) {
               console.log(`Skipping processing for ${fileName} - file unchanged`)
+
+              const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2)
+              const downloadInfo = fileInfo.downloadUrl ? ` | Download URL: ${fileInfo.downloadUrl}` : ''
+              const skipHints = [
+                `${fileInfo.name} skipped (already processed with same hash)`,
+                `Size: ${fileSizeMB} MB`,
+                `Origin: ${fileUri}${downloadInfo}`,
+              ].join(' | ')
+
               yield {
                 id: fileInfo.id,
                 name: fileInfo.name,
                 originUri: fileInfo.originUri,
                 mimeType: fileInfo.mimeType,
                 skipProcessing: true,
-                hints: `SharePoint crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+                hints: skipHints,
               }
             } else {
               yield {
@@ -394,13 +503,20 @@ export async function* crawlSharePoint({
                 originUri: fileInfo.originUri,
                 mimeType: fileInfo.mimeType,
                 skipProcessing: false,
+                wasUpdated: fileInfo.wasUpdated,
+                downloadUrl: fileInfo.downloadUrl,
                 hints: `Sharepoint crawler file success \n${JSON.stringify(fileInfo, null, 2)}`,
               }
             }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
-            yield { hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`, errorMessage: errorMessage }
+            yield {
+              hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`,
+              errorMessage: errorMessage,
+              originUri: fileUri,
+              name: fileName,
+            }
           }
         }
 
@@ -424,11 +540,12 @@ async function downloadSharePointFileToPath(
   authCookies: string,
   filePath: string,
 ): Promise<void> {
-  const fileUrl = `${siteUrl}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
+  // Try primary API first
+  let fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
 
   console.log(`Downloading SharePoint file from: ${fileUrl}`)
 
-  const response = await fetch(fileUrl, {
+  let response = await fetch(fileUrl, {
     method: 'GET',
     headers: {
       Cookie: authCookies,
@@ -438,6 +555,30 @@ async function downloadSharePointFileToPath(
 
   console.log(`Download response status: ${response.status} ${response.statusText}`)
 
+  // If primary API fails with 404 and path contains special characters, try alternative API
+  if (!response.ok && response.status === 404) {
+    const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
+
+    if (hasSpecialChars) {
+      console.log(`Primary API failed with 404 for file with special characters, trying GetFileByServerRelativePath...`)
+
+      // Try alternative API for special characters
+      fileUrl = `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
+
+      console.log(`Retrying with alternative API: ${fileUrl}`)
+
+      response = await fetch(fileUrl, {
+        method: 'GET',
+        headers: {
+          Cookie: authCookies,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      })
+
+      console.log(`Alternative API response status: ${response.status} ${response.statusText}`)
+    }
+  }
+
   if (!response.ok) {
     const errorText = await response.text()
     console.log(`Download error response:`, errorText.substring(0, 500))
@@ -446,7 +587,7 @@ async function downloadSharePointFileToPath(
       throw new Error(`SharePoint file download authentication failed. Please refresh your authentication cookies.`)
     }
 
-    throw new Error(`Failed to download SharePoint file: ${response.status} ${response.statusText}`)
+    throw new Error(`Failed to download SharePoint file from ${fileUrl}: ${response.status} ${response.statusText}`)
   }
 
   // Create directory if it doesn't exist

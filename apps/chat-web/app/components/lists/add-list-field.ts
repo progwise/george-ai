@@ -1,36 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { graphql } from '../../gql'
-import { Language, getLanguage, translate } from '../../i18n'
+import { getLanguage } from '../../i18n'
 import { backendRequest } from '../../server-functions/backend'
-
-export const getAddListFieldSchema = (language: Language) =>
-  z.object({
-    listId: z.string().nonempty(translate('lists.fields.listIdRequired', language)),
-    name: z.string().nonempty(translate('lists.fields.nameRequired', language)),
-    type: z.string().nonempty(translate('lists.fields.typeRequired', language)),
-    sourceType: z.string().nonempty(translate('lists.fields.sourceTypeRequired', language)),
-    languageModel: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
-    prompt: z.string().nonempty(translate('lists.fields.promptRequired', language)),
-    order: z.string().optional(),
-    fileProperty: z.string().optional(),
-    useMarkdown: z
-      .string()
-      .optional()
-      .transform((val) => val === 'on'),
-    context: z.array(z.string()).optional(),
-  })
+import { getListFieldFormSchema } from './field-modal'
 
 export const addListField = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const entries = Object.fromEntries(data)
-    const contextIds = data.getAll('context') as string[]
-    return getAddListFieldSchema(language).parse({
-      ...entries,
-      context: contextIds.length > 0 ? contextIds : undefined,
-    })
+    return getListFieldFormSchema('create', language).parse(entries)
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -59,7 +38,7 @@ export const addListField = createServerFn({ method: 'POST' })
           prompt: data.prompt,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
           context: data.context || null,
         },
       },

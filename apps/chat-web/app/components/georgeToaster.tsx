@@ -13,7 +13,7 @@ const ToastContent = ({
   onClose,
 }: {
   icon: React.ElementType
-  message: string | JSX.Element
+  message: string | JSX.Element | JSX.Element[]
   type: 'alert-error' | 'alert-success' | 'alert-warning'
   onClose: () => void
 }) => {
@@ -54,7 +54,7 @@ export const toastWarning = (message: string | JSX.Element) => {
   ))
 }
 
-export const toastError = (message: string | JSX.Element) => {
+export const toastError = (message: string | JSX.Element | JSX.Element[]) => {
   return toast.custom((toastInstance) => (
     <ToastContent
       icon={ErrorIcon}

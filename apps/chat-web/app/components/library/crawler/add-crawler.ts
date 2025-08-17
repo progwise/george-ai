@@ -1,24 +1,22 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
+import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
-import { getCrawlerFormData, getCrawlerFormSchema } from './crawler-form'
+import { getCrawlerFormSchema } from './crawler-form'
 
-export const addCrawlerFunction = createServerFn({ method: 'POST' })
+export const addCrawler = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
-    const rawData = getCrawlerFormData(data)
+    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const schema = getCrawlerFormSchema('add', uriType, language)
+    const { data: validatedData, errors } = validateFormData(data, schema)
 
-    // Parse and validate with Zod schema - this gives us proper typing
-    const validatedData = getCrawlerFormSchema(language).parse(rawData)
-
-    // Additional validation for credentials
-    if (validatedData.uriType === 'sharepoint' && !validatedData.sharepointAuth) {
-      throw new Error('SharePoint crawlers require authentication cookies')
-    }
-    if (validatedData.uriType === 'smb' && (!validatedData.username || !validatedData.password)) {
-      throw new Error('SMB crawlers require username and password')
+    if (errors) {
+      throw new Error(errors.join(', '))
     }
 
     // For SharePoint crawlers, validate the connection works using GraphQL mutation
@@ -73,6 +71,7 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
+
     return backendRequest(
       graphql(`
         mutation createAiLibraryCrawler(
@@ -92,6 +91,11 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
           uriType: data.uriType,
           maxDepth: data.maxDepth,
           maxPages: data.maxPages,
+          includePatterns: parseCommaList(data.includePatterns),
+          excludePatterns: parseCommaList(data.excludePatterns),
+          maxFileSize: data.maxFileSize,
+          minFileSize: data.minFileSize,
+          allowedMimeTypes: parseCommaList(data.allowedMimeTypes),
           cronJob: data.cronJob,
         },
         credentials:

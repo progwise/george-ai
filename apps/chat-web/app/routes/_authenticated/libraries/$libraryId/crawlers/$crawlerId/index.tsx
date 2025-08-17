@@ -6,7 +6,7 @@ import { toastError, toastSuccess } from '../../../../../../components/georgeToa
 import { CrawlerForm } from '../../../../../../components/library/crawler/crawler-form'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
 import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
-import { updateCrawlerFunction } from '../../../../../../components/library/crawler/update-crawler'
+import { updateCrawler } from '../../../../../../components/library/crawler/update-crawler'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/$crawlerId/')({
@@ -25,7 +25,7 @@ function RouteComponent() {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions(params))
   const { mutate: updateCrawlerMutation, isPending } = useMutation({
-    mutationFn: updateCrawlerFunction,
+    mutationFn: updateCrawler,
     onError: (error) => {
       toastError(`${t('crawlers.toastUpdateError')}: ${error.message}`)
     },

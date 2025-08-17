@@ -1,4 +1,4 @@
-import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
+import { TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
@@ -232,6 +232,8 @@ export const similaritySearch = async (
   question: string,
   library: string,
   embeddingsModelName: string,
+  docName?: string,
+  maxHits?: number,
 ): Promise<{ pageContent: string; docName: string }[]> => {
   //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
   const embeddings = await getEmbeddingsModelInstance(embeddingsModelName)
@@ -250,8 +252,9 @@ export const similaritySearch = async (
         q: queryAsString,
         query_by: 'text,docName',
         vector_query: vectorQuery,
-        per_page: 200,
+        per_page: maxHits || 200,
         order_by: '_text_match:desc',
+        ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
       },
     ],
   }
@@ -362,32 +365,4 @@ export const getFileChunks = async ({
       subChunkIndex: hit.document.subChunkIndex || 0,
     })),
   }
-}
-
-export const getPDFContentForQuestionAndLibraries = async (
-  question: string,
-  libraries: { id: string; name: string; embeddingModelName: string }[],
-) => {
-  const ensureStores = libraries.map((library) => ensureVectorStore(library.id))
-  await Promise.all(ensureStores)
-  const vectorStores = await Promise.all(
-    libraries.map(async (library) => {
-      const embeddings = await getEmbeddingsModelInstance(library.embeddingModelName)
-      return new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id))
-    }),
-  )
-
-  const storeSearches = vectorStores.map((store) => store.similaritySearch(question))
-  const storeSearchResults = await Promise.all(storeSearches)
-
-  // Todo: Implement returning library name with content
-  const contents = storeSearchResults.map((documents) =>
-    documents.map((document_) => document_.pageContent).join('\n\n'),
-  )
-
-  const result = contents.filter((content) => content.length > 0).join('\n\n')
-  console.log(`Found ${contents.length} libraries with content for question "${question}"`)
-  console.log(result.length > 1000 ? `Content is too long to display (${result.length} characters)` : result)
-
-  return result
 }

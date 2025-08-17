@@ -3,7 +3,7 @@ import { processFile } from '../ai-library-file/process-file'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
-import { CrawledFileInfo } from './crawled-file-info'
+import { parseFilterConfig } from './file-filter'
 
 interface RunOptions {
   crawlerId: string
@@ -57,9 +57,9 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     },
   })
 
-  startCrawling(crawler, newRun, userId).catch((error) => {
+  startCrawling(crawler, newRun, userId).catch(async (error) => {
     console.error('Error during crawling:', error)
-    prisma.aiLibraryCrawlerRun.update({
+    await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
         endedAt: new Date(),
@@ -80,6 +80,11 @@ const startCrawling = async (
     maxDepth: number
     maxPages: number
     libraryId: string
+    includePatterns?: string | null
+    excludePatterns?: string | null
+    maxFileSize?: number | null
+    minFileSize?: number | null
+    allowedMimeTypes?: string | null
     library: { fileConverterOptions: string | null }
   },
   newRun: { id: string; startedAt: Date },
@@ -90,6 +95,10 @@ const startCrawling = async (
   console.log('Crawler max depth:', crawler.maxDepth, 'max pages:', crawler.maxPages)
   console.log('Crawler library ID:', crawler.libraryId)
   console.log('Crawler run started at:', newRun.startedAt)
+
+  // Parse filter configuration
+  const filterConfig = parseFilterConfig(crawler)
+  console.log('Filter configuration:', filterConfig)
 
   const crawl =
     crawler.uriType === 'http'
@@ -105,14 +114,14 @@ const startCrawling = async (
   }
 
   try {
-    const crawledPages: CrawledFileInfo[] = []
-
     for await (const crawledPage of crawl({
       uri: crawler.uri,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
       crawlerId: crawler.id,
       libraryId: crawler.libraryId,
+      crawlerRunId: newRun.id,
+      filterConfig,
     })) {
       try {
         const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
@@ -123,43 +132,90 @@ const startCrawling = async (
         }
         if (crawledPage.errorMessage) {
           console.warn('Crawling error for page', crawledPage)
-          crawledPages.push(crawledPage)
+
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
+          // Create update record for this file error - but don't fail the entire run
+          await prisma.aiLibraryUpdate.create({
+            data: {
+              libraryId: crawler.libraryId,
+              crawlerRunId: newRun.id,
+              fileId: null,
+              message: `${crawledPage.originUri || crawledPage.name}: ${crawledPage.errorMessage}${downloadInfo}`,
+              updateType: 'error',
+            },
+          })
           continue
         }
 
         if (!crawledPage.id) {
           const errorMessage = `Crawled page had no file id ${JSON.stringify(crawledPage, null, 2)} `
           console.warn(errorMessage)
-          crawledPages.push({ ...crawledPage, errorMessage })
+
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
+          // Create update record for this file error
+          await prisma.aiLibraryUpdate.create({
+            data: {
+              libraryId: crawler.libraryId,
+              crawlerRunId: newRun.id,
+              fileId: null,
+              message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage}${downloadInfo}`,
+              updateType: 'error',
+            },
+          })
           continue
         }
 
         // Check if we should skip processing this file
         if (crawledPage.skipProcessing) {
           console.log(`Skipping processing for file ${crawledPage.name} - already processed with same content`)
-          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nFile skipped - already processed.` })
+
+          // Unarchive the file since it exists and is being skipped (file is active)
+          await prisma.aiLibraryFile.update({
+            where: { id: crawledPage.id },
+            data: { archivedAt: null },
+          })
+
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: `Skipped file from ${crawledPage.originUri} - already processed with same content`,
-              success: true,
+              message: `${crawledPage.hints}${downloadInfo}`,
+              updateType: 'skipped',
             },
           })
         } else {
           await processFile(crawledPage.id)
-          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nCrawled paged was processed.` })
+
+          // Determine update type based on whether file was updated
+          const updateType = crawledPage.wasUpdated ? 'updated' : 'added'
+          const actionWord = crawledPage.wasUpdated ? 'updated' : 'added'
+
+          // Include download URL if available for debugging
+          const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,
               crawlerRunId: newRun.id,
               fileId: crawledPage.id,
-              message: `Crawled page from ${crawledPage.originUri} with title "${crawledPage.name}"`,
-              success: true,
+              message: `${crawledPage.originUri || crawledPage.name} ${actionWord}${downloadInfo}`,
+              updateType,
             },
           })
-          console.log('Successfully processed crawled page', crawledPage.name, 'from', crawledPage.originUri)
+          console.log(
+            `Successfully processed crawled page (${updateType})`,
+            crawledPage.name,
+            'from',
+            crawledPage.originUri,
+          )
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -167,14 +223,16 @@ const startCrawling = async (
           `Error during file processing in crawler ${crawler.id} for file ${JSON.stringify(crawledPage, null, 2)}`,
           error,
         )
-        crawledPages.push({ ...crawledPage, errorMessage })
+        // Include download URL if available for debugging
+        const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
+
         await prisma.aiLibraryUpdate.create({
           data: {
             libraryId: crawler.libraryId,
             crawlerRunId: newRun.id,
             fileId: null,
-            message: `Failed to process crawled page from ${crawledPage.originUri}: ${errorMessage}`,
-            success: false,
+            message: `${crawledPage.originUri || crawledPage.name}: ${errorMessage || 'Unknown error'}${downloadInfo}`,
+            updateType: 'error',
           },
         })
         // Continue to the next page even if this one fails
@@ -183,26 +241,21 @@ const startCrawling = async (
     }
 
     const endedAt = new Date()
-    const errors = crawledPages
-      .filter((page) => page.errorMessage)
-      .map((page) => `${page.originUri}: ${page.errorMessage}`)
-      .join(',\n')
+    // Mark crawler run as successful - individual file errors don't fail the entire run
+    // File-level errors are recorded in the updates table with updateType: 'error'
     await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
         endedAt,
-        success: errors.length < 1, // If there are no errors, success is true
-        errorMessage: errors || null,
+        success: true, // Crawler completed successfully, individual file errors don't count
+        errorMessage: null, // File errors are in updates, only crawler-level errors go here
         crawler: {
           update: { lastRun: endedAt },
         },
-        pagesCrawled: crawledPages.length,
       },
     })
 
     console.log('Crawling completed successfully for crawler', crawler.id, 'with run ID:', newRun.id)
-    console.log('Total pages crawled:', crawledPages.length)
-    console.log('Crawling ended at:', endedAt)
     return prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawler.id } })
   } catch (error) {
     console.error('Crawling error')

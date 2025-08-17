@@ -259,15 +259,20 @@ type AiLibrary {
 }
 
 type AiLibraryCrawler {
+  allowedMimeTypes: String
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
+  excludePatterns: String
   filesCount: Int!
   id: ID!
+  includePatterns: String
   isRunning: Boolean!
   lastRun: AiLibraryCrawlerRun
   libraryId: String!
   maxDepth: Int!
+  maxFileSize: Int
   maxPages: Int!
+  minFileSize: Int
   runCount: Int!
   runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
@@ -312,9 +317,14 @@ input AiLibraryCrawlerCronJobInput {
 }
 
 input AiLibraryCrawlerInput {
+  allowedMimeTypes: [String!]
   cronJob: AiLibraryCrawlerCronJobInput
+  excludePatterns: [String!]
+  includePatterns: [String!]
   maxDepth: Int!
+  maxFileSize: Int
   maxPages: Int!
+  minFileSize: Int
   uri: String!
   uriType: AiLibraryCrawlerUriType!
 }
@@ -324,12 +334,14 @@ type AiLibraryCrawlerRun {
   crawlerId: ID!
   endedAt: DateTime
   errorMessage: String
+  filteredUpdatesCount(updateTypeFilter: [String!]): Int!
   id: ID!
   runByUserId: ID
   startedAt: DateTime!
   stoppedByUser: DateTime
   success: Boolean
-  updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
+  updateStats: [UpdateStats!]!
+  updates(skip: Int! = 0, take: Int! = 10, updateTypeFilter: [String!]): [AiLibraryUpdate!]!
   updatesCount: Int!
 }
 
@@ -340,6 +352,7 @@ enum AiLibraryCrawlerUriType {
 }
 
 type AiLibraryFile {
+  archivedAt: DateTime
   cache: [AiListItemCache!]!
   chunks: Int
   crawledByCrawler: AiLibraryCrawler
@@ -375,10 +388,12 @@ input AiLibraryFileInput {
 Query result for AI library files
 """
 type AiLibraryFileQueryResult {
+  archivedCount: Int!
   count: Int!
   files: [AiLibraryFile!]!
   library: AiLibrary!
   libraryId: String!
+  showArchived: Boolean
   skip: Int!
   take: Int!
 }
@@ -422,11 +437,16 @@ type AiLibraryUpdate {
   createdAt: DateTime!
   file: AiLibraryFile
   fileId: ID
+  fileName: String
+  filePath: String
+  fileSize: Int
+  filterType: String
+  filterValue: String
   id: ID!
   library: AiLibrary
   libraryId: ID!
   message: String
-  success: Boolean!
+  updateType: String!
 }
 
 """
@@ -487,13 +507,16 @@ type AiListField {
   fileProperty: String
   id: ID!
   languageModel: String
+  list: AiList!
+  listId: String!
   name: String!
   order: Int!
   pendingItemsCount: Int!
+  processingItemsCount: Int!
   prompt: String
   sourceType: String!
   type: String!
-  useMarkdown: Boolean
+  useVectorStore: Boolean
 }
 
 type AiListFieldContext {
@@ -519,7 +542,7 @@ input AiListFieldInput {
   Field type: string, number, date, datetime, boolean
   """
   type: String!
-  useMarkdown: Boolean
+  useVectorStore: Boolean
 }
 
 """
@@ -531,6 +554,7 @@ type AiListFilesQueryResult {
   listId: String!
   orderBy: String
   orderDirection: String
+  showArchived: Boolean
   skip: Int!
   take: Int!
 }
@@ -540,6 +564,7 @@ input AiListInput {
 }
 
 type AiListItemCache {
+  enrichmentErrorMessage: String
   fieldId: String!
   id: ID!
   valueBoolean: Boolean
@@ -622,8 +647,10 @@ type EnrichmentQueueResult {
 
 type FieldValueResult {
   displayValue: String
+  enrichmentErrorMessage: String
   fieldId: String!
   fieldName: String!
+  queueStatus: String
 }
 
 type FileChunk {
@@ -741,6 +768,17 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
+  removeFromEnrichmentQueue(
+    """
+    Field ID to remove from queue
+    """
+    fieldId: String!
+    """
+    File ID to remove from queue
+    """
+    fileId: String!
+    listId: String!
+  ): EnrichmentQueueResult!
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -811,7 +849,12 @@ type Query {
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
   aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
-  aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
+  aiLibraryFiles(
+    libraryId: String!
+    showArchived: Boolean = false
+    skip: Int! = 0
+    take: Int! = 20
+  ): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
@@ -820,6 +863,7 @@ type Query {
     listId: String!
     orderBy: String
     orderDirection: String
+    showArchived: Boolean = false
     skip: Int! = 0
     take: Int! = 20
   ): AiListFilesQueryResult!
@@ -837,6 +881,11 @@ type SharePointValidationResult {
   errorMessage: String
   errorType: String
   success: Boolean
+}
+
+type UpdateStats {
+  count: Int
+  updateType: String
 }
 
 type User {

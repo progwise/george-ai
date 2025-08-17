@@ -12,13 +12,20 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
         crawlerRunId: z.string().nonempty(),
         skipUpdates: z.coerce.number().default(0),
         takeUpdates: z.coerce.number().default(20),
+        updateTypeFilter: z.array(z.string()).optional(),
       })
       .parse(data),
   )
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query GetCrawlerRun($libraryId: String!, $crawlerRunId: String!, $skipUpdates: Int!, $takeUpdates: Int!) {
+        query GetCrawlerRun(
+          $libraryId: String!
+          $crawlerRunId: String!
+          $skipUpdates: Int!
+          $takeUpdates: Int!
+          $updateTypeFilter: [String!]
+        ) {
           aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {
             id
             startedAt
@@ -28,11 +35,21 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
             errorMessage
             runByUserId
             updatesCount
-            updates(take: $takeUpdates, skip: $skipUpdates) {
+            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)
+            updateStats {
+              updateType
+              count
+            }
+            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {
               id
-              success
               createdAt
               message
+              updateType
+              filePath
+              fileName
+              fileSize
+              filterType
+              filterValue
               file {
                 id
                 name
@@ -49,6 +66,7 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
         crawlerRunId: ctx.data.crawlerRunId,
         skipUpdates: ctx.data.skipUpdates,
         takeUpdates: ctx.data.takeUpdates,
+        updateTypeFilter: ctx.data.updateTypeFilter,
       },
     )
   })
@@ -58,12 +76,14 @@ export const getCrawlerRunQueryOptions = ({
   crawlerRunId,
   skipUpdates,
   takeUpdates,
+  updateTypeFilter,
 }: {
   libraryId: string
   crawlerRunId: string
   skipUpdates: number
   takeUpdates: number
+  updateTypeFilter?: string[]
 }) => ({
-  queryKey: ['getCrawlerRun', { libraryId, crawlerRunId }, { skipUpdates, takeUpdates }],
-  queryFn: () => getCrawlerRun({ data: { libraryId, crawlerRunId, skipUpdates, takeUpdates } }),
+  queryKey: ['getCrawlerRun', { libraryId, crawlerRunId }, { skipUpdates, takeUpdates, updateTypeFilter }],
+  queryFn: () => getCrawlerRun({ data: { libraryId, crawlerRunId, skipUpdates, takeUpdates, updateTypeFilter } }),
 })

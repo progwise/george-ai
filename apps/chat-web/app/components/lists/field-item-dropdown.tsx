@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { CrossIcon } from '../../icons/cross-icon'
 import { PlayIcon } from '../../icons/play-icon'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getListQueryOptions } from './get-list'
+import { removeFromEnrichmentQueue } from './remove-from-enrichment-queue'
 import { startSingleEnrichment } from './start-single-enrichment'
 
 interface FieldItemDropdownProps {
@@ -15,6 +17,7 @@ interface FieldItemDropdownProps {
   fileName: string
   isOpen: boolean
   onClose: () => void
+  queueStatus?: string | null
 }
 
 export const FieldItemDropdown = ({
@@ -25,6 +28,7 @@ export const FieldItemDropdown = ({
   fileName,
   isOpen,
   onClose,
+  queueStatus,
 }: FieldItemDropdownProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -58,8 +62,9 @@ export const FieldItemDropdown = ({
     onSuccess: async (data) => {
       if (data.startSingleEnrichment.success) {
         toastSuccess(t('lists.enrichment.singleStarted', { field: fieldName, file: fileName }))
+        // Invalidate specific queries to preserve pagination
         await queryClient.invalidateQueries(getListQueryOptions(listId))
-        await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
+        await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
       } else {
         toastError(data.startSingleEnrichment.error || t('lists.enrichment.startError'))
       }
@@ -71,9 +76,41 @@ export const FieldItemDropdown = ({
     onSettled: () => onClose(),
   })
 
+  const removeFromQueueMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData()
+      formData.append('listId', listId)
+      formData.append('fieldId', fieldId)
+      formData.append('fileId', fileId)
+      return await removeFromEnrichmentQueue({ data: formData })
+    },
+    onSuccess: async (data) => {
+      if (data.removeFromEnrichmentQueue.success) {
+        toastSuccess(t('lists.enrichment.removedFromQueue', { field: fieldName, file: fileName }))
+        // Invalidate specific queries to preserve pagination
+        await queryClient.invalidateQueries(getListQueryOptions(listId))
+        await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
+      } else {
+        toastError(data.removeFromEnrichmentQueue.error || t('lists.enrichment.removeError'))
+      }
+    },
+    onError: (error) => {
+      toastError(t('lists.enrichment.removeError'))
+      console.error('Failed to remove from enrichment queue:', error)
+    },
+    onSettled: () => onClose(),
+  })
+
   const handleEnrichSingle = () => {
     enrichSingleMutation.mutate()
   }
+
+  const handleRemoveFromQueue = () => {
+    removeFromQueueMutation.mutate()
+  }
+
+  const isEnrichmentDisabled = queueStatus === 'processing' || queueStatus === 'pending'
+  const canRemoveFromQueue = queueStatus === 'processing' || queueStatus === 'pending'
 
   if (!isOpen) return null
 
@@ -85,14 +122,23 @@ export const FieldItemDropdown = ({
       <div className="py-2">
         <button
           type="button"
-          className="hover:bg-base-200 button button-xs flex w-full items-center px-4 py-2 transition-colors"
+          className={`flex w-full items-center px-4 py-2 transition-colors ${
+            enrichSingleMutation.isPending || isEnrichmentDisabled
+              ? 'text-base-content/40 cursor-not-allowed opacity-50'
+              : 'hover:bg-base-200 button button-xs'
+          }`}
           onClick={handleEnrichSingle}
-          disabled={enrichSingleMutation.isPending}
+          disabled={enrichSingleMutation.isPending || isEnrichmentDisabled}
         >
           {enrichSingleMutation.isPending ? (
             <>
               <span className="loading loading-spinner loading-xs mr-2 text-xs" />
               {t('lists.enrichment.processing')}
+            </>
+          ) : isEnrichmentDisabled ? (
+            <>
+              <PlayIcon className="mr-2 size-4" />
+              {queueStatus === 'processing' ? '⚙️ Processing...' : '⏳ Pending...'}
             </>
           ) : (
             <>
@@ -101,6 +147,28 @@ export const FieldItemDropdown = ({
             </>
           )}
         </button>
+
+        {/* Remove from queue option for pending/processing items */}
+        {canRemoveFromQueue && (
+          <button
+            type="button"
+            className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+            onClick={handleRemoveFromQueue}
+            disabled={removeFromQueueMutation.isPending}
+          >
+            {removeFromQueueMutation.isPending ? (
+              <>
+                <span className="loading loading-spinner loading-xs mr-2 text-xs" />
+                {t('lists.enrichment.removing')}
+              </>
+            ) : (
+              <>
+                <CrossIcon className="mr-2 size-4" />
+                {t('lists.enrichment.removeFromQueue')}
+              </>
+            )}
+          </button>
+        )}
 
         {/* Future options can be added here */}
         {/* 

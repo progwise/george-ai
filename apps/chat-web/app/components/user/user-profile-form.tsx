@@ -91,7 +91,7 @@ export const updateProfile = createServerFn({ method: 'POST' })
 
 interface UserProfileFormProps {
   userProfile: UserProfileForm_UserProfileFragment
-  onSubmit?: (data: FormData) => void
+  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
   isAdmin?: boolean
   saveButton?: ReactElement | null
   formRef?: RefObject<HTMLFormElement | null>
@@ -110,11 +110,7 @@ export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveB
   return (
     <form
       ref={formRef}
-      onSubmit={(event) => {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        onSubmit?.(formData)
-      }}
+      onSubmit={onSubmit}
       className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
       <input type="hidden" name="profileId" value={userProfile.id} />

@@ -272,15 +272,20 @@ export type AiLibrary = {
 
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
+  allowedMimeTypes?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
+  excludePatterns?: Maybe<Scalars['String']['output']>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
+  includePatterns?: Maybe<Scalars['String']['output']>
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<AiLibraryCrawlerRun>
   libraryId: Scalars['String']['output']
   maxDepth: Scalars['Int']['output']
+  maxFileSize?: Maybe<Scalars['Int']['output']>
   maxPages: Scalars['Int']['output']
+  minFileSize?: Maybe<Scalars['Int']['output']>
   runCount: Scalars['Int']['output']
   runs: Array<AiLibraryCrawlerRun>
   updatedAt: Scalars['DateTime']['output']
@@ -331,9 +336,14 @@ export type AiLibraryCrawlerCronJobInput = {
 }
 
 export type AiLibraryCrawlerInput = {
+  allowedMimeTypes?: InputMaybe<Array<Scalars['String']['input']>>
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  excludePatterns?: InputMaybe<Array<Scalars['String']['input']>>
+  includePatterns?: InputMaybe<Array<Scalars['String']['input']>>
   maxDepth: Scalars['Int']['input']
+  maxFileSize?: InputMaybe<Scalars['Int']['input']>
   maxPages: Scalars['Int']['input']
+  minFileSize?: InputMaybe<Scalars['Int']['input']>
   uri: Scalars['String']['input']
   uriType: AiLibraryCrawlerUriType
 }
@@ -344,18 +354,25 @@ export type AiLibraryCrawlerRun = {
   crawlerId: Scalars['ID']['output']
   endedAt?: Maybe<Scalars['DateTime']['output']>
   errorMessage?: Maybe<Scalars['String']['output']>
+  filteredUpdatesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
   stoppedByUser?: Maybe<Scalars['DateTime']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+  updateStats: Array<UpdateStats>
   updates: Array<AiLibraryUpdate>
   updatesCount: Scalars['Int']['output']
+}
+
+export type AiLibraryCrawlerRunFilteredUpdatesCountArgs = {
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export enum AiLibraryCrawlerUriType {
@@ -366,6 +383,7 @@ export enum AiLibraryCrawlerUriType {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
+  archivedAt?: Maybe<Scalars['DateTime']['output']>
   cache: Array<AiListItemCache>
   chunks?: Maybe<Scalars['Int']['output']>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
@@ -405,10 +423,12 @@ export type AiLibraryFileInput = {
 /** Query result for AI library files */
 export type AiLibraryFileQueryResult = {
   __typename?: 'AiLibraryFileQueryResult'
+  archivedCount: Scalars['Int']['output']
   count: Scalars['Int']['output']
   files: Array<AiLibraryFile>
   library: AiLibrary
   libraryId: Scalars['String']['output']
+  showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
 }
@@ -456,11 +476,16 @@ export type AiLibraryUpdate = {
   createdAt: Scalars['DateTime']['output']
   file?: Maybe<AiLibraryFile>
   fileId?: Maybe<Scalars['ID']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
+  filePath?: Maybe<Scalars['String']['output']>
+  fileSize?: Maybe<Scalars['Int']['output']>
+  filterType?: Maybe<Scalars['String']['output']>
+  filterValue?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   library?: Maybe<AiLibrary>
   libraryId: Scalars['ID']['output']
   message?: Maybe<Scalars['String']['output']>
-  success: Scalars['Boolean']['output']
+  updateType: Scalars['String']['output']
 }
 
 /** Query result for AI library updates */
@@ -524,13 +549,16 @@ export type AiListField = {
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   languageModel?: Maybe<Scalars['String']['output']>
+  list: AiList
+  listId: Scalars['String']['output']
   name: Scalars['String']['output']
   order: Scalars['Int']['output']
   pendingItemsCount: Scalars['Int']['output']
+  processingItemsCount: Scalars['Int']['output']
   prompt?: Maybe<Scalars['String']['output']>
   sourceType: Scalars['String']['output']
   type: Scalars['String']['output']
-  useMarkdown?: Maybe<Scalars['Boolean']['output']>
+  useVectorStore?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type AiListFieldContext = {
@@ -553,7 +581,7 @@ export type AiListFieldInput = {
   sourceType: Scalars['String']['input']
   /** Field type: string, number, date, datetime, boolean */
   type: Scalars['String']['input']
-  useMarkdown?: InputMaybe<Scalars['Boolean']['input']>
+  useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Query result for AI list files from all source libraries */
@@ -564,6 +592,7 @@ export type AiListFilesQueryResult = {
   listId: Scalars['String']['output']
   orderBy?: Maybe<Scalars['String']['output']>
   orderDirection?: Maybe<Scalars['String']['output']>
+  showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
 }
@@ -574,6 +603,7 @@ export type AiListInput = {
 
 export type AiListItemCache = {
   __typename?: 'AiListItemCache'
+  enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   id: Scalars['ID']['output']
   valueBoolean?: Maybe<Scalars['Boolean']['output']>
@@ -649,8 +679,10 @@ export type EnrichmentQueueResult = {
 export type FieldValueResult = {
   __typename?: 'FieldValueResult'
   displayValue?: Maybe<Scalars['String']['output']>
+  enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
+  queueStatus?: Maybe<Scalars['String']['output']>
 }
 
 export type FileChunk = {
@@ -760,6 +792,7 @@ export type Mutation = {
   processFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeFromEnrichmentQueue: EnrichmentQueueResult
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -959,6 +992,12 @@ export type MutationRemoveAssistantParticipantArgs = {
 
 export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
+}
+
+export type MutationRemoveFromEnrichmentQueueArgs = {
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+  listId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryParticipantArgs = {
@@ -1163,6 +1202,7 @@ export type QueryAiLibraryFileArgs = {
 
 export type QueryAiLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
 }
@@ -1192,6 +1232,7 @@ export type QueryAiListFilesArgs = {
   listId: Scalars['String']['input']
   orderBy?: InputMaybe<Scalars['String']['input']>
   orderDirection?: InputMaybe<Scalars['String']['input']>
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
 }
@@ -1224,6 +1265,12 @@ export type SharePointValidationResult = {
   errorMessage?: Maybe<Scalars['String']['output']>
   errorType?: Maybe<Scalars['String']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type UpdateStats = {
+  __typename?: 'UpdateStats'
+  count?: Maybe<Scalars['Int']['output']>
+  updateType?: Maybe<Scalars['String']['output']>
 }
 
 export type User = {
@@ -2252,6 +2299,11 @@ export type CrawlerForm_CrawlerFragment = {
   uriType: AiLibraryCrawlerUriType
   maxDepth: number
   maxPages: number
+  includePatterns?: string | null
+  excludePatterns?: string | null
+  maxFileSize?: number | null
+  minFileSize?: number | null
+  allowedMimeTypes?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -2301,6 +2353,7 @@ export type GetCrawlerRunQueryVariables = Exact<{
   crawlerRunId: Scalars['String']['input']
   skipUpdates: Scalars['Int']['input']
   takeUpdates: Scalars['Int']['input']
+  updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
 }>
 
 export type GetCrawlerRunQuery = {
@@ -2315,12 +2368,19 @@ export type GetCrawlerRunQuery = {
     errorMessage?: string | null
     runByUserId?: string | null
     updatesCount: number
+    filteredUpdatesCount: number
+    updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
     updates: Array<{
       __typename?: 'AiLibraryUpdate'
       id: string
-      success: boolean
       createdAt: string
       message?: string | null
+      updateType: string
+      filePath?: string | null
+      fileName?: string | null
+      fileSize?: number | null
+      filterType?: string | null
+      filterValue?: string | null
       file?: {
         __typename?: 'AiLibraryFile'
         id: string
@@ -2373,6 +2433,11 @@ export type GetCrawlerQuery = {
     runCount: number
     maxDepth: number
     maxPages: number
+    includePatterns?: string | null
+    excludePatterns?: string | null
+    maxFileSize?: number | null
+    minFileSize?: number | null
+    allowedMimeTypes?: string | null
     lastRun?: {
       __typename?: 'AiLibraryCrawlerRun'
       id: string
@@ -2520,6 +2585,7 @@ export type AiLibraryFile_TableItemFragment = {
   processingErrorMessage?: string | null
   dropError?: string | null
   originModificationDate?: string | null
+  archivedAt?: string | null
 }
 
 export type GetFileChunksQueryVariables = Exact<{
@@ -2574,6 +2640,7 @@ export type GetFileInfoQuery = {
     size?: number | null
     createdAt: string
     updatedAt?: string | null
+    archivedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
     originModificationDate?: string | null
@@ -2582,7 +2649,7 @@ export type GetFileInfoQuery = {
       id: string
       createdAt: string
       message?: string | null
-      success: boolean
+      updateType: string
     } | null
   }
 }
@@ -2591,6 +2658,7 @@ export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type EmbeddingsTableQuery = {
@@ -2600,7 +2668,9 @@ export type EmbeddingsTableQuery = {
     libraryId: string
     take: number
     skip: number
+    showArchived?: boolean | null
     count: number
+    archivedCount: number
     library: { __typename?: 'AiLibrary'; name: string }
     files: Array<{
       __typename?: 'AiLibraryFile'
@@ -2616,6 +2686,7 @@ export type EmbeddingsTableQuery = {
       processingErrorMessage?: string | null
       dropError?: string | null
       originModificationDate?: string | null
+      archivedAt?: string | null
     }>
   }
 }
@@ -2836,8 +2907,13 @@ export type LibraryUpdatesListQuery = {
       libraryId: string
       crawlerRunId?: string | null
       fileId?: string | null
-      success: boolean
       message?: string | null
+      updateType: string
+      filePath?: string | null
+      fileName?: string | null
+      fileSize?: number | null
+      filterType?: string | null
+      filterValue?: string | null
       crawlerRun?: {
         __typename?: 'AiLibraryCrawlerRun'
         id: string
@@ -2856,8 +2932,13 @@ export type AiLibraryUpdate_TableItemFragment = {
   libraryId: string
   crawlerRunId?: string | null
   fileId?: string | null
-  success: boolean
   message?: string | null
+  updateType: string
+  filePath?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  filterType?: string | null
+  filterValue?: string | null
   crawlerRun?: {
     __typename?: 'AiLibraryCrawlerRun'
     id: string
@@ -2956,7 +3037,7 @@ export type FieldModal_EditableFieldFragment = {
   type: string
   prompt?: string | null
   languageModel?: string | null
-  useMarkdown?: boolean | null
+  useVectorStore?: boolean | null
   order: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
@@ -2991,6 +3072,8 @@ export type AiListFilesWithValuesQuery = {
         fieldId: string
         fieldName: string
         displayValue?: string | null
+        enrichmentErrorMessage?: string | null
+        queueStatus?: string | null
       }>
     }>
   }
@@ -3045,6 +3128,7 @@ export type GetListQuery = {
     fields: Array<{
       __typename?: 'AiListField'
       id: string
+      listId: string
       name: string
       type: string
       order: number
@@ -3052,8 +3136,9 @@ export type GetListQuery = {
       fileProperty?: string | null
       prompt?: string | null
       languageModel?: string | null
-      useMarkdown?: boolean | null
+      useVectorStore?: boolean | null
       pendingItemsCount: number
+      processingItemsCount: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
   }
@@ -3188,6 +3273,7 @@ export type ListFilesTable_FilesQueryResultFragment = {
 export type ListFieldsTable_FieldFragment = {
   __typename?: 'AiListField'
   id: string
+  listId: string
   name: string
   type: string
   order: number
@@ -3195,8 +3281,9 @@ export type ListFieldsTable_FieldFragment = {
   fileProperty?: string | null
   prompt?: string | null
   languageModel?: string | null
-  useMarkdown?: boolean | null
+  useVectorStore?: boolean | null
   pendingItemsCount: number
+  processingItemsCount: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -3206,6 +3293,7 @@ export type ListFieldsTable_ListFragment = {
   fields: Array<{
     __typename?: 'AiListField'
     id: string
+    listId: string
     name: string
     type: string
     order: number
@@ -3213,8 +3301,9 @@ export type ListFieldsTable_ListFragment = {
     fileProperty?: string | null
     prompt?: string | null
     languageModel?: string | null
-    useMarkdown?: boolean | null
+    useVectorStore?: boolean | null
     pendingItemsCount: number
+    processingItemsCount: number
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
@@ -3243,6 +3332,22 @@ export type ListSourcesManager_ListFragment = {
       owner: { __typename?: 'User'; name?: string | null }
     } | null
   }>
+}
+
+export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type RemoveFromEnrichmentQueueMutation = {
+  __typename?: 'Mutation'
+  removeFromEnrichmentQueue: {
+    __typename?: 'EnrichmentQueueResult'
+    success?: boolean | null
+    queuedItems?: number | null
+    error?: string | null
+  }
 }
 
 export type RemoveListFieldMutationVariables = Exact<{
@@ -5849,6 +5954,11 @@ export const CrawlerForm_CrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'includePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'excludePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -5969,6 +6079,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
         ],
       },
     },
@@ -6169,8 +6280,13 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
         ],
       },
     },
@@ -6240,7 +6356,7 @@ export const FieldModal_EditableFieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -6472,6 +6588,7 @@ export const ListFieldsTable_FieldFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -6479,8 +6596,9 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -6524,6 +6642,7 @@ export const ListFieldsTable_ListFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -6531,8 +6650,9 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -9240,6 +9360,14 @@ export const GetCrawlerRunDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'takeUpdates' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+          type: {
+            kind: 'ListType',
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9272,6 +9400,28 @@ export const GetCrawlerRunDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'filteredUpdatesCount' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'updateTypeFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+                    },
+                  ],
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'updateStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'updates' },
                   arguments: [
                     {
@@ -9284,14 +9434,24 @@ export const GetCrawlerRunDocument = {
                       name: { kind: 'Name', value: 'skip' },
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'skipUpdates' } },
                     },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'updateTypeFilter' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'updateTypeFilter' } },
+                    },
                   ],
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'file' },
@@ -9504,6 +9664,11 @@ export const GetCrawlerDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'includePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'excludePatterns' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -10133,6 +10298,7 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
@@ -10145,7 +10311,7 @@ export const GetFileInfoDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
                     ],
                   },
                 },
@@ -10182,6 +10348,12 @@ export const EmbeddingsTableDocument = {
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
           defaultValue: { kind: 'IntValue', value: '20' },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -10205,6 +10377,11 @@ export const EmbeddingsTableDocument = {
                 name: { kind: 'Name', value: 'take' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'showArchived' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
@@ -10220,7 +10397,9 @@ export const EmbeddingsTableDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'showArchived' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedCount' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'files' },
@@ -10254,6 +10433,7 @@ export const EmbeddingsTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
         ],
       },
     },
@@ -11019,8 +11199,13 @@ export const LibraryUpdatesListDocument = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filePath' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileSize' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filterValue' } },
         ],
       },
     },
@@ -11401,6 +11586,8 @@ export const AiListFilesWithValuesDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
                           ],
                         },
                       },
@@ -11579,6 +11766,7 @@ export const GetListDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -11586,8 +11774,9 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useMarkdown' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -11941,6 +12130,67 @@ export const ListExportDataDocument = {
     },
   ],
 } as unknown as DocumentNode<ListExportDataQuery, ListExportDataQueryVariables>
+export const RemoveFromEnrichmentQueueDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'queuedItems' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveFromEnrichmentQueueMutation, RemoveFromEnrichmentQueueMutationVariables>
 export const RemoveListFieldDocument = {
   kind: 'Document',
   definitions: [

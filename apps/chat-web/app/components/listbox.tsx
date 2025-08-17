@@ -25,7 +25,7 @@ export const Listbox = <T extends { id: string; name: string }>({
 }: ListboxProps<T>) => {
   return (
     <HuListbox
-      defaultValue={selectedItem}
+      value={selectedItem}
       onChange={(newItem) => {
         onChange(newItem)
       }}
@@ -54,7 +54,7 @@ export const Listbox = <T extends { id: string; name: string }>({
       <ListboxOptions
         anchor="bottom"
         transition
-        className="focus:outline-hidden bg-base-100 z-10 mt-1 overflow-auto rounded-lg border shadow-lg data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+        className="focus:outline-hidden bg-base-100 z-[9999] mt-1 overflow-auto rounded-lg border shadow-lg data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
       >
         {items.map((item) => (
           <ListboxOption

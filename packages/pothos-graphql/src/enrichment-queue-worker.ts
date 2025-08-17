@@ -9,6 +9,25 @@ let workerInterval: NodeJS.Timeout | null = null
 
 const WORKER_INTERVAL_MS = 2000 // Process queue every 2 seconds
 const BATCH_SIZE = 5 // Process up to 5 items at a time
+const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue calls
+
+// Track concurrent enrichment calls
+let currentEnrichmentCalls = 0
+
+// Throttled wrapper for getEnrichedValue
+async function throttledGetEnrichedValue(params: Parameters<typeof getEnrichedValue>[0]): Promise<string> {
+  // Wait until we have capacity
+  while (currentEnrichmentCalls >= MAX_CONCURRENT_ENRICHMENTS) {
+    await new Promise((resolve) => setTimeout(resolve, 100)) // Check every 100ms
+  }
+
+  currentEnrichmentCalls++
+  try {
+    return await getEnrichedValue(params)
+  } finally {
+    currentEnrichmentCalls--
+  }
+}
 
 async function processQueueItem(queueItem: {
   id: string
@@ -18,14 +37,23 @@ async function processQueueItem(queueItem: {
   status: string
 }) {
   try {
-    // Mark as processing
-    await prisma.aiListEnrichmentQueue.update({
-      where: { id: queueItem.id },
+    // Mark as processing - use upsert to handle the case where item was deleted
+    const updatedItem = await prisma.aiListEnrichmentQueue.updateMany({
+      where: {
+        id: queueItem.id,
+        status: 'pending', // Only update if still pending
+      },
       data: {
         status: 'processing',
         startedAt: new Date(),
       },
     })
+
+    // If no rows were updated, the item was likely deleted or already processed
+    if (updatedItem.count === 0) {
+      console.log(`⚠️ Queue item ${queueItem.id} no longer exists or is not pending, skipping`)
+      return
+    }
 
     // Send SSE update
     await callEnrichmentQueueUpdateSubscriptions({
@@ -55,6 +83,7 @@ async function processQueueItem(queueItem: {
       include: {
         crawledByCrawler: true,
         cache: true,
+        library: true,
       },
     })
 
@@ -78,7 +107,7 @@ async function processQueueItem(queueItem: {
           })
         }
 
-        const value = await getFieldValue(file, item.contextField, cachedValue)
+        const { value } = await getFieldValue(file, item.contextField, cachedValue)
         return {
           name: item.contextField.name,
           value: value || '',
@@ -86,20 +115,30 @@ async function processQueueItem(queueItem: {
       }),
     )
 
-    const computedValue = await getEnrichedValue({
-      file: file,
-      languageModel: field.languageModel,
-      instruction: field.prompt,
-      context: contextWithValues,
-      options: {
-        useMarkdown: field.useMarkdown || false,
-      },
-    }) //`[${field.type}] Computed for ${file.name}`
+    if (!file.library.embeddingModelName) {
+      throw new Error('Embedding Model for Library not set, enrichment is not possible')
+    }
 
-    // Simulate processing time
-    //await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Try to get enriched value, but handle errors gracefully
+    let computedValue: string | null = null
+    let enrichmentError: string | null = null
 
-    // Store the computed value in cache
+    try {
+      computedValue = await throttledGetEnrichedValue({
+        file: { ...file, embeddingModelName: file.library.embeddingModelName },
+        languageModel: field.languageModel,
+        instruction: field.prompt,
+        context: contextWithValues,
+        options: {
+          useVectorStore: field.useVectorStore || false,
+        },
+      })
+    } catch (error) {
+      enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
+      console.warn(`⚠️ Enrichment failed for item ${queueItem.id}: ${enrichmentError}`)
+    }
+
+    // Store the computed value or error in cache
     const cachedValue = await prisma.aiListItemCache.upsert({
       where: {
         fileId_fieldId: {
@@ -111,26 +150,39 @@ async function processQueueItem(queueItem: {
         fileId: queueItem.fileId,
         fieldId: queueItem.fieldId,
         valueString: field.type === 'string' ? computedValue : null,
-        valueNumber: field.type === 'number' ? Math.random() * 100 : null,
-        valueBoolean: field.type === 'boolean' ? Math.random() > 0.5 : null,
-        valueDate: field.type === 'date' || field.type === 'datetime' ? new Date() : null,
+        valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+        valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
+        valueDate:
+          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+        enrichmentErrorMessage: enrichmentError,
       },
       update: {
         valueString: field.type === 'string' ? computedValue : null,
-        valueNumber: field.type === 'number' ? Math.random() * 100 : null,
-        valueBoolean: field.type === 'boolean' ? Math.random() > 0.5 : null,
-        valueDate: field.type === 'date' || field.type === 'datetime' ? new Date() : null,
+        valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+        valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
+        valueDate:
+          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+        enrichmentErrorMessage: enrichmentError,
       },
     })
 
-    // Mark as completed
-    await prisma.aiListEnrichmentQueue.update({
-      where: { id: queueItem.id },
+    // Mark as completed - use updateMany to handle race conditions
+    const completedItem = await prisma.aiListEnrichmentQueue.updateMany({
+      where: {
+        id: queueItem.id,
+        status: 'processing', // Only update if still processing
+      },
       data: {
         status: 'completed',
         completedAt: new Date(),
       },
     })
+
+    // If no rows were updated, the item was likely deleted
+    if (completedItem.count === 0) {
+      console.log(`⚠️ Queue item ${queueItem.id} no longer exists for completion, skipping`)
+      return
+    }
 
     // Send SSE update with computed value
     await callEnrichmentQueueUpdateSubscriptions({
@@ -146,6 +198,7 @@ async function processQueueItem(queueItem: {
           valueNumber: cachedValue.valueNumber,
           valueDate: cachedValue.valueDate,
           valueBoolean: cachedValue.valueBoolean,
+          enrichmentErrorMessage: cachedValue.enrichmentErrorMessage,
         },
       },
     })
@@ -154,15 +207,24 @@ async function processQueueItem(queueItem: {
   } catch (error) {
     console.error(`❌ Error processing queue item ${queueItem.id}:`, error)
 
-    // Mark as failed
-    await prisma.aiListEnrichmentQueue.update({
-      where: { id: queueItem.id },
+    // Mark as failed - use updateMany to handle race conditions
+    const failedItem = await prisma.aiListEnrichmentQueue.updateMany({
+      where: {
+        id: queueItem.id,
+        status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
+      },
       data: {
         status: 'failed',
         completedAt: new Date(),
         error: error instanceof Error ? error.message : 'Unknown error',
       },
     })
+
+    // If no rows were updated, the item was likely deleted
+    if (failedItem.count === 0) {
+      console.log(`⚠️ Queue item ${queueItem.id} no longer exists for failure update, skipping`)
+      return
+    }
 
     // Send SSE update
     await callEnrichmentQueueUpdateSubscriptions({

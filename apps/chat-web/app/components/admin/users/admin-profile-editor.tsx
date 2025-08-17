@@ -95,8 +95,8 @@ export function AdminProfileEditor({
       )}
       <UserProfileForm
         userProfile={profile}
-        onSubmit={(data) => {
-          updateProfileMutation.mutate(data)
+        onSubmit={(event) => {
+          updateProfileMutation.mutate(new FormData(event.currentTarget))
         }}
         formRef={formRef}
         isAdmin={true}

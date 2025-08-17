@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { addCrawlerFunction } from './add-crawler'
+import { addCrawler } from './add-crawler'
 import { CrawlerForm } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
@@ -18,7 +18,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
   const { t } = useTranslation()
 
   const addCrawlerMutation = useMutation({
-    mutationFn: addCrawlerFunction,
+    mutationFn: addCrawler,
     onError: (error) => {
       toastError(`${t('crawlers.toastCreateError')}: ${error.message}`)
     },

@@ -212,7 +212,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     fileProperty: t.string({ required: false }),
     prompt: t.string({ required: false }),
     languageModel: t.string({ required: false }),
-    useMarkdown: t.boolean({ required: false }),
+    useVectorStore: t.boolean({ required: false }),
     context: t.stringList({ required: false }),
   }),
 })
@@ -252,7 +252,7 @@ builder.mutationField('addListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
         },
       })
 
@@ -308,7 +308,7 @@ builder.mutationField('updateListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           languageModel: data.languageModel,
-          useMarkdown: data.useMarkdown,
+          useVectorStore: data.useVectorStore,
         },
       })
 
@@ -779,6 +779,53 @@ builder.mutationField('cleanListEnrichments', (t) =>
         return {
           success: false,
           clearedItems: undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)
+
+builder.mutationField('removeFromEnrichmentQueue', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: EnrichmentQueueResult,
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      fieldId: t.arg.string({ required: true, description: 'Field ID to remove from queue' }),
+      fileId: t.arg.string({ required: true, description: 'File ID to remove from queue' }),
+    },
+    resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
+      try {
+        const list = await prisma.aiList.findFirst({
+          where: { id: listId },
+          include: { participants: true },
+        })
+        if (!list) {
+          throw new Error(`List with id ${listId} not found`)
+        }
+        canAccessListOrThrow(list, session.user)
+
+        // Remove queue items for the specific file+field combination that are pending or processing
+        const deletedItems = await prisma.aiListEnrichmentQueue.deleteMany({
+          where: {
+            listId,
+            fieldId,
+            fileId,
+            status: { in: ['pending', 'processing'] },
+          },
+        })
+
+        return {
+          success: true,
+          queuedItems: deletedItems.count,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error removing from enrichment queue:', error)
+        return {
+          success: false,
+          queuedItems: undefined,
           error: error instanceof Error ? error.message : 'Unknown error',
         }
       }

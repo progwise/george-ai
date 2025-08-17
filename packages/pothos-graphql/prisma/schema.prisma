@@ -176,6 +176,7 @@ model AiLibraryFile {
   crawledByCrawler       AiLibraryCrawler?       @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
+  archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]
@@ -184,19 +185,25 @@ model AiLibraryFile {
 }
 
 model AiLibraryCrawler {
-  id        String                   @id @default(cuid())
-  uriType   String
-  uri       String
-  libraryId String
-  lastRun   DateTime?
-  maxDepth  Int
-  maxPages  Int
-  createdAt DateTime                 @default(now())
-  updatedAt DateTime                 @updatedAt
-  library   AiLibrary                @relation(fields: [libraryId], references: [id])
-  runs      AiLibraryCrawlerRun[]
-  files     AiLibraryFile[]
-  cronJob   AiLibraryCrawlerCronJob?
+  id               String                   @id @default(cuid())
+  uriType          String
+  uri              String
+  libraryId        String
+  lastRun          DateTime?
+  maxDepth         Int
+  maxPages         Int
+  // File filtering configuration
+  includePatterns  String? // JSON array of regex patterns to include (if empty, include all)
+  excludePatterns  String? // JSON array of regex patterns to exclude
+  maxFileSize      Int? // Maximum file size in bytes
+  minFileSize      Int? // Minimum file size in bytes
+  allowedMimeTypes String? // JSON array of allowed MIME types (if empty, allow all)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  library          AiLibrary                @relation(fields: [libraryId], references: [id])
+  runs             AiLibraryCrawlerRun[]
+  files            AiLibraryFile[]
+  cronJob          AiLibraryCrawlerCronJob?
 }
 
 model AiLibraryCrawlerRun {
@@ -206,7 +213,6 @@ model AiLibraryCrawlerRun {
   endedAt       DateTime?
   success       Boolean?
   errorMessage  String?
-  pagesCrawled  Int?
   runByUserId   String?
   runByCronJob  Boolean           @default(false)
   stoppedByUser DateTime?
@@ -239,8 +245,14 @@ model AiLibraryUpdate {
   libraryId    String
   fileId       String?
   crawlerRunId String?
-  success      Boolean
   message      String?
+  updateType   String               @default("added") // 'added', 'updated', 'omitted', 'error'
+  // Fields for omitted files (when fileId is null)
+  filePath     String? // Full path for omitted files
+  fileName     String? // File name for omitted files  
+  fileSize     Int? // File size for omitted files
+  filterType   String? // Type of filter that caused omission
+  filterValue  String? // Actual filter value that matched
   createdAt    DateTime             @default(now())
   library      AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
   crawlerRun   AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
@@ -308,7 +320,7 @@ model AiListField {
   // For llm_computed source
   languageModel String?
   prompt        String?
-  useMarkdown   Boolean?
+  useVectorStore Boolean?
 
   list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
   cachedValues    AiListItemCache[]
@@ -328,17 +340,18 @@ model AiListFieldContext {
 }
 
 model AiListItemCache {
-  id           String        @id @default(cuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  fileId       String
-  fieldId      String
-  valueString  String?
-  valueNumber  Float?
-  valueDate    DateTime?
-  valueBoolean Boolean?
-  file         AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  field        AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  id                     String        @id @default(cuid())
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  fileId                 String
+  fieldId                String
+  valueString            String?
+  valueNumber            Float?
+  valueDate              DateTime?
+  valueBoolean           Boolean?
+  enrichmentErrorMessage String?       // Store enrichment errors
+  file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  field                  AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   @@unique([fileId, fieldId])
 }

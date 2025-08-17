@@ -17,12 +17,16 @@ const FieldValueResult = builder
     fieldId: string
     fieldName: string
     displayValue: string | null
+    enrichmentErrorMessage: string | null
+    queueStatus: string | null
   }>('FieldValueResult')
   .implement({
     fields: (t) => ({
       fieldId: t.exposeString('fieldId', { nullable: false }),
       fieldName: t.exposeString('fieldName', { nullable: false }),
       displayValue: t.exposeString('displayValue', { nullable: true }),
+      enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
+      queueStatus: t.exposeString('queueStatus', { nullable: true }),
     }),
   })
 
@@ -83,6 +87,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     }),
     dropError: t.exposeString('dropError', { nullable: true }),
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
+    archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
     lastUpdate: t.prismaField({
       type: 'AiLibraryUpdate',
@@ -137,6 +142,8 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
               fieldId,
               fieldName: field?.name || 'Unknown',
               displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
             }
           })
         }
@@ -150,12 +157,28 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
               fieldId,
               fieldName: 'Unknown',
               displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
             })
             continue
           }
 
           const cache = findCacheValue(fileWithRelations, fieldId)
-          const computedValue = await getFieldValue(fileWithRelations, field, cache)
+          const { value: computedValue, errorMessage } = await getFieldValue(fileWithRelations, field, cache)
+
+          // Check queue status for this file-field combination
+          let queueStatus: string | null = null
+          if (field.sourceType === 'llm_computed' && !computedValue && !errorMessage) {
+            const queueItem = await prisma.aiListEnrichmentQueue.findFirst({
+              where: {
+                fieldId: fieldId,
+                fileId: file.id,
+                status: { in: ['pending', 'processing'] },
+              },
+              orderBy: { requestedAt: 'desc' },
+            })
+            queueStatus = queueItem?.status || null
+          }
 
           // Format display value based on field type
           let displayValue = computedValue
@@ -184,6 +207,8 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
             fieldId,
             fieldName: field.name,
             displayValue,
+            enrichmentErrorMessage: errorMessage,
+            queueStatus,
           })
         }
 
@@ -224,7 +249,7 @@ builder.mutationField('prepareFile', (t) =>
 )
 
 const LibraryFileQueryResult = builder
-  .objectRef<{ libraryId: string; take: number; skip: number }>('AiLibraryFileQueryResult')
+  .objectRef<{ libraryId: string; take: number; skip: number; showArchived?: boolean }>('AiLibraryFileQueryResult')
   .implement({
     description: 'Query result for AI library files',
     fields: (t) => ({
@@ -248,6 +273,7 @@ const LibraryFileQueryResult = builder
       }),
       take: t.exposeInt('take', { nullable: false }),
       skip: t.exposeInt('skip', { nullable: false }),
+      showArchived: t.exposeBoolean('showArchived', { nullable: true }),
       count: t.withAuth({ isLoggedIn: true }).field({
         type: 'Int',
         nullable: false,
@@ -264,7 +290,33 @@ const LibraryFileQueryResult = builder
           }
           console.log('Counting AI library files for library:', root.libraryId)
           return prisma.aiLibraryFile.count({
-            where: { libraryId: root.libraryId },
+            where: {
+              libraryId: root.libraryId,
+              ...(root.showArchived ? {} : { archivedAt: null }),
+            },
+          })
+        },
+      }),
+      archivedCount: t.withAuth({ isLoggedIn: true }).field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root, _args, context) => {
+          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+            where: { id: root.libraryId },
+            select: { ownerId: true, participants: { select: { userId: true } } },
+          })
+          if (
+            libraryUsers.ownerId !== context.session.user.id &&
+            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+          ) {
+            throw new Error('You do not have access to this library')
+          }
+          console.log('Counting archived AI library files for library:', root.libraryId)
+          return prisma.aiLibraryFile.count({
+            where: {
+              libraryId: root.libraryId,
+              archivedAt: { not: null }, // Only archived files
+            },
           })
         },
       }),
@@ -285,7 +337,10 @@ const LibraryFileQueryResult = builder
           console.log('Fetching AI library files for library:', query)
           return prisma.aiLibraryFile.findMany({
             ...query,
-            where: { libraryId: root.libraryId },
+            where: {
+              libraryId: root.libraryId,
+              ...(root.showArchived ? {} : { archivedAt: null }),
+            },
             orderBy: { createdAt: 'desc' },
             take: root.take ?? 10,
             skip: root.skip ?? 0,
@@ -319,12 +374,14 @@ builder.queryField('aiLibraryFiles', (t) =>
       libraryId: t.arg.string({ required: true }),
       skip: t.arg.int({ required: true, defaultValue: 0 }),
       take: t.arg.int({ required: true, defaultValue: 20 }),
+      showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: (_root, args) => {
       return {
         libraryId: args.libraryId,
         take: args.take ?? 10,
         skip: args.skip ?? 0,
+        showArchived: args.showArchived ?? false,
       }
     },
   }),

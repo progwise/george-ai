@@ -8,6 +8,7 @@ import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { FileInfo, applyFileFilters } from './file-filter'
 import { calculateFileHash } from './file-hash'
 import { uriToMountedPath } from './smb-mount-manager'
 
@@ -17,6 +18,58 @@ interface SmbFileToProcess {
   size: number
   modifiedTime: Date
   depth: number
+}
+
+const recordOmittedFile = async ({
+  libraryId,
+  crawlerRunId,
+  filePath,
+  fileName,
+  fileSize,
+  reason,
+  filterType,
+  filterValue,
+}: {
+  libraryId: string
+  crawlerRunId?: string
+  filePath: string
+  fileName: string
+  fileSize?: number | string
+  reason: string
+  filterType: string
+  filterValue?: string
+}) => {
+  // Check if the file already exists in the database
+  const existingFile = await prisma.aiLibraryFile.findFirst({
+    where: {
+      libraryId,
+      originUri: filePath,
+      archivedAt: null, // Only consider non-archived files
+    },
+  })
+
+  // If the file exists, mark it as archived
+  if (existingFile) {
+    await prisma.aiLibraryFile.update({
+      where: { id: existingFile.id },
+      data: { archivedAt: new Date() },
+    })
+  }
+
+  await prisma.aiLibraryUpdate.create({
+    data: {
+      libraryId,
+      crawlerRunId,
+      fileId: existingFile?.id || null,
+      message: reason,
+      updateType: 'omitted',
+      filePath,
+      fileName,
+      fileSize: typeof fileSize === 'string' ? parseInt(fileSize, 10) : fileSize,
+      filterType,
+      filterValue,
+    },
+  })
 }
 
 const saveSmbCrawlerFile = async ({
@@ -61,6 +114,7 @@ const saveSmbCrawlerFile = async ({
 
   let fileHash: string | undefined
   let skipProcessing = false
+  let wasUpdated = false
 
   // If no processing error, handle file hash calculation and skip logic
   if (!processingError) {
@@ -101,8 +155,11 @@ const saveSmbCrawlerFile = async ({
           },
         })
 
-        return { ...existingFile, skipProcessing }
+        return { ...existingFile, skipProcessing, wasUpdated }
       }
+
+      // Determine if this is an update or new file
+      wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
 
       // Create/update file with hash
       const file = await prisma.aiLibraryFile.upsert({
@@ -139,18 +196,20 @@ const saveSmbCrawlerFile = async ({
       await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
       await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
 
-      return { ...file, skipProcessing }
+      return { ...file, skipProcessing, wasUpdated }
     } else if (existingFile) {
       // We have a hash from the existing file, check if it needs reprocessing
       if (existingFile.processedAt) {
         console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
         skipProcessing = true
       }
-      return { ...existingFile, skipProcessing }
+      return { ...existingFile, skipProcessing, wasUpdated }
     }
   }
 
   // For processing errors, just update database without copying
+  wasUpdated = !!existingFile
+
   const fileUpdateData = {
     name: `${fileName}`,
     libraryId: libraryId,
@@ -177,7 +236,7 @@ const saveSmbCrawlerFile = async ({
     update: fileUpdateData,
   })
 
-  return { ...file, skipProcessing }
+  return { ...file, skipProcessing, wasUpdated }
 }
 
 export async function* crawlSmb({
@@ -186,6 +245,8 @@ export async function* crawlSmb({
   maxPages,
   crawlerId,
   libraryId,
+  crawlerRunId,
+  filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using mount for crawler: ${crawlerId}`)
@@ -208,12 +269,42 @@ export async function* crawlSmb({
       try {
         console.log(`Processing SMB file: ${fileToProcess.uri}`)
 
-        // Check file size limits before processing
-        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
-
         // Convert URI to mounted filesystem path and determine MIME type
         const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
+
+        // Apply file filters if configured
+        if (filterConfig) {
+          const fileInfo: FileInfo = {
+            fileName: fileToProcess.name,
+            filePath: fileToProcess.uri,
+            fileSize: fileToProcess.size,
+            modificationDate: fileToProcess.modifiedTime,
+          }
+
+          const filterResult = applyFileFilters(fileInfo, filterConfig)
+          if (!filterResult.allowed) {
+            console.log(`SMB file filtered out: ${fileToProcess.uri} - ${filterResult.reason}`)
+
+            // Record the omitted file
+            await recordOmittedFile({
+              libraryId,
+              crawlerRunId,
+              filePath: fileToProcess.uri,
+              fileName: fileToProcess.name,
+              fileSize: fileToProcess.size,
+              reason: filterResult.reason || 'File filtered',
+              filterType: filterResult.filterType || 'unknown',
+              filterValue: filterResult.filterValue,
+            })
+
+            // Skip this file but continue processing others
+            continue
+          }
+        }
+
+        // Check file size limits before processing
+        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
 
         if (!sizeCheck.acceptable) {
           console.warn(`SMB file too large ${fileToProcess.uri}: ${sizeCheck.reason}`)
@@ -260,13 +351,21 @@ export async function* crawlSmb({
         // Check if we should skip processing
         if (fileInfo.skipProcessing) {
           console.log(`Skipping processing for SMB file ${fileToProcess.name} - file unchanged`)
+
+          const fileSizeMB = (fileToProcess.size / (1024 * 1024)).toFixed(2)
+          const skipHints = [
+            `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+            `Size: ${fileSizeMB} MB`,
+            `Origin: ${fileToProcess.uri}`,
+          ].join(' | ')
+
           yield {
             id: fileInfo.id,
             name: fileInfo.name,
             originUri: fileInfo.originUri,
             mimeType: fileInfo.mimeType,
             skipProcessing: true,
-            hints: `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+            hints: skipHints,
           }
         } else {
           yield {
@@ -275,6 +374,8 @@ export async function* crawlSmb({
             originUri: fileInfo.originUri,
             mimeType: fileInfo.mimeType,
             skipProcessing: false,
+            wasUpdated: fileInfo.wasUpdated,
+            downloadUrl: mountedFilePath, // Provide local file path for SMB files
             hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
           }
         }

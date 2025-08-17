@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN, jsonArrayToString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
@@ -11,158 +11,70 @@ import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
-export const getCrawlerCredentialsSchema = (language: Language) => {
-  return z.object({
-    username: z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
-    password: z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
-  })
-}
-
-export const getSharePointAuthSchema = (language: Language) => {
-  return z.object({
-    sharepointAuth: z
-      .string()
-      .min(20, translate('crawlers.validationSharePointAuthTooShort', language))
-      .refine(
-        (value) => {
-          // Check for valid cookie format (name=value pairs)
-          const cookiePattern = /^[^=;]+=.*/
-          if (!cookiePattern.test(value)) return false
-
-          // Must contain at least one SharePoint authentication cookie
-          const hasTraditionalAuth = value.includes('FedAuth=') || value.includes('rtFa=')
-          const hasModernAuth = value.includes('SPOIDCRL=') || value.includes('SPOCC=')
-          const hasCustomAuth =
-            value.includes('NTLM') ||
-            value.includes('Negotiate') ||
-            value.includes('SAML') ||
-            value.includes('WSFederation')
-
-          return hasTraditionalAuth || hasModernAuth || hasCustomAuth
-        },
-        {
-          message: translate('crawlers.validationSharePointAuthMissingTokens', language),
-        },
-      )
-      .refine(
-        (value) => {
-          // Basic cookie format validation - should have key=value structure
-          return value.includes('=') && !value.startsWith('=') && !value.endsWith('=')
-        },
-        {
-          message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
-        },
-      ),
-  })
-}
+const URI_PATTERNS = { smb: SMB_URI_PATTERN, http: HTTP_URI_PATTERN, sharepoint: SHAREPOINT_URI_PATTERN }
 
 // Base schema for Input component validation
-export const getCrawlerFormBaseSchema = (language: Language) =>
+export const getCrawlerFormSchema = (
+  editMode: 'add' | 'update',
+  uriType: keyof typeof URI_PATTERNS,
+  language: Language,
+) =>
   z.object({
-    id: z.string().optional(),
+    id: editMode === 'update' ? z.string().min(2) : z.string().optional(),
     libraryId: z.string().optional(),
-    uri: z.string().min(1),
+    uri: z.string().min(1).regex(URI_PATTERNS[uriType], translate('crawlers.errors.invalidUri', language)),
     uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
+    // File filtering options
+    includePatterns: z.string().optional(),
+    excludePatterns: z.string().optional(),
+    maxFileSize: z.coerce.number().min(0).optional(),
+    minFileSize: z.coerce.number().min(0).optional(),
+    allowedMimeTypes: z.string().optional(),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
-    username: z.string().optional(),
-    password: z.string().optional(),
-    sharepointAuth: z.string().optional(),
+    username:
+      uriType !== 'smb'
+        ? z.string().optional()
+        : z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
+    password:
+      uriType !== 'smb'
+        ? z.string().optional()
+        : z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
+    sharepointAuth:
+      uriType != 'sharepoint'
+        ? z.string().optional()
+        : z
+            .string()
+            .min(20, translate('crawlers.validationSharePointAuthTooShort', language))
+            .refine(
+              (value) => {
+                // Must contain at least one SharePoint authentication cookie
+                const hasTraditionalAuth = value.includes('FedAuth=') || value.includes('rtFa=')
+                const hasModernAuth = value.includes('SPOIDCRL=') || value.includes('SPOCC=')
+                const hasCustomAuth =
+                  value.includes('NTLM') ||
+                  value.includes('Negotiate') ||
+                  value.includes('SAML') ||
+                  value.includes('WSFederation')
+
+                return hasTraditionalAuth || hasModernAuth || hasCustomAuth
+              },
+              {
+                message: translate('crawlers.validationSharePointAuthMissingTokens', language),
+              },
+            )
+            .refine(
+              (value) => {
+                // Very basic cookie format validation - just check that it looks like cookies
+                // Should contain = signs and not start with = (but can end with = for base64 padding)
+                return value.includes('=') && !value.startsWith('=') && value.trim().length > 0
+              },
+              {
+                message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
+              },
+            ),
   })
-
-// Full schema with refinements for form submission validation
-export const getCrawlerFormSchema = (language: Language) =>
-  getCrawlerFormBaseSchema(language).refine(
-    (data) => {
-      if (data.uriType === 'http') {
-        return HTTP_URI_PATTERN.test(data.uri)
-      } else if (data.uriType === 'smb') {
-        return SMB_URI_PATTERN.test(data.uri)
-      } else if (data.uriType === 'sharepoint') {
-        return SHAREPOINT_URI_PATTERN.test(data.uri)
-      }
-      return false
-    },
-    {
-      message: translate('crawlers.errors.invalidUri', language),
-      path: ['uri'],
-    },
-  )
-
-export const getCrawlerFormData = (formData: FormData) => {
-  const formDataObject = Object.fromEntries(formData)
-  // Log form data but redact sensitive information
-  const safeFormData = {
-    ...formDataObject,
-    username: formDataObject.username ? '***' : undefined,
-    password: formDataObject.password ? '***' : undefined,
-    sharepointAuth: formDataObject.sharepointAuth ? '***' : undefined,
-  }
-  console.log('formData', safeFormData)
-  const {
-    'cronjob.active': cronJobActive,
-    'cronjob.time': cronJobTime,
-    'cronjob.monday': cronJobMonday,
-    'cronjob.tuesday': cronJobTuesday,
-    'cronjob.wednesday': cronJobWednesday,
-    'cronjob.thursday': cronJobThursday,
-    'cronjob.friday': cronJobFriday,
-    'cronjob.saturday': cronJobSaturday,
-    'cronjob.sunday': cronJobSunday,
-    username,
-    password,
-    sharepointAuth,
-    ...dataObject
-  } = formDataObject
-
-  const [hour, minute] = cronJobTime ? cronJobTime.toString().split(':').map(Number) : [0, 0]
-
-  return {
-    ...dataObject,
-    username: username?.toString(),
-    password: password?.toString(),
-    sharepointAuth: sharepointAuth?.toString(),
-    cronJob: cronJobActive
-      ? {
-          active: cronJobActive === 'true',
-          hour,
-          minute,
-          monday: cronJobMonday === 'on',
-          tuesday: cronJobTuesday === 'on',
-          wednesday: cronJobWednesday === 'on',
-          thursday: cronJobThursday === 'on',
-          friday: cronJobFriday === 'on',
-          saturday: cronJobSaturday === 'on',
-          sunday: cronJobSunday === 'on',
-        }
-      : undefined,
-  }
-}
-
-export interface CrawlerFormData {
-  id?: string
-  libraryId?: string
-  uri: string
-  uriType: 'http' | 'smb' | 'sharepoint'
-  maxDepth: number
-  maxPages: number
-  username?: string
-  password?: string
-  sharepointAuth?: string
-  cronJob?: {
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  }
-}
 
 graphql(`
   fragment CrawlerForm_Crawler on AiLibraryCrawler {
@@ -172,6 +84,11 @@ graphql(`
     uriType
     maxDepth
     maxPages
+    includePatterns
+    excludePatterns
+    maxFileSize
+    minFileSize
+    allowedMimeTypes
     cronJob {
       id
       active
@@ -197,28 +114,24 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
   const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
+  const [filtersActive, setFiltersActive] = useState(
+    !!(
+      crawler?.includePatterns ||
+      crawler?.excludePatterns ||
+      crawler?.maxFileSize ||
+      crawler?.minFileSize ||
+      crawler?.allowedMimeTypes
+    ),
+  )
 
   // Create dynamic schema based on selected URI type
   const crawlerFormSchema = useMemo(() => {
-    const baseSchema = getCrawlerFormBaseSchema(language)
-
-    // Override the uri validation based on selected type
-    return z.object({
-      ...baseSchema.shape,
-      uri:
-        selectedUriType === 'http'
-          ? z.string().regex(HTTP_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
-          : selectedUriType === 'smb'
-            ? z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
-            : z.string().regex(SHAREPOINT_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
-    })
-  }, [language, selectedUriType])
-
-  const credentialsSchema = useMemo(() => getCrawlerCredentialsSchema(language), [language])
-  const sharePointAuthSchema = useMemo(() => getSharePointAuthSchema(language), [language])
+    const schema = getCrawlerFormSchema(!crawler ? 'add' : 'update', selectedUriType, language)
+    return schema
+  }, [language, selectedUriType, crawler])
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <input type="hidden" name="libraryId" value={libraryId} />
       {crawler?.id && <input type="hidden" name="id" value={crawler.id} />}
       <div className="flex justify-end gap-4">
@@ -285,6 +198,73 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           required={true}
         />
       </div>
+
+      {/* File Filters Section */}
+      <div className="flex flex-col gap-2">
+        <fieldset className="fieldset flex">
+          <label className="label text-base-content mt-4 font-semibold">
+            <input
+              name="filtersActive"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={filtersActive}
+              onChange={(event) => setFiltersActive(event.currentTarget.checked)}
+            />
+            {t('crawlers.filtersActive')}
+          </label>
+        </fieldset>
+
+        {filtersActive && (
+          <div className="bg-base-300 space-y-4 rounded-lg p-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <Input
+                name="includePatterns"
+                label={t('crawlers.includePatterns')}
+                placeholder="\.pdf$, \.docx?$, \.txt$"
+                value={jsonArrayToString(crawler?.includePatterns)}
+                schema={crawlerFormSchema}
+              />
+
+              <Input
+                name="excludePatterns"
+                label={t('crawlers.excludePatterns')}
+                placeholder="archive, _old, backup, temp"
+                value={jsonArrayToString(crawler?.excludePatterns)}
+                schema={crawlerFormSchema}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  name="minFileSize"
+                  type="number"
+                  label={t('crawlers.minFileSize')}
+                  placeholder="0.1"
+                  value={crawler?.minFileSize}
+                  schema={crawlerFormSchema}
+                />
+
+                <Input
+                  name="maxFileSize"
+                  type="number"
+                  label={t('crawlers.maxFileSize')}
+                  placeholder="50"
+                  value={crawler?.maxFileSize}
+                  schema={crawlerFormSchema}
+                />
+              </div>
+
+              <Input
+                name="allowedMimeTypes"
+                label={t('crawlers.allowedMimeTypes')}
+                placeholder="application/pdf, text/plain, application/msword"
+                value={jsonArrayToString(crawler?.allowedMimeTypes)}
+                schema={crawlerFormSchema}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {selectedUriType === 'sharepoint' ? (
         <div className="flex flex-col gap-2">
           <div className="alert alert-info">
@@ -307,7 +287,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             name="sharepointAuth"
             label="SharePoint Authentication Cookies"
             placeholder={t('crawlers.placeholders.sharepointAuth')}
-            schema={sharePointAuthSchema}
+            schema={crawlerFormSchema}
             required
           />
         </div>
@@ -318,7 +298,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             name="username"
             label={t('crawlers.credentialsUsername')}
             placeholder={t('crawlers.placeholders.username')}
-            schema={credentialsSchema}
+            schema={crawlerFormSchema}
             required
           />
           <Input
@@ -327,7 +307,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             type="password"
             label={t('crawlers.credentialsPassword')}
             placeholder={t('crawlers.placeholders.password')}
-            schema={credentialsSchema}
+            schema={crawlerFormSchema}
             required
           />
         </div>
