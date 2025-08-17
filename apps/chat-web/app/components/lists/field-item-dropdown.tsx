@@ -122,7 +122,7 @@ export const FieldItemDropdown = ({
           type="button"
           className={`flex w-full items-center px-4 py-2 transition-colors ${
             enrichSingleMutation.isPending || isEnrichmentDisabled
-              ? 'opacity-50 cursor-not-allowed text-base-content/40'
+              ? 'text-base-content/40 cursor-not-allowed opacity-50'
               : 'hover:bg-base-200 button button-xs'
           }`}
           onClick={handleEnrichSingle}

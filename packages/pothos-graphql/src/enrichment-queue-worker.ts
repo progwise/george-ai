@@ -18,9 +18,9 @@ let currentEnrichmentCalls = 0
 async function throttledGetEnrichedValue(params: Parameters<typeof getEnrichedValue>[0]): Promise<string> {
   // Wait until we have capacity
   while (currentEnrichmentCalls >= MAX_CONCURRENT_ENRICHMENTS) {
-    await new Promise(resolve => setTimeout(resolve, 100)) // Check every 100ms
+    await new Promise((resolve) => setTimeout(resolve, 100)) // Check every 100ms
   }
-  
+
   currentEnrichmentCalls++
   try {
     return await getEnrichedValue(params)
@@ -152,14 +152,16 @@ async function processQueueItem(queueItem: {
         valueString: field.type === 'string' ? computedValue : null,
         valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
         valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
-        valueDate: field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+        valueDate:
+          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
         enrichmentErrorMessage: enrichmentError,
       },
       update: {
         valueString: field.type === 'string' ? computedValue : null,
         valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
         valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
-        valueDate: field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+        valueDate:
+          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
         enrichmentErrorMessage: enrichmentError,
       },
     })

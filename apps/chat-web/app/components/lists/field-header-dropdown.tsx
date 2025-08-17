@@ -96,7 +96,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
         {canEnrich && (
           <div className="border-base-300 border-b px-3">
             <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
-              {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) ? (
+              {field.pendingItemsCount > 0 || field.processingItemsCount > 0 ? (
                 <div className="flex items-center gap-2">
                   <div className="loading loading-ring text-primary"></div>
                   <span>

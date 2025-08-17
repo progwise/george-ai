@@ -170,12 +170,12 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
           let queueStatus: string | null = null
           if (field.sourceType === 'llm_computed' && !computedValue && !errorMessage) {
             const queueItem = await prisma.aiListEnrichmentQueue.findFirst({
-              where: { 
+              where: {
                 fieldId: fieldId,
                 fileId: file.id,
-                status: { in: ['pending', 'processing'] }
+                status: { in: ['pending', 'processing'] },
               },
-              orderBy: { requestedAt: 'desc' }
+              orderBy: { requestedAt: 'desc' },
             })
             queueStatus = queueItem?.status || null
           }

@@ -448,13 +448,13 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                             )}
                             title={error || queueStatus || displayValue}
                           >
-                            {error 
-                              ? `❌ ${error}` 
-                              : value 
-                                ? displayValue 
-                                : queueStatus 
-                                  ? queueStatus === 'processing' 
-                                    ? '⚙️ processing...' 
+                            {error
+                              ? `❌ ${error}`
+                              : value
+                                ? displayValue
+                                : queueStatus
+                                  ? queueStatus === 'processing'
+                                    ? '⚙️ processing...'
                                     : '⏳ pending...'
                                   : t('lists.enrichment.notEnriched')}
                           </span>
