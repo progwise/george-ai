@@ -51,7 +51,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
       // Show success toast with field name
       toastSuccess(t('lists.fields.removeSuccess', { name: field.name }))
 
-      queryClient.invalidateQueries(getListQueryOptions(listId))
+      queryClient.invalidateQueries(getListQueryOptions(field.listId))
       onClose()
       setIsConfirmingDelete(false)
     },
