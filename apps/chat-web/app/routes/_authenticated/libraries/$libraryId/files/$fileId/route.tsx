@@ -86,7 +86,14 @@ function RouteComponent() {
     <>
       <div>
         <LoadingSpinner isLoading={reprocessIsPending} />
-        <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+          {fileInfo.aiLibraryFile.archivedAt && (
+            <span className="badge badge-warning badge-sm">
+              {t('labels.archived')}: {dateTimeString(fileInfo.aiLibraryFile.archivedAt, language)}
+            </span>
+          )}
+        </div>
         <div className="text-sm text-gray-500">
           <a href={fileInfo.aiLibraryFile.originUri || '#'} target="blank">
             {fileInfo.aiLibraryFile.originUri}

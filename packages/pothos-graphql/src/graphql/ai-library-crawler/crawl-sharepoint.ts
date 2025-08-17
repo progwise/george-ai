@@ -204,22 +204,13 @@ const saveSharepointCrawlerFile = async ({
 
         // Determine file status
         if (existingFile && existingFile.originFileHash === newFileHash && existingFile.processedAt) {
-          // Same content, already processed
+          // Same content, already processed - let the general runner handle database updates
           skipProcessing = true
           wasUpdated = false
           fileRecord = existingFile
 
           // Clean up temp file
           await fs.promises.unlink(tempFilePath).catch(() => {})
-
-          // Update modification date even if skipping
-          await prisma.aiLibraryFile.update({
-            where: { id: existingFile.id },
-            data: {
-              originModificationDate: fileModifiedTime,
-              updatedAt: new Date(),
-            },
-          })
         } else {
           // New file or updated content
           wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== newFileHash)

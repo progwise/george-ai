@@ -2627,6 +2627,7 @@ export type GetFileInfoQuery = {
     size?: number | null
     createdAt: string
     updatedAt?: string | null
+    archivedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
     originModificationDate?: string | null
@@ -10256,6 +10257,7 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },

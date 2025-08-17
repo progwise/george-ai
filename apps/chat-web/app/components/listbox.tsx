@@ -25,7 +25,7 @@ export const Listbox = <T extends { id: string; name: string }>({
 }: ListboxProps<T>) => {
   return (
     <HuListbox
-      defaultValue={selectedItem}
+      value={selectedItem}
       onChange={(newItem) => {
         onChange(newItem)
       }}

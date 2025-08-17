@@ -173,6 +173,12 @@ const startCrawling = async (
         if (crawledPage.skipProcessing) {
           console.log(`Skipping processing for file ${crawledPage.name} - already processed with same content`)
 
+          // Unarchive the file since it exists and is being skipped (file is active)
+          await prisma.aiLibraryFile.update({
+            where: { id: crawledPage.id },
+            data: { archivedAt: null },
+          })
+
           // Include download URL if available for debugging
           const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''
 
