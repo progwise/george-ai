@@ -86,28 +86,73 @@ const ListFilesQueryResult = builder
         resolve: async (query, root, _args, context) => {
           const list = await prisma.aiList.findFirstOrThrow({
             where: { id: root.listId },
-            include: { participants: true, sources: true },
+            include: { participants: true, sources: true, fields: true },
           })
           canAccessListOrThrow(list, context.session.user)
 
           const libraryIds = list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null)
           if (libraryIds.length === 0) return []
 
-          let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' }
-          if (root.orderBy && root.orderDirection) {
-            orderBy = { [root.orderBy]: root.orderDirection }
-          }
+          // Check if orderBy is a computed field ID
+          const isComputedFieldSort =
+            root.orderBy &&
+            list.fields.some((field) => field.id === root.orderBy && field.sourceType === 'llm_computed')
 
-          return prisma.aiLibraryFile.findMany({
-            ...query,
-            where: {
-              libraryId: { in: libraryIds },
-              ...(root.showArchived ? {} : { archivedAt: null }),
-            },
-            orderBy,
-            take: root.take ?? 20,
-            skip: root.skip ?? 0,
-          })
+          if (isComputedFieldSort && root.orderBy && root.orderDirection) {
+            // For computed field sorting, use raw SQL to get sorted file IDs only
+            const fieldId = root.orderBy
+            const direction = root.orderDirection.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
+            // Step 1: Use raw SQL to get sorted file IDs
+            const sortedFileIds = await prisma.$queryRawUnsafe<{ id: string }[]>(
+              `
+              SELECT f.id
+              FROM "AiLibraryFile" f
+              LEFT JOIN "AiListItemCache" c ON f.id::text = c."fileId" AND c."fieldId" = $1
+              WHERE f."libraryId" = ANY($2::text[])
+                AND ($3::boolean OR f."archivedAt" IS NULL)
+              ORDER BY c."valueString" ${direction} NULLS LAST, f.name ASC
+              LIMIT $4
+              OFFSET $5
+            `,
+              fieldId,
+              libraryIds,
+              root.showArchived ?? false,
+              root.take ?? 20,
+              root.skip ?? 0,
+            )
+
+            if (sortedFileIds.length === 0) return []
+
+            // Step 2: Get full file records using Prisma with proper typing
+            const files = await prisma.aiLibraryFile.findMany({
+              ...query,
+              where: {
+                id: { in: sortedFileIds.map((f) => f.id) },
+              },
+            })
+
+            // Step 3: Sort the files manually to preserve the order from SQL query
+            const fileMap = new Map(files.map((f) => [f.id, f]))
+            return sortedFileIds.map(({ id }) => fileMap.get(id)).filter(Boolean) as typeof files
+          } else {
+            // Standard file property sorting
+            let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' }
+            if (root.orderBy && root.orderDirection) {
+              orderBy = { [root.orderBy]: root.orderDirection }
+            }
+
+            return prisma.aiLibraryFile.findMany({
+              ...query,
+              where: {
+                libraryId: { in: libraryIds },
+                ...(root.showArchived ? {} : { archivedAt: null }),
+              },
+              orderBy,
+              take: root.take ?? 20,
+              skip: root.skip ?? 0,
+            })
+          }
         },
       }),
     }),

@@ -62,8 +62,9 @@ export const FieldItemDropdown = ({
     onSuccess: async (data) => {
       if (data.startSingleEnrichment.success) {
         toastSuccess(t('lists.enrichment.singleStarted', { field: fieldName, file: fileName }))
+        // Invalidate specific queries to preserve pagination
         await queryClient.invalidateQueries(getListQueryOptions(listId))
-        await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
+        await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
       } else {
         toastError(data.startSingleEnrichment.error || t('lists.enrichment.startError'))
       }
@@ -86,8 +87,9 @@ export const FieldItemDropdown = ({
     onSuccess: async (data) => {
       if (data.removeFromEnrichmentQueue.success) {
         toastSuccess(t('lists.enrichment.removedFromQueue', { field: fieldName, file: fileName }))
+        // Invalidate specific queries to preserve pagination
         await queryClient.invalidateQueries(getListQueryOptions(listId))
-        await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
+        await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
       } else {
         toastError(data.removeFromEnrichmentQueue.error || t('lists.enrichment.removeError'))
       }

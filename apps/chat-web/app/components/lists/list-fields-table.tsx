@@ -217,9 +217,16 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   const handleSort = (fieldId: string) => {
     const field = sortedFields.find((f) => f.id === fieldId)
-    if (field?.sourceType === 'file_property' && field.fileProperty) {
-      const newSortDirection = field.fileProperty === sortBy ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc'
-      onPageChange?.(0, pageSize, field.fileProperty, newSortDirection)
+    if (field) {
+      if (field.sourceType === 'file_property' && field.fileProperty) {
+        // Sort by file property
+        const newSortDirection = field.fileProperty === sortBy ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc'
+        onPageChange?.(0, pageSize, field.fileProperty, newSortDirection)
+      } else if (field.sourceType === 'llm_computed') {
+        // Sort by computed field (use field ID as the orderBy value)
+        const newSortDirection = field.id === sortBy ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc'
+        onPageChange?.(0, pageSize, field.id, newSortDirection)
+      }
     }
   }
 
@@ -234,8 +241,9 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   const isSortable = (field: ListFieldsTable_FieldFragment) => {
     return (
-      field.sourceType === 'file_property' &&
-      ['name', 'processedAt', 'originModificationDate'].includes(field.fileProperty || '')
+      (field.sourceType === 'file_property' &&
+        ['name', 'processedAt', 'originModificationDate'].includes(field.fileProperty || '')) ||
+      field.sourceType === 'llm_computed'
     )
   }
 
@@ -355,7 +363,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                         onClick={() => handleSort(field.id)}
                       >
                         {field.name}
-                        {sortBy === field.fileProperty && (
+                        {((field.sourceType === 'file_property' && sortBy === field.fileProperty) ||
+                          (field.sourceType === 'llm_computed' && sortBy === field.id)) && (
                           <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                         )}
                       </button>
