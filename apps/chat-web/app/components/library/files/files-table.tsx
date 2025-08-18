@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { dateTimeString } from '@george-ai/web-utils'
+import { dateTimeString, dateTimeStringArray } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ArchiveIcon } from '../../../icons/archive-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
@@ -27,6 +28,8 @@ graphql(`
     processedAt
     processingErrorMessage
     dropError
+    originModificationDate
+    archivedAt
   }
 `)
 interface FilesTableProps {
@@ -138,6 +141,12 @@ export const FilesTable = ({
                   </span>
                 </label>
                 <div className="flex flex-shrink-0 justify-end gap-2">
+                  {file.archivedAt && (
+                    <span className="badge badge-outline badge-sm gap-1">
+                      <ArchiveIcon className="h-3 w-3" />
+                      {t('labels.archived')}
+                    </span>
+                  )}
                   {file.processingErrorMessage && (
                     <span className="tooltip tooltip-left flex items-center" data-tip={file.processingErrorMessage}>
                       <ExclamationIcon />
@@ -147,12 +156,18 @@ export const FilesTable = ({
               </div>
 
               <div className="grid grid-cols-2 gap-1 text-sm">
-                <span className="">{t('labels.size')}:</span>
+                <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
-                <span className="">{t('labels.chunks')}:</span>
+                <span>{t('labels.chunks')}:</span>
                 <span>{file.chunks ?? '-'}</span>
-                <span className="">{t('labels.processed')}:</span>
+                <span>{t('labels.processed')}:</span>
                 <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                {file.originModificationDate && (
+                  <>
+                    <span>{t('labels.originModified')}:</span>
+                    <span>{dateTimeString(file.originModificationDate, language)}</span>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -161,7 +176,7 @@ export const FilesTable = ({
 
       {/* Desktop Table */}
       <div className="hidden lg:block">
-        <table className="table">
+        <table className="table-xs table">
           <thead className="bg-base-200">
             <tr>
               <th>
@@ -177,6 +192,7 @@ export const FilesTable = ({
               <th>#{t('labels.size')}</th>
               <th>#{t('labels.chunks')}</th>
               <th>{t('labels.processed')}</th>
+              <th>{t('labels.originModified')}</th>
               <th>{t('labels.actions')}</th>
             </tr>
           </thead>
@@ -194,14 +210,40 @@ export const FilesTable = ({
                 <td>{index + (firstItemNumber ?? 1)}</td>
 
                 <td className="flex max-w-2xl flex-col truncate" title={file.name}>
-                  <span>{truncateFileName(file.name, 49, 45)}</span>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/libraries/$libraryId/files/$fileId"
+                      params={{ libraryId: file.libraryId, fileId: file.id }}
+                    >
+                      <span>{truncateFileName(file.name, 49, 45)}</span>
+                    </Link>
+                    {file.archivedAt && (
+                      <span className="badge badge-warning badge-xs gap-1">
+                        <ArchiveIcon className="h-3 w-3" />
+                        {t('labels.archived')}
+                      </span>
+                    )}
+                  </div>
                   <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
                     {file.originUri || 'n/a'}
                   </a>
                 </td>
                 <td>{file.size ?? '-'}</td>
                 <td>{file.chunks ?? '-'}</td>
-                <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                <td>
+                  {dateTimeStringArray(file.processedAt, language).map((item) => (
+                    <div key={item} className="text-nowrap">
+                      {item}
+                    </div>
+                  ))}
+                </td>
+                <td>
+                  {dateTimeStringArray(file.originModificationDate, language).map((item) => (
+                    <div key={item} className="text-nowrap">
+                      {item}
+                    </div>
+                  ))}
+                </td>
                 <td className="flex items-center gap-2">
                   <Link
                     to="/libraries/$libraryId/files/$fileId"

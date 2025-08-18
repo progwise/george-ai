@@ -71,8 +71,20 @@ function RouteComponent() {
             search: { query, skip: (page - 1) * take, take },
           })
         }}
+        showPageSizeSelector={true}
+        onPageSizeChange={(newPageSize) => {
+          navigate({
+            search: { query, skip: 0, take: newPageSize },
+          })
+        }}
       />
-      <LibraryQueryResult hits={hits.hits} offset={skip} searchTerm={query ?? '*'} hitCount={hits.hitCount} />
+      <LibraryQueryResult
+        libraryId={libraryId}
+        hits={hits.hits}
+        offset={skip}
+        searchTerm={query ?? '*'}
+        hitCount={hits.hitCount}
+      />
     </article>
   )
 }

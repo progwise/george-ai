@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
 
+import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
@@ -37,6 +38,7 @@ export const Route = createFileRoute('/_authenticated/profile/')({
 
 function RouteComponent() {
   const { t, language } = useTranslation()
+
   const { user } = Route.useRouteContext()
 
   const formSchema = getFormSchema(language)
@@ -85,18 +87,18 @@ function RouteComponent() {
     },
   })
 
-  const handleSendConfirmationMail = (formData: FormData) => {
-    const formValidation = validateForm({ formData, formSchema })
-    if (formValidation.errors.length < 1) {
+  const handleSendConfirmationMail = (form: HTMLFormElement) => {
+    const { formData, errors } = validateForm(form, formSchema)
+    if (!errors) {
       sendConfirmationMailMutation(formData)
     } else {
-      toastError(formValidation.errors.join('\n'))
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
     }
   }
 
-  const handleSaveChanges = async (formData: FormData) => {
-    const formValidation = validateForm({ formData, formSchema })
-    if (formValidation.errors.length < 1) {
+  const handleSaveChanges = async (form: HTMLFormElement) => {
+    const { formData, errors } = validateForm(form, formSchema)
+    if (!errors) {
       await updateProfile({
         data: {
           formData,
@@ -106,26 +108,26 @@ function RouteComponent() {
       toastSuccess(t('texts.profileSaved'))
       refetchProfile()
     } else {
-      toastError(formValidation.errors.join('\n'))
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
     }
   }
 
-  const handleFormSubmission = (formData: FormData) => {
+  const handleFormSubmission = (form: HTMLFormElement) => {
     if (userProfile.confirmationDate) {
-      handleSaveChanges(formData)
+      handleSaveChanges(form)
     } else {
-      handleSendConfirmationMail(formData)
+      handleSendConfirmationMail(form)
     }
   }
 
-  const handleFormSubmit = (formData: FormData) => {
-    handleFormSubmission(formData)
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    handleFormSubmission(event.currentTarget)
   }
 
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const form = event.currentTarget.closest('form') as HTMLFormElement
-    const formData = new FormData(form)
-    handleFormSubmission(formData)
+    handleFormSubmission(form)
   }
 
   const isLoading = userProfileIsLoading || sendConfirmationMailIsPending
@@ -136,11 +138,11 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
+      <AvatarUpload user={user} className="size-16" />
+
       <UserProfileForm
         userProfile={userProfile}
-        onSubmit={(formData: FormData) => {
-          handleFormSubmit(formData)
-        }}
+        onSubmit={handleFormSubmit}
         saveButton={
           <button
             type="button"

@@ -1,15 +1,21 @@
 /// <reference types="vite/types/importMeta.d.ts" />
 import 'dotenv/config'
 
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
+// Import and start enrichment queue worker
+import { startEnrichmentQueueWorker } from '@george-ai/pothos-graphql/src/enrichment-queue-worker'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
-import { authorizeGraphQlRequest } from './authorizeGraphQlRequest'
+import { avatarMiddleware } from './avatarMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
+import { enrichmentQueueSSE } from './enrichment-queue-sse'
+import { getUserContext } from './getUserContext'
+import { libraryFiles } from './library-files'
 import { dataUploadMiddleware } from './upload'
 
 console.log('Starting GeorgeAI GraphQL server...')
@@ -19,22 +25,36 @@ console.log(`
   GraphQL Endpoint: ${process.env.GRAPHQL_ENDPOINT || '/graphql'}
   Server Port: ${process.env.PORT || 3003}
   Assistant Icon Path: ${process.env.ASSISTANT_ICON_PATH || '/assistant-icon'}
+  Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
   Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
   `)
 
+// Start the enrichment queue worker
+startEnrichmentQueueWorker()
+
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
-  context: async ({ request }) => authorizeGraphQlRequest(request),
+  context: async ({ request }) => getUserContext(() => request.headers.get('x-user-jwt')),
 })
 
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  }),
+)
+app.use(cookieParser())
 app.use('/assistant-icon', assistantIconMiddleware)
+app.use('/avatar', avatarMiddleware)
 app.use('/upload', dataUploadMiddleware)
+app.get('/library-files/:libraryId/:fileId', libraryFiles)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
+app.get('/enrichment-queue-sse', enrichmentQueueSSE)
+app.options('/enrichment-queue-sse', enrichmentQueueSSE)
 
 // Only check API key or user JWT for /graphql POST requests
 app.use('/graphql', (req, res, next) => {

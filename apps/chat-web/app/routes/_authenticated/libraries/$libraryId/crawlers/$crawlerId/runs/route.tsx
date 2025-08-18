@@ -60,6 +60,12 @@ function RouteComponent() {
                   search: { ...search, skipRuns: (page - 1) * search.takeRuns, takeRuns: search.takeRuns },
                 })
               }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({
+                  search: { ...search, skipRuns: 0, takeRuns: newPageSize },
+                })
+              }}
             />
           </div>
           <ul className="menu bg-base-200 rounded-box">
@@ -67,7 +73,7 @@ function RouteComponent() {
               <li className="text-center text-sm text-gray-500">{t('crawlers.noRunsFound')}</li>
             ) : (
               crawlerRuns.map((run) => (
-                <li key={run.id} className="">
+                <li key={run.id}>
                   <div className="flex flex-col items-start gap-1">
                     <Link
                       to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"

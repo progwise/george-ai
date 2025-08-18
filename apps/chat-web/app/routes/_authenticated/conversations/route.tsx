@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Outlet, createFileRoute, useParams } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
 import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations'
@@ -12,8 +13,9 @@ export const Route = createFileRoute('/_authenticated/conversations')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
       context.queryClient.ensureQueryData(getUsersQueryOptions()),
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
+      context.queryClient.ensureQueryData(getProfileQueryOptions()),
       context.queryClient.ensureQueryData(getConversationsQueryOptions()),
     ])
   },
@@ -21,15 +23,7 @@ export const Route = createFileRoute('/_authenticated/conversations')({
 
 function RouteComponent() {
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
-  const { user } = Route.useRouteContext()
-  const { conversationId } = useParams({ strict: false })
 
-  const {
-    data: { aiAssistants },
-  } = useSuspenseQuery(getAiAssistantsQueryOptions())
-  const {
-    data: { users },
-  } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiConversations },
   } = useSuspenseQuery(getConversationsQueryOptions())
@@ -39,7 +33,6 @@ function RouteComponent() {
       drawerCheckboxRef.current.checked = false
     }
   }
-
   return (
     <div
       className={twMerge(
@@ -48,9 +41,8 @@ function RouteComponent() {
       )}
     >
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
-      <div className="drawer-content flex flex-col">
-        <Outlet />
-      </div>
+
+      <Outlet />
 
       <div
         className={twMerge(
@@ -59,17 +51,8 @@ function RouteComponent() {
         )}
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
-          <div className="flex-1 overflow-scroll px-2">
-            <ConversationSelector
-              conversations={aiConversations}
-              selectedConversationId={conversationId}
-              onClick={handleConversationClick}
-              userId={user.id}
-              humans={users}
-              assistants={aiAssistants}
-            />
-          </div>
+        <div className="bg-base-100 flex w-80 flex-col items-center bg-auto p-4 lg:p-0 lg:pl-4 lg:pt-4">
+          <ConversationSelector conversations={aiConversations} onClick={handleConversationClick} />
         </div>
       </div>
     </div>

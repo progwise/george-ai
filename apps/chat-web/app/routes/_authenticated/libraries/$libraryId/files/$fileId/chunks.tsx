@@ -60,6 +60,10 @@ function RouteComponent() {
             // TODO: Add prefetching here
             navigate({ search: { skipChunks: (page - 1) * takeChunks, takeChunks } })
           }}
+          showPageSizeSelector={true}
+          onPageSizeChange={(newPageSize) => {
+            navigate({ search: { skipChunks: 0, takeChunks: newPageSize } })
+          }}
         />
         <span>
           Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}

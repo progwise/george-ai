@@ -58,15 +58,15 @@ export const DeleteConversationsDialog = (props: DeleteConversationsDialogProps)
     <>
       <button
         type="button"
-        className={twMerge(
-          'btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-right z-60 : relative mx-1',
-          hasCheckedConversationIds && 'text-neutral-content',
-        )}
+        className={twMerge('btn btn-ghost btn-sm', hasCheckedConversationIds && 'text-neutral-content')}
         onClick={handleOpen}
         data-tip={buttonTooltip}
         disabled={hasCheckedConversationIds}
       >
-        <TrashIcon className="size-6" />
+        <div className="flex items-center gap-2">
+          <TrashIcon className="size-6" />
+          {t('actions.deleteSelected')}
+        </div>
       </button>
 
       <LoadingSpinner isLoading={isDeletePending} />

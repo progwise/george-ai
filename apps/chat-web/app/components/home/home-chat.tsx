@@ -7,14 +7,14 @@ import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { UserFragment } from '../../gql/graphql'
-import { getLanguage, translate } from '../../i18n'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { toastError, toastSuccess, toastWarning } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
-const getFormSchema = (language: 'en' | 'de') =>
+const getFormSchema = (language: Language) =>
   z.object({
     name: z.string().min(1, translate('contactForm.nameRequired', language)),
     message: z.string().min(1, translate('contactForm.messageRequired', language)),
@@ -24,7 +24,7 @@ const getFormSchema = (language: 'en' | 'de') =>
 const sendContactRequest = createServerFn({
   method: 'POST',
 })
-  .validator(async (data: unknown) => {
+  .validator(async (data: FormData) => {
     const language = await getLanguage()
     const formSchema = getFormSchema(language)
     return formSchema.parse(data)
@@ -47,7 +47,7 @@ export const HomeChat = ({ user }: HomeChatProps) => {
   const { t, language } = useTranslation()
   const formSchema = getFormSchema(language)
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: z.infer<typeof formSchema>) => sendContactRequest({ data }),
+    mutationFn: (data: FormData) => sendContactRequest({ data }),
     onError: (error) => {
       console.error('Error sending contact request:', error)
       toastError(t('contactForm.errorSendingMessage'))
@@ -59,13 +59,12 @@ export const HomeChat = ({ user }: HomeChatProps) => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const { errors, parsedObject } = validateForm({ formSchema, formData })
-    if (!parsedObject) {
+    const { errors, formData } = validateForm(event.currentTarget, formSchema)
+    if (errors) {
       toastWarning(<ul>{errors?.map((error) => <li key={error}>{error.split(':').pop()}</li>)}</ul>)
       return
     }
-    mutate(parsedObject)
+    mutate(formData)
   }
 
   return (

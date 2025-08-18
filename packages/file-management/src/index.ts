@@ -17,12 +17,23 @@ export const getLibraryDir = (libraryId: string) => {
   return libraryDir
 }
 
-export const getFileDir = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
+export const getFileDir = ({
+  fileId,
+  libraryId,
+  errorIfNotExists = false,
+}: {
+  fileId: string
+  libraryId: string
+  errorIfNotExists?: boolean
+}) => {
   const libraryDir = getLibraryDir(libraryId)
   const fileDir = `${libraryDir}/${fileId}`
-  if (!fs.existsSync(fileDir)) {
-    fs.mkdirSync(fileDir, { recursive: true })
+  if (fs.existsSync(fileDir)) {
+    return fileDir
+  } else if (errorIfNotExists) {
+    throw new Error('Directory does not exist')
   }
+  fs.mkdirSync(fileDir, { recursive: true })
   return fileDir
 }
 
@@ -31,7 +42,15 @@ export const getUploadFilePath = ({ fileId, libraryId }: { fileId: string; libra
   return `${fileDir}/upload`
 }
 
-export const getMarkdownFilePath = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
-  const fileDir = getFileDir({ fileId, libraryId })
+export const getMarkdownFilePath = ({
+  fileId,
+  libraryId,
+  errorIfNotExists = false,
+}: {
+  fileId: string
+  libraryId: string
+  errorIfNotExists?: boolean
+}) => {
+  const fileDir = getFileDir({ fileId, libraryId, errorIfNotExists })
   return `${fileDir}/converted.md`
 }

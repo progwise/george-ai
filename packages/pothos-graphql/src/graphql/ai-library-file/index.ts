@@ -1,10 +1,34 @@
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
+import { findCacheValue, getFieldValue } from '../../utils/field-value-resolver'
+import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
+import { canAccessListOrThrow } from '../ai-list/utils'
 import { builder } from '../builder'
 
 import './process-file'
 import './read-file'
 import './file-chunks'
+
+// Type for field value results
+const FieldValueResult = builder
+  .objectRef<{
+    fieldId: string
+    fieldName: string
+    displayValue: string | null
+    enrichmentErrorMessage: string | null
+    queueStatus: string | null
+  }>('FieldValueResult')
+  .implement({
+    fields: (t) => ({
+      fieldId: t.exposeString('fieldId', { nullable: false }),
+      fieldName: t.exposeString('fieldName', { nullable: false }),
+      displayValue: t.exposeString('displayValue', { nullable: true }),
+      enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
+      queueStatus: t.exposeString('queueStatus', { nullable: true }),
+    }),
+  })
 
 console.log('Setting up: AiLibraryFile')
 
@@ -62,6 +86,135 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       nullable: false,
     }),
     dropError: t.exposeString('dropError', { nullable: true }),
+    originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
+    archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
+    crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
+    lastUpdate: t.prismaField({
+      type: 'AiLibraryUpdate',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiLibraryUpdate.findFirst({
+          ...query,
+          where: { fileId: file.id },
+          orderBy: { createdAt: 'desc' },
+        })
+      },
+    }),
+    cache: t.relation('cache', { nullable: false }),
+    fieldValues: t.withAuth({ isLoggedIn: true }).field({
+      type: [FieldValueResult],
+      nullable: { list: false, items: false },
+      args: {
+        fieldIds: t.arg.stringList({ required: true }),
+        language: t.arg.string({ required: true }),
+      },
+      resolve: async (file, { fieldIds, language }, context) => {
+        // Verify user has access to the file's library
+        await canAccessLibraryOrThrow(context, file.libraryId)
+
+        // Get all field definitions with their associated lists
+        const fields = await prisma.aiListField.findMany({
+          where: { id: { in: fieldIds } },
+          include: {
+            list: {
+              include: { participants: true },
+            },
+          },
+        })
+
+        // Check authorization for each field's list
+        for (const field of fields) {
+          canAccessListOrThrow(field.list, context.session.user)
+        }
+
+        // Get file with required relations
+        const fileWithRelations = await prisma.aiLibraryFile.findUnique({
+          where: { id: file.id },
+          include: {
+            crawledByCrawler: true,
+            cache: true,
+          },
+        })
+        if (!fileWithRelations) {
+          return fieldIds.map((fieldId) => {
+            const field = fields.find((f) => f.id === fieldId)
+            return {
+              fieldId,
+              fieldName: field?.name || 'Unknown',
+              displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
+            }
+          })
+        }
+
+        // Process all fields at once, maintaining order
+        const results = []
+        for (const fieldId of fieldIds) {
+          const field = fields.find((f) => f.id === fieldId)
+          if (!field) {
+            results.push({
+              fieldId,
+              fieldName: 'Unknown',
+              displayValue: null,
+              enrichmentErrorMessage: null,
+              queueStatus: null,
+            })
+            continue
+          }
+
+          const cache = findCacheValue(fileWithRelations, fieldId)
+          const { value: computedValue, errorMessage } = await getFieldValue(fileWithRelations, field, cache)
+
+          // Check queue status for this file-field combination
+          let queueStatus: string | null = null
+          if (field.sourceType === 'llm_computed' && !computedValue && !errorMessage) {
+            const queueItem = await prisma.aiListEnrichmentQueue.findFirst({
+              where: {
+                fieldId: fieldId,
+                fileId: file.id,
+                status: { in: ['pending', 'processing'] },
+              },
+              orderBy: { requestedAt: 'desc' },
+            })
+            queueStatus = queueItem?.status || null
+          }
+
+          // Format display value based on field type
+          let displayValue = computedValue
+          if (computedValue) {
+            // Handle date formatting
+            if (
+              field.type === 'date' ||
+              field.type === 'datetime' ||
+              field.fileProperty === 'processedAt' ||
+              field.fileProperty === 'originModificationDate'
+            ) {
+              try {
+                displayValue = dateTimeString(computedValue, language)
+              } catch {
+                displayValue = computedValue
+              }
+            }
+            // Handle boolean formatting
+            else if (field.type === 'boolean' && field.sourceType === 'llm_computed') {
+              // Already formatted as Yes/No in getFieldValue
+              displayValue = computedValue
+            }
+          }
+
+          results.push({
+            fieldId,
+            fieldName: field.name,
+            displayValue,
+            enrichmentErrorMessage: errorMessage,
+            queueStatus,
+          })
+        }
+
+        return results
+      },
+    }),
   }),
 })
 
@@ -96,7 +249,7 @@ builder.mutationField('prepareFile', (t) =>
 )
 
 const LibraryFileQueryResult = builder
-  .objectRef<{ libraryId: string; take: number; skip: number }>('AiLibraryFileQueryResult')
+  .objectRef<{ libraryId: string; take: number; skip: number; showArchived?: boolean }>('AiLibraryFileQueryResult')
   .implement({
     description: 'Query result for AI library files',
     fields: (t) => ({
@@ -120,6 +273,7 @@ const LibraryFileQueryResult = builder
       }),
       take: t.exposeInt('take', { nullable: false }),
       skip: t.exposeInt('skip', { nullable: false }),
+      showArchived: t.exposeBoolean('showArchived', { nullable: true }),
       count: t.withAuth({ isLoggedIn: true }).field({
         type: 'Int',
         nullable: false,
@@ -136,7 +290,33 @@ const LibraryFileQueryResult = builder
           }
           console.log('Counting AI library files for library:', root.libraryId)
           return prisma.aiLibraryFile.count({
-            where: { libraryId: root.libraryId },
+            where: {
+              libraryId: root.libraryId,
+              ...(root.showArchived ? {} : { archivedAt: null }),
+            },
+          })
+        },
+      }),
+      archivedCount: t.withAuth({ isLoggedIn: true }).field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root, _args, context) => {
+          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+            where: { id: root.libraryId },
+            select: { ownerId: true, participants: { select: { userId: true } } },
+          })
+          if (
+            libraryUsers.ownerId !== context.session.user.id &&
+            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+          ) {
+            throw new Error('You do not have access to this library')
+          }
+          console.log('Counting archived AI library files for library:', root.libraryId)
+          return prisma.aiLibraryFile.count({
+            where: {
+              libraryId: root.libraryId,
+              archivedAt: { not: null }, // Only archived files
+            },
           })
         },
       }),
@@ -157,7 +337,10 @@ const LibraryFileQueryResult = builder
           console.log('Fetching AI library files for library:', query)
           return prisma.aiLibraryFile.findMany({
             ...query,
-            where: { libraryId: root.libraryId },
+            where: {
+              libraryId: root.libraryId,
+              ...(root.showArchived ? {} : { archivedAt: null }),
+            },
             orderBy: { createdAt: 'desc' },
             take: root.take ?? 10,
             skip: root.skip ?? 0,
@@ -191,12 +374,14 @@ builder.queryField('aiLibraryFiles', (t) =>
       libraryId: t.arg.string({ required: true }),
       skip: t.arg.int({ required: true, defaultValue: 0 }),
       take: t.arg.int({ required: true, defaultValue: 20 }),
+      showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: (_root, args) => {
       return {
         libraryId: args.libraryId,
         take: args.take ?? 10,
         skip: args.skip ?? 0,
+        showArchived: args.showArchived ?? false,
       }
     },
   }),

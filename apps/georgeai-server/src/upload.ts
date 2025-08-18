@@ -62,7 +62,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.on('end', () => {
     filestream.close(async () => {
       try {
-        await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false })
+        await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false, fileConverterOptions: '' })
         await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
         httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {

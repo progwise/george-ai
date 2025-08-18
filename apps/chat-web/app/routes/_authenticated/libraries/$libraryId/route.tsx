@@ -34,11 +34,11 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col gap-4">
-      <div className="flex justify-between gap-2">
-        <div className="w-64">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full sm:w-64">
           <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
         </div>
-        <div className="flex min-w-0 gap-2">
+        <div className="flex min-w-0 items-center justify-end gap-2">
           <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
           <LibraryDeleteOrLeaveDialogButton library={aiLibrary} userId={user.id} />
           <button
@@ -61,17 +61,17 @@ function RouteComponent() {
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
-          {t('labels.summary')}
+          {t('labels.details')}
         </Link>
         <Link
-          to="/libraries/$libraryId/edit"
+          to="/libraries/$libraryId/postprocess"
           params={{ libraryId }}
           className="tab"
-          activeOptions={{ exact: true }}
+          activeOptions={{ exact: false }}
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
-          {t('actions.edit')}
+          {t('labels.postprocess')}
         </Link>
         <Link
           to="/libraries/$libraryId/files"

@@ -9,25 +9,20 @@ import { ConversationParticipants } from '../../../components/conversation/conve
 import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { getConversationQueryOptions } from '../../../components/conversation/get-conversation'
-import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
 import { MenuIcon } from '../../../icons/menu-icon'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/$conversationId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getUsersQueryOptions()),
-      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
-      context.queryClient.ensureQueryData(getConversationQueryOptions(params.conversationId)),
-      context.queryClient.ensureQueryData(getProfileQueryOptions()),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getConversationQueryOptions(params.conversationId))])
   },
 })
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { conversationId } = Route.useParams()
+
   const {
     data: { users },
   } = useSuspenseQuery(getUsersQueryOptions())
@@ -38,37 +33,25 @@ function RouteComponent() {
   const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 
   return (
-    <>
-      <div className="bg-base-100 lg:rounded-r-box sticky top-16 z-30 shadow-md">
-        <div className="flex flex-row flex-wrap items-center justify-between gap-2 p-1 pt-2 lg:hidden">
-          <div className="flex gap-2">
-            <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm">
+    <div className="drawer-content flex flex-col">
+      <div>
+        <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full items-center gap-2 sm:w-64">
+            <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm lg:hidden">
               <MenuIcon className="size-6" />
             </label>
-            <NewConversationSelector users={users} assistants={aiAssistants} userId={user.id} />
+            <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.id} />
+            <div>
+              <DeleteLeaveConversationDialog conversation={conversation} userId={user.id} />
+            </div>
           </div>
-
-          <div className="flex">
-            <ConversationParticipantsDialogButton
+          <div className="flex justify-between">
+            <ConversationParticipants
               conversation={conversation}
               assistants={aiAssistants}
               users={users}
-              dialogMode="add"
               userId={user.id}
             />
-            <DeleteLeaveConversationDialog conversation={conversation} userId={user.id} />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end p-1">
-          <ConversationParticipants
-            conversation={conversation}
-            assistants={aiAssistants}
-            users={users}
-            userId={user.id}
-          />
-          <div className="hidden lg:flex">
-            <DeleteLeaveConversationDialog conversation={conversation} userId={user.id} />
           </div>
         </div>
       </div>
@@ -77,6 +60,6 @@ function RouteComponent() {
         <ConversationHistory conversation={conversation} userId={user.id} />
         <ConversationForm conversation={conversation} user={user} profile={profile ?? undefined} />
       </div>
-    </>
+    </div>
   )
 }

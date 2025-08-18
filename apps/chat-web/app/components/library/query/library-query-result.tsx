@@ -1,6 +1,9 @@
+import { Link } from '@tanstack/react-router'
+
 import { FormattedMarkdown } from '../../formatted-markdown'
 
 export interface LibraryQueryParams {
+  libraryId: string
   offset: number
   hits: Array<{
     id: string
@@ -15,7 +18,7 @@ export interface LibraryQueryParams {
   hitCount: number
 }
 
-export const LibraryQueryResult = ({ hits, offset, searchTerm, hitCount }: LibraryQueryParams) => {
+export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCount }: LibraryQueryParams) => {
   return (
     <article className="panel justify-center">
       <ul className="list bg-base-100 rounded-box shadow-md">
@@ -32,7 +35,11 @@ export const LibraryQueryResult = ({ hits, offset, searchTerm, hitCount }: Libra
                 {(() => {
                   const highlight = hit.highlights.find((h) => h.field === 'docName')
                   const text = highlight?.snippet || hit.docName
-                  return <FormattedMarkdown markdown={text} className="text-sm font-semibold" />
+                  return (
+                    <Link to="/libraries/$libraryId/files/$fileId" params={{ libraryId, fileId: hit.docId }}>
+                      <FormattedMarkdown markdown={text} className="text-sm font-semibold" />{' '}
+                    </Link>
+                  )
                 })()}
               </div>
               <div className="text-xs font-semibold opacity-60">

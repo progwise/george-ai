@@ -1,5 +1,4 @@
-import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-// import { OpenAIEmbeddings } from '@langchain/openai'
+import { TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
@@ -10,6 +9,18 @@ import { getMarkdownFilePath } from '@george-ai/file-management'
 
 import { type QAPair, generateQAPairs } from './qa-generator'
 import { splitMarkdown } from './split-markdown'
+
+const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
+
+const getEmbeddingsModelInstance = async (model: string): Promise<OllamaEmbeddings> => {
+  const embeddings = new OllamaEmbeddings({
+    model,
+    baseUrl: process.env.OLLAMA_BASE_URL,
+    keepAlive: '5m',
+  })
+
+  return embeddings
+}
 import { summarizeDocument } from './summarizer'
 
 const vectorTypesenseClient = new Client({
@@ -31,7 +42,7 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   name: getTypesenseSchemaName(libraryId),
   fields: [
     { name: 'points', type: 'int32' },
-    { name: 'vec', type: 'float[]', num_dim: 3072 },
+    { name: 'vec', type: 'float[]', num_dim: EMBEDDING_DIMENSIONS },
     { name: 'text', type: 'string' },
     { name: 'docName', type: 'string' },
     { name: 'docType', type: 'string' },
@@ -103,16 +114,6 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   },
 })
 
-console.log(`setting up ollama embeddings to mistral:latest on ${process.env.OLLAMA_BASE_URL}`)
-
-const embeddings = new OllamaEmbeddings({
-  model: 'mistral:latest',
-  baseUrl: process.env.OLLAMA_BASE_URL,
-  keepAlive: '5m',
-})
-
-const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
-
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
   const existingSchema = vectorTypesenseClient.collections(schemaName)
@@ -145,6 +146,7 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
 
 export const embedFile = async (
   libraryId: string,
+  embeddingModelName: string,
   file: {
     id: string
     name: string
@@ -177,16 +179,31 @@ export const embedFile = async (
     },
   }))
 
-  const docVectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
-  const saniatizedVectors = docVectors.map((vec) => {
-    const sanitizedVector = new Array(3072).fill(0)
-    for (let i = 0; i < Math.min(vec.length, sanitizedVector.length); i++) {
-      sanitizedVector[i] = vec[i]
+  const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
+  console.log(`Embedding ${chunks.length} chunks for file ${file.name} with model ${embeddingModelName}`)
+  const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
+  const sanitizedVectors = vectors.map((vector) => {
+    const sanitizedVector = new Array<number>(EMBEDDING_DIMENSIONS).fill(0)
+    for (let i = 0; i < Math.min(vector.length, sanitizedVector.length); i++) {
+      sanitizedVector[i] = vector[i]
     }
     return sanitizedVector
   })
-  const typesense = new Typesense(embeddings, typesenseVectorStoreConfig)
-  await typesense.addVectors(saniatizedVectors, chunks)
+
+  vectorTypesenseClient
+    .collections(typesenseVectorStoreConfig.schemaName)
+    .documents()
+    .import(
+      chunks.map((chunk, index) => ({
+        ...chunk.metadata,
+        vec: sanitizedVectors[index],
+        text: chunk.pageContent,
+        points: 1,
+        chunkIndex: index,
+        subChunkIndex: 0,
+      })),
+      { action: 'upsert', dirty_values: 'drop' },
+    )
 
   console.log('\n' + '='.repeat(60))
   console.log(`Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m`)
@@ -410,14 +427,14 @@ Chunk Content: ${chunk.pageContent}
   }
 }
 
-export const removeFileById = async (libraryId: string, fileId: string) => {
+const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
 }
 
-export const removeFileByName = async (libraryId: string, fileName: string) => {
+const removeFileByName = async (libraryId: string, fileName: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
@@ -427,10 +444,18 @@ export const removeFileByName = async (libraryId: string, fileName: string) => {
 export const similaritySearch = async (
   question: string,
   library: string,
+  embeddingsModelName: string,
+  docName?: string,
+  maxHits?: number,
 ): Promise<{ pageContent: string; docName: string }[]> => {
   //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
-  // const questionAsVector = await embeddings.embedQuery(question)
-  // const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  const embeddings = await getEmbeddingsModelInstance(embeddingsModelName)
+  const questionAsVector = await embeddings.embedQuery(question)
+  const sanitizedVector = new Array(EMBEDDING_DIMENSIONS).fill(0)
+  for (let i = 0; i < Math.min(questionAsVector.length, sanitizedVector.length); i++) {
+    sanitizedVector[i] = questionAsVector[i]
+  }
+  const vectorQuery = `vec:([${sanitizedVector.join(',')}])`
   await ensureVectorStore(library)
   const queryAsString = Array.isArray(question) ? question.join(' ') : question
   const multiSearchParams = {
@@ -439,9 +464,10 @@ export const similaritySearch = async (
         collection: getTypesenseSchemaName(library),
         q: queryAsString,
         query_by: 'text,docName',
-        // vector_query: vectorQuery,
-        per_page: 200,
+        vector_query: vectorQuery,
+        per_page: maxHits || 200,
         order_by: '_text_match:desc',
+        ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
       },
     ],
   }
@@ -552,40 +578,6 @@ export const getFileChunks = async ({
       subChunkIndex: hit.document.subChunkIndex || 0,
     })),
   }
-}
-
-// retrieves content from the vector store similar to the question
-export const getPDFContentForQuestion = async (question: string) => {
-  await ensureVectorStore('common')
-  try {
-    const documents = await typesenseVectorStore.similaritySearch(question)
-    const content = documents.map((document_) => document_.pageContent).join('\n\n')
-
-    return content
-  } catch (error) {
-    console.error('Error retrieving PDF content:', error)
-    return ''
-  }
-}
-
-export const getPDFContentForQuestionAndLibraries = async (
-  question: string,
-  libraries: { id: string; name: string }[],
-) => {
-  const ensureStores = libraries.map((library) => ensureVectorStore(library.id))
-  await Promise.all(ensureStores)
-
-  const vectorStores = libraries.map((library) => new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id)))
-
-  const storeSearches = vectorStores.map((store) => store.similaritySearch(question))
-  const storeSearchResults = await Promise.all(storeSearches)
-
-  // Todo: Implement returning library name with content
-  const contents = storeSearchResults.map((documents) =>
-    documents.map((document_) => document_.pageContent).join('\n\n'),
-  )
-
-  return contents.join('\n\n')
 }
 
 /**

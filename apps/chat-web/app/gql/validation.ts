@@ -5,12 +5,16 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiLibraryCrawlerCredentialsInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
+  AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
+  AiListFieldInput,
+  AiListInput,
+  AiListSourceInput,
   ConversationInvitationInput,
-  RetrievalFlow,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -25,7 +29,7 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
+export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -61,6 +65,14 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
   })
 }
 
+export function AiLibraryCrawlerCredentialsInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCredentialsInput>> {
+  return z.object({
+    password: z.string().nullish(),
+    sharepointAuth: z.string().nullish(),
+    username: z.string().nullish(),
+  })
+}
+
 export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCronJobInput>> {
   return z.object({
     active: z.boolean(),
@@ -78,10 +90,16 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
 
 export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
   return z.object({
+    allowedMimeTypes: z.array(z.string()).nullish(),
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
+    excludePatterns: z.array(z.string()).nullish(),
+    includePatterns: z.array(z.string()).nullish(),
     maxDepth: z.number(),
+    maxFileSize: z.number().nullish(),
     maxPages: z.number(),
-    url: z.string(),
+    minFileSize: z.number().nullish(),
+    uri: z.string(),
+    uriType: AiLibraryCrawlerUriTypeSchema,
   })
 }
 
@@ -97,9 +115,37 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
 export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
   return z.object({
     description: z.string().nullish(),
+    embeddingModelName: z.string().nullish(),
+    fileConverterOptions: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
+  return z.object({
+    context: z.array(z.string()).nullish(),
+    fileProperty: z.string().nullish(),
+    languageModel: z.string().nullish(),
+    name: z.string(),
+    order: z.number().nullish(),
+    prompt: z.string().nullish(),
+    sourceType: z.string(),
+    type: z.string(),
+    useVectorStore: z.boolean().nullish(),
+  })
+}
+
+export function AiListInputSchema(): z.ZodObject<Properties<AiListInput>> {
+  return z.object({
+    name: z.string(),
+  })
+}
+
+export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
+  return z.object({
+    libraryId: z.string(),
   })
 }
 
@@ -113,6 +159,7 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
 
 export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
   return z.object({
+    avatarUrl: z.string().nullish(),
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),

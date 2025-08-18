@@ -3,9 +3,13 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
+import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
+import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
+import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
+import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
@@ -31,16 +35,65 @@ function RouteComponent() {
 
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
-    onSettled: () =>
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.reprocessFile', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      const errorFiles = data.filter(
+        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
+      )
+      const successFiles = data.filter(
+        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
+      )
+      if (errorFiles.length > 0) {
+        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastError(
+          t('errors.reprocessFiles', {
+            count: errorFileNames.length,
+            files: errorFileNames.join(', '),
+          }),
+        )
+      }
+      if (successFiles.length > 0) {
+        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastSuccess(
+          t('actions.reprocessSuccess', {
+            count: successFileNames.length,
+            files: successFileNames.join(', '),
+          }),
+        )
+      }
+    },
+    // Invalidate the file info query to refresh the data after reprocessing
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      }),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+      })
+    },
   })
   return (
     <>
       <div>
         <LoadingSpinner isLoading={reprocessIsPending} />
-        <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+          {fileInfo.aiLibraryFile.archivedAt && (
+            <span className="badge badge-warning badge-sm">
+              {t('labels.archived')}: {dateTimeString(fileInfo.aiLibraryFile.archivedAt, language)}
+            </span>
+          )}
+        </div>
         <div className="text-sm text-gray-500">
           <a href={fileInfo.aiLibraryFile.originUri || '#'} target="blank">
             {fileInfo.aiLibraryFile.originUri}
@@ -57,15 +110,37 @@ function RouteComponent() {
           <span>
             {t('texts.fileProcessed')}: {dateTimeString(fileInfo.aiLibraryFile.processedAt, language)}
           </span>
-          {fileInfo.aiLibraryFile.processingErrorMessage && (
+          {fileInfo.aiLibraryFile.originModificationDate && (
             <>
               <span className="mx-2">|</span>
-              <span className="text-red-500">
+              <span>
+                {t('texts.originModified')}: {dateTimeString(fileInfo.aiLibraryFile.originModificationDate, language)}
+              </span>
+            </>
+          )}
+          {fileInfo.aiLibraryFile.processingErrorMessage && (
+            <>
+              <span className="text-error">
                 {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
               </span>
             </>
           )}
         </div>
+        {fileInfo.aiLibraryFile.lastUpdate && (
+          <div className="mt-2 text-sm">
+            <span className="text-gray-600">{t('texts.lastUpdate')}:</span>
+            <span className="ml-2">
+              <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="xs" />
+            </span>
+            <span className="ml-2 text-gray-500">
+              {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
+            </span>
+            {/* Only show message if there was an error */}
+            {fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
+              <div className="text-error mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex justify-end">
         <ul className="menu bg-base-200 menu-horizontal rounded-box gap-2">

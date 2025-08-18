@@ -6,6 +6,7 @@ import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './queryFiles'
+import './file-converter-options'
 
 import { getLibraryDir } from '@george-ai/file-management'
 
@@ -35,12 +36,20 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
-    participants: t.prismaField({
+    embeddingModelName: t.exposeString('embeddingModelName'),
+    fileConverterOptions: t.exposeString('fileConverterOptions'),
+    users: t.prismaField({
       type: ['User'],
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, library) => {
-        return library.participants.map((participant) => participant.user)
+        const users = library.participants.map((participant) => participant.user)
+        // Sort participants: owner first, then other users
+        return users.sort((a, b) => {
+          if (a.id === library.ownerId) return -1
+          if (b.id === library.ownerId) return 1
+          return 0
+        })
       },
     }),
   }),
@@ -52,6 +61,8 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
+    embeddingModelName: t.string({ required: false }),
+    fileConverterOptions: t.string({ required: false }),
   }),
 })
 
@@ -119,6 +130,7 @@ builder.mutationField('createAiLibrary', (t) =>
     },
     resolve: (query, _source, { data }, context) => {
       const userId = context.session.user.id
+
       return prisma.aiLibrary.create({
         ...query,
         data: {

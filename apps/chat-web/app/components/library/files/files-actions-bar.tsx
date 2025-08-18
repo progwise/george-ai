@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { reprocessFiles } from './change-files'
@@ -17,6 +18,9 @@ interface FilesActionsBarProps {
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
   totalItems: number
+  showArchived: boolean
+  onShowArchivedChange: (show: boolean) => void
+  archivedCount: number
 }
 
 export const FilesActionsBar = ({
@@ -27,15 +31,15 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
   totalItems,
+  showArchived,
+  onShowArchivedChange,
+  archivedCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
-    onSettled: () => {
-      setCheckedFileIds([])
-      tableDataChanged()
-    },
+    mutationFn: async (fileIds: string[]) => await reprocessFiles({ data: fileIds }),
+
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
@@ -79,6 +83,10 @@ export const FilesActionsBar = ({
         )
       }
     },
+    onSettled: () => {
+      setCheckedFileIds([])
+      tableDataChanged()
+    },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     reprocessFilesMutate(uploadedFileIds)
@@ -120,6 +128,21 @@ export const FilesActionsBar = ({
         >
           {t('actions.reprocess')}
         </button>
+
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            checked={showArchived}
+            onChange={(e) => onShowArchivedChange(e.target.checked)}
+          />
+          <span
+            className={`flex items-center gap-1 text-sm ${showArchived ? 'text-base-content' : 'text-base-content/60'}`}
+          >
+            <ArchiveIcon className="h-4 w-4" />
+            {t('actions.showArchived', { count: archivedCount })}
+          </span>
+        </label>
       </div>
       <div className="text-right text-sm">
         <div className="font-semibold">{t('labels.remainingStorage')}</div>

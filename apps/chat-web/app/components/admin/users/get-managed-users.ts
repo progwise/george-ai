@@ -21,6 +21,7 @@ graphql(`
     position
     confirmationDate
     activationDate
+    avatarUrl
   }
 `)
 

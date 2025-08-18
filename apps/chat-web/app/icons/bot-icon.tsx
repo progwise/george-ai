@@ -4,8 +4,8 @@ import { IconProps } from './icon-props'
 
 const BotIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('size-4 stroke-2', className)}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className={twMerge('size-4', className)}>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
         <path d="M12 8V4H8"></path>
         <rect width="16" height="12" x="4" y="8" rx="2"></rect>
         <path d="M2 14h2"></path>

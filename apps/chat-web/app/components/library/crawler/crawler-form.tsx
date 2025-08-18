@@ -1,147 +1,348 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN, jsonArrayToString } from '@george-ai/web-utils'
+
+import { graphql } from '../../../gql'
+import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
+import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
-export const crawlerFormSchema = z.object({
-  id: z.string().optional(),
-  url: z.string().url(),
-  maxDepth: z.coerce.number().min(0),
-  maxPages: z.coerce.number().min(1),
-  cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
-})
+const URI_PATTERNS = { smb: SMB_URI_PATTERN, http: HTTP_URI_PATTERN, sharepoint: SHAREPOINT_URI_PATTERN }
 
-export const getCrawlerFormData = (formData: FormData) => {
-  const {
-    'cronjob.active': cronJobActive,
-    'cronjob.time': cronJobTime,
-    'cronjob.monday': cronJobMonday,
-    'cronjob.tuesday': cronJobTuesday,
-    'cronjob.wednesday': cronJobWednesday,
-    'cronjob.thursday': cronJobThursday,
-    'cronjob.friday': cronJobFriday,
-    'cronjob.saturday': cronJobSaturday,
-    'cronjob.sunday': cronJobSunday,
-    ...dataObject
-  } = Object.fromEntries(formData)
+// Base schema for Input component validation
+export const getCrawlerFormSchema = (
+  editMode: 'add' | 'update',
+  uriType: keyof typeof URI_PATTERNS,
+  language: Language,
+) =>
+  z.object({
+    id: editMode === 'update' ? z.string().min(2) : z.string().optional(),
+    libraryId: z.string().optional(),
+    uri: z.string().min(1).regex(URI_PATTERNS[uriType], translate('crawlers.errors.invalidUri', language)),
+    uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
+    maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
+    maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
+    // File filtering options
+    includePatterns: z.string().optional(),
+    excludePatterns: z.string().optional(),
+    maxFileSize: z.coerce.number().min(0).optional(),
+    minFileSize: z.coerce.number().min(0).optional(),
+    allowedMimeTypes: z.string().optional(),
+    cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
+    username:
+      uriType !== 'smb'
+        ? z.string().optional()
+        : z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
+    password:
+      uriType !== 'smb'
+        ? z.string().optional()
+        : z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
+    sharepointAuth:
+      uriType != 'sharepoint'
+        ? z.string().optional()
+        : z
+            .string()
+            .min(20, translate('crawlers.validationSharePointAuthTooShort', language))
+            .refine(
+              (value) => {
+                // Must contain at least one SharePoint authentication cookie
+                const hasTraditionalAuth = value.includes('FedAuth=') || value.includes('rtFa=')
+                const hasModernAuth = value.includes('SPOIDCRL=') || value.includes('SPOCC=')
+                const hasCustomAuth =
+                  value.includes('NTLM') ||
+                  value.includes('Negotiate') ||
+                  value.includes('SAML') ||
+                  value.includes('WSFederation')
 
-  const [hour, minute] = cronJobTime.toString().split(':').map(Number)
+                return hasTraditionalAuth || hasModernAuth || hasCustomAuth
+              },
+              {
+                message: translate('crawlers.validationSharePointAuthMissingTokens', language),
+              },
+            )
+            .refine(
+              (value) => {
+                // Very basic cookie format validation - just check that it looks like cookies
+                // Should contain = signs and not start with = (but can end with = for base64 padding)
+                return value.includes('=') && !value.startsWith('=') && value.trim().length > 0
+              },
+              {
+                message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
+              },
+            ),
+  })
 
-  return {
-    ...dataObject,
-    cronJob: cronJobActive
-      ? {
-          active: cronJobActive === 'true',
-          hour,
-          minute,
-          monday: cronJobMonday === 'on',
-          tuesday: cronJobTuesday === 'on',
-          wednesday: cronJobWednesday === 'on',
-          thursday: cronJobThursday === 'on',
-          friday: cronJobFriday === 'on',
-          saturday: cronJobSaturday === 'on',
-          sunday: cronJobSunday === 'on',
-        }
-      : undefined,
+graphql(`
+  fragment CrawlerForm_Crawler on AiLibraryCrawler {
+    id
+    libraryId
+    uri
+    uriType
+    maxDepth
+    maxPages
+    includePatterns
+    excludePatterns
+    maxFileSize
+    minFileSize
+    allowedMimeTypes
+    cronJob {
+      id
+      active
+      hour
+      minute
+      monday
+      tuesday
+      wednesday
+      thursday
+      friday
+      saturday
+      sunday
+    }
   }
-}
-
-export interface CrawlerFormData {
-  id?: string
-  url: string
-  maxDepth: number
-  maxPages: number
-  cronJob?: {
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  } | null
-}
+`)
 
 interface CrawlerFormProps {
-  initialData?: CrawlerFormData
-  isPending: boolean
-  className?: string
+  libraryId: string
+  crawler?: CrawlerForm_CrawlerFragment
 }
 
-export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormProps) => {
-  const { t } = useTranslation()
-  const [crawlerActive, setCrawlerActive] = useState(initialData ? !!initialData.cronJob?.active : true)
+export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
+  const { t, language } = useTranslation()
+  const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
+  const [filtersActive, setFiltersActive] = useState(
+    !!(
+      crawler?.includePatterns ||
+      crawler?.excludePatterns ||
+      crawler?.maxFileSize ||
+      crawler?.minFileSize ||
+      crawler?.allowedMimeTypes
+    ),
+  )
 
-  // Format time for the time input (HH:MM)
-  const formatTime = (hour: number = 0, minute: number = 0) => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-  }
+  // Create dynamic schema based on selected URI type
+  const crawlerFormSchema = useMemo(() => {
+    const schema = getCrawlerFormSchema(!crawler ? 'add' : 'update', selectedUriType, language)
+    return schema
+  }, [language, selectedUriType, crawler])
 
   return (
-    <div className={twMerge('grid grid-cols-1 gap-8 lg:grid-cols-2', className)}>
-      <div className="">
-        <Input
-          name="url"
-          value={initialData?.url ?? 'https://'}
-          label={t('crawlers.url')}
-          schema={crawlerFormSchema}
-          disabled={isPending}
-        />
-        <div className="flex flex-row gap-2">
-          <Input
-            name="maxDepth"
-            type="number"
-            value={initialData?.maxDepth ?? 2}
-            label={t('crawlers.maxDepth')}
-            schema={crawlerFormSchema}
-            disabled={isPending}
+    <div className="flex flex-col gap-2">
+      <input type="hidden" name="libraryId" value={libraryId} />
+      {crawler?.id && <input type="hidden" name="id" value={crawler.id} />}
+      <div className="flex justify-end gap-4">
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="http"
+            className="radio radio-sm"
+            checked={selectedUriType === 'http'}
+            onChange={() => setSelectedUriType('http')}
+            required
           />
-          <Input
-            name="maxPages"
-            type="number"
-            value={initialData?.maxPages ?? 10}
-            label={t('crawlers.maxPages')}
-            schema={crawlerFormSchema}
-            disabled={isPending}
+          <span>{t('crawlers.uriTypeHtml')}</span>
+        </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="smb"
+            className="radio radio-sm"
+            checked={selectedUriType === 'smb'}
+            onChange={() => setSelectedUriType('smb')}
           />
-        </div>
+          <span>{t('crawlers.uriTypeSmb')}</span>
+        </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="sharepoint"
+            className="radio radio-sm"
+            checked={selectedUriType === 'sharepoint'}
+            onChange={() => setSelectedUriType('sharepoint')}
+          />
+          <span>{t('crawlers.uriTypeSharepoint')}</span>
+        </label>
       </div>
+      <Input
+        name="uri"
+        value={crawler?.uri || ''}
+        placeholder={t('crawlers.placeholders.uri')}
+        label={t('crawlers.uri')}
+        schema={crawlerFormSchema}
+        required={true}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          name="maxDepth"
+          type="number"
+          value={crawler?.maxDepth ?? 2}
+          placeholder={t('crawlers.placeholders.maxDepth')}
+          label={t('crawlers.maxDepth')}
+          schema={crawlerFormSchema}
+          required={true}
+        />
+        <Input
+          name="maxPages"
+          type="number"
+          value={crawler?.maxPages ?? 10}
+          placeholder={t('crawlers.placeholders.maxPages')}
+          label={t('crawlers.maxPages')}
+          schema={crawlerFormSchema}
+          required={true}
+        />
+      </div>
+
+      {/* File Filters Section */}
       <div className="flex flex-col gap-2">
-        <fieldset className="fieldset">
+        <fieldset className="fieldset flex">
           <label className="label text-base-content mt-4 font-semibold">
             <input
-              name="cronjob.active"
-              defaultChecked={crawlerActive}
+              name="filtersActive"
               type="checkbox"
               className="checkbox checkbox-sm"
-              onChange={(event) => setCrawlerActive(event.currentTarget.checked)}
+              checked={filtersActive}
+              onChange={(event) => setFiltersActive(event.currentTarget.checked)}
             />
-            {t('crawlers.cronJobActive')}
+            {t('crawlers.filtersActive')}
           </label>
         </fieldset>
 
-        <div className={twMerge('contents', !crawlerActive && 'disabled')}>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">{t('crawlers.cronJobTime')}</legend>
+        {filtersActive && (
+          <div className="bg-base-300 space-y-4 rounded-lg p-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <Input
+                name="includePatterns"
+                label={t('crawlers.includePatterns')}
+                placeholder="\.pdf$, \.docx?$, \.txt$"
+                value={jsonArrayToString(crawler?.includePatterns)}
+                schema={crawlerFormSchema}
+              />
+
+              <Input
+                name="excludePatterns"
+                label={t('crawlers.excludePatterns')}
+                placeholder="archive, _old, backup, temp"
+                value={jsonArrayToString(crawler?.excludePatterns)}
+                schema={crawlerFormSchema}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  name="minFileSize"
+                  type="number"
+                  label={t('crawlers.minFileSize')}
+                  placeholder="0.1"
+                  value={crawler?.minFileSize}
+                  schema={crawlerFormSchema}
+                />
+
+                <Input
+                  name="maxFileSize"
+                  type="number"
+                  label={t('crawlers.maxFileSize')}
+                  placeholder="50"
+                  value={crawler?.maxFileSize}
+                  schema={crawlerFormSchema}
+                />
+              </div>
+
+              <Input
+                name="allowedMimeTypes"
+                label={t('crawlers.allowedMimeTypes')}
+                placeholder="application/pdf, text/plain, application/msword"
+                value={jsonArrayToString(crawler?.allowedMimeTypes)}
+                schema={crawlerFormSchema}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {selectedUriType === 'sharepoint' ? (
+        <div className="flex flex-col gap-2">
+          <div className="alert alert-info">
+            <div className="text-sm">
+              <strong>SharePoint Authentication Required:</strong>
+              <ol className="mt-2 list-inside list-decimal space-y-1">
+                <li>Open your SharePoint site in browser and log in completely</li>
+                <li>Open Developer Tools (F12) → Network tab</li>
+                <li>Refresh the page or navigate to a document library</li>
+                <li>Find any request to your SharePoint site</li>
+                <li>Copy the complete 'Cookie' header value (must include FedAuth and rtFa cookies)</li>
+                <li>Paste it in the field below</li>
+              </ol>
+              <div className="mt-2 text-xs opacity-75">
+                Note: Cookies are session-based and will expire. You may need to refresh them periodically.
+              </div>
+            </div>
+          </div>
+          <Input
+            name="sharepointAuth"
+            label="SharePoint Authentication Cookies"
+            placeholder={t('crawlers.placeholders.sharepointAuth')}
+            schema={crawlerFormSchema}
+            required
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <Input
+            disabled={selectedUriType !== 'smb'}
+            name="username"
+            label={t('crawlers.credentialsUsername')}
+            placeholder={t('crawlers.placeholders.username')}
+            schema={crawlerFormSchema}
+            required
+          />
+          <Input
+            disabled={selectedUriType !== 'smb'}
+            name="password"
+            type="password"
+            label={t('crawlers.credentialsPassword')}
+            placeholder={t('crawlers.placeholders.password')}
+            schema={crawlerFormSchema}
+            required
+          />
+        </div>
+      )}
+      <div className="flex flex-col gap-2">
+        <fieldset className="fieldset flex">
+          <label className="label text-base-content mt-4 font-semibold">
+            <input
+              name="cronjob.active"
+              defaultChecked={scheduleActive}
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              onChange={(event) => setScheduleActive(event.currentTarget.checked)}
+            />
+            {t('crawlers.cronJobActive')}
+          </label>
+          <label className="label text-base-content mt-4 font-semibold">
+            {t('crawlers.cronJobTime')}
             <input
               type="time"
               name="cronjob.time"
-              className="input w-full"
-              required={crawlerActive}
+              className="input pr-10"
+              required={scheduleActive}
               defaultValue={
-                initialData?.cronJob ? formatTime(initialData.cronJob.hour, initialData.cronJob.minute) : '00:00'
+                crawler?.cronJob && crawler.cronJob.hour !== undefined && crawler.cronJob.minute !== undefined
+                  ? `${crawler.cronJob.hour.toString().padStart(2, '0')}:${crawler.cronJob.minute.toString().padStart(2, '0')}`
+                  : '00:00'
               }
+              disabled={!scheduleActive}
             />
-            <p className="label">{t('crawlers.utcHint')}</p>
-          </fieldset>
-
-          <fieldset className="fieldset flex flex-col flex-wrap gap-2 md:flex-row">
+            {t('crawlers.utcHint')}
+          </label>
+        </fieldset>
+        <div className={twMerge('', !scheduleActive && 'disabled')}>
+          <fieldset className="fieldset flex flex-row flex-wrap gap-2">
             <legend className="fieldset-legend">{t('crawlers.days')}</legend>
 
             <label className="label">
@@ -149,7 +350,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.monday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.monday ?? true}
+                defaultChecked={crawler?.cronJob?.monday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.monday')}
             </label>
@@ -159,7 +361,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.tuesday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.tuesday ?? true}
+                defaultChecked={crawler?.cronJob?.tuesday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.tuesday')}
             </label>
@@ -169,7 +372,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.wednesday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.wednesday ?? true}
+                defaultChecked={crawler?.cronJob?.wednesday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.wednesday')}
             </label>
@@ -179,7 +383,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.thursday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.thursday ?? true}
+                defaultChecked={crawler?.cronJob?.thursday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.thursday')}
             </label>
@@ -189,7 +394,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.friday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.friday ?? true}
+                defaultChecked={crawler?.cronJob?.friday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.friday')}
             </label>
@@ -199,7 +405,8 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.saturday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.saturday ?? true}
+                defaultChecked={crawler?.cronJob?.saturday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.saturday')}
             </label>
@@ -209,14 +416,13 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
                 name="cronjob.sunday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.sunday ?? true}
+                defaultChecked={crawler?.cronJob?.sunday ?? true}
+                disabled={!scheduleActive}
               />
               {t('labels.sunday')}
             </label>
           </fieldset>
         </div>
-
-        {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
       </div>
     </div>
   )

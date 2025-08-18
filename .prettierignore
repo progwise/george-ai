@@ -9,3 +9,6 @@ apps/chat-web/app/routeTree.gen.ts
 .typesense-data
 .node_modules
 apps/fine-tuning/*
+.smb-mounts
+.smb-credentials
+.sharepoint-credentials

@@ -13,6 +13,8 @@ graphql(`
     ownerId
     filesCount
     description
+    embeddingModelName
+    fileConverterOptions
   }
 `)
 

@@ -20,10 +20,22 @@ graphql(`
       createdAt
       hidden
       sender {
+        __typename
         id
         name
         isBot
         assistantId
+        ... on HumanParticipant {
+          user {
+            avatarUrl
+          }
+        }
+        ... on AssistantParticipant {
+          assistant {
+            iconUrl
+            updatedAt
+          }
+        }
       }
     }
   }
@@ -46,6 +58,7 @@ interface IncomingMessage {
     name: string
     isBot: boolean
     userId?: string
+    avatarUrl?: string | null
   }
 }
 
@@ -62,8 +75,8 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
   const selectedConversationId = conversation.id
 
   useEffect(() => {
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-    setNewMessages([])
+    const timeout = setTimeout(() => setNewMessages([]), 10)
+    return () => clearTimeout(timeout)
   }, [messages])
 
   useEffect(() => {
@@ -114,28 +127,50 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
   }
   return (
     <div className="mt-2 flex grow flex-col gap-2">
-      {messages.map((message) => (
-        <ConversationMessage
-          key={message.id}
-          isLoading={false}
-          userId={userId}
-          conversationOwnerId={conversation.ownerId}
-          message={{
-            id: message.id,
-            content: message.content || '',
-            source: message.source,
-            createdAt: message.createdAt,
-            conversationId: selectedConversationId,
-            hidden: message.hidden ?? false,
-            sender: {
-              id: message.sender.id,
-              assistantId: message.sender.assistantId || undefined,
-              name: message.sender.name || 'Unknown',
-              isBot: message.sender.isBot,
-            },
-          }}
-        />
-      ))}
+      {messages.map((message) => {
+        return (
+          <ConversationMessage
+            key={message.id}
+            isLoading={false}
+            userId={userId}
+            conversationOwnerId={conversation.ownerId}
+            message={{
+              id: message.id,
+              content: message.content || '',
+              source: message.source,
+              createdAt: message.createdAt,
+              conversationId: selectedConversationId,
+              hidden: message.hidden ?? false,
+              sender: message.sender.isBot
+                ? {
+                    id: message.sender.id,
+                    assistantId: message.sender.assistantId || undefined,
+                    name: message.sender.name || 'Unknown',
+                    isBot: true,
+                    assistant:
+                      message.sender.__typename === 'AssistantParticipant' && message.sender.assistant
+                        ? {
+                            iconUrl: message.sender.assistant.iconUrl,
+                            updatedAt: message.sender.assistant.updatedAt || undefined,
+                          }
+                        : undefined,
+                  }
+                : {
+                    id: message.sender.id,
+                    assistantId: message.sender.assistantId || undefined,
+                    name: message.sender.name || 'Unknown',
+                    isBot: false,
+                    user:
+                      message.sender.__typename === 'HumanParticipant' && message.sender.user
+                        ? {
+                            avatarUrl: message.sender.user.avatarUrl,
+                          }
+                        : undefined,
+                  },
+            }}
+          />
+        )
+      })}
       {newMessages.map((message) => (
         <ConversationMessage
           key={message.id}
@@ -149,12 +184,30 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
             createdAt: message.createdAt,
             conversationId: selectedConversationId,
             hidden: false,
-            sender: {
-              id: message.sender.id,
-              name: message.sender.name,
-              isBot: message.sender.isBot,
-              assistantId: message.sender.assistantId,
-            },
+            sender: message.sender.isBot
+              ? {
+                  id: message.sender.id,
+                  name: message.sender.name,
+                  isBot: true,
+                  assistantId: message.sender.assistantId,
+                  assistant: message.sender.avatarUrl
+                    ? {
+                        iconUrl: message.sender.avatarUrl,
+                        updatedAt: undefined,
+                      }
+                    : undefined,
+                }
+              : {
+                  id: message.sender.id,
+                  name: message.sender.name,
+                  isBot: false,
+                  assistantId: message.sender.assistantId,
+                  user: message.sender.avatarUrl
+                    ? {
+                        avatarUrl: message.sender.avatarUrl,
+                      }
+                    : undefined,
+                },
           }}
         />
       ))}
