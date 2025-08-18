@@ -371,6 +371,12 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                     ) : (
                       <span>{field.name}</span>
                     )}
+
+                    {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) && (
+                      <div className="flex items-center gap-2">
+                        <div className="loading loading-ring text-primary"></div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Field dropdown trigger */}
