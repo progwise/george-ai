@@ -19,7 +19,6 @@ import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
 import { getListFilesWithValuesQueryOptions } from './get-list-files-with-values'
-import { EnrichmentQueueUpdate, useEnrichmentQueueSSE } from './use-enrichment-queue-sse'
 
 graphql(`
   fragment ListFilesTable_File on AiLibraryFile {
@@ -79,29 +78,6 @@ interface ListFieldsTableProps {
   onPageChange?: (page: number, pageSize: number, orderBy?: string, orderDirection?: 'asc' | 'desc') => void
 }
 
-const reportUpdate = ({ update, displayValue }: { update: EnrichmentQueueUpdate; displayValue: string }) => {
-  const elementId = `${update.fileId}-${update.fieldId}`
-  const element = document.getElementById(elementId)
-  console.log('update reported', update, displayValue)
-  if (!element) {
-    console.warn('element not found')
-    return
-  }
-  switch (update.status) {
-    case 'completed':
-      element.innerText = displayValue
-      break
-    case 'failed':
-      element.innerText = update.error || 'unknown error'
-      break
-    case 'pending':
-      element.innerText = 'pending'
-      break
-    case 'processing':
-      element.innerHTML = 'processing'
-  }
-}
-
 export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTableProps) => {
   const { t, language } = useTranslation()
 
@@ -118,6 +94,12 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   // Fetch field values for all files
   const fieldIds = useMemo(() => sortedFields.map((f) => f.id), [sortedFields])
+
+  // Check if there are any active enrichments (pending or processing)
+  const hasActiveEnrichments = useMemo(() => {
+    return sortedFields.some((field) => field.pendingItemsCount > 0 || field.processingItemsCount > 0)
+  }, [sortedFields])
+
   const { data: filesWithValues } = useSuspenseQuery(
     getListFilesWithValuesQueryOptions({
       listId: listFiles.listId,
@@ -127,6 +109,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       orderDirection: listFiles.orderDirection as 'asc' | 'desc' | undefined,
       fieldIds,
       language,
+      hasActiveEnrichments,
     }),
   )
 
@@ -193,9 +176,6 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   // Keep column widths ref in sync
   columnWidthsRef.current = columnWidths
-
-  // Use SSE hook for real-time enrichment updates
-  useEnrichmentQueueSSE(list.id, reportUpdate)
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(

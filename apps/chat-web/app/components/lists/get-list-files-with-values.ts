@@ -72,8 +72,10 @@ export const getListFilesWithValuesQueryOptions = (params: {
   orderDirection?: 'asc' | 'desc'
   fieldIds: string[]
   language: string
+  hasActiveEnrichments: boolean
 }) =>
   queryOptions({
     queryKey: ['AiListFilesWithValues', params],
     queryFn: () => getListFilesWithValues({ data: params }),
+    refetchInterval: params.hasActiveEnrichments ? 2000 : false, // Poll every 2 seconds if enrichments are active
   })

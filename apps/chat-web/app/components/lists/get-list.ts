@@ -29,4 +29,13 @@ export const getListQueryOptions = (listId: string) =>
   queryOptions({
     queryKey: ['AiList', { listId }],
     queryFn: () => getList({ data: listId }),
+    refetchInterval: (query) => {
+      // Check if there are active enrichments in the current data
+      const data = query.state.data as
+        | { aiList: { fields: Array<{ pendingItemsCount: number; processingItemsCount: number }> } }
+        | undefined
+      const hasActiveEnrichments =
+        data?.aiList.fields.some((field) => field.pendingItemsCount > 0 || field.processingItemsCount > 0) || false
+      return hasActiveEnrichments ? 2000 : false // Poll every 2 seconds if enrichments are active
+    },
   })

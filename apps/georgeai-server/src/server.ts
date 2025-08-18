@@ -31,7 +31,7 @@ console.log(`
   `)
 
 // Start the enrichment queue worker
-startEnrichmentQueueWorker()
+startEnrichmentQueueWorker().catch(console.error)
 
 const yoga = createYoga({
   schema,
