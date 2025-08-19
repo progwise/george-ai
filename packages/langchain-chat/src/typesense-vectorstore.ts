@@ -7,7 +7,9 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
+import { type QAPair, generateQAPairs } from './qa-generator'
 import { splitMarkdown } from './split-markdown'
+import { summarizeDocument } from './summarizer'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
 
@@ -203,6 +205,212 @@ export const embedFile = async (
       { action: 'upsert', dirty_values: 'drop' },
     )
 
+  console.log('\n' + '='.repeat(60))
+  console.log(`Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m`)
+  console.log('='.repeat(60) + '\n')
+  const fullDocumentContent = chunks.map((chunk) => chunk.pageContent).join('\n\n')
+  const overallDocumentSummary = await summarizeDocument(fullDocumentContent)
+  console.log(`Generated overall document summary: ${overallDocumentSummary.substring(0, 100)}...`)
+
+  console.log(`Processing ${chunks.length} chunks for training data generation...`)
+
+  const trainingDataEntries: Array<{
+    chunkIndex: number
+    chunkContent: string
+    chunkSummary: string
+    overallDocumentSummary: string
+    qaPairs: QAPair[]
+    metadata: {
+      section: string
+      headingPath: string
+      chunkIndex: number
+      subChunkIndex: number
+      points: number
+      docName: string
+      docType: string
+      docId: string
+      docPath: string
+      originUri: string
+    }
+  }> = []
+
+  const processedChunks = await Promise.all(
+    chunks.map(async (chunk, index) => {
+      const actualChunkIndex = chunk.metadata.chunkIndex
+      try {
+        console.log(`Processing chunk ${actualChunkIndex} (${index + 1}/${chunks.length}) for training data`)
+
+        const chunkSummary = await summarizeDocument(chunk.pageContent)
+        console.log(`Generated chunk summary for chunk ${actualChunkIndex}: ${chunkSummary.substring(0, 100)}...`)
+
+        const contextualPrompt = `
+Document Summary: ${overallDocumentSummary}
+
+Chunk Summary: ${chunkSummary}
+
+Chunk Content: ${chunk.pageContent}
+`
+        const qaPairs = await generateQAPairs(contextualPrompt, overallDocumentSummary)
+        console.log(`Generated ${qaPairs.length} QA pairs for chunk ${actualChunkIndex}`)
+
+        // Ensure we have at least some QA pairs, retry if empty
+        if (qaPairs.length === 0) {
+          console.warn(`No QA pairs generated for chunk ${actualChunkIndex}, retrying with simplified prompt...`)
+          const simplifiedPrompt = `Create question-answer pairs from this text:\n\n${chunk.pageContent}\n\nGenerate 2-3 clear questions with accurate answers.`
+          const retryQAPairs = await generateQAPairs(simplifiedPrompt, overallDocumentSummary)
+          console.log(`Retry generated ${retryQAPairs.length} QA pairs for chunk ${actualChunkIndex}`)
+
+          const trainingEntry = {
+            chunkIndex: actualChunkIndex,
+            chunkContent: chunk.pageContent,
+            chunkSummary,
+            overallDocumentSummary,
+            qaPairs: retryQAPairs,
+            metadata: chunk.metadata,
+          }
+          trainingDataEntries.push(trainingEntry)
+
+          return {
+            ...chunk,
+            chunkSummary,
+            qaPairs: retryQAPairs,
+          }
+        }
+
+        const trainingEntry = {
+          chunkIndex: actualChunkIndex,
+          chunkContent: chunk.pageContent,
+          chunkSummary,
+          overallDocumentSummary,
+          qaPairs,
+          metadata: chunk.metadata,
+        }
+
+        trainingDataEntries.push(trainingEntry)
+
+        return {
+          ...chunk,
+          chunkSummary,
+          qaPairs,
+        }
+      } catch (error) {
+        console.error(`Error processing chunk ${actualChunkIndex}:`, error)
+        console.error(`Chunk content preview: ${chunk.pageContent.substring(0, 200)}...`)
+
+        // Try to generate at least a basic summary and simple QA
+        let fallbackSummary = ''
+        let fallbackQAPairs: QAPair[] = []
+
+        try {
+          fallbackSummary = await summarizeDocument(chunk.pageContent)
+          const basicPrompt = `What is this text about? ${chunk.pageContent.substring(0, 500)}`
+          fallbackQAPairs = await generateQAPairs(basicPrompt, overallDocumentSummary)
+        } catch (fallbackError) {
+          console.error(`Fallback processing also failed for chunk ${actualChunkIndex}:`, fallbackError)
+          fallbackSummary = `Error: Could not summarize chunk ${actualChunkIndex}`
+        }
+
+        const emptyEntry = {
+          chunkIndex: actualChunkIndex,
+          chunkContent: chunk.pageContent,
+          chunkSummary: fallbackSummary,
+          overallDocumentSummary,
+          qaPairs: fallbackQAPairs,
+          metadata: chunk.metadata,
+        }
+        trainingDataEntries.push(emptyEntry)
+
+        return {
+          ...chunk,
+          chunkSummary: fallbackSummary,
+          qaPairs: fallbackQAPairs,
+        }
+      }
+    }),
+  )
+
+  const totalQAPairs = processedChunks.reduce((acc, chunk) => acc + chunk.qaPairs.length, 0)
+  console.log(
+    `Training data generation completed. Generated summaries for ${chunks.length} chunks and ${totalQAPairs} total QA pairs.`,
+  )
+
+  const trainingDataPath = `${markdownPath.replace('.md', '')}_training_data.json`
+
+  // Create hierarchical structure without redundancy
+  const hierarchicalTrainingData = {
+    document: {
+      id: file.id,
+      name: file.name,
+      mimeType: file.mimeType,
+      originUri: file.originUri,
+      docPath: markdownPath,
+      summary: overallDocumentSummary,
+      totalChunks: chunks.length,
+      totalQAPairs,
+      chunks: trainingDataEntries
+        .sort((a, b) => a.chunkIndex - b.chunkIndex) // Sort by actual chunk index
+        .map((entry) => ({
+          chunkIndex: entry.chunkIndex,
+          section: entry.metadata.section,
+          headingPath: entry.metadata.headingPath,
+          subChunkIndex: entry.metadata.subChunkIndex,
+          summary: entry.chunkSummary,
+          qaPairs: entry.qaPairs.map((qaPair) => ({
+            prompt: qaPair.prompt,
+            completion: qaPair.completion,
+            category: qaPair.category || ['general'],
+            difficulty: qaPair.difficulty || ['medium'],
+          })),
+        })),
+    },
+  }
+
+  // Save hierarchical structure locally
+  fs.writeFileSync(trainingDataPath, JSON.stringify(hierarchicalTrainingData, null, 2))
+  console.log(`Training data saved to: ${trainingDataPath}`)
+
+  // Also save QA pairs in JSONL format for fine-tuning
+  const fineTuningDir = '/workspaces/george-ai/apps/fine-tuning/jsonl/raw'
+  const fineTuningPath = fineTuningDir + '/qa-data.jsonl'
+
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(fineTuningDir)) {
+    fs.mkdirSync(fineTuningDir, { recursive: true })
+    console.log(`Created fine-tuning directory: ${fineTuningDir}`)
+  }
+
+  // Convert QA pairs to JSONL format for fine-tuning
+  // Check the chat template type from the qa-generator to determine output format
+  const qaJsonlEntries = trainingDataEntries.flatMap((entry) =>
+    entry.qaPairs.map((qaPair) => {
+      // For now, preserve the basic format but add metadata
+      // TODO: The generateQAPairs function should return the chat template formatted data directly
+      return {
+        prompt: qaPair.prompt,
+        completion: qaPair.completion,
+        sourceDocument: file.name,
+        chunkIndex: entry.chunkIndex,
+        section: entry.metadata.section,
+        category: qaPair.category || ['general'],
+        difficulty: qaPair.difficulty || ['medium'],
+      }
+    }),
+  )
+
+  // Save raw QA pairs (for backward compatibility)
+  const jsonlLines = qaJsonlEntries.map((entry) => JSON.stringify(entry)).join('\n')
+  if (fs.existsSync(fineTuningPath)) {
+    fs.appendFileSync(fineTuningPath, '\n' + jsonlLines)
+    console.log(`Appended ${qaJsonlEntries.length} QA pairs to: ${fineTuningPath}`)
+  } else {
+    fs.writeFileSync(fineTuningPath, jsonlLines)
+    console.log(`Created fine-tuning dataset with ${qaJsonlEntries.length} QA pairs: ${fineTuningPath}`)
+  }
+
+  console.log(`Successfully processed ${chunks.length} chunks with ${totalQAPairs} total QA pairs`)
+  console.log(`Training data available at: ${trainingDataPath}`)
+  console.log(`Fine-tuning data available at: ${fineTuningPath}`)
+
   return {
     id: file.id,
     name: file.name,
@@ -211,6 +419,11 @@ export const embedFile = async (
     mimeType: file.mimeType,
     chunks: chunks.length,
     size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
+    overallDocumentSummary,
+    processedChunks,
+    totalQAPairs,
+    trainingDataPath,
+    trainingDataEntries: trainingDataEntries.length,
   }
 }
 
@@ -364,5 +577,108 @@ export const getFileChunks = async ({
       chunkIndex: hit.document.chunkIndex || 0,
       subChunkIndex: hit.document.subChunkIndex || 0,
     })),
+  }
+}
+
+/**
+ * Clears the fine-tuning dataset file
+ */
+export const clearFineTuningDataset = () => {
+  const fineTuningPath = '/workspaces/george-ai/apps/fine-tuning/jsonl/raw/qa-data.jsonl'
+  if (fs.existsSync(fineTuningPath)) {
+    fs.unlinkSync(fineTuningPath)
+    console.log(`🗑️ Cleared fine-tuning dataset: ${fineTuningPath}`)
+  } else {
+    console.log(`📝 Fine-tuning dataset doesn't exist: ${fineTuningPath}`)
+  }
+}
+
+/**
+ * Exports all training data from a library into a consolidated JSONL file
+ * suitable for LLM fine-tuning
+ */
+export const exportTrainingData = async (libraryId: string, outputPath?: string) => {
+  const defaultOutputPath = `/tmp/training_data_${libraryId}_${Date.now()}.jsonl`
+  const finalOutputPath = outputPath || defaultOutputPath
+
+  console.log(`Exporting training data for library: ${libraryId}`)
+
+  await ensureVectorStore(libraryId)
+  const collectionName = getTypesenseSchemaName(libraryId)
+
+  // Get all documents in the library
+  const allDocuments = await vectorTypesenseClient.collections(collectionName).documents().search({
+    q: '*',
+    per_page: 1000, // Adjust as needed
+    sort_by: 'docId:asc,chunkIndex:asc',
+  })
+
+  if (!allDocuments.hits || allDocuments.hits.length === 0) {
+    console.log('No documents found in library')
+    return { totalEntries: 0, outputPath: finalOutputPath }
+  }
+
+  // Group by document and process
+  const docGroups = new Map()
+  allDocuments.hits.forEach((hit: DocumentSchema) => {
+    const docId = hit.document.docId
+    if (!docGroups.has(docId)) {
+      docGroups.set(docId, [])
+    }
+    docGroups.get(docId).push(hit.document)
+  })
+
+  const allTrainingEntries: string[] = []
+
+  for (const [docId, chunks] of docGroups) {
+    console.log(`Processing document ${docId} with ${chunks.length} chunks`)
+
+    // Get overall document summary by combining all chunks
+    const fullDocContent = chunks.map((chunk: DocumentSchema) => chunk.text).join('\n\n')
+    const overallSummary = await summarizeDocument(fullDocContent)
+
+    // Process each chunk
+    for (const chunk of chunks) {
+      try {
+        const chunkSummary = await summarizeDocument(chunk.text || '')
+        const contextualPrompt = `
+Document Summary: ${overallSummary}
+
+Chunk Summary: ${chunkSummary}
+
+Chunk Content: ${chunk.text}
+`
+        const qaPairs = await generateQAPairs(contextualPrompt, overallSummary)
+
+        // Add each QA pair as a training entry
+        qaPairs.forEach((qaPair) => {
+          const trainingEntry = {
+            ...qaPair,
+            sourceDocument: chunk.docName,
+            documentSummary: overallSummary,
+            chunkIndex: chunk.chunkIndex,
+            chunkSummary,
+            section: chunk.section,
+            headingPath: chunk.headingPath,
+            docId: chunk.docId,
+            libraryId,
+          }
+          allTrainingEntries.push(JSON.stringify(trainingEntry))
+        })
+      } catch (error) {
+        console.error(`Error processing chunk in document ${docId}:`, error)
+      }
+    }
+  }
+
+  // Save consolidated training data
+  fs.writeFileSync(finalOutputPath, allTrainingEntries.join('\n'))
+
+  console.log(`Training data exported: ${allTrainingEntries.length} entries saved to ${finalOutputPath}`)
+
+  return {
+    totalEntries: allTrainingEntries.length,
+    outputPath: finalOutputPath,
+    documentsProcessed: docGroups.size,
   }
 }

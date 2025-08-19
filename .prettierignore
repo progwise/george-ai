@@ -8,7 +8,7 @@ apps/chat-web/app/routeTree.gen.ts
 .posgres-data*
 .typesense-data
 .node_modules
-.venv
+apps/fine-tuning/*
 .smb-mounts
 .smb-credentials
 .sharepoint-credentials
