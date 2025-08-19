@@ -1,0 +1,99 @@
+{
+  "base_model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset_path": "jsonl/processed/train-original.jsonl",
+  "validation_path": "jsonl/processed/valid-original.jsonl",
+  "test_path": "jsonl/processed/test-original.jsonl",
+  "train_ratio": 0.80,
+  "valid_ratio": 0.15,
+  "test_ratio": 0.05,
+  "fine_tune_params": {
+    "num_layers": 28,
+    "learning_rate": 2e-4,
+    "iters": 3000,
+    "fine_tune_type": "lora",
+    "lora_rank": 128,
+    "lora_alpha": 256,
+    "lora_dropout": 0.1,
+    "batch_size": 1,
+    "gradient_accumulation_steps": 32,
+    "warmup_steps": 300,
+    "weight_decay": 0.01,
+    "scheduler": "cosine_with_warmup",
+    "max_seq_length": 2048,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    "save_strategy": "steps",
+    "logging_steps": 20,
+    "eval_strategy": "steps",
+    "lr_schedule": "advanced_exploration_exploitation"
+  },
+  "ollama_model_name": "qwen2-5-7b-presscrafters-expert",
+  "keep_split_data": true,
+  "keep_fused_model": true,
+  "keep_gguf_files": true,
+  "keep_adapter_weights": true,
+  "evaluation": {
+    "metrics": ["accuracy", "bleu", "rouge", "exact_match", "f1", "perplexity"],
+    "eval_steps": 100,
+    "save_steps": 200,
+    "load_best_model_at_end": true,
+    "metric_for_best_model": "f1",
+    "early_stopping_patience": 10,
+    "early_stopping_threshold": 0.001
+  },
+  "data_processing": {
+    "max_length": 1024,
+    "truncation": true,
+    "padding": "max_length",
+    "remove_columns": ["sourceDocument", "chunkIndex", "section", "category", "difficulty"]
+  },
+  "training_args": {
+    "fp16": true,
+    "dataloader_pin_memory": false,
+    "dataloader_num_workers": 4,
+    "group_by_length": true,
+    "report_to": "none",
+    "run_name": "qwen2-5-7b-presscrafters-expert",
+    "gradient_checkpointing": true,
+    "max_grad_norm": 1.0,
+    "warmup_ratio": 0.1
+  },
+  "learning_rate_schedule": {
+    "type": "advanced_exploration_exploitation",
+    "phases": [
+      {
+        "name": "exploration",
+        "steps": 600,
+        "lr_range": [5e-4, 2e-4],
+        "strategy": "linear_warmup"
+      },
+      {
+        "name": "exploitation",
+        "steps": 1800,
+        "lr_range": [2e-4, 5e-6],
+        "strategy": "cosine_decay"
+      },
+      {
+        "name": "refinement",
+        "steps": 600,
+        "lr_range": [5e-6, 1e-6],
+        "strategy": "exponential_decay"
+      }
+    ],
+    "adaptive_threshold": 0.001,
+    "patience_factor": 1.5
+  },
+  "advanced_training": {
+    "curriculum_learning": true,
+    "difficulty_sampling": true,
+    "dynamic_batch_sizing": true,
+    "gradient_clipping": "adaptive",
+    "learning_rate_finder": true,
+    "mixed_precision": true
+  },
+  "model_specific": {
+    "trust_remote_code": true,
+    "use_cache": false,
+    "torch_dtype": "float16",
+    "device_map": "auto"
+  }
+}
