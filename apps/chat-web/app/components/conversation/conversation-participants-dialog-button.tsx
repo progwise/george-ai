@@ -48,6 +48,7 @@ interface ConversationParticipantsDialogButtonProps {
   users: UserFragment[]
   isOpen?: boolean
   userId: string
+  variant?: 'default' | 'ghost' | 'primary'
 }
 
 export const ConversationParticipantsDialogButton = ({
@@ -56,6 +57,7 @@ export const ConversationParticipantsDialogButton = ({
   users,
   isOpen,
   userId,
+  variant = 'ghost',
 }: ConversationParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
@@ -225,12 +227,18 @@ export const ConversationParticipantsDialogButton = ({
   const buttonText = !conversation ? t('texts.newConversation') : `${t('actions.add')}`
   const isPending = isCreating || isAdding || isSendingInvitation
 
+  const buttonClasses = {
+    default: 'btn btn-sm',
+    ghost: 'btn btn-ghost btn-sm',
+    primary: 'btn btn-primary btn-sm',
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
       <button
         type="button"
-        className={twMerge('btn btn-ghost btn-sm', conversation && 'btn-square')}
+        className={twMerge(buttonClasses[variant], conversation && 'btn-square')}
         onClick={handleOpen}
       >
         {conversation ? (

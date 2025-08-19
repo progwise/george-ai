@@ -26,6 +26,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
             size
             createdAt
             updatedAt
+            archivedAt
             processedAt
             processingErrorMessage
             originModificationDate
@@ -33,7 +34,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
               id
               createdAt
               message
-              success
+              updateType
             }
           }
         }

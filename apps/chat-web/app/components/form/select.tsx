@@ -35,8 +35,9 @@ export const Select = <T extends ZodRawShape>({
   schema,
   placeholder,
 }: SelectProps<T>) => {
-  const hiddenIdFieldRef = useRef<HTMLInputElement>(null)
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<string[]>([])
+  const [selectedItem, setSelectedItem] = useState<SelectItem | null>(value || null)
 
   const validate = (newValue: string | null | undefined) => {
     if (!schema) return
@@ -50,24 +51,31 @@ export const Select = <T extends ZodRawShape>({
   }
 
   const handleChange = (selectedOption: SelectItem | null) => {
-    validate(selectedOption?.id)
-    hiddenIdFieldRef.current!.value = selectedOption?.id || ''
+    const newValue = selectedOption?.id || ''
+    setSelectedItem(selectedOption)
+    // Update hidden input immediately before calling onBlur so FormData has correct value
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.value = newValue
+    }
+    validate(newValue)
     onBlur?.(selectedOption)
   }
   return (
     <fieldset className={twMerge('fieldset group', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
-        <span className="group-has-aria-invalid:text-error text-sm">{label}</span>
+        <span className="group-has-aria-invalid:text-error">
+          {label}
+          {required && <span className="text-error"> *</span>}
+        </span>
         <span className="text-error">{errors.join(', ')}</span>
-        {required && <span className="text-error">*</span>}
       </legend>
       <div className="dropdown col-span-2">
-        <input type="hidden" name={name} ref={hiddenIdFieldRef} value={value?.id || ''} />
+        <input type="hidden" name={name} ref={hiddenInputRef} value={selectedItem?.id || ''} />
         <Listbox
           disabled={disabled}
           required={required}
           items={options}
-          selectedItem={value}
+          selectedItem={selectedItem}
           onChange={(selectedOption) => {
             handleChange(selectedOption)
           }}

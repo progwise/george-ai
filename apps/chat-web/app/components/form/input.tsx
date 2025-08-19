@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
+export type InputBlurEvent = React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>
+export type InputChangeEvent = React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
 interface InputProps<T extends ZodRawShape> {
   ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>
   name: string
@@ -13,8 +15,8 @@ interface InputProps<T extends ZodRawShape> {
   required?: boolean
   disabled?: boolean
   schema?: z.ZodObject<T>
-  onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
-  onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
+  onChange?: (event: InputChangeEvent) => void
+  onBlur?: (event: InputBlurEvent) => void
   className?: string
   validateOnSchemaChange?: boolean // Allow validation on schema change even if not touched
 }
@@ -92,7 +94,7 @@ export const Input = <T extends ZodRawShape>({
   }, [schema, validate, hasBeenTouched, validateOnSchemaChange])
 
   return (
-    <fieldset className={twMerge('fieldset group', className)}>
+    <fieldset className={twMerge('fieldset group', type === 'textarea' && 'flex flex-col', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
         <span className={twMerge('group-has-aria-invalid:text-error', disabled && 'text-co')}>{label}</span>
         <span className="text-error">{errors.join(', ')}</span>
@@ -112,7 +114,8 @@ export const Input = <T extends ZodRawShape>({
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className="input validator h-full w-full flex-grow py-1 leading-normal"
+          className="input validator w-full flex-1 resize-none whitespace-pre-wrap break-words py-1 leading-normal"
+          style={{ font: 'inherit' }}
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}

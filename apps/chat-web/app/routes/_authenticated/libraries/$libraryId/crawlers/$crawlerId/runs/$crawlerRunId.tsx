@@ -3,9 +3,10 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString, duration } from '@george-ai/web-utils'
+import { dateTimeString, dateTimeStringArray, duration } from '@george-ai/web-utils'
 
 import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/get-crawler-run'
+import { UpdateStatusBadge } from '../../../../../../../components/library/crawler/update-status-badge'
 import { Pagination } from '../../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../../i18n/use-translation-hook'
 
@@ -14,10 +15,12 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
   validateSearch: z.object({
     skipUpdates: z.coerce.number().default(0),
     takeUpdates: z.coerce.number().default(20),
+    updateTypeFilter: z.array(z.string()).optional(),
   }),
-  loaderDeps: ({ search: { skipUpdates, takeUpdates } }) => ({
+  loaderDeps: ({ search: { skipUpdates, takeUpdates, updateTypeFilter } }) => ({
     skipUpdates,
     takeUpdates,
+    updateTypeFilter,
   }),
   loader: async ({ context, params, deps }) => {
     return await Promise.all([context.queryClient.ensureQueryData(getCrawlerRunQueryOptions({ ...params, ...deps }))])
@@ -33,7 +36,12 @@ function RouteComponent() {
   const { t, language } = useTranslation()
   const {
     data: { aiLibraryCrawlerRun: crawlerRun },
-  } = useSuspenseQuery(getCrawlerRunQueryOptions({ ...params, ...search }))
+  } = useSuspenseQuery(
+    getCrawlerRunQueryOptions({
+      ...params,
+      ...search,
+    }),
+  )
 
   useEffect(() => {
     if (crawlerRun.endedAt && !intervalId.current) {
@@ -159,11 +167,11 @@ function RouteComponent() {
           <h3 className="card-title">Updates ({crawlerRun.updatesCount})</h3>
 
           {/* Updates Table */}
-          {crawlerRun.updates && crawlerRun.updates.length > 0 ? (
-            <>
+          <>
+            <div className="flex items-end justify-between">
               {/* Pagination at top - only shown when there are updates */}
               <Pagination
-                totalItems={crawlerRun.updatesCount}
+                totalItems={crawlerRun.filteredUpdatesCount}
                 itemsPerPage={search.takeUpdates}
                 currentPage={1 + search.skipUpdates / search.takeUpdates}
                 onPageChange={(page) => {
@@ -175,71 +183,149 @@ function RouteComponent() {
                     },
                   })
                 }}
+                showPageSizeSelector={true}
+                onPageSizeChange={(newPageSize) => {
+                  navigate({
+                    search: {
+                      ...search,
+                      skipUpdates: 0,
+                      takeUpdates: newPageSize,
+                    },
+                  })
+                }}
               />
+              <div className="flex gap-1">
+                {crawlerRun.updateStats &&
+                  crawlerRun.updateStats.map((stat) => {
+                    if (!stat.count || stat.count === 0) return null
 
-              <div className="overflow-x-auto">
-                <table className="table-zebra table w-full table-fixed">
-                  <colgroup>
-                    <col className="w-40" />
-                    <col className="w-20" />
-                    <col className="w-24" />
-                    <col className="w-64" />
-                    <col className="w-auto" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>{t('updates.date')}</th>
-                      <th>{t('updates.success')}</th>
-                      <th>{t('updates.status')}</th>
-                      <th>{t('updates.file')}</th>
-                      <th>{t('updates.message')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {crawlerRun.updates.map((update) => {
-                      // Determine if file was skipped based on message content
-                      const isSkipped = update.message?.toLowerCase().includes('skip') || false
-                      return (
-                        <tr key={update.id}>
-                          <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
-                          <td>
-                            <span className={`badge ${update.success ? 'badge-success' : 'badge-error'}`}>
-                              {update.success ? t('updates.success') : t('updates.failed')}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`badge ${isSkipped ? 'badge-warning' : 'badge-info'}`}>
-                              {isSkipped ? t('updates.skipped') : t('updates.processed')}
-                            </span>
-                          </td>
-                          <td className="truncate">
-                            {update.file ? (
-                              <Link
-                                to="/libraries/$libraryId/files/$fileId"
-                                params={{ libraryId: params.libraryId, fileId: update.file.id }}
-                                className="link link-primary"
-                                title={update.file.name}
-                              >
-                                {update.file.name}
-                              </Link>
-                            ) : (
-                              'N/A'
-                            )}
-                          </td>
-                          <td className="break-words">
-                            {/* Only show message if there was an error (success = false) */}
-                            {!update.success ? update.message : ''}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                    return (
+                      <UpdateStatusBadge
+                        key={stat.updateType || 'error'}
+                        updateType={stat.updateType}
+                        count={stat.count}
+                        size="sm"
+                        showCheckmark={true}
+                        checked={
+                          search.updateTypeFilter ? search.updateTypeFilter.includes(stat.updateType || 'error') : true
+                        }
+                        onCheckmarkChange={(updateType, checked) => {
+                          // Get all available update types from stats
+                          const allTypes = crawlerRun.updateStats?.map((s) => s.updateType || 'error') || []
+                          const currentFilter = search.updateTypeFilter
+
+                          let newFilter: string[] | undefined
+
+                          if (!currentFilter) {
+                            // No filter currently - if unchecking, filter out this type
+                            newFilter = checked ? undefined : allTypes.filter((type) => type !== updateType)
+                          } else {
+                            // Filter exists - add/remove type
+                            if (checked) {
+                              newFilter = [...currentFilter, updateType].filter(
+                                (type, index, arr) => arr.indexOf(type) === index,
+                              )
+                              // If all types are selected, remove filter entirely
+                              if (newFilter.length === allTypes.length) {
+                                newFilter = undefined
+                              }
+                            } else {
+                              newFilter = currentFilter.filter((type) => type !== updateType)
+                              // If no types selected, undefined (show nothing? or show all?)
+                              if (newFilter.length === 0) {
+                                newFilter = undefined
+                              }
+                            }
+                          }
+
+                          navigate({
+                            search: {
+                              ...search,
+                              skipUpdates: 0,
+                              updateTypeFilter: newFilter,
+                            },
+                          })
+                        }}
+                      />
+                    )
+                  })}
               </div>
-            </>
-          ) : (
-            <div className="text-base-content/60 py-8 text-center">{t('crawlers.noUpdatesFound')}</div>
-          )}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table-zebra table-xs table w-full table-fixed">
+                <colgroup>
+                  <col className="w-24" />
+                  <col className="w-20" />
+                  <col className="w-54" />
+                  <col className="w-auto" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>{t('updates.status')}</th>
+                    <th>{t('updates.date')}</th>
+                    <th>{t('updates.file')}</th>
+                    <th>{t('updates.message')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {crawlerRun.updates.map((update) => {
+                    // Use updateType field
+                    const updateType = update.updateType || 'error'
+                    const isOmitted = updateType === 'omitted'
+                    const displayFileName = isOmitted ? update.fileName : update.file?.name
+                    const displayFilePath = isOmitted ? update.filePath : null
+
+                    return (
+                      <tr key={update.id}>
+                        <td>
+                          <UpdateStatusBadge updateType={updateType} size="xs" />
+                        </td>
+                        <td className="truncate">
+                          {dateTimeStringArray(update.createdAt, language).map((item) => (
+                            <div key={item} className="text-nowrap">
+                              {item}
+                            </div>
+                          ))}
+                        </td>
+
+                        <td className="truncate">
+                          {update.file ? (
+                            <Link
+                              to="/libraries/$libraryId/files/$fileId"
+                              params={{ libraryId: params.libraryId, fileId: update.file.id }}
+                              className="link link-primary"
+                              title={update.file.name}
+                            >
+                              {update.file.name}
+                            </Link>
+                          ) : isOmitted && displayFileName ? (
+                            displayFilePath ? (
+                              <a
+                                href={displayFilePath}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link text-gray-600"
+                                title={displayFilePath}
+                              >
+                                {displayFileName}
+                              </a>
+                            ) : (
+                              <span title={displayFilePath || undefined} className="text-gray-600">
+                                {displayFileName}
+                              </span>
+                            )
+                          ) : (
+                            'N/A'
+                          )}
+                        </td>
+                        <td className="break-words text-xs">{update.message || 'no info available'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         </div>
       </div>
     </div>

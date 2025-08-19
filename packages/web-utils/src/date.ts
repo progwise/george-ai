@@ -14,6 +14,10 @@ export const dateTimeString = (input: string | null | undefined, language: strin
   return data.toLocaleString(language) || ''
 }
 
+export const dateTimeStringArray = (input: string | null | undefined, language: string) => {
+  return [dateString(input, language), timeString(input, language)]
+}
+
 export const dateStringShort = (input: string | null | undefined, language: string) => {
   if (!input) {
     return ''

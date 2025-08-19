@@ -11,6 +11,9 @@ import {
   AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
+  AiListFieldInput,
+  AiListInput,
+  AiListSourceInput,
   ConversationInvitationInput,
   UserInput,
   UserProfileInput,
@@ -87,9 +90,14 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
 
 export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
   return z.object({
+    allowedMimeTypes: z.array(z.string()).nullish(),
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
+    excludePatterns: z.array(z.string()).nullish(),
+    includePatterns: z.array(z.string()).nullish(),
     maxDepth: z.number(),
+    maxFileSize: z.number().nullish(),
     maxPages: z.number(),
+    minFileSize: z.number().nullish(),
     uri: z.string(),
     uriType: AiLibraryCrawlerUriTypeSchema,
   })
@@ -112,6 +120,32 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
+  return z.object({
+    context: z.array(z.string()).nullish(),
+    fileProperty: z.string().nullish(),
+    languageModel: z.string().nullish(),
+    name: z.string(),
+    order: z.number().nullish(),
+    prompt: z.string().nullish(),
+    sourceType: z.string(),
+    type: z.string(),
+    useVectorStore: z.boolean().nullish(),
+  })
+}
+
+export function AiListInputSchema(): z.ZodObject<Properties<AiListInput>> {
+  return z.object({
+    name: z.string(),
+  })
+}
+
+export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
+  return z.object({
+    libraryId: z.string(),
   })
 }
 

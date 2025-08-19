@@ -4,6 +4,7 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
+import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
@@ -85,7 +86,14 @@ function RouteComponent() {
     <>
       <div>
         <LoadingSpinner isLoading={reprocessIsPending} />
-        <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+          {fileInfo.aiLibraryFile.archivedAt && (
+            <span className="badge badge-warning badge-sm">
+              {t('labels.archived')}: {dateTimeString(fileInfo.aiLibraryFile.archivedAt, language)}
+            </span>
+          )}
+        </div>
         <div className="text-sm text-gray-500">
           <a href={fileInfo.aiLibraryFile.originUri || '#'} target="blank">
             {fileInfo.aiLibraryFile.originUri}
@@ -112,7 +120,7 @@ function RouteComponent() {
           )}
           {fileInfo.aiLibraryFile.processingErrorMessage && (
             <>
-              <span className="text-red-500">
+              <span className="text-error">
                 {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
               </span>
             </>
@@ -122,24 +130,14 @@ function RouteComponent() {
           <div className="mt-2 text-sm">
             <span className="text-gray-600">{t('texts.lastUpdate')}:</span>
             <span className="ml-2">
-              {/* Determine status based on message content and success */}
-              {(() => {
-                const isSkipped = fileInfo.aiLibraryFile.lastUpdate.message?.toLowerCase().includes('skip') || false
-                if (!fileInfo.aiLibraryFile.lastUpdate.success) {
-                  return <span className="badge badge-error">Error</span>
-                } else if (isSkipped) {
-                  return <span className="badge badge-warning">{t('updates.skipped')}</span>
-                } else {
-                  return <span className="badge badge-info">{t('updates.processed')}</span>
-                }
-              })()}
+              <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="xs" />
             </span>
             <span className="ml-2 text-gray-500">
               {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
             </span>
             {/* Only show message if there was an error */}
-            {!fileInfo.aiLibraryFile.lastUpdate.success && (
-              <div className="mt-1 text-xs text-red-600">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+            {fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
+              <div className="text-error mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
             )}
           </div>
         )}
