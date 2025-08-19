@@ -9,6 +9,7 @@ import { getMarkdownFilePath } from '@george-ai/file-management'
 
 import { type QAPair, generateQAPairs } from './qa-generator'
 import { splitMarkdown } from './split-markdown'
+import { summarizeDocument } from './summarizer'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
 
@@ -21,7 +22,6 @@ const getEmbeddingsModelInstance = async (model: string): Promise<OllamaEmbeddin
 
   return embeddings
 }
-import { summarizeDocument } from './summarizer'
 
 const vectorTypesenseClient = new Client({
   nodes: [
