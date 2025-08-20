@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { setCookie } from '@tanstack/react-start/server'
+import { getWebRequest, setCookie } from '@tanstack/react-start/server'
 import Keycloak from 'keycloak-js'
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deleteCookie } from 'vinxi/http'
@@ -35,7 +35,14 @@ const setKeycloakTokenInCookie = createServerFn({ method: 'POST' })
       return deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
     }
 
-    setCookie(KEYCLOAK_TOKEN_COOKIE_NAME, token)
+    const request = getWebRequest()
+    const url = new URL(request?.url || '')
+    const hostname = url.hostname
+    const hostParts = hostname.split('.').slice(1)
+
+    setCookie(KEYCLOAK_TOKEN_COOKIE_NAME, token, {
+      domain: hostParts.length < 1 ? hostname : '.' + hostParts.join('.'),
+    })
   })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
