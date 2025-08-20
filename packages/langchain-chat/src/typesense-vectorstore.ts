@@ -252,7 +252,7 @@ export const similaritySearch = async (
         q: queryAsString,
         query_by: 'text,docName',
         vector_query: vectorQuery,
-        per_page: maxHits || 200,
+        per_page: maxHits || 20,
         order_by: '_text_match:desc',
         ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
       },

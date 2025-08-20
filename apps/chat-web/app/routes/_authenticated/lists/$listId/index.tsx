@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
 import { getListQueryOptions } from '../../../../components/lists/get-list'
-import { getListFilesQueryOptions } from '../../../../components/lists/get-list-files'
+import { getListFilesWithValuesQueryOptions } from '../../../../components/lists/get-list-files-with-values'
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
@@ -24,40 +24,42 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/')({
   }),
   loader: async ({ context, params }) => {
     // Load initial data - let the component handle search params
-    await Promise.all([
-      context.queryClient.ensureQueryData(getListQueryOptions(params.listId)),
-      context.queryClient.ensureQueryData(
-        getListFilesQueryOptions({
-          listId: params.listId,
-          skip: 0,
-          take: 20,
-          orderBy: 'name',
-          orderDirection: 'asc',
-        }),
-      ),
-    ])
+    // Note: We only load the list data here, the files will be loaded by the component
+    // with the proper field IDs and language after the list data is available
+    await context.queryClient.ensureQueryData(getListQueryOptions(params.listId))
   },
 })
 
 function RouteComponent() {
   const { listId } = Route.useParams()
   const { page = 0, pageSize = 20, orderBy = 'name', orderDirection = 'asc' } = Route.useSearch()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const navigate = Route.useNavigate()
 
   const {
     data: { aiList },
   } = useSuspenseQuery(getListQueryOptions(listId))
 
+  // Check if there are any active enrichments for the files query
+  const hasActiveEnrichments = aiList.fields.some(
+    (field) => field.pendingItemsCount > 0 || field.processingItemsCount > 0,
+  )
+
+  // Get field IDs for the query
+  const fieldIds = aiList.fields.map((field) => field.id)
+
   const {
     data: { aiListFiles },
   } = useSuspenseQuery(
-    getListFilesQueryOptions({
+    getListFilesWithValuesQueryOptions({
       listId,
       skip: page * pageSize,
       take: pageSize,
       orderBy,
       orderDirection,
+      fieldIds,
+      language,
+      hasActiveEnrichments,
     }),
   )
 

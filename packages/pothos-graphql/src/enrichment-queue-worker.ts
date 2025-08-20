@@ -267,7 +267,28 @@ async function processQueue() {
   }
 }
 
-export function startEnrichmentQueueWorker() {
+async function resetOrphanedProcessingItems() {
+  try {
+    // Reset any items that were stuck in "processing" status from previous server session
+    const resetResult = await prisma.aiListEnrichmentQueue.updateMany({
+      where: {
+        status: 'processing',
+      },
+      data: {
+        status: 'pending',
+        startedAt: null,
+      },
+    })
+
+    if (resetResult.count > 0) {
+      console.log(`🔄 Reset ${resetResult.count} orphaned processing items back to pending`)
+    }
+  } catch (error) {
+    console.error('Error resetting orphaned processing items:', error)
+  }
+}
+
+export async function startEnrichmentQueueWorker() {
   if (isWorkerRunning) {
     console.log('Enrichment queue worker is already running')
     return
@@ -275,6 +296,9 @@ export function startEnrichmentQueueWorker() {
 
   isWorkerRunning = true
   console.log('🚀 Starting enrichment queue worker...')
+
+  // First, reset any orphaned processing items from previous server sessions
+  await resetOrphanedProcessingItems()
 
   // Process queue immediately
   processQueue()
@@ -301,8 +325,5 @@ export function stopEnrichmentQueueWorker() {
   console.log('🛑 Stopped enrichment queue worker')
 }
 
-// Start the worker automatically when the module is loaded
-if (process.env.NODE_ENV !== 'test') {
-  console.log('🔧 Enrichment queue worker module loaded')
-  startEnrichmentQueueWorker()
-}
+// Note: The worker is started explicitly by the server in server.ts
+// This ensures proper initialization order and error handling
