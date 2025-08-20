@@ -42,6 +42,7 @@ export async function transformPdfToImages(
 
       const renderContext = {
         canvasContext: canvasAndContext.context,
+        canvas: canvasAndContext.canvas,
         viewport,
       }
 
