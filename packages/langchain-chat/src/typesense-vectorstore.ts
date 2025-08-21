@@ -7,6 +7,7 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
+import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdown } from './split-markdown'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
@@ -182,7 +183,7 @@ export const embedFile = async (
   const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
   const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
 
-  const result = await vectorTypesenseClient
+  await vectorTypesenseClient
     .collections(typesenseVectorStoreConfig.schemaName)
     .documents()
     .import(
@@ -239,8 +240,7 @@ export const similaritySearch = async (
 ): Promise<{ pageContent: string; docName: string }[]> => {
   //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
   console.log(`similarity Search with model ${embeddingsModelName}`, question)
-  const embeddings = await getEmbeddingsModelInstance(embeddingsModelName)
-  const questionAsVector = await embeddings.embedQuery(question)
+  const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
   console.log('embeddings vector size', questionAsVector.length)
   const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(library)
@@ -250,7 +250,7 @@ export const similaritySearch = async (
     // query_by: 'text,docName',
     q: '*',
     query_by: 'vec',
-    vector_query: `vec:([${sanitizedVector.join(',')}], k:${maxHits || 4})`,
+    vector_query: `vec:([${sanitizedVector.join(',')}], k:${maxHits || 10})`,
     exclude_fields: 'vec',
     ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
   }
