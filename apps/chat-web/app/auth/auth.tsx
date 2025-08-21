@@ -38,10 +38,10 @@ const setKeycloakTokenInCookie = createServerFn({ method: 'POST' })
     const request = getWebRequest()
     const url = new URL(request?.url || '')
     const hostname = url.hostname
-    
+
     // Check if hostname is an IP address (IPv4 pattern)
     const isIpAddress = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)
-    
+
     if (isIpAddress || hostname === 'localhost' || !hostname.includes('.')) {
       // For IP addresses, localhost, or simple hostnames, don't set domain (use default)
       setCookie(KEYCLOAK_TOKEN_COOKIE_NAME, token)
