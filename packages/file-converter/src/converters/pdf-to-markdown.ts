@@ -68,16 +68,22 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
     for (const line of lines) {
       // Sort items in line by X position (left to right)
       line.items.sort((a, b) => a.x - b.x)
+      
 
       let lineText = ''
-      let prevX = 0
+      let prevX = null
 
       for (const item of line.items) {
-        // Add spacing if there's a significant gap
-        if (prevX > 0 && item.x - prevX > PDF_LAYOUT.LARGE_GAP_THRESHOLD) {
-          lineText += ' | '
-        } else if (prevX > 0 && item.x - prevX > PDF_LAYOUT.SMALL_GAP_THRESHOLD) {
-          lineText += ' '
+        // Add spacing based on gap size
+        if (prevX !== null) {
+          const gap = item.x - prevX
+          
+          if (gap > PDF_LAYOUT.LARGE_GAP_THRESHOLD) {
+            lineText += ' | ' // Large gap - likely column separator
+          } else {
+            // Always add space between separate text items
+            lineText += ' '
+          }
         }
 
         lineText += item.text

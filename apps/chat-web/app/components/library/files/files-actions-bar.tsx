@@ -45,7 +45,8 @@ export const FilesActionsBar = ({
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      toastSuccess(t('actions.embedSuccess', { count: data.length }))
+      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
+      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
     },
     onSettled: () => {
       setCheckedFileIds([])

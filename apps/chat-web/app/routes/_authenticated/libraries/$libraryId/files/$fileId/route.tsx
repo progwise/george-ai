@@ -29,6 +29,21 @@ function RouteComponent() {
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
 
+  const invalidateQueries = async () => {
+    queryClient.invalidateQueries({
+      queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+    })
+  }
+
   const { data: fileInfo } = useSuspenseQuery(
     getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
   )
@@ -41,21 +56,11 @@ function RouteComponent() {
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      toastSuccess(t('actions.embedSuccess', { count: data.length }))
+      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
+      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      })
+      invalidateQueries()
     },
   })
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
@@ -91,20 +96,8 @@ function RouteComponent() {
         )
       }
     },
-    // Invalidate the file info query to refresh the data after reprocessing
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      })
+      invalidateQueries()
     },
   })
   return (

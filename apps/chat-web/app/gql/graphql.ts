@@ -2540,7 +2540,10 @@ export type ReEmbedFilesMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type ReEmbedFilesMutation = { __typename?: 'Mutation'; embedFile: { __typename?: 'AiLibraryFile'; id: string } }
+export type ReEmbedFilesMutation = {
+  __typename?: 'Mutation'
+  embedFile: { __typename?: 'AiLibraryFile'; id: string; name: string; chunks?: number | null }
+}
 
 export type ReprocessFileMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -9998,7 +10001,11 @@ export const ReEmbedFilesDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+              ],
             },
           },
         ],

@@ -16,7 +16,7 @@ export default {
     dropAllFiles: 'Drop all',
     dropSuccess: '{count} file(s) were/was successfully dropped',
     edit: 'Edit',
-    embedSuccess: '{count} file(s) successfully embedded',
+    embedSuccess: '{count} file(s) successfully embedded ({chunks} chunks)',
     ensureUserProfile: 'Ensure User Profile',
     hideNotes: 'Hide notes',
     increaseLimits: 'Increase limits',
