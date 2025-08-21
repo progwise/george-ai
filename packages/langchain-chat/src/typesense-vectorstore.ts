@@ -56,29 +56,6 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   default_sorting_field: 'points',
 })
 
-/*
-curl --location 'http://localhost:8108/collections' \
---header 'Content-Type: application/json' \
---header 'X-TYPESENSE-API-KEY: xyz' \
---data '{
-         "name": "gai-documents",
-         "fields": [
-            { "name": "points", "type": "int32"},
-           {"name": "vec", "type": "float[]", "num_dim": 3072 },
-           {"name": "text", "type": "string" },
-           {"name": "docName", "type": "string" },
-					 {"name": "docType", "type": "string" },
-           { name: 'docId', type: 'string' },
-         ],
-         "default_sorting_field": "points"
-       }'
-*/
-
-/*
-  curl --location --request DELETE 'http://localhost:8108/collections/gai-documents' \
-  --header 'X-TYPESENSE-API-KEY: xyz'
-*/
-
 const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
   schemaName: getTypesenseSchemaName(libraryId),
@@ -238,7 +215,6 @@ export const similaritySearch = async (
   docName?: string,
   maxHits?: number,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
   console.log(`similarity Search with model ${embeddingsModelName}`, question)
   const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
   console.log('embeddings vector size', questionAsVector.length)
@@ -246,8 +222,6 @@ export const similaritySearch = async (
   await ensureVectorStore(library)
   const searchParams = {
     collection: getTypesenseSchemaName(library),
-    // q: queryAsString,
-    // query_by: 'text,docName',
     q: '*',
     query_by: 'vec',
     vector_query: `vec:([${sanitizedVector.join(',')}], k:${maxHits || 10})`,
