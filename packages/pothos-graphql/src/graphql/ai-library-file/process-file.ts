@@ -126,14 +126,14 @@ builder.mutationField('embedFile', (t) =>
       console.log(
         `successfully embedded file ${file.name} of library ${file.library.name} with ${embeddedFile.chunks} chunks.`,
       )
-      
+
       // Update the file record with the chunks count
       const updatedFile = await prisma.aiLibraryFile.update({
         select: query.select,
         where: { id: fileId },
         data: { chunks: embeddedFile.chunks },
       })
-      
+
       return updatedFile
     },
   }),
