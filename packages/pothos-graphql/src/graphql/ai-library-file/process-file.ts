@@ -85,3 +85,48 @@ builder.mutationField('processFile', (t) =>
     resolve: (_query, _source, { fileId }) => processFile(fileId),
   }),
 )
+
+builder.mutationField('embedFile', (t) =>
+  t.prismaField({
+    type: 'AiLibraryFile',
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { fileId }) => {
+      const file = await prisma.aiLibraryFile.findUnique({
+        select: {
+          ...query.select,
+          libraryId: true,
+          id: true,
+          name: true,
+          originUri: true,
+          mimeType: true,
+          library: { select: { id: true, name: true, embeddingModelName: true, fileConverterOptions: true } },
+        },
+        where: { id: fileId },
+      })
+      if (!file) {
+        throw new Error(`File not found in database: ${fileId}`)
+      }
+      if (!file.library.embeddingModelName) {
+        throw new Error(`Library ${file.libraryId} has no configured embedding model`)
+      }
+      const markdownFilePath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId })
+      if (!fs.existsSync(markdownFilePath)) {
+        throw new Error(`Cannot embed file ${file.id}. Markdown does not exist`)
+      }
+      const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
+        id: file.id,
+        name: file.name,
+        originUri: file.originUri!,
+        mimeType: file.mimeType, // Use markdown mimetype for re-processing
+        path: markdownFilePath,
+      })
+      console.log(
+        `successfully embedded file ${file.name} of library ${file.library.name} with ${embeddedFile.chunks} chunks.`,
+      )
+      return file
+    },
+  }),
+)

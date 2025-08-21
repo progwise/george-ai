@@ -5,7 +5,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
-import { reprocessFiles } from '../../../../../../components/library/files/change-files'
+import { reEmbedFiles, reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
@@ -33,6 +33,31 @@ function RouteComponent() {
     getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
   )
 
+  const { mutate: embedMutate, isPending: embedIsPending } = useMutation({
+    mutationFn: () => reEmbedFiles({ data: [params.fileId] }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      toastSuccess(t('actions.embedSuccess', { count: data.length }))
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+      })
+    },
+  })
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
     onError: (error) => {
@@ -170,8 +195,18 @@ function RouteComponent() {
             <button
               type="button"
               className="btn btn-primary btn-sm"
+              onClick={() => embedMutate()}
+              disabled={embedIsPending || reprocessIsPending}
+            >
+              {t('actions.reembed')}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
               onClick={() => reprocessMutate()}
-              disabled={reprocessIsPending}
+              disabled={reprocessIsPending || embedIsPending}
             >
               {t('actions.reprocess')}
             </button>

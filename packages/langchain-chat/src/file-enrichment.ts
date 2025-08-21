@@ -26,7 +26,7 @@ export const getEnrichedValue = async ({
     useVectorStore: boolean
   }
 }) => {
-  console.log(`Getting enriched value for ${file.id}`)
+  console.log(`Getting enriched value for ${file.id} with model ${languageModel}`)
   if (!languageModel) {
     throw new Error('Cannot enrich file without language model')
   }
@@ -37,6 +37,7 @@ export const getEnrichedValue = async ({
     const messages: { name: string; label: string; value: string }[] = []
     if (options.useVectorStore) {
       const searchResult = await similaritySearch(instruction, file.libraryId, file.embeddingModelName, file.name, 4)
+      console.log('enrichment search results', searchResult)
       const searchValue = searchResult.map((result) => result.pageContent).join('\n')
       messages.push({
         name: 'vector search',
