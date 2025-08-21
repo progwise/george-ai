@@ -11,6 +11,8 @@ import './process-file'
 import './read-file'
 import './file-chunks'
 
+import { fetchFolderSizeRecursively } from './google-drive-folder-size'
+
 // Type for field value results
 const FieldValueResult = builder
   .objectRef<{
@@ -27,6 +29,19 @@ const FieldValueResult = builder
       displayValue: t.exposeString('displayValue', { nullable: true }),
       enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
       queueStatus: t.exposeString('queueStatus', { nullable: true }),
+    }),
+  })
+
+const GoogleDriveFolderSize = builder
+  .objectRef<{
+    id: string
+    size: number
+  }>('GoogleDriveFile')
+  .implement({
+    description: 'Google Drive Files Fetch Query',
+    fields: (t) => ({
+      id: t.exposeString('id', { nullable: false }),
+      size: t.exposeInt('size', { nullable: false }),
     }),
   })
 
@@ -435,6 +450,29 @@ builder.mutationField('cancelFileUpload', (t) =>
     resolve: async (_source, { fileId, libraryId }) => {
       await deleteFile(fileId, libraryId)
       return true
+    },
+  }),
+)
+
+builder.mutationField('getGoogleDriveFolderSize', (t) =>
+  t.field({
+    type: [GoogleDriveFolderSize],
+    nullable: false,
+    args: {
+      folderIds: t.arg.stringList({ required: true }),
+      accessToken: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { folderIds, accessToken }) => {
+      const folderSizeArr: { id: string; size: number }[] = []
+      const results = await Promise.all(folderIds.map((id) => fetchFolderSizeRecursively(id, accessToken)))
+
+      /* Creates a new array of arrays of folders with their size without the information whether the size of 
+      the folder is already added to the size of their direct parent folder */
+      const correctedResults = results.map((folderArr) =>
+        folderArr.map((folder) => ({ id: folder.id, size: folder.size })),
+      )
+      correctedResults.forEach((arr) => folderSizeArr.push(...arr))
+      return folderSizeArr
     },
   }),
 )

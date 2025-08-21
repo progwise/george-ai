@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 
+import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
 import { CrossIcon } from '../../icons/cross-icon'
@@ -9,7 +11,9 @@ import { FileIcon } from '../../icons/file-icon'
 import { FolderIcon } from '../../icons/folder-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
+import { ReloadIcon } from '../../icons/reload-icon'
 import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
 import { getHighResIconUrl, googleDriveResponseSchema } from './google-drive-files'
 
@@ -35,6 +39,31 @@ const formatBytes = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
+const GetGoogleDriveFolderSizeDocument = graphql(`
+  mutation getGoogleDriveFolderSize($folderIds: [String!]!, $accessToken: String!) {
+    getGoogleDriveFolderSize(folderIds: $folderIds, accessToken: $accessToken) {
+      id
+      size
+    }
+  }
+`)
+
+const getFolderSize = createServerFn({ method: 'GET' })
+  .validator((data: object) =>
+    z
+      .object({
+        folderIds: z.array(z.string().nonempty()),
+        access_token: z.string().nonempty(),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    return await backendRequest(GetGoogleDriveFolderSizeDocument, {
+      folderIds: ctx.data.folderIds,
+      accessToken: ctx.data.access_token,
+    })
+  })
+
 export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
@@ -42,6 +71,8 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
   const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
   const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
   const rootFolder: { id: string; name: string } = { id: 'root', name: 'root' }
+
+  const [folderSizeArr, setFolderSizeArr] = useState<{ id: string; size: number }[]>([])
 
   // changing the query and the path at the same time prevents inconsistency between the displayed files and the breadcrumb navigation
   const [googleDriveFolder, setGoogleDriveFolder] = useState({
@@ -59,18 +90,57 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
     )
     if (!response.ok) throw new Error('Network error')
     const responseJson = googleDriveResponseSchema.parse(await response.json())
-    return responseJson.files.map(({ mimeType, ...file }) => ({
+    const files = responseJson.files.map(({ mimeType, ...file }) => ({
       ...file,
       size: file.size ? parseInt(file.size) : 0,
       iconLink: getHighResIconUrl(file.iconLink ?? ''),
       kind: mimeType,
     }))
+    const folders = files?.filter((file) => file.kind === 'application/vnd.google-apps.folder')
+
+    // Checks, if among the folders from the current Google Drive folder there are folders, from which the size is not calculated yet.
+    const hasNewFolder = folders.some(
+      (folder) =>
+        !folderSizeArr.some((item) => {
+          return item.id === folder.id
+        }),
+    )
+    const folderIds = folders.map((folder) => folder.id)
+
+    if (hasNewFolder && googleDriveAccessToken.access_token) {
+      getFolderSizeMutation({ folderIds: folderIds, access_token: googleDriveAccessToken.access_token })
+    }
+    return files
   }
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: [googleDriveFolder, queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token],
     queryFn: fetchFiles,
   })
+
+  const {
+    mutate: getFolderSizeMutation,
+    data: getFolderSizeData,
+    isError: getFolderSizeIsError,
+  } = useMutation({
+    mutationFn: (data: { folderIds: string[]; access_token: string }) => {
+      return getFolderSize({ data })
+    },
+  })
+
+  // Updates the array which is used to check for new files.
+  useEffect(() => {
+    if (getFolderSizeData) {
+      const newFolderSizeArr = getFolderSizeData.getGoogleDriveFolderSize.map((item) => {
+        return item.size ? { id: item.id, size: item.size } : { id: item.id, size: -1 }
+      })
+      newFolderSizeArr.forEach((newFolder) => {
+        if (!folderSizeArr.map((folder) => folder.id).some((folderId) => folderId === newFolder.id)) {
+          setFolderSizeArr([...folderSizeArr, newFolder])
+        }
+      })
+    }
+  }, [getFolderSizeData, folderSizeArr])
 
   const toggleFile = useCallback(
     (file: LibraryFile) => {
@@ -111,20 +181,39 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
     })
   }
 
+  const handleReload = () => {
+    refetch()
+    if (getFolderSizeData && googleDriveAccessToken.access_token) {
+      getFolderSizeMutation({
+        folderIds: getFolderSizeData.getGoogleDriveFolderSize.map((folder) => folder.id),
+        access_token: googleDriveAccessToken.access_token,
+      })
+    }
+  }
+
   return (
     <div>
       {/* Desktop view of control elements */}
       <div className="bg-base-100 sticky top-[36px] z-10 hidden w-full flex-col p-1 shadow-md md:flex md:flex-row md:items-center md:justify-between">
-        <div className="border-base-300 bg-base-200 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
+        <div className="flex flex-row p-1">
+          <div className="border-base-300 bg-base-200 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
+            <button
+              type="button"
+              onClick={() => setSelectedFiles([])}
+              className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
+              disabled={selectedFiles.length === 0}
+            >
+              <CrossIcon />
+            </button>
+            <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
+          </div>
           <button
             type="button"
-            onClick={() => setSelectedFiles([])}
-            className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
-            disabled={selectedFiles.length === 0}
+            onClick={() => handleReload()}
+            className="btn btn-circle btn-sm hover:bg-base-400 bg-base-300 ms-1 rounded-full focus:outline-none"
           >
-            <CrossIcon />
+            <ReloadIcon />
           </button>
-          <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
         </div>
         <div className="breadcrumbs flex max-w-xl justify-center text-sm">
           <ul>
@@ -176,16 +265,27 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
       {/* Mobile view of control elements */}
       <div className="bg-base-100 sticky top-[36px] z-10 flex w-full flex-col p-1 shadow-md md:hidden">
         <div className="flex justify-between gap-4">
-          <div className="border-base-300 bg-base-200 order-1 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
+          <div className="order-1 flex flex-row p-1">
+            <div className="border-base-300 bg-base-200 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
+              <button
+                type="button"
+                onClick={() => setSelectedFiles([])}
+                className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
+                disabled={selectedFiles.length === 0}
+              >
+                <CrossIcon />
+              </button>
+              <span className="text-base-content text-sm font-medium">
+                {getSelectedFilesLabel(selectedFiles.length)}
+              </span>
+            </div>
             <button
               type="button"
-              onClick={() => setSelectedFiles([])}
-              className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
-              disabled={selectedFiles.length === 0}
+              onClick={() => handleReload()}
+              className="btn btn-circle btn-sm hover:bg-base-400 bg-base-300 ms-1 rounded-full focus:outline-none"
             >
-              <CrossIcon />
+              <ReloadIcon />
             </button>
-            <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
           </div>
           <div className="border-base-300 bg-base-200 order-2 inline-flex h-8 w-auto items-center rounded-full border-2">
             <button
@@ -245,6 +345,13 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
+                const folderSizeArr = getFolderSizeData
+                  ? getFolderSizeData.getGoogleDriveFolderSize.map((folder) => ({ id: folder.id, size: folder.size }))
+                  : null
+                const folderSize: number =
+                  folderSizeArr && folderSizeArr.some((folder) => folder.id === file.id)
+                    ? folderSizeArr[folderSizeArr.map((folder) => folder.id).indexOf(file.id)].size
+                    : -1
                 const iconDesign = 'me-3 ms-3 flex-none size-6 w-auto h-auto'
                 const contentDesign = isFolder
                   ? 'btn btn-ghost flex flex-1 text-left rounded-md p-2 ps-0 gap-2'
@@ -296,7 +403,15 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">{isFolder ? 'Folder' : 'File'}</div>
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{formatBytes(sizeValue)}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {!isFolder
+                          ? formatBytes(sizeValue)
+                          : getFolderSizeIsError
+                            ? t('errors.calculateFolderSize')
+                            : folderSize >= 0
+                              ? formatBytes(folderSize)
+                              : t('libraries.calculatingFolderSize')}
+                      </div>
                     </div>
                   </div>
                 )
@@ -309,6 +424,16 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
+                const folderSizeArr = getFolderSizeData
+                  ? getFolderSizeData.getGoogleDriveFolderSize.map((folder) => ({
+                      id: folder.id,
+                      size: folder.size,
+                    }))
+                  : null
+                const folderSize: number =
+                  folderSizeArr && folderSizeArr.some((folder) => folder.id === file.id)
+                    ? folderSizeArr[folderSizeArr.map((folder) => folder.id).indexOf(file.id)].size
+                    : -1
                 return (
                   <div
                     key={file.id}
@@ -329,7 +454,15 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                       {file.name}
                     </span>
                     <span className="text-base-content mt-1 text-xs">{isFolder ? 'Folder' : 'File'}</span>
-                    <span className="text-base-content mt-1 hidden text-xs md:block">{formatBytes(sizeValue)}</span>
+                    <span className="text-base-content mt-1 hidden text-xs md:block">
+                      {!isFolder
+                        ? formatBytes(sizeValue)
+                        : getFolderSizeIsError
+                          ? t('errors.calculateFolderSize')
+                          : folderSize >= 0
+                            ? formatBytes(folderSize)
+                            : t('libraries.calculatingFolderSize')}
+                    </span>
                   </div>
                 )
               })}
