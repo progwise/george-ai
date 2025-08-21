@@ -156,7 +156,6 @@ export const embedFile = async (
   }))
 
   const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
-  console.log(`Embedding ${chunks.length} chunks for file ${file.name} with model ${embeddingModelName}`)
   const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
   const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
 
@@ -215,9 +214,7 @@ export const similaritySearch = async (
   docName?: string,
   maxHits?: number,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  console.log(`similarity Search with model ${embeddingsModelName}`, question)
   const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
-  console.log('embeddings vector size', questionAsVector.length)
   const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(library)
   const searchParams = {
