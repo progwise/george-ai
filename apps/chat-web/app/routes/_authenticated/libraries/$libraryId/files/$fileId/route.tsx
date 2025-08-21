@@ -51,8 +51,7 @@ function RouteComponent() {
   const { mutate: embedMutate, isPending: embedIsPending } = useMutation({
     mutationFn: () => reEmbedFiles({ data: [params.fileId] }),
     onError: (error) => {
-      const errorMessage =
-        error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error', files: '' })
+      const errorMessage = error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {

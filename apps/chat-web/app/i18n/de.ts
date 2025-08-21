@@ -16,7 +16,7 @@ export default {
     dropAllFiles: 'Alle entfernen',
     dropSuccess: '{count} Datei(en) erfolgreich entfernt',
     edit: 'Bearbeiten',
-    embedSuccess: '{count} Dateien(s) erfolgreich embedded ({chunks} Chunks)',
+    embedSuccess: '{count} Datei(en) erfolgreich embedded ({chunks} Chunks)',
     ensureUserProfile: 'User Profil ggf. erzeugen',
     hideNotes: 'Notizen ausblenden',
     increaseLimits: 'Grenzen erhöhen',
