@@ -782,6 +782,7 @@ export type Mutation = {
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
+  embedFile: AiLibraryFile
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
@@ -951,6 +952,10 @@ export type MutationDropFileArgs = {
 
 export type MutationDropFilesArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type MutationEmbedFileArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationEnsureUserProfileArgs = {
@@ -2529,6 +2534,15 @@ export type DropFileMutationVariables = Exact<{
 export type DropFileMutation = {
   __typename?: 'Mutation'
   dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
+}
+
+export type ReEmbedFilesMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type ReEmbedFilesMutation = {
+  __typename?: 'Mutation'
+  embedFile: { __typename?: 'AiLibraryFile'; id: string; name: string; chunks?: number | null }
 }
 
 export type ReprocessFileMutationVariables = Exact<{
@@ -9958,6 +9972,47 @@ export const DropFileDocument = {
     },
   ],
 } as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const ReEmbedFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'reEmbedFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embedFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReEmbedFilesMutation, ReEmbedFilesMutationVariables>
 export const ReprocessFileDocument = {
   kind: 'Document',
   definitions: [

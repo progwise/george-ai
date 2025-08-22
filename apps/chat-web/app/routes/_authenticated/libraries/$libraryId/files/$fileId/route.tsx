@@ -5,7 +5,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
-import { reprocessFiles } from '../../../../../../components/library/files/change-files'
+import { reEmbedFiles, reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
@@ -29,10 +29,39 @@ function RouteComponent() {
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
 
+  const invalidateQueries = async () => {
+    queryClient.invalidateQueries({
+      queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+    })
+  }
+
   const { data: fileInfo } = useSuspenseQuery(
     getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
   )
 
+  const { mutate: embedMutate, isPending: embedIsPending } = useMutation({
+    mutationFn: () => reEmbedFiles({ data: [params.fileId] }),
+    onError: (error) => {
+      const errorMessage = error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
+      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
     onError: (error) => {
@@ -66,20 +95,8 @@ function RouteComponent() {
         )
       }
     },
-    // Invalidate the file info query to refresh the data after reprocessing
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      })
-      queryClient.invalidateQueries({
-        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      })
+      invalidateQueries()
     },
   })
   return (
@@ -170,8 +187,18 @@ function RouteComponent() {
             <button
               type="button"
               className="btn btn-primary btn-sm"
+              onClick={() => embedMutate()}
+              disabled={embedIsPending || reprocessIsPending}
+            >
+              {t('actions.reembed')}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
               onClick={() => reprocessMutate()}
-              disabled={reprocessIsPending}
+              disabled={reprocessIsPending || embedIsPending}
             >
               {t('actions.reprocess')}
             </button>

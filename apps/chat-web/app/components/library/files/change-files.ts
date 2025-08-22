@@ -29,6 +29,28 @@ export const dropFiles = createServerFn({ method: 'POST' })
     return result.filter((file) => file !== undefined)
   })
 
+export const reEmbedFiles = createServerFn({ method: 'POST' })
+  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
+  .handler(async (ctx) => {
+    const reEmbedFilePromises = ctx.data.map(async (fileId) => {
+      const result = await backendRequest(
+        graphql(`
+          mutation reEmbedFiles($id: String!) {
+            embedFile(fileId: $id) {
+              id
+              name
+              chunks
+            }
+          }
+        `),
+        { id: fileId },
+      )
+      return result.embedFile
+    })
+
+    return await Promise.all(reEmbedFilePromises)
+  })
+
 export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {

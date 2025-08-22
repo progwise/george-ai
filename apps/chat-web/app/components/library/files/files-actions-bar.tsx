@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { reprocessFiles } from './change-files'
+import { reEmbedFiles, reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
@@ -36,6 +36,23 @@ export const FilesActionsBar = ({
   archivedCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
+
+  const { mutate: reEmbedFilesMutate, isPending: reEmbedFilesPending } = useMutation({
+    mutationFn: async (fileIds: string[]) => await reEmbedFiles({ data: fileIds }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
+      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
+    },
+    onSettled: () => {
+      setCheckedFileIds([])
+      tableDataChanged()
+    },
+  })
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
     mutationFn: async (fileIds: string[]) => await reprocessFiles({ data: fileIds }),
@@ -95,7 +112,7 @@ export const FilesActionsBar = ({
   const remainingStorage = availableStorage - usedStorage
   return (
     <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <LoadingSpinner isLoading={reprocessFilesPending} />
+      <LoadingSpinner isLoading={reprocessFilesPending || reEmbedFilesPending} />
       <div className="flex flex-wrap items-center gap-2">
         <DesktopFileUpload
           libraryId={libraryId}
@@ -118,6 +135,15 @@ export const FilesActionsBar = ({
           tableDataChanged={tableDataChanged}
           totalItems={totalItems}
         />
+
+        <button
+          type="button"
+          className="btn btn-primary btn-xs"
+          onClick={() => reEmbedFilesMutate(checkedFileIds)}
+          disabled={checkedFileIds.length === 0}
+        >
+          {t('actions.reembed')}
+        </button>
 
         <button
           type="button"

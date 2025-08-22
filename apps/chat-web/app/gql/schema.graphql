@@ -758,6 +758,7 @@ type Mutation {
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!
+  embedFile(fileId: String!): AiLibraryFile!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant

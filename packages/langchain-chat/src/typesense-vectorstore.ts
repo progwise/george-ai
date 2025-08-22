@@ -7,6 +7,7 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
+import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdown } from './split-markdown'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
@@ -54,29 +55,6 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   ],
   default_sorting_field: 'points',
 })
-
-/*
-curl --location 'http://localhost:8108/collections' \
---header 'Content-Type: application/json' \
---header 'X-TYPESENSE-API-KEY: xyz' \
---data '{
-         "name": "gai-documents",
-         "fields": [
-            { "name": "points", "type": "int32"},
-           {"name": "vec", "type": "float[]", "num_dim": 3072 },
-           {"name": "text", "type": "string" },
-           {"name": "docName", "type": "string" },
-					 {"name": "docType", "type": "string" },
-           { name: 'docId', type: 'string' },
-         ],
-         "default_sorting_field": "points"
-       }'
-*/
-
-/*
-  curl --location --request DELETE 'http://localhost:8108/collections/gai-documents' \
-  --header 'X-TYPESENSE-API-KEY: xyz'
-*/
 
 const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
@@ -178,17 +156,10 @@ export const embedFile = async (
   }))
 
   const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
-  console.log(`Embedding ${chunks.length} chunks for file ${file.name} with model ${embeddingModelName}`)
   const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
-  const sanitizedVectors = vectors.map((vector) => {
-    const sanitizedVector = new Array<number>(EMBEDDING_DIMENSIONS).fill(0)
-    for (let i = 0; i < Math.min(vector.length, sanitizedVector.length); i++) {
-      sanitizedVector[i] = vector[i]
-    }
-    return sanitizedVector
-  })
+  const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
 
-  vectorTypesenseClient
+  await vectorTypesenseClient
     .collections(typesenseVectorStoreConfig.schemaName)
     .documents()
     .import(
@@ -228,6 +199,14 @@ const removeFileByName = async (libraryId: string, fileName: string) => {
     .delete({ filter_by: `docName:=\`${fileName}\`` })
 }
 
+const sanitizeVector = (vector: number[]) => {
+  const sanitizedVector: Array<number> = new Array(EMBEDDING_DIMENSIONS).fill(0)
+  for (let i = 0; i < Math.min(vector.length, sanitizedVector.length); i++) {
+    sanitizedVector[i] = vector[i]
+  }
+  return sanitizedVector
+}
+
 export const similaritySearch = async (
   question: string,
   library: string,
@@ -235,28 +214,19 @@ export const similaritySearch = async (
   docName?: string,
   maxHits?: number,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
-  const embeddings = await getEmbeddingsModelInstance(embeddingsModelName)
-  const questionAsVector = await embeddings.embedQuery(question)
-  const sanitizedVector = new Array(EMBEDDING_DIMENSIONS).fill(0)
-  for (let i = 0; i < Math.min(questionAsVector.length, sanitizedVector.length); i++) {
-    sanitizedVector[i] = questionAsVector[i]
-  }
-  const vectorQuery = `vec:([${sanitizedVector.join(',')}])`
+  const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
+  const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(library)
-  const queryAsString = Array.isArray(question) ? question.join(' ') : question
+  const searchParams = {
+    collection: getTypesenseSchemaName(library),
+    q: '*',
+    query_by: 'vec',
+    vector_query: `vec:([${sanitizedVector.join(',')}], k:${maxHits || 10})`,
+    exclude_fields: 'vec',
+    ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
+  }
   const multiSearchParams = {
-    searches: [
-      {
-        collection: getTypesenseSchemaName(library),
-        q: queryAsString,
-        query_by: 'text,docName',
-        vector_query: vectorQuery,
-        per_page: maxHits || 20,
-        order_by: '_text_match:desc',
-        ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
-      },
-    ],
+    searches: [searchParams],
   }
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
