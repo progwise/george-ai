@@ -39,9 +39,13 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
     contentQuery: useVectorStore
       ? z
           .string()
-          .min(2, translate('lists.fields.contentQueryTooShort', language))
-          .max(100, translate('lists.fields.contentQueryTooLong', language))
-      : z.string().optional(),
+          .transform((val) => val?.trim() || '')
+          .refine((val) => val.length >= 2, translate('lists.fields.contentQueryTooShort', language))
+          .refine((val) => val.length <= 100, translate('lists.fields.contentQueryTooLong', language))
+      : z
+          .string()
+          .optional()
+          .transform((val) => val?.trim() || null),
     order: z.string().optional(),
     fileProperty: z.string().optional(),
     useVectorStore: z
@@ -261,6 +265,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                       defaultValue={editField?.contentQuery || ''}
                       disabled={!useVectorStore}
                       required={useVectorStore}
+                      aria-label={t('lists.fields.contentQueryPlaceholder')}
                     />
                   </div>
                 </div>

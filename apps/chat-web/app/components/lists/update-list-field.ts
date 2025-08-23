@@ -38,7 +38,7 @@ export const updateListField = createServerFn({ method: 'POST' })
           sourceType: data.sourceType,
           languageModel: data.languageModel,
           prompt: data.prompt,
-          contentQuery: data.contentQuery || null,
+          contentQuery: data.contentQuery,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
           useVectorStore: data.useVectorStore,

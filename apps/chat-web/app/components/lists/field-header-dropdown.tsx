@@ -83,31 +83,33 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
     >
       <div className="py-2">
         {canEnrich && (
-          <div className="border-base-300 border-b px-3">
-            <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
-              {field.pendingItemsCount > 0 || field.processingItemsCount > 0 ? (
-                <div className="flex items-center gap-2">
-                  <div className="loading loading-ring text-primary"></div>
-                  <span>
-                    {field.processingItemsCount > 0 && `${field.processingItemsCount} processing`}
-                    {field.processingItemsCount > 0 && field.pendingItemsCount > 0 && ', '}
-                    {field.pendingItemsCount > 0 && `${field.pendingItemsCount} pending`}
-                  </span>
-                </div>
-              ) : (
-                <span>{t('lists.enrichment.title')}</span>
-              )}
+          <>
+            <div className="border-base-300 border-b px-3">
+              <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
+                {field.pendingItemsCount > 0 || field.processingItemsCount > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <div className="loading loading-ring text-primary"></div>
+                    <span>
+                      {field.processingItemsCount > 0 && `${field.processingItemsCount} processing`}
+                      {field.processingItemsCount > 0 && field.pendingItemsCount > 0 && ', '}
+                      {field.pendingItemsCount > 0 && `${field.pendingItemsCount} pending`}
+                    </span>
+                  </div>
+                ) : (
+                  <span>{t('lists.enrichment.title')}</span>
+                )}
+              </div>
             </div>
-          </div>
+            <div className="border-base-300 border-b">
+              <EnrichmentControls
+                listId={field.listId}
+                fieldId={field.id}
+                isProcessing={field.pendingItemsCount > 0 || field.processingItemsCount > 0}
+                onActionExecuted={() => onClose()}
+              />
+            </div>
+          </>
         )}
-        <div className="border-base-300 border-b">
-          <EnrichmentControls
-            listId={field.listId}
-            fieldId={field.id}
-            isProcessing={field.pendingItemsCount > 0 || field.processingItemsCount > 0}
-            onActionExecuted={() => onClose()}
-          />
-        </div>
         {canEdit && (
           <button
             type="button"
