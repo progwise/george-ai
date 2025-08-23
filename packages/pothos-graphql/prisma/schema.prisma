@@ -180,8 +180,35 @@ model AiLibraryFile {
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]
+  conversionAttempts     AiFileConversionAttempt[]
 
   @@unique([crawledByCrawlerId, originUri])
+}
+
+model AiFileConversionAttempt {
+  id                     String        @id @default(cuid())
+  createdAt              DateTime      @default(now())
+  fileId                 String
+  file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  
+  fileName               String        // "converted_20250823_151203_789.md"
+  success                Boolean
+  
+  // Issue flags for fast queries
+  hasEndlessLoop         Boolean       @default(false)
+  hasTimeout             Boolean       @default(false)
+  hasPartialResult       Boolean       @default(false)
+  hasUnsupportedFormat   Boolean       @default(false)
+  hasConversionError     Boolean       @default(false)
+  hasLegacyFormat        Boolean       @default(false)
+  
+  // Rich metadata
+  metadata               String?       // JSON with FileConversionResult.metadata
+  fileConverterOptions   String?       // Settings used for this conversion
+  processingTimeMs       Int?
+  
+  @@index([fileId, createdAt])
+  @@index([success, createdAt])
 }
 
 model AiLibraryCrawler {

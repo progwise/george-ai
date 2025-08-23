@@ -15,6 +15,43 @@ export interface FileLoadParams {
   fileConverterOptions?: string
 }
 
+export interface FileConversionResult {
+  content: string
+  issues?: {
+    endlessLoop?: boolean
+    timeout?: boolean
+    partialResult?: boolean
+    unsupportedFormat?: boolean
+    conversionError?: boolean
+    legacyFormat?: boolean
+  }
+  metadata?: {
+    mimeType?: string
+    fileName?: string
+    processingMethod?: string
+    totalPages?: number
+    processedPages?: number
+    errorPages?: number
+    processingTime?: number
+    pageResults?: Array<{
+      page: number
+      success: boolean
+      issues?: {
+        endlessLoop?: boolean
+        timeout?: boolean
+        partialResult?: boolean
+      }
+    }>
+    suggestedFormats?: string[]
+    supportedFormats?: string[]
+    errorMessage?: string
+    errorStack?: string
+    errorType?: string
+    filePath?: string
+    [key: string]: unknown
+  }
+}
+
 // Define supported MIME types and their descriptions
 const SUPPORTED_MIME_TYPES: Record<string, string> = {
   'application/pdf': 'PDF Document',
@@ -31,7 +68,7 @@ const SUPPORTED_MIME_TYPES: Record<string, string> = {
   'text/xml': 'XML',
 }
 
-export async function transformToMarkdown(params: FileLoadParams): Promise<string> {
+export async function transformToMarkdown(params: FileLoadParams): Promise<FileConversionResult> {
   const { name, mimeType, path: filePath, fileConverterOptions } = params
   const fileConverterOptionsList = getFileConverterOptionsList(fileConverterOptions)
 
@@ -44,59 +81,140 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
           fileConverterOptionsList.includes('enableTextExtraction')
         ) {
           const directContent = await transformPdfToMarkdown(filePath)
-          const imageContent = await transformPdfToImageToMarkdown(filePath)
-          return `# Text extract from PDF\n\n${directContent}\n\n---\n\n# Image interpretation\n\n${imageContent}`
+          const imageResult = await transformPdfToImageToMarkdown(filePath, 3.0, fileConverterOptions)
+          
+          return {
+            content: `# Text extract from PDF\n\n${directContent}\n\n---\n\n# Image interpretation\n\n${imageResult.content}`,
+            issues: imageResult.issues,
+            metadata: {
+              ...imageResult.metadata,
+              processingMethod: 'text_and_image'
+            }
+          }
         } else if (fileConverterOptionsList.includes('enableImageProcessing')) {
-          return await transformPdfToImageToMarkdown(filePath)
+          const result = await transformPdfToImageToMarkdown(filePath, 3.0, fileConverterOptions)
+          return {
+            content: result.content,
+            issues: result.issues,
+            metadata: {
+              ...result.metadata,
+              processingMethod: 'image_only'
+            }
+          }
         } else if (fileConverterOptionsList.includes('enableTextExtraction')) {
-          return await transformPdfToMarkdown(filePath)
+          const content = await transformPdfToMarkdown(filePath)
+          return {
+            content,
+            metadata: {
+              processingMethod: 'text_only'
+            }
+          }
         }
-        return `# PDF Content\n\nPDF processing options not set for library.`
+        return {
+          content: `# PDF Content\n\nPDF processing options not set for library.`,
+          metadata: {
+            processingMethod: 'none'
+          }
+        }
       }
 
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return await transformDocxToMarkdown(filePath)
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
+        const content = await transformDocxToMarkdown(filePath)
+        return { 
+          content,
+          metadata: {
+            mimeType,
+            fileName: name,
+            processingMethod: 'docx_converter'
+          }
+        }
+      }
 
       case 'application/msword':
         // Legacy .doc files not yet supported
-        return `# Unsupported Format\n\nLegacy Microsoft Word (.doc) files are not yet supported.\nPlease convert to .docx format or save as PDF.`
+        return {
+          content: `# Legacy Format Not Supported\n\nLegacy Microsoft Word (.doc) files are not yet supported.\nPlease convert to .docx format or save as PDF.`,
+          issues: {
+            legacyFormat: true
+          },
+          metadata: {
+            mimeType,
+            fileName: name,
+            suggestedFormats: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf']
+          }
+        }
 
-      case 'text/csv':
-        return await transformCsvToMarkdown(filePath)
+      case 'text/csv': {
+        const content = await transformCsvToMarkdown(filePath)
+        return { 
+          content,
+          metadata: {
+            mimeType,
+            fileName: name,
+            processingMethod: 'csv_converter'
+          }
+        }
+      }
 
-      case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        return await transformExcelToMarkdown(filePath)
+      case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        const content = await transformExcelToMarkdown(filePath)
+        return { content }
+      }
 
       case 'application/vnd.ms-excel':
         // Legacy .xls files not yet supported
-        return `# Unsupported Format\n\nLegacy Microsoft Excel (.xls) files are not yet supported.\nPlease convert to .xlsx format or save as CSV.`
+        return {
+          content: `# Legacy Format Not Supported\n\nLegacy Microsoft Excel (.xls) files are not yet supported.\nPlease convert to .xlsx format or save as CSV.`,
+          issues: {
+            legacyFormat: true
+          },
+          metadata: {
+            mimeType,
+            fileName: name,
+            suggestedFormats: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv']
+          }
+        }
 
-      case 'text/html':
-        return await transformHtmlToMarkdown(filePath)
+      case 'text/html': {
+        const content = await transformHtmlToMarkdown(filePath)
+        return { content }
+      }
 
-      case 'text/markdown':
-        return await fs.readFile(filePath, 'utf-8')
+      case 'text/markdown': {
+        const content = await fs.readFile(filePath, 'utf-8')
+        return { content }
+      }
 
       case 'appliction/json': {
-        const content = await fs.readFile(filePath, 'utf-8')
-        return `\`\`\`json\n${content}\n\`\`\``
+        const fileContent = await fs.readFile(filePath, 'utf-8')
+        const content = `\`\`\`json\n${fileContent}\n\`\`\``
+        return { content }
       }
       case 'application/xml': {
-        const content = await fs.readFile(filePath, 'utf-8')
-        return `\`\`\`xml\n${content}\n\`\`\``
+        const fileContent = await fs.readFile(filePath, 'utf-8')
+        const content = `\`\`\`xml\n${fileContent}\n\`\`\``
+        return { content }
       }
 
       default: {
         // Try to read as text for any text-based files
         if (mimeType.startsWith('text/')) {
-          const content = await fs.readFile(filePath, 'utf-8')
-          return `\`\`\`xml\n${content}\n\`\`\``
+          const fileContent = await fs.readFile(filePath, 'utf-8')
+          const content = `\`\`\`\n${fileContent}\n\`\`\``
+          return { 
+            content,
+            metadata: {
+              mimeType,
+              fileName: name,
+              processingMethod: 'text_fallback'
+            }
+          }
         }
 
         // Generate helpful error message based on file type
         // Unknown file type
         console.warn(`No converter for MIME type ${mimeType} (file: ${name})`)
-        return (
+        const content = (
           `# Unsupported File Type\n\n` +
           `File: ${name}\n` +
           `MIME Type: ${mimeType}\n\n` +
@@ -106,14 +224,27 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
             .map(([mime, desc]) => `- ${desc} (${mime})`)
             .join('\n')
         )
+        
+        return {
+          content,
+          issues: {
+            unsupportedFormat: true
+          },
+          metadata: {
+            mimeType,
+            fileName: name,
+            supportedFormats: Object.keys(SUPPORTED_MIME_TYPES)
+          }
+        }
       }
     }
   } catch (error) {
     console.error(`Error loading and converting file ${name} from ${filePath}:`, error)
     const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
 
-    // Provide more context in error messages
-    return (
+    // Provide structured error information
+    const content = (
       `# Error Processing File\n\n` +
       `File: ${name}\n` +
       `Type: ${mimeType}\n\n` +
@@ -121,5 +252,20 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
       `\`\`\`\n${errorMessage}\n\`\`\`\n\n` +
       `Please check that the file is not corrupted and is accessible.`
     )
+    
+    return {
+      content,
+      issues: {
+        conversionError: true
+      },
+      metadata: {
+        mimeType,
+        fileName: name,
+        filePath,
+        errorMessage,
+        errorStack,
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+      }
+    }
   }
 }

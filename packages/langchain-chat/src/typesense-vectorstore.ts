@@ -5,7 +5,6 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { getMarkdownFilePath } from '@george-ai/file-management'
 
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdown } from './split-markdown'
@@ -135,14 +134,14 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
-  const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
-  if (!fs.existsSync(markdownPath)) {
-    throw new Error(`Markdown file not found: ${markdownPath}`)
+  // Use the provided path (should be resolved by caller to point to successful conversion)
+  if (!fs.existsSync(file.path)) {
+    throw new Error(`Markdown file not found: ${file.path}`)
   }
 
   await removeFileByName(libraryId, file.name)
 
-  const chunks = splitMarkdown(markdownPath).map((chunk) => ({
+  const chunks = splitMarkdown(file.path).map((chunk) => ({
     pageContent: chunk.pageContent,
     metadata: {
       ...chunk.metadata,
@@ -150,7 +149,7 @@ export const embedFile = async (
       docName: file.name,
       docType: file.mimeType,
       docId: file.id,
-      docPath: markdownPath,
+      docPath: file.path,
       originUri: file.originUri,
     },
   }))

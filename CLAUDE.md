@@ -74,6 +74,63 @@ cd e2e-tests && pnpm test
 pnpm test path/to/test.spec.ts
 ```
 
+### Creating New Packages
+
+When creating new packages in the monorepo, use this standard template:
+
+**package.json**:
+```json
+{
+  "name": "@george-ai/package-name",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.4",
+  "author": "progwise.net",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    // Add specific dependencies here
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  }
+}
+```
+
+**tsconfig.json**:
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
 ## Architecture Overview
 
 George AI is a monorepo using pnpm workspaces with the following structure:
