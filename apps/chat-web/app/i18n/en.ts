@@ -343,6 +343,18 @@ export default {
 
     expiresAt: 'Expires',
     fileConverterOptions: 'File Converter Options',
+    ocrSettings: 'OCR Settings',
+    ocrPrompt: 'OCR Analysis Prompt',
+    ocrModel: 'OCR Model',
+    ocrTimeout: 'OCR Timeout (seconds)',
+    ocrLoopThreshold: 'Loop Detection Threshold',
+    enableTextExtraction: 'Enable Text Extraction',
+    enableImageOcrProcessing: 'Enable Image OCR Processing',
+    textExtractionDescription: 'Extract text directly from PDF files using built-in text layer.',
+    imageOcrProcessingDescription:
+      'Process PDF files as images using AI vision models for OCR analysis. Useful for scanned documents or complex layouts.',
+    ocrPromptPlaceholder: 'Instructions for AI vision model...',
+    ocrModelPlaceholder: 'Select OCR model...',
     files: 'Files',
     firstName: 'First Name',
     freeMessages: 'Free Messages',

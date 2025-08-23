@@ -206,41 +206,6 @@ type AiEmbeddingModel {
   name: String!
 }
 
-"""
-File converter option for AI Library
-"""
-type AiFileConverterOption {
-  description: AiFileConverterOptionText!
-  label: AiFileConverterOptionText!
-  name: String!
-}
-
-"""
-Text representation of a file converter option
-"""
-type AiFileConverterOptionText {
-  de: String!
-  en: String!
-}
-
-"""
-Options for converting files in AI Library
-"""
-type AiFileConverterOptions {
-  """
-  PDF processing options
-  """
-  pdf: AiFileConverterOptionsSection!
-}
-
-"""
-Section of file converter options
-"""
-type AiFileConverterOptionsSection {
-  settings: [AiFileConverterOption!]!
-  title: AiFileConverterOptionText!
-}
-
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
@@ -674,6 +639,21 @@ type FileChunkQueryResponse {
   take: Int!
 }
 
+type FileContentResult {
+  content: String
+  fileName: String
+  hasConversionError: Boolean
+  hasEndlessLoop: Boolean
+  hasLegacyFormat: Boolean
+  hasPartialResult: Boolean
+  hasTimeout: Boolean
+  hasUnsupportedFormat: Boolean
+  isLegacyFile: Boolean
+  metadata: String
+  processingTimeMs: Int
+  success: Boolean
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -846,7 +826,6 @@ type Query {
   aiConversations: [AiConversation!]!
   aiEmbeddingModels: [AiEmbeddingModel!]!
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
-  aiFileConverterOptions: AiFileConverterOptions!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
@@ -873,7 +852,7 @@ type Query {
   aiLists: [AiList!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
-  readFileMarkdown(fileId: String!, libraryId: String!): String!
+  readFileMarkdown(fileId: String!, libraryId: String!): FileContentResult!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

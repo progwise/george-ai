@@ -223,35 +223,6 @@ export type AiEmbeddingModel = {
   name: Scalars['String']['output']
 }
 
-/** File converter option for AI Library */
-export type AiFileConverterOption = {
-  __typename?: 'AiFileConverterOption'
-  description: AiFileConverterOptionText
-  label: AiFileConverterOptionText
-  name: Scalars['String']['output']
-}
-
-/** Text representation of a file converter option */
-export type AiFileConverterOptionText = {
-  __typename?: 'AiFileConverterOptionText'
-  de: Scalars['String']['output']
-  en: Scalars['String']['output']
-}
-
-/** Options for converting files in AI Library */
-export type AiFileConverterOptions = {
-  __typename?: 'AiFileConverterOptions'
-  /** PDF processing options */
-  pdf: AiFileConverterOptionsSection
-}
-
-/** Section of file converter options */
-export type AiFileConverterOptionsSection = {
-  __typename?: 'AiFileConverterOptionsSection'
-  settings: Array<AiFileConverterOption>
-  title: AiFileConverterOptionText
-}
-
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   crawlers: Array<AiLibraryCrawler>
@@ -708,6 +679,22 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+export type FileContentResult = {
+  __typename?: 'FileContentResult'
+  content?: Maybe<Scalars['String']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
+  hasConversionError?: Maybe<Scalars['Boolean']['output']>
+  hasEndlessLoop?: Maybe<Scalars['Boolean']['output']>
+  hasLegacyFormat?: Maybe<Scalars['Boolean']['output']>
+  hasPartialResult?: Maybe<Scalars['Boolean']['output']>
+  hasTimeout?: Maybe<Scalars['Boolean']['output']>
+  hasUnsupportedFormat?: Maybe<Scalars['Boolean']['output']>
+  isLegacyFile?: Maybe<Scalars['Boolean']['output']>
+  metadata?: Maybe<Scalars['String']['output']>
+  processingTimeMs?: Maybe<Scalars['Int']['output']>
+  success?: Maybe<Scalars['Boolean']['output']>
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -1143,7 +1130,6 @@ export type Query = {
   aiConversations: Array<AiConversation>
   aiEmbeddingModels: Array<AiEmbeddingModel>
   aiFileChunks: FileChunkQueryResponse
-  aiFileConverterOptions: AiFileConverterOptions
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -1158,7 +1144,7 @@ export type Query = {
   aiLists: Array<AiList>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
-  readFileMarkdown: Scalars['String']['output']
+  readFileMarkdown: FileContentResult
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -2587,6 +2573,22 @@ export type CancelFileUploadMutationVariables = Exact<{
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
 
+export type FileContentResultFragment = {
+  __typename?: 'FileContentResult'
+  content?: string | null
+  success?: boolean | null
+  hasEndlessLoop?: boolean | null
+  hasTimeout?: boolean | null
+  hasPartialResult?: boolean | null
+  hasUnsupportedFormat?: boolean | null
+  hasConversionError?: boolean | null
+  hasLegacyFormat?: boolean | null
+  isLegacyFile?: boolean | null
+  fileName?: string | null
+  processingTimeMs?: number | null
+  metadata?: string | null
+}
+
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
   id: string
@@ -2637,7 +2639,24 @@ export type GetFileContentQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type GetFileContentQuery = { __typename?: 'Query'; readFileMarkdown: string }
+export type GetFileContentQuery = {
+  __typename?: 'Query'
+  readFileMarkdown: {
+    __typename?: 'FileContentResult'
+    content?: string | null
+    success?: boolean | null
+    hasEndlessLoop?: boolean | null
+    hasTimeout?: boolean | null
+    hasPartialResult?: boolean | null
+    hasUnsupportedFormat?: boolean | null
+    hasConversionError?: boolean | null
+    hasLegacyFormat?: boolean | null
+    isLegacyFile?: boolean | null
+    fileName?: string | null
+    processingTimeMs?: number | null
+    metadata?: string | null
+  }
+}
 
 export type GetFileInfoQueryVariables = Exact<{
   fileId: Scalars['String']['input']
@@ -2704,25 +2723,6 @@ export type EmbeddingsTableQuery = {
       originModificationDate?: string | null
       archivedAt?: string | null
     }>
-  }
-}
-
-export type AiFileConverterOptionsQueryVariables = Exact<{ [key: string]: never }>
-
-export type AiFileConverterOptionsQuery = {
-  __typename?: 'Query'
-  aiFileConverterOptions: {
-    __typename?: 'AiFileConverterOptions'
-    pdf: {
-      __typename?: 'AiFileConverterOptionsSection'
-      title: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
-      settings: Array<{
-        __typename?: 'AiFileConverterOption'
-        name: string
-        label: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
-        description: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
-      }>
-    }
   }
 }
 
@@ -6079,6 +6079,33 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<CrawlerTable_LibraryCrawlerFragment, unknown>
+export const FileContentResultFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FileContentResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'FileContentResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasEndlessLoop' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasTimeout' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasPartialResult' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasUnsupportedFormat' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasConversionError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasLegacyFormat' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isLegacyFile' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingTimeMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FileContentResultFragment, unknown>
 export const AiLibraryFile_TableItemFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10310,7 +10337,33 @@ export const GetFileContentDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileContentResult' } }],
+            },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FileContentResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'FileContentResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasEndlessLoop' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasTimeout' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasPartialResult' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasUnsupportedFormat' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasConversionError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasLegacyFormat' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isLegacyFile' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingTimeMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
         ],
       },
     },
@@ -10505,82 +10558,6 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
-export const AiFileConverterOptionsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiFileConverterOptions' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiFileConverterOptions' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'pdf' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'settings' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'label' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'description' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiFileConverterOptionsQuery, AiFileConverterOptionsQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [

@@ -24,5 +24,5 @@ function RouteComponent() {
   const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId, libraryId }))
   const { data: fileSources } = useSuspenseQuery(getFileSourcesQueryOptions({ fileId, libraryId }))
 
-  return <FileContent sources={fileSources} markdown={fileContent} />
+  return <FileContent sources={fileSources} fileResult={fileContent} />
 }

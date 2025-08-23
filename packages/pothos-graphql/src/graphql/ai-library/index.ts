@@ -6,7 +6,6 @@ import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './queryFiles'
-import './file-converter-options'
 
 import { getLibraryDir } from '@george-ai/file-management'
 

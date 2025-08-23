@@ -15,6 +15,7 @@ interface SelectProps<T extends ZodRawShape> {
   valueNotSet?: string
   className?: string
   disabled?: boolean
+  readonly?: boolean
   required?: boolean
   label?: string
   name: string
@@ -29,6 +30,7 @@ export const Select = <T extends ZodRawShape>({
   onBlur,
   className,
   disabled,
+  readonly,
   required,
   label,
   name,
@@ -72,7 +74,7 @@ export const Select = <T extends ZodRawShape>({
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenInputRef} value={selectedItem?.id || ''} />
         <Listbox
-          disabled={disabled}
+          disabled={disabled || readonly}
           required={required}
           items={options}
           selectedItem={selectedItem}

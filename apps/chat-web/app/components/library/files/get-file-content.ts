@@ -18,15 +18,17 @@ const getFileContent = createServerFn({ method: 'GET' })
       const result = await backendRequest(
         graphql(`
           query getFileContent($fileId: String!, $libraryId: String!) {
-            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)
+            readFileMarkdown(fileId: $fileId, libraryId: $libraryId) {
+              ...FileContentResult
+            }
           }
         `),
         { fileId: data.fileId, libraryId: data.libraryId },
       )
-      return result.readFileMarkdown || ''
+      return result.readFileMarkdown
     } catch (error) {
       console.error(`Error fetching file content for fileId ${data.fileId}:`, error)
-      return null
+      throw error
     }
   })
 

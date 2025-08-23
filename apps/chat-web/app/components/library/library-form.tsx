@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import React, { useMemo } from 'react'
 
-import { AiFileConverterOptionsQuery, AiLibraryDetailFragment } from '../../gql/graphql'
+import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { getEmbeddingModelsQueryOptions } from '../model/get-models'
-import { getFileConverterOptionsOptions } from './get-file-converter-options'
+import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 import { getLibraryUpdateFormSchema, updateLibrary } from './update-library'
@@ -16,9 +15,6 @@ import { getLibraryUpdateFormSchema, updateLibrary } from './update-library'
 export interface LibraryEditFormProps {
   library: AiLibraryDetailFragment
 }
-
-// Type helper to extract file converter option keys
-type FileConverterOptionKeys = Exclude<keyof AiFileConverterOptionsQuery['aiFileConverterOptions'], '__typename'>
 
 export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactElement => {
   const { t, language } = useTranslation()
@@ -31,6 +27,11 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const {
     data: { aiEmbeddingModels },
   } = useSuspenseQuery(getEmbeddingModelsQueryOptions())
+
+  const {
+    data: { aiChatModels },
+  } = useSuspenseQuery(getChatModelsQueryOptions())
+
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => updateLibrary({ data }),
     onSettled: () => {
@@ -38,10 +39,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
       queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
     },
   })
-
-  const {
-    data: { aiFileConverterOptions },
-  } = useSuspenseQuery(getFileConverterOptionsOptions())
 
   const fieldProps = {
     schema,
@@ -74,23 +71,54 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     [aiEmbeddingModels],
   )
 
-  const handleFileTypeOptionChange = (optionName: string, value: boolean) => {
-    const currentOptions = library.fileConverterOptions ? library.fileConverterOptions.split(',') : []
-    if (value) {
-      currentOptions.push(optionName)
-    } else {
-      const index = currentOptions.indexOf(optionName)
-      if (index > -1) {
-        currentOptions.splice(index, 1)
+  const mappedChatModels = useMemo(
+    () =>
+      aiChatModels.map((model) => ({
+        id: model.model,
+        name: model.name,
+      })),
+    [aiChatModels],
+  )
+
+  // Parse current file converter options
+  const currentOptions = library.fileConverterOptions ? library.fileConverterOptions.split(',') : []
+  const isImageProcessingEnabled = currentOptions.includes('enableImageProcessing')
+
+  // Helper to parse option values
+  const parseOptionValue = (optionName: string, defaultValue: string = '') => {
+    if (!library.fileConverterOptions) return defaultValue
+    const pairs = library.fileConverterOptions.split(',').map((pair) => pair.trim())
+    for (const pair of pairs) {
+      const [key, value] = pair.split('=', 2)
+      if (key?.trim() === optionName && value !== undefined) {
+        const trimmedValue = value.trim()
+        // Return default if the stored value is empty
+        return trimmedValue || defaultValue
       }
     }
-    if (!fileConverterOptionsRef.current) return
-    fileConverterOptionsRef.current.value = currentOptions.join(',')
-    saveLibrary(new FormData(formRef.current!))
+    return defaultValue
   }
 
-  // Type-safe keys from the GraphQL response
-  const fileConverterOptionKeys = Object.keys(aiFileConverterOptions) as FileConverterOptionKeys[]
+  const updateFileConverterOptions = () => {
+    if (!formRef.current || !fileConverterOptionsRef.current) return
+
+    const formData = new FormData(formRef.current)
+    const options: string[] = []
+
+    if (formData.get('enableTextExtraction') === 'on') options.push('enableTextExtraction')
+    if (formData.get('enableImageProcessing') === 'on') {
+      options.push('enableImageProcessing')
+    }
+    
+    // Always preserve OCR settings values, regardless of enableImageProcessing state
+    options.push(`ocrPrompt=${formData.get('ocrPrompt') || ''}`)
+    options.push(`ocrModel=${formData.get('ocrModel') || 'qwen2.5vl:latest'}`)
+    options.push(`ocrTimeout=${formData.get('ocrTimeout') || '120'}`)
+    options.push(`ocrLoopDetectionThreshold=${formData.get('ocrLoopDetectionThreshold') || '5'}`)
+
+    fileConverterOptionsRef.current.value = options.join(',')
+    saveLibrary(new FormData(formRef.current))
+  }
 
   return (
     <form id={library.id} ref={formRef} className="mx-auto max-w-4xl space-y-6">
@@ -149,37 +177,122 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </div>
         </div>
       </div>
-      <div className="car bg-base-100 shadow-md">
+      {/* File Processing Options Card */}
+      <div className="card bg-base-100 shadow-md">
         <div className="card-body">
-          <h2 className="card-title text-xl">{t('labels.fileConverterOptions')}</h2>
+          <h2 className="card-title mb-4 text-xl">{t('labels.fileConverterOptions')}</h2>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {fileConverterOptionKeys.map((key) => {
-              const section = aiFileConverterOptions[key]
-              return (
-                <fieldset key={key} className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-                  <legend className="fieldset-legend flex w-full justify-between">{section.title[language]}</legend>
-                  {section.settings.map((option) => (
-                    <label key={option.name} className="label">
-                      <input
-                        type="checkbox"
-                        checked={
-                          library.fileConverterOptions
-                            ? library.fileConverterOptions.split(',').includes(option.name)
-                            : false
-                        }
-                        className="checkbox checkbox-sm"
-                        onChange={(event) => handleFileTypeOptionChange(option.name, event.currentTarget.checked)}
-                      />
-                      <div>
-                        <span className="text-sm font-medium">{option.label[language]}</span>
-                        <p className="mt-1 text-xs">{option.description[language]}</p>
-                      </div>
-                    </label>
-                  ))}
-                </fieldset>
-              )
-            })}
+          <div className="space-y-6">
+            {/* PDF Processing Options */}
+            <fieldset className="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+              <legend className="fieldset-legend">{t('labels.fileConverterOptions')}</legend>
+
+              <div className="space-y-4">
+                {/* Enable Text Extraction */}
+                <label className="label cursor-pointer justify-start">
+                  <input
+                    name="enableTextExtraction"
+                    type="checkbox"
+                    className="checkbox checkbox-sm mr-3"
+                    defaultChecked={currentOptions.includes('enableTextExtraction')}
+                    onChange={updateFileConverterOptions}
+                  />
+                  <div>
+                    <span className="text-sm font-medium">{t('labels.enableTextExtraction')}</span>
+                    <p className="mt-1 text-xs text-gray-600">{t('labels.textExtractionDescription')}</p>
+                  </div>
+                </label>
+
+                {/* Enable Image OCR Processing */}
+                <label className="label cursor-pointer justify-start">
+                  <input
+                    name="enableImageProcessing"
+                    type="checkbox"
+                    className="checkbox checkbox-sm mr-3"
+                    defaultChecked={isImageProcessingEnabled}
+                    onChange={updateFileConverterOptions}
+                  />
+                  <div>
+                    <span className="text-sm font-medium">{t('labels.enableImageOcrProcessing')}</span>
+                    <p className="mt-1 text-xs text-gray-600">{t('labels.imageOcrProcessingDescription')}</p>
+                  </div>
+                </label>
+
+                {/* OCR Settings - Always visible but readonly when Image OCR is off */}
+                <div className="border-primary ml-6 space-y-4 border-l-2 pl-4">
+                  <h4 className="text-primary text-sm font-medium">{t('labels.ocrSettings')}</h4>
+
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    {/* OCR Prompt */}
+                    <Input
+                      name="ocrPrompt"
+                      type="textarea"
+                      label={t('labels.ocrPrompt')}
+                      value={parseOptionValue(
+                        'ocrPrompt',
+                        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+                      )}
+                      className="col-span-2 [&_textarea]:min-h-32"
+                      placeholder={t('labels.ocrPromptPlaceholder')}
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        fieldProps.onBlur()
+                        updateFileConverterOptions()
+                      }}
+                    />
+
+                    {/* OCR Model */}
+                    <Select
+                      name="ocrModel"
+                      label={t('labels.ocrModel')}
+                      options={mappedChatModels}
+                      value={mappedChatModels.find(
+                        (model) => model.id === parseOptionValue('ocrModel', 'qwen2.5vl:latest'),
+                      )}
+                      className="col-span-2 lg:col-span-1"
+                      placeholder={t('labels.ocrModelPlaceholder')}
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        fieldProps.onBlur()
+                        updateFileConverterOptions()
+                      }}
+                    />
+
+                    {/* OCR Timeout */}
+                    <Input
+                      name="ocrTimeout"
+                      type="number"
+                      label={t('labels.ocrTimeout')}
+                      value={parseOptionValue('ocrTimeout', '120')}
+                      className="col-span-1"
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        fieldProps.onBlur()
+                        updateFileConverterOptions()
+                      }}
+                    />
+
+                    {/* Loop Detection Threshold */}
+                    <Input
+                      name="ocrLoopDetectionThreshold"
+                      type="number"
+                      label={t('labels.ocrLoopThreshold')}
+                      value={parseOptionValue('ocrLoopDetectionThreshold', '5')}
+                      className="col-span-1"
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        fieldProps.onBlur()
+                        updateFileConverterOptions()
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
           </div>
         </div>
       </div>

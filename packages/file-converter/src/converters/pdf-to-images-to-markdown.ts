@@ -20,6 +20,7 @@ export interface PdfToMarkdownResult {
       page: number
       success: boolean
       issues?: AIResponse['issues']
+      metadata?: AIResponse['metadata']
     }>
   }
 }
@@ -47,7 +48,7 @@ export const transformPdfToImageToMarkdown = async (
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []
-  const pageResults: Array<{ page: number; success: boolean; issues?: AIResponse['issues'] }> = []
+  const pageResults: Array<{ page: number; success: boolean; issues?: AIResponse['issues']; metadata?: AIResponse['metadata'] }> = []
   let errorPages = 0
   let hasGlobalIssues = false
   const globalIssues: AIResponse['issues'] = {}
@@ -82,7 +83,7 @@ export const transformPdfToImageToMarkdown = async (
       if (response.success) {
         console.log(`Successfully processed page ${pageNumber}`)
         responses.push(`# Image Content for Page ${pageNumber}\n\n${response.content}`)
-        pageResults.push({ page: pageNumber, success: true })
+        pageResults.push({ page: pageNumber, success: true, metadata: response.metadata })
       } else {
         console.warn(`Page ${pageNumber} processed with issues:`, response.issues)
         responses.push(
@@ -90,7 +91,7 @@ export const transformPdfToImageToMarkdown = async (
             response.issues?.endlessLoop ? 'endless loop detected' : 'timeout'
           }*`,
         )
-        pageResults.push({ page: pageNumber, success: false, issues: response.issues })
+        pageResults.push({ page: pageNumber, success: false, issues: response.issues, metadata: response.metadata })
 
         // Track global issues (if any page has issues, the whole conversion has issues)
         hasGlobalIssues = true

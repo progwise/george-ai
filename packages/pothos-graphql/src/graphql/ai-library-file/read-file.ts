@@ -17,6 +17,7 @@ const FileContentResult = builder.objectRef<{
   isLegacyFile: boolean
   fileName: string
   processingTimeMs?: number
+  metadata?: string
 }>('FileContentResult')
 
 builder.objectType(FileContentResult, {
@@ -32,6 +33,7 @@ builder.objectType(FileContentResult, {
     isLegacyFile: t.exposeBoolean('isLegacyFile'),
     fileName: t.exposeString('fileName'),
     processingTimeMs: t.exposeInt('processingTimeMs', { nullable: true }),
+    metadata: t.exposeString('metadata', { nullable: true }),
   }),
 })
 
@@ -89,6 +91,7 @@ builder.queryField('readFileMarkdown', (t) =>
           isLegacyFile,
           fileName,
           processingTimeMs: conversionAttempt?.processingTimeMs ?? undefined,
+          metadata: conversionAttempt?.metadata ?? undefined,
         }
       } catch (error) {
         console.error(`Error reading file ${fileId}:`, error)

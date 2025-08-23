@@ -14,6 +14,7 @@ interface InputProps<T extends ZodRawShape> {
   placeholder?: string
   required?: boolean
   disabled?: boolean
+  readonly?: boolean
   schema?: z.ZodObject<T>
   onChange?: (event: InputChangeEvent) => void
   onBlur?: (event: InputBlurEvent) => void
@@ -31,6 +32,7 @@ export const Input = <T extends ZodRawShape>({
   placeholder,
   required,
   disabled,
+  readonly,
   schema,
   onChange,
   onBlur,
@@ -119,6 +121,7 @@ export const Input = <T extends ZodRawShape>({
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
+          readOnly={readonly}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={(e) => e.target.select()}
@@ -142,6 +145,7 @@ export const Input = <T extends ZodRawShape>({
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
+          readOnly={readonly}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={(e) => e.target.select()}
