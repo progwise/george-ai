@@ -109,7 +109,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     if (formData.get('enableImageProcessing') === 'on') {
       options.push('enableImageProcessing')
     }
-    
+
     // Always preserve OCR settings values, regardless of enableImageProcessing state
     options.push(`ocrPrompt=${formData.get('ocrPrompt') || ''}`)
     options.push(`ocrModel=${formData.get('ocrModel') || 'qwen2.5vl:latest'}`)

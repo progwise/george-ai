@@ -48,7 +48,12 @@ export const transformPdfToImageToMarkdown = async (
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []
-  const pageResults: Array<{ page: number; success: boolean; issues?: AIResponse['issues']; metadata?: AIResponse['metadata'] }> = []
+  const pageResults: Array<{
+    page: number
+    success: boolean
+    issues?: AIResponse['issues']
+    metadata?: AIResponse['metadata']
+  }> = []
   let errorPages = 0
   let hasGlobalIssues = false
   const globalIssues: AIResponse['issues'] = {}
