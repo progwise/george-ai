@@ -82,14 +82,14 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
         ) {
           const directContent = await transformPdfToMarkdown(filePath)
           const imageResult = await transformPdfToImageToMarkdown(filePath, 3.0, fileConverterOptions)
-          
+
           return {
             content: `# Text extract from PDF\n\n${directContent}\n\n---\n\n# Image interpretation\n\n${imageResult.content}`,
             issues: imageResult.issues,
             metadata: {
               ...imageResult.metadata,
-              processingMethod: 'text_and_image'
-            }
+              processingMethod: 'text_and_image',
+            },
           }
         } else if (fileConverterOptionsList.includes('enableImageProcessing')) {
           const result = await transformPdfToImageToMarkdown(filePath, 3.0, fileConverterOptions)
@@ -98,35 +98,35 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
             issues: result.issues,
             metadata: {
               ...result.metadata,
-              processingMethod: 'image_only'
-            }
+              processingMethod: 'image_only',
+            },
           }
         } else if (fileConverterOptionsList.includes('enableTextExtraction')) {
           const content = await transformPdfToMarkdown(filePath)
           return {
             content,
             metadata: {
-              processingMethod: 'text_only'
-            }
+              processingMethod: 'text_only',
+            },
           }
         }
         return {
           content: `# PDF Content\n\nPDF processing options not set for library.`,
           metadata: {
-            processingMethod: 'none'
-          }
+            processingMethod: 'none',
+          },
         }
       }
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
         const content = await transformDocxToMarkdown(filePath)
-        return { 
+        return {
           content,
           metadata: {
             mimeType,
             fileName: name,
-            processingMethod: 'docx_converter'
-          }
+            processingMethod: 'docx_converter',
+          },
         }
       }
 
@@ -135,24 +135,27 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
         return {
           content: `# Legacy Format Not Supported\n\nLegacy Microsoft Word (.doc) files are not yet supported.\nPlease convert to .docx format or save as PDF.`,
           issues: {
-            legacyFormat: true
+            legacyFormat: true,
           },
           metadata: {
             mimeType,
             fileName: name,
-            suggestedFormats: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf']
-          }
+            suggestedFormats: [
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              'application/pdf',
+            ],
+          },
         }
 
       case 'text/csv': {
         const content = await transformCsvToMarkdown(filePath)
-        return { 
+        return {
           content,
           metadata: {
             mimeType,
             fileName: name,
-            processingMethod: 'csv_converter'
-          }
+            processingMethod: 'csv_converter',
+          },
         }
       }
 
@@ -166,13 +169,13 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
         return {
           content: `# Legacy Format Not Supported\n\nLegacy Microsoft Excel (.xls) files are not yet supported.\nPlease convert to .xlsx format or save as CSV.`,
           issues: {
-            legacyFormat: true
+            legacyFormat: true,
           },
           metadata: {
             mimeType,
             fileName: name,
-            suggestedFormats: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv']
-          }
+            suggestedFormats: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'],
+          },
         }
 
       case 'text/html': {
@@ -201,20 +204,20 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
         if (mimeType.startsWith('text/')) {
           const fileContent = await fs.readFile(filePath, 'utf-8')
           const content = `\`\`\`\n${fileContent}\n\`\`\``
-          return { 
+          return {
             content,
             metadata: {
               mimeType,
               fileName: name,
-              processingMethod: 'text_fallback'
-            }
+              processingMethod: 'text_fallback',
+            },
           }
         }
 
         // Generate helpful error message based on file type
         // Unknown file type
         console.warn(`No converter for MIME type ${mimeType} (file: ${name})`)
-        const content = (
+        const content =
           `# Unsupported File Type\n\n` +
           `File: ${name}\n` +
           `MIME Type: ${mimeType}\n\n` +
@@ -223,18 +226,17 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
           Object.entries(SUPPORTED_MIME_TYPES)
             .map(([mime, desc]) => `- ${desc} (${mime})`)
             .join('\n')
-        )
-        
+
         return {
           content,
           issues: {
-            unsupportedFormat: true
+            unsupportedFormat: true,
           },
           metadata: {
             mimeType,
             fileName: name,
-            supportedFormats: Object.keys(SUPPORTED_MIME_TYPES)
-          }
+            supportedFormats: Object.keys(SUPPORTED_MIME_TYPES),
+          },
         }
       }
     }
@@ -244,19 +246,18 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
     const errorStack = error instanceof Error ? error.stack : undefined
 
     // Provide structured error information
-    const content = (
+    const content =
       `# Error Processing File\n\n` +
       `File: ${name}\n` +
       `Type: ${mimeType}\n\n` +
       `An error occurred while processing this file:\n` +
       `\`\`\`\n${errorMessage}\n\`\`\`\n\n` +
       `Please check that the file is not corrupted and is accessible.`
-    )
-    
+
     return {
       content,
       issues: {
-        conversionError: true
+        conversionError: true,
       },
       metadata: {
         mimeType,
@@ -264,8 +265,8 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<FileC
         filePath,
         errorMessage,
         errorStack,
-        errorType: error instanceof Error ? error.constructor.name : 'Unknown'
-      }
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+      },
     }
   }
 }

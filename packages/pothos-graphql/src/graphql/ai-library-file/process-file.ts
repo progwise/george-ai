@@ -29,7 +29,7 @@ const getLatestSuccessfulMarkdownFilePath = async ({
     if (latestSuccessfulAttempt) {
       const fileDir = getFileDir({ fileId, libraryId })
       const filePath = `${fileDir}/${latestSuccessfulAttempt.fileName}`
-      
+
       if (fs.existsSync(filePath)) {
         return filePath
       }
@@ -79,17 +79,17 @@ export const processFile = async (fileId: string) => {
         fileConverterOptions: file.library.fileConverterOptions || '',
       })
     }
-    
+
     // Get the latest successful markdown file path
     const markdownFilePath = await getLatestSuccessfulMarkdownFilePath({
-      fileId: file.id, 
-      libraryId: file.libraryId
+      fileId: file.id,
+      libraryId: file.libraryId,
     })
-    
+
     if (!markdownFilePath) {
       throw new Error(`No successful markdown conversion found for file ${file.id}. Cannot embed failed conversions.`)
     }
-    
+
     const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
       id: file.id,
       name: file.name,
@@ -158,14 +158,14 @@ builder.mutationField('embedFile', (t) =>
       }
       // Get the latest successful markdown file path
       const markdownFilePath = await getLatestSuccessfulMarkdownFilePath({
-        fileId: file.id, 
-        libraryId: file.libraryId
+        fileId: file.id,
+        libraryId: file.libraryId,
       })
-      
+
       if (!markdownFilePath) {
         throw new Error(`No successful markdown conversion found for file ${file.id}. Cannot embed failed conversions.`)
       }
-      
+
       const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
         id: file.id,
         name: file.name,

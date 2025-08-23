@@ -109,11 +109,11 @@ export const markUploadFinished = async ({ fileId, libraryId }: { fileId: string
     // Use the latest attempt even if it wasn't successful
     const fileDir = getFileDir({ fileId, libraryId })
     const timestampedFilePath = `${fileDir}/${latestAttempt.fileName}`
-    
+
     if (!fs.existsSync(timestampedFilePath)) {
       throw new Error(`Converted file not found: ${timestampedFilePath}`)
     }
-    
+
     const convertedFileSize = fs.statSync(timestampedFilePath).size
     const updatedFile = await prisma.aiLibraryFile.update({
       where: { id: fileId },
@@ -129,11 +129,11 @@ export const markUploadFinished = async ({ fileId, libraryId }: { fileId: string
   // Use the latest successful conversion
   const fileDir = getFileDir({ fileId, libraryId })
   const timestampedFilePath = `${fileDir}/${latestSuccessfulAttempt.fileName}`
-  
+
   if (!fs.existsSync(timestampedFilePath)) {
     throw new Error(`Converted file not found: ${timestampedFilePath}`)
   }
-  
+
   const convertedFileSize = fs.statSync(timestampedFilePath).size
   const updatedFile = await prisma.aiLibraryFile.update({
     where: { id: fileId },

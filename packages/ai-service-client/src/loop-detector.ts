@@ -24,10 +24,10 @@ export class LoopDetector {
     // 2. Fuzzy/pattern matching for similar content
     // TODO: Implement similarity algorithms (e.g., Levenshtein distance)
     // to detect near-duplicates - can be added in future iterations
-    
+
     // Store chunk in history for potential future fuzzy matching
     this.chunkHistory.push(chunk)
-    
+
     // Keep history manageable (last 50 chunks)
     if (this.chunkHistory.length > 50) {
       this.chunkHistory.shift()

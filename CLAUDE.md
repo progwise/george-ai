@@ -79,6 +79,7 @@ pnpm test path/to/test.spec.ts
 When creating new packages in the monorepo, use this standard template:
 
 **package.json**:
+
 ```json
 {
   "name": "@george-ai/package-name",
@@ -107,6 +108,7 @@ When creating new packages in the monorepo, use this standard template:
 ```
 
 **tsconfig.json**:
+
 ```json
 {
   "compilerOptions": {

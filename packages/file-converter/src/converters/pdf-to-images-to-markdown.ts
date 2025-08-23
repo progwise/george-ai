@@ -1,4 +1,5 @@
-import { chat, type AIResponse } from '@george-ai/ai-service-client'
+import { type AIResponse, chat } from '@george-ai/ai-service-client'
+
 import { getFileConverterOptionValueWithDefault } from '../file-converter-options.js'
 import { transformPdfToImages } from './pdf-to-images.js'
 
@@ -34,12 +35,15 @@ export const transformPdfToImageToMarkdown = async (
   const prompt = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrPrompt') || DEFAULT_OCR_PROMPT
   const model = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrModel') || 'qwen2.5vl:latest'
   const timeoutStr = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrTimeout') || '120'
-  const loopThresholdStr = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrLoopDetectionThreshold') || '5'
+  const loopThresholdStr =
+    getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrLoopDetectionThreshold') || '5'
 
   const timeout = parseInt(timeoutStr, 10) * 1000 // Convert to milliseconds
   const loopThreshold = parseInt(loopThresholdStr, 10)
 
-  console.log(`Processing ${base64Images.length} images with model ${model}, timeout ${timeout}ms, loop threshold ${loopThreshold}`)
+  console.log(
+    `Processing ${base64Images.length} images with model ${model}, timeout ${timeout}ms, loop threshold ${loopThreshold}`,
+  )
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []

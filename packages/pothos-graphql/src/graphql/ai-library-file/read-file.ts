@@ -2,8 +2,8 @@ import fs from 'fs'
 
 import { getLatestMarkdownFilePath } from '@george-ai/file-management'
 
-import { builder } from '../builder'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 const FileContentResult = builder.objectRef<{
   content: string
@@ -45,19 +45,19 @@ builder.queryField('readFileMarkdown', (t) =>
     },
     resolve: async (_source, { fileId, libraryId }) => {
       console.log(`Reading markdown file for fileId ${fileId}`)
-      
+
       try {
         // Get the latest file path (includes legacy fallback)
         const path = await getLatestMarkdownFilePath({ fileId, libraryId })
-        
+
         if (!path) {
           throw new Error(`No markdown file found for fileId ${fileId}`)
         }
-        
+
         const fileContent = await fs.promises.readFile(path, 'utf-8')
         const fileName = path.split('/').pop() || 'unknown'
         const isLegacyFile = fileName === 'converted.md'
-        
+
         // Get conversion attempt metadata from database
         const conversionAttempt = await prisma.aiFileConversionAttempt.findFirst({
           where: {
@@ -68,12 +68,14 @@ builder.queryField('readFileMarkdown', (t) =>
             createdAt: 'desc',
           },
         })
-        
+
         // Data integrity check: timestamped files must have database records
         if (!isLegacyFile && !conversionAttempt) {
-          throw new Error(`Data integrity error: Found timestamped file ${fileName} without database record for fileId ${fileId}`)
+          throw new Error(
+            `Data integrity error: Found timestamped file ${fileName} without database record for fileId ${fileId}`,
+          )
         }
-        
+
         // Return structured result
         return {
           content: fileContent,

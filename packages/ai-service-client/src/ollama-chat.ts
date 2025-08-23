@@ -1,6 +1,7 @@
 import { Ollama } from 'ollama'
+
 import { LoopDetector } from './loop-detector.js'
-import type { ChatOptions, AIResponse } from './types.js'
+import type { AIResponse, ChatOptions } from './types.js'
 
 export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   // Create dedicated client instance for this request
@@ -98,7 +99,7 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
         },
       }
     }
-    
+
     // Re-throw other errors
     throw error
   }

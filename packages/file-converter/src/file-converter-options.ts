@@ -50,7 +50,8 @@ const FILE_CONVERTER_OPTIONS = {
           en: 'Custom prompt for AI vision model when analyzing PDF images',
           de: 'Benutzerdefinierter Prompt für KI-Vision-Modell bei PDF-Bildanalyse',
         },
-        defaultValue: 'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+        defaultValue:
+          'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       },
       {
         name: 'ocrModel',
@@ -123,7 +124,7 @@ export const getFileConverterOptionValue = (
 
   // Parse key=value pairs from the options string
   const pairs = fileConverterOptions.split(',').map((pair) => pair.trim())
-  
+
   for (const pair of pairs) {
     const [key, value] = pair.split('=', 2)
     if (key?.trim() === optionName && value !== undefined) {

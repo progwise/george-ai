@@ -5,7 +5,6 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdown } from './split-markdown'
 
