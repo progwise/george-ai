@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { z } from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
@@ -15,7 +15,7 @@ import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListField } from './add-list-field'
 import { updateListField } from './update-list-field'
 
-export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language) =>
+export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language, useVectorStore: boolean) =>
   z.object({
     id:
       editMode === 'update'
@@ -36,6 +36,12 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       .string()
       .min(10, translate('lists.fields.promptTooShort', language))
       .max(2000, translate('lists.fields.promptTooLong', language)),
+    contentQuery: useVectorStore
+      ? z
+          .string()
+          .min(2, translate('lists.fields.contentQueryTooShort', language))
+          .max(100, translate('lists.fields.contentQueryTooLong', language))
+      : z.string().optional(),
     order: z.string().optional(),
     fileProperty: z.string().optional(),
     useVectorStore: z
@@ -67,6 +73,7 @@ graphql(`
     name
     type
     prompt
+    contentQuery
     languageModel
     useVectorStore
     order
@@ -107,9 +114,12 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const isEditMode = !!editField
 
+  // State for vector store checkbox
+  const [useVectorStore, setUseVectorStore] = useState(editField?.useVectorStore || false)
+
   const schema = useMemo(
-    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language),
-    [isEditMode, language],
+    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language, useVectorStore),
+    [isEditMode, language, useVectorStore],
   )
 
   const addFieldMutation = useMutation({
@@ -226,17 +236,34 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
             </div>
             <div className="md:col-span-3">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    name="useVectorStore"
-                    className="checkbox checkbox-sm"
-                    defaultChecked={editField?.useVectorStore || false}
-                  />
-                  <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
-                    {t('lists.fields.vectorStoreLabel')}
-                  </span>
-                </label>
+                <div className="sm:col-span-2">
+                  <div className="sm:col-span-2">
+                    <span className="text-base-content/60 text-xs">{t('lists.fields.contentQueryHelp')}</span>
+                  </div>
+                  <div className="flex w-full items-center gap-2">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="useVectorStore"
+                        className="checkbox checkbox-sm"
+                        checked={useVectorStore}
+                        onChange={(e) => setUseVectorStore(e.target.checked)}
+                      />
+                      <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
+                        {t('lists.fields.vectorStoreLabel')}
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      name="contentQuery"
+                      className="input input-sm flex-1"
+                      placeholder={t('lists.fields.contentQueryPlaceholder')}
+                      defaultValue={editField?.contentQuery || ''}
+                      disabled={!useVectorStore}
+                      required={useVectorStore}
+                    />
+                  </div>
+                </div>
                 {availableFields
                   .filter((field) => field.id !== editField?.id) // Don't allow self-reference
                   .map((field) => (

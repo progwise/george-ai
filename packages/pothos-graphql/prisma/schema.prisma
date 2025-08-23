@@ -318,8 +318,9 @@ model AiListField {
   fileProperty String? // 'name', 'originUri', 'processedAt', 'originModificationDate', 'size', 'mimeType', 'crawlerUrl'
 
   // For llm_computed source
-  languageModel String?
-  prompt        String?
+  languageModel  String?
+  prompt         String?
+  contentQuery   String?  // Query for vector store search when useVectorStore is true
   useVectorStore Boolean?
 
   list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)

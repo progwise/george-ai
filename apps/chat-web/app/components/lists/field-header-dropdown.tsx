@@ -58,18 +58,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
   })
 
   const handleEdit = () => {
-    // Convert field to FieldData format
-    const editFieldData = {
-      id: field.id,
-      name: field.name,
-      type: field.type,
-      prompt: field.prompt || '',
-      languageModel: field.languageModel || '',
-      order: field.order,
-      useVectorStore: field.useVectorStore || false,
-      context: field.context || [],
-    }
-    onEdit(editFieldData)
+    onEdit(field)
     onClose()
   }
 

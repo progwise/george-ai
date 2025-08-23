@@ -29,6 +29,7 @@ builder.prismaObject('AiListField', {
     sourceType: t.exposeString('sourceType', { nullable: false }),
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
+    contentQuery: t.exposeString('contentQuery'),
     languageModel: t.exposeString('languageModel'),
     useVectorStore: t.exposeBoolean('useVectorStore'),
     context: t.relation('context', { nullable: false }),

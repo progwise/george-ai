@@ -9,7 +9,8 @@ export const updateListField = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const entries = Object.fromEntries(data)
-    return getListFieldFormSchema('update', language).parse(entries)
+    const useVectorStore = entries.useVectorStore === 'on'
+    return getListFieldFormSchema('update', language, useVectorStore).parse(entries)
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -24,6 +25,7 @@ export const updateListField = createServerFn({ method: 'POST' })
             sourceType
             fileProperty
             prompt
+            contentQuery
             languageModel
           }
         }
@@ -36,6 +38,7 @@ export const updateListField = createServerFn({ method: 'POST' })
           sourceType: data.sourceType,
           languageModel: data.languageModel,
           prompt: data.prompt,
+          contentQuery: data.contentQuery || null,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
           useVectorStore: data.useVectorStore,

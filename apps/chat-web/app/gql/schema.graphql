@@ -503,6 +503,7 @@ type AiListEnrichmentQueue {
 }
 
 type AiListField {
+  contentQuery: String
   context: [AiListFieldContext!]!
   fileProperty: String
   id: ID!
@@ -528,6 +529,7 @@ type AiListFieldContext {
 }
 
 input AiListFieldInput {
+  contentQuery: String
   context: [String!]
   fileProperty: String
   languageModel: String
