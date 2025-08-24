@@ -26,7 +26,7 @@
     "eval_strategy": "steps",
     "lr_schedule": "advanced_exploration_exploitation"
   },
-  "ollama_model_name": "qwen2-5-7b-presscrafters-expert",
+  "ollama_model_name": "qwen2-5-7b-presscrafters-adaptive",
   "keep_split_data": true,
   "keep_fused_model": true,
   "keep_gguf_files": true,

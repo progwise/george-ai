@@ -52,20 +52,21 @@ import json
 import subprocess
 import sys
 import shutil
+from create_modelfile import create_modelfile
 
 
-def create_modelfile(gguf_file, modelfile_path):
-    # Ollama requires the FROM path to be relative to the Modelfile
-    modelfile_dir = os.path.dirname(modelfile_path)
-    relative_gguf_path = os.path.relpath(gguf_file, modelfile_dir)
+# def create_modelfile(gguf_file, modelfile_path):
+#     # Ollama requires the FROM path to be relative to the Modelfile
+#     modelfile_dir = os.path.dirname(modelfile_path)
+#     relative_gguf_path = os.path.relpath(gguf_file, modelfile_dir)
 
-    with open(modelfile_path, "w") as f:
-        f.write(f"FROM {relative_gguf_path}\n")
-        f.write("PARAMETER num_predict 512\n")
-        f.write("# Optional parameters for model configuration:\n")
-        f.write("# PARAMETER temperature 0.7\n")
-        f.write('# SYSTEM "You are an expert George-AI assistant."\n')
-    print(f"Modelfile created at {modelfile_path}.")
+#     with open(modelfile_path, "w") as f:
+#         f.write(f"FROM {relative_gguf_path}\n")
+#         f.write("PARAMETER num_predict 512\n")
+#         f.write("# Optional parameters for model configuration:\n")
+#         f.write("# PARAMETER temperature 0.7\n")
+#         f.write('# SYSTEM "You are an expert George-AI assistant."\n')
+#     print(f"Modelfile created at {modelfile_path}.")
 
 
 def cleanup(paths):
