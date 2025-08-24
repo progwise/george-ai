@@ -135,6 +135,7 @@ export default {
     errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
     failedToCreateConversation: 'Konversation konnte nicht erstellt werden: {error}',
+    firstConversation: 'Erste Konversation erstellen...',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
     humans: 'Benutzer',
     leave: 'Konversation verlassen',

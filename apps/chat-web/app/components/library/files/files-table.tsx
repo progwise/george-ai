@@ -231,18 +231,20 @@ export const FilesTable = ({
                 <td>{file.size ?? '-'}</td>
                 <td>{file.chunks ?? '-'}</td>
                 <td>
-                  {dateTimeStringArray(file.processedAt, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.processedAt &&
+                    dateTimeStringArray(file.processedAt, language).map((item) => (
+                      <div key={`processedAt-${item}`} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
                 </td>
                 <td>
-                  {dateTimeStringArray(file.originModificationDate, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.originModificationDate &&
+                    dateTimeStringArray(file.originModificationDate, language).map((item) => (
+                      <div key={`originModificationDate-${item}`} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
                 </td>
                 <td className="flex items-center gap-2">
                   <Link
