@@ -61,6 +61,7 @@ def create_modelfile(gguf_file, modelfile_path):
 
     with open(modelfile_path, "w") as f:
         f.write(f"FROM {relative_gguf_path}\n")
+        f.write("PARAMETER num_predict 512\n")
         f.write("# Optional parameters for model configuration:\n")
         f.write("# PARAMETER temperature 0.7\n")
         f.write('# SYSTEM "You are an expert George-AI assistant."\n')
