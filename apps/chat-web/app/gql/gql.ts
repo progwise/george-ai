@@ -80,7 +80,7 @@ type Documents = {
   '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ': typeof types.ClearEmbeddedFilesDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ': typeof types.CancelFileUploadDocument
-  '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasEndlessLoop\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n': typeof types.FileContentResultFragmentDoc
+  '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n': typeof types.FileContentResultFragmentDoc
   '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n    originModificationDate\n    archivedAt\n  }\n': typeof types.AiLibraryFile_TableItemFragmentDoc
   '\n        query getFileChunks($fileId: String!, $libraryId: String!, $skip: Int!, $take: Int!) {\n          aiFileChunks(fileId: $fileId, libraryId: $libraryId, skip: $skip, take: $take) {\n            fileId\n            fileName\n            take\n            skip\n            count\n            chunks {\n              id\n              text\n              section\n              headingPath\n              chunkIndex\n              subChunkIndex\n            }\n          }\n        }\n      ': typeof types.GetFileChunksDocument
   '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId) {\n              ...FileContentResult\n            }\n          }\n        ': typeof types.GetFileContentDocument
@@ -295,7 +295,7 @@ const documents: Documents = {
     types.PrepareDesktopFileDocument,
   '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ':
     types.CancelFileUploadDocument,
-  '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasEndlessLoop\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n':
+  '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n':
     types.FileContentResultFragmentDoc,
   '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n    originModificationDate\n    archivedAt\n  }\n':
     types.AiLibraryFile_TableItemFragmentDoc,
@@ -869,8 +869,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasEndlessLoop\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n',
-): (typeof documents)['\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasEndlessLoop\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n']
+  source: '\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n',
+): (typeof documents)['\n  fragment FileContentResult on FileContentResult {\n    content\n    success\n    hasTimeout\n    hasPartialResult\n    hasUnsupportedFormat\n    hasConversionError\n    hasLegacyFormat\n    isLegacyFile\n    fileName\n    processingTimeMs\n    metadata\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

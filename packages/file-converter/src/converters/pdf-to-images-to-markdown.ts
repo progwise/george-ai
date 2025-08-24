@@ -36,15 +36,10 @@ export const transformPdfToImageToMarkdown = async (
   const prompt = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrPrompt') || DEFAULT_OCR_PROMPT
   const model = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrModel') || 'qwen2.5vl:latest'
   const timeoutStr = getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrTimeout') || '120'
-  const loopThresholdStr =
-    getFileConverterOptionValueWithDefault(fileConverterOptions, 'ocrLoopDetectionThreshold') || '5'
 
   const timeout = parseInt(timeoutStr, 10) * 1000 // Convert to milliseconds
-  const loopThreshold = parseInt(loopThresholdStr, 10)
 
-  console.log(
-    `Processing ${base64Images.length} images with model ${model}, timeout ${timeout}ms, loop threshold ${loopThreshold}`,
-  )
+  console.log(`Processing ${base64Images.length} images with model ${model}, timeout ${timeout}ms`)
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []
@@ -76,7 +71,6 @@ export const transformPdfToImageToMarkdown = async (
             images: [base64Image],
           },
         ],
-        maxAllowedRepetitions: loopThreshold > 0 ? loopThreshold : undefined,
         timeout,
         onChunk: (chunk) => {
           if (chunk.length > 50) {
@@ -92,15 +86,12 @@ export const transformPdfToImageToMarkdown = async (
       } else {
         console.warn(`Page ${pageNumber} processed with issues:`, response.issues)
         responses.push(
-          `# Image Content for Page ${pageNumber}\n\n${response.content}\n\n*Note: Processing completed with ${
-            response.issues?.endlessLoop ? 'endless loop detected' : 'timeout'
-          }*`,
+          `# Image Content for Page ${pageNumber}\n\n${response.content}\n\n*Note: Processing completed with timeout*`,
         )
         pageResults.push({ page: pageNumber, success: false, issues: response.issues, metadata: response.metadata })
 
         // Track global issues (if any page has issues, the whole conversion has issues)
         hasGlobalIssues = true
-        if (response.issues?.endlessLoop) globalIssues.endlessLoop = true
         if (response.issues?.timeout) globalIssues.timeout = true
         if (response.issues?.partialResult) globalIssues.partialResult = true
       }

@@ -684,7 +684,6 @@ export type FileContentResult = {
   content?: Maybe<Scalars['String']['output']>
   fileName?: Maybe<Scalars['String']['output']>
   hasConversionError?: Maybe<Scalars['Boolean']['output']>
-  hasEndlessLoop?: Maybe<Scalars['Boolean']['output']>
   hasLegacyFormat?: Maybe<Scalars['Boolean']['output']>
   hasPartialResult?: Maybe<Scalars['Boolean']['output']>
   hasTimeout?: Maybe<Scalars['Boolean']['output']>
@@ -2577,7 +2576,6 @@ export type FileContentResultFragment = {
   __typename?: 'FileContentResult'
   content?: string | null
   success?: boolean | null
-  hasEndlessLoop?: boolean | null
   hasTimeout?: boolean | null
   hasPartialResult?: boolean | null
   hasUnsupportedFormat?: boolean | null
@@ -2645,7 +2643,6 @@ export type GetFileContentQuery = {
     __typename?: 'FileContentResult'
     content?: string | null
     success?: boolean | null
-    hasEndlessLoop?: boolean | null
     hasTimeout?: boolean | null
     hasPartialResult?: boolean | null
     hasUnsupportedFormat?: boolean | null
@@ -6091,7 +6088,6 @@ export const FileContentResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'content' } },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'hasEndlessLoop' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasTimeout' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasPartialResult' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasUnsupportedFormat' } },
@@ -10354,7 +10350,6 @@ export const GetFileContentDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'content' } },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'hasEndlessLoop' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasTimeout' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasPartialResult' } },
           { kind: 'Field', name: { kind: 'Name', value: 'hasUnsupportedFormat' } },

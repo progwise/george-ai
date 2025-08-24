@@ -8,7 +8,6 @@ import { builder } from '../builder'
 const FileContentResult = builder.objectRef<{
   content: string
   success: boolean
-  hasEndlessLoop: boolean
   hasTimeout: boolean
   hasPartialResult: boolean
   hasUnsupportedFormat: boolean
@@ -24,7 +23,6 @@ builder.objectType(FileContentResult, {
   fields: (t) => ({
     content: t.exposeString('content'),
     success: t.exposeBoolean('success'),
-    hasEndlessLoop: t.exposeBoolean('hasEndlessLoop'),
     hasTimeout: t.exposeBoolean('hasTimeout'),
     hasPartialResult: t.exposeBoolean('hasPartialResult'),
     hasUnsupportedFormat: t.exposeBoolean('hasUnsupportedFormat'),
@@ -82,7 +80,6 @@ builder.queryField('readFileMarkdown', (t) =>
         return {
           content: fileContent,
           success: conversionAttempt?.success ?? true, // Legacy files assumed successful
-          hasEndlessLoop: conversionAttempt?.hasEndlessLoop ?? false,
           hasTimeout: conversionAttempt?.hasTimeout ?? false,
           hasPartialResult: conversionAttempt?.hasPartialResult ?? false,
           hasUnsupportedFormat: conversionAttempt?.hasUnsupportedFormat ?? false,

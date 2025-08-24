@@ -643,7 +643,6 @@ type FileContentResult {
   content: String
   fileName: String
   hasConversionError: Boolean
-  hasEndlessLoop: Boolean
   hasLegacyFormat: Boolean
   hasPartialResult: Boolean
   hasTimeout: Boolean

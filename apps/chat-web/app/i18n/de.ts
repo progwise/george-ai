@@ -352,7 +352,6 @@ export default {
     ocrPrompt: 'OCR-Analyse-Prompt',
     ocrModel: 'OCR-Modell',
     ocrTimeout: 'OCR-Timeout (Sekunden)',
-    ocrLoopThreshold: 'Schleifenerkennung Schwellenwert',
     enableTextExtraction: 'Textextraktion aktivieren',
     enableImageOcrProcessing: 'Bild-OCR-Verarbeitung aktivieren',
     textExtractionDescription: 'Text direkt aus PDF-Dateien unter Verwendung der integrierten Textebene extrahieren.',

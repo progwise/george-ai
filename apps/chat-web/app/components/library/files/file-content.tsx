@@ -7,7 +7,6 @@ export const FileContentResultFragmentDoc = graphql(`
   fragment FileContentResult on FileContentResult {
     content
     success
-    hasEndlessLoop
     hasTimeout
     hasPartialResult
     hasUnsupportedFormat
@@ -34,7 +33,6 @@ export const FileContent = ({
 
     const {
       success,
-      hasEndlessLoop,
       hasTimeout,
       hasPartialResult,
       hasUnsupportedFormat,
@@ -45,21 +43,6 @@ export const FileContent = ({
       processingTimeMs,
       metadata,
     } = fileResult
-
-    // Parse metadata to extract repetitive chunks from page results
-    let repetitiveChunks: string[] = []
-    if (metadata) {
-      try {
-        const parsedMetadata = JSON.parse(metadata)
-        if (parsedMetadata?.pageResults) {
-          repetitiveChunks = parsedMetadata.pageResults
-            .map((pageResult: { metadata: { repetitiveChunk: unknown } }) => pageResult.metadata?.repetitiveChunk)
-            .filter((chunk: string | undefined) => chunk) // Remove undefined/null values
-        }
-      } catch (error) {
-        console.error('Failed to parse file conversion metadata:', error)
-      }
-    }
 
     console.log('metadata', metadata)
 
@@ -94,43 +77,6 @@ export const FileContent = ({
           Successful Conversion
         </div>,
       )
-    }
-
-    if (hasEndlessLoop) {
-      statusItems.push(
-        <div key="loop" className="badge badge-warning gap-1">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Endless Loop Detected
-        </div>,
-      )
-
-      // If we have repetitive chunks, display them
-      if (repetitiveChunks.length > 0) {
-        const parsedMetadata = JSON.parse(metadata || '{}')
-        parsedMetadata?.pageResults?.forEach(
-          (pageResult: { page: number; metadata?: { repetitiveChunk?: string } }) => {
-            if (pageResult.metadata?.repetitiveChunk) {
-              statusItems.push(
-                <div
-                  key={`loop-text-${pageResult.page}`}
-                  className="badge badge-warning max-w-xs gap-1 truncate"
-                  title={`Page ${pageResult.page} repeating text: ${pageResult.metadata.repetitiveChunk}`}
-                >
-                  <span className="text-xs">
-                    Page {pageResult.page}: "{pageResult.metadata.repetitiveChunk.substring(0, 20)}..."
-                  </span>
-                </div>,
-              )
-            }
-          },
-        )
-      }
     }
 
     if (hasTimeout) {

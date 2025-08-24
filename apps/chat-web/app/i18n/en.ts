@@ -347,7 +347,6 @@ export default {
     ocrPrompt: 'OCR Analysis Prompt',
     ocrModel: 'OCR Model',
     ocrTimeout: 'OCR Timeout (seconds)',
-    ocrLoopThreshold: 'Loop Detection Threshold',
     enableTextExtraction: 'Enable Text Extraction',
     enableImageOcrProcessing: 'Enable Image OCR Processing',
     textExtractionDescription: 'Extract text directly from PDF files using built-in text layer.',

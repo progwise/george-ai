@@ -1,12 +1,10 @@
 import { Ollama } from 'ollama'
 
-import { LoopDetector } from './loop-detector.js'
 import type { AIResponse, ChatOptions } from './types.js'
 
 export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   // Create dedicated client instance for this request
   const client = new Ollama({ host: process.env.OLLAMA_BASE_URL })
-  const detector = new LoopDetector(options.maxAllowedRepetitions)
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0
@@ -34,34 +32,6 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
         allContent += content
         tokenCount++
         lastChunkTimestamp = Date.now()
-
-        // Loop detection
-        if (options.maxAllowedRepetitions !== undefined) {
-          const { isLoop, repetitiveChunk } = detector.detectLoop(content)
-          if (isLoop) {
-            // Clear timeout and abort the stream
-            if (timeoutId) clearTimeout(timeoutId)
-            if (response?.abort) {
-              response.abort()
-            }
-
-            return {
-              content: allContent, // Return everything including repetitions
-              success: false,
-              issues: {
-                endlessLoop: true,
-                partialResult: true,
-              },
-              metadata: {
-                repetitiveChunk,
-                repetitionCount: detector.getCount(repetitiveChunk || ''),
-                tokensProcessed: tokenCount,
-                timeElapsed: Date.now() - startTime,
-                lastChunkTimestamp,
-              },
-            }
-          }
-        }
 
         // Optional streaming callback
         if (options.onChunk) {

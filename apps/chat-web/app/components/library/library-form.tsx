@@ -114,7 +114,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     options.push(`ocrPrompt=${formData.get('ocrPrompt') || ''}`)
     options.push(`ocrModel=${formData.get('ocrModel') || 'qwen2.5vl:latest'}`)
     options.push(`ocrTimeout=${formData.get('ocrTimeout') || '120'}`)
-    options.push(`ocrLoopDetectionThreshold=${formData.get('ocrLoopDetectionThreshold') || '5'}`)
 
     fileConverterOptionsRef.current.value = options.join(',')
     saveLibrary(new FormData(formRef.current))
@@ -266,21 +265,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       type="number"
                       label={t('labels.ocrTimeout')}
                       value={parseOptionValue('ocrTimeout', '120')}
-                      className="col-span-1"
-                      readonly={!isImageProcessingEnabled}
-                      {...fieldProps}
-                      onBlur={() => {
-                        fieldProps.onBlur()
-                        updateFileConverterOptions()
-                      }}
-                    />
-
-                    {/* Loop Detection Threshold */}
-                    <Input
-                      name="ocrLoopDetectionThreshold"
-                      type="number"
-                      label={t('labels.ocrLoopThreshold')}
-                      value={parseOptionValue('ocrLoopDetectionThreshold', '5')}
                       className="col-span-1"
                       readonly={!isImageProcessingEnabled}
                       {...fieldProps}
