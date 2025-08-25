@@ -708,6 +708,13 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+/** Google Drive Files Fetch Query */
+export type GoogleDriveFile = {
+  __typename?: 'GoogleDriveFile'
+  id: Scalars['String']['output']
+  size: Scalars['Int']['output']
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -786,6 +793,7 @@ export type Mutation = {
   dropFiles: Array<AiLibraryFile>
   embedFile: AiLibraryFile
   ensureUserProfile?: Maybe<UserProfile>
+  getGoogleDriveFolderSize: Array<GoogleDriveFile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
@@ -962,6 +970,11 @@ export type MutationEmbedFileArgs = {
 
 export type MutationEnsureUserProfileArgs = {
   userId: Scalars['String']['input']
+}
+
+export type MutationGetGoogleDriveFolderSizeArgs = {
+  accessToken: Scalars['String']['input']
+  folderIds: Array<Scalars['String']['input']>
 }
 
 export type MutationHideMessageArgs = {
@@ -2808,6 +2821,16 @@ export type ProcessFileMutation = {
     uploadedAt?: string | null
     processedAt?: string | null
   }
+}
+
+export type GetGoogleDriveFolderSizeMutationVariables = Exact<{
+  folderIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+  accessToken: Scalars['String']['input']
+}>
+
+export type GetGoogleDriveFolderSizeMutation = {
+  __typename?: 'Mutation'
+  getGoogleDriveFolderSize: Array<{ __typename?: 'GoogleDriveFile'; id: string; size: number }>
 }
 
 export type DropFilesMutationVariables = Exact<{
@@ -10833,6 +10856,62 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const GetGoogleDriveFolderSizeDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'getGoogleDriveFolderSize' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'folderIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'accessToken' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'getGoogleDriveFolderSize' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'folderIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'folderIds' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'accessToken' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'accessToken' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetGoogleDriveFolderSizeMutation, GetGoogleDriveFolderSizeMutationVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [

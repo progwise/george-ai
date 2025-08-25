@@ -674,6 +674,14 @@ type FileChunkQueryResponse {
   take: Int!
 }
 
+"""
+Google Drive Files Fetch Query
+"""
+type GoogleDriveFile {
+  id: String!
+  size: Int!
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -762,6 +770,7 @@ type Mutation {
   dropFiles(libraryId: String!): [AiLibraryFile!]!
   embedFile(fileId: String!): AiLibraryFile!
   ensureUserProfile(userId: String!): UserProfile
+  getGoogleDriveFolderSize(accessToken: String!, folderIds: [String!]!): [GoogleDriveFile!]!
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
