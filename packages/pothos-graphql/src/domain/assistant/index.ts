@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-import { prisma } from './prisma'
+import { prisma } from '../../prisma'
 
 export const checkAssistant = async (assistantId: string) => {
   const assistant = await prisma?.aiAssistant.findUnique({

@@ -8,7 +8,7 @@ import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
 // Import and start enrichment queue worker
-import { startEnrichmentQueueWorker } from '@george-ai/pothos-graphql/src/enrichment-queue-worker'
+import { startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'

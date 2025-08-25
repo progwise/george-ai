@@ -1,7 +1,7 @@
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
-import { callConversationMessagesUpdateSubscriptions } from '../../conversation-messages-subscription'
 import { prisma } from '../../prisma'
+import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
 
 console.log('Setting up: AiConversationMessage')

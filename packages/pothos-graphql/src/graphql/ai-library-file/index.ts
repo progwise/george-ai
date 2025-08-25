@@ -1,15 +1,23 @@
+import Prisma from '@george-ai/prismaClient'
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { deleteFile } from '../../file-upload'
+import {
+  canAccessLibraryOrThrow,
+  canAccessListOrThrow,
+  deleteFile,
+  dropAllLibraryFiles,
+  dropFileById,
+  findCacheValue,
+  getFieldValue,
+} from '../../domain'
 import { prisma } from '../../prisma'
-import { findCacheValue, getFieldValue } from '../../utils/field-value-resolver'
-import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
-import { canAccessListOrThrow } from '../ai-list/utils'
 import { builder } from '../builder'
 
 import './process-file'
 import './read-file'
 import './file-chunks'
+
+console.log('Setting up: AiLibraryFile')
 
 // Type for field value results
 const FieldValueResult = builder
@@ -29,37 +37,6 @@ const FieldValueResult = builder
       queueStatus: t.exposeString('queueStatus', { nullable: true }),
     }),
   })
-
-console.log('Setting up: AiLibraryFile')
-
-async function dropFileById(fileId: string) {
-  const file = await prisma.aiLibraryFile.findUnique({
-    where: { id: fileId },
-  })
-  if (!file) {
-    throw new Error(`File not found: ${fileId}`)
-  }
-
-  let dropError: string | null = null
-
-  try {
-    await deleteFile(file.id, file.libraryId)
-    return file
-  } catch (error) {
-    dropError = error instanceof Error ? error.message : String(error)
-    console.error(`Error dropping file ${fileId}:`, dropError)
-    try {
-      // goes possibly wrong if file record was already deleted above
-      await prisma.aiLibraryFile.update({
-        where: { id: file.id },
-        data: { dropError },
-      })
-    } catch (updateError) {
-      console.error(`Error updating file drop error for ${fileId}:`, updateError)
-    }
-    return { ...file, dropError }
-  }
-}
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -110,7 +87,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       },
       resolve: async (file, { fieldIds, language }, context) => {
         // Verify user has access to the file's library
-        await canAccessLibraryOrThrow(context, file.libraryId)
+        await canAccessLibraryOrThrow(file.libraryId, context.session.user.id)
 
         // Get all field definitions with their associated lists
         const fields = await prisma.aiListField.findMany({
@@ -124,7 +101,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
 
         // Check authorization for each field's list
         for (const field of fields) {
-          canAccessListOrThrow(field.list, context.session.user)
+          await canAccessListOrThrow(field.list.id, context.session.user.id)
         }
 
         // Get file with required relations
@@ -387,39 +364,44 @@ builder.queryField('aiLibraryFiles', (t) =>
   }),
 )
 
+const FileDropResult = builder
+  .objectRef<{
+    deletedFile?: Prisma.AiLibraryFile | null
+    dropError?: string | null
+  }>('FileDropResult')
+  .implement({
+    fields: (t) => ({
+      deletedFile: t.prismaField({
+        type: 'AiLibraryFile',
+        nullable: true,
+        resolve: (_query, parent) => parent.deletedFile,
+      }),
+      dropError: t.exposeString('dropError', { nullable: true }),
+    }),
+  })
+
 builder.mutationField('dropFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: FileDropResult,
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { fileId }) => {
-      return await dropFileById(fileId)
+    resolve: async (_source, { fileId }, context) => {
+      return await dropFileById(fileId, context.session.user.id)
     },
   }),
 )
 
 builder.mutationField('dropFiles', (t) =>
-  t.prismaField({
-    type: ['AiLibraryFile'],
+  t.withAuth({ isLoggedIn: true }).field({
+    type: [FileDropResult],
     nullable: { list: false, items: false },
     args: {
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { libraryId }) => {
-      const files = await prisma.aiLibraryFile.findMany({
-        ...query,
-        where: { libraryId },
-      })
-
-      const results = []
-
-      for (const file of files) {
-        const droppedFile = await dropFileById(file.id)
-        results.push(droppedFile)
-      }
-      return results
+    resolve: async (_source, { libraryId }, context) => {
+      return await dropAllLibraryFiles(libraryId, context.session.user.id)
     },
   }),
 )

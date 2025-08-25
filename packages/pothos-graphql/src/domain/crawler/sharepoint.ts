@@ -1,4 +1,4 @@
-import { builder } from '../builder'
+import { builder } from '../../graphql/builder'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
 
 // Reuse the parsing function from crawl-sharepoint.ts

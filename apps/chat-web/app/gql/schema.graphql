@@ -739,7 +739,7 @@ type Mutation {
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!
-  embedFile(fileId: String!): AiLibraryFile!
+  embedFile(conversionId: String, fileId: String!): AiLibraryFile!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
@@ -851,7 +851,7 @@ type Query {
   aiLists: [AiList!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
-  readFileMarkdown(fileId: String!, libraryId: String!): FileContentResult!
+  readFileMarkdown(conversionId: String, fileId: String!): FileContentResult!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

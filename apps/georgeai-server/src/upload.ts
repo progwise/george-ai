@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import * as fs from 'fs'
 
 import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
-import { convertUploadToMarkdown, getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
+import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
@@ -62,7 +62,6 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.on('end', () => {
     filestream.close(async () => {
       try {
-        await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false, fileConverterOptions: '' })
         await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
         httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {

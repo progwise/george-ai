@@ -1,7 +1,9 @@
 import fs from 'fs'
+import path from 'path'
 
-import { getLatestMarkdownFilePath } from '@george-ai/file-management'
+import { getFileDir } from '@george-ai/file-management'
 
+import { canAccessLibraryOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -36,63 +38,55 @@ builder.objectType(FileContentResult, {
 })
 
 builder.queryField('readFileMarkdown', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: FileContentResult,
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
+      conversionId: t.arg.string({ required: false }),
     },
-    resolve: async (_source, { fileId, libraryId }) => {
-      console.log(`Reading markdown file for fileId ${fileId}`)
+    resolve: async (_source, { fileId, conversionId }, context) => {
+      console.log(`Reading markdown file for fileId ${fileId}`, { conversionId })
 
-      try {
-        // Get the latest file path (includes legacy fallback)
-        const path = await getLatestMarkdownFilePath({ fileId, libraryId })
+      const fileRecord = await prisma.aiLibraryFile.findUniqueOrThrow({
+        where: { id: fileId },
+        select: { id: true, libraryId: true },
+      })
 
-        if (!path) {
-          throw new Error(`No markdown file found for fileId ${fileId}`)
+      await canAccessLibraryOrThrow(fileRecord.libraryId, context.session.user.id)
+
+      const conversion = await prisma.aiLibraryFileConversion.findFirst({
+        where: { ...(conversionId ? { id: conversionId } : { success: true }) },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      const isLegacyFile = !conversion
+      let fileContent: string | null = null
+      if (isLegacyFile) {
+        // Handle legacy files without conversion records
+        const legacyFilePath = path.resolve(getFileDir({ fileId, libraryId: fileRecord.libraryId }), 'converted.md')
+        if (!fs.existsSync(legacyFilePath)) {
+          throw new Error(`Legacy file does not exist at path: ${legacyFilePath}`)
         }
+        fileContent = await fs.promises.readFile(legacyFilePath, 'utf-8')
+      } else {
+        const filePath = path.resolve(getFileDir({ fileId, libraryId: fileRecord.libraryId }), conversion!.fileName)
+        fileContent = await fs.promises.readFile(filePath, 'utf-8')
+      }
 
-        const fileContent = await fs.promises.readFile(path, 'utf-8')
-        const fileName = path.split('/').pop() || 'unknown'
-        const isLegacyFile = fileName === 'converted.md'
-
-        // Get conversion attempt metadata from database
-        const conversionAttempt = await prisma.aiFileConversionAttempt.findFirst({
-          where: {
-            fileId,
-            fileName,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        })
-
-        // Data integrity check: timestamped files must have database records
-        if (!isLegacyFile && !conversionAttempt) {
-          throw new Error(
-            `Data integrity error: Found timestamped file ${fileName} without database record for fileId ${fileId}`,
-          )
-        }
-
-        // Return structured result
-        return {
-          content: fileContent,
-          success: conversionAttempt?.success ?? true, // Legacy files assumed successful
-          hasTimeout: conversionAttempt?.hasTimeout ?? false,
-          hasPartialResult: conversionAttempt?.hasPartialResult ?? false,
-          hasUnsupportedFormat: conversionAttempt?.hasUnsupportedFormat ?? false,
-          hasConversionError: conversionAttempt?.hasConversionError ?? false,
-          hasLegacyFormat: conversionAttempt?.hasLegacyFormat ?? false,
-          isLegacyFile,
-          fileName,
-          processingTimeMs: conversionAttempt?.processingTimeMs ?? undefined,
-          metadata: conversionAttempt?.metadata ?? undefined,
-        }
-      } catch (error) {
-        console.error(`Error reading file ${fileId}:`, error)
-        throw new Error(`Failed to read file ${fileId}: ${(error as Error).message}`)
+      // Return structured result
+      return {
+        content: fileContent,
+        success: conversion?.success ?? true, // Legacy files assumed successful
+        hasTimeout: conversion?.hasTimeout ?? false,
+        hasPartialResult: conversion?.hasPartialResult ?? false,
+        hasUnsupportedFormat: conversion?.hasUnsupportedFormat ?? false,
+        hasConversionError: conversion?.hasConversionError ?? false,
+        hasLegacyFormat: conversion?.hasLegacyFormat ?? false,
+        isLegacyFile,
+        fileName: conversion?.fileName ?? 'converted.md',
+        processingTimeMs: conversion?.processingTimeMs ?? undefined,
+        metadata: conversion?.metadata ?? undefined,
       }
     },
   }),

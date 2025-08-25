@@ -1,4 +1,4 @@
-import { FileFilterConfig } from './file-filter'
+import { FileFilterConfig } from '../file/file-filter'
 
 export interface CrawlOptions {
   uri: string

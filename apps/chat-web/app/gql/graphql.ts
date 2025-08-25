@@ -943,6 +943,7 @@ export type MutationDropFilesArgs = {
 }
 
 export type MutationEmbedFileArgs = {
+  conversionId?: InputMaybe<Scalars['String']['input']>
   fileId: Scalars['String']['input']
 }
 
@@ -1244,8 +1245,8 @@ export type QueryQueryAiLibraryFilesArgs = {
 }
 
 export type QueryReadFileMarkdownArgs = {
+  conversionId?: InputMaybe<Scalars['String']['input']>
   fileId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -2634,7 +2635,6 @@ export type GetFileChunksQuery = {
 
 export type GetFileContentQueryVariables = Exact<{
   fileId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
 }>
 
 export type GetFileContentQuery = {
@@ -10309,11 +10309,6 @@ export const GetFileContentDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -10326,11 +10321,6 @@ export const GetFileContentDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
             selectionSet: {

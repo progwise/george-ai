@@ -32,6 +32,7 @@
     "typesense": "^1.7.1"
   },
   "devDependencies": {
+    "@george-ai/package-configs": "workspace:*",
     "@eslint/js": "^9.16.0",
     "@graphql-tools/executor-http": "^2.0.0",
     "@types/nodemailer": "^6.4.17",

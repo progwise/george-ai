@@ -1,18 +1,20 @@
+import { canAccessLibraryOrThrow } from '..'
 import { prisma } from '../../prisma'
-import { processFile } from '../ai-library-file/process-file'
+import { parseFilterConfig } from '../file/file-filter'
+import { processFile } from '../file/process-file'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
-import { parseFilterConfig } from './file-filter'
 
 interface RunOptions {
   crawlerId: string
-  userId?: string
+  userId: string
   runByCronJob?: boolean
 }
 
-export const stopCrawler = async ({ crawlerId }: RunOptions) => {
-  await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+export const stopCrawler = async ({ crawlerId, userId }: RunOptions) => {
+  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+  await canAccessLibraryOrThrow(crawler.libraryId, userId)
 
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { crawlerId, endedAt: null } })
 
@@ -41,6 +43,9 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
       },
     },
   })
+
+  // TODO: temporary solution to allow cron jobs to run without a user
+  if (userId !== 'cronJob') await canAccessLibraryOrThrow(crawler.libraryId, userId)
 
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
 
@@ -192,7 +197,7 @@ const startCrawling = async (
             },
           })
         } else {
-          await processFile(crawledPage.id)
+          await processFile(crawledPage.id, 'crawler')
 
           // Determine update type based on whether file was updated
           const updateType = crawledPage.wasUpdated ? 'updated' : 'added'

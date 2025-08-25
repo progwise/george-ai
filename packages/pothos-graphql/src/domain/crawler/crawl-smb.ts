@@ -5,11 +5,11 @@ import { getUploadFilePath } from '@george-ai/file-management'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { prisma } from '../../prisma'
-import { isFileSizeAcceptable } from './constants'
+import { isFileSizeAcceptable } from '../file/constants'
+import { FileInfo, applyFileFilters } from '../file/file-filter'
+import { calculateFileHash } from '../file/file-hash'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
-import { FileInfo, applyFileFilters } from './file-filter'
-import { calculateFileHash } from './file-hash'
 import { uriToMountedPath } from './smb-mount-manager'
 
 interface SmbFileToProcess {

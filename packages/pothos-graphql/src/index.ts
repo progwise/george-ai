@@ -1,7 +1,6 @@
 import { builder } from './graphql/builder'
 
-import './cron-jobs'
-import './enrichment-queue-worker'
+import './domain/crawler/cron-jobs'
 import './graphql/ai-act-assessment'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'
@@ -28,7 +27,19 @@ const schema = builder.toSchema()
 
 export { schema }
 
-export * from './assistant-icon'
-export * from './file-upload'
-export * from './graphql/context'
-export * from './prisma'
+export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
+export { checkUser, updateUserAvatarUrl, getUserByMail, getUserAvatarsPath } from './domain/user'
+export { isProviderAvatar } from './domain/user/avatar-provider'
+export { getFileInfo, getMimeTypeForFile } from './domain/file'
+export { canAccessLibraryOrThrow } from './domain/library'
+export { canAccessListOrThrow } from './domain/list'
+export { markUploadFinished } from './domain/file'
+
+export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
+export {
+  subscribeConversationMessagesUpdate,
+  unsubscribeConversationMessagesUpdates,
+  subscribeEnrichmentQueueUpdates,
+  unsubscribeEnrichmentQueueUpdates,
+} from './subscriptions'
+export type { Context } from './graphql/context'

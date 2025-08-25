@@ -1,6 +1,21 @@
 import type { Prisma } from '@george-ai/prismaClient'
 
-import { prisma } from '../prisma'
+import { prisma } from '../../prisma'
+
+export const canAccessListOrThrow = async (listId: string, userId: string) => {
+  const list = await prisma.aiList.findFirstOrThrow({
+    select: { participants: true, ownerId: true },
+    where: { id: listId },
+  })
+
+  if (list.ownerId === userId) {
+    return true
+  }
+  if (list.participants.some((participation) => participation.userId === userId)) {
+    return true
+  }
+  throw new Error(`User ${userId} can not access list`)
+}
 
 /**
  * Resolves the display value for a given field and file combination.

@@ -42,19 +42,6 @@ export const getUploadFilePath = ({ fileId, libraryId }: { fileId: string; libra
   return `${fileDir}/upload`
 }
 
-export const getMarkdownFilePath = ({
-  fileId,
-  libraryId,
-  errorIfNotExists = false,
-}: {
-  fileId: string
-  libraryId: string
-  errorIfNotExists?: boolean
-}) => {
-  const fileDir = getFileDir({ fileId, libraryId, errorIfNotExists })
-  return `${fileDir}/converted.md`
-}
-
 export const generateTimestamp = (): string => {
   const now = new Date()
   return now.toISOString().replace(/[:.]/g, '_').replace('T', '_').slice(0, -5) // Remove milliseconds and 'Z'
@@ -75,36 +62,5 @@ export const getTimestampedMarkdownFilePath = ({
     filePath: `${fileDir}/converted_${ts}.md`,
     fileName: `converted_${ts}.md`,
     timestamp: ts,
-  }
-}
-
-export const getLatestMarkdownFilePath = async ({
-  fileId,
-  libraryId,
-}: {
-  fileId: string
-  libraryId: string
-}): Promise<string | null> => {
-  const fileDir = getFileDir({ fileId, libraryId, errorIfNotExists: true })
-
-  try {
-    const files = await fs.promises.readdir(fileDir)
-    const markdownFiles = files
-      .filter((file) => file.startsWith('converted_') && file.endsWith('.md'))
-      .sort((a, b) => b.localeCompare(a)) // Sort by timestamp descending (newest first)
-
-    if (markdownFiles.length > 0) {
-      return `${fileDir}/${markdownFiles[0]}`
-    }
-
-    // Fallback to legacy converted.md for backward compatibility
-    const legacyPath = `${fileDir}/converted.md`
-    if (fs.existsSync(legacyPath)) {
-      return legacyPath
-    }
-
-    return null
-  } catch {
-    return null
   }
 }

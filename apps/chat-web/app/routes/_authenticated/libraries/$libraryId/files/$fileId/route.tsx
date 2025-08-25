@@ -37,7 +37,7 @@ function RouteComponent() {
       queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
     })
     queryClient.invalidateQueries({
-      queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      queryKey: getFileContentQueryOptions({ fileId: params.fileId }).queryKey,
     })
     queryClient.invalidateQueries({
       queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),

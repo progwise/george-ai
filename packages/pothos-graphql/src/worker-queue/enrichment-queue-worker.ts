@@ -1,8 +1,8 @@
 import { getEnrichedValue } from '@george-ai/langchain-chat'
 
-import { callEnrichmentQueueUpdateSubscriptions } from './enrichment-queue-subscription'
-import { prisma } from './prisma'
-import { getFieldValue } from './utils/field-value-resolver'
+import { getFieldValue } from '../domain'
+import { prisma } from '../prisma'
+import { callEnrichmentQueueUpdateSubscriptions } from '../subscriptions'
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null

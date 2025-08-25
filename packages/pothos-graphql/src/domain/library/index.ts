@@ -1,8 +1,6 @@
 import { prisma } from '../../prisma'
-import { LoggedInContext } from '../context'
 
-export const canAccessLibraryOrThrow = async (context: LoggedInContext, libraryId: string) => {
-  const user = context.session.user
+export const canAccessLibraryOrThrow = async (libraryId: string, userId: string) => {
   const library = await prisma.aiLibrary.findUniqueOrThrow({
     where: { id: libraryId },
     select: {
@@ -13,9 +11,7 @@ export const canAccessLibraryOrThrow = async (context: LoggedInContext, libraryI
     },
   })
   const isAuthorized =
-    user.isAdmin ||
-    library.ownerId === user.id ||
-    library.participants.some((participant) => participant.userId === user.id)
+    library.ownerId === userId || library.participants.some((participant) => participant.userId === userId)
 
   if (!isAuthorized) {
     throw new Error(`You do not have permission to access this library`)

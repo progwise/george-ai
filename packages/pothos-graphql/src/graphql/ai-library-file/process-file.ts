@@ -1,144 +1,33 @@
 import fs from 'node:fs'
 
-import { getFileDir, getLatestMarkdownFilePath, getUploadFilePath } from '@george-ai/file-management'
+import { getFileDir } from '@george-ai/file-management'
 import { embedFile } from '@george-ai/langchain-chat'
 
-import { convertUploadToMarkdown } from '../../file-upload'
+import { canAccessLibraryOrThrow, processFile } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-const getLatestSuccessfulMarkdownFilePath = async ({
-  fileId,
-  libraryId,
-}: {
-  fileId: string
-  libraryId: string
-}): Promise<string | null> => {
-  try {
-    // Get the latest successful conversion attempt from database
-    const latestSuccessfulAttempt = await prisma.aiFileConversionAttempt.findFirst({
-      where: {
-        fileId,
-        success: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
-    if (latestSuccessfulAttempt) {
-      const fileDir = getFileDir({ fileId, libraryId })
-      const filePath = `${fileDir}/${latestSuccessfulAttempt.fileName}`
-
-      if (fs.existsSync(filePath)) {
-        return filePath
-      }
-    }
-
-    // Fallback to filesystem-based lookup (includes legacy converted.md)
-    // Legacy files are considered successful since they worked in previous versions
-    return await getLatestMarkdownFilePath({ fileId, libraryId })
-  } catch {
-    // Fallback to filesystem lookup if database query fails
-    return await getLatestMarkdownFilePath({ fileId, libraryId })
-  }
-}
-
-export const processFile = async (fileId: string) => {
-  const file = await prisma.aiLibraryFile.findUnique({
-    select: {
-      libraryId: true,
-      id: true,
-      name: true,
-      originUri: true,
-      mimeType: true,
-      library: { select: { id: true, name: true, embeddingModelName: true, fileConverterOptions: true } },
-    },
-    where: { id: fileId },
-  })
-  if (!file) {
-    throw new Error(`File not found in database: ${fileId}`)
-  }
-  try {
-    if (!file.library.embeddingModelName) {
-      throw new Error(`Embedding model not found for library: ${file.libraryId}`)
-    }
-
-    await prisma.aiLibraryFile.update({
-      where: { id: fileId },
-      data: {
-        processingStartedAt: new Date(),
-      },
-    })
-
-    const uploadFilePath = getUploadFilePath({ fileId: file.id, libraryId: file.libraryId })
-    if (fs.existsSync(uploadFilePath)) {
-      // re-generate markdown
-      await convertUploadToMarkdown(file.id, {
-        removeUploadFile: false,
-        fileConverterOptions: file.library.fileConverterOptions || '',
-      })
-    }
-
-    // Get the latest successful markdown file path
-    const markdownFilePath = await getLatestSuccessfulMarkdownFilePath({
-      fileId: file.id,
-      libraryId: file.libraryId,
-    })
-
-    if (!markdownFilePath) {
-      throw new Error(`No successful markdown conversion found for file ${file.id}. Cannot embed failed conversions.`)
-    }
-
-    const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
-      id: file.id,
-      name: file.name,
-      originUri: file.originUri!,
-      mimeType: file.mimeType, // Use markdown mimetype for re-processing
-      path: markdownFilePath,
-    })
-
-    return await prisma.aiLibraryFile.update({
-      where: { id: fileId },
-      data: {
-        ...embeddedFile,
-        processedAt: new Date(),
-        processingEndedAt: new Date(),
-        processingErrorAt: null,
-        processingErrorMessage: null,
-      },
-    })
-  } catch (error) {
-    return await prisma.aiLibraryFile.update({
-      where: { id: fileId },
-      data: {
-        processingErrorAt: new Date(),
-        processingErrorMessage: (error as Error).message,
-      },
-    })
-  }
-}
-
 builder.mutationField('processFile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryFile',
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: (_query, _source, { fileId }) => processFile(fileId),
+    resolve: (_query, _source, { fileId }, context) => processFile(fileId, context.session.user.id),
   }),
 )
 
 builder.mutationField('embedFile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryFile',
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
+      conversionId: t.arg.string({ required: false }),
     },
-    resolve: async (query, _source, { fileId }) => {
-      const file = await prisma.aiLibraryFile.findUnique({
+    resolve: async (query, _source, { fileId, conversionId }, context) => {
+      const file = await prisma.aiLibraryFile.findUniqueOrThrow({
         select: {
           ...query.select,
           libraryId: true,
@@ -150,20 +39,25 @@ builder.mutationField('embedFile', (t) =>
         },
         where: { id: fileId },
       })
-      if (!file) {
-        throw new Error(`File not found in database: ${fileId}`)
-      }
+
+      // TODO: Loads library from db again, optimize
+      await canAccessLibraryOrThrow(file.libraryId, context.session.user.id)
       if (!file.library.embeddingModelName) {
         throw new Error(`Library ${file.libraryId} has no configured embedding model`)
       }
-      // Get the latest successful markdown file path
-      const markdownFilePath = await getLatestSuccessfulMarkdownFilePath({
-        fileId: file.id,
-        libraryId: file.libraryId,
-      })
 
-      if (!markdownFilePath) {
-        throw new Error(`No successful markdown conversion found for file ${file.id}. Cannot embed failed conversions.`)
+      const conversion = await prisma.aiLibraryFileConversion.findFirstOrThrow({
+        where: { ...(conversionId ? { id: conversionId } : { success: true }) },
+        orderBy: { createdAt: 'desc' },
+        select: { fileName: true, id: true },
+      })
+      // Get the latest successful markdown file path
+      const markdownFilePath = getFileDir({ fileId: file.id, libraryId: file.libraryId }) + '/' + conversion.fileName
+
+      if (!fs.existsSync(markdownFilePath)) {
+        throw new Error(
+          `Converted Markdown file for file id ${file.id} and conversion id ${conversion.id} does not exist on ${markdownFilePath}. Cannot embed.`,
+        )
       }
 
       const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
@@ -171,7 +65,7 @@ builder.mutationField('embedFile', (t) =>
         name: file.name,
         originUri: file.originUri!,
         mimeType: file.mimeType, // Use markdown mimetype for re-processing
-        path: markdownFilePath,
+        markdownFilePath,
       })
       console.log(
         `successfully embedded file ${file.name} of library ${file.library.name} with ${embeddedFile.chunks} chunks.`,

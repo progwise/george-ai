@@ -1,8 +1,7 @@
 import { PrismaClient } from '@george-ai/prismaClient'
 
 // from https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
-declare global {
-  // eslint-disable-next-line no-var
+declare global {   
   var prisma: PrismaClient | undefined
 }
 

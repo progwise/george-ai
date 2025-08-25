@@ -2,9 +2,9 @@ import { CronJob } from 'cron'
 
 import { AiLibraryCrawlerCronJob } from '@george-ai/prismaClient'
 
-import { getCronExpression } from './graphql/ai-library-crawler-cronjob/get-cron-expression'
-import { runCrawler } from './graphql/ai-library-crawler/run-crawler'
-import { prisma } from './prisma'
+import { getCronExpression } from '../../graphql/ai-library-crawler-cronjob/get-cron-expression'
+import { prisma } from '../../prisma'
+import { runCrawler } from './crawler-run'
 
 const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 
@@ -35,7 +35,8 @@ export const upsertCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
     async () => {
       try {
         console.log('Running cron job', cronJob.id)
-        await runCrawler({ crawlerId: cronJob.crawlerId, runByCronJob: true })
+        // TODO: specify how to run the cron job as a specific user
+        await runCrawler({ crawlerId: cronJob.crawlerId, runByCronJob: true, userId: 'cronJob' })
       } catch (error) {
         console.log('Error running cron job', cronJob.id, error)
       }

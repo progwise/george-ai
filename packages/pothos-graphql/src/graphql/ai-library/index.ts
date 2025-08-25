@@ -9,7 +9,7 @@ import './queryFiles'
 
 import { getLibraryDir } from '@george-ai/file-management'
 
-import { canAccessLibraryOrThrow } from './check-participation'
+import { canAccessLibraryOrThrow } from '../../domain'
 
 console.log('Setting up: AiLibrary')
 
@@ -77,7 +77,7 @@ builder.queryField('aiLibrary', (t) =>
         ...query,
         where: { id: libraryId },
       })
-      await canAccessLibraryOrThrow(context, libraryId)
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
       return library
     },
   }),
@@ -104,13 +104,10 @@ builder.mutationField('updateAiLibrary', (t) =>
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: async (query, _source, { id, data }, context) => {
-      const library = await prisma.aiLibrary.findUnique({
+      const library = await prisma.aiLibrary.findUniqueOrThrow({
         where: { id },
       })
-      if (!library) {
-        throw new Error(`Library with id ${id} not found`)
-      }
-      canAccessLibraryOrThrow(context, id)
+      await canAccessLibraryOrThrow(library.id, context.session.user.id)
 
       return prisma.aiLibrary.update({
         ...query,

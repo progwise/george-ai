@@ -9,9 +9,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   component: RouteComponent,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      ),
+      context.queryClient.ensureQueryData(getFileContentQueryOptions({ fileId: params.fileId })),
       context.queryClient.ensureQueryData(
         getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
       ),
@@ -21,8 +19,12 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const { libraryId, fileId } = Route.useParams()
-  const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId, libraryId }))
+  const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId }))
   const { data: fileSources } = useSuspenseQuery(getFileSourcesQueryOptions({ fileId, libraryId }))
 
-  return <FileContent sources={fileSources} fileResult={fileContent} />
+  return (
+    <>
+      <FileContent sources={fileSources} fileResult={fileContent} />
+    </>
+  )
 }

@@ -1,6 +1,6 @@
+import { canAccessListOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { canAccessListOrThrow } from './utils'
 
 console.log('Setting up: AiList queries')
 
@@ -35,7 +35,7 @@ builder.queryField('aiList', (t) =>
     },
     resolve: async (query, _source, { id }, context) => {
       const list = await prisma.aiList.findFirstOrThrow({ ...query, include: { participants: true }, where: { id } })
-      canAccessListOrThrow(list, context.session.user)
+      await canAccessListOrThrow(id, context.session.user.id)
       return list
     },
   }),
@@ -67,7 +67,7 @@ const ListFilesQueryResult = builder
             where: { id: root.listId },
             include: { participants: true, sources: true },
           })
-          canAccessListOrThrow(list, context.session.user)
+          await canAccessListOrThrow(list.id, context.session.user.id)
 
           const libraryIds = list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null)
           if (libraryIds.length === 0) return 0
@@ -88,7 +88,7 @@ const ListFilesQueryResult = builder
             where: { id: root.listId },
             include: { participants: true, sources: true, fields: true },
           })
-          canAccessListOrThrow(list, context.session.user)
+          canAccessListOrThrow(list.id, context.session.user.id)
 
           const libraryIds = list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null)
           if (libraryIds.length === 0) return []
@@ -196,7 +196,7 @@ builder.queryField('aiListEnrichmentQueue', (t) =>
         where: { id: listId },
         include: { participants: true },
       })
-      canAccessListOrThrow(list, context.session.user)
+      canAccessListOrThrow(list.id, context.session.user.id)
 
       return prisma.aiListEnrichmentQueue.findMany({
         ...query,

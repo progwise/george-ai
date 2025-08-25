@@ -138,6 +138,8 @@ model AiLibrary {
 
   updates     AiLibraryUpdate[]
   listSources AiListSource[]
+
+  fileConversions AiLibraryFileConversion[]
 }
 
 model AiLibraryUsage {
@@ -154,10 +156,10 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String                  @id @default(cuid())
-  createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
-  library                AiLibrary               @relation(fields: [libraryId], references: [id])
+  id                     String                    @id @default(cuid())
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  library                AiLibrary                 @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
@@ -173,42 +175,43 @@ model AiLibraryFile {
   processingErrorAt      DateTime?
   processingErrorMessage String?
   crawledByCrawlerId     String?
-  crawledByCrawler       AiLibraryCrawler?       @relation(fields: [crawledByCrawlerId], references: [id])
+  crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
   archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]
-  conversionAttempts     AiFileConversionAttempt[]
+  conversions            AiLibraryFileConversion[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
 
-model AiFileConversionAttempt {
-  id                     String        @id @default(cuid())
-  createdAt              DateTime      @default(now())
-  fileId                 String
-  file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  
-  fileName               String        // "converted_20250823_151203_789.md"
-  success                Boolean
-  
+model AiLibraryFileConversion {
+  id        String        @id @default(cuid())
+  createdAt DateTime      @default(now())
+  libraryId String
+  library   AiLibrary     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  fileId    String
+  file      AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  fileName String // "converted_20250823_151203_789.md"
+  success  Boolean
+
   // Issue flags for fast queries
-  hasEndlessLoop         Boolean       @default(false)
-  hasTimeout             Boolean       @default(false)
-  hasPartialResult       Boolean       @default(false)
-  hasUnsupportedFormat   Boolean       @default(false)
-  hasConversionError     Boolean       @default(false)
-  hasLegacyFormat        Boolean       @default(false)
-  
+  hasTimeout           Boolean @default(false)
+  hasPartialResult     Boolean @default(false)
+  hasUnsupportedFormat Boolean @default(false)
+  hasConversionError   Boolean @default(false)
+  hasLegacyFormat      Boolean @default(false)
+
   // Rich metadata
-  metadata               String?       // JSON with FileConversionResult.metadata
-  fileConverterOptions   String?       // Settings used for this conversion
-  processingTimeMs       Int?
-  
+  metadata             String? // JSON with FileConversionResult.metadata
+  fileConverterOptions String? // Settings used for this conversion
+  processingTimeMs     Int?
+
   @@index([fileId, createdAt])
-  @@index([success, createdAt])
+  @@index([libraryId, fileId, createdAt])
 }
 
 model AiLibraryCrawler {
@@ -347,7 +350,7 @@ model AiListField {
   // For llm_computed source
   languageModel  String?
   prompt         String?
-  contentQuery   String?  // Query for vector store search when useVectorStore is true
+  contentQuery   String? // Query for vector store search when useVectorStore is true
   useVectorStore Boolean?
 
   list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
@@ -377,7 +380,7 @@ model AiListItemCache {
   valueNumber            Float?
   valueDate              DateTime?
   valueBoolean           Boolean?
-  enrichmentErrorMessage String?       // Store enrichment errors
+  enrichmentErrorMessage String? // Store enrichment errors
   file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
   field                  AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 

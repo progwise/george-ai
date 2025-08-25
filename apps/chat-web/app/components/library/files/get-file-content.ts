@@ -5,11 +5,10 @@ import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getFileContent = createServerFn({ method: 'GET' })
-  .validator((data: { fileId: string; libraryId: string }) =>
+  .validator((data: object) =>
     z
       .object({
         fileId: z.string().nonempty(),
-        libraryId: z.string().nonempty(),
       })
       .parse(data),
   )
@@ -17,13 +16,13 @@ const getFileContent = createServerFn({ method: 'GET' })
     try {
       const result = await backendRequest(
         graphql(`
-          query getFileContent($fileId: String!, $libraryId: String!) {
-            readFileMarkdown(fileId: $fileId, libraryId: $libraryId) {
+          query getFileContent($fileId: String!) {
+            readFileMarkdown(fileId: $fileId) {
               ...FileContentResult
             }
           }
         `),
-        { fileId: data.fileId, libraryId: data.libraryId },
+        { fileId: data.fileId },
       )
       return result.readFileMarkdown
     } catch (error) {
@@ -32,7 +31,7 @@ const getFileContent = createServerFn({ method: 'GET' })
     }
   })
 
-export const getFileContentQueryOptions = (params: { fileId: string; libraryId: string }) => ({
+export const getFileContentQueryOptions = (params: { fileId: string }) => ({
   queryKey: ['fileContent', params],
-  queryFn: () => getFileContent({ data: { fileId: params.fileId, libraryId: params.libraryId } }),
+  queryFn: () => getFileContent({ data: { fileId: params.fileId } }),
 })

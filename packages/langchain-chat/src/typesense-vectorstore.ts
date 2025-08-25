@@ -126,7 +126,7 @@ export const embedFile = async (
     name: string
     originUri: string
     mimeType: string
-    path: string
+    markdownFilePath: string
   },
 ) => {
   await ensureVectorStore(libraryId)
@@ -134,13 +134,13 @@ export const embedFile = async (
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
   // Use the provided path (should be resolved by caller to point to successful conversion)
-  if (!fs.existsSync(file.path)) {
-    throw new Error(`Markdown file not found: ${file.path}`)
+  if (!fs.existsSync(file.markdownFilePath)) {
+    throw new Error(`Markdown file not found: ${file.markdownFilePath}`)
   }
 
   await removeFileByName(libraryId, file.name)
 
-  const chunks = splitMarkdown(file.path).map((chunk) => ({
+  const chunks = splitMarkdown(file.markdownFilePath).map((chunk) => ({
     pageContent: chunk.pageContent,
     metadata: {
       ...chunk.metadata,
@@ -148,7 +148,7 @@ export const embedFile = async (
       docName: file.name,
       docType: file.mimeType,
       docId: file.id,
-      docPath: file.path,
+      docPath: file.markdownFilePath,
       originUri: file.originUri,
     },
   }))
@@ -176,7 +176,7 @@ export const embedFile = async (
     id: file.id,
     name: file.name,
     originUri: file.originUri,
-    docPath: file.path,
+    docPath: file.markdownFilePath,
     mimeType: file.mimeType,
     chunks: chunks.length,
     size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
