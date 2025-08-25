@@ -40,8 +40,8 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       ? z
           .string()
           .transform((val) => val?.trim() || '')
-          .refine((val) => val.length >= 2, translate('lists.fields.contentQueryTooShort', language))
-          .refine((val) => val.length <= 100, translate('lists.fields.contentQueryTooLong', language))
+          .min(2, translate('lists.fields.contentQueryTooShort', language))
+          .max(100, translate('lists.fields.contentQueryTooLong', language))
       : z
           .string()
           .optional()
