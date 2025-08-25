@@ -31,6 +31,7 @@ export const NewListButton = ({ className, showText = true, variant = 'ghost' }:
     mutationFn: (data: FormData) => createList({ data }),
     onError: (error) => toastError(t('lists.createError', { message: error.message })),
     onSuccess: (data) => {
+      dialogRef.current?.close()
       toastSuccess(t('lists.createSuccess'))
       navigate({ to: '/lists/$listId/edit', params: { listId: data.createList.id } })
     },
