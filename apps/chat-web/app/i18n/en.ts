@@ -461,7 +461,7 @@ export default {
       promptRequired: 'AI prompt is required.',
       promptTooShort: 'AI prompt must be at least 10 characters.',
       promptTooLong: 'AI prompt must be less than 2000 characters.',
-      contentQueryRequired: 'Content query is required when using vector store.',
+      contentQueryRequired: 'Content query is required when using content search.',
       contentQueryTooShort: 'Content query must be at least 2 characters.',
       contentQueryTooLong: 'Content query must be less than 100 characters.',
       fieldIdRequired: 'Field ID is required.',
