@@ -674,6 +674,16 @@ type FileChunkQueryResponse {
   take: Int!
 }
 
+"""
+Google Drive Files Fetch Query
+"""
+type GoogleDriveFile {
+  id: String!
+  kind: String!
+  mimeType: String!
+  name: String!
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -788,6 +798,7 @@ type Mutation {
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): String!
+  selectFilesFromGoogleDriveFolders(accessToken: String!, fileId: String!): [GoogleDriveFile!]!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startListEnrichment(

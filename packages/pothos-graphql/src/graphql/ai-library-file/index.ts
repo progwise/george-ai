@@ -6,6 +6,7 @@ import { findCacheValue, getFieldValue } from '../../utils/field-value-resolver'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { canAccessListOrThrow } from '../ai-list/utils'
 import { builder } from '../builder'
+import { selectRecursively } from './google-drive-fetch'
 
 import './process-file'
 import './read-file'
@@ -27,6 +28,23 @@ const FieldValueResult = builder
       displayValue: t.exposeString('displayValue', { nullable: true }),
       enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
       queueStatus: t.exposeString('queueStatus', { nullable: true }),
+    }),
+  })
+
+const GoogleDriveFile = builder
+  .objectRef<{
+    id: string
+    kind: string
+    name: string
+    mimeType: string
+  }>('GoogleDriveFile')
+  .implement({
+    description: 'Google Drive Files Fetch Query',
+    fields: (t) => ({
+      id: t.exposeString('id', { nullable: false }),
+      kind: t.exposeString('kind', { nullable: false }),
+      name: t.exposeString('name', { nullable: false }),
+      mimeType: t.exposeString('mimeType', { nullable: false }),
     }),
   })
 
@@ -435,6 +453,27 @@ builder.mutationField('cancelFileUpload', (t) =>
     resolve: async (_source, { fileId, libraryId }) => {
       await deleteFile(fileId, libraryId)
       return true
+    },
+  }),
+)
+
+builder.mutationField('selectFilesFromGoogleDriveFolders', (t) =>
+  t.field({
+    type: [GoogleDriveFile],
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+      accessToken: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fileId, accessToken }) => {
+      const checkedFiles = await selectRecursively(fileId, accessToken)
+      const googleDriveFiles = checkedFiles.map((file) => ({
+        id: file.id,
+        kind: file.kind,
+        name: file.name,
+        mimeType: file.kind,
+      }))
+      return googleDriveFiles
     },
   }),
 )

@@ -708,6 +708,15 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+/** Google Drive Files Fetch Query */
+export type GoogleDriveFile = {
+  __typename?: 'GoogleDriveFile'
+  id: Scalars['String']['output']
+  kind: Scalars['String']['output']
+  mimeType: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -802,6 +811,7 @@ export type Mutation = {
   removeListSource: AiListSource
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler: Scalars['String']['output']
+  selectFilesFromGoogleDriveFolders: Array<GoogleDriveFile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startListEnrichment: EnrichmentQueueResult
@@ -1031,6 +1041,11 @@ export type MutationResetAssessmentAnswersArgs = {
 
 export type MutationRunAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
+}
+
+export type MutationSelectFilesFromGoogleDriveFoldersArgs = {
+  accessToken: Scalars['String']['input']
+  fileId: Scalars['String']['input']
 }
 
 export type MutationSendConfirmationMailArgs = {
@@ -2808,6 +2823,22 @@ export type ProcessFileMutation = {
     uploadedAt?: string | null
     processedAt?: string | null
   }
+}
+
+export type SelectFilesFromGoogleDriveFoldersMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+  accessToken: Scalars['String']['input']
+}>
+
+export type SelectFilesFromGoogleDriveFoldersMutation = {
+  __typename?: 'Mutation'
+  selectFilesFromGoogleDriveFolders: Array<{
+    __typename?: 'GoogleDriveFile'
+    id: string
+    kind: string
+    name: string
+    mimeType: string
+  }>
 }
 
 export type DropFilesMutationVariables = Exact<{
@@ -10833,6 +10864,61 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const SelectFilesFromGoogleDriveFoldersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'selectFilesFromGoogleDriveFolders' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'accessToken' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'selectFilesFromGoogleDriveFolders' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'accessToken' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'accessToken' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  SelectFilesFromGoogleDriveFoldersMutation,
+  SelectFilesFromGoogleDriveFoldersMutationVariables
+>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [
