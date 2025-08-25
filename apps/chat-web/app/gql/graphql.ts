@@ -545,6 +545,7 @@ export type AiListEnrichmentQueue = {
 
 export type AiListField = {
   __typename?: 'AiListField'
+  contentQuery?: Maybe<Scalars['String']['output']>
   context: Array<AiListFieldContext>
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
@@ -571,6 +572,7 @@ export type AiListFieldContext = {
 }
 
 export type AiListFieldInput = {
+  contentQuery?: InputMaybe<Scalars['String']['input']>
   context?: InputMaybe<Array<Scalars['String']['input']>>
   fileProperty?: InputMaybe<Scalars['String']['input']>
   languageModel?: InputMaybe<Scalars['String']['input']>
@@ -2978,6 +2980,7 @@ export type AddListFieldMutation = {
     sourceType: string
     fileProperty?: string | null
     prompt?: string | null
+    contentQuery?: string | null
     languageModel?: string | null
   }
 }
@@ -3050,6 +3053,7 @@ export type FieldModal_EditableFieldFragment = {
   name: string
   type: string
   prompt?: string | null
+  contentQuery?: string | null
   languageModel?: string | null
   useVectorStore?: boolean | null
   order: number
@@ -3149,6 +3153,7 @@ export type GetListQuery = {
       sourceType: string
       fileProperty?: string | null
       prompt?: string | null
+      contentQuery?: string | null
       languageModel?: string | null
       useVectorStore?: boolean | null
       pendingItemsCount: number
@@ -3294,6 +3299,7 @@ export type ListFieldsTable_FieldFragment = {
   sourceType: string
   fileProperty?: string | null
   prompt?: string | null
+  contentQuery?: string | null
   languageModel?: string | null
   useVectorStore?: boolean | null
   pendingItemsCount: number
@@ -3314,6 +3320,7 @@ export type ListFieldsTable_ListFragment = {
     sourceType: string
     fileProperty?: string | null
     prompt?: string | null
+    contentQuery?: string | null
     languageModel?: string | null
     useVectorStore?: boolean | null
     pendingItemsCount: number
@@ -3439,6 +3446,7 @@ export type UpdateListFieldMutation = {
     sourceType: string
     fileProperty?: string | null
     prompt?: string | null
+    contentQuery?: string | null
     languageModel?: string | null
   }
 }
@@ -6369,6 +6377,7 @@ export const FieldModal_EditableFieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
@@ -6609,6 +6618,7 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
@@ -6663,6 +6673,7 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
@@ -11313,6 +11324,7 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],
             },
@@ -11828,6 +11840,7 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
@@ -12529,6 +12542,7 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],
             },

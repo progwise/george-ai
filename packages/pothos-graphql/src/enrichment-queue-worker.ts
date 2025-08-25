@@ -16,11 +16,6 @@ let currentEnrichmentCalls = 0
 
 // Throttled wrapper for getEnrichedValue
 async function throttledGetEnrichedValue(params: Parameters<typeof getEnrichedValue>[0]): Promise<string> {
-  // Wait until we have capacity
-  while (currentEnrichmentCalls >= MAX_CONCURRENT_ENRICHMENTS) {
-    await new Promise((resolve) => setTimeout(resolve, 100)) // Check every 100ms
-  }
-
   currentEnrichmentCalls++
   try {
     return await getEnrichedValue(params)
@@ -131,6 +126,7 @@ async function processQueueItem(queueItem: {
         context: contextWithValues,
         options: {
           useVectorStore: field.useVectorStore || false,
+          contentQuery: field.contentQuery,
         },
       })
     } catch (error) {
@@ -245,20 +241,26 @@ async function processQueue() {
   if (!isWorkerRunning) return
 
   try {
-    // Get pending items from the queue
+    // Only get items if we have capacity
+    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS - currentEnrichmentCalls
+    if (availableCapacity <= 0) {
+      return
+    }
+
+    // Get pending items from the queue, limited by available capacity
     const queueItems = await prisma.aiListEnrichmentQueue.findMany({
       where: {
         status: 'pending',
       },
       orderBy: [{ priority: 'desc' }, { requestedAt: 'asc' }],
-      take: BATCH_SIZE,
+      take: Math.min(BATCH_SIZE, availableCapacity),
     })
 
     if (queueItems.length === 0) {
       return
     }
 
-    console.log(`Processing ${queueItems.length} enrichment queue items...`)
+    console.log(`Processing ${queueItems.length} enrichment queue items... (capacity: ${availableCapacity})`)
 
     // Process items in parallel
     await Promise.all(queueItems.map(processQueueItem))

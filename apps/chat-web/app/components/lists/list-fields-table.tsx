@@ -53,6 +53,7 @@ graphql(`
     sourceType
     fileProperty
     prompt
+    contentQuery
     languageModel
     useVectorStore
     pendingItemsCount

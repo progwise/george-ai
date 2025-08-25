@@ -24,6 +24,7 @@ export const getEnrichedValue = async ({
   context: { name: string; value: string }[]
   options: {
     useVectorStore: boolean
+    contentQuery: string | null
   }
 }) => {
   console.log(`Getting enriched value for ${file.id} with model ${languageModel}`)
@@ -36,7 +37,16 @@ export const getEnrichedValue = async ({
   try {
     const messages: { name: string; label: string; value: string }[] = []
     if (options.useVectorStore) {
-      const searchResult = await similaritySearch(instruction, file.libraryId, file.embeddingModelName, file.name, 4)
+      if (!options.contentQuery) {
+        throw new Error('Content query is required when using vector store')
+      }
+      const searchResult = await similaritySearch(
+        options.contentQuery,
+        file.libraryId,
+        file.embeddingModelName,
+        file.name,
+        4,
+      )
       console.log('enrichment search results', searchResult)
       const searchValue = searchResult.map((result) => result.pageContent).join('\n')
       messages.push({
