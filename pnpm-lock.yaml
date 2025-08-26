@@ -253,6 +253,9 @@ importers:
 
   packages/ai-act:
     devDependencies:
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -266,6 +269,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.21.0
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       '@types/node':
         specifier: ^22.10.7
         version: 22.13.8
@@ -306,6 +312,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.21.0
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       '@types/node':
         specifier: ^22.10.7
         version: 22.13.8
@@ -324,6 +333,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.21.0
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       '@types/node':
         specifier: ^22.10.7
         version: 22.13.8
@@ -379,6 +391,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.21.0
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       eslint:
         specifier: ^9.17.0
         version: 9.21.0(jiti@2.4.2)
@@ -388,6 +403,8 @@ importers:
       typescript-eslint:
         specifier: ^8.18.0
         version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
+
+  packages/package-configs: {}
 
   packages/pothos-graphql:
     dependencies:
@@ -446,6 +463,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.21.0
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
       '@graphql-tools/executor-http':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@22.13.8)(graphql@16.10.0)

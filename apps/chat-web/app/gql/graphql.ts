@@ -694,6 +694,12 @@ export type FileContentResult = {
   success?: Maybe<Scalars['Boolean']['output']>
 }
 
+export type FileDropResult = {
+  __typename?: 'FileDropResult'
+  deletedFile?: Maybe<AiLibraryFile>
+  dropError?: Maybe<Scalars['String']['output']>
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -768,15 +774,15 @@ export type Mutation = {
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
-  dropFile: AiLibraryFile
-  dropFiles: Array<AiLibraryFile>
+  dropFile: FileDropResult
+  dropFiles: Array<FileDropResult>
   embedFile: AiLibraryFile
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
   leaveLibraryParticipant?: Maybe<User>
-  login?: Maybe<User>
+  login: User
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
   removeAssistantParticipant: User
@@ -1146,7 +1152,7 @@ export type Query = {
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: FileContentResult
   user?: Maybe<User>
-  userProfile?: Maybe<UserProfile>
+  userProfile: UserProfile
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
 }
@@ -1521,7 +1527,7 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = {
   __typename?: 'Mutation'
-  login?: {
+  login: {
     __typename?: 'User'
     id: string
     username: string
@@ -1532,7 +1538,7 @@ export type LoginMutation = {
     avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
-  } | null
+  }
 }
 
 export type EnsureUserProfileMutationVariables = Exact<{
@@ -2521,7 +2527,11 @@ export type DropFileMutationVariables = Exact<{
 
 export type DropFileMutation = {
   __typename?: 'Mutation'
-  dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
+  dropFile: {
+    __typename?: 'FileDropResult'
+    dropError?: string | null
+    deletedFile?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
+  }
 }
 
 export type ReEmbedFilesMutationVariables = Exact<{
@@ -2813,7 +2823,11 @@ export type DropFilesMutationVariables = Exact<{
 
 export type DropFilesMutation = {
   __typename?: 'Mutation'
-  dropFiles: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }>
+  dropFiles: Array<{
+    __typename?: 'FileDropResult'
+    dropError?: string | null
+    deletedFile?: { __typename?: 'AiLibraryFile'; id: string; libraryId: string } | null
+  }>
 }
 
 export type DeleteAiLibraryMutationVariables = Exact<{
@@ -3503,7 +3517,7 @@ export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type UserProfileQuery = {
   __typename?: 'Query'
-  userProfile?: {
+  userProfile: {
     __typename?: 'UserProfile'
     id: string
     confirmationDate?: string | null
@@ -3521,7 +3535,7 @@ export type UserProfileQuery = {
     expiresAt?: string | null
     business?: string | null
     position?: string | null
-  } | null
+  }
 }
 
 export type AddAssistantParticipantMutationVariables = Exact<{
@@ -4462,7 +4476,7 @@ export type GetUserProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetUserProfileQuery = {
   __typename?: 'Query'
-  userProfile?: {
+  userProfile: {
     __typename?: 'UserProfile'
     id: string
     userId: string
@@ -4480,7 +4494,7 @@ export type GetUserProfileQuery = {
     confirmationDate?: string | null
     activationDate?: string | null
     expiresAt?: string | null
-  } | null
+  }
 }
 
 export type UpdateUserProfileMutationVariables = Exact<{
@@ -9996,8 +10010,18 @@ export const DropFileDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'deletedFile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
               ],
             },
           },
@@ -10825,8 +10849,18 @@ export const DropFilesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'deletedFile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
               ],
             },
           },

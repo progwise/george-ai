@@ -12,8 +12,11 @@ export const dropFiles = createServerFn({ method: 'POST' })
         graphql(`
           mutation dropFile($id: String!) {
             dropFile(fileId: $id) {
-              id
-              name
+              deletedFile {
+                id
+                name
+              }
+              dropError
             }
           }
         `),

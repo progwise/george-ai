@@ -62,7 +62,19 @@ export const FilesTable = ({
         toastError(t('errors.dropFiles', { count: 0, error: 'no Files dropped' }))
         return
       }
-      const droppedFile = data[0].dropFile
+      if (data.length > 1) {
+        toastError(t('errors.dropFiles', { count: data.length, error: 'more than one file dropped' }))
+        return
+      }
+      if (data[0].dropFile.dropError) {
+        toastError(t('errors.dropFile', { error: data[0].dropFile.dropError }))
+        return
+      }
+      if (!data[0].dropFile.deletedFile) {
+        toastError(t('errors.dropFile', { error: 'no file info returned' }))
+        return
+      }
+      const droppedFile = data[0].dropFile.deletedFile
       setSelectedFileIds((prev) => prev.filter((id) => id !== droppedFile.id))
       toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${droppedFile.name}`)
     },

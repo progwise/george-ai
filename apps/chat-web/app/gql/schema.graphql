@@ -653,6 +653,11 @@ type FileContentResult {
   success: Boolean
 }
 
+type FileDropResult {
+  deletedFile: AiLibraryFile
+  dropError: String
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -737,15 +742,15 @@ type Mutation {
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
-  dropFile(fileId: String!): AiLibraryFile!
-  dropFiles(libraryId: String!): [AiLibraryFile!]!
+  dropFile(fileId: String!): FileDropResult!
+  dropFiles(libraryId: String!): [FileDropResult!]!
   embedFile(conversionId: String, fileId: String!): AiLibraryFile!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
   leaveLibraryParticipant(libraryId: String!): User
-  login(jwtToken: String!): User
+  login(jwtToken: String!): User!
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
@@ -853,7 +858,7 @@ type Query {
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(conversionId: String, fileId: String!): FileContentResult!
   user(email: String!): User
-  userProfile: UserProfile
+  userProfile: UserProfile!
   users: [User!]!
   version: String
 }

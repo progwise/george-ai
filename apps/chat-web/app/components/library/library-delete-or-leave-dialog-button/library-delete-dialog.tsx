@@ -15,8 +15,11 @@ import { getLibrariesQueryOptions } from '../get-libraries'
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {
     dropFiles(libraryId: $libraryId) {
-      id
-      libraryId
+      deletedFile {
+        id
+        libraryId
+      }
+      dropError
     }
   }
 `)
