@@ -65,7 +65,9 @@ export const Select = <T extends ZodRawShape>({
   return (
     <fieldset className={twMerge('fieldset group', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
-        <span className="group-has-aria-invalid:text-error">
+        <span
+          className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
+        >
           {label}
           {required && <span className="text-error"> *</span>}
         </span>

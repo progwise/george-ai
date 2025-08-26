@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import React, { useMemo } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -219,7 +220,14 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
                 {/* OCR Settings - Always visible but readonly when Image OCR is off */}
                 <div className="border-primary ml-6 space-y-4 border-l-2 pl-4">
-                  <h4 className="text-primary text-sm font-medium">{t('labels.ocrSettings')}</h4>
+                  <h4
+                    className={twMerge(
+                      'text-primary text-sm font-medium',
+                      !isImageProcessingEnabled && 'text-base-content/50',
+                    )}
+                  >
+                    {t('labels.ocrSettings')}
+                  </h4>
 
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {/* OCR Prompt */}
