@@ -34,12 +34,18 @@ builder.queryField('aiList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      const list = await prisma.aiList.findFirstOrThrow({
+      // ToDo: refactor
+      const listWithParticipants = await prisma.aiList.findFirstOrThrow({
         ...query,
-        include: { ...query.include, participants: true },
+        include: { participants: true },
         where: { id },
       })
-      canAccessListOrThrow(list, context.session.user)
+      canAccessListOrThrow(listWithParticipants, context.session.user)
+
+      const list = await prisma.aiList.findFirstOrThrow({
+        ...query,
+        where: { id },
+      })
       return list
     },
   }),
