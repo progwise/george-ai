@@ -427,6 +427,7 @@ export default {
     users: 'Users',
   },
   lists: {
+    addParticipantsConfirmation: 'You are about to add participants to this list.',
     createDialogTitle: 'New list',
     createDialogDescription: 'You can add sources and fields for this list after creation.',
     createListButtonText: 'Create List',
@@ -446,9 +447,13 @@ export default {
     labelUpdatedAt: 'Update',
     nameRequired: 'Name is required.',
     newList: 'New list',
+    owner: 'Owner',
     placeholderName: 'Product catalog extended.',
+    removeParticipant: 'Remove participant from list',
+    removeParticipantConfirmation: 'You are about to remove {participantName} from this list. This cannot be undone.',
     updateError: 'Error updating list: {message}',
     updateSuccess: 'List updated successfully',
+    users: 'Users',
     view: 'View',
     fields: {
       listIdRequired: 'List ID is required.',

@@ -484,6 +484,7 @@ type AiList {
   participants: [AiListParticipant!]!
   sources: [AiListSource!]!
   updatedAt: DateTime
+  users: [User!]!
 }
 
 type AiListEnrichmentQueue {
@@ -579,7 +580,7 @@ type AiListParticipant {
   id: ID!
   list: AiList!
   listId: String!
-  user: AiList!
+  user: User!
   userId: String!
 }
 
@@ -727,6 +728,7 @@ type Mutation {
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
+  addListParticipants(listId: String!, userIds: [String!]!): [User!]!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
   cleanListEnrichments(
@@ -766,6 +768,7 @@ type Mutation {
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
   leaveLibraryParticipant(libraryId: String!): User
+  leaveListParticipant(listId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile!
@@ -785,6 +788,7 @@ type Mutation {
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
+  removeListParticipant(listId: String!, userId: String!): User!
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): String!

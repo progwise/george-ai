@@ -34,7 +34,11 @@ builder.queryField('aiList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      const list = await prisma.aiList.findFirstOrThrow({ ...query, include: { participants: true }, where: { id } })
+      const list = await prisma.aiList.findFirstOrThrow({
+        ...query,
+        include: { ...query.include, participants: true },
+        where: { id },
+      })
       canAccessListOrThrow(list, context.session.user)
       return list
     },

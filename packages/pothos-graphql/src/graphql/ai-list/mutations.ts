@@ -18,7 +18,6 @@ builder.mutationField('createList', (t) =>
       data: t.arg({ type: AiListInput, required: true }),
     },
     resolve: async (query, _source, { data }, { session }) => {
-      console.log('mutation', data)
       const existingList = await prisma.aiList.findFirst({ where: { ownerId: session.user.id, name: data.name } })
       if (existingList) {
         throw new Error(`List for current user with name ${data.name} already exists`)
@@ -70,6 +69,98 @@ builder.mutationField('deleteList', (t) =>
       canAccessListOrThrow(existingList, session.user)
       await prisma.aiList.delete({ where: { id } })
       return existingList
+    },
+  }),
+)
+
+builder.mutationField('addListParticipants', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['User'],
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      userIds: t.arg.stringList({ required: true }),
+    },
+    resolve: async (query, _source, { listId, userIds }, context) => {
+      const list = await prisma.aiList.findUniqueOrThrow({
+        where: { id: listId },
+      })
+
+      if (list.ownerId !== context.session.user.id) {
+        throw new Error('Only the owner can add participants')
+      }
+      const existingParticipants = await prisma.aiListParticipant.findMany({
+        where: { listId },
+      })
+
+      const newUserIds = userIds.filter(
+        (userId) => !existingParticipants.some((participant) => participant.userId === userId),
+      )
+
+      await prisma.aiListParticipant.createMany({
+        data: newUserIds.map((userId) => ({
+          listId,
+          userId,
+        })),
+      })
+
+      return prisma.user.findMany({
+        ...query,
+        where: {
+          id: { in: newUserIds },
+        },
+      })
+    },
+  }),
+)
+
+builder.mutationField('removeListParticipant', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'User',
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      userId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { listId, userId }, context) => {
+      const list = await prisma.aiList.findUniqueOrThrow({
+        where: { id: listId },
+      })
+
+      if (list.ownerId !== context.session.user.id) {
+        throw new Error('Only the owner can remove participants')
+      }
+
+      await prisma.aiListParticipant.delete({
+        where: {
+          listId_userId: { userId, listId },
+        },
+      })
+
+      return prisma.user.findUniqueOrThrow({
+        ...query,
+        where: { id: userId },
+      })
+    },
+  }),
+)
+
+builder.mutationField('leaveListParticipant', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'User',
+    args: {
+      listId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { listId }, context) => {
+      await prisma.aiListParticipant.deleteMany({
+        where: {
+          listId,
+        },
+      })
+
+      return prisma.user.findUniqueOrThrow({
+        where: { id: context.session.user.id },
+      })
     },
   }),
 )

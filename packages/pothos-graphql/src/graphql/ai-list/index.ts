@@ -13,7 +13,7 @@ builder.prismaObject('AiListParticipant', {
     listId: t.exposeString('listId', { nullable: false }),
     list: t.relation('list', { nullable: false }),
     userId: t.exposeString('userId', { nullable: false }),
-    user: t.relation('list', { nullable: false }),
+    user: t.relation('user', { nullable: false }),
   }),
 })
 
@@ -120,6 +120,14 @@ builder.prismaObject('AiList', {
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     participants: t.relation('participants', { nullable: false }),
+    users: t.prismaField({
+      type: ['User'],
+      nullable: false,
+      select: { participants: { select: { user: true } } },
+      resolve: (_query, list) => {
+        return list.participants.map((participant) => participant.user)
+      },
+    }),
     fields: t.relation('fields', { nullable: false }),
     sources: t.relation('sources', { nullable: false }),
     enrichmentQueue: t.relation('enrichmentQueue', { nullable: false }),

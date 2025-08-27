@@ -43,13 +43,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, library) => {
-        const users = library.participants.map((participant) => participant.user)
-        // Sort participants: owner first, then other users
-        return users.sort((a, b) => {
-          if (a.id === library.ownerId) return -1
-          if (b.id === library.ownerId) return 1
-          return 0
-        })
+        return library.participants.map((participant) => participant.user)
       },
     }),
   }),
@@ -136,9 +130,6 @@ builder.mutationField('createAiLibrary', (t) =>
         data: {
           ...data,
           ownerId: userId,
-          participants: {
-            create: [{ userId }],
-          },
         },
       })
     },

@@ -5,11 +5,13 @@ import { getListQueryOptions } from '../../../../components/lists/get-list'
 import { getListsQueryOptions } from '../../../../components/lists/get-lists'
 import { ListDeleteButton } from '../../../../components/lists/list-delete-button'
 import { ListExportButton } from '../../../../components/lists/list-export-button'
+import { ListParticipants } from '../../../../components/lists/list-participants'
 import { ListSelector } from '../../../../components/lists/list-selector'
 import { NewListButton } from '../../../../components/lists/new-list-button'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
+import { getUsersQueryOptions } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId')({
   component: RouteComponent,
@@ -24,6 +26,9 @@ export const Route = createFileRoute('/_authenticated/lists/$listId')({
 function RouteComponent() {
   const { t } = useTranslation()
   const params = Route.useParams()
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
+  const { user } = Route.useRouteContext()
+
   const {
     data: { aiLists },
   } = useSuspenseQuery(getListsQueryOptions())
@@ -68,7 +73,8 @@ function RouteComponent() {
           <ListExportButton listId={params.listId} />
         </li>
         <li className="grow-1"></li>
-        <li className="justify-self-end">
+        <li className="flex justify-self-end">
+          <ListParticipants list={aiList} users={usersData.users} userId={user.id} />
           <ListDeleteButton list={aiList} />
         </li>
       </ul>

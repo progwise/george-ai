@@ -432,6 +432,7 @@ export default {
     users: 'Benutzer',
   },
   lists: {
+    addParticipantsConfirmation: 'Sie können Teilnehmer zu dieser Liste hinzufügen.',
     createDialogTitle: 'Neue Liste',
     createDialogDescription: 'Quellen und Felder werden nach dem Erstellen hinzugefügt.',
     createListButtonText: 'Erzeuge Liste',
@@ -452,9 +453,14 @@ export default {
     labelUpdatedAt: 'Aktualisiert',
     nameRequired: 'Name ist Pflicht.',
     newList: 'Neue Liste',
+    owner: 'Besitzer',
     placeholderName: 'Erweiterter Produktkatalog',
+    removeParticipant: 'Teilnehmer entfernen',
+    removeParticipantConfirmation:
+      'Sie sind dabei, {participantName} von dieser Liste zu entfernen. Dies kann nicht rückgängig gemacht werden.',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateSuccess: 'Liste erfolgreich aktualisiert',
+    users: 'Benutzer',
     view: 'Ansicht',
     fields: {
       listIdRequired: 'Listen-ID ist erforderlich.',
