@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
@@ -6,10 +7,10 @@ import { ListParticipants_ListFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
-import { removeListParticipant } from '../../server-functions/list-participations'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { removeListParticipant } from '../list-participations'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
@@ -47,6 +48,7 @@ interface ListParticipantsProps {
 export const ListParticipants = ({ list, users, userId }: ListParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
@@ -58,12 +60,18 @@ export const ListParticipants = ({ list, users, userId }: ListParticipantsProps)
     mutationFn: async ({ userId, listId }: { userId: string; listId: string }) => {
       return await removeListParticipant({ data: { userId, listId } })
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries(getListQueryOptions(list.id))
-      await queryClient.invalidateQueries(getListsQueryOptions())
+    onSuccess: async (data) => {
       setParticipantToRemove(null)
       dialogRef.current?.close()
       toastSuccess(t('notifications.participantRemoved'))
+      if (data.removeListParticipant.id === userId) {
+        // If the current user removed themselves, we can also update the lists query to remove the list
+        await queryClient.invalidateQueries(getListsQueryOptions())
+        await navigate({ to: '/lists' })
+      } else {
+        await queryClient.invalidateQueries(getListQueryOptions(list.id))
+        await queryClient.invalidateQueries(getListsQueryOptions())
+      }
     },
     onError: (error) => {
       toastError(t('errors.removeParticipantFailed', { error: error.message }))
@@ -127,9 +135,9 @@ export const ListParticipants = ({ list, users, userId }: ListParticipantsProps)
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) =>
+                  onClick={(event) => {
                     handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
-                  }
+                  }}
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>

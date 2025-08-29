@@ -44,43 +44,33 @@ builder.mutationField('removeLibraryParticipant', (t) =>
       userId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { libraryId, userId }, context) => {
+      const actorId = context.session.user.id
+
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         where: { id: libraryId },
+        select: { ownerId: true },
       })
 
-      if (library.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can remove participants')
+      const isOwner = library.ownerId === actorId
+      const isSelf = userId === actorId
+
+      // Nur Owner darf andere entfernen; jeder darf sich selbst entfernen
+      if (!isOwner && !isSelf) {
+        throw new Error('Only the owner can remove other participants')
+      }
+
+      // Optional: Owner darf nicht „entfernt“ werden (falls Owner auch in der Teilnehmer-Tabelle steht)
+      if (userId === library.ownerId && !isSelf) {
+        throw new Error('The library owner cannot be removed by others')
       }
 
       await prisma.aiLibraryParticipant.delete({
-        where: {
-          libraryId_userId: { userId, libraryId },
-        },
+        where: { libraryId_userId: { libraryId, userId } },
       })
 
       return prisma.user.findUniqueOrThrow({
         ...query,
         where: { id: userId },
-      })
-    },
-  }),
-)
-
-builder.mutationField('leaveLibraryParticipant', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'User',
-    args: {
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { libraryId }, context) => {
-      await prisma.aiLibraryParticipant.deleteMany({
-        where: {
-          libraryId,
-        },
-      })
-
-      return prisma.user.findUniqueOrThrow({
-        where: { id: context.session.user.id },
       })
     },
   }),

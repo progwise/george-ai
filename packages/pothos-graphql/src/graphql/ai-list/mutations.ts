@@ -67,6 +67,7 @@ builder.mutationField('deleteList', (t) =>
         throw new Error(`List for current user with id ${id} not found`)
       }
       canAccessListOrThrow(existingList, session.user)
+      await prisma.aiListSource.deleteMany({ where: { listId: id } })
       await prisma.aiList.delete({ where: { id } })
       return existingList
     },
@@ -123,43 +124,33 @@ builder.mutationField('removeListParticipant', (t) =>
       userId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { listId, userId }, context) => {
+      const actorId = context.session.user.id
+
       const list = await prisma.aiList.findUniqueOrThrow({
         where: { id: listId },
+        select: { ownerId: true },
       })
 
-      if (list.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can remove participants')
+      const isOwner = list.ownerId === actorId
+      const isSelf = userId === actorId
+
+      // Nur Owner darf andere entfernen; jeder darf sich selbst entfernen
+      if (!isOwner && !isSelf) {
+        throw new Error('Only the owner can remove other participants')
+      }
+
+      // Optional: Owner darf nicht „entfernt“ werden (falls Owner auch in der Teilnehmer-Tabelle steht)
+      if (userId === list.ownerId && !isSelf) {
+        throw new Error('The list owner cannot be removed by others')
       }
 
       await prisma.aiListParticipant.delete({
-        where: {
-          listId_userId: { userId, listId },
-        },
+        where: { listId_userId: { listId, userId } },
       })
 
       return prisma.user.findUniqueOrThrow({
         ...query,
         where: { id: userId },
-      })
-    },
-  }),
-)
-
-builder.mutationField('leaveListParticipant', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'User',
-    args: {
-      listId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { listId }, context) => {
-      await prisma.aiListParticipant.deleteMany({
-        where: {
-          listId,
-        },
-      })
-
-      return prisma.user.findUniqueOrThrow({
-        where: { id: context.session.user.id },
       })
     },
   }),

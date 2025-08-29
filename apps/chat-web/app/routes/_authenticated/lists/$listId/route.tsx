@@ -75,7 +75,7 @@ function RouteComponent() {
         <li className="grow-1"></li>
         <li className="flex justify-self-end">
           <ListParticipants list={aiList} users={usersData.users} userId={user.id} />
-          <ListDeleteButton list={aiList} />
+          {aiList.ownerId === user.id && <ListDeleteButton list={aiList} />}
         </li>
       </ul>
 

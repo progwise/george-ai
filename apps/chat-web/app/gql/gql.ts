@@ -101,6 +101,8 @@ type Documents = {
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      ...AiLibraryDetail\n    }\n  }\n': typeof types.ChangeAiLibraryDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
+  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddListParticipantDocument
+  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveListParticipantDocument
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
   '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n': typeof types.CleanEnrichmentsDocument
@@ -156,10 +158,6 @@ type Documents = {
   '\n  mutation leaveConversation($participantId: String!) {\n    leaveAiConversation(participantId: $participantId) {\n      id\n    }\n  }\n': typeof types.LeaveConversationDocument
   '\n  mutation addLibraryParticipant($libraryId: String!, $userIds: [String!]!) {\n    addLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddLibraryParticipantDocument
   '\n  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {\n    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveLibraryParticipantDocument
-  '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n': typeof types.LeaveLibraryParticipantDocument
-  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddListParticipantDocument
-  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveListParticipantDocument
-  '\n  mutation leaveListParticipant($listId: String!) {\n    leaveListParticipant(listId: $listId) {\n      id\n    }\n  }\n': typeof types.LeaveListParticipantDocument
   '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    avatarUrl\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n': typeof types.UserFragmentDoc
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': typeof types.UsersDocument
   '\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
@@ -340,6 +338,10 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
+  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n':
+    types.AddListParticipantDocument,
+  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n':
+    types.RemoveListParticipantDocument,
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ':
     types.AddListFieldDocument,
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ':
@@ -449,14 +451,6 @@ const documents: Documents = {
     types.AddLibraryParticipantDocument,
   '\n  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {\n    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {\n      id\n    }\n  }\n':
     types.RemoveLibraryParticipantDocument,
-  '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n':
-    types.LeaveLibraryParticipantDocument,
-  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n':
-    types.AddListParticipantDocument,
-  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n':
-    types.RemoveListParticipantDocument,
-  '\n  mutation leaveListParticipant($listId: String!) {\n    leaveListParticipant(listId: $listId) {\n      id\n    }\n  }\n':
-    types.LeaveListParticipantDocument,
   '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    avatarUrl\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n':
     types.UserFragmentDoc,
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': types.UsersDocument,
@@ -1010,6 +1004,18 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ']
 /**
@@ -1336,30 +1342,6 @@ export function graphql(
 export function graphql(
   source: '\n  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {\n    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {\n      id\n    }\n  }\n',
 ): (typeof documents)['\n  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {\n    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation leaveListParticipant($listId: String!) {\n    leaveListParticipant(listId: $listId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation leaveListParticipant($listId: String!) {\n    leaveListParticipant(listId: $listId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

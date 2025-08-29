@@ -51,25 +51,3 @@ export const removeLibraryParticipant = createServerFn({ method: 'POST' })
       userId: ctx.data.userId,
     }),
   )
-
-const LeaveLibraryParticipantDocument = graphql(`
-  mutation leaveLibraryParticipant($libraryId: String!) {
-    leaveLibraryParticipant(libraryId: $libraryId) {
-      id
-    }
-  }
-`)
-
-export const leaveLibraryParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { libraryId: string }) =>
-    z
-      .object({
-        libraryId: z.string(),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(LeaveLibraryParticipantDocument, {
-      libraryId: ctx.data.libraryId,
-    }),
-  )

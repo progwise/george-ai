@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
-import { backendRequest } from './backend'
+import { backendRequest } from '../server-functions/backend'
 
 const AddListParticipantsDocument = graphql(`
   mutation addListParticipant($listId: String!, $userIds: [String!]!) {
@@ -49,27 +49,5 @@ export const removeListParticipant = createServerFn({ method: 'POST' })
     backendRequest(RemoveListParticipantDocument, {
       listId: ctx.data.listId,
       userId: ctx.data.userId,
-    }),
-  )
-
-const LeaveListParticipantDocument = graphql(`
-  mutation leaveListParticipant($listId: String!) {
-    leaveListParticipant(listId: $listId) {
-      id
-    }
-  }
-`)
-
-export const leaveListParticipant = createServerFn({ method: 'POST' })
-  .validator((data: unknown) =>
-    z
-      .object({
-        listId: z.string(),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(LeaveListParticipantDocument, {
-      listId: ctx.data.listId,
     }),
   )

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
@@ -47,6 +48,7 @@ interface LibraryParticipantsProps {
 export const LibraryParticipants = ({ library, users, userId }: LibraryParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
@@ -58,12 +60,18 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
       return await removeLibraryParticipant({ data: { userId, libraryId } })
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
-      await queryClient.invalidateQueries(getLibrariesQueryOptions())
+    onSuccess: async (data) => {
       setParticipantToRemove(null)
       dialogRef.current?.close()
       toastSuccess(t('notifications.participantRemoved'))
+      if (data.removeLibraryParticipant.id === userId) {
+        // If the current user removed themselves, we can also update the libraries query to remove the list
+        await queryClient.invalidateQueries(getLibrariesQueryOptions())
+        await navigate({ to: '/libraries' })
+      } else {
+        await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
+        await queryClient.invalidateQueries(getLibrariesQueryOptions())
+      }
     },
     onError: (error) => {
       toastError(t('errors.removeParticipantFailed', { error: error.message }))
@@ -97,8 +105,9 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   return (
     <div className="flex w-full items-center justify-between gap-2 overflow-visible">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
+
       <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
-        <div key={library.owner.id} className="relative transition-transform">
+        <div className="relative transition-transform">
           <span
             className="tooltip tooltip-bottom cursor-pointer"
             data-tip={`${library.owner.name}  (${t('libraries.owner')})`}
@@ -126,9 +135,9 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) =>
+                  onClick={(event) => {
                     handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
-                  }
+                  }}
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -137,7 +146,6 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
           )
         })}
 
-        {/* Remaining participants */}
         {remainingCount > 0 && (
           <div className="dropdown dropdown-hover dropdown-end relative transition-transform">
             <div
