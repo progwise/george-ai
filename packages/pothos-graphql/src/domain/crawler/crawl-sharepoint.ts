@@ -120,7 +120,6 @@ const saveSharepointCrawlerFile = async ({
       mimeType: true,
       originFileHash: true,
       originModificationDate: true,
-      processedAt: true,
     },
   })
 
@@ -203,7 +202,7 @@ const saveSharepointCrawlerFile = async ({
         const newFileHash = await calculateFileHash(tempFilePath)
 
         // Determine file status
-        if (existingFile && existingFile.originFileHash === newFileHash && existingFile.processedAt) {
+        if (existingFile && existingFile.originFileHash === newFileHash) {
           // Same content, already processed - let the general runner handle database updates
           skipProcessing = true
           wasUpdated = false
@@ -259,7 +258,7 @@ const saveSharepointCrawlerFile = async ({
     } else if (existingFile) {
       // File exists with hash and no download needed
       fileRecord = existingFile
-      skipProcessing = existingFile.processedAt ? true : false
+      skipProcessing = true
       wasUpdated = false
     }
   }

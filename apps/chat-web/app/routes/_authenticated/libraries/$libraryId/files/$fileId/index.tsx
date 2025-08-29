@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { FileContent } from '../../../../../../components/library/files/file-content'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
+import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const { libraryId, fileId } = Route.useParams()
+  const { data: fileInfo } = useSuspenseQuery(getFileInfoQueryOptions({ fileId, libraryId }))
   const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId }))
   const { data: fileSources } = useSuspenseQuery(getFileSourcesQueryOptions({ fileId, libraryId }))
 

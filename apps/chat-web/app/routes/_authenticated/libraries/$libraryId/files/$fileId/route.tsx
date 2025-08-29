@@ -6,6 +6,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
 import { reEmbedFiles, reprocessFiles } from '../../../../../../components/library/files/change-files'
+import { FileConversionList } from '../../../../../../components/library/files/file-conversations'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
@@ -101,63 +102,113 @@ function RouteComponent() {
   })
   return (
     <>
-      <div>
+      <div className="space-y-4">
         <LoadingSpinner isLoading={reprocessIsPending} />
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
-          {fileInfo.aiLibraryFile.archivedAt && (
-            <span className="badge badge-warning badge-sm">
-              {t('labels.archived')}: {dateTimeString(fileInfo.aiLibraryFile.archivedAt, language)}
-            </span>
-          )}
-        </div>
-        <div className="text-sm text-gray-500">
-          <a href={fileInfo.aiLibraryFile.originUri || '#'} target="blank">
-            {fileInfo.aiLibraryFile.originUri}
-          </a>
-          <span className="mx-2">|</span>
-          <span>
-            {t('texts.fileCreated')}: {dateTimeString(fileInfo.aiLibraryFile.createdAt, language)}
-          </span>
-          <span className="mx-2">|</span>
-          <span>
-            {t('texts.fileUpdated')}: {dateTimeString(fileInfo.aiLibraryFile.updatedAt, language)}
-          </span>
-          <span className="mx-2">|</span>
-          <span>
-            {t('texts.fileProcessed')}: {dateTimeString(fileInfo.aiLibraryFile.processedAt, language)}
-          </span>
-          {fileInfo.aiLibraryFile.originModificationDate && (
-            <>
-              <span className="mx-2">|</span>
-              <span>
-                {t('texts.originModified')}: {dateTimeString(fileInfo.aiLibraryFile.originModificationDate, language)}
-              </span>
-            </>
-          )}
-          {fileInfo.aiLibraryFile.processingErrorMessage && (
-            <>
-              <span className="text-error">
-                {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
-              </span>
-            </>
-          )}
-        </div>
-        {fileInfo.aiLibraryFile.lastUpdate && (
-          <div className="mt-2 text-sm">
-            <span className="text-gray-600">{t('texts.lastUpdate')}:</span>
-            <span className="ml-2">
-              <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="xs" />
-            </span>
-            <span className="ml-2 text-gray-500">
-              {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
-            </span>
-            {/* Only show message if there was an error */}
-            {fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
-              <div className="text-error mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+
+        {/* Title Card with Hero-like styling */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <h2 className="card-title text-2xl">{fileInfo.aiLibraryFile.name}</h2>
+                {fileInfo.aiLibraryFile.originUri && fileInfo.aiLibraryFile.originUri !== 'desktop' && (
+                  <div className="">
+                    <a
+                      href={fileInfo.aiLibraryFile.originUri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-primary block truncate text-sm"
+                    >
+                      {fileInfo.aiLibraryFile.originUri}
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-shrink-0 items-center gap-2">
+                {fileInfo.aiLibraryFile.archivedAt && (
+                  <div className="badge badge-warning badge-sm">{t('labels.archived')}</div>
+                )}
+                {fileInfo.aiLibraryFile.lastUpdate && (
+                  <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="sm" />
+                )}
+              </div>
+            </div>
+
+            {/* Stats for key dates */}
+            <div className="stats stats-horizontal mt-4 shadow">
+              <div className="stat place-items-center py-2">
+                <div className="stat-title text-xs">{t('texts.fileProcessed')}</div>
+                <div className="stat-value text-sm">
+                  {fileInfo.aiLibraryFile.processedAt
+                    ? dateTimeString(fileInfo.aiLibraryFile.processedAt, language)
+                    : '-'}
+                </div>
+              </div>
+
+              <div className="stat place-items-center py-2">
+                <div className="stat-title text-xs">{t('texts.fileUpdated')}</div>
+                <div className="stat-value text-sm">{dateTimeString(fileInfo.aiLibraryFile.updatedAt, language)}</div>
+              </div>
+
+              {fileInfo.aiLibraryFile.originModificationDate && (
+                <div className="stat place-items-center py-2">
+                  <div className="stat-title text-xs">{t('texts.originModified')}</div>
+                  <div className="stat-value text-sm">
+                    {dateTimeString(fileInfo.aiLibraryFile.originModificationDate, language)}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error Alert if present */}
+            {fileInfo.aiLibraryFile.processingErrorMessage && (
+              <div className="alert alert-error mt-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div>
+                  <h3 className="font-bold">{t('texts.fileProcessingError')}</h3>
+                  <div className="text-xs">{fileInfo.aiLibraryFile.processingErrorMessage}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Last Update info in a subtle way */}
+            {fileInfo.aiLibraryFile.lastUpdate && fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
+              <div className="alert alert-warning mt-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <div>
+                  <div className="text-xs">
+                    {t('texts.lastUpdate')}: {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
+                  </div>
+                  <div className="mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+                </div>
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
       <div className="flex justify-end">
         <ul className="menu bg-base-200 menu-horizontal rounded-box gap-2">
@@ -205,6 +256,7 @@ function RouteComponent() {
           </li>
         </ul>
       </div>
+      <FileConversionList conversions={fileInfo.aiLibraryFile.conversions} />
       <div role="tabpanel">
         <Outlet />
       </div>

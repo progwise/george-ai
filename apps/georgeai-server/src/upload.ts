@@ -4,6 +4,8 @@ import * as fs from 'fs'
 import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
 import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
 
+import { getUserContext } from './getUserContext'
+
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
     httpResponse.status(405).send('Method Not Allowed')
@@ -22,7 +24,20 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
-  const fileInfo = await getFileInfo(uploadToken as string)
+  const context = await getUserContext(() => {
+    let token = httpRequest.headers['x-user-jwt'] ? httpRequest.headers['x-user-jwt'].toString() : null
+    if (!token) {
+      token = httpRequest.cookies['keycloak-token']
+    }
+    return token
+  })
+
+  if (!context.session?.user) {
+    httpResponse.status(401).end()
+    return
+  }
+
+  const fileInfo = await getFileInfo(uploadToken as string, context.session.user.id)
 
   if (!fileInfo) {
     httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
@@ -62,7 +77,11 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.on('end', () => {
     filestream.close(async () => {
       try {
-        await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+        await markUploadFinished({
+          fileId: fileInfo.id,
+          libraryId: fileInfo.libraryId,
+          userId: context.session!.user.id,
+        })
         httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {
         console.error('Error during file processing:', error)

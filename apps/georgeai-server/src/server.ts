@@ -7,8 +7,8 @@ import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
-// Import and start enrichment queue worker
-import { startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
+// Import and start workers
+import { startEnrichmentQueueWorker, startContentExtractionWorker } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
@@ -30,8 +30,9 @@ console.log(`
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
   `)
 
-// Start the enrichment queue worker
+// Start workers
 startEnrichmentQueueWorker().catch(console.error)
+startContentExtractionWorker().catch(console.error)
 
 const yoga = createYoga({
   schema,

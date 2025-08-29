@@ -15,8 +15,8 @@ export interface AIResponse {
   content: string // All content received
   success: boolean // Whether processing completed normally
   issues?: {
-    timeout?: boolean // Processing timeout
-    partialResult?: boolean // Content is incomplete
+    timeout: boolean // Processing timeout
+    partialResult: boolean // Content is incomplete
   }
   metadata?: {
     tokensProcessed?: number

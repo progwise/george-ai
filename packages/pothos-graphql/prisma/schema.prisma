@@ -130,6 +130,7 @@ model AiLibrary {
   ownerId              String
   isPublic             Boolean                @default(true)
   embeddingModelName   String?
+  embeddingTimeoutMs   Int?                   @default(180000) // Default 3 minutes for embedding tasks
   fileConverterOptions String?
   usages               AiLibraryUsage[]
   files                AiLibraryFile[]
@@ -139,7 +140,7 @@ model AiLibrary {
   updates     AiLibraryUpdate[]
   listSources AiListSource[]
 
-  fileConversions AiLibraryFileConversion[]
+  contentExtractionTasks AiFileContentExtractionTask[]
 }
 
 model AiLibraryUsage {
@@ -156,62 +157,78 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String                    @id @default(cuid())
-  createdAt              DateTime                  @default(now())
-  updatedAt              DateTime                  @updatedAt
-  library                AiLibrary                 @relation(fields: [libraryId], references: [id])
+  id                     String                        @id @default(cuid())
+  createdAt              DateTime                      @default(now())
+  updatedAt              DateTime                      @updatedAt
+  library                AiLibrary                     @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
   docPath                String?
   mimeType               String
   size                   Int?
-  chunks                 Int?
   uploadedAt             DateTime?
-  processedAt            DateTime?
   dropError              String?
-  processingStartedAt    DateTime?
-  processingEndedAt      DateTime?
-  processingErrorAt      DateTime?
-  processingErrorMessage String?
   crawledByCrawlerId     String?
-  crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
+  crawledByCrawler       AiLibraryCrawler?             @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
   archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]
-  conversions            AiLibraryFileConversion[]
+  contentExtractionTasks AiFileContentExtractionTask[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
 
-model AiLibraryFileConversion {
-  id        String        @id @default(cuid())
-  createdAt DateTime      @default(now())
-  libraryId String
-  library   AiLibrary     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-  fileId    String
-  file      AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+model AiFileContentExtractionTask {
+  id               String @id @default(cuid())
+  fileId           String
+  libraryId        String
+  extractionMethod String // "text-extraction", "pdf-image-llm", "tesseract-ocr", "embedding-only"
 
-  fileName String // "converted_20250823_151203_789.md"
-  success  Boolean
+  createdAt DateTime @default(now()) // When task was submitted
 
-  // Issue flags for fast queries
-  hasTimeout           Boolean @default(false)
-  hasPartialResult     Boolean @default(false)
-  hasUnsupportedFormat Boolean @default(false)
-  hasConversionError   Boolean @default(false)
-  hasLegacyFormat      Boolean @default(false)
+  library AiLibrary     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  file    AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
-  // Rich metadata
-  metadata             String? // JSON with FileConversionResult.metadata
-  fileConverterOptions String? // Settings used for this conversion
-  processingTimeMs     Int?
+  // Configuration options
+  timeoutMs          Int? // Override library default timeout for this task
+  embeddingModelName String?
+  extractionOptions  String? // Validated JSON per method schema
 
-  @@index([fileId, createdAt])
-  @@index([libraryId, fileId, createdAt])
+  // Processing phase timestamps
+  processingStartedAt  DateTime? // When worker picks up task (start of entire pipeline)
+  processingFinishedAt DateTime? // When entire pipeline completes (success/fail/timeout)
+  processingFailedAt   DateTime? // Infrastructure timeout (worker stuck, not legitimate long processing)
+  processingTimeout    Boolean   @default(false)
+
+  // Extraction phase timestamps
+  extractionStartedAt  DateTime? // Set only after validation passes
+  extractionFinishedAt DateTime?
+  extractionFailedAt   DateTime?
+  extractionTimeout    Boolean   @default(false)
+
+  // Embedding phase timestamps
+  embeddingStartedAt  DateTime?
+  embeddingFinishedAt DateTime?
+  embeddingFailedAt   DateTime?
+  embeddingTimeout    Boolean   @default(false)
+
+  // Result data
+  markdownFileName String?
+  chunksCount      Int?
+  chunksSize       Int? // Total size of all chunks
+  metadata         String? // Method-specific results & confidence scoring
+
+  // Confidence scoring
+  extractionConfidenceScore Float?
+  embeddingConfidenceScore  Float?
+
+  @@index([fileId, extractionStartedAt])
+  @@index([libraryId, fileId, extractionStartedAt])
+  @@index([extractionMethod, extractionStartedAt])
 }
 
 model AiLibraryCrawler {

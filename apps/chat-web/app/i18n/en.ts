@@ -333,6 +333,7 @@ export default {
     confirmed: 'Confirmed',
     confirmationDate: 'Confirmed',
     confirmedAt: 'Confirmed at',
+    conversions: 'Conversions',
     crawlers: 'Crawlers',
     createdAt: 'Created',
     description: 'Description',

@@ -28,7 +28,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
   try {
     const libraryFilePath = getFileDir({ libraryId, fileId, errorIfNotExists: true })
     const fileNames = await fs.promises.readdir(libraryFilePath)
-    const mainMimeType = await getMimeTypeForFile(fileId)
+    const mainMimeType = await getMimeTypeForFile(fileId, context.session.user.id)
 
     if (!fileName) {
       response.json(fileNames).end()

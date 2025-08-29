@@ -16,4 +16,6 @@ export const canAccessLibraryOrThrow = async (libraryId: string, userId: string)
   if (!isAuthorized) {
     throw new Error(`You do not have permission to access this library`)
   }
+
+  return library
 }

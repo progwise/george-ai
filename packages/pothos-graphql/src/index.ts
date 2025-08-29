@@ -1,9 +1,11 @@
 import { builder } from './graphql/builder'
 
 import './domain/crawler/cron-jobs'
+import './graphql/ai-model'
 import './graphql/ai-act-assessment'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'
+import './graphql/ai-content-extraction-task'
 import './graphql/ai-conversation'
 import './graphql/ai-conversation-invitation'
 import './graphql/ai-conversation-message'
@@ -15,9 +17,9 @@ import './graphql/ai-library-file'
 import './graphql/ai-library-participation'
 import './graphql/ai-library-update'
 import './graphql/ai-library-usage'
-import './graphql/ai-model'
 import './graphql/ai-list'
 import './graphql/contact-request'
+import './graphql/extraction-method'
 import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
@@ -36,6 +38,7 @@ export { canAccessListOrThrow } from './domain/list'
 export { markUploadFinished } from './domain/file'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
+export { startContentExtractionWorker } from './worker-queue/content-extraction-worker'
 export {
   subscribeConversationMessagesUpdate,
   unsubscribeConversationMessagesUpdates,

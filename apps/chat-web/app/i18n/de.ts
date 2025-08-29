@@ -338,6 +338,7 @@ export default {
     condition: 'Fall',
     confirmed: 'Bestätigt',
     confirmedAt: 'Bestätigt am',
+    conversions: 'Konvertierungen',
     crawlers: 'Crawler',
     createdAt: 'Erstellt',
     description: 'Beschreibung',

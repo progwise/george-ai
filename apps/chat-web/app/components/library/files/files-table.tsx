@@ -30,6 +30,7 @@ graphql(`
     dropError
     originModificationDate
     archivedAt
+    conversionsCount
   }
 `)
 interface FilesTableProps {
@@ -202,7 +203,9 @@ export const FilesTable = ({
               <th>#</th>
               <th>{t('labels.name')}</th>
               <th>#{t('labels.size')}</th>
-              <th>#{t('labels.chunks')}</th>
+              <th>
+                #{t('labels.conversions')}/#{t('labels.chunks')}
+              </th>
               <th>{t('labels.processed')}</th>
               <th>{t('labels.originModified')}</th>
               <th>{t('labels.actions')}</th>
@@ -241,7 +244,9 @@ export const FilesTable = ({
                   </a>
                 </td>
                 <td>{file.size ?? '-'}</td>
-                <td>{file.chunks ?? '-'}</td>
+                <td>
+                  {file.conversionsCount ?? '-'}/{file.chunks ?? '-'}
+                </td>
                 <td>
                   {dateTimeStringArray(file.processedAt, language).map((item) => (
                     <div key={item} className="text-nowrap">

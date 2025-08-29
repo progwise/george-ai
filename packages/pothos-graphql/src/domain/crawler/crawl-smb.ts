@@ -108,7 +108,6 @@ const saveSmbCrawlerFile = async ({
       mimeType: true,
       originFileHash: true,
       originModificationDate: true,
-      processedAt: true,
     },
   })
 
@@ -142,7 +141,7 @@ const saveSmbCrawlerFile = async ({
       fileHash = await calculateFileHash(mountedFilePath)
 
       // Check if this file was already processed with the same hash
-      if (existingFile && existingFile.originFileHash === fileHash && existingFile.processedAt) {
+      if (existingFile && existingFile.originFileHash === fileHash) {
         console.log(`Skipping SMB file ${fileName} - already processed with same hash`)
         skipProcessing = true
 
@@ -199,10 +198,8 @@ const saveSmbCrawlerFile = async ({
       return { ...file, skipProcessing, wasUpdated }
     } else if (existingFile) {
       // We have a hash from the existing file, check if it needs reprocessing
-      if (existingFile.processedAt) {
-        console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
-        skipProcessing = true
-      }
+      console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
+      skipProcessing = true
       return { ...existingFile, skipProcessing, wasUpdated }
     }
   }

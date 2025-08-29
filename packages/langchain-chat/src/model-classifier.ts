@@ -1,6 +1,7 @@
 export interface ModelClassification {
   isEmbeddingModel: boolean
   isChatModel: boolean
+  isVisionModel: boolean
   confidence: 'high' | 'medium' | 'low'
 }
 
@@ -50,11 +51,40 @@ export const classifyModel = (modelName: string): ModelClassification => {
     /^neural/, // Neural models
   ]
 
+  // High confidence vision/OCR model patterns
+  const strongVisionPatterns = [
+    /^qwen.*vl/, // Qwen-VL vision models (qwen2.5vl, qwen-vl, etc.)
+    /^llava/, // LLaVA vision models
+    /^minicpm-v/, // MiniCPM-V vision models
+    /^internvl/, // InternVL vision models
+    /^cogvlm/, // CogVLM vision models
+    /vision/, // Models with "vision" in name
+  ]
+
+  // Medium confidence vision model patterns
+  const mediumVisionPatterns = [
+    /^phi.*vision/, // Phi vision models
+    /vl$/, // Models ending with "vl" (vision-language)
+    /-v\d/, // Models with version pattern like -v1, -v2
+    /multimodal/, // Multimodal models
+  ]
+
+  // Check for strong vision indicators (highest priority as they're most specific)
+  if (strongVisionPatterns.some((pattern) => pattern.test(name))) {
+    return {
+      isEmbeddingModel: false,
+      isChatModel: true, // Vision models are also chat models
+      isVisionModel: true,
+      confidence: 'high',
+    }
+  }
+
   // Check for strong embedding indicators
   if (strongEmbeddingPatterns.some((pattern) => pattern.test(name))) {
     return {
       isEmbeddingModel: true,
       isChatModel: false,
+      isVisionModel: false,
       confidence: 'high',
     }
   }
@@ -64,7 +94,18 @@ export const classifyModel = (modelName: string): ModelClassification => {
     return {
       isEmbeddingModel: false,
       isChatModel: true,
+      isVisionModel: false,
       confidence: 'high',
+    }
+  }
+
+  // Check for medium vision indicators
+  if (mediumVisionPatterns.some((pattern) => pattern.test(name))) {
+    return {
+      isEmbeddingModel: false,
+      isChatModel: true, // Vision models are also chat models
+      isVisionModel: true,
+      confidence: 'medium',
     }
   }
 
@@ -73,6 +114,7 @@ export const classifyModel = (modelName: string): ModelClassification => {
     return {
       isEmbeddingModel: true,
       isChatModel: false,
+      isVisionModel: false,
       confidence: 'medium',
     }
   }
@@ -82,6 +124,7 @@ export const classifyModel = (modelName: string): ModelClassification => {
     return {
       isEmbeddingModel: false,
       isChatModel: true,
+      isVisionModel: false,
       confidence: 'medium',
     }
   }
@@ -90,6 +133,7 @@ export const classifyModel = (modelName: string): ModelClassification => {
   return {
     isEmbeddingModel: false,
     isChatModel: true,
+    isVisionModel: false,
     confidence: 'low',
   }
 }
@@ -108,4 +152,12 @@ export const isEmbeddingModel = (modelName: string): boolean => {
 export const isChatModel = (modelName: string): boolean => {
   const classification = classifyModel(modelName)
   return classification.isChatModel
+}
+
+/**
+ * Filters models for vision/OCR use
+ */
+export const isVisionModel = (modelName: string): boolean => {
+  const classification = classifyModel(modelName)
+  return classification.isVisionModel
 }

@@ -1,8 +1,10 @@
 import { getFileChunks } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow } from '../../domain'
+import { canAccessLibraryOrThrow } from '../../domain/library'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+
+console.log('Setting up: AiLibraryFile FileChunks')
 
 interface FileChunkType {
   id: string

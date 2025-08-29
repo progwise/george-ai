@@ -6,7 +6,7 @@ import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getEmbeddingWithCache } from './embeddings-cache'
-import { splitMarkdown } from './split-markdown'
+import { splitMarkdownFile } from './split-markdown'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
 
@@ -118,44 +118,58 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
   await removeFileById(libraryId, fileId)
 }
 
-export const embedFile = async (
-  libraryId: string,
-  embeddingModelName: string,
-  file: {
-    id: string
-    name: string
-    originUri: string
-    mimeType: string
-    markdownFilePath: string
-  },
-) => {
+export const embedMarkdownFile = async (args: {
+  timeoutSignal: AbortSignal
+  libraryId: string
+  embeddingModelName: string
+  fileId: string
+  fileName: string
+  originUri: string
+  mimeType: string
+  markdownFilePath: string
+}) => {
+  const { libraryId, embeddingModelName, fileId, fileName, originUri, mimeType, markdownFilePath } = args
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
   // Use the provided path (should be resolved by caller to point to successful conversion)
-  if (!fs.existsSync(file.markdownFilePath)) {
-    throw new Error(`Markdown file not found: ${file.markdownFilePath}`)
+  if (!fs.existsSync(markdownFilePath)) {
+    throw new Error(`Markdown file not found: ${markdownFilePath}`)
   }
 
-  await removeFileByName(libraryId, file.name)
+  await removeFileByName(libraryId, fileName)
 
-  const chunks = splitMarkdown(file.markdownFilePath).map((chunk) => ({
+  if (args.timeoutSignal.aborted) {
+    console.error(`❌ Embedding operation for file ${fileName} aborted due to timeout`)
+    return { chunks: 0, size: 0, timeout: true }
+  }
+
+  const chunks = splitMarkdownFile(markdownFilePath).map((chunk) => ({
     pageContent: chunk.pageContent,
     metadata: {
       ...chunk.metadata,
       points: 1,
-      docName: file.name,
-      docType: file.mimeType,
-      docId: file.id,
-      docPath: file.markdownFilePath,
-      originUri: file.originUri,
+      docName: fileName,
+      docType: mimeType,
+      docId: fileId,
+      docPath: markdownFilePath,
+      originUri: originUri,
     },
   }))
 
   const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
   const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
   const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
+
+  if (args.timeoutSignal.aborted) {
+    console.error(`❌ Embedding operation for file ${fileName} aborted due to timeout`)
+    return {
+      chunks: chunks.length,
+      size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
+      timeout: true,
+    }
+  }
 
   await vectorTypesenseClient
     .collections(typesenseVectorStoreConfig.schemaName)
@@ -173,11 +187,6 @@ export const embedFile = async (
     )
 
   return {
-    id: file.id,
-    name: file.name,
-    originUri: file.originUri,
-    docPath: file.markdownFilePath,
-    mimeType: file.mimeType,
     chunks: chunks.length,
     size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
   }
@@ -292,6 +301,20 @@ export const queryVectorStore = async (
     hits,
     hitCount: searchResponse.results.map((result) => result.found || 0).reduce((prev, curr) => prev + curr, 0),
   }
+}
+
+export const getFileChunkCount = async (libraryId: string, fileId: string): Promise<number> => {
+  await ensureVectorStore(libraryId)
+  const documents = await vectorTypesenseClient
+    .collections(getTypesenseSchemaName(libraryId))
+    .documents()
+    .search({
+      q: '*',
+      filter_by: `docId:=${fileId}`,
+      per_page: 1,
+      page: 1,
+    })
+  return documents.found
 }
 
 export const getFileChunks = async ({

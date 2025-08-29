@@ -68,18 +68,17 @@ const cancelFileUpload = createServerFn({ method: 'POST' })
     z
       .object({
         fileId: z.string().nonempty(),
-        libraryId: z.string().nonempty(),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
     await backendRequest(
       graphql(`
-        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {
-          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)
+        mutation cancelFileUpload($fileId: String!) {
+          cancelFileUpload(fileId: $fileId)
         }
       `),
-      { fileId: data.fileId, libraryId: data.libraryId },
+      { fileId: data.fileId },
     )
   })
 

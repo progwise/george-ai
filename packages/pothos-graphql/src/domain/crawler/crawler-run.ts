@@ -1,7 +1,7 @@
 import { canAccessLibraryOrThrow } from '..'
 import { prisma } from '../../prisma'
+import { createDefaultExtractionTasksForFile } from '../content-extraction/content-extraction-task'
 import { parseFilterConfig } from '../file/file-filter'
-import { processFile } from '../file/process-file'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
@@ -197,7 +197,7 @@ const startCrawling = async (
             },
           })
         } else {
-          await processFile(crawledPage.id, 'crawler')
+          await createDefaultExtractionTasksForFile(crawledPage.id)
 
           // Determine update type based on whether file was updated
           const updateType = crawledPage.wasUpdated ? 'updated' : 'added'

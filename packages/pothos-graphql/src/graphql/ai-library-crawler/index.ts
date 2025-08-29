@@ -53,7 +53,7 @@ const UpdateStats = builder.simpleObject('UpdateStats', {
   }),
 })
 
-const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
+builder.prismaObject('AiLibraryCrawlerRun', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     crawlerId: t.exposeID('crawlerId', { nullable: false }),
@@ -161,10 +161,10 @@ builder.prismaObject('AiLibraryCrawler', {
     maxFileSize: t.exposeInt('maxFileSize', { nullable: true }),
     minFileSize: t.exposeInt('minFileSize', { nullable: true }),
     allowedMimeTypes: t.exposeString('allowedMimeTypes', { nullable: true }),
-    lastRun: t.field({
-      type: AiLibraryCrawlerRun,
+    lastRun: t.prismaField({
+      type: 'AiLibraryCrawlerRun',
       nullable: true,
-      resolve: (crawler) =>
+      resolve: (_query, crawler) =>
         prisma.aiLibraryCrawlerRun.findFirst({
           where: { crawlerId: crawler.id },
           take: 1,
@@ -196,14 +196,14 @@ builder.prismaObject('AiLibraryCrawler', {
     cronJob: t.relation('cronJob'),
     filesCount: t.relationCount('files', { nullable: false }),
     runCount: t.relationCount('runs', { nullable: false }),
-    runs: t.field({
-      type: [AiLibraryCrawlerRun],
+    runs: t.prismaField({
+      type: ['AiLibraryCrawlerRun'],
       args: {
         take: t.arg.int({ defaultValue: 10 }),
         skip: t.arg.int({ defaultValue: 0 }),
       },
       nullable: false,
-      resolve: (crawler, args) =>
+      resolve: (_query, crawler, args) =>
         prisma.aiLibraryCrawlerRun.findMany({
           where: { crawlerId: crawler.id },
           take: args.take,
@@ -234,7 +234,7 @@ builder.queryField('aiLibraryCrawler', (t) =>
 
 builder.queryField('aiLibraryCrawlerRun', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
-    type: AiLibraryCrawlerRun,
+    type: 'AiLibraryCrawlerRun',
     nullable: false,
     args: {
       crawlerRunId: t.arg.string({ required: true }),

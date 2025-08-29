@@ -55,9 +55,6 @@ export async function getFieldValue(
         }
         break
       }
-      case 'processedAt':
-        value = file.processedAt?.toISOString() || null
-        break
       case 'originModificationDate':
         value = file.originModificationDate?.toISOString() || null
         break

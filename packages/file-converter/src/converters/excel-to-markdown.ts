@@ -1,18 +1,44 @@
 import readXlsxFile, { readSheetNames } from 'read-excel-file/node'
 
+import { ConverterResult } from './types'
+
 // Convert Excel file to Markdown format with proper table structure
-export async function transformExcelToMarkdown(excelPath: string): Promise<string> {
+export async function transformExcelToMarkdown(
+  excelPath: string,
+  timeoutSignal: AbortSignal,
+): Promise<ConverterResult> {
+  const processingStart = Date.now()
+
   try {
     const sheetNames = await readSheetNames(excelPath)
     let markdown = ''
+    let totalRows = 0
+    let totalCells = 0
 
     for (let sheetIndex = 0; sheetIndex < sheetNames.length; sheetIndex++) {
+      if (timeoutSignal.aborted) {
+        console.error(`❌ Excel to Markdown conversion aborted due to timeout`)
+        return {
+          markdownContent: markdown,
+          processingTimeMs: Date.now() - processingStart,
+          metadata: {
+            sheets: sheetNames.length,
+            totalRows,
+            totalCells,
+          },
+          timeout: true,
+          partialResult: true,
+        }
+      }
       const sheetName = sheetNames[sheetIndex]
       const rows = await readXlsxFile(excelPath, { sheet: sheetName })
 
       if (rows.length === 0) {
         continue
       }
+
+      totalRows += rows.length
+      totalCells += rows.reduce((acc, row) => acc + row.length, 0)
 
       // Add sheet separator for multiple sheets
       if (sheetIndex > 0) {
@@ -27,7 +53,17 @@ export async function transformExcelToMarkdown(excelPath: string): Promise<strin
       markdown += tableMarkdown
     }
 
-    return markdown.trim()
+    return {
+      markdownContent: markdown.trim(),
+      processingTimeMs: Date.now() - processingStart,
+      metadata: {
+        sheets: sheetNames.length,
+        totalRows,
+        totalCells,
+      },
+      timeout: false,
+      partialResult: false,
+    }
   } catch (error) {
     console.error(`Error converting Excel to Markdown: ${excelPath}`, error)
     throw new Error(`Failed to convert Excel to Markdown: ${(error as Error).message}`)

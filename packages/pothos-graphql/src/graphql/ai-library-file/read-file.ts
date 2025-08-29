@@ -3,35 +3,42 @@ import path from 'path'
 
 import { getFileDir } from '@george-ai/file-management'
 
-import { canAccessLibraryOrThrow } from '../../domain'
+import { canAccessFileOrThrow } from '../../domain/file'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
+console.log('Setting up: AiLibraryFile ReadFile')
+
 const FileContentResult = builder.objectRef<{
-  content: string
+  timeoutMs: number | null
+  extractionOptions: string | null
+  embeddingModelName: string | null
+  markdown: string
   success: boolean
-  hasTimeout: boolean
-  hasPartialResult: boolean
-  hasUnsupportedFormat: boolean
-  hasConversionError: boolean
-  hasLegacyFormat: boolean
+  processingTimeout: boolean
+  extractionError: boolean
   isLegacyFile: boolean
   fileName: string
-  processingTimeMs?: number
-  metadata?: string
+  processingFinishedAt?: Date
+  extractionTimeMs: number | undefined
+  embeddingTimeMs?: number | undefined
+  processingTimeMs?: number | undefined
+  metadata?: string | undefined
 }>('FileContentResult')
 
 builder.objectType(FileContentResult, {
   fields: (t) => ({
-    content: t.exposeString('content'),
+    timeoutMs: t.exposeInt('timeoutMs', { nullable: true }),
+    extractionOptions: t.exposeString('extractionOptions', { nullable: true }),
+    embeddingModelName: t.exposeString('embeddingModelName', { nullable: true }),
+    markdown: t.exposeString('markdown'),
     success: t.exposeBoolean('success'),
-    hasTimeout: t.exposeBoolean('hasTimeout'),
-    hasPartialResult: t.exposeBoolean('hasPartialResult'),
-    hasUnsupportedFormat: t.exposeBoolean('hasUnsupportedFormat'),
-    hasConversionError: t.exposeBoolean('hasConversionError'),
-    hasLegacyFormat: t.exposeBoolean('hasLegacyFormat'),
+    processingTimeout: t.exposeBoolean('processingTimeout'),
+    extractionError: t.exposeBoolean('extractionError'),
     isLegacyFile: t.exposeBoolean('isLegacyFile'),
     fileName: t.exposeString('fileName'),
+    extractionTimeMs: t.exposeInt('extractionTimeMs', { nullable: true }),
+    embeddingTimeMs: t.exposeInt('embeddingTimeMs', { nullable: true }),
     processingTimeMs: t.exposeInt('processingTimeMs', { nullable: true }),
     metadata: t.exposeString('metadata', { nullable: true }),
   }),
@@ -43,50 +50,62 @@ builder.queryField('readFileMarkdown', (t) =>
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
-      conversionId: t.arg.string({ required: false }),
+      extractionTaskId: t.arg.string({ required: false }),
     },
-    resolve: async (_source, { fileId, conversionId }, context) => {
-      console.log(`Reading markdown file for fileId ${fileId}`, { conversionId })
+    resolve: async (_source, { fileId, extractionTaskId }, context) => {
+      console.log(`Reading markdown file for fileId ${fileId} from extraction task ${extractionTaskId}`)
 
-      const fileRecord = await prisma.aiLibraryFile.findUniqueOrThrow({
-        where: { id: fileId },
-        select: { id: true, libraryId: true },
+      const fileRecord = await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      const task = await prisma.aiFileContentExtractionTask.findFirst({
+        where: {
+          fileId: fileRecord.id,
+          ...(extractionTaskId
+            ? { id: extractionTaskId }
+            : { processingFinishedAt: { not: null }, extractionFailedAt: null }),
+        },
+        orderBy: { extractionStartedAt: 'desc' },
       })
 
-      await canAccessLibraryOrThrow(fileRecord.libraryId, context.session.user.id)
-
-      const conversion = await prisma.aiLibraryFileConversion.findFirst({
-        where: { ...(conversionId ? { id: conversionId } : { success: true }) },
-        orderBy: { createdAt: 'desc' },
-      })
-
-      const isLegacyFile = !conversion
-      let fileContent: string | null = null
+      const isLegacyFile = !task
+      let markdown: string | null = null
       if (isLegacyFile) {
         // Handle legacy files without conversion records
         const legacyFilePath = path.resolve(getFileDir({ fileId, libraryId: fileRecord.libraryId }), 'converted.md')
         if (!fs.existsSync(legacyFilePath)) {
           throw new Error(`Legacy file does not exist at path: ${legacyFilePath}`)
         }
-        fileContent = await fs.promises.readFile(legacyFilePath, 'utf-8')
+        markdown = await fs.promises.readFile(legacyFilePath, 'utf-8')
       } else {
-        const filePath = path.resolve(getFileDir({ fileId, libraryId: fileRecord.libraryId }), conversion!.fileName)
-        fileContent = await fs.promises.readFile(filePath, 'utf-8')
+        const filePath = path.resolve(getFileDir({ fileId, libraryId: fileRecord.libraryId }), task!.markdownFileName!)
+        markdown = await fs.promises.readFile(filePath, 'utf-8')
       }
 
       // Return structured result
       return {
-        content: fileContent,
-        success: conversion?.success ?? true, // Legacy files assumed successful
-        hasTimeout: conversion?.hasTimeout ?? false,
-        hasPartialResult: conversion?.hasPartialResult ?? false,
-        hasUnsupportedFormat: conversion?.hasUnsupportedFormat ?? false,
-        hasConversionError: conversion?.hasConversionError ?? false,
-        hasLegacyFormat: conversion?.hasLegacyFormat ?? false,
+        timeoutMs: task?.timeoutMs ?? null,
+        extractionOptions: task?.extractionOptions ?? null,
+        embeddingModelName: task?.embeddingModelName ?? null,
+        markdown,
+        success: task?.extractionFinishedAt !== null, // Success if finished without error
+        processingTimeout: task?.processingTimeout !== null,
+        extractionError: task?.extractionFailedAt !== null,
         isLegacyFile,
-        fileName: conversion?.fileName ?? 'converted.md',
-        processingTimeMs: conversion?.processingTimeMs ?? undefined,
-        metadata: conversion?.metadata ?? undefined,
+        fileName: task?.markdownFileName ?? 'converted.md',
+        processingFinishedAt: task?.processingFinishedAt ?? undefined,
+        extractionTimeMs:
+          task?.extractionStartedAt && task?.extractionFinishedAt
+            ? task.extractionFinishedAt.getTime() - task.extractionStartedAt.getTime()
+            : undefined,
+        embeddingTimeMs:
+          task?.embeddingStartedAt && task?.embeddingFinishedAt
+            ? task.embeddingFinishedAt.getTime() - task.embeddingStartedAt.getTime()
+            : undefined,
+        processingTimeMs:
+          task?.processingFinishedAt && task?.processingStartedAt
+            ? task.processingFinishedAt.getTime() - task.processingStartedAt.getTime()
+            : undefined,
+        metadata: task?.metadata ?? '{}',
       }
     },
   }),

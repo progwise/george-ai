@@ -19,7 +19,7 @@ export function formatFileSize(bytes: number): string {
 }
 
 /**
- * Check if file size is within acceptable limits
+ * Check if file size is within acceptable limits to be processed by the crawlers
  */
 export function isFileSizeAcceptable(fileSize: number): {
   acceptable: boolean

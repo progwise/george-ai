@@ -320,6 +320,8 @@ type AiLibraryFile {
   archivedAt: DateTime
   cache: [AiListItemCache!]!
   chunks: Int
+  conversions: [AiLibraryFileConversion!]!
+  conversionsCount: Int!
   crawledByCrawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
@@ -340,6 +342,25 @@ type AiLibraryFile {
   size: Int
   updatedAt: DateTime
   uploadedAt: DateTime
+}
+
+type AiLibraryFileConversion {
+  createdAt: DateTime!
+  file: AiLibraryFile!
+  fileConverterOptions: String
+  fileId: String!
+  fileName: String!
+  hasConversionError: Boolean
+  hasLegacyFormat: Boolean
+  hasPartialResult: Boolean
+  hasTimeout: Boolean
+  hasUnsupportedFormat: Boolean
+  id: ID!
+  library: AiLibrary!
+  libraryId: String!
+  metadata: String
+  processingTimeMs: Int
+  success: Boolean
 }
 
 input AiLibraryFileInput {

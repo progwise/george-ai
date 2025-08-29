@@ -303,11 +303,11 @@ export async function startEnrichmentQueueWorker() {
   await resetOrphanedProcessingItems()
 
   // Process queue immediately
-  processQueue()
+  await processQueue()
 
   // Set up interval to process queue
-  workerInterval = setInterval(() => {
-    processQueue()
+  workerInterval = setInterval(async () => {
+    await processQueue()
   }, WORKER_INTERVAL_MS)
 }
 

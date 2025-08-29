@@ -10,13 +10,10 @@ export const dropFiles = createServerFn({ method: 'POST' })
     const dropFilePromises = ctx.data.map((fileId) =>
       backendRequest(
         graphql(`
-          mutation dropFile($id: String!) {
-            dropFile(fileId: $id) {
-              deletedFile {
-                id
-                name
-              }
-              dropError
+          mutation deleteFile($id: String!) {
+            deleteFile(fileId: $id) {
+              id
+              name
             }
           }
         `),
@@ -39,10 +36,8 @@ export const reEmbedFiles = createServerFn({ method: 'POST' })
       const result = await backendRequest(
         graphql(`
           mutation reEmbedFiles($id: String!) {
-            embedFile(fileId: $id) {
+            createEmbeddingOnlyTask(fileId: $id) {
               id
-              name
-              chunks
             }
           }
         `),
@@ -60,15 +55,9 @@ export const reprocessFiles = createServerFn({ method: 'POST' })
     const reprocessFilePromises = ctx.data.map((fileId) =>
       backendRequest(
         graphql(`
-          mutation reprocessFile($id: String!) {
-            processFile(fileId: $id) {
+          mutation createContentExtractionTask($id: String!) {
+            createContentExtractionTask(fileId: $id) {
               id
-              name
-              chunks
-              size
-              uploadedAt
-              processedAt
-              processingErrorMessage
             }
           }
         `),
@@ -77,20 +66,4 @@ export const reprocessFiles = createServerFn({ method: 'POST' })
     )
 
     return await Promise.all(reprocessFilePromises)
-  })
-
-export const dropAllFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const clearEmbeddedFilesPromise = ctx.data.map((libraryId) =>
-      backendRequest(
-        graphql(`
-          mutation clearEmbeddedFiles($libraryId: String!) {
-            clearEmbeddedFiles(libraryId: $libraryId)
-          }
-        `),
-        { libraryId: libraryId },
-      ),
-    )
-    return await Promise.all(clearEmbeddedFilesPromise)
   })

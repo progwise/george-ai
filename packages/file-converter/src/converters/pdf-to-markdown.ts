@@ -3,9 +3,13 @@ import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 import { PDF_LAYOUT } from '../constants'
+import { ConverterResult } from './types'
 
 //Advanced PDF to Markdown converter that preserves layout and structure
-export async function transformPdfToMarkdown(pdfFilePath: string): Promise<string> {
+export async function transformPdfToMarkdown(
+  pdfFilePath: string,
+  timeoutSignal: AbortSignal,
+): Promise<ConverterResult> {
   const require = createRequire(import.meta.url)
 
   const workerPath = require.resolve('pdfjs-dist/legacy/build/pdf.worker.min.mjs')
@@ -19,6 +23,7 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
 
   console.log('Converting PDF to markdown with advanced layout preservation:', pdfFilePath)
 
+  const processingStart = Date.now()
   const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
 
   const pdfDocument = await getDocument({
@@ -29,8 +34,21 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
   }).promise
 
   let fullMarkdown = ''
+  const totalPages = pdfDocument.numPages
 
   for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+    if (timeoutSignal.aborted) {
+      console.error(`❌ PDF to Markdown conversion aborted due to timeout`)
+      return {
+        markdownContent: fullMarkdown,
+        processingTimeMs: Date.now() - processingStart,
+        metadata: {
+          totalPages,
+        },
+        timeout: true,
+        partialResult: true,
+      }
+    }
     const page = await pdfDocument.getPage(pageNum)
     const textContent = await page.getTextContent()
 
@@ -70,7 +88,7 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
       line.items.sort((a, b) => a.x - b.x)
 
       let lineText = ''
-      let prevX = null
+      let prevX: number | null = null
 
       for (const item of line.items) {
         // Add spacing based on gap size
@@ -103,7 +121,17 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
     }
   }
 
-  return cleanupMarkdown(fullMarkdown)
+  const cleanedMarkdown = cleanupMarkdown(fullMarkdown)
+
+  return {
+    markdownContent: cleanedMarkdown,
+    processingTimeMs: Date.now() - processingStart,
+    metadata: {
+      totalPages,
+    },
+    timeout: false,
+    partialResult: false,
+  }
 }
 
 function processLineForMarkdown(line: string): string {
