@@ -222,10 +222,6 @@ model AiFileContentExtractionTask {
   chunksSize       Int? // Total size of all chunks
   metadata         String? // Method-specific results & confidence scoring
 
-  // Confidence scoring
-  extractionConfidenceScore Float?
-  embeddingConfidenceScore  Float?
-
   @@index([fileId, extractionStartedAt])
   @@index([libraryId, fileId, extractionStartedAt])
   @@index([extractionMethod, extractionStartedAt])

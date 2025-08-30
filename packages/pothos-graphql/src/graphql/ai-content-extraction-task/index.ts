@@ -77,8 +77,6 @@ builder.prismaObject('AiFileContentExtractionTask', {
     // Metadata
     metadata: t.exposeString('metadata', { nullable: true }),
     extractionOptions: t.exposeString('extractionOptions', { nullable: true }),
-    extractionConfidenceScore: t.exposeFloat('extractionConfidenceScore', { nullable: true }),
-    embeddingConfidenceScore: t.exposeFloat('embeddingConfidenceScore', { nullable: true }),
 
     // Relations
     file: t.relation('file', { nullable: false }),
