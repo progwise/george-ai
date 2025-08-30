@@ -210,7 +210,6 @@ type AiFileContentExtractionTask {
   chunksCount: Int
   chunksSize: Int
   createdAt: DateTime!
-  embeddingConfidenceScore: Float
   embeddingFailedAt: DateTime
   embeddingFinishedAt: DateTime
   embeddingModelName: String
@@ -218,7 +217,6 @@ type AiFileContentExtractionTask {
   embeddingStatus: EmbeddingStatus!
   embeddingTimeMs: Int
   embeddingTimeout: Boolean!
-  extractionConfidenceScore: Float
   extractionFailedAt: DateTime
   extractionFinishedAt: DateTime
   extractionMethod: String!

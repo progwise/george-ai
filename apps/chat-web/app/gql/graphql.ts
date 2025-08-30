@@ -228,7 +228,6 @@ export type AiFileContentExtractionTask = {
   chunksCount?: Maybe<Scalars['Int']['output']>
   chunksSize?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
-  embeddingConfidenceScore?: Maybe<Scalars['Float']['output']>
   embeddingFailedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingFinishedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingModelName?: Maybe<Scalars['String']['output']>
@@ -236,7 +235,6 @@ export type AiFileContentExtractionTask = {
   embeddingStatus: EmbeddingStatus
   embeddingTimeMs?: Maybe<Scalars['Int']['output']>
   embeddingTimeout: Scalars['Boolean']['output']
-  extractionConfidenceScore?: Maybe<Scalars['Float']['output']>
   extractionFailedAt?: Maybe<Scalars['DateTime']['output']>
   extractionFinishedAt?: Maybe<Scalars['DateTime']['output']>
   extractionMethod: Scalars['String']['output']
