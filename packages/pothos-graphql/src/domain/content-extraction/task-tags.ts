@@ -7,31 +7,31 @@
  */
 export const TASK_TAGS = [
   // Initial states
-  'Waiting',           // Task created but not yet picked up by worker
-  'Processing',        // Worker is actively working on task (any phase)
-  
+  'Waiting', // Task created but not yet picked up by worker
+  'Processing', // Worker is actively working on task (any phase)
+
   // Validation
   'ValidationPassed',
   'ValidationFailed',
-  
-  // Extraction  
+
+  // Extraction
   'ExtractionStarted',
-  'ExtractionFinished', 
+  'ExtractionFinished',
   'ExtractionPartial',
   'ExtractionFailed',
   'ExtractionTimeout',
-  
+
   // Embedding
   'EmbeddingStarted',
   'EmbeddingFinished',
-  'EmbeddingPartial', 
+  'EmbeddingPartial',
   'EmbeddingFailed',
   'EmbeddingTimeout',
   'EmbeddingSkipped',
-  
+
   // Content status
   'HasContent',
-  'NoContent', 
+  'NoContent',
   'ContentSearchable',
   'ContentNotSearchable',
   'ReadyForUse',
@@ -51,7 +51,7 @@ function getSingleTagWhereClause(tag: TaskTag) {
 
     case 'Processing':
       return {
-        validationFailedAt: null,  // Exclude validation failures
+        validationFailedAt: null, // Exclude validation failures
         OR: [
           // Extraction phase active
           {
@@ -60,7 +60,7 @@ function getSingleTagWhereClause(tag: TaskTag) {
             extractionFailedAt: null,
             extractionTimeoutAt: null,
           },
-          // Embedding phase active  
+          // Embedding phase active
           {
             embeddingStartedAt: { not: null },
             embeddingFinishedAt: null,
@@ -140,7 +140,7 @@ function getSingleTagWhereClause(tag: TaskTag) {
     case 'HasContent':
       return {
         extractionFinishedAt: { not: null },
-        embeddingSkippedAt: null,  // Was not skipped = had content
+        embeddingSkippedAt: null, // Was not skipped = had content
       }
 
     case 'NoContent':
@@ -162,10 +162,7 @@ function getSingleTagWhereClause(tag: TaskTag) {
 
     case 'ReadyForUse':
       return {
-        OR: [
-          { embeddingFinishedAt: { not: null } },
-          { embeddingSkippedAt: { not: null } },
-        ],
+        OR: [{ embeddingFinishedAt: { not: null } }, { embeddingSkippedAt: { not: null } }],
       }
 
     case 'NeedsAttention':
@@ -199,6 +196,6 @@ export function getTagWhereClause(tags: TaskTag[]) {
 
   // Multiple tags: OR them together
   return {
-    OR: tags.map(tag => getSingleTagWhereClause(tag)),
+    OR: tags.map((tag) => getSingleTagWhereClause(tag)),
   }
 }

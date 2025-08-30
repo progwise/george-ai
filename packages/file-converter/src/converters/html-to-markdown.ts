@@ -5,11 +5,11 @@ import { ConverterResult } from './types'
 
 export async function transformHtmlToMarkdown(htmlPath: string): Promise<ConverterResult> {
   const processingStart = Date.now()
-  
+
   try {
     const htmlContent = await fs.readFile(htmlPath, 'utf-8')
     const markdown = NodeHtmlMarkdown.translate(htmlContent, {} as NodeHtmlMarkdownOptions)
-    
+
     return {
       markdownContent: markdown.trim(),
       processingTimeMs: Date.now() - processingStart,

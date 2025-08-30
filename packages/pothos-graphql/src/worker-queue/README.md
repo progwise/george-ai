@@ -22,6 +22,7 @@ Processing Started → Validation → Extraction OR Skip → Embedding OR Skip �
 ### Task States & Timestamps
 
 #### Processing Lifecycle
+
 - **`createdAt`** - When task was submitted (automatic)
 - **`processingStartedAt`** - When worker picks up task (start of entire pipeline)
 - **`processingFinishedAt`** - When entire pipeline completes successfully (mutually exclusive with `processingFailedAt`)
@@ -29,12 +30,14 @@ Processing Started → Validation → Extraction OR Skip → Embedding OR Skip �
 - **`processingTimeout`** - Boolean flag for infrastructure timeouts (default: 30 minutes)
 
 #### Extraction Phase
+
 - **`extractionStartedAt`** - Set after validation passes, before extraction begins (null for embedding-only)
 - **`extractionFinishedAt`** - Successfully converted to markdown
 - **`extractionFailedAt`** - Converter failed (file corrupt, unsupported format)
 - **`extractionTimeout`** - Boolean flag for converter-determined timeouts (e.g., OCR page limits)
 
 #### Embedding Phase
+
 - **`embeddingStartedAt`** - Vector embedding process started (null if no markdown available)
 - **`embeddingFinishedAt`** - Embeddings created and stored
 - **`embeddingFailedAt`** - Embedding process failed (no markdown, service error)
@@ -43,6 +46,7 @@ Processing Started → Validation → Extraction OR Skip → Embedding OR Skip �
 ### Queue Processing Rules
 
 **Tasks are picked up when:**
+
 - `processingStartedAt` is null (task hasn't been touched by any worker)
 
 **Once `processingStartedAt` is set, the task is never reprocessed.**
@@ -62,33 +66,40 @@ Processing Started → Validation → Extraction OR Skip → Embedding OR Skip �
 ### Task Types & Workflows
 
 #### Standard Processing Task
+
 ```
-processingStartedAt → validation → extractionStartedAt → converter → 
+processingStartedAt → validation → extractionStartedAt → converter →
 extractionFinishedAt → embeddingStartedAt → embedding → embeddingFinishedAt → processingFinishedAt
 ```
 
 #### Embedding-Only Task
+
 ```
-processingStartedAt → validation → embeddingStartedAt → 
+processingStartedAt → validation → embeddingStartedAt →
 embedding → embeddingFinishedAt → processingFinishedAt
 ```
+
 (Note: extractionStartedAt remains null for embedding-only tasks)
 
 #### Failed Validation Task
+
 ```
 processingStartedAt → validation fails → processingFailedAt
 ```
+
 (Note: No extraction or embedding phases are attempted)
 
 ## Analytics & Monitoring
 
 ### Key Metrics Available
+
 - **Queue Wait Time**: `processingStartedAt - createdAt`
 - **Total Processing Time**: `processingFinishedAt - processingStartedAt`
 - **Extraction Time**: `extractionFinishedAt - extractionStartedAt` (if extraction ran)
 - **Embedding Time**: `embeddingFinishedAt - embeddingStartedAt` (if embedding ran)
 
 ### Timeout Behavior
+
 - **Infrastructure Timeout**: Configurable via `timeoutMs` field (default: 30 minutes)
   - Starts counting when worker picks up task (`processingStartedAt`)
   - Prevents workers from getting stuck indefinitely
@@ -99,6 +110,7 @@ processingStartedAt → validation fails → processingFailedAt
   - Sets `embeddingTimeout: true` when embedding service times out
 
 ### Result Data Fields
+
 - **`markdownFileName`** - Generated markdown file name
 - **`chunksCount`** - Number of embedding chunks created
 - **`chunksSize`** - Total size of all embedding chunks
@@ -130,29 +142,33 @@ processingStartedAt → validation fails → processingFailedAt
 ## Database Queries
 
 ### Find Pending Tasks
+
 ```sql
-SELECT * FROM AiFileContentExtractionTask 
-WHERE processingStartedAt IS NULL 
+SELECT * FROM AiFileContentExtractionTask
+WHERE processingStartedAt IS NULL
 ORDER BY createdAt ASC;
 ```
 
 ### Find Tasks with Extraction Timeouts
+
 ```sql
-SELECT * FROM AiFileContentExtractionTask 
+SELECT * FROM AiFileContentExtractionTask
 WHERE extractionTimeout = true;
 ```
 
 ### Find Embedding-Only Tasks
+
 ```sql
-SELECT * FROM AiFileContentExtractionTask 
+SELECT * FROM AiFileContentExtractionTask
 WHERE extractionSkipped = true;
 ```
 
 ### Calculate Processing Metrics
+
 ```sql
-SELECT 
+SELECT
   AVG(EXTRACT(EPOCH FROM (processingFinishedAt - processingStartedAt))) as avg_processing_seconds,
   AVG(EXTRACT(EPOCH FROM (processingStartedAt - createdAt))) as avg_queue_wait_seconds
-FROM AiFileContentExtractionTask 
+FROM AiFileContentExtractionTask
 WHERE processingFinishedAt IS NOT NULL;
 ```
