@@ -16,7 +16,7 @@ Processing Started → Validation → Extraction OR Skip → Embedding OR Skip �
 
 - **Consistent patterns**: Each phase has `StartedAt`, `FinishedAt`, `FailedAt` timestamps
 - **Boolean flags**: Quick filtering with `processingTimeout`, `extractionTimeout`, `embeddingTimeout`
-- **Skip capabilities**: `extractionSkipped`, `embeddingSkipped` for flexible workflows
+- **Skip capabilities**: Null timestamps indicate skipped phases (no explicit skip flags needed)
 - **Rich metadata**: JSON metadata preserves detailed error info and processing notes
 
 ### Task States & Timestamps
@@ -89,6 +89,61 @@ processingStartedAt → validation fails → processingFailedAt
 
 (Note: No extraction or embedding phases are attempted)
 
+## Status System
+
+### Processing Status Values
+
+The system provides a unified `ProcessingStatus` enum with these values:
+- `pending` - Task created but not started
+- `validating` - Currently validating file and configuration
+- `validationFailed` - Validation failed (file not found, invalid config)
+- `extracting` - Currently extracting content
+- `extractionFailed` - Extraction failed but may have partial results
+- `extractionFinished` - Extraction completed successfully
+- `embedding` - Currently creating embeddings
+- `embeddingFailed` - Embedding creation failed
+- `embeddingFinished` - Embeddings created successfully
+- `completed` - Entire pipeline finished successfully
+- `timedOut` - Infrastructure timeout exceeded
+- `failed` - General failure (covers validation and infrastructure errors)
+- `none` - No tasks exist for this file
+
+### Domain Functions
+
+The system provides domain functions for status calculation:
+
+```typescript
+// Get exact processing status
+import { getProcessingStatus } from '@george-ai/pothos-graphql/domain'
+const status = getProcessingStatus(task)
+
+// Get extraction-specific status
+import { getExtractionStatus } from '@george-ai/pothos-graphql/domain'
+const extractionStatus = getExtractionStatus(task)
+
+// Get embedding-specific status  
+import { getEmbeddingStatus } from '@george-ai/pothos-graphql/domain'
+const embeddingStatus = getEmbeddingStatus(task)
+```
+
+### GraphQL Status Fields
+
+The GraphQL schema exposes computed status fields:
+
+- **AiFileContentExtractionTask**:
+  - `processingStatus` - Overall task processing status
+  - `extractionStatus` - Extraction phase status only
+  - `embeddingStatus` - Embedding phase status only
+  - `processingTimeMs` - Total processing time in milliseconds
+  - `extractionTimeMs` - Extraction phase duration
+  - `embeddingTimeMs` - Embedding phase duration
+
+- **AiLibraryFile**:
+  - `processingStatus` - Status of the most recent task
+  - `extractionStatus` - Extraction status of the most recent task
+  - `embeddingStatus` - Embedding status of the most recent task
+  - `taskCount` - Total number of extraction tasks
+
 ## Analytics & Monitoring
 
 ### Key Metrics Available
@@ -114,7 +169,7 @@ processingStartedAt → validation fails → processingFailedAt
 - **`markdownFileName`** - Generated markdown file name
 - **`chunksCount`** - Number of embedding chunks created
 - **`chunksSize`** - Total size of all embedding chunks
-- **`metadata`** - JSON with processing details, errors, confidence scores
+- **`metadata`** - JSON with processing details, errors, and method-specific data
 
 ## Common Configurations
 
@@ -136,7 +191,7 @@ processingStartedAt → validation fails → processingFailedAt
 2. **Failed Processing**: Tasks with `processingFailedAt` indicate validation/infrastructure issues
 3. **Extraction Issues**: Tasks with `extractionFailedAt` or `extractionTimeout: true`
 4. **Embedding Issues**: Tasks with `embeddingFailedAt` or `embeddingTimeout: true`
-5. **Skipped Processing**: Use boolean flags to identify intentionally skipped phases
+5. **Skipped Processing**: Check for null timestamps to identify skipped phases (e.g., `extractionStartedAt IS NULL` for embedding-only tasks)
 6. **Queue Depth**: Count tasks with `processingStartedAt: null` for queue backlog
 
 ## Database Queries
@@ -160,7 +215,7 @@ WHERE extractionTimeout = true;
 
 ```sql
 SELECT * FROM AiFileContentExtractionTask
-WHERE extractionSkipped = true;
+WHERE extractionMethod = 'embedding-only';
 ```
 
 ### Calculate Processing Metrics
