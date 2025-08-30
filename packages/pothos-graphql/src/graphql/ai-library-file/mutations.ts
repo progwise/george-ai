@@ -38,8 +38,21 @@ builder.mutationField('deleteFile', (t) =>
       fileId: t.arg.string({ required: true }),
     },
     resolve: async (_source, _parent, { fileId }, context) => {
-      await canAccessFileOrThrow(fileId, context.session.user.id)
       return await deleteFile(fileId, context.session.user.id)
+    },
+  }),
+)
+
+builder.mutationField('deleteFiles', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'Int',
+    nullable: false,
+    args: {
+      fileIds: t.arg.idList({ required: true }),
+    },
+    resolve: async (_source, { fileIds }, context) => {
+      const results = await Promise.all(fileIds.map((fileId) => deleteFile(fileId, context.session.user.id)))
+      return results.length
     },
   }),
 )

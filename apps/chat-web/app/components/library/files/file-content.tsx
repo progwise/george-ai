@@ -1,50 +1,43 @@
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { graphql } from '../../../gql'
-import { FileContentResultFragment } from '../../../gql/graphql'
+import { AiLibraryFile_FileContentFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FormattedMarkdown } from '../../formatted-markdown'
 
 export const FileContentResultFragmentDoc = graphql(`
-  fragment FileContentResult on FileContentResult {
-    content
-    success
-    hasTimeout
-    hasPartialResult
-    hasUnsupportedFormat
-    hasConversionError
-    hasLegacyFormat
+  fragment AiLibraryFile_FileContent on AiLibraryFile {
+    id
     isLegacyFile
-    fileName
-    processingTimeMs
-    metadata
+    lastSuccessfulExtraction {
+      id
+      extractionTimeMs
+      extractionFinishedAt
+      metadata
+    }
+    lastSuccessfulEmbedding {
+      id
+      embeddingTimeMs
+      embeddingFinishedAt
+      metadata
+    }
+    supportedExtractionMethods
+    markdown
+    isLegacyFile
+    name
   }
 `)
 
-export const FileContent = ({
-  fileResult,
-  sources,
-}: {
-  fileResult: FileContentResultFragment
+interface FileContentProps {
+  file: AiLibraryFile_FileContentFragment
   sources: { fileName: string; link: string }[]
-}) => {
-  const { t } = useTranslation()
+}
+
+export const FileContent = ({ file, sources }: FileContentProps) => {
+  const { t, language } = useTranslation()
 
   const renderConversionStatus = () => {
-    if (!fileResult) return null
-
-    const {
-      success,
-      hasTimeout,
-      hasPartialResult,
-      hasUnsupportedFormat,
-      hasConversionError,
-      hasLegacyFormat,
-      isLegacyFile,
-      fileName,
-      processingTimeMs,
-      metadata,
-    } = fileResult
-
-    console.log('metadata', metadata)
+    const { name, supportedExtractionMethods, isLegacyFile, lastSuccessfulExtraction, lastSuccessfulEmbedding } = file
 
     // Show status indicators
     const statusItems = []
@@ -64,7 +57,7 @@ export const FileContent = ({
       )
     }
 
-    if (success && !isLegacyFile) {
+    if (lastSuccessfulExtraction) {
       statusItems.push(
         <div key="success" className="badge badge-success gap-1">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -74,12 +67,14 @@ export const FileContent = ({
               clipRule="evenodd"
             />
           </svg>
-          Successful Conversion
+          <div>
+            Last Successful Extraction {dateTimeString(lastSuccessfulExtraction.extractionFinishedAt, language)}
+          </div>
         </div>,
       )
     }
 
-    if (hasTimeout) {
+    if (lastSuccessfulEmbedding) {
       statusItems.push(
         <div key="timeout" className="badge badge-warning gap-1">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -89,42 +84,12 @@ export const FileContent = ({
               clipRule="evenodd"
             />
           </svg>
-          Processing Timeout
+          <div>Last Successful Embedding {dateTimeString(lastSuccessfulEmbedding.embeddingFinishedAt, language)}</div>
         </div>,
       )
     }
 
-    if (hasPartialResult) {
-      statusItems.push(
-        <div key="partial" className="badge badge-warning gap-1">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Partial Result
-        </div>,
-      )
-    }
-
-    if (hasConversionError) {
-      statusItems.push(
-        <div key="error" className="badge badge-error gap-1">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Conversion Error
-        </div>,
-      )
-    }
-
-    if (hasUnsupportedFormat) {
+    if (supportedExtractionMethods.length === 0) {
       statusItems.push(
         <div key="unsupported" className="badge badge-error gap-1">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -134,22 +99,7 @@ export const FileContent = ({
               clipRule="evenodd"
             />
           </svg>
-          Unsupported Format
-        </div>,
-      )
-    }
-
-    if (hasLegacyFormat) {
-      statusItems.push(
-        <div key="legacyformat" className="badge badge-warning gap-1">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Legacy Format
+          <div>Unsupported Format</div>
         </div>,
       )
     }
@@ -161,12 +111,14 @@ export const FileContent = ({
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-gray-600">Conversion Status:</span>
           {statusItems}
-          {processingTimeMs != null && processingTimeMs > 0 && (
+          {lastSuccessfulExtraction?.extractionTimeMs && (
             <div className="badge badge-ghost">
-              {processingTimeMs < 1000 ? `${processingTimeMs}ms` : `${(processingTimeMs / 1000).toFixed(1)}s`}
+              {lastSuccessfulExtraction.extractionTimeMs < 1000
+                ? `${lastSuccessfulExtraction.extractionTimeMs}ms`
+                : `${(lastSuccessfulExtraction.extractionTimeMs / 1000).toFixed(1)}s`}
             </div>
           )}
-          <div className="text-xs text-gray-500">({fileName})</div>
+          <div className="text-xs text-gray-500">({name})</div>
         </div>
       </div>
     )
@@ -189,10 +141,7 @@ export const FileContent = ({
       </div>
       <hr />
       {renderConversionStatus()}
-      <FormattedMarkdown
-        markdown={fileResult?.content || t('files.noContentAvailable')}
-        className="text-sm font-semibold"
-      />
+      <FormattedMarkdown markdown={file.markdown || t('files.noContentAvailable')} className="text-sm font-semibold" />
     </div>
   )
 }

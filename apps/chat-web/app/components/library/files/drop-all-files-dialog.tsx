@@ -5,7 +5,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { dropAllFiles } from './change-files'
+import { deleteLibraryFiles } from './change-files'
 
 interface DropAllFilesDialogProps {
   libraryId: string
@@ -27,7 +27,7 @@ export const DropAllFilesDialog = ({
   const { isPending, mutate } = useMutation({
     mutationFn: async (libraryId: string) => {
       dialogRef.current?.close()
-      await dropAllFiles({ data: [libraryId] })
+      await deleteLibraryFiles({ data: { libraryId } })
     },
     onError: () => {
       toastError(t('errors.dropAllFilesError'))

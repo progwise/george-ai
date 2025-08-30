@@ -8,7 +8,7 @@ import { builder } from '../builder'
 console.log('Setting up: AiFileContentExtractionTask Mutations')
 
 // Create content extraction tasks for a file (replaces old synchronous processFile)
-builder.mutationField('createContentExtractionTask', (t) =>
+builder.mutationField('createContentExtractionTasks', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiFileContentExtractionTask'],
     nullable: false,
@@ -20,7 +20,7 @@ builder.mutationField('createContentExtractionTask', (t) =>
       await canAccessFileOrThrow(fileId, context.session.user.id)
 
       // Create default extraction tasks for this file
-      const tasks = await createDefaultExtractionTasksForFile(fileId)
+      const tasks = await createDefaultExtractionTasksForFile(fileId, query)
 
       return tasks
     },
@@ -41,7 +41,7 @@ builder.mutationField('createEmbeddingOnlyTask', (t) =>
       await canAccessFileOrThrow(fileId, context.session.user.id)
 
       // Create embedding-only task
-      const task = await createEmbeddingOnlyTask(fileId, existingTaskId || undefined)
+      const task = await createEmbeddingOnlyTask(fileId, { existingTaskId, query })
 
       return task
     },

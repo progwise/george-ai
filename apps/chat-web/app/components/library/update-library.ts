@@ -7,8 +7,8 @@ import { Language, getLanguage, translate } from '../../i18n'
 import { backendRequest } from '../../server-functions/backend'
 
 const updateLibraryDocument = graphql(`
-  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
-    updateAiLibrary(id: $id, data: $data) {
+  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {
+    updateLibrary(id: $id, data: $data) {
       ...AiLibraryDetail
     }
   }

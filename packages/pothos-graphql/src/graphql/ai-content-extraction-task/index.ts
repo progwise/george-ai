@@ -1,4 +1,8 @@
-import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../../domain/content-extraction/types'
+import {
+  getEmbeddingStatus,
+  getExtractionStatus,
+  getProcessingStatus,
+} from '../../domain/content-extraction/task-status'
 import { builder } from '../builder'
 
 import './mutations'
@@ -6,45 +10,63 @@ import './queries'
 
 console.log('Setting up: AiFileContentExtractionTask')
 
-export const ProcessingStatus = builder.enumType('ProcessingStatus', {
-  values: PROCESSING_STATUS,
-})
-
-export const EmbeddingStatus = builder.enumType('EmbeddingStatus', {
-  values: EMBEDDING_STATUS,
-})
-
-export const ExtractionStatus = builder.enumType('ExtractionStatus', {
-  values: EXTRACTION_STATUS,
-})
-
 // AiFileContentExtractionTask GraphQL Object
 builder.prismaObject('AiFileContentExtractionTask', {
   fields: (t) => ({
     id: t.exposeID('id'),
-    fileId: t.exposeString('fileId'),
-    libraryId: t.exposeString('libraryId'),
-    extractionMethod: t.exposeString('extractionMethod'),
+    fileId: t.exposeString('fileId', { nullable: false }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
     timeoutMs: t.exposeInt('timeoutMs', { nullable: true }),
-    createdAt: t.expose('createdAt', { type: 'DateTime' }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
 
     // Processing phase timestamps
     processingStartedAt: t.expose('processingStartedAt', { type: 'DateTime', nullable: true }),
     processingFinishedAt: t.expose('processingFinishedAt', { type: 'DateTime', nullable: true }),
     processingFailedAt: t.expose('processingFailedAt', { type: 'DateTime', nullable: true }),
     processingTimeout: t.expose('processingTimeout', { type: 'Boolean', nullable: false }),
+    processingTimeMs: t.field({
+      type: 'Int',
+      nullable: true,
+      resolve: (task) => {
+        if (task.processingStartedAt && task.processingFinishedAt) {
+          return task.processingFinishedAt.getTime() - task.processingStartedAt.getTime()
+        }
+        return null
+      },
+    }),
 
     // Extraction phase timestamps
     extractionStartedAt: t.expose('extractionStartedAt', { type: 'DateTime', nullable: true }),
     extractionFinishedAt: t.expose('extractionFinishedAt', { type: 'DateTime', nullable: true }),
     extractionFailedAt: t.expose('extractionFailedAt', { type: 'DateTime', nullable: true }),
     extractionTimeout: t.expose('extractionTimeout', { type: 'Boolean', nullable: false }),
+    extractionTimeMs: t.field({
+      type: 'Int',
+      nullable: true,
+      resolve: (task) => {
+        if (task.extractionStartedAt && task.extractionFinishedAt) {
+          return task.extractionFinishedAt.getTime() - task.extractionStartedAt.getTime()
+        }
+        return null
+      },
+    }),
 
     // Embedding phase timestamps
     embeddingStartedAt: t.expose('embeddingStartedAt', { type: 'DateTime', nullable: true }),
     embeddingFinishedAt: t.expose('embeddingFinishedAt', { type: 'DateTime', nullable: true }),
     embeddingFailedAt: t.expose('embeddingFailedAt', { type: 'DateTime', nullable: true }),
     embeddingTimeout: t.expose('embeddingTimeout', { type: 'Boolean', nullable: false }),
+    embeddingTimeMs: t.field({
+      type: 'Int',
+      nullable: true,
+      resolve: (task) => {
+        if (task.embeddingStartedAt && task.embeddingFinishedAt) {
+          return task.embeddingFinishedAt.getTime() - task.embeddingStartedAt.getTime()
+        }
+        return null
+      },
+    }),
 
     // Result data
     markdownFileName: t.exposeString('markdownFileName', { nullable: true }),
@@ -59,48 +81,26 @@ builder.prismaObject('AiFileContentExtractionTask', {
     embeddingConfidenceScore: t.exposeFloat('embeddingConfidenceScore', { nullable: true }),
 
     // Relations
-    file: t.relation('file'),
-    library: t.relation('library'),
+    file: t.relation('file', { nullable: false }),
+    library: t.relation('library', { nullable: false }),
 
     // Computed fields
     extractionStatus: t.field({
-      type: 'String',
+      type: 'ExtractionStatus',
       nullable: false,
-      resolve: (task) => {
-        if (task.extractionFailedAt) return 'failed'
-        if (task.extractionFinishedAt) return 'completed'
-        if (task.extractionStartedAt) return 'running'
-        return 'pending'
-      },
+      resolve: (task) => getExtractionStatus(task),
     }),
 
     embeddingStatus: t.field({
-      type: 'String',
+      type: 'EmbeddingStatus',
       nullable: false,
-      resolve: (task) => {
-        if (task.embeddingFailedAt) return 'failed'
-        if (task.embeddingFinishedAt) return 'completed'
-        if (task.embeddingStartedAt) return 'running'
-        return 'pending'
-      },
+      resolve: (task) => getEmbeddingStatus(task),
     }),
 
-    ProcessingStatus: t.field({
-      type: 'String',
+    processingStatus: t.field({
+      type: 'ProcessingStatus',
       nullable: false,
-      resolve: (task) => {
-        if (task.processingTimeout) return 'timed-out'
-        if (task.embeddingFailedAt) return 'embedding-failed'
-        if (task.embeddingFinishedAt) return 'embedding-finished'
-        if (task.embeddingStartedAt) return 'embedding'
-        if (task.extractionFailedAt) return 'extraction-failed'
-        if (task.extractionFinishedAt) return 'extraction-finished'
-        if (task.extractionStartedAt) return 'extracting'
-        if (task.processingFailedAt) return 'validation-failed'
-        if (task.processingFinishedAt) return 'completed'
-        if (task.processingStartedAt) return 'validating'
-        return 'pending'
-      },
+      resolve: (task) => getProcessingStatus(task),
     }),
   }),
 })

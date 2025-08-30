@@ -13,20 +13,14 @@ import { DialogForm } from '../../dialog-form'
 import { getLibrariesQueryOptions } from '../get-libraries'
 
 const deleteFilesDocument = graphql(`
-  mutation dropFiles($libraryId: String!) {
-    dropFiles(libraryId: $libraryId) {
-      deletedFile {
-        id
-        libraryId
-      }
-      dropError
-    }
+  mutation deleteLibraryFiles($libraryId: String!) {
+    deleteLibraryFiles(libraryId: $libraryId)
   }
 `)
 
 const deleteLibraryDocument = graphql(`
-  mutation deleteAiLibrary($id: String!) {
-    deleteAiLibrary(id: $id)
+  mutation deleteLibrary($id: String!) {
+    deleteLibrary(id: $id)
   }
 `)
 

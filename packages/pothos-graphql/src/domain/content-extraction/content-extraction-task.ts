@@ -1,25 +1,33 @@
+import { Prisma } from '@george-ai/prismaClient'
+
 import { prisma } from '../../prisma'
 import { getAvailableMethodsForMimeType } from './extraction-method-registry'
 import { ExtractionMethodId, serializeExtractionOptions } from './extraction-options-validation'
 
+interface TaskQuery {
+  include?: Prisma.AiFileContentExtractionTaskInclude
+  select?: Prisma.AiFileContentExtractionTaskSelect
+}
 export interface CreateExtractionTaskOptions {
   fileId: string
   libraryId: string
   extractionMethod: ExtractionMethodId
   extractionOptions?: Record<string, unknown>
   timeoutMs?: number
+  query?: TaskQuery
 }
 
 /**
  * Create a single content extraction task
  */
 export const createContentExtractionTask = async (options: CreateExtractionTaskOptions) => {
-  const { fileId, libraryId, extractionMethod, extractionOptions, timeoutMs } = options
+  const { fileId, libraryId, extractionMethod, extractionOptions, timeoutMs, query } = options
 
   // Serialize options if provided
   const optionsJson = extractionOptions ? serializeExtractionOptions(extractionMethod, extractionOptions) : null
 
   const task = await prisma.aiFileContentExtractionTask.create({
+    ...query,
     data: {
       fileId,
       libraryId,
@@ -36,7 +44,7 @@ export const createContentExtractionTask = async (options: CreateExtractionTaskO
 /**
  * Create extraction tasks for a file using library default methods
  */
-export const createDefaultExtractionTasksForFile = async (fileId: string) => {
+export const createDefaultExtractionTasksForFile = async (fileId: string, query?: TaskQuery) => {
   const file = await prisma.aiLibraryFile.findUniqueOrThrow({
     where: { id: fileId },
     include: {
@@ -59,6 +67,10 @@ export const createDefaultExtractionTasksForFile = async (fileId: string) => {
     throw new Error(`No extraction methods available for mime type: ${file.mimeType}`)
   }
 
+  // TODO: Use configured library methods
+  console.log(
+    `Configured converter options for libary ${file.library.name}: ${file.library.fileConverterOptions || 'none'}`,
+  )
   // For now, create task for the first available method
   // In the future, library settings could specify which methods to use
   const primaryMethod = availableMethods[0]
@@ -69,6 +81,7 @@ export const createDefaultExtractionTasksForFile = async (fileId: string) => {
     extractionMethod: primaryMethod.id,
     extractionOptions: primaryMethod.defaultOptions,
     timeoutMs: file.library.embeddingTimeoutMs || 5 * 60 * 1000, // 5 minutes default
+    query,
   })
 
   return [task]
@@ -77,7 +90,14 @@ export const createDefaultExtractionTasksForFile = async (fileId: string) => {
 /**
  * Create an embedding-only task using existing markdown from another task
  */
-export const createEmbeddingOnlyTask = async (fileId: string, existingTaskId?: string) => {
+interface CreateEmbeddingOnlyTaskParams {
+  existingTaskId?: string | undefined | null
+  query?: TaskQuery
+}
+export const createEmbeddingOnlyTask = async (
+  fileId: string,
+  { existingTaskId, query }: CreateEmbeddingOnlyTaskParams,
+) => {
   const file = await prisma.aiLibraryFile.findUniqueOrThrow({
     where: { id: fileId },
     include: {
@@ -123,6 +143,7 @@ export const createEmbeddingOnlyTask = async (fileId: string, existingTaskId?: s
 
   // Create a special "embedding-only" task
   const task = await prisma.aiFileContentExtractionTask.create({
+    ...query,
     data: {
       fileId,
       libraryId: file.libraryId,

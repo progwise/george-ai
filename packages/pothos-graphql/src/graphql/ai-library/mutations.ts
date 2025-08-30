@@ -20,7 +20,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
   }),
 })
 
-builder.mutationField('updateAiLibrary', (t) =>
+builder.mutationField('updateLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
@@ -42,7 +42,7 @@ builder.mutationField('updateAiLibrary', (t) =>
   }),
 )
 
-builder.mutationField('createAiLibrary', (t) =>
+builder.mutationField('createLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
@@ -65,7 +65,7 @@ builder.mutationField('createAiLibrary', (t) =>
   }),
 )
 
-builder.mutationField('deleteAiLibrary', (t) =>
+builder.mutationField('deleteLibrary', (t) =>
   t.field({
     type: 'Boolean',
     args: {

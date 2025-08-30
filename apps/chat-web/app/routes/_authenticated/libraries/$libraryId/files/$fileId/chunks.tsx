@@ -27,9 +27,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
           take: deps.takeChunks,
         }),
       ),
-      context.queryClient.ensureQueryData(
-        getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      ),
+      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
     ])
   },
 })

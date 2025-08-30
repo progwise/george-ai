@@ -1,10 +1,13 @@
+import fs from 'fs'
+import path from 'path'
+
+import { getFileDir } from '@george-ai/file-management'
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { findCacheValue, getFieldValue } from '../../domain'
+import { findCacheValue, getAvailableMethodsForMimeType, getFieldValue } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-import './read-file'
 import './file-chunks'
 import './queries'
 import './mutations'
@@ -49,6 +52,14 @@ builder.prismaObject('AiLibraryFile', {
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
+    supportedExtractionMethods: t.field({
+      type: ['String'],
+      nullable: { list: false, items: false },
+      resolve: (file) => {
+        const supportedMethods = getAvailableMethodsForMimeType(file.mimeType)
+        return supportedMethods.map((method) => method.name)
+      },
+    }),
     lastUpdate: t.prismaField({
       type: 'AiLibraryUpdate',
       nullable: true,
@@ -60,11 +71,169 @@ builder.prismaObject('AiLibraryFile', {
         })
       },
     }),
+    // TODO: Add status type for file status incl. extraction/embedding/file status
+    status: t.field({
+      type: 'String',
+      nullable: false,
+      resolve: (file) => {
+        if (file.archivedAt) {
+          return 'archived'
+        }
+        if (file.uploadedAt) {
+          return 'uploaded'
+        }
+        if (file.dropError) {
+          return 'error'
+        }
+        return 'pending'
+      },
+    }),
 
-    // Content extraction tasks relation
-    //contentExtractionTasks: t.relation('contentExtractionTasks', { nullable: false }),
+    taskCount: t.relationCount('contentExtractionTasks', { nullable: false }),
+    processingStatus: t.field({
+      type: 'ProcessingStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { createdAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        // Check in order of specificity (most specific first)
+        if (lastTask.processingTimeout) return 'timedOut'
+        if (lastTask.embeddingFailedAt) return 'embeddingFailed'
+        if (lastTask.embeddingFinishedAt) return 'embeddingFinished'
+        if (lastTask.embeddingStartedAt) return 'embedding'
+        if (lastTask.extractionFailedAt) return 'extractionFailed'
+        if (lastTask.extractionFinishedAt) return 'extractionFinished'
+        if (lastTask.extractionStartedAt) return 'extracting'
+        if (lastTask.processingFailedAt) return 'validationFailed'
+        if (lastTask.processingFinishedAt) return 'completed'
+        if (lastTask.processingStartedAt) return 'validating'
+        return 'pending'
+      },
+    }),
 
-    // Computed fields for latest tasks
+    extractionStatus: t.field({
+      type: 'ExtractionStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { extractionStartedAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        if (lastTask.extractionFailedAt) return 'failed'
+        if (lastTask.extractionFinishedAt) return 'completed'
+        if (lastTask.extractionStartedAt) return 'running'
+        return 'pending'
+      },
+    }),
+
+    lastSuccessfulExtraction: t.prismaField({
+      type: 'AiFileContentExtractionTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiFileContentExtractionTask.findFirst({
+          ...query,
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+          orderBy: { extractionFinishedAt: 'desc' },
+        })
+      },
+    }),
+
+    embeddingStatus: t.field({
+      type: 'EmbeddingStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { embeddingStartedAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        if (lastTask.embeddingFailedAt) return 'failed'
+        if (lastTask.embeddingFinishedAt) return 'completed'
+        if (lastTask.embeddingStartedAt) return 'running'
+        return 'pending'
+      },
+    }),
+
+    lastSuccessfulEmbedding: t.prismaField({
+      type: 'AiFileContentExtractionTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiFileContentExtractionTask.findFirst({
+          ...query,
+          where: { fileId: file.id, embeddingFinishedAt: { not: null } },
+          orderBy: { embeddingFinishedAt: 'desc' },
+        })
+      },
+    }),
+
+    isLegacyFile: t.field({
+      type: 'Boolean',
+      nullable: false,
+      resolve: async (file) => {
+        // A legacy file is one that does not have any content extraction tasks
+        const count = await prisma.aiFileContentExtractionTask.count({
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+        })
+
+        if (count > 0) {
+          return false
+        }
+
+        const legacyFilePath = path.resolve(getFileDir({ fileId: file.id, libraryId: file.libraryId }), 'converted.md')
+        if (!fs.existsSync(legacyFilePath)) {
+          return false
+        }
+
+        return true
+      },
+    }),
+    markdown: t.field({
+      type: 'String',
+      nullable: false,
+      args: {
+        extractionTaskId: t.arg.string({ required: false }),
+      },
+      resolve: async (file, { extractionTaskId }) => {
+        // Get the latest successful extraction task if no specific one is requested
+        const extractionTask = await prisma.aiFileContentExtractionTask.findFirst({
+          where: {
+            fileId: file.id,
+            ...(extractionTaskId
+              ? { id: extractionTaskId }
+              : { extractionFinishedAt: { not: null }, extractionFailedAt: null }),
+          },
+          orderBy: { extractionStartedAt: 'desc' },
+        })
+
+        if (!extractionTask) {
+          // Handle legacy files without conversion records
+          const legacyFilePath = path.resolve(
+            getFileDir({ fileId: file.id, libraryId: file.libraryId }),
+            'converted.md',
+          )
+          if (!fs.existsSync(legacyFilePath)) {
+            return `Legacy file does not exist at path: ${legacyFilePath}`
+          }
+          return await fs.promises.readFile(legacyFilePath, 'utf-8')
+        } else {
+          const filePath = path.resolve(
+            getFileDir({ fileId: file.id, libraryId: file.libraryId }),
+            extractionTask.markdownFileName!,
+          )
+          return await fs.promises.readFile(filePath, 'utf-8')
+        }
+      },
+    }),
 
     cache: t.relation('cache', { nullable: false }),
     //TODO: Move it to aiList and remove it here from the file

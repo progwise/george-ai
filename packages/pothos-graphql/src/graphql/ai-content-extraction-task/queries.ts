@@ -1,6 +1,5 @@
 import { canAccessLibraryOrThrow } from '../../domain'
-import { getTaskStatusWhereClause } from '../../domain/content-extraction/task-status-filters'
-import { ProcessingStatus } from '../../domain/content-extraction/types'
+import { ProcessingStatus, getTaskStatusWhereClause } from '../../domain/content-extraction/task-status'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 

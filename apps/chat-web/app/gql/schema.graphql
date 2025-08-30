@@ -206,13 +206,49 @@ type AiEmbeddingModel {
   name: String!
 }
 
+type AiFileContentExtractionTask {
+  chunksCount: Int
+  chunksSize: Int
+  createdAt: DateTime!
+  embeddingConfidenceScore: Float
+  embeddingFailedAt: DateTime
+  embeddingFinishedAt: DateTime
+  embeddingModelName: String
+  embeddingStartedAt: DateTime
+  embeddingStatus: EmbeddingStatus!
+  embeddingTimeMs: Int
+  embeddingTimeout: Boolean!
+  extractionConfidenceScore: Float
+  extractionFailedAt: DateTime
+  extractionFinishedAt: DateTime
+  extractionMethod: String!
+  extractionOptions: String
+  extractionStartedAt: DateTime
+  extractionStatus: ExtractionStatus!
+  extractionTimeMs: Int
+  extractionTimeout: Boolean!
+  file: AiLibraryFile!
+  fileId: String!
+  id: ID
+  library: AiLibrary!
+  libraryId: String!
+  markdownFileName: String
+  metadata: String
+  processingFailedAt: DateTime
+  processingFinishedAt: DateTime
+  processingStartedAt: DateTime
+  processingStatus: ProcessingStatus!
+  processingTimeMs: Int
+  processingTimeout: Boolean!
+  timeoutMs: Int
+}
+
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
   embeddingModelName: String
   fileConverterOptions: String
-  files: [AiLibraryFile!]!
   filesCount: Int!
   id: ID!
   name: String!
@@ -319,48 +355,31 @@ enum AiLibraryCrawlerUriType {
 type AiLibraryFile {
   archivedAt: DateTime
   cache: [AiListItemCache!]!
-  chunks: Int
-  conversions: [AiLibraryFileConversion!]!
-  conversionsCount: Int!
   crawledByCrawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
   dropError: String
+  embeddingStatus: EmbeddingStatus!
+  extractionStatus: ExtractionStatus!
   fieldValues(fieldIds: [String!]!, language: String!): [FieldValueResult!]!
   id: ID!
+  isLegacyFile: Boolean!
+  lastSuccessfulEmbedding: AiFileContentExtractionTask
+  lastSuccessfulExtraction: AiFileContentExtractionTask
   lastUpdate: AiLibraryUpdate
   libraryId: String!
+  markdown(extractionTaskId: String): String!
   mimeType: String!
   name: String!
   originModificationDate: DateTime
   originUri: String
-  processedAt: DateTime
-  processingEndedAt: DateTime
-  processingErrorAt: DateTime
-  processingErrorMessage: String
-  processingStartedAt: DateTime
+  processingStatus: ProcessingStatus!
   size: Int
+  status: String!
+  supportedExtractionMethods: [String!]!
+  taskCount: Int!
   updatedAt: DateTime
   uploadedAt: DateTime
-}
-
-type AiLibraryFileConversion {
-  createdAt: DateTime!
-  file: AiLibraryFile!
-  fileConverterOptions: String
-  fileId: String!
-  fileName: String!
-  hasConversionError: Boolean
-  hasLegacyFormat: Boolean
-  hasPartialResult: Boolean
-  hasTimeout: Boolean
-  hasUnsupportedFormat: Boolean
-  id: ID!
-  library: AiLibrary!
-  libraryId: String!
-  metadata: String
-  processingTimeMs: Int
-  success: Boolean
 }
 
 input AiLibraryFileInput {
@@ -609,6 +628,16 @@ type ComputeFieldValueResult {
   value: String
 }
 
+type ContentExtractionTaskQueryResult {
+  count: Int!
+  fileId: String
+  libraryId: String!
+  skip: Int!
+  status: String
+  take: Int!
+  tasks: [AiFileContentExtractionTask!]!
+}
+
 input ConversationInvitationInput {
   allowDifferentEmailAddress: Boolean!
   allowMultipleParticipants: Boolean!
@@ -627,10 +656,37 @@ scalar DateTime
 
 scalar Decimal
 
+enum EmbeddingStatus {
+  completed
+  failed
+  none
+  pending
+  running
+}
+
 type EnrichmentQueueResult {
   error: String
   queuedItems: Int
   success: Boolean
+}
+
+type ExtractionMethod {
+  defaultOptions: String!
+  description: String!
+  id: String!
+  isEnabled: Boolean!
+  name: String!
+  optionsSchema: String!
+  supportedMimeTypes: [String!]!
+}
+
+enum ExtractionStatus {
+  completed
+  failed
+  none
+  pending
+  running
+  skipped
 }
 
 type FieldValueResult {
@@ -658,25 +714,6 @@ type FileChunkQueryResponse {
   libraryId: String!
   skip: Int!
   take: Int!
-}
-
-type FileContentResult {
-  content: String
-  fileName: String
-  hasConversionError: Boolean
-  hasLegacyFormat: Boolean
-  hasPartialResult: Boolean
-  hasTimeout: Boolean
-  hasUnsupportedFormat: Boolean
-  isLegacyFile: Boolean
-  metadata: String
-  processingTimeMs: Int
-  success: Boolean
-}
-
-type FileDropResult {
-  deletedFile: AiLibraryFile
-  dropError: String
 }
 
 type HumanParticipant implements AiConversationParticipant {
@@ -721,6 +758,11 @@ type ManagedUsersResponse {
   users: [ManagedUser!]!
 }
 
+type MethodRegistry {
+  availableMethods: [ExtractionMethod!]!
+  mimeType: String!
+}
+
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -733,7 +775,7 @@ type Mutation {
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
-  cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
+  cancelFileUpload(fileId: String!): Boolean!
   cleanListEnrichments(
     """
     Field ID to clean
@@ -747,25 +789,27 @@ type Mutation {
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
-  createAiLibrary(data: AiLibraryInput!): AiLibrary
   createAiLibraryCrawler(
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
+  createContentExtractionTasks(fileId: String!): [AiFileContentExtractionTask!]!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
+  createEmbeddingOnlyTask(existingTaskId: String, fileId: String!): AiFileContentExtractionTask!
+  createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
-  deleteAiLibrary(id: String!): Boolean
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
+  deleteFile(fileId: String!): AiLibraryFile!
+  deleteFiles(fileIds: [ID!]!): Int!
+  deleteLibrary(id: String!): Boolean
+  deleteLibraryFiles(libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
-  dropFile(fileId: String!): FileDropResult!
-  dropFiles(libraryId: String!): [FileDropResult!]!
-  embedFile(conversionId: String, fileId: String!): AiLibraryFile!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
@@ -773,7 +817,6 @@ type Mutation {
   leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User!
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
-  processFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeFromEnrichmentQueue(
@@ -824,13 +867,13 @@ type Mutation {
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
-  updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateAiLibraryCrawler(
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
     id: String!
   ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
+  updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
@@ -841,11 +884,39 @@ type Mutation {
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
 
+type OCRModel {
+  model: String!
+  name: String!
+}
+
+enum ProcessingStatus {
+  completed
+  embedding
+  embeddingFailed
+  embeddingFinished
+  extracting
+  extractionFailed
+  extractionFinished
+  failed
+  none
+  pending
+  timedOut
+  validating
+  validationFailed
+}
+
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
   aiChatModels: [AiChatModel!]!
+  aiContentExtractionTasks(
+    fileId: String
+    libraryId: String!
+    skip: Int = 0
+    status: String
+    take: Int = 20
+  ): ContentExtractionTaskQueryResult!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
@@ -855,7 +926,7 @@ type Query {
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
-  aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
+  aiLibraryFile(fileId: String!): AiLibraryFile!
   aiLibraryFiles(
     libraryId: String!
     showArchived: Boolean = false
@@ -875,9 +946,16 @@ type Query {
     take: Int! = 20
   ): AiListFilesQueryResult!
   aiLists: [AiList!]!
+  """
+  Get all available OCR-capable vision models
+  """
+  availableOCRModels: [OCRModel!]!
+  """
+  Get all available extraction methods grouped by mime type
+  """
+  extractionMethodRegistry: [MethodRegistry!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
-  readFileMarkdown(conversionId: String, fileId: String!): FileContentResult!
   user(email: String!): User
   userProfile: UserProfile!
   users: [User!]!

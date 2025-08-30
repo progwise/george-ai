@@ -23,8 +23,8 @@ const createNewLibrary = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation createAiLibrary($data: AiLibraryInput!) {
-          createAiLibrary(data: $data) {
+        mutation createLibrary($data: AiLibraryInput!) {
+          createLibrary(data: $data) {
             id
             name
           }
@@ -47,7 +47,7 @@ export const LibraryNewDialog = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: createNewLibrary,
     onSettled: (result) => {
-      const newId = result?.createAiLibrary?.id
+      const newId = result?.createLibrary?.id
       if (!newId) {
         throw new Error('Failed to create library')
       }

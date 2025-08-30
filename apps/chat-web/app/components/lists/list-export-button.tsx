@@ -20,7 +20,6 @@ graphql(`
     originUri
     mimeType
     size
-    processedAt
     originModificationDate
     crawledByCrawler {
       id

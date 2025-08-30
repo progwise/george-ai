@@ -5,10 +5,8 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
-import { reEmbedFiles, reprocessFiles } from '../../../../../../components/library/files/change-files'
-import { FileConversionList } from '../../../../../../components/library/files/file-conversations'
+import { createEmbeddingTasks, createExtractionTasks } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
-import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
@@ -17,11 +15,7 @@ import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      ),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))])
   },
 })
 
@@ -35,66 +29,42 @@ function RouteComponent() {
       queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
     })
     queryClient.invalidateQueries({
-      queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-    })
-    queryClient.invalidateQueries({
-      queryKey: getFileContentQueryOptions({ fileId: params.fileId }).queryKey,
+      queryKey: getFileInfoQueryOptions({ fileId: params.fileId }).queryKey,
     })
     queryClient.invalidateQueries({
       queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
     })
   }
 
-  const { data: fileInfo } = useSuspenseQuery(
-    getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-  )
+  const {
+    data: { aiLibraryFile },
+  } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: params.fileId }))
 
   const { mutate: embedMutate, isPending: embedIsPending } = useMutation({
-    mutationFn: () => reEmbedFiles({ data: [params.fileId] }),
+    mutationFn: () => createEmbeddingTasks({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error' })
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
-      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
+      toastSuccess(t('actions.createEmbeddingTasksSuccess', { count: data.length }))
     },
     onSettled: () => {
       invalidateQueries()
     },
   })
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
-    mutationFn: () => reprocessFiles({ data: [params.fileId] }),
+    mutationFn: () => createExtractionTasks({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : t('errors.reprocessFile', { error: 'Unknown error', files: '' })
+        error instanceof Error
+          ? error.message
+          : t('errors.createExtractionTasks', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      const errorFiles = data.filter(
-        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
-      )
-      const successFiles = data.filter(
-        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
-      )
-      if (errorFiles.length > 0) {
-        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
-        toastError(
-          t('errors.reprocessFiles', {
-            count: errorFileNames.length,
-            files: errorFileNames.join(', '),
-          }),
-        )
-      }
-      if (successFiles.length > 0) {
-        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
-        toastSuccess(
-          t('actions.reprocessSuccess', {
-            count: successFileNames.length,
-            files: successFileNames.join(', '),
-          }),
-        )
-      }
+      toastSuccess(t('actions.createExtractionTasksSuccess', { count: data.length }))
     },
     onSettled: () => {
       invalidateQueries()
@@ -110,26 +80,24 @@ function RouteComponent() {
           <div className="card-body">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <h2 className="card-title text-2xl">{fileInfo.aiLibraryFile.name}</h2>
-                {fileInfo.aiLibraryFile.originUri && fileInfo.aiLibraryFile.originUri !== 'desktop' && (
+                <h2 className="card-title text-2xl">{aiLibraryFile.name}</h2>
+                {aiLibraryFile.originUri && aiLibraryFile.originUri !== 'desktop' && (
                   <div className="">
                     <a
-                      href={fileInfo.aiLibraryFile.originUri}
+                      href={aiLibraryFile.originUri}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="link link-primary block truncate text-sm"
                     >
-                      {fileInfo.aiLibraryFile.originUri}
+                      {aiLibraryFile.originUri}
                     </a>
                   </div>
                 )}
               </div>
               <div className="flex flex-shrink-0 items-center gap-2">
-                {fileInfo.aiLibraryFile.archivedAt && (
-                  <div className="badge badge-warning badge-sm">{t('labels.archived')}</div>
-                )}
-                {fileInfo.aiLibraryFile.lastUpdate && (
-                  <UpdateStatusBadge updateType={fileInfo.aiLibraryFile.lastUpdate.updateType} size="sm" />
+                {aiLibraryFile.archivedAt && <div className="badge badge-warning badge-sm">{t('labels.archived')}</div>}
+                {aiLibraryFile.lastUpdate && (
+                  <UpdateStatusBadge updateType={aiLibraryFile.lastUpdate.updateType} size="sm" />
                 )}
               </div>
             </div>
@@ -139,29 +107,29 @@ function RouteComponent() {
               <div className="stat place-items-center py-2">
                 <div className="stat-title text-xs">{t('texts.fileProcessed')}</div>
                 <div className="stat-value text-sm">
-                  {fileInfo.aiLibraryFile.processedAt
-                    ? dateTimeString(fileInfo.aiLibraryFile.processedAt, language)
+                  {aiLibraryFile.lastSuccessfulEmbedding
+                    ? dateTimeString(aiLibraryFile.lastSuccessfulEmbedding.embeddingFinishedAt, language)
                     : '-'}
                 </div>
               </div>
 
               <div className="stat place-items-center py-2">
                 <div className="stat-title text-xs">{t('texts.fileUpdated')}</div>
-                <div className="stat-value text-sm">{dateTimeString(fileInfo.aiLibraryFile.updatedAt, language)}</div>
+                <div className="stat-value text-sm">{dateTimeString(aiLibraryFile.updatedAt, language)}</div>
               </div>
 
-              {fileInfo.aiLibraryFile.originModificationDate && (
+              {aiLibraryFile.originModificationDate && (
                 <div className="stat place-items-center py-2">
                   <div className="stat-title text-xs">{t('texts.originModified')}</div>
                   <div className="stat-value text-sm">
-                    {dateTimeString(fileInfo.aiLibraryFile.originModificationDate, language)}
+                    {dateTimeString(aiLibraryFile.originModificationDate, language)}
                   </div>
                 </div>
               )}
             </div>
 
             {/* Error Alert if present */}
-            {fileInfo.aiLibraryFile.processingErrorMessage && (
+            {aiLibraryFile && (
               <div className="alert alert-error mt-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -178,13 +146,13 @@ function RouteComponent() {
                 </svg>
                 <div>
                   <h3 className="font-bold">{t('texts.fileProcessingError')}</h3>
-                  <div className="text-xs">{fileInfo.aiLibraryFile.processingErrorMessage}</div>
+                  <div className="text-xs">{aiLibraryFile.processingStatus}</div>
                 </div>
               </div>
             )}
 
             {/* Last Update info in a subtle way */}
-            {fileInfo.aiLibraryFile.lastUpdate && fileInfo.aiLibraryFile.lastUpdate.updateType === 'error' && (
+            {aiLibraryFile.lastUpdate && aiLibraryFile.lastUpdate.updateType === 'error' && (
               <div className="alert alert-warning mt-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -201,9 +169,9 @@ function RouteComponent() {
                 </svg>
                 <div>
                   <div className="text-xs">
-                    {t('texts.lastUpdate')}: {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
+                    {t('texts.lastUpdate')}: {dateTimeString(aiLibraryFile.lastUpdate.createdAt, language)}
                   </div>
-                  <div className="mt-1 text-xs">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+                  <div className="mt-1 text-xs">{aiLibraryFile.lastUpdate.message}</div>
                 </div>
               </div>
             )}
@@ -256,7 +224,6 @@ function RouteComponent() {
           </li>
         </ul>
       </div>
-      <FileConversionList conversions={fileInfo.aiLibraryFile.conversions} />
       <div role="tabpanel">
         <Outlet />
       </div>

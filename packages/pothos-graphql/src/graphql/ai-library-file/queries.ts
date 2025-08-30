@@ -72,9 +72,9 @@ builder.queryField('aiLibraryFile', (t) =>
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _parent, { fileId }, context) => {
+    resolve: async (query, _parent, { fileId }, context) => {
       await canAccessFileOrThrow(fileId, context.session.user.id) // Verify user has access to the library
-      const file = await prisma.aiLibraryFile.findFirstOrThrow({ where: { id: fileId } })
+      const file = await prisma.aiLibraryFile.findFirstOrThrow({ ...query, where: { id: fileId } })
       return file
     },
   }),

@@ -5,7 +5,7 @@ import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getFileInfo = createServerFn({ method: 'GET' })
-  .validator((data: { fileId: string; libraryId: string }) =>
+  .validator((data: unknown) =>
     z
       .object({
         fileId: z.string().nonempty(),
@@ -18,6 +18,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
         query getFileInfo($fileId: String!) {
           aiLibraryFile(fileId: $fileId) {
             ...AiLibraryFileInfo_TitleCard
+            ...AiLibraryFile_FileContent
             id
             name
             originUri
@@ -28,6 +29,9 @@ const getFileInfo = createServerFn({ method: 'GET' })
             updatedAt
             archivedAt
             originModificationDate
+            processingStatus
+            extractionStatus
+            embeddingStatus
             lastUpdate {
               id
               createdAt

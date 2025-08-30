@@ -47,26 +47,6 @@ export const getHighResIconUrl = (iconLink: string): string => {
   return resolutionPattern.test(iconLink) ? iconLink.replace(resolutionPattern, '/32/') : iconLink
 }
 
-const PrepareFileDocument = graphql(`
-  mutation prepareFile($file: AiLibraryFileInput!) {
-    prepareFile(data: $file) {
-      id
-    }
-  }
-`)
-
-const ProcessFileDocument = graphql(`
-  mutation processFile($fileId: String!) {
-    processFile(fileId: $fileId) {
-      id
-      chunks
-      size
-      uploadedAt
-      processedAt
-    }
-  }
-`)
-
 const embedFiles = createServerFn({ method: 'GET' })
   .validator((data: { libraryId: string; files: Array<LibraryFile>; access_token: string }) =>
     z
@@ -110,14 +90,23 @@ const embedFiles = createServerFn({ method: 'GET' })
 
       const blob = await googleDownloadResponse.blob()
 
-      const preparedFile = await backendRequest(PrepareFileDocument, {
-        file: {
-          name: file.name,
-          originUri: `https://drive.google.com/file/d/${file.id}/view`,
-          mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
-          libraryId: ctx.data.libraryId,
+      const preparedFile = await backendRequest(
+        graphql(`
+          mutation prepareFile($file: AiLibraryFileInput!) {
+            prepareFile(data: $file) {
+              id
+            }
+          }
+        `),
+        {
+          file: {
+            name: file.name,
+            originUri: `https://drive.google.com/file/d/${file.id}/view`,
+            mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
+            libraryId: ctx.data.libraryId,
+          },
         },
-      })
+      )
 
       if (!preparedFile?.prepareFile?.id) {
         throw new Error(`Failed to prepare file ${file.id}`)
@@ -129,9 +118,18 @@ const embedFiles = createServerFn({ method: 'GET' })
         throw new Error('Failed to upload file')
       }
 
-      return await backendRequest(ProcessFileDocument, {
-        fileId: preparedFile.prepareFile.id,
-      })
+      return await backendRequest(
+        graphql(`
+          mutation processFile($fileId: String!) {
+            createContentExtractionTasks(fileId: $fileId) {
+              id
+            }
+          }
+        `),
+        {
+          fileId: preparedFile.prepareFile.id,
+        },
+      )
     })
 
     const results = await Promise.allSettled(processFiles)
