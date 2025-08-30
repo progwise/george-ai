@@ -17,14 +17,15 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
     }
     const lastMatch = routerState.matches[routerState.matches.length - 1]
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-expect-error
     if (lastMatch.params['fileId']) {
       await navigate({
         to: '/libraries/$libraryId/files',
         params: { libraryId },
       })
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
+      //eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-expect-error
     } else if (lastMatch.params['crawlerId']) {
       await navigate({
@@ -32,9 +33,9 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
         params: { libraryId },
       })
     } else {
+      //eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       await navigate({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
         to: lastMatch.fullPath,
         params: { ...lastMatch.params, libraryId },
       })

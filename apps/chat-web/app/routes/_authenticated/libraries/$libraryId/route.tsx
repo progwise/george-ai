@@ -114,7 +114,7 @@ function RouteComponent() {
           {t('labels.updates')}
         </Link>
       </div>
-      <div role="tabpanel" className="md:p-10">
+      <div role="tabpanel" className="md:px-10 md:py-5">
         <Outlet />
       </div>
     </article>

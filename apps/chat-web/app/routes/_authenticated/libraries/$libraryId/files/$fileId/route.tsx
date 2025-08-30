@@ -6,9 +6,9 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { UpdateStatusBadge } from '../../../../../../components/library/crawler/update-status-badge'
 import { createEmbeddingTasks, createExtractionTasks } from '../../../../../../components/library/files/change-files'
+import { FileCaptionCard } from '../../../../../../components/library/files/file-caption-card'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
@@ -26,13 +26,10 @@ function RouteComponent() {
 
   const invalidateQueries = async () => {
     queryClient.invalidateQueries({
-      queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      queryKey: getFileChunksQueryOptions({ fileId: params.fileId }).queryKey,
     })
     queryClient.invalidateQueries({
       queryKey: getFileInfoQueryOptions({ fileId: params.fileId }).queryKey,
-    })
-    queryClient.invalidateQueries({
-      queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
     })
   }
 
@@ -71,9 +68,10 @@ function RouteComponent() {
     },
   })
   return (
-    <>
+    <div className="">
       <div className="space-y-4">
-        <LoadingSpinner isLoading={reprocessIsPending} />
+        <LoadingSpinner isLoading={reprocessIsPending || embedIsPending} />
+        <FileCaptionCard file={aiLibraryFile} />
 
         {/* Title Card with Hero-like styling */}
         <div className="card bg-base-100 shadow-xl">
@@ -227,6 +225,6 @@ function RouteComponent() {
       <div role="tabpanel">
         <Outlet />
       </div>
-    </>
+    </div>
   )
 }

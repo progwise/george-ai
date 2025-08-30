@@ -42,7 +42,7 @@ export const ListSelector = ({ lists, selectedListId }: ListSelectorProps) => {
       items={lists}
       selectedItem={lists.find((item) => item.id === selectedListId)}
       onChange={(list) =>
-        list && navigate({ to: getListRoute(list.id), params: (prev) => ({ ...prev, listId: selectedListId }) })
+        list && navigate({ to: getListRoute(list.id), params: (prev: object) => ({ ...prev, listId: selectedListId }) })
       }
       className="h-full"
     />

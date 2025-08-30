@@ -33,6 +33,13 @@ const FieldValueResult = builder
     }),
   })
 
+const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('SourceFileLink').implement({
+  fields: (t) => ({
+    fileName: t.exposeString('fileName', { nullable: false }),
+    url: t.exposeString('url', { nullable: false }),
+  }),
+})
+
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
@@ -52,6 +59,21 @@ builder.prismaObject('AiLibraryFile', {
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
+    sourceFiles: t.field({
+      type: [SourceFileLink],
+      nullable: { list: false, items: false },
+      resolve: async (file) => {
+        const dir = getFileDir({ libraryId: file.libraryId, fileId: file.id })
+        if (!fs.existsSync(dir)) {
+          return []
+        }
+        const files = await fs.promises.readdir(dir)
+        return files.map((fileName) => ({
+          fileName,
+          url: process.env.BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileName}`,
+        }))
+      },
+    }),
     supportedExtractionMethods: t.field({
       type: ['String'],
       nullable: { list: false, items: false },

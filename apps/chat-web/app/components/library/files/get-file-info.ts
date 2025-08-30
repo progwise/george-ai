@@ -17,7 +17,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
       graphql(`
         query getFileInfo($fileId: String!) {
           aiLibraryFile(fileId: $fileId) {
-            ...AiLibraryFileInfo_TitleCard
+            ...AiLibraryFileInfo_CaptionCard
             ...AiLibraryFile_FileContent
             id
             name

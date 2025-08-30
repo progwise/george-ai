@@ -30,10 +30,9 @@ export const FileContentResultFragmentDoc = graphql(`
 
 interface FileContentProps {
   file: AiLibraryFile_FileContentFragment
-  sources: { fileName: string; link: string }[]
 }
 
-export const FileContent = ({ file, sources }: FileContentProps) => {
+export const FileContent = ({ file }: FileContentProps) => {
   const { t, language } = useTranslation()
 
   const renderConversionStatus = () => {
@@ -126,19 +125,6 @@ export const FileContent = ({ file, sources }: FileContentProps) => {
 
   return (
     <div className="card bg-base-100 shadow-sm">
-      <div className="breadcrumbs text-sm">
-        <ul>
-          <li>{t('files.sources')}</li>
-          {sources.length < 1 && <li>{t('files.noSourcesAvailable')}</li>}
-          {sources.map((source) => (
-            <li key={source.fileName}>
-              <a className="link link-hover" href={source.link} target="_blank">
-                {source.fileName}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
       <hr />
       {renderConversionStatus()}
       <FormattedMarkdown markdown={file.markdown || t('files.noContentAvailable')} className="text-sm font-semibold" />

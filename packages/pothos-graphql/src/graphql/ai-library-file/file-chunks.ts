@@ -1,7 +1,6 @@
 import { getFileChunks } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow } from '../../domain/library'
-import { prisma } from '../../prisma'
+import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile FileChunks')
@@ -59,18 +58,16 @@ builder.queryField('aiFileChunks', (t) =>
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
       take: t.arg.int({ required: true }),
       skip: t.arg.int({ required: true }),
     },
-    resolve: async (_source, { fileId, libraryId, skip, take }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
-      const fileInfo = await prisma.aiLibraryFile.findFirstOrThrow({ where: { libraryId, id: fileId } })
-      const result = await getFileChunks({ libraryId, fileId, skip, take })
+    resolve: async (_source, { fileId, skip, take }, context) => {
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+      const result = await getFileChunks({ libraryId: file.libraryId, fileId, skip, take })
       return {
-        libraryId,
+        libraryId: file.libraryId,
         fileId,
-        fileName: fileInfo.name,
+        fileName: file.name,
         skip,
         take,
         count: result.count,

@@ -373,6 +373,7 @@ type AiLibraryFile {
   originUri: String
   processingStatus: ProcessingStatus!
   size: Int
+  sourceFiles: [SourceFileLink!]!
   status: String!
   supportedExtractionMethods: [String!]!
   taskCount: Int!
@@ -919,7 +920,7 @@ type Query {
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
   aiEmbeddingModels: [AiEmbeddingModel!]!
-  aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
@@ -964,6 +965,11 @@ type SharePointValidationResult {
   errorMessage: String
   errorType: String
   success: Boolean
+}
+
+type SourceFileLink {
+  fileName: String!
+  url: String!
 }
 
 type UpdateStats {
