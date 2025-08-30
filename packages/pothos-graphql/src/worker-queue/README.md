@@ -94,6 +94,7 @@ processingStartedAt → validation fails → processingFailedAt
 ### Processing Status Values
 
 The system provides a unified `ProcessingStatus` enum with these values:
+
 - `pending` - Task created but not started
 - `validating` - Currently validating file and configuration
 - `validationFailed` - Validation failed (file not found, invalid config)
@@ -115,14 +116,15 @@ The system provides domain functions for status calculation:
 ```typescript
 // Get exact processing status
 import { getProcessingStatus } from '@george-ai/pothos-graphql/domain'
-const status = getProcessingStatus(task)
-
 // Get extraction-specific status
 import { getExtractionStatus } from '@george-ai/pothos-graphql/domain'
+// Get embedding-specific status
+import { getEmbeddingStatus } from '@george-ai/pothos-graphql/domain'
+
+const status = getProcessingStatus(task)
+
 const extractionStatus = getExtractionStatus(task)
 
-// Get embedding-specific status  
-import { getEmbeddingStatus } from '@george-ai/pothos-graphql/domain'
 const embeddingStatus = getEmbeddingStatus(task)
 ```
 
@@ -131,6 +133,7 @@ const embeddingStatus = getEmbeddingStatus(task)
 The GraphQL schema exposes computed status fields:
 
 - **AiFileContentExtractionTask**:
+
   - `processingStatus` - Overall task processing status
   - `extractionStatus` - Extraction phase status only
   - `embeddingStatus` - Embedding phase status only
