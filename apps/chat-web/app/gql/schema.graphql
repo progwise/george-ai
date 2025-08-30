@@ -354,6 +354,7 @@ type AiLibraryFile {
   archivedAt: DateTime
   cache: [AiListItemCache!]!
   crawledByCrawler: AiLibraryCrawler
+  crawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
   dropError: String

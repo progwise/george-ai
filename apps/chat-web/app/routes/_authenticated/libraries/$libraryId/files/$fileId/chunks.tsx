@@ -22,7 +22,6 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
       context.queryClient.ensureQueryData(
         getFileChunksQueryOptions({
           fileId: params.fileId,
-          libraryId: params.libraryId,
           skip: deps.skipChunks,
           take: deps.takeChunks,
         }),
@@ -33,7 +32,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { fileId, libraryId } = Route.useParams()
+  const { fileId } = Route.useParams()
   const { skipChunks, takeChunks } = Route.useSearch()
   const navigate = Route.useNavigate()
   const {
@@ -41,7 +40,6 @@ function RouteComponent() {
   } = useSuspenseQuery(
     getFileChunksQueryOptions({
       fileId,
-      libraryId,
       skip: skipChunks,
       take: takeChunks,
     }),

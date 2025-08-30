@@ -33,9 +33,9 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
         params: { libraryId },
       })
     } else {
-      //eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-expect-error
       await navigate({
+        //eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-expect-error
         to: lastMatch.fullPath,
         params: { ...lastMatch.params, libraryId },
       })

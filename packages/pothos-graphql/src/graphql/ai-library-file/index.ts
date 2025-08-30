@@ -82,6 +82,7 @@ builder.prismaObject('AiLibraryFile', {
         return supportedMethods.map((method) => method.name)
       },
     }),
+    crawler: t.relation('crawledByCrawler', { nullable: true }),
     lastUpdate: t.prismaField({
       type: 'AiLibraryUpdate',
       nullable: true,
@@ -156,6 +157,18 @@ builder.prismaObject('AiLibraryFile', {
       },
     }),
 
+    lastExtraction: t.prismaField({
+      type: 'AiFileContentExtractionTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiFileContentExtractionTask.findFirst({
+          ...query,
+          where: { fileId: file.id, extractionStartedAt: { not: null } },
+          orderBy: { extractionStartedAt: 'desc' },
+        })
+      },
+    }),
+
     lastSuccessfulExtraction: t.prismaField({
       type: 'AiFileContentExtractionTask',
       nullable: true,
@@ -183,6 +196,18 @@ builder.prismaObject('AiLibraryFile', {
         if (lastTask.embeddingFinishedAt) return 'completed'
         if (lastTask.embeddingStartedAt) return 'running'
         return 'pending'
+      },
+    }),
+
+    lastEmbedding: t.prismaField({
+      type: 'AiFileContentExtractionTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiFileContentExtractionTask.findFirst({
+          ...query,
+          where: { fileId: file.id, embeddingStartedAt: { not: null } },
+          orderBy: { embeddingStartedAt: 'desc' },
+        })
       },
     }),
 
