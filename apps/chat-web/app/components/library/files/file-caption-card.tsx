@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import React, { useEffect } from 'react'
 
 import { graphql } from '../../../gql'
@@ -65,6 +66,51 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
         </div>
         <div className="flex flex-col flex-nowrap gap-2 self-start">
           <ul className="menu menu-xs menu-horizontal bg-base-200 rounded-box items-center shadow-lg">
+            <li>
+              <Link
+                className="btn btn-xs rounded-full"
+                activeProps={{ className: 'btn-active' }}
+                activeOptions={{ exact: true, includeSearch: false }}
+                to="/libraries/$libraryId/files/$fileId"
+                params={{ libraryId: file.libraryId, fileId: file.id }}
+              >
+                Markdown
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="btn btn-xs rounded-full"
+                activeProps={{ className: 'btn-active' }}
+                activeOptions={{ exact: false }}
+                to="/libraries/$libraryId/files/$fileId/tasks"
+                params={{ libraryId: file.libraryId, fileId: file.id }}
+              >
+                Tasks
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="btn btn-xs rounded-full"
+                activeProps={{ className: 'btn-active' }}
+                activeOptions={{ exact: false }}
+                to="/libraries/$libraryId/files/$fileId/chunks"
+                params={{ libraryId: file.libraryId, fileId: file.id }}
+              >
+                Chunks
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="btn btn-xs rounded-full"
+                activeProps={{ className: 'btn-active' }}
+                activeOptions={{ exact: false }}
+                to="/libraries/$libraryId/files/$fileId/search"
+                params={{ libraryId: file.libraryId, fileId: file.id }}
+              >
+                Search
+              </Link>
+            </li>
+            <li className="text-base-content/50 px-2 font-bold">|</li>
             <li>
               <button
                 type="button"

@@ -19,47 +19,8 @@ function RouteComponent() {
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: params.fileId }))
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-10">
       <FileCaptionCard file={aiLibraryFile} />
-
-      <div role="tablist" className="tabs justify-center">
-        <Link
-          className="tab"
-          activeProps={{ className: 'tab-active underline' }}
-          activeOptions={{ exact: true, includeSearch: false }}
-          to="/libraries/$libraryId/files/$fileId"
-          params={params}
-        >
-          Markdown
-        </Link>
-        <Link
-          className="tab"
-          activeProps={{ className: 'tab-active underline' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/tasks"
-          params={params}
-        >
-          Tasks
-        </Link>
-        <Link
-          className="tab"
-          activeProps={{ className: 'tab-active underline' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/chunks"
-          params={params}
-        >
-          Chunks
-        </Link>
-        <Link
-          className="tab"
-          activeProps={{ className: 'tab-active underline' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/search"
-          params={params}
-        >
-          Search
-        </Link>
-      </div>
       <div role="tabpanel">
         <Outlet />
       </div>

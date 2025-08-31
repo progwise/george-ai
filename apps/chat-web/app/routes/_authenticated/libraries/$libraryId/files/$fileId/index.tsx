@@ -56,7 +56,7 @@ function RouteComponent() {
               Latest Markdown File <strong>{markdownFileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
             </div>
           ) : (
-            <div className="badge badge-neutral badge-sm">
+            <div className="badge badge-ghost badge-sm">
               Markdown File <strong>{markdownFileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
             </div>
           )}
