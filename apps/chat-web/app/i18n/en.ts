@@ -260,6 +260,7 @@ export default {
     removeParticipantFailed: 'Failed to remove participant: {error}',
     requiredField: 'Required',
     unexpectedError: 'An unexpected error occurred',
+    uploadedFileIsMissing: 'The uploaded file is missing.',
   },
   files: {
     noContentAvailable: 'No content available',
@@ -363,6 +364,7 @@ export default {
     freeMessages: 'Free Messages',
     freeStorage: 'Free Storage',
     friday: 'Friday',
+    gotoPage: 'Go to page',
     icon: 'Icon',
     instructions: 'Instructions',
     invitation: 'Invitation',
@@ -380,6 +382,7 @@ export default {
     nextSteps: 'Next Steps',
     notConfirmed: 'Not confirmed',
     note: 'Note',
+    ofPages: 'of {totalPages} pages',
     position: 'Position',
     postprocess: 'Postprocess',
     processed: 'Processed',

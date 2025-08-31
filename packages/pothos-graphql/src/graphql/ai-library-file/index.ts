@@ -12,6 +12,12 @@ import './file-chunks'
 import './queries'
 import './mutations'
 
+import {
+  getLatestExtractionMarkdownFileName,
+  getLegacyExtractionFileCount,
+  getLegacyExtractionFileNames,
+} from '../../domain/file/markdown'
+
 console.log('Setting up: AiLibraryFile')
 
 //TODO: Move to ai-list and remove it here from the file
@@ -39,6 +45,46 @@ const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('Sou
     url: t.exposeString('url', { nullable: false }),
   }),
 })
+
+const AvailableMarkdownsQueryResult = builder
+  .objectRef<{
+    fileId: string
+    libraryId: string
+    totalCount: number
+    take: number
+    skip: number
+  }>('AvailableMarkdownsQueryResult')
+  .implement({
+    fields: (t) => ({
+      fileNames: t.field({
+        type: ['String'],
+        nullable: { list: false, items: true },
+        resolve: async (parent) => {
+          const markdownFileNamesFromTasks = await prisma.aiFileContentExtractionTask.findMany({
+            select: { markdownFileName: true },
+            where: { fileId: parent.fileId, extractionFinishedAt: { not: null } },
+            orderBy: { extractionFinishedAt: 'desc' },
+            take: parent.take,
+            skip: parent.skip,
+          })
+          if (markdownFileNamesFromTasks.length >= parent.take) {
+            return markdownFileNamesFromTasks.map((task) => task.markdownFileName!)
+          }
+          const legacyFileNames = await getLegacyExtractionFileNames({
+            fileId: parent.fileId,
+            libraryId: parent.libraryId,
+          })
+          return [
+            ...markdownFileNamesFromTasks.map((task) => task.markdownFileName),
+            ...legacyFileNames.slice(0, parent.take - markdownFileNamesFromTasks.length),
+          ]
+        },
+      }),
+      totalCount: t.exposeInt('totalCount', { nullable: false }),
+      take: t.exposeInt('take', { nullable: true }),
+      skip: t.exposeInt('skip', { nullable: true }),
+    }),
+  })
 
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -236,49 +282,82 @@ builder.prismaObject('AiLibraryFile', {
           return false
         }
 
-        const legacyFilePath = path.resolve(getFileDir({ fileId: file.id, libraryId: file.libraryId }), 'converted.md')
-        if (!fs.existsSync(legacyFilePath)) {
-          return false
+        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
+        const allFiles = await fs.promises.readdir(fileDir)
+        const allMarkdownFiles = allFiles.filter((file) => file.endsWith('.md'))
+        if (allMarkdownFiles.some((file) => file.startsWith('converted'))) {
+          return true
         }
 
-        return true
+        return false
+      },
+    }),
+    availableExtractionMarkdowns: t.field({
+      type: AvailableMarkdownsQueryResult,
+      nullable: false,
+      args: {
+        take: t.arg.int({ required: false, defaultValue: 20 }),
+        skip: t.arg.int({ required: false, defaultValue: 0 }),
+      },
+      resolve: async (file, { take, skip }) => {
+        const totalCountTasks = await prisma.aiFileContentExtractionTask.count({
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+        })
+        const totalCountLegacies = await getLegacyExtractionFileCount({ fileId: file.id, libraryId: file.libraryId })
+        return {
+          fileId: file.id,
+          libraryId: file.libraryId,
+          totalCount: totalCountTasks + totalCountLegacies,
+          take: take || 20,
+          skip: skip || 0,
+        }
+      },
+    }),
+    latesExtractionMarkdownFileName: t.field({
+      type: 'String',
+      nullable: true,
+      resolve: async (file) => {
+        // Get the latest successful extraction task
+        const extractionTask = await prisma.aiFileContentExtractionTask.findFirst({
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+          orderBy: { extractionFinishedAt: 'desc' },
+        })
+
+        if (extractionTask) {
+          if (!extractionTask.markdownFileName) {
+            throw new Error('The uploaded file is missing but extraction task was found.')
+          }
+          return extractionTask.markdownFileName
+        }
+
+        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
+        const allFiles = await fs.promises.readdir(fileDir)
+        const allMarkdownFiles = allFiles
+          .filter((file) => file.endsWith('.md') && file.startsWith('converted'))
+          .sort((a, b) => b.localeCompare(a))
+          .reverse()
+        if (allMarkdownFiles.length === 0) {
+          return null
+        }
+        return allMarkdownFiles[0]
       },
     }),
     markdown: t.field({
       type: 'String',
       nullable: false,
       args: {
-        extractionTaskId: t.arg.string({ required: false }),
+        markdownFileName: t.arg.string({ required: false }),
       },
-      resolve: async (file, { extractionTaskId }) => {
-        // Get the latest successful extraction task if no specific one is requested
-        const extractionTask = await prisma.aiFileContentExtractionTask.findFirst({
-          where: {
-            fileId: file.id,
-            ...(extractionTaskId
-              ? { id: extractionTaskId }
-              : { extractionFinishedAt: { not: null }, extractionFailedAt: null }),
-          },
-          orderBy: { extractionStartedAt: 'desc' },
-        })
-
-        if (!extractionTask) {
-          // Handle legacy files without conversion records
-          const legacyFilePath = path.resolve(
-            getFileDir({ fileId: file.id, libraryId: file.libraryId }),
-            'converted.md',
-          )
-          if (!fs.existsSync(legacyFilePath)) {
-            return `Legacy file does not exist at path: ${legacyFilePath}`
+      resolve: async (file, { markdownFileName }) => {
+        if (!markdownFileName) {
+          markdownFileName = await getLatestExtractionMarkdownFileName({ fileId: file.id, libraryId: file.libraryId })
+          if (!markdownFileName) {
+            throw new Error('The uploaded file is missing.')
           }
-          return await fs.promises.readFile(legacyFilePath, 'utf-8')
-        } else {
-          const filePath = path.resolve(
-            getFileDir({ fileId: file.id, libraryId: file.libraryId }),
-            extractionTask.markdownFileName!,
-          )
-          return await fs.promises.readFile(filePath, 'utf-8')
         }
+        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
+        const filePath = path.resolve(fileDir, markdownFileName)
+        return await fs.promises.readFile(filePath, 'utf-8')
       },
     }),
 

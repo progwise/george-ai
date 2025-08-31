@@ -32,10 +32,9 @@ export { schema }
 export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
 export { checkUser, updateUserAvatarUrl, getUserByMail, getUserAvatarsPath } from './domain/user'
 export { isProviderAvatar } from './domain/user/avatar-provider'
-export { getFileInfo, getMimeTypeForFile } from './domain/file'
+export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
 export { canAccessLibraryOrThrow } from './domain/library'
 export { canAccessListOrThrow } from './domain/list'
-export { markUploadFinished } from './domain/file'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentExtractionWorker } from './worker-queue/content-extraction-worker'

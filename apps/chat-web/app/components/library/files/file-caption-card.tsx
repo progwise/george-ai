@@ -1,50 +1,22 @@
+import React, { useEffect } from 'react'
+
 import { graphql } from '../../../gql'
 import { AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { FileInfoBox } from './file-info-box'
+import { FileInfoFiles } from './file-info-files'
 import { FileStatusLabels } from './file-status-labels'
 import { useFileActions } from './use-file-actions'
 
 graphql(`
   fragment AiLibraryFileInfo_CaptionCard on AiLibraryFile {
     ...AiLibraryFile_FileStatusLabels
+    ...AiLibraryFileInfo_Files
+    ...AiLibraryFile_InfoBox
     id
     libraryId
     name
     originUri
-    originModificationDate
-    size
-    uploadedAt
-    archivedAt
-    taskCount
-    status
-    sourceFiles {
-      fileName
-      url
-    }
-    crawler {
-      id
-      uri
-      uriType
-    }
-    lastSuccessfulExtraction {
-      id
-      createdAt
-      markdownFileName
-      extractionStartedAt
-      extractionFinishedAt
-      processingStatus
-      metadata
-    }
-    lastSuccessfulEmbedding {
-      id
-      createdAt
-      markdownFileName
-      embeddingStartedAt
-      embeddingFinishedAt
-      processingStatus
-      metadata
-      chunksCount
-    }
   }
 `)
 
@@ -53,73 +25,95 @@ interface FileCaptionCardProps {
 }
 
 export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
-  const { t, language } = useTranslation()
-
+  const { t } = useTranslation()
   const { createEmbeddingTasksMutation, createExtractionTasksMutation, createTasksMutationPending } = useFileActions({
     fileId: file.id,
   })
+
+  useEffect(() => {
+    const outsideClickHandler = (event: Event) => {
+      if (!event.target || !(event.target instanceof Node)) return
+      const target = event.target as HTMLElement
+      document.querySelectorAll('.menu details').forEach((menu: HTMLDetailsElement) => {
+        if (!menu.contains(target)) {
+          // Click was outside the dropdown, close it
+          menu.open = false
+        }
+      })
+    }
+    window.addEventListener('click', outsideClickHandler)
+    return () => {
+      window.removeEventListener('click', outsideClickHandler)
+    }
+  }, [])
+
   return (
-    <div className="card bg-base-100 gap-2 p-2 shadow-xl">
-      <div className="card-title flex items-center justify-between">
-        <h3>{file.name}</h3>
-        <ul className="menu bg-base-200 menu-horizontal menu-xs rounded-box gap-2">
-          <li>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => createEmbeddingTasksMutation()}
-              disabled={createTasksMutationPending}
-            >
-              {t('actions.reembed')}
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => createExtractionTasksMutation()}
-              disabled={createTasksMutationPending}
-            >
-              {t('actions.reprocess')}
-            </button>
-          </li>
-        </ul>
+    <div className="bg-base-100 flex flex-col">
+      <div className="">
+        <a
+          className="text-base-content/50 text-nowrap align-text-top text-xs italic hover:underline"
+          href={file.originUri || '#'}
+          target="_blank"
+        >
+          {file.originUri}
+        </a>
       </div>
-      <div className="flex justify-between">
-        <dl className="properties max-w-100 text-xs">
-          <dt>{t('labels.size')}</dt>
-          <dd>{file.size} bytes</dd>
-          <dt>{t('labels.status')}</dt>
-          <dd>{file.status}</dd>
-          <dt>{t('labels.chunks')}</dt>
-          <dd>{file.lastSuccessfulEmbedding?.chunksCount || 'unknown'}</dd>
-          <dt>{t('labels.tasks')}</dt>
-          <dd>{file.taskCount}</dd>
-          <dt>{t('labels.crawler')}</dt>
-          <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
-          <dt>{t('labels.originModified')}</dt>
-          <dd>{file.originModificationDate ? new Date(file.originModificationDate).toLocaleString(language) : '-'}</dd>
-        </dl>
-        <div className="h-48 overflow-scroll">
-          <ul className="menu menu-xs bg-base-200 rounded-box w-xs shadow-lg">
+      <div className="flex justify-between align-top">
+        <div className="flex-start flex flex-col gap-1 overflow-y-auto">
+          <h3 className="text-base-content text-xl font-bold">{file.name}</h3>
+          <FileStatusLabels file={file} />
+        </div>
+        <div className="flex flex-col flex-nowrap gap-2 self-start">
+          <ul className="menu menu-xs menu-horizontal bg-base-200 rounded-box items-center shadow-lg">
             <li>
-              <a>
+              <button
+                type="button"
+                className="btn btn-xs rounded-full"
+                onClick={() => createEmbeddingTasksMutation()}
+                disabled={createTasksMutationPending}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
+                  />
+                </svg>
+
+                <span>{t('actions.reembed')}</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="btn btn-xs rounded-full"
+                onClick={() => createExtractionTasksMutation()}
+                disabled={createTasksMutationPending}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  className="size-4"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
                   />
                 </svg>
-                {file.name}
-              </a>
+
+                <span>{t('actions.reprocess')}</span>
+              </button>
             </li>
             <li>
               <details>
@@ -128,42 +122,25 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
-                    strokeWidth="1.5"
+                    strokeWidth={1.5}
                     stroke="currentColor"
-                    className="h-4 w-4"
+                    className="size-4"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+                      d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
                     />
                   </svg>
-                  Markdown Extractions
+
+                  <span>Info</span>
                 </summary>
-                <ul>
-                  {file.sourceFiles
-                    .filter((file) => file.fileName.endsWith('.md'))
-                    .map((source) => (
-                      <li key={source.fileName}>
-                        <a className="link link-hover" href={source.url} target="_blank">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            className="h-4 w-4"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-                            />
-                          </svg>
-                          {source.fileName}
-                        </a>
-                      </li>
-                    ))}
+                <ul className="right-0">
+                  <li className="z-50">
+                    <div>
+                      <FileInfoBox file={file} />
+                    </div>
+                  </li>
                 </ul>
               </details>
             </li>
@@ -174,55 +151,27 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
-                    strokeWidth="1.5"
+                    strokeWidth={1.5}
                     stroke="currentColor"
-                    className="h-4 w-4"
+                    className="size-4"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+                      d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
                     />
                   </svg>
-                  Screenshots & Images
+                  <span>Files</span>
                 </summary>
-                <ul>
-                  {file.sourceFiles
-                    .filter(
-                      (file) =>
-                        file.fileName.endsWith('.png') ||
-                        file.fileName.endsWith('.jpg') ||
-                        file.fileName.endsWith('.jpeg'),
-                    )
-                    .map((source) => (
-                      <li key={source.fileName}>
-                        <a className="link link-hover" href={source.url} target="_blank">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            className="h-4 w-4"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-                            />
-                          </svg>
-                          {source.fileName}
-                        </a>
-                      </li>
-                    ))}
+                <ul className="right-0">
+                  <li className="z-50">
+                    <FileInfoFiles file={file} />
+                  </li>
                 </ul>
               </details>
             </li>
           </ul>
         </div>
-      </div>
-      <div className="">
-        <FileStatusLabels file={file} />
       </div>
     </div>
   )

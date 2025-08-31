@@ -18,7 +18,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
         query getFileInfo($fileId: String!) {
           aiLibraryFile(fileId: $fileId) {
             ...AiLibraryFileInfo_CaptionCard
-            ...AiLibraryFile_FileContent
+            ...AiLibraryFile_MarkdownFileSelector
             id
             name
             originUri
@@ -32,6 +32,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
             processingStatus
             extractionStatus
             embeddingStatus
+            latesExtractionMarkdownFileName
             lastUpdate {
               id
               createdAt

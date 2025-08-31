@@ -264,6 +264,7 @@ export default {
     removeParticipantFailed: 'Fehler beim Entfernen des Teilnehmers: {error}',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
+    uploadFileIsMissng: 'Hochgeladene Datei fehlt',
   },
   files: {
     noContentAvailable: 'Kein Inhalt verfügbar',
@@ -367,6 +368,7 @@ export default {
     freeMessages: 'Anzahl Nachrichten',
     freeStorage: 'Freier Speicher',
     friday: 'Freitag',
+    gotoPage: 'Gehe zu Seite',
     icon: 'Icon',
     instructions: 'Anweisungen',
     invitation: 'Einladung',
@@ -387,6 +389,7 @@ export default {
     position: 'Position',
     postprocess: 'Nachbearbeitung',
     processed: 'Verarbeitet',
+    ofPages: 'von {totalPages} Seiten',
     originModified: 'Original geändert',
     prompt: 'Prompt',
     query: 'Abfrage',

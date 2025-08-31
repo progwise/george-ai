@@ -390,6 +390,7 @@ export enum AiLibraryCrawlerUriType {
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   archivedAt?: Maybe<Scalars['DateTime']['output']>
+  availableExtractionMarkdowns: AvailableMarkdownsQueryResult
   cache: Array<AiListItemCache>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
   crawler?: Maybe<AiLibraryCrawler>
@@ -401,9 +402,12 @@ export type AiLibraryFile = {
   fieldValues: Array<FieldValueResult>
   id: Scalars['ID']['output']
   isLegacyFile: Scalars['Boolean']['output']
+  lastEmbedding?: Maybe<AiFileContentExtractionTask>
+  lastExtraction?: Maybe<AiFileContentExtractionTask>
   lastSuccessfulEmbedding?: Maybe<AiFileContentExtractionTask>
   lastSuccessfulExtraction?: Maybe<AiFileContentExtractionTask>
   lastUpdate?: Maybe<AiLibraryUpdate>
+  latesExtractionMarkdownFileName?: Maybe<Scalars['String']['output']>
   libraryId: Scalars['String']['output']
   markdown: Scalars['String']['output']
   mimeType: Scalars['String']['output']
@@ -420,13 +424,18 @@ export type AiLibraryFile = {
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
+export type AiLibraryFileAvailableExtractionMarkdownsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+}
+
 export type AiLibraryFileFieldValuesArgs = {
   fieldIds: Array<Scalars['String']['input']>
   language: Scalars['String']['input']
 }
 
 export type AiLibraryFileMarkdownArgs = {
-  extractionTaskId?: InputMaybe<Scalars['String']['input']>
+  markdownFileName?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AiLibraryFileInput = {
@@ -665,6 +674,14 @@ export type AssistantParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
+}
+
+export type AvailableMarkdownsQueryResult = {
+  __typename?: 'AvailableMarkdownsQueryResult'
+  fileNames: Array<Maybe<Scalars['String']['output']>>
+  skip?: Maybe<Scalars['Int']['output']>
+  take?: Maybe<Scalars['Int']['output']>
+  totalCount: Scalars['Int']['output']
 }
 
 export type CleanEnrichmentResult = {
@@ -2695,42 +2712,40 @@ export type AiLibraryFileInfo_CaptionCardFragment = {
   libraryId: string
   name: string
   originUri?: string | null
+  isLegacyFile: boolean
+  supportedExtractionMethods: Array<string>
   originModificationDate?: string | null
   size?: number | null
   uploadedAt?: string | null
   archivedAt?: string | null
   taskCount: number
   status: string
-  isLegacyFile: boolean
-  supportedExtractionMethods: Array<string>
-  sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
-  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
   lastSuccessfulExtraction?: {
     __typename?: 'AiFileContentExtractionTask'
     id?: string | null
+    extractionTimeMs?: number | null
+    extractionFinishedAt?: string | null
+    metadata?: string | null
     createdAt: string
     markdownFileName?: string | null
     extractionStartedAt?: string | null
-    extractionFinishedAt?: string | null
     processingStatus: ProcessingStatus
-    metadata?: string | null
-    extractionTimeMs?: number | null
   } | null
   lastSuccessfulEmbedding?: {
     __typename?: 'AiFileContentExtractionTask'
     id?: string | null
+    embeddingTimeMs?: number | null
+    embeddingFinishedAt?: string | null
+    metadata?: string | null
     createdAt: string
     markdownFileName?: string | null
     embeddingStartedAt?: string | null
-    embeddingFinishedAt?: string | null
     processingStatus: ProcessingStatus
-    metadata?: string | null
     chunksCount?: number | null
-    embeddingTimeMs?: number | null
   } | null
+  sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
+  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
 }
-
-export type AiLibraryFile_FileContentFragment = { __typename?: 'AiLibraryFile'; markdown: string }
 
 export type FileExtractionTask_ListFragment = {
   __typename?: 'AiFileContentExtractionTask'
@@ -2755,6 +2770,45 @@ export type FileExtractionTask_ListFragment = {
   extractionStatus: ExtractionStatus
   embeddingStatus: EmbeddingStatus
   metadata?: string | null
+}
+
+export type AiLibraryFile_InfoBoxFragment = {
+  __typename?: 'AiLibraryFile'
+  originModificationDate?: string | null
+  size?: number | null
+  uploadedAt?: string | null
+  archivedAt?: string | null
+  taskCount: number
+  status: string
+  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
+  lastSuccessfulExtraction?: {
+    __typename?: 'AiFileContentExtractionTask'
+    id?: string | null
+    createdAt: string
+    markdownFileName?: string | null
+    extractionStartedAt?: string | null
+    extractionFinishedAt?: string | null
+    processingStatus: ProcessingStatus
+    metadata?: string | null
+  } | null
+  lastSuccessfulEmbedding?: {
+    __typename?: 'AiFileContentExtractionTask'
+    id?: string | null
+    createdAt: string
+    markdownFileName?: string | null
+    embeddingStartedAt?: string | null
+    embeddingFinishedAt?: string | null
+    processingStatus: ProcessingStatus
+    metadata?: string | null
+    chunksCount?: number | null
+  } | null
+}
+
+export type AiLibraryFileInfo_FilesFragment = {
+  __typename?: 'AiLibraryFile'
+  id: string
+  name: string
+  sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
 }
 
 export type AiLibraryFile_FileStatusLabelsFragment = {
@@ -2854,13 +2908,13 @@ export type GetFileInfoQuery = {
     processingStatus: ProcessingStatus
     extractionStatus: ExtractionStatus
     embeddingStatus: EmbeddingStatus
+    latesExtractionMarkdownFileName?: string | null
     libraryId: string
+    isLegacyFile: boolean
+    supportedExtractionMethods: Array<string>
     uploadedAt?: string | null
     taskCount: number
     status: string
-    markdown: string
-    isLegacyFile: boolean
-    supportedExtractionMethods: Array<string>
     lastUpdate?: {
       __typename?: 'AiLibraryUpdate'
       id: string
@@ -2868,31 +2922,38 @@ export type GetFileInfoQuery = {
       message?: string | null
       updateType: string
     } | null
-    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
-    crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
+    availableExtractionMarkdowns: {
+      __typename?: 'AvailableMarkdownsQueryResult'
+      fileNames: Array<string | null>
+      totalCount: number
+      take?: number | null
+      skip?: number | null
+    }
     lastSuccessfulExtraction?: {
       __typename?: 'AiFileContentExtractionTask'
       id?: string | null
+      extractionTimeMs?: number | null
+      extractionFinishedAt?: string | null
+      metadata?: string | null
       createdAt: string
       markdownFileName?: string | null
       extractionStartedAt?: string | null
-      extractionFinishedAt?: string | null
       processingStatus: ProcessingStatus
-      metadata?: string | null
-      extractionTimeMs?: number | null
     } | null
     lastSuccessfulEmbedding?: {
       __typename?: 'AiFileContentExtractionTask'
       id?: string | null
+      embeddingTimeMs?: number | null
+      embeddingFinishedAt?: string | null
+      metadata?: string | null
       createdAt: string
       markdownFileName?: string | null
       embeddingStartedAt?: string | null
-      embeddingFinishedAt?: string | null
       processingStatus: ProcessingStatus
-      metadata?: string | null
       chunksCount?: number | null
-      embeddingTimeMs?: number | null
     } | null
+    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
+    crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
   }
 }
 
@@ -2940,6 +3001,28 @@ export type EmbeddingsTableQuery = {
         chunksSize?: number | null
       } | null
     }>
+  }
+}
+
+export type GetMarkdownQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  markdownFileName?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type GetMarkdownQuery = {
+  __typename?: 'Query'
+  aiLibraryFile: { __typename?: 'AiLibraryFile'; markdown: string }
+}
+
+export type AiLibraryFile_MarkdownFileSelectorFragment = {
+  __typename?: 'AiLibraryFile'
+  latesExtractionMarkdownFileName?: string | null
+  availableExtractionMarkdowns: {
+    __typename?: 'AvailableMarkdownsQueryResult'
+    fileNames: Array<string | null>
+    totalCount: number
+    take?: number | null
+    skip?: number | null
   }
 }
 
@@ -6325,27 +6408,18 @@ export const AiLibraryFile_FileStatusLabelsFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryFile_FileStatusLabelsFragment, unknown>
-export const AiLibraryFileInfo_CaptionCardFragmentDoc = {
+export const AiLibraryFileInfo_FilesFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFileInfo_CaptionCard' },
+      name: { kind: 'Name', value: 'AiLibraryFileInfo_Files' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FileStatusLabels' } },
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'taskCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'sourceFiles' },
@@ -6357,6 +6431,27 @@ export const AiLibraryFileInfo_CaptionCardFragmentDoc = {
               ],
             },
           },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryFileInfo_FilesFragment, unknown>
+export const AiLibraryFile_InfoBoxFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_InfoBox' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'taskCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'crawler' },
@@ -6405,6 +6500,28 @@ export const AiLibraryFileInfo_CaptionCardFragmentDoc = {
         ],
       },
     },
+  ],
+} as unknown as DocumentNode<AiLibraryFile_InfoBoxFragment, unknown>
+export const AiLibraryFileInfo_CaptionCardFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFileInfo_CaptionCard' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FileStatusLabels' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFileInfo_Files' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_InfoBox' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+        ],
+      },
+    },
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AiLibraryFile_FileStatusLabels' },
@@ -6446,22 +6563,92 @@ export const AiLibraryFileInfo_CaptionCardFragmentDoc = {
         ],
       },
     },
-  ],
-} as unknown as DocumentNode<AiLibraryFileInfo_CaptionCardFragment, unknown>
-export const AiLibraryFile_FileContentFragmentDoc = {
-  kind: 'Document',
-  definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFile_FileContent' },
+      name: { kind: 'Name', value: 'AiLibraryFileInfo_Files' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'markdown' } }],
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sourceFiles' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_InfoBox' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'taskCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawler' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'lastSuccessfulExtraction' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'markdownFileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionStartedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionFinishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'lastSuccessfulEmbedding' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'markdownFileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'embeddingStartedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'embeddingFinishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
+              ],
+            },
+          },
+        ],
       },
     },
   ],
-} as unknown as DocumentNode<AiLibraryFile_FileContentFragment, unknown>
+} as unknown as DocumentNode<AiLibraryFileInfo_CaptionCardFragment, unknown>
 export const FileExtractionTask_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -6542,6 +6729,35 @@ export const AiLibraryFile_TableItemFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryFile_TableItemFragment, unknown>
+export const AiLibraryFile_MarkdownFileSelectorFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_MarkdownFileSelector' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'latesExtractionMarkdownFileName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'availableExtractionMarkdowns' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileNames' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryFile_MarkdownFileSelectorFragment, unknown>
 export const AiLibraryBaseFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10765,7 +10981,7 @@ export const GetFileInfoDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFileInfo_CaptionCard' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FileContent' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_MarkdownFileSelector' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
@@ -10779,6 +10995,7 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionStatus' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'embeddingStatus' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'latesExtractionMarkdownFileName' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'lastUpdate' },
@@ -10841,22 +11058,13 @@ export const GetFileInfoDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFileInfo_CaptionCard' },
+      name: { kind: 'Name', value: 'AiLibraryFileInfo_Files' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FileStatusLabels' } },
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'taskCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'sourceFiles' },
@@ -10868,6 +11076,22 @@ export const GetFileInfoDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_InfoBox' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'taskCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'crawler' },
@@ -10918,11 +11142,43 @@ export const GetFileInfoDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFile_FileContent' },
+      name: { kind: 'Name', value: 'AiLibraryFileInfo_CaptionCard' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'markdown' } }],
+        selections: [
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FileStatusLabels' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFileInfo_Files' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_InfoBox' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_MarkdownFileSelector' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'latesExtractionMarkdownFileName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'availableExtractionMarkdowns' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileNames' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+              ],
+            },
+          },
+        ],
       },
     },
   ],
@@ -11059,6 +11315,60 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const GetMarkdownDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getMarkdown' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'markdownFileName' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'markdown' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'markdownFileName' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'markdownFileName' } },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMarkdownQuery, GetMarkdownQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [

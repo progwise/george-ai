@@ -22,19 +22,19 @@ function RouteComponent() {
     <div className="flex flex-col gap-2">
       <FileCaptionCard file={aiLibraryFile} />
 
-      <div role="tablist" className="tabs justify-end">
+      <div role="tablist" className="tabs justify-center">
         <Link
           className="tab"
-          activeProps={{ className: 'tab-active' }}
-          activeOptions={{ exact: true }}
+          activeProps={{ className: 'tab-active underline' }}
+          activeOptions={{ exact: true, includeSearch: false }}
           to="/libraries/$libraryId/files/$fileId"
           params={params}
         >
-          Content
+          Markdown
         </Link>
         <Link
           className="tab"
-          activeProps={{ className: 'tab-active' }}
+          activeProps={{ className: 'tab-active underline' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/tasks"
           params={params}
@@ -43,7 +43,7 @@ function RouteComponent() {
         </Link>
         <Link
           className="tab"
-          activeProps={{ className: 'tab-active' }}
+          activeProps={{ className: 'tab-active underline' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/chunks"
           params={params}
@@ -52,7 +52,7 @@ function RouteComponent() {
         </Link>
         <Link
           className="tab"
-          activeProps={{ className: 'tab-active' }}
+          activeProps={{ className: 'tab-active underline' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/search"
           params={params}
