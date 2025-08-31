@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { FileCaptionCard } from '../../../../../../components/library/files/file-caption-card'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'

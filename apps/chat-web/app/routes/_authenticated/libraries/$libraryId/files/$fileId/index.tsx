@@ -78,7 +78,7 @@ function RouteComponent() {
 
       <div className="bg-base-300 rounded-box p-5">
         {viewMarkdownSource ? (
-          <pre className="whitespace-pre-wrap break-words">
+          <pre className="whitespace-pre-wrap break-words text-sm">
             <code lang="markdown">{markdown || t('files.noContentAvailable')}</code>
           </pre>
         ) : (
