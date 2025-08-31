@@ -33,7 +33,7 @@ export const MarkdownFileSelector = ({ file, onChange }: MarkdownFileSelectorPro
     onChange(fileName)
   }
   return (
-    <ul className="menu menu-horizontal bg-base-200 rounded-box menu-sm z-50 items-center shadow-lg">
+    <ul className="menu menu-horizontal bg-base-200 rounded-box menu-sm z-49 items-center shadow-lg">
       <li>
         <details ref={detailsRef}>
           <summary>Switch Extraction Markdown File</summary>
