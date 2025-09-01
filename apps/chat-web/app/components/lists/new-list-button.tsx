@@ -3,6 +3,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMemo, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { DialogForm } from '../dialog-form'
@@ -37,8 +39,13 @@ export const NewListButton = ({ className, showText = true, variant = 'ghost' }:
     },
   })
 
-  const handleSubmit = async (data: FormData) => {
-    mutate(data)
+  const handleSubmit = async (form: HTMLFormElement) => {
+    const { formData, errors } = validateForm(form, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    mutate(formData)
   }
 
   const schema = useMemo(() => getCreateListSchema(language), [language])

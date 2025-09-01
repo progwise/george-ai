@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
-import { ReactElement, RefObject } from 'react'
+import React, { ReactElement, RefObject } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString } from '@george-ai/web-utils'
+import { dateTimeString, validateForm } from '@george-ai/web-utils'
 
 import { useAuth } from '../../auth/auth'
 import { graphql } from '../../gql'
@@ -12,6 +12,7 @@ import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
+import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
 graphql(`
@@ -91,7 +92,7 @@ export const updateProfile = createServerFn({ method: 'POST' })
 
 interface UserProfileFormProps {
   userProfile: UserProfileForm_UserProfileFragment
-  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
+  onSubmit?: (data: FormData) => void
   isAdmin?: boolean
   saveButton?: ReactElement | null
   formRef?: RefObject<HTMLFormElement | null>
@@ -107,10 +108,20 @@ export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveB
 
   const formSchema = getFormSchema(language)
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const { formData, errors } = validateForm(e.currentTarget, formSchema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    onSubmit?.(formData)
+  }
+
   return (
     <form
       ref={formRef}
-      onSubmit={onSubmit}
+      onSubmit={(event) => handleSubmit(event)}
       className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
       <input type="hidden" name="profileId" value={userProfile.id} />

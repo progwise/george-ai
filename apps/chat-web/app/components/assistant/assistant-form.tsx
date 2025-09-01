@@ -3,6 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import React, { useMemo } from 'react'
 import { z } from 'zod'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { graphql } from '../../gql'
 import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
@@ -11,6 +13,7 @@ import { backendRequest, getBackendPublicUrl } from '../../server-functions/back
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
+import { toastError } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
 import { getAssistantQueryOptions } from './get-assistant'
 
@@ -111,13 +114,15 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
     schema,
     disabled,
     onBlur: () => {
-      const formData = new FormData(formRef.current!)
-      const parseResult = schema.safeParse(Object.fromEntries(formData))
-      if (parseResult.success) {
-        update(formData)
-      } else {
-        console.error('Validation errors:', parseResult.error.errors)
+      if (!formRef.current) {
+        return
       }
+      const { formData, errors } = validateForm(formRef.current, schema)
+      if (errors) {
+        toastError(errors.map((error) => <div key={error}>{error}</div>))
+        return
+      }
+      update(formData)
     },
   }
 

@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { parseCommaList, validateFormData } from '@george-ai/web-utils'
+import { parseCommaList } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { getLanguage, translate } from '../../../i18n'
@@ -12,12 +12,8 @@ export const addCrawler = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
-    const schema = getCrawlerFormSchema('add', uriType, language)
-    const { data: validatedData, errors } = validateFormData(data, schema)
-
-    if (errors) {
-      throw new Error(errors.join(', '))
-    }
+    const entries = Object.fromEntries(data)
+    const validatedData = getCrawlerFormSchema('add', uriType, language).parse(entries)
 
     // For SharePoint crawlers, validate the connection works using GraphQL mutation
     if (validatedData.uriType === 'sharepoint' && validatedData.sharepointAuth) {
