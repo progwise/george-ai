@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
+import { z } from 'zod'
+
+import { validateForm } from '@george-ai/web-utils'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { addCrawler } from './add-crawler'
-import { CrawlerForm } from './crawler-form'
+import { CrawlerForm, getCrawlerFormSchema } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
 interface AddCrawlerButtonProps {
@@ -15,7 +18,7 @@ interface AddCrawlerButtonProps {
 export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   const addCrawlerMutation = useMutation({
     mutationFn: addCrawler,
@@ -30,7 +33,15 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
   })
   const isPending = addCrawlerMutation.isPending
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = (form: HTMLFormElement) => {
+    const data = new FormData(form)
+    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const schema = getCrawlerFormSchema('add', uriType, language)
+    const { formData, errors } = validateForm(form, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
     addCrawlerMutation.mutate({ data: formData })
   }
 

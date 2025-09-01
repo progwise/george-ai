@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import React, { useMemo } from 'react'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { AiFileConverterOptionsQuery, AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
@@ -46,22 +48,15 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const fieldProps = {
     schema,
     onBlur: () => {
-      const formData = new FormData(formRef.current!)
-      const parseResult = schema.safeParse(Object.fromEntries(formData))
-      if (parseResult.success) {
-        saveLibrary(formData)
-      } else {
-        toastError(
-          <>
-            {t('errors.validationFailed')}
-            <ul>
-              {parseResult.error.errors.map((error) => (
-                <li key={error.path.join('.')}>{error.message}</li>
-              ))}
-            </ul>
-          </>,
-        )
+      if (!formRef.current) {
+        return
       }
+      const { formData, errors } = validateForm(formRef.current, schema)
+      if (errors) {
+        toastError(errors.map((error) => <div key={error}>{error}</div>))
+        return
+      }
+      saveLibrary(formData)
     },
   }
 

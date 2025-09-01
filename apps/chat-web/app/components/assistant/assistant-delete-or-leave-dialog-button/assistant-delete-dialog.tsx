@@ -3,13 +3,21 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { graphql } from '../../../gql'
 import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
+import { toastError } from '../../georgeToaster'
 import { getAiAssistantsQueryOptions } from '../get-assistants'
+
+export const getFormSchema = () =>
+  z.object({
+    assistantId: z.string().nonempty(),
+  })
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
@@ -47,6 +55,7 @@ export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps)
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const schema = getFormSchema()
 
   const { mutate, isPending } = useMutation({
     mutationFn: deleteAssistant,
@@ -64,8 +73,13 @@ export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps)
     dialogRef.current?.showModal()
   }
 
-  const onSubmit = (data: FormData) => {
-    mutate({ data })
+  const onSubmit = (form: HTMLFormElement) => {
+    const { formData, errors } = validateForm(form, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    mutate({ data: formData })
   }
 
   return (

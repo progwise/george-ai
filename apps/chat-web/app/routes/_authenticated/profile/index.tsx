@@ -41,7 +41,7 @@ function RouteComponent() {
 
   const { user } = Route.useRouteContext()
 
-  const formSchema = getFormSchema(language)
+  const schema = getFormSchema(language)
 
   const {
     data: userProfile,
@@ -87,47 +87,33 @@ function RouteComponent() {
     },
   })
 
-  const handleSendConfirmationMail = (form: HTMLFormElement) => {
-    const { formData, errors } = validateForm(form, formSchema)
-    if (!errors) {
-      sendConfirmationMailMutation(formData)
-    } else {
-      toastError(errors.map((error) => <div key={error}>{error}</div>))
-    }
+  const handleSaveChanges = async (formData: FormData) => {
+    await updateProfile({
+      data: {
+        formData,
+        isAdmin: user.isAdmin,
+      },
+    })
+    toastSuccess(t('texts.profileSaved'))
+    refetchProfile()
   }
 
-  const handleSaveChanges = async (form: HTMLFormElement) => {
-    const { formData, errors } = validateForm(form, formSchema)
-    if (!errors) {
-      await updateProfile({
-        data: {
-          formData,
-          isAdmin: user.isAdmin,
-        },
-      })
-      toastSuccess(t('texts.profileSaved'))
-      refetchProfile()
-    } else {
-      toastError(errors.map((error) => <div key={error}>{error}</div>))
-    }
-  }
-
-  const handleFormSubmission = (form: HTMLFormElement) => {
+  const handleFormSubmission = (formData: FormData) => {
     if (userProfile.confirmationDate) {
-      handleSaveChanges(form)
+      handleSaveChanges(formData)
     } else {
-      handleSendConfirmationMail(form)
+      sendConfirmationMailMutation(formData)
     }
-  }
-
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    handleFormSubmission(event.currentTarget)
   }
 
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const form = event.currentTarget.closest('form') as HTMLFormElement
-    handleFormSubmission(form)
+    const { formData, errors } = validateForm(form, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    handleFormSubmission(formData)
   }
 
   const isLoading = userProfileIsLoading || sendConfirmationMailIsPending
@@ -140,9 +126,10 @@ function RouteComponent() {
     <article className="flex w-full flex-col items-center gap-4">
       <AvatarUpload user={user} className="size-16" />
 
+      {/* UserProfileForm validates the form data on submit */}
       <UserProfileForm
         userProfile={userProfile}
-        onSubmit={handleFormSubmit}
+        onSubmit={handleFormSubmission}
         saveButton={
           <button
             type="button"

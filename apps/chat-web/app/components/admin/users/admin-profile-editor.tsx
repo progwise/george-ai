@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { UserProfileForm_UserProfileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -9,6 +11,7 @@ import { activateUserProfile } from '../../../server-functions/users'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { UserProfileForm, updateProfile } from '../../user/user-profile-form'
+import { getFormSchema } from '../../user/user-profile-form'
 
 interface AdminProfileEditorProps {
   profile: UserProfileForm_UserProfileFragment
@@ -25,9 +28,10 @@ export function AdminProfileEditor({
   onSuccess,
   onActivationSuccess,
 }: AdminProfileEditorProps) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
   const queryClient = useQueryClient()
+  const schema = getFormSchema(language)
 
   const updateProfileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -66,10 +70,15 @@ export function AdminProfileEditor({
   })
 
   const handleSaveProfile = () => {
-    if (formRef.current) {
-      const formData = new FormData(formRef.current)
-      updateProfileMutation.mutate(formData)
+    if (!formRef.current) {
+      return
     }
+    const { formData, errors } = validateForm(formRef.current, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    updateProfileMutation.mutate(formData)
   }
 
   const handleActivateProfile = () => {
@@ -93,11 +102,10 @@ export function AdminProfileEditor({
           </div>
         </h1>
       )}
+      {/* UserProfileForm validates the form data on submit */}
       <UserProfileForm
         userProfile={profile}
-        onSubmit={(event) => {
-          updateProfileMutation.mutate(new FormData(event.currentTarget))
-        }}
+        onSubmit={updateProfileMutation.mutate}
         formRef={formRef}
         isAdmin={true}
         saveButton={

@@ -4,20 +4,27 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { graphql } from '../../gql'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
+import { toastError } from '../georgeToaster'
+
+export const getFormSchema = (language: Language) =>
+  z.object({
+    name: z.string().min(1, translate('errors.requiredField', language)),
+    description: z.string().optional(),
+  })
 
 const createNewLibrary = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
-    return z
-      .object({
-        name: z.string().min(1),
-        description: z.string().optional(),
-      })
-      .parse(Object.fromEntries(data))
+    const language = await getLanguage()
+    const entries = Object.fromEntries(data)
+    return getFormSchema(language).parse(entries)
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -41,8 +48,9 @@ const createNewLibrary = createServerFn({ method: 'POST' })
 
 export const LibraryNewDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const navigate = useNavigate()
+  const schema = getFormSchema(language)
 
   const { mutate, isPending } = useMutation({
     mutationFn: createNewLibrary,
@@ -59,8 +67,13 @@ export const LibraryNewDialog = () => {
     dialogRef.current?.showModal()
   }
 
-  const onSubmit = (data: FormData) => {
-    mutate({ data })
+  const onSubmit = (form: HTMLFormElement) => {
+    const { formData, errors } = validateForm(form, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
+    mutate({ data: formData })
   }
 
   return (

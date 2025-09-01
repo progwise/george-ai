@@ -1,4 +1,4 @@
-import { RefObject, useRef } from 'react'
+import React, { RefObject, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -7,7 +7,7 @@ export interface DialogFormProps {
   ref: RefObject<HTMLDialogElement | null>
   title: string
   description?: React.ReactNode
-  onSubmit: (data: FormData) => void
+  onSubmit: (form: HTMLFormElement) => void
   children?: React.ReactNode
   disabledSubmit?: boolean
   submitButtonText?: string
@@ -30,10 +30,10 @@ export const DialogForm = ({
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    onSubmit(formData)
+    onSubmit(event.currentTarget)
     event.currentTarget.reset()
   }
 

@@ -1,9 +1,12 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
+import { z } from 'zod'
+
+import { validateForm } from '@george-ai/web-utils'
 
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
-import { CrawlerForm } from '../../../../../../components/library/crawler/crawler-form'
+import { CrawlerForm, getCrawlerFormSchema } from '../../../../../../components/library/crawler/crawler-form'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
 import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
 import { updateCrawler } from '../../../../../../components/library/crawler/update-crawler'
@@ -17,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
 
@@ -39,9 +42,17 @@ function RouteComponent() {
       ])
     },
   })
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const schema = getCrawlerFormSchema('update', uriType, language)
+    const { formData, errors } = validateForm(e.currentTarget, schema)
+    if (errors) {
+      toastError(errors.map((error) => <div key={error}>{error}</div>))
+      return
+    }
     updateCrawlerMutation({ data: formData })
   }
 
