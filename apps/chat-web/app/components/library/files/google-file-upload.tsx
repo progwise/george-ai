@@ -7,9 +7,10 @@ import { GoogleDriveFiles } from '../google-drive-files'
 interface GoogleFileUploadButtonProps {
   libraryId: string
   disabled: boolean
+  tableDataChanged: () => void
 }
 
-export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUploadButtonProps) => {
+export const GoogleFileUploadButton = ({ libraryId, disabled, tableDataChanged }: GoogleFileUploadButtonProps) => {
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
@@ -59,7 +60,12 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
           </button>
           <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
           <div className="flex-grow overflow-auto">
-            <GoogleDriveFiles libraryId={libraryId} disabled={disabled} dialogRef={dialogRef} />
+            <GoogleDriveFiles
+              libraryId={libraryId}
+              disabled={disabled}
+              dialogRef={dialogRef}
+              tableDataChanged={tableDataChanged}
+            />
           </div>
         </div>
         <form method="dialog" className="modal-backdrop" onClick={() => dialogRef.current?.close()}>

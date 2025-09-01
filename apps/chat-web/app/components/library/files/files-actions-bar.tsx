@@ -119,7 +119,11 @@ export const FilesActionsBar = ({
           onUploadComplete={handleUploadComplete}
           disabled={remainingStorage < 1}
         />
-        <GoogleFileUploadButton libraryId={libraryId} disabled={remainingStorage < 1} />
+        <GoogleFileUploadButton
+          libraryId={libraryId}
+          disabled={remainingStorage < 1}
+          tableDataChanged={tableDataChanged}
+        />
 
         <DropFilesDialog
           disabled={false}
