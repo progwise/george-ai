@@ -4,7 +4,10 @@ import type { AIResponse, ChatOptions } from './types.js'
 
 export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   // Create dedicated client instance for this request
-  const client = new Ollama({ host: process.env.OLLAMA_BASE_URL })
+  const client = new Ollama({
+    host: process.env.OLLAMA_BASE_URL,
+    headers: process.env.OLLAMA_API_KEY ? { 'X-API-Key': `${process.env.OLLAMA_API_KEY}` } : undefined,
+  })
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0

@@ -1,4 +1,4 @@
-import { getEmbeddingModels } from '@george-ai/langchain-chat/src/embedding-model'
+import { getEmbeddingModels } from '@george-ai/ai-service-client'
 
 import { builder } from '../builder'
 

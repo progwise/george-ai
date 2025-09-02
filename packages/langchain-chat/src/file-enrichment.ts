@@ -1,5 +1,6 @@
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { ChatOllama } from '@langchain/ollama'
+
+import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
 import { similaritySearch } from './typesense-vectorstore'
 
@@ -60,10 +61,7 @@ export const getEnrichedValue = async ({
       messages.push({ name: item.name, label: `Here is the context value for ${item.name}`, value: item.value })
     })
 
-    const model = new ChatOllama({
-      model: languageModel,
-      baseUrl: process.env.OLLAMA_BASE_URL,
-    })
+    const model = getOllamaChatModel(languageModel)
     const prompt = await getEnrichmentPrompt({ instruction, messages })
     const instructionPromptResult = await model.invoke(prompt, {})
     return instructionPromptResult.content.toString()

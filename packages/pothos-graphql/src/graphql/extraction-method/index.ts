@@ -1,4 +1,4 @@
-import { getOCRModels } from '@george-ai/langchain-chat'
+import { getOCRModels } from '@george-ai/ai-service-client'
 
 import { getExtractionMethodRegistry } from '../../domain/content-extraction/extraction-method-registry'
 import { builder } from '../builder'

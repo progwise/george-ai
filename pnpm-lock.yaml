@@ -272,6 +272,9 @@ importers:
       '@george-ai/package-configs':
         specifier: workspace:*
         version: link:../package-configs
+      '@langchain/ollama':
+        specifier: ^0.2.0
+        version: 0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.2)(zod@3.24.2)))
       '@types/node':
         specifier: ^22.10.7
         version: 22.13.8
@@ -354,6 +357,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.800.0
         version: 3.800.0
+      '@george-ai/ai-service-client':
+        specifier: workspace:*
+        version: link:../ai-service-client
       '@george-ai/file-converter':
         specifier: workspace:*
         version: link:../file-converter
@@ -411,6 +417,9 @@ importers:
       '@george-ai/ai-act':
         specifier: workspace:*
         version: link:../ai-act
+      '@george-ai/ai-service-client':
+        specifier: workspace:*
+        version: link:../ai-service-client
       '@george-ai/file-converter':
         specifier: workspace:*
         version: link:../file-converter

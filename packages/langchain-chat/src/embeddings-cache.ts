@@ -1,4 +1,4 @@
-import { OllamaEmbeddings } from '@langchain/ollama'
+import { getOllamaEmbedding } from '@george-ai/ai-service-client'
 
 interface EmbeddingsCacheEntry {
   embeddingModelName: string
@@ -43,12 +43,7 @@ export const getEmbeddingWithCache = async (embeddingModelName: string, question
 
   // Not in cache, compute the embedding
   console.log(`Embeddings cache miss for: ${cacheKey.substring(0, 50)}...`)
-  const embeddings = new OllamaEmbeddings({
-    model: embeddingModelName,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-    keepAlive: '5m',
-  })
-  const vector = await embeddings.embedQuery(question)
+  const vector = await getOllamaEmbedding(embeddingModelName, question)
 
   // Evict LRU if we're at max capacity
   if (cache.size >= MAX_CACHE_SIZE) {

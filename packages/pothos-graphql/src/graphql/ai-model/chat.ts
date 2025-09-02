@@ -1,4 +1,4 @@
-import { getChatModels } from '@george-ai/langchain-chat/src/assistant-model'
+import { getChatModels } from '@george-ai/ai-service-client'
 
 import { builder } from '../builder'
 

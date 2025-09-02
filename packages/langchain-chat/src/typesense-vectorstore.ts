@@ -1,24 +1,15 @@
 import { TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
+import { getOllamaEmbeddingsModel } from '@george-ai/ai-service-client'
+
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
-
-const getEmbeddingsModelInstance = async (model: string): Promise<OllamaEmbeddings> => {
-  const embeddings = new OllamaEmbeddings({
-    model,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-    keepAlive: '5m',
-  })
-
-  return embeddings
-}
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -158,7 +149,7 @@ export const embedMarkdownFile = async (args: {
     },
   }))
 
-  const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
+  const embeddings = await getOllamaEmbeddingsModel(embeddingModelName)
   const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
   const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
 

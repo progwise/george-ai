@@ -15,6 +15,7 @@
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
+    "@george-ai/ai-service-client": "workspace:*",
     "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.42",
     "@langchain/ollama": "^0.2.0",

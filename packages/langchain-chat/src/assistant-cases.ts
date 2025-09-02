@@ -1,6 +1,7 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { ChatOllama } from '@langchain/ollama'
+
+import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
 import { Assistant } from './assistant'
 
@@ -59,10 +60,11 @@ export const getConditionIsTrue = async (input: {
     throw new Error('Assistant language model is not set')
   }
 
-  const model = new ChatOllama({
-    model: input.assistant.languageModel,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-  })
+  const headers = new Headers()
+  if (process.env.OLLAMA_API_KEY) {
+    headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
+  }
+  const model = getOllamaChatModel(input.assistant.languageModel)
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})
 

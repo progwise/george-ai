@@ -1,6 +1,7 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { ChatOllama } from '@langchain/ollama'
+
+import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
 import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
@@ -29,10 +30,7 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = new ChatOllama({
-    model: input.assistant.languageModel,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-  })
+  const model = getOllamaChatModel(input.assistant.languageModel)
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({

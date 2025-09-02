@@ -1,2 +1,6 @@
-export { chat, ollamaChat } from './ollama-chat.js'
-export type { ChatOptions, AIResponse, Message } from './types.js'
+export { chat, ollamaChat } from './ollama-chat'
+export { getOllamaChatModel } from './ollama-chat-model'
+export { getOllamaEmbedding } from './ollama-embed'
+export { getOllamaEmbeddingsModel } from './ollama-embedding-model'
+export { getChatModels, getOCRModels, getEmbeddingModels } from './get-ollama-models'
+export type { ChatOptions, AIResponse, Message } from './types'
