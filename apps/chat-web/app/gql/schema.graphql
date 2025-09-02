@@ -227,7 +227,7 @@ type AiFileContentExtractionTask {
   extractionTimeout: Boolean!
   file: AiLibraryFile!
   fileId: String!
-  id: ID
+  id: ID!
   library: AiLibrary!
   libraryId: String!
   markdownFileName: String
@@ -644,7 +644,7 @@ type ContentExtractionTaskQueryResult {
   fileId: String
   libraryId: String!
   skip: Int!
-  status: String
+  status: ProcessingStatus
   take: Int!
   tasks: [AiFileContentExtractionTask!]!
 }
@@ -930,7 +930,7 @@ type Query {
     fileId: String
     libraryId: String!
     skip: Int = 0
-    status: String
+    status: ProcessingStatus
     take: Int = 20
   ): ContentExtractionTaskQueryResult!
   aiConversation(conversationId: String!): AiConversation

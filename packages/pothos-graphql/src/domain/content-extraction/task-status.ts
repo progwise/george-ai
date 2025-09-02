@@ -22,7 +22,7 @@ export type ProcessingStatus = (typeof PROCESSING_STATUS)[number]
 export const EXTRACTION_STATUS = ['pending', 'running', 'completed', 'failed', 'skipped', 'none'] as const
 export type ExtractionStatus = (typeof EXTRACTION_STATUS)[number]
 
-export const EMBEDDING_STATUS = ['pending', 'running', 'completed', 'failed', 'none'] as const
+export const EMBEDDING_STATUS = ['pending', 'running', 'completed', 'failed', 'skipped', 'none'] as const
 export type EmbeddingStatus = (typeof EMBEDDING_STATUS)[number]
 
 export const getExtractionStatus = (task: ContentExtractionTask | null): ExtractionStatus => {
@@ -31,6 +31,7 @@ export const getExtractionStatus = (task: ContentExtractionTask | null): Extract
   if (task.extractionFinishedAt) return 'completed'
   if (task.extractionStartedAt) return 'running'
   if (task.embeddingStartedAt) return 'skipped'
+  if (task.processingFailedAt || task.processingFinishedAt) return 'skipped'
   return 'pending'
 }
 
@@ -39,6 +40,7 @@ export const getEmbeddingStatus = (task: ContentExtractionTask | null): Embeddin
   if (task.embeddingFailedAt) return 'failed'
   if (task.embeddingFinishedAt) return 'completed'
   if (task.embeddingStartedAt) return 'running'
+  if (task.processingFailedAt || task.processingFinishedAt) return 'skipped'
   return 'pending'
 }
 

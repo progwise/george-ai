@@ -28,6 +28,7 @@ interface FileCaptionCardProps {
 export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
   const { t } = useTranslation()
   const { createEmbeddingTasksMutation, createExtractionTasksMutation, createTasksMutationPending } = useFileActions({
+    libraryId: file.libraryId,
     fileId: file.id,
   })
 
@@ -69,7 +70,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
             <li>
               <Link
                 className="btn btn-xs rounded-full"
-                activeProps={{ className: 'btn-active' }}
+                activeProps={{ className: 'btn-active btn-primary' }}
                 activeOptions={{ exact: true, includeSearch: false }}
                 to="/libraries/$libraryId/files/$fileId"
                 params={{ libraryId: file.libraryId, fileId: file.id }}
@@ -80,7 +81,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
             <li>
               <Link
                 className="btn btn-xs rounded-full"
-                activeProps={{ className: 'btn-active' }}
+                activeProps={{ className: 'btn-active btn-primary' }}
                 activeOptions={{ exact: false }}
                 to="/libraries/$libraryId/files/$fileId/tasks"
                 params={{ libraryId: file.libraryId, fileId: file.id }}
@@ -91,7 +92,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
             <li>
               <Link
                 className="btn btn-xs rounded-full"
-                activeProps={{ className: 'btn-active' }}
+                activeProps={{ className: 'btn-active btn-primary' }}
                 activeOptions={{ exact: false }}
                 to="/libraries/$libraryId/files/$fileId/chunks"
                 params={{ libraryId: file.libraryId, fileId: file.id }}
@@ -102,7 +103,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
             <li>
               <Link
                 className="btn btn-xs rounded-full"
-                activeProps={{ className: 'btn-active' }}
+                activeProps={{ className: 'btn-active  btn-primary' }}
                 activeOptions={{ exact: false }}
                 to="/libraries/$libraryId/files/$fileId/search"
                 params={{ libraryId: file.libraryId, fileId: file.id }}

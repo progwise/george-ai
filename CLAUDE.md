@@ -485,3 +485,5 @@ When adding new translation keys (especially for form validation), ensure both f
 - **Always run linting and typecheck** commands before committing
 - **NEVER commit changes** unless the user explicitly asks you to
 - **Use the established patterns** described in this document for consistency
+
+- always define a graphql Fragment for a component and rely on codegen instead of defining your own interfaces for entities. We did it for example in library/files/file-caption-card.tsx .

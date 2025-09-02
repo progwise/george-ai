@@ -9,7 +9,7 @@ const ContentExtractionTaskQueryResult = builder
   .objectRef<{
     libraryId: string
     fileId?: string
-    status?: string
+    status?: ProcessingStatus
     take: number
     skip: number
   }>('ContentExtractionTaskQueryResult')
@@ -17,7 +17,11 @@ const ContentExtractionTaskQueryResult = builder
     fields: (t) => ({
       libraryId: t.exposeString('libraryId', { nullable: false }),
       fileId: t.exposeString('fileId', { nullable: true }),
-      status: t.exposeString('status', { nullable: true }),
+      status: t.field({
+        type: 'ProcessingStatus',
+        nullable: true,
+        resolve: ({ status }) => status,
+      }),
       take: t.exposeInt('take', { nullable: false }),
       skip: t.exposeInt('skip', { nullable: false }),
       count: t.field({
@@ -28,7 +32,7 @@ const ContentExtractionTaskQueryResult = builder
             where: {
               libraryId,
               ...(fileId ? { fileId } : {}),
-              ...(status ? getTaskStatusWhereClause(status as ProcessingStatus) : {}),
+              ...(status ? getTaskStatusWhereClause(status) : {}),
             },
           })
         },
@@ -42,7 +46,7 @@ const ContentExtractionTaskQueryResult = builder
             where: {
               libraryId,
               ...(fileId ? { fileId } : {}),
-              ...(status ? getTaskStatusWhereClause(status as ProcessingStatus) : {}),
+              ...(status ? getTaskStatusWhereClause(status) : {}),
             },
             orderBy: { createdAt: 'desc' },
             take: take ?? 20,
@@ -60,7 +64,7 @@ builder.queryField('aiContentExtractionTasks', (t) =>
     args: {
       libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: false }),
-      status: t.arg.string({ required: false }),
+      status: t.arg({ type: 'ProcessingStatus', required: false }),
       take: t.arg.int({ required: false, defaultValue: 20 }),
       skip: t.arg.int({ required: false, defaultValue: 0 }),
     },

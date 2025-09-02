@@ -13,7 +13,7 @@ console.log('Setting up: AiFileContentExtractionTask')
 // AiFileContentExtractionTask GraphQL Object
 builder.prismaObject('AiFileContentExtractionTask', {
   fields: (t) => ({
-    id: t.exposeID('id'),
+    id: t.exposeID('id', { nullable: false }),
     fileId: t.exposeString('fileId', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
     extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
