@@ -18,7 +18,10 @@ const getMarkdown = createServerFn({ method: 'GET' })
       graphql(`
         query getMarkdown($fileId: String!, $markdownFileName: String) {
           aiLibraryFile(fileId: $fileId) {
-            markdown(markdownFileName: $markdownFileName)
+            markdown(markdownFileName: $markdownFileName) {
+              fileName
+              content
+            }
           }
         }
       `),

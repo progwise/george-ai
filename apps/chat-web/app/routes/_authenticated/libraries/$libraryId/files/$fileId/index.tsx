@@ -43,7 +43,7 @@ function RouteComponent() {
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
   const {
     data: {
-      aiLibraryFile: { markdown },
+      aiLibraryFile: { markdown: markdown },
     },
   } = useSuspenseQuery(getMarkdownQueryOptions({ fileId: fileId, markdownFileName }))
 
@@ -51,13 +51,13 @@ function RouteComponent() {
     <div className="bg-base-100 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          {markdownFileName === aiLibraryFile.latesExtractionMarkdownFileName ? (
+          {markdown.fileName === aiLibraryFile.latesExtractionMarkdownFileName ? (
             <div className="badge badge-info badge-sm">
-              Latest Markdown File <strong>{markdownFileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
+              Latest Markdown File <strong>{markdown.fileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
             </div>
           ) : (
             <div className="badge badge-ghost badge-sm">
-              Markdown File <strong>{markdownFileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
+              Showing Markdown File <strong>{markdown.fileName}</strong>
             </div>
           )}
         </div>
@@ -79,10 +79,13 @@ function RouteComponent() {
       <div className="bg-base-300 rounded-box p-5">
         {viewMarkdownSource ? (
           <pre className="whitespace-pre-wrap break-words text-sm">
-            <code lang="markdown">{markdown || t('files.noContentAvailable')}</code>
+            <code lang="markdown">{markdown.content || t('files.noContentAvailable')}</code>
           </pre>
         ) : (
-          <FormattedMarkdown markdown={markdown || t('files.noContentAvailable')} className="text-sm font-semibold" />
+          <FormattedMarkdown
+            markdown={markdown.content || t('files.noContentAvailable')}
+            className="text-sm font-semibold"
+          />
         )}
       </div>
     </div>

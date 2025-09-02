@@ -409,7 +409,7 @@ export type AiLibraryFile = {
   lastUpdate?: Maybe<AiLibraryUpdate>
   latesExtractionMarkdownFileName?: Maybe<Scalars['String']['output']>
   libraryId: Scalars['String']['output']
-  markdown: Scalars['String']['output']
+  markdown: MarkdownResult
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originModificationDate?: Maybe<Scalars['DateTime']['output']>
@@ -823,6 +823,12 @@ export type ManagedUsersResponse = {
   take: Scalars['Int']['output']
   userStatistics: UserStatistic
   users: Array<ManagedUser>
+}
+
+export type MarkdownResult = {
+  __typename?: 'MarkdownResult'
+  content: Scalars['String']['output']
+  fileName: Scalars['String']['output']
 }
 
 export type MethodRegistry = {
@@ -3011,7 +3017,10 @@ export type GetMarkdownQueryVariables = Exact<{
 
 export type GetMarkdownQuery = {
   __typename?: 'Query'
-  aiLibraryFile: { __typename?: 'AiLibraryFile'; markdown: string }
+  aiLibraryFile: {
+    __typename?: 'AiLibraryFile'
+    markdown: { __typename?: 'MarkdownResult'; fileName: string; content: string }
+  }
 }
 
 export type AiLibraryFile_MarkdownFileSelectorFragment = {
@@ -11360,6 +11369,13 @@ export const GetMarkdownDocument = {
                       value: { kind: 'Variable', name: { kind: 'Name', value: 'markdownFileName' } },
                     },
                   ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                    ],
+                  },
                 },
               ],
             },

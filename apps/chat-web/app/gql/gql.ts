@@ -90,7 +90,7 @@ type Documents = {
   '\n        query getFileChunks($fileId: String!, $skip: Int!, $take: Int!) {\n          aiFileChunks(fileId: $fileId, skip: $skip, take: $take) {\n            fileId\n            fileName\n            take\n            skip\n            count\n            chunks {\n              id\n              text\n              section\n              headingPath\n              chunkIndex\n              subChunkIndex\n            }\n          }\n        }\n      ': typeof types.GetFileChunksDocument
   '\n        query getFileInfo($fileId: String!) {\n          aiLibraryFile(fileId: $fileId) {\n            ...AiLibraryFileInfo_CaptionCard\n            ...AiLibraryFile_MarkdownFileSelector\n            id\n            name\n            originUri\n            docPath\n            mimeType\n            size\n            createdAt\n            updatedAt\n            archivedAt\n            originModificationDate\n            processingStatus\n            extractionStatus\n            embeddingStatus\n            latesExtractionMarkdownFileName\n            lastUpdate {\n              id\n              createdAt\n              message\n              updateType\n            }\n          }\n        }\n      ': typeof types.GetFileInfoDocument
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            showArchived\n            count\n            archivedCount\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
-  '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName)\n          }\n        }\n      ': typeof types.GetMarkdownDocument
+  '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName) {\n              fileName\n              content\n            }\n          }\n        }\n      ': typeof types.GetMarkdownDocument
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    latesExtractionMarkdownFileName\n    availableExtractionMarkdowns {\n      fileNames\n      totalCount\n      take\n      skip\n    }\n  }\n': typeof types.AiLibraryFile_MarkdownFileSelectorFragmentDoc
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': typeof types.AiLibrariesDocument
@@ -321,7 +321,7 @@ const documents: Documents = {
     types.GetFileInfoDocument,
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            showArchived\n            count\n            archivedCount\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ':
     types.EmbeddingsTableDocument,
-  '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName)\n          }\n        }\n      ':
+  '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName) {\n              fileName\n              content\n            }\n          }\n        }\n      ':
     types.GetMarkdownDocument,
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    latesExtractionMarkdownFileName\n    availableExtractionMarkdowns {\n      fileNames\n      totalCount\n      take\n      skip\n    }\n  }\n':
     types.AiLibraryFile_MarkdownFileSelectorFragmentDoc,
@@ -947,8 +947,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName)\n          }\n        }\n      ',
-): (typeof documents)['\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName)\n          }\n        }\n      ']
+  source: '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName) {\n              fileName\n              content\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName) {\n              fileName\n              content\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

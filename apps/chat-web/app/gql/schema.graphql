@@ -371,7 +371,7 @@ type AiLibraryFile {
   lastUpdate: AiLibraryUpdate
   latesExtractionMarkdownFileName: String
   libraryId: String!
-  markdown(markdownFileName: String): String!
+  markdown(markdownFileName: String): MarkdownResult!
   mimeType: String!
   name: String!
   originModificationDate: DateTime
@@ -767,6 +767,11 @@ type ManagedUsersResponse {
   take: Int!
   userStatistics: UserStatistic!
   users: [ManagedUser!]!
+}
+
+type MarkdownResult {
+  content: String!
+  fileName: String!
 }
 
 type MethodRegistry {

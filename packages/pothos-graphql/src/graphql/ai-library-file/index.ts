@@ -20,6 +20,13 @@ import {
 
 console.log('Setting up: AiLibraryFile')
 
+const MarkdownResult = builder.objectRef<{ fileName: string; content: string }>('MarkdownResult').implement({
+  fields: (t) => ({
+    fileName: t.exposeString('fileName', { nullable: false }),
+    content: t.exposeString('content', { nullable: false }),
+  }),
+})
+
 //TODO: Move to ai-list and remove it here from the file
 const FieldValueResult = builder
   .objectRef<{
@@ -343,7 +350,7 @@ builder.prismaObject('AiLibraryFile', {
       },
     }),
     markdown: t.field({
-      type: 'String',
+      type: MarkdownResult,
       nullable: false,
       args: {
         markdownFileName: t.arg.string({ required: false }),
@@ -357,7 +364,8 @@ builder.prismaObject('AiLibraryFile', {
         }
         const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
         const filePath = path.resolve(fileDir, markdownFileName)
-        return await fs.promises.readFile(filePath, 'utf-8')
+        const content = await fs.promises.readFile(filePath, 'utf-8')
+        return { fileName: markdownFileName, content }
       },
     }),
 
