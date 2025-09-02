@@ -12,11 +12,7 @@ import './file-chunks'
 import './queries'
 import './mutations'
 
-import {
-  getLatestExtractionMarkdownFileName,
-  getLegacyExtractionFileCount,
-  getLegacyExtractionFileNames,
-} from '../../domain/file/markdown'
+import { getLegacyExtractionFileCount, getLegacyExtractionFileNames } from '../../domain/file/markdown'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -65,24 +61,32 @@ const AvailableMarkdownsQueryResult = builder
     fields: (t) => ({
       fileNames: t.field({
         type: ['String'],
-        nullable: { list: false, items: true },
+        nullable: { list: false, items: false },
         resolve: async (parent) => {
-          const markdownFileNamesFromTasks = await prisma.aiFileContentExtractionTask.findMany({
-            select: { markdownFileName: true },
-            where: { fileId: parent.fileId, extractionFinishedAt: { not: null } },
+          const markdownFileNamesFromTasks = await prisma.aiContentProcessingTask.findMany({
+            select: { extractionSubTasks: true },
+            where: {
+              fileId: parent.fileId,
+              extractionFinishedAt: { not: null },
+              extractionSubTasks: { some: { markdownFileName: { not: null } } },
+            },
             orderBy: { extractionFinishedAt: 'desc' },
             take: parent.take,
             skip: parent.skip,
           })
           if (markdownFileNamesFromTasks.length >= parent.take) {
-            return markdownFileNamesFromTasks.map((task) => task.markdownFileName!)
+            return markdownFileNamesFromTasks.flatMap((task) =>
+              task.extractionSubTasks.map((st) => st.markdownFileName).filter((name): name is string => !!name),
+            ) // Non-null assertion as we filtered above
           }
           const legacyFileNames = await getLegacyExtractionFileNames({
             fileId: parent.fileId,
             libraryId: parent.libraryId,
           })
           return [
-            ...markdownFileNamesFromTasks.map((task) => task.markdownFileName),
+            ...markdownFileNamesFromTasks
+              .flatMap((task) => task.extractionSubTasks.map((st) => st.markdownFileName))
+              .filter((name): name is string => !!name), // Non-null assertion as we filtered above
             ...legacyFileNames.slice(0, parent.take - markdownFileNamesFromTasks.length),
           ]
         },
@@ -170,7 +174,7 @@ builder.prismaObject('AiLibraryFile', {
       type: 'ProcessingStatus',
       nullable: false,
       resolve: async (file) => {
-        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
           where: { fileId: file.id },
           orderBy: { createdAt: 'desc' },
         })
@@ -196,7 +200,7 @@ builder.prismaObject('AiLibraryFile', {
       type: 'ExtractionStatus',
       nullable: false,
       resolve: async (file) => {
-        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
           where: { fileId: file.id },
           orderBy: { extractionStartedAt: 'desc' },
         })
@@ -211,10 +215,10 @@ builder.prismaObject('AiLibraryFile', {
     }),
 
     lastExtraction: t.prismaField({
-      type: 'AiFileContentExtractionTask',
+      type: 'AiContentProcessingTask',
       nullable: true,
       resolve: async (query, file) => {
-        return await prisma.aiFileContentExtractionTask.findFirst({
+        return await prisma.aiContentProcessingTask.findFirst({
           ...query,
           where: { fileId: file.id, extractionStartedAt: { not: null } },
           orderBy: { extractionStartedAt: 'desc' },
@@ -223,10 +227,10 @@ builder.prismaObject('AiLibraryFile', {
     }),
 
     lastSuccessfulExtraction: t.prismaField({
-      type: 'AiFileContentExtractionTask',
+      type: 'AiContentProcessingTask',
       nullable: true,
       resolve: async (query, file) => {
-        return await prisma.aiFileContentExtractionTask.findFirst({
+        return await prisma.aiContentProcessingTask.findFirst({
           ...query,
           where: { fileId: file.id, extractionFinishedAt: { not: null } },
           orderBy: { extractionFinishedAt: 'desc' },
@@ -238,7 +242,7 @@ builder.prismaObject('AiLibraryFile', {
       type: 'EmbeddingStatus',
       nullable: false,
       resolve: async (file) => {
-        const lastTask = await prisma.aiFileContentExtractionTask.findFirst({
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
           where: { fileId: file.id },
           orderBy: { embeddingStartedAt: 'desc' },
         })
@@ -253,10 +257,10 @@ builder.prismaObject('AiLibraryFile', {
     }),
 
     lastEmbedding: t.prismaField({
-      type: 'AiFileContentExtractionTask',
+      type: 'AiContentProcessingTask',
       nullable: true,
       resolve: async (query, file) => {
-        return await prisma.aiFileContentExtractionTask.findFirst({
+        return await prisma.aiContentProcessingTask.findFirst({
           ...query,
           where: { fileId: file.id, embeddingStartedAt: { not: null } },
           orderBy: { embeddingStartedAt: 'desc' },
@@ -265,10 +269,10 @@ builder.prismaObject('AiLibraryFile', {
     }),
 
     lastSuccessfulEmbedding: t.prismaField({
-      type: 'AiFileContentExtractionTask',
+      type: 'AiContentProcessingTask',
       nullable: true,
       resolve: async (query, file) => {
-        return await prisma.aiFileContentExtractionTask.findFirst({
+        return await prisma.aiContentProcessingTask.findFirst({
           ...query,
           where: { fileId: file.id, embeddingFinishedAt: { not: null } },
           orderBy: { embeddingFinishedAt: 'desc' },
@@ -281,7 +285,7 @@ builder.prismaObject('AiLibraryFile', {
       nullable: false,
       resolve: async (file) => {
         // A legacy file is one that does not have any content extraction tasks
-        const count = await prisma.aiFileContentExtractionTask.count({
+        const count = await prisma.aiContentProcessingTask.count({
           where: { fileId: file.id, extractionFinishedAt: { not: null } },
         })
 
@@ -307,7 +311,7 @@ builder.prismaObject('AiLibraryFile', {
         skip: t.arg.int({ required: false, defaultValue: 0 }),
       },
       resolve: async (file, { take, skip }) => {
-        const totalCountTasks = await prisma.aiFileContentExtractionTask.count({
+        const totalCountTasks = await prisma.aiContentProcessingTask.count({
           where: { fileId: file.id, extractionFinishedAt: { not: null } },
         })
         const totalCountLegacies = await getLegacyExtractionFileCount({ fileId: file.id, libraryId: file.libraryId })
@@ -320,21 +324,24 @@ builder.prismaObject('AiLibraryFile', {
         }
       },
     }),
-    latesExtractionMarkdownFileName: t.field({
-      type: 'String',
+    latesExtractionMarkdownFileNames: t.field({
+      type: ['String'],
       nullable: true,
       resolve: async (file) => {
         // Get the latest successful extraction task
-        const extractionTask = await prisma.aiFileContentExtractionTask.findFirst({
+        const extractionTask = await prisma.aiContentProcessingTask.findFirst({
+          include: { extractionSubTasks: true },
           where: { fileId: file.id, extractionFinishedAt: { not: null } },
           orderBy: { extractionFinishedAt: 'desc' },
         })
 
         if (extractionTask) {
-          if (!extractionTask.markdownFileName) {
+          if (!extractionTask.extractionSubTasks.some((subTask) => subTask.markdownFileName && subTask.finishedAt)) {
             throw new Error('The uploaded file is missing but extraction task was found.')
           }
-          return extractionTask.markdownFileName
+          return extractionTask.extractionSubTasks
+            .map((subTask) => subTask.markdownFileName)
+            .filter((name): name is string => !!name) // Non-null assertion as we filtered above
         }
 
         const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
@@ -353,15 +360,9 @@ builder.prismaObject('AiLibraryFile', {
       type: MarkdownResult,
       nullable: false,
       args: {
-        markdownFileName: t.arg.string({ required: false }),
+        markdownFileName: t.arg.string({ required: true }),
       },
       resolve: async (file, { markdownFileName }) => {
-        if (!markdownFileName) {
-          markdownFileName = await getLatestExtractionMarkdownFileName({ fileId: file.id, libraryId: file.libraryId })
-          if (!markdownFileName) {
-            throw new Error('The uploaded file is missing.')
-          }
-        }
         const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
         const filePath = path.resolve(fileDir, markdownFileName)
         const content = await fs.promises.readFile(filePath, 'utf-8')

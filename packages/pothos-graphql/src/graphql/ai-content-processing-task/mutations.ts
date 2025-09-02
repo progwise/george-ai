@@ -1,5 +1,5 @@
 import {
-  createDefaultExtractionTasksForFile,
+  createContentProcessingTask,
   createEmbeddingOnlyTask,
 } from '../../domain/content-extraction/content-extraction-task'
 import { canAccessFileOrThrow } from '../../domain/file'
@@ -8,19 +8,23 @@ import { builder } from '../builder'
 console.log('Setting up: AiFileContentExtractionTask Mutations')
 
 // Create content extraction tasks for a file (replaces old synchronous processFile)
-builder.mutationField('createContentExtractionTasks', (t) =>
+builder.mutationField('createContentProcessingTask', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
-    type: ['AiFileContentExtractionTask'],
+    type: 'AiContentProcessingTask',
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
     resolve: async (query, _parent, { fileId }, context) => {
       // Check permissions
-      await canAccessFileOrThrow(fileId, context.session.user.id)
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
 
       // Create default extraction tasks for this file
-      const tasks = await createDefaultExtractionTasksForFile(fileId, query)
+      const tasks = await createContentProcessingTask({
+        fileId,
+        query,
+        libraryId: file.libraryId,
+      })
 
       return tasks
     },
@@ -28,9 +32,9 @@ builder.mutationField('createContentExtractionTasks', (t) =>
 )
 
 // Create embedding-only task using existing markdown (replaces old synchronous embedFile)
-builder.mutationField('createEmbeddingOnlyTask', (t) =>
+builder.mutationField('createEmbeddingOnlyProcessingTask', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiFileContentExtractionTask',
+    type: 'AiContentProcessingTask',
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),

@@ -5,7 +5,7 @@ import './graphql/ai-model'
 import './graphql/ai-act-assessment'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'
-import './graphql/ai-content-extraction-task'
+import './graphql/ai-content-processing-task'
 import './graphql/ai-conversation'
 import './graphql/ai-conversation-invitation'
 import './graphql/ai-conversation-message'
@@ -37,7 +37,7 @@ export { canAccessLibraryOrThrow } from './domain/library'
 export { canAccessListOrThrow } from './domain/list'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
-export { startContentExtractionWorker } from './worker-queue/content-extraction-worker'
+export { startContentProcessingWorker } from './worker-queue/content-processing-worker'
 export {
   subscribeConversationMessagesUpdate,
   unsubscribeConversationMessagesUpdates,

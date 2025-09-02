@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 
+import { validateFileConverterOptionsString } from '@george-ai/file-converter'
 import { getLibraryDir } from '@george-ai/file-management'
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
@@ -33,10 +34,16 @@ builder.mutationField('updateLibrary', (t) =>
       })
       await canAccessLibraryOrThrow(library.id, context.session.user.id)
 
+      // Validate fileConverterOptions if provided
+      const validatedData = {
+        ...data,
+        fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+      }
+
       return prisma.aiLibrary.update({
         ...query,
         where: { id },
-        data,
+        data: validatedData,
       })
     },
   }),
@@ -51,10 +58,16 @@ builder.mutationField('createLibrary', (t) =>
     resolve: (query, _source, { data }, context) => {
       const userId = context.session.user.id
 
+      // Validate fileConverterOptions if provided
+      const validatedData = {
+        ...data,
+        fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+      }
+
       return prisma.aiLibrary.create({
         ...query,
         data: {
-          ...data,
+          ...validatedData,
           ownerId: userId,
           participants: {
             create: [{ userId }],

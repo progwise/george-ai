@@ -1,94 +1,77 @@
+import { parseFileConverterOptions, serializeFileConverterOptions } from '@george-ai/file-converter'
 import { Prisma } from '@george-ai/prismaClient'
 
 import { prisma } from '../../prisma'
-import { getAvailableMethodsForMimeType } from './extraction-method-registry'
-import { ExtractionMethodId, serializeExtractionOptions } from './extraction-options-validation'
+import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
+import { ExtractionMethodId } from './extraction-options-validation'
 
 interface TaskQuery {
-  include?: Prisma.AiFileContentExtractionTaskInclude
-  select?: Prisma.AiFileContentExtractionTaskSelect
+  include?: Prisma.AiContentProcessingTaskInclude
+  select?: Prisma.AiContentProcessingTaskSelect
 }
-export interface CreateExtractionTaskOptions {
+export interface CreateProcessingTaskOptions {
   fileId: string
   libraryId: string
-  extractionMethod: ExtractionMethodId
-  extractionOptions?: Record<string, unknown>
-  timeoutMs?: number
   query?: TaskQuery
 }
 
 /**
  * Create a single content extraction task
  */
-export const createContentExtractionTask = async (options: CreateExtractionTaskOptions) => {
-  const { fileId, libraryId, extractionMethod, extractionOptions, timeoutMs, query } = options
+export const createContentProcessingTask = async (options: CreateProcessingTaskOptions) => {
+  const { fileId, libraryId, query } = options
 
+  const library = await prisma.aiLibrary.findUniqueOrThrow({
+    where: { id: libraryId },
+    select: {
+      id: true,
+      fileConverterOptions: true,
+      embeddingModelName: true,
+      embeddingTimeoutMs: true,
+    },
+  })
+
+  const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
+  const extractionOptions = serializeFileConverterOptions(converterOptions)
+
+  const extractionMethods: ExtractionMethodId[] = []
+  if (converterOptions.enableTextExtraction) {
+    extractionMethods.push('text-extraction')
+  }
+  if (converterOptions.enableImageProcessing) {
+    extractionMethods.push('pdf-image-llm')
+  }
+  if (extractionMethods.length === 0) {
+    throw new Error(`No extraction methods enabled in library ${libraryId} converter options`)
+  }
+  if (!library.embeddingModelName) {
+    throw new Error(`Library ${libraryId} has no configured embedding model`)
+  }
+
+  const timeoutMs = library.embeddingTimeoutMs
   // Serialize options if provided
-  const optionsJson = extractionOptions ? serializeExtractionOptions(extractionMethod, extractionOptions) : null
-
-  const task = await prisma.aiFileContentExtractionTask.create({
+  const task = await prisma.aiContentProcessingTask.create({
     ...query,
     data: {
       fileId,
       libraryId,
-      extractionMethod,
-      extractionOptions: optionsJson,
-      timeoutMs,
+      extractionOptions,
+      embeddingModelName: library.embeddingModelName,
+      extractionSubTasks: {
+        create: extractionMethods.map((method) => ({ extractionMethod: method })),
+      },
+      timeoutMs: timeoutMs || 5 * 60 * 1000, // Default to 5 minutes
     },
   })
 
-  console.log(`Created content extraction task ${task.id} for file ${fileId} with method ${extractionMethod}`)
+  console.log(
+    `Created content extraction task ${task.id} for file ${fileId} with methods ${extractionMethods.join(', ')}`,
+  )
   return task
 }
 
 /**
- * Create extraction tasks for a file using library default methods
- */
-export const createDefaultExtractionTasksForFile = async (fileId: string, query?: TaskQuery) => {
-  const file = await prisma.aiLibraryFile.findUniqueOrThrow({
-    where: { id: fileId },
-    include: {
-      library: {
-        select: {
-          id: true,
-          name: true,
-          embeddingModelName: true,
-          embeddingTimeoutMs: true,
-          fileConverterOptions: true,
-        },
-      },
-    },
-  })
-
-  // Get available extraction methods for this file type
-  const availableMethods = getAvailableMethodsForMimeType(file.mimeType)
-
-  if (availableMethods.length === 0) {
-    throw new Error(`No extraction methods available for mime type: ${file.mimeType}`)
-  }
-
-  // TODO: Use configured library methods
-  console.log(
-    `Configured converter options for libary ${file.library.name}: ${file.library.fileConverterOptions || 'none'}`,
-  )
-  // For now, create task for the first available method
-  // In the future, library settings could specify which methods to use
-  const primaryMethod = availableMethods[0]
-
-  const task = await createContentExtractionTask({
-    fileId,
-    libraryId: file.libraryId,
-    extractionMethod: primaryMethod.id,
-    extractionOptions: primaryMethod.defaultOptions,
-    timeoutMs: file.library.embeddingTimeoutMs || 5 * 60 * 1000, // 5 minutes default
-    query,
-  })
-
-  return [task]
-}
-
-/**
- * Create an embedding-only task using existing markdown from another task
+ * Create an embedding-only task using existing markdowns from another task
  */
 interface CreateEmbeddingOnlyTaskParams {
   existingTaskId?: string | undefined | null
@@ -104,6 +87,7 @@ export const createEmbeddingOnlyTask = async (
       library: {
         select: {
           id: true,
+          fileConverterOptions: true,
           embeddingModelName: true,
           embeddingTimeoutMs: true,
         },
@@ -115,15 +99,13 @@ export const createEmbeddingOnlyTask = async (
     throw new Error(`Library ${file.libraryId} has no configured embedding model`)
   }
 
-  let markdownFileName: string | null = null
-  let extractionFinishedAt: Date | null = null
+  const availableMarkdowns: Array<{ markdownFileName: string; extractionFinishedAt: Date }> = []
 
-  // If existingTaskId is provided, get the markdown file from that task
   if (existingTaskId) {
-    const existingTask = await prisma.aiFileContentExtractionTask.findUniqueOrThrow({
+    const existingTask = await prisma.aiContentProcessingTask.findUniqueOrThrow({
       where: { id: existingTaskId },
       select: {
-        markdownFileName: true,
+        extractionSubTasks: true,
         extractionFinishedAt: true,
         fileId: true,
       },
@@ -133,23 +115,50 @@ export const createEmbeddingOnlyTask = async (
       throw new Error(`Task ${existingTaskId} is not for file ${fileId}`)
     }
 
-    if (!existingTask.markdownFileName || !existingTask.extractionFinishedAt) {
-      throw new Error(`Task ${existingTaskId} has not completed extraction yet`)
+    const existingSubTasks = existingTask.extractionSubTasks.filter(
+      (subTask) => subTask.markdownFileName && subTask.finishedAt,
+    )
+
+    if (existingSubTasks.length === 0) {
+      throw new Error(`Task ${existingTaskId} has no successfully extracted markdown files to use for embeddings`)
     }
 
-    markdownFileName = existingTask.markdownFileName
-    extractionFinishedAt = existingTask.extractionFinishedAt
+    availableMarkdowns.push(
+      ...existingSubTasks.map((subTask) => ({
+        markdownFileName: subTask.markdownFileName!,
+        extractionFinishedAt: subTask.finishedAt!,
+      })),
+    )
+  } else {
+    const latestMarkdownFileNames = await getLatestExtractionMarkdownFileNames({ fileId, libraryId: file.libraryId })
+    if (latestMarkdownFileNames.length === 0) {
+      throw new Error(`No existing extracted markdown files found for file ${fileId}`)
+    }
+
+    availableMarkdowns.push(
+      ...latestMarkdownFileNames.map((fileName) => ({
+        markdownFileName: fileName,
+        extractionFinishedAt: new Date(), // We don't know the exact date, so use now
+      })),
+    )
   }
 
   // Create a special "embedding-only" task
-  const task = await prisma.aiFileContentExtractionTask.create({
+  const task = await prisma.aiContentProcessingTask.create({
     ...query,
     data: {
       fileId,
       libraryId: file.libraryId,
-      extractionMethod: 'embedding-only', // Special method for embedding existing markdown
-      markdownFileName,
-      extractionFinishedAt, // Use the date from the existing task or null if no existing task
+      extractionFinishedAt: new Date(),
+      extractionSubTasks: {
+        create: availableMarkdowns.map(({ markdownFileName, extractionFinishedAt }) => ({
+          extractionMethod: 'embedding-only',
+          markdownFileName,
+          finishedAt: extractionFinishedAt,
+        })),
+      },
+      // Special embedding-only method that uses existing markdown
+      // and only creates embeddings
       embeddingModelName: file.library.embeddingModelName,
       timeoutMs: file.library.embeddingTimeoutMs || 180000, // Use library setting or default
     },

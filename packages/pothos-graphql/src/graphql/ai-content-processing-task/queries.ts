@@ -28,7 +28,7 @@ const ContentExtractionTaskQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async ({ libraryId, fileId, status }) => {
-          return prisma.aiFileContentExtractionTask.count({
+          return prisma.aiContentProcessingTask.count({
             where: {
               libraryId,
               ...(fileId ? { fileId } : {}),
@@ -38,10 +38,10 @@ const ContentExtractionTaskQueryResult = builder
         },
       }),
       tasks: t.prismaField({
-        type: ['AiFileContentExtractionTask'],
+        type: ['AiContentProcessingTask'],
         nullable: { list: false, items: false },
         resolve: (query, { libraryId, fileId, take, skip, status }) => {
-          return prisma.aiFileContentExtractionTask.findMany({
+          return prisma.aiContentProcessingTask.findMany({
             ...query,
             where: {
               libraryId,
@@ -57,7 +57,7 @@ const ContentExtractionTaskQueryResult = builder
     }),
   })
 
-builder.queryField('aiContentExtractionTasks', (t) =>
+builder.queryField('aiContentProcessingTasks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: ContentExtractionTaskQueryResult,
     nullable: false,

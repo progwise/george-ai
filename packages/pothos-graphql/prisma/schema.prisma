@@ -140,7 +140,7 @@ model AiLibrary {
   updates     AiLibraryUpdate[]
   listSources AiListSource[]
 
-  contentExtractionTasks AiFileContentExtractionTask[]
+  contentExtractionTasks AiContentProcessingTask[]
 }
 
 model AiLibraryUsage {
@@ -157,10 +157,10 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String                        @id @default(cuid())
-  createdAt              DateTime                      @default(now())
-  updatedAt              DateTime                      @updatedAt
-  library                AiLibrary                     @relation(fields: [libraryId], references: [id])
+  id                     String                    @id @default(cuid())
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  library                AiLibrary                 @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
@@ -170,23 +170,22 @@ model AiLibraryFile {
   uploadedAt             DateTime?
   dropError              String?
   crawledByCrawlerId     String?
-  crawledByCrawler       AiLibraryCrawler?             @relation(fields: [crawledByCrawlerId], references: [id])
+  crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
   originFileHash         String?
   originModificationDate DateTime?
   archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
   enrichmentQueue        AiListEnrichmentQueue[]
-  contentExtractionTasks AiFileContentExtractionTask[]
+  contentExtractionTasks AiContentProcessingTask[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
 
-model AiFileContentExtractionTask {
-  id               String @id @default(cuid())
-  fileId           String
-  libraryId        String
-  extractionMethod String // "text-extraction", "pdf-image-llm", "tesseract-ocr", "embedding-only"
+model AiContentProcessingTask {
+  id        String @id @default(cuid())
+  fileId    String
+  libraryId String
 
   createdAt DateTime @default(now()) // When task was submitted
 
@@ -217,14 +216,29 @@ model AiFileContentExtractionTask {
   embeddingTimeout    Boolean   @default(false)
 
   // Result data
-  markdownFileName String?
-  chunksCount      Int?
-  chunksSize       Int? // Total size of all chunks
-  metadata         String? // Method-specific results & confidence scoring
+  chunksCount Int?
+  chunksSize  Int? // Total size of all chunks
+  metadata    String? // Method-specific results & confidence scoring
+
+  extractionSubTasks AiContentExtractionSubTask[]
 
   @@index([fileId, extractionStartedAt])
   @@index([libraryId, fileId, extractionStartedAt])
-  @@index([extractionMethod, extractionStartedAt])
+}
+
+model AiContentExtractionSubTask {
+  id                      String                  @id @default(cuid())
+  createdAt               DateTime                @default(now()) // When task was submitted
+  startedAt               DateTime? // When worker picks up task
+  finishedAt              DateTime? // When task completes (success/fail/timeout)
+  failedAt                DateTime? // Infrastructure timeout (worker stuck, not legitimate long processing)
+  contentProcessingTaskId String
+  contentProcessingTask   AiContentProcessingTask @relation(fields: [contentProcessingTaskId], references: [id], onDelete: Cascade)
+  extractionMethod        String // "text-extraction", "pdf-image-llm", "tesseract-ocr", "embedding-only"
+  markdownFileName        String?
+
+  @@index([contentProcessingTaskId])
+  @@index([extractionMethod, startedAt])
 }
 
 model AiLibraryCrawler {

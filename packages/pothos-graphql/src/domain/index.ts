@@ -4,11 +4,7 @@ export { runCrawler, stopCrawler } from './crawler/crawler-run'
 export { canAccessLibraryOrThrow } from './library'
 export { deleteFile, deleteLibraryFiles, getFileInfo } from './file'
 export { canAccessListOrThrow, findCacheValue, getFieldValue } from './list'
-export {
-  createContentExtractionTask,
-  createDefaultExtractionTasksForFile,
-  createEmbeddingOnlyTask,
-} from './content-extraction/content-extraction-task'
+export { createContentProcessingTask, createEmbeddingOnlyTask } from './content-extraction/content-extraction-task'
 export { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from './user/avatar-provider'
 export {
   validateExtractionOptions,

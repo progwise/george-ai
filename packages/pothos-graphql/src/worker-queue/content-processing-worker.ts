@@ -19,6 +19,7 @@ import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-uti
 import { isMethodAvailableForMimeType } from '../domain'
 import {
   type ExtractionMethodId,
+  ExtractionOptions,
   PdfImageLlmOptions,
   isValidExtractionMethod,
   validateExtractionOptions,
@@ -34,8 +35,9 @@ const MAX_CONCURRENT_PROCESSINGS = 3 // Maximum concurrent extractions
 // Track concurrent extraction calls
 let processingCount = 0
 
-type ProcessingTaskRecord = Prisma.AiFileContentExtractionTaskGetPayload<{
+type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
   include: {
+    extractionSubTasks: true
     file: {
       select: {
         id: true
@@ -49,12 +51,16 @@ type ProcessingTaskRecord = Prisma.AiFileContentExtractionTaskGetPayload<{
   }
 }>
 
+type ExtractionSubTaskRecord = Prisma.AiContentExtractionSubTaskGetPayload<{
+  select: { id: true; extractionMethod: true; markdownFileName: true; finishedAt: true; failedAt: true }
+}>
+
 const updateProcessingTask = async (args: {
   task: ProcessingTaskRecord
   timeoutSignal: AbortSignal
   data: object
 }): Promise<ProcessingTaskRecord> => {
-  const update = await prisma.aiFileContentExtractionTask.update({
+  const update = await prisma.aiContentProcessingTask.update({
     where: { id: args.task.id },
     data: args.data,
   })
@@ -65,6 +71,18 @@ const updateProcessingTask = async (args: {
   return { ...args.task, ...update }
 }
 
+const updateSubTask = async (args: { subTask: ExtractionSubTaskRecord; timeoutSignal?: AbortSignal; data: object }) => {
+  const update = await prisma.aiContentExtractionSubTask.update({
+    where: { id: args.subTask.id },
+    data: args.data,
+  })
+  if (args.timeoutSignal?.aborted) {
+    console.error(`❌ Sub-task ${args.subTask.id} aborted due to timeout`)
+    throw new Error('Operation aborted')
+  }
+  return { ...args.subTask, ...update }
+}
+
 async function processTask(args: { task: ProcessingTaskRecord }) {
   processingCount++
 
@@ -73,7 +91,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
   const { timeoutSignal, clearTimeoutSignal } = createTimeoutSignal({
     timeoutMs: task.timeoutMs || 30 * 60 * 1000,
     onTimeout: async () => {
-      await prisma.aiFileContentExtractionTask.update({
+      await prisma.aiContentProcessingTask.update({
         where: { id: task.id },
         data: {
           processingFailedAt: new Date(),
@@ -84,7 +102,9 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
   })
 
   try {
-    console.log(`🔄 Processing extraction task ${task.id} for file ${task.fileId} with method ${task.extractionMethod}`)
+    console.log(
+      `🔄 Processing extraction task ${task.id} for file ${task.fileId} with methods ${task.extractionSubTasks.map((s) => s.extractionMethod).join(', ')}`,
+    )
 
     task = await updateProcessingTask({
       task,
@@ -97,7 +117,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     const validationResult = await performValidation({
       taskId: task.id,
       timeoutSignal,
-      extractionMethod: task.extractionMethod,
+      extractionSubTasks: task.extractionSubTasks,
       extractionOptions: task.extractionOptions,
       mimeType: task.file.mimeType,
       embeddingModelName: task.file.library.embeddingModelName,
@@ -105,7 +125,6 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       fileName: task.file.name,
       libraryId: task.file.libraryId,
       metadata: task.metadata,
-      markdownFileName: task.markdownFileName,
     })
     if (!validationResult.success) {
       const message = `Validation failed for task ${task.id}: ${validationResult.errors?.join('; ')}`
@@ -124,7 +143,9 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
 
     const validated = validationResult.validated!
 
-    if (validated.extractMethod !== 'embedding-only') {
+    const onlyEmbeddingTasks = task.extractionSubTasks.every((sub) => sub.extractionMethod === 'embedding-only')
+
+    if (!onlyEmbeddingTasks) {
       console.log(`🔄 Starting content extraction phase for task ${task.id}`)
 
       task = await updateProcessingTask({
@@ -135,29 +156,60 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         },
       })
 
-      // Perform the content extraction
-      const extractionResult = await performContentExtraction({
-        taskId: task.id,
-        timeoutSignal,
-        fileId: task.fileId,
-        libraryId: task.file.libraryId,
-        extractionMethod: validated.extractMethod as ExtractionMethodId,
-        extractionOptions: validated.extractionOptions,
-        uploadFilePath: validated.uploadFilePath!,
-        mimeType: task.file.mimeType,
-      })
+      const extractionResultPromises = task.extractionSubTasks
+        .filter((subTask) => subTask.extractionMethod !== 'embedding-only' && !subTask.finishedAt && !subTask.failedAt)
+        .map(async (subTask) => {
+          // Process each extraction method sequentially to avoid I/O overload
+          console.log(
+            `🔄 Starting extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
+          )
 
-      if (!extractionResult.success) {
+          // Perform the content extraction
+          const extractionResult = await performContentExtraction({
+            taskId: task.id,
+            timeoutSignal,
+            fileId: task.fileId,
+            libraryId: task.file.libraryId,
+            extractionMethod: subTask.extractionMethod as ExtractionMethodId,
+            extractionOptions: validated.extractionOptions,
+            uploadFilePath: validated.uploadFilePath!,
+            mimeType: task.file.mimeType,
+          })
+
+          if (!extractionResult.success) {
+            subTask = await updateSubTask({
+              subTask,
+              timeoutSignal,
+              data: {
+                failedAt: new Date(),
+              },
+            })
+            return { subTask, extractionResult }
+          } else {
+            subTask = await updateSubTask({
+              subTask,
+              data: {
+                finishedAt: new Date(),
+                markdownFileName: extractionResult.result!.markdownFileName,
+              },
+            })
+            return { subTask, extractionResult }
+          }
+        })
+        .map((p) => p.catch((e) => ({ subTask: null, extractionResult: { success: false, error: e } }))) // Catch errors in individual extraction methods
+
+      // Await all extraction methods
+      const extractionResults = await Promise.all(extractionResultPromises)
+
+      const allSuccessful = extractionResults.every((res) => res.extractionResult.success)
+      if (!allSuccessful) {
         task = await updateProcessingTask({
           task,
           timeoutSignal,
           data: {
             extractionFailedAt: new Date(),
             processingFailedAt: new Date(),
-            metadata: mergeObjectToJsonString(task.metadata, {
-              extractionError:
-                extractionResult.error instanceof Error ? extractionResult.error.message : 'Unknown error', // TODO: Not loosing metadata from previous steps
-            }),
+            metadata: mergeObjectToJsonString(task.metadata, extractionResults),
           },
         })
         console.error(`❌ Extraction phase failed for task ${task.id}`)
@@ -168,9 +220,13 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           timeoutSignal,
           data: {
             extractionFinishedAt: new Date(),
-            markdownFileName: extractionResult.result!.markdownFileName,
-            extractionTimeout: extractionResult.result!.timeout || false,
-            metadata: mergeObjectToJsonString(task.metadata, extractionResult.result), // TODO: Not loosing metadata from previous steps
+            extractionTimeout:
+              extractionResults.some((result) => {
+                const errorMessage =
+                  result.extractionResult.error instanceof Error ? result.extractionResult.error.message : ''
+                return errorMessage.includes('timeout')
+              }) || false,
+            metadata: mergeObjectToJsonString(task.metadata, extractionResults), // TODO: Not loosing metadata from previous steps
           },
         })
       }
@@ -187,7 +243,12 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         embeddingStartedAt: new Date(),
       },
     })
-    if (!task.markdownFileName) {
+
+    const markdownFileNames = task.extractionSubTasks
+      .filter((sub) => sub.finishedAt)
+      .map((sub) => sub.markdownFileName)
+      .filter((name): name is string => !!name) // Non-null as filtered
+    if (markdownFileNames.length < 1) {
       await updateProcessingTask({
         task,
         timeoutSignal,
@@ -202,27 +263,34 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       console.error(`❌ Embedding phase failed for task ${task.id}: no markdown file`)
       return
     }
-    const embeddingResult = await processEmbeddingPhase({
-      taskId: task.id,
-      timeoutSignal,
-      fileId: task.fileId,
-      fileName: task.file.name!,
-      originUri: task.file.originUri,
-      mimeType: task.file.mimeType!,
-      libraryId: task.file.libraryId,
-      markdownFileName: task.markdownFileName,
-      embeddingModelName: validated.embeddingModelName,
-    })
-    if (!embeddingResult.success) {
+    const embeddingPromises = markdownFileNames
+      .map(async (markdownFileName) => {
+        const embeddingResult = await processEmbeddingPhase({
+          taskId: task.id,
+          timeoutSignal,
+          fileId: task.fileId,
+          fileName: task.file.name!,
+          originUri: task.file.originUri,
+          mimeType: task.file.mimeType!,
+          libraryId: task.file.libraryId,
+          markdownFileName: markdownFileName,
+          embeddingModelName: validated.embeddingModelName,
+        })
+        return embeddingResult
+      })
+      .map((p) => p.catch((e) => ({ success: false, error: e, chunks: undefined, size: undefined }))) // Catch errors in individual embeddings
+
+    const embeddingResults = await Promise.all(embeddingPromises)
+
+    const allSuccessful = embeddingResults.every((res) => res.success)
+    if (!allSuccessful) {
       task = await updateProcessingTask({
         task,
         timeoutSignal,
         data: {
           embeddingFailedAt: new Date(),
           processingFailedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, {
-            embeddingError: embeddingResult?.error instanceof Error ? embeddingResult.error.message : 'Unknown error',
-          }),
+          metadata: mergeObjectToJsonString(task.metadata, embeddingResults),
         },
       })
       console.error(`❌ Embedding phase failed for task ${task.id}`)
@@ -233,17 +301,15 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         timeoutSignal,
         data: {
           embeddingFinishedAt: new Date(),
-          embeddingTimeout: embeddingResult.timeout || false,
+          embeddingTimeout:
+            embeddingResults.some((result) => {
+              const errorMessage = result.error instanceof Error ? result.error.message : ''
+              return errorMessage.includes('timeout')
+            }) || false,
           processingFinishedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, {
-            embeddingCompletedAt: new Date().toISOString(),
-            embeddingModel: validated.embeddingModelName,
-            embeddingSuccess: true,
-            embeddingError: null,
-            embeddingTimeout: embeddingResult.timeout || false,
-          }),
-          chunksCount: embeddingResult?.chunks || 0,
-          chunksSize: embeddingResult?.size || 0,
+          metadata: mergeObjectToJsonString(task.metadata, embeddingResults), // TODO: Not loosing metadata from previous steps
+          chunksCount: embeddingResults.reduce((sum, res) => sum + (res.chunks || 0), 0),
+          chunksSize: embeddingResults.reduce((sum, res) => sum + (res.size || 0), 0),
         },
       })
     }
@@ -321,7 +387,7 @@ const processEmbeddingPhase = async (args: {
 const performValidation = async (args: {
   taskId: string
   timeoutSignal: AbortSignal
-  extractionMethod: string
+  extractionSubTasks: Array<{ extractionMethod: string; markdownFileName?: string | null; finishedAt?: Date | null }>
   extractionOptions?: string | null
   mimeType: string | null
   embeddingModelName: string | null
@@ -335,39 +401,70 @@ const performValidation = async (args: {
 
   const errors: string[] = []
 
-  if (args.extractionMethod === 'embedding-only') {
-    if (!args.markdownFileName) errors.push('No markdown file specified for embedding-only task')
-  } else if (
-    !isValidExtractionMethod(args.extractionMethod) ||
-    !isMethodAvailableForMimeType(args.extractionMethod, args.mimeType || '')
-  ) {
-    errors.push(`Unsupported extraction method: ${args.extractionMethod}`)
+  let allExtractionOptions: ExtractionOptions = {}
+  const uploadFilePath = getUploadFilePath({ fileId: args.fileId, libraryId: args.libraryId })
+
+  args.extractionSubTasks.forEach((subTask) => {
+    if (!isValidExtractionMethod(subTask.extractionMethod)) {
+      errors.push(`Invalid extraction method in sub-task: ${subTask.extractionMethod}`)
+    }
+    // Validate and get options
+    const extractionOptions = isValidExtractionMethod(subTask.extractionMethod)
+      ? validateExtractionOptions(subTask.extractionMethod, args.extractionOptions)
+      : null
+
+    allExtractionOptions = { ...allExtractionOptions, ...extractionOptions?.data }
+
+    if (extractionOptions && !extractionOptions.success) {
+      const { error } = extractionOptions
+      errors.push(`Invalid extraction options: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+    if (subTask.extractionMethod === 'embedding-only') {
+      if (!subTask.markdownFileName) {
+        errors.push('No markdown file specified for embedding-only sub-task')
+      } else {
+        // Check if markdown file exists
+        const markdownPath = path.join(
+          getFileDir({ fileId: args.fileId, libraryId: args.libraryId }),
+          subTask.markdownFileName,
+        )
+        if (!fs.existsSync(markdownPath)) {
+          errors.push(`Markdown file for embedding-only sub-task not found: ${subTask.markdownFileName}`)
+        }
+      }
+      if (!subTask.finishedAt) {
+        errors.push(`Extraction sub-task not finished for method: ${subTask.extractionMethod}`)
+      }
+    } else {
+      if (subTask.markdownFileName) {
+        errors.push(
+          `Markdown file should not be specified for non-embedding-only sub-task: ${subTask.extractionMethod}`,
+        )
+      }
+      if (subTask.finishedAt) {
+        errors.push(`Extraction sub-task should not be finished for method: ${subTask.extractionMethod}`)
+      }
+
+      if (!fs.existsSync(uploadFilePath)) {
+        errors.push(`Upload file not found for extraction method ${subTask.extractionMethod}: ${uploadFilePath}`)
+      }
+      if (
+        !isValidExtractionMethod(subTask.extractionMethod) ||
+        !isMethodAvailableForMimeType(subTask.extractionMethod, args.mimeType || '')
+      ) {
+        errors.push(`Unsupported extraction method: ${subTask.extractionMethod} and mime type: ${args.mimeType}`)
+      }
+    }
+  })
+
+  if (args.extractionSubTasks.length === 0) {
+    errors.push('No extraction sub-tasks defined')
+    return { success: false, errors }
   }
 
   // Validate embedding model is configured
   if (!args.embeddingModelName) {
     errors.push(`Library embedding model not configured`)
-  }
-  // Get uploaded file path
-
-  const uploadFilePath =
-    args.extractionMethod !== 'embedding-only'
-      ? getUploadFilePath({ fileId: args.fileId, libraryId: args.libraryId })
-      : null
-
-  // Check if uploaded file exists
-  if (uploadFilePath && !fs.existsSync(uploadFilePath)) {
-    errors.push(`Upload file not found: ${uploadFilePath}`)
-  }
-
-  // Validate and get options
-  const extractionOptions = isValidExtractionMethod(args.extractionMethod)
-    ? validateExtractionOptions(args.extractionMethod, args.extractionOptions)
-    : null
-
-  if (extractionOptions && !extractionOptions.success) {
-    const { error } = extractionOptions
-    errors.push(`Invalid extraction options: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 
   if (errors.length > 0) {
@@ -378,8 +475,8 @@ const performValidation = async (args: {
   return {
     success: true,
     validated: {
-      extractMethod: args.extractionMethod,
-      extractionOptions: extractionOptions?.data ? extractionOptions.data : {},
+      extractionSubTasks: args.extractionSubTasks,
+      extractionOptions: allExtractionOptions,
       embeddingModelName: args.embeddingModelName!,
       uploadFilePath,
     },
@@ -480,8 +577,9 @@ async function processQueue() {
     }
 
     // Get pending tasks (tasks that are started but not finished, failed, timed out, or validation failed)
-    const pendingTasks = await prisma.aiFileContentExtractionTask.findMany({
+    const pendingTasks = await prisma.aiContentProcessingTask.findMany({
       include: {
+        extractionSubTasks: true,
         file: {
           select: {
             id: true,
@@ -504,23 +602,23 @@ async function processQueue() {
       return
     }
 
-    console.log(`Processing ${pendingTasks.length} extraction tasks... (capacity: ${availableCapacity})`)
+    console.log(`Processing ${pendingTasks.length} tasks... (capacity: ${availableCapacity})`)
 
     // Process tasks in parallel
     await Promise.all(pendingTasks.map((task) => processTask({ task })))
   } catch (error) {
-    console.error('Error in content extraction worker processQueue:', error)
+    console.error('Error in content processing worker processQueue:', error)
   }
 }
 
-export async function startContentExtractionWorker() {
+export async function startContentProcessingWorker() {
   if (isWorkerRunning) {
-    console.log('Content extraction worker is already running')
+    console.log('Content processing worker is already running')
     return
   }
 
   isWorkerRunning = true
-  console.log('🚀 Starting content extraction worker...')
+  console.log('🚀 Starting content processing worker...')
 
   // Process queue immediately and wait for completion
   await processQueue()
@@ -531,9 +629,9 @@ export async function startContentExtractionWorker() {
   }, WORKER_INTERVAL_MS)
 }
 
-export function stopContentExtractionWorker() {
+export function stopContentProcessingWorker() {
   if (!isWorkerRunning) {
-    console.log('Content extraction worker is not running')
+    console.log('Content processing worker is not running')
     return
   }
 
@@ -544,5 +642,5 @@ export function stopContentExtractionWorker() {
     workerInterval = null
   }
 
-  console.log('🛑 Stopped content extraction worker')
+  console.log('🛑 Stopped content processing worker')
 }

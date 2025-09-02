@@ -8,7 +8,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@george-ai/ai-service-client": "workspace:*",
@@ -17,7 +18,8 @@
     "csv-parse": "^5.6.0",
     "mammoth": "^1.9.1",
     "pdfjs-dist": "5.4.54",
-    "read-excel-file": "^5.8.7"
+    "read-excel-file": "^5.8.7",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
@@ -25,6 +27,7 @@
     "@types/node": "^22.10.7",
     "eslint": "^9.17.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0"
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.4"
   }
 }

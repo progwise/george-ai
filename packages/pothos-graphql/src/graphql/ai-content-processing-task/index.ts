@@ -10,13 +10,26 @@ import './queries'
 
 console.log('Setting up: AiFileContentExtractionTask')
 
+builder.prismaObject('AiContentExtractionSubTask', {
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
+    markdownFileName: t.exposeString('markdownFileName', { nullable: true }),
+    startedAt: t.expose('startedAt', { type: 'DateTime', nullable: true }),
+    finishedAt: t.expose('finishedAt', { type: 'DateTime', nullable: true }),
+    failedAt: t.expose('failedAt', { type: 'DateTime', nullable: true }),
+    contentProcessingTaskId: t.exposeString('contentProcessingTaskId', { nullable: false }),
+    contentProcessingTask: t.relation('contentProcessingTask', { nullable: false }),
+  }),
+})
+
 // AiFileContentExtractionTask GraphQL Object
-builder.prismaObject('AiFileContentExtractionTask', {
+builder.prismaObject('AiContentProcessingTask', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     fileId: t.exposeString('fileId', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
-    extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
+    extractionSubTasks: t.relation('extractionSubTasks', { nullable: false }),
     timeoutMs: t.exposeInt('timeoutMs', { nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
 
@@ -69,7 +82,6 @@ builder.prismaObject('AiFileContentExtractionTask', {
     }),
 
     // Result data
-    markdownFileName: t.exposeString('markdownFileName', { nullable: true }),
     chunksCount: t.exposeInt('chunksCount', { nullable: true }),
     chunksSize: t.exposeInt('chunksSize', { nullable: true }),
     embeddingModelName: t.exposeString('embeddingModelName', { nullable: true }),

@@ -1,6 +1,6 @@
 import { Prisma } from '@george-ai/prismaClient'
 
-import { ContentExtractionTask } from '../types'
+import { ContentProcessingTask } from '../types'
 
 export const PROCESSING_STATUS = [
   'none',
@@ -25,7 +25,7 @@ export type ExtractionStatus = (typeof EXTRACTION_STATUS)[number]
 export const EMBEDDING_STATUS = ['pending', 'running', 'completed', 'failed', 'skipped', 'none'] as const
 export type EmbeddingStatus = (typeof EMBEDDING_STATUS)[number]
 
-export const getExtractionStatus = (task: ContentExtractionTask | null): ExtractionStatus => {
+export const getExtractionStatus = (task: ContentProcessingTask | null): ExtractionStatus => {
   if (!task) return 'none'
   if (task.extractionFailedAt) return 'failed'
   if (task.extractionFinishedAt) return 'completed'
@@ -35,7 +35,7 @@ export const getExtractionStatus = (task: ContentExtractionTask | null): Extract
   return 'pending'
 }
 
-export const getEmbeddingStatus = (task: ContentExtractionTask | null): EmbeddingStatus => {
+export const getEmbeddingStatus = (task: ContentProcessingTask | null): EmbeddingStatus => {
   if (!task) return 'none'
   if (task.embeddingFailedAt) return 'failed'
   if (task.embeddingFinishedAt) return 'completed'
@@ -44,7 +44,7 @@ export const getEmbeddingStatus = (task: ContentExtractionTask | null): Embeddin
   return 'pending'
 }
 
-export const getProcessingStatus = (task: ContentExtractionTask | null): ProcessingStatus => {
+export const getProcessingStatus = (task: ContentProcessingTask | null): ProcessingStatus => {
   if (!task) return 'none'
   if (task.processingTimeout) return 'timedOut'
   if (task.processingFailedAt) return 'failed'
@@ -66,7 +66,7 @@ export const getProcessingStatus = (task: ContentExtractionTask | null): Process
   return 'pending'
 }
 
-export function getTaskStatusWhereClause(status: ProcessingStatus): Prisma.AiFileContentExtractionTaskWhereInput {
+export function getTaskStatusWhereClause(status: ProcessingStatus): Prisma.AiContentProcessingTaskWhereInput {
   switch (status) {
     case 'pending':
       return {

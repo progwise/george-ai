@@ -83,12 +83,11 @@ export type ExtractionOptions =
 export const validateExtractionOptions = (
   method: ExtractionMethodId,
   optionsJson?: string | null,
-):
-  | {
-      success: true
-      data: ExtractionOptions
-    }
-  | { success: false; data?: undefined; error?: unknown } => {
+): {
+  success: boolean
+  data?: ExtractionOptions
+  error?: unknown
+} => {
   const schema = extractionOptionsSchemas[method]
 
   if (!optionsJson) {
@@ -110,6 +109,25 @@ export const validateExtractionOptions = (
   }
 }
 
+export const validateMultipleExtractionOptions = (
+  methods: ExtractionMethodId[],
+  optionsJson?: string | null,
+): { success: boolean; data?: ExtractionOptions; error?: unknown } => {
+  const results: Array<{ method: ExtractionMethodId; result: ReturnType<typeof validateExtractionOptions> }> =
+    methods.map((method) => ({
+      method,
+      result: validateExtractionOptions(method, optionsJson),
+    }))
+
+  const errors = results.filter((r) => !r.result.success)
+  if (errors.length > 0) {
+    return { success: false, error: errors.map((e) => ({ method: e.method, error: e.result.error })) }
+  }
+  // Merge all valid options into one object
+  const mergedOptions = results.reduce((acc, r) => ({ ...acc, ...(r.result.data || {}) }), {} as ExtractionOptions)
+  return { success: true, data: mergedOptions }
+}
+
 /**
  * Get default options for a method (useful for UI)
  */
@@ -121,11 +139,11 @@ export const getDefaultExtractionOptions = (method: ExtractionMethodId) => {
 /**
  * Serialize options to JSON string for storage
  */
-export const serializeExtractionOptions = (method: ExtractionMethodId, options: Record<string, unknown>): string => {
+export const serializeExtractionOptions = (methods: ExtractionMethodId[], options: Record<string, unknown>): string => {
   // First validate the options
-  const validatedOptions = validateExtractionOptions(method, JSON.stringify(options))
+  const validatedOptions = validateMultipleExtractionOptions(methods, JSON.stringify(options))
   if (!validatedOptions.success) {
-    throw new Error(`Invalid extraction options for method ${method}: ${validatedOptions.error}`)
+    throw new Error(`Invalid extraction options for method ${methods.join(', ')}: ${validatedOptions.error}`)
   }
   return JSON.stringify(validatedOptions.data)
 }
