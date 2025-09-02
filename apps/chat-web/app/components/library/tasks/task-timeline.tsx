@@ -37,15 +37,21 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
   const { language } = useTranslation()
 
   const timelineData = useMemo(() => {
-    const milestones = [
+    const milestones: Array<{
+      labels: Record<string, string>
+      time?: string | null
+      status: string
+      success?: boolean | null
+      elapsedTime?: number
+    }> = [
       {
-        label: 'Created',
+        labels: { done: 'Created', doing: 'Creating', todo: 'Create', skipped: 'no Create' },
         time: task.createdAt,
         status: 'done' as const,
         success: true,
       },
       {
-        label: 'Started',
+        labels: { done: 'Started', doing: 'Starting', todo: 'Start' },
         time: task.processingStartedAt,
         status: task.processingStartedAt ? ('done' as const) : ('todo' as const),
         success: !task.processingStartedAt ? undefined : true,
@@ -54,7 +60,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
           : undefined,
       },
       {
-        label: 'Validated',
+        labels: { done: 'Validated', doing: 'Validating', todo: 'Validate', skipped: 'no Validate' },
         time: task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt,
         status:
           task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt
@@ -75,7 +81,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             : undefined,
       },
       {
-        label: 'Extracted',
+        labels: { done: 'Extracted', doing: 'Extracting', todo: 'Extract', skipped: 'no Extract' },
         time: task.extractionFinishedAt || task.extractionFailedAt,
         status:
           task.extractionFinishedAt || task.extractionFailedAt
@@ -93,7 +99,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             : undefined,
       },
       {
-        label: 'Embedded',
+        labels: { done: 'Embedded', doing: 'Embedding', todo: 'Embed', skipped: 'no Embed' },
         time: task.embeddingFinishedAt || task.embeddingFailedAt,
         status:
           task.embeddingFinishedAt || task.embeddingFailedAt
@@ -111,7 +117,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             : undefined,
       },
       {
-        label: 'Finished',
+        labels: { done: 'Finished', doing: 'Finishing', todo: 'Finish', skipped: 'no Finish' },
         time: task.processingFinishedAt || task.processingFailedAt,
         status:
           task.processingFinishedAt || task.processingFailedAt
@@ -129,7 +135,10 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
     <div className="space-y-2">
       <ul className="timeline">
         {timelineData.map((milestone, index) => (
-          <li key={milestone.label} className={twMerge('timeline-item', !milestone.time && 'opacity-30')}>
+          <li
+            key={milestone.labels[milestone.status]}
+            className={twMerge('timeline-item', !milestone.time && 'opacity-30')}
+          >
             {index !== 0 && <hr />}
             <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
               {index === 0 ? dateTimeString(milestone.time, language) : timeString(milestone.time, language)}
@@ -156,10 +165,10 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                 <circle cx="10" cy="10" r="8" />
               </svg>
             </div>
-            <div className="timeline-end flex flex-col items-center gap-2">
+            <div className="timeline-end mx-4 flex flex-col items-center gap-2">
               <div
                 className={twMerge(
-                  'badge badge-sm badge-outline font-semibold',
+                  'badge badge-sm font-semibold',
                   milestone.status === 'todo'
                     ? 'badge-neutral'
                     : milestone.status === 'doing'
@@ -171,7 +180,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                           : 'badge-error',
                 )}
               >
-                {milestone.label}
+                <div className="">{milestone.labels[milestone.status]}</div>
               </div>
               <div className="text-neutral/50 text-xs italic">{formatDuration(milestone.elapsedTime)}</div>
             </div>

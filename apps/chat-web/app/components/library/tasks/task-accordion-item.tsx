@@ -75,6 +75,9 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
       case ExtractionStatus.Pending:
       case EmbeddingStatus.Pending:
         return 'badge-warning text-warning'
+      case ExtractionStatus.Skipped:
+      case EmbeddingStatus.Skipped:
+        return 'badge-ghost text-ghost opacity-50'
       default:
         return 'badge-neutral text-neutral'
     }
@@ -106,7 +109,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
     <>
       <div className="collapse-arrow join-item border-base-300 collapse border">
         <input type="radio" name={`task-accordion-${skip}-${take}`} defaultChecked={index === 0} className="peer" />
-        <div className="collapse-title font-semibold opacity-40 peer-checked:opacity-100">
+        <div className="collapse-title peer-checked:bg-base-100 font-semibold opacity-40 peer-checked:opacity-100">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
               <span className="text-nowrap">{task.extractionMethod || 'Unknown Method'}</span>
@@ -114,20 +117,23 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
               <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
             </div>
             <div className="flex gap-2">
-              <span className={twMerge('badge badge-sm badge-ghost', getStatusBadgeClass(task.extractionStatus))}>
+              <span className={twMerge('badge badge-sm badge-outline', getStatusBadgeClass(task.extractionStatus))}>
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
                 <span className="text-base-content/80">Extraction: {task.extractionStatus}</span>
               </span>
-              <span className={twMerge('badge badge-sm badge-ghost', getStatusBadgeClass(task.embeddingStatus))}>
+              <span className={twMerge('badge badge-sm badge-outline', getStatusBadgeClass(task.embeddingStatus))}>
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
                 <span className="text-base-content/80">Embedding: {task.embeddingStatus}</span>
               </span>
               <span
-                className={twMerge('badge badge-sm badge-ghost', getProcessingStatusBadgeClass(task.processingStatus))}
+                className={twMerge(
+                  'badge badge-sm badge-outline',
+                  getProcessingStatusBadgeClass(task.processingStatus),
+                )}
               >
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
@@ -137,7 +143,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
             </div>
           </div>
         </div>
-        <div className="collapse-content text-sm">
+        <div className="collapse-content bg-base-100 text-sm">
           <div className="space-y-4 pt-2">
             {/* Core Information - Compact 4-column grid */}
             <div className="grid grid-cols-1 gap-1 text-xs md:grid-cols-2 lg:grid-cols-4">

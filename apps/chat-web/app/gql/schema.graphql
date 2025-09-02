@@ -673,6 +673,7 @@ enum EmbeddingStatus {
   none
   pending
   running
+  skipped
 }
 
 type EnrichmentQueueResult {

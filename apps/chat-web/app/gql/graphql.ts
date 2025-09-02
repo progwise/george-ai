@@ -721,6 +721,7 @@ export enum EmbeddingStatus {
   None = 'none',
   Pending = 'pending',
   Running = 'running',
+  Skipped = 'skipped',
 }
 
 export type EnrichmentQueueResult = {
