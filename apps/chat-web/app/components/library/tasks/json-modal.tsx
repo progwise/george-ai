@@ -1,3 +1,5 @@
+import { safeJsonParse } from '@george-ai/web-utils'
+
 interface JsonModalProps {
   title: string
   data: string
@@ -5,7 +7,7 @@ interface JsonModalProps {
 }
 
 export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
-  const jsonData = JSON.parse(data)
+  const jsonData = safeJsonParse(data).success ? JSON.parse(data) : { error: 'Invalid JSON', data }
   return (
     <dialog ref={ref} className="modal">
       <div className="modal-box max-w-4xl">

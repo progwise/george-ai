@@ -129,7 +129,8 @@ export const embedMarkdownFile = async (args: {
     throw new Error(`Markdown file not found: ${markdownFilePath}`)
   }
 
-  await removeFileByName(libraryId, fileName)
+  // Not allowed any more because we handle multiple markdown files for the same source file
+  //await removeFileByName(libraryId, fileName)
 
   if (args.timeoutSignal.aborted) {
     console.error(`❌ Embedding operation for file ${fileName} aborted due to timeout`)
@@ -174,7 +175,7 @@ export const embedMarkdownFile = async (args: {
         chunkIndex: index,
         subChunkIndex: 0,
       })),
-      { action: 'upsert', dirty_values: 'drop' },
+      { action: 'create', dirty_values: 'drop' },
     )
 
   return {
@@ -188,13 +189,6 @@ const removeFileById = async (libraryId: string, fileId: string) => {
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
-}
-
-const removeFileByName = async (libraryId: string, fileName: string) => {
-  return await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(libraryId))
-    .documents()
-    .delete({ filter_by: `docName:=\`${fileName}\`` })
 }
 
 const sanitizeVector = (vector: number[]) => {
@@ -321,12 +315,13 @@ export const getFileChunks = async ({
 }) => {
   await ensureVectorStore(libraryId)
   const collectionName = getTypesenseSchemaName(libraryId)
+
   const documents = await vectorTypesenseClient
     .collections(collectionName)
     .documents()
     .search({
       q: '*',
-      filter_by: `docId:=${fileId}`,
+      filter_by: `docId: \`${fileId}\``,
       sort_by: 'chunkIndex:asc',
       per_page: take,
       page: 1 + skip / take,
@@ -347,4 +342,46 @@ export const getFileChunks = async ({
       subChunkIndex: hit.document.subChunkIndex || 0,
     })),
   }
+}
+
+export const getSimilarChunks = async (params: {
+  libraryId: string
+  fileId?: string
+  term: string
+  embeddingsModelName: string
+  hits?: number
+}) => {
+  const { libraryId, fileId, term, embeddingsModelName, hits } = params
+  const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, term)
+  const sanitizedVector = sanitizeVector(questionAsVector)
+  await ensureVectorStore(libraryId)
+  const searchParams = {
+    collection: getTypesenseSchemaName(libraryId),
+    q: '*',
+    query_by: 'vec',
+    vector_query: `vec:([${sanitizedVector.join(',')}], k:${hits || 10})`,
+    exclude_fields: 'vec',
+    ...(fileId ? { filter_by: `docId: \`${fileId}\`` } : {}),
+  }
+  const multiSearchParams = {
+    searches: [searchParams],
+  }
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
+
+  console.log('Typesense similarity search response:', JSON.stringify(searchResponse, null, 2))
+
+  const resultHits = searchResponse.results[0].hits
+  if (!resultHits || resultHits.length === 0) {
+    return []
+  }
+  const chunks = resultHits.map((hit: DocumentSchema) => ({
+    id: hit.document.id || 'no-id',
+    text: hit.document.text || 'no-txt',
+    section: hit.document.section || 'no-section',
+    headingPath: hit.document.headingPath || 'no-path',
+    chunkIndex: hit.document.chunkIndex || 0,
+    subChunkIndex: hit.document.subChunkIndex || 0,
+    distance: hit.vector_distance || 0,
+  }))
+  return chunks
 }

@@ -1,11 +1,10 @@
 import { graphql } from '../../../gql'
-import { FileExtractionTask_ListFragment } from '../../../gql/graphql'
+import { AiContentProcessingTask_ListFragment } from '../../../gql/graphql'
 
 graphql(`
-  fragment FileExtractionTask_List on AiFileContentExtractionTask {
+  fragment AiContentProcessingTask_List on AiContentProcessingTask {
     id
     createdAt
-    extractionMethod
     processingStartedAt
     processingFinishedAt
     processingFailedAt
@@ -15,7 +14,6 @@ graphql(`
     embeddingStartedAt
     embeddingFinishedAt
     embeddingFailedAt
-    markdownFileName
     chunksCount
     chunksSize
     embeddingModelName
@@ -28,7 +26,7 @@ graphql(`
 `)
 
 interface FileExtractionTasksProps {
-  tasks: FileExtractionTask_ListFragment[]
+  tasks: AiContentProcessingTask_ListFragment[]
 }
 
 export const FileExtractionTasks = ({ tasks }: FileExtractionTasksProps) => {

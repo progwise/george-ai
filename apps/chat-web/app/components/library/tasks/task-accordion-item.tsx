@@ -5,7 +5,7 @@ import { dateTimeString, formatDuration } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import {
-  AiContentExtractionTask_AccordionItemFragment,
+  AiContentProcessingTask_AccordionItemFragment,
   EmbeddingStatus,
   ExtractionStatus,
   ProcessingStatus,
@@ -15,17 +15,15 @@ import { JsonModal } from './json-modal'
 import { TaskTimeline } from './task-timeline'
 
 graphql(`
-  fragment AiContentExtractionTask_AccordionItem on AiFileContentExtractionTask {
+  fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {
     id
-    ...AiContentExtractionTask_Timeline
+    ...AiContentProcessingTask_Timeline
     file {
       id
       name
     }
     createdAt
-    extractionMethod
     timeoutMs
-    markdownFileName
     metadata
     extractionOptions
     extractionStatus
@@ -34,12 +32,19 @@ graphql(`
     processingStatus
     chunksCount
     chunksSize
-    ...AiContentExtractionTask_Timeline
+    extractionSubTasks {
+      id
+      extractionMethod
+      markdownFileName
+      startedAt
+      finishedAt
+      failedAt
+    }
   }
 `)
 
 interface TaskAccordionItemProps {
-  task: AiContentExtractionTask_AccordionItemFragment
+  task: AiContentProcessingTask_AccordionItemFragment
   index: number
   skip: number
   take: number
@@ -105,6 +110,8 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
     }
   }
 
+  const extractionMethods = task.extractionSubTasks.map((subTask) => subTask.extractionMethod).join(', ')
+
   return (
     <>
       <div className="collapse-arrow join-item border-base-300 collapse border">
@@ -112,7 +119,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
         <div className="collapse-title peer-checked:bg-base-100 font-semibold opacity-40 peer-checked:opacity-100">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
-              <span className="text-nowrap">{task.extractionMethod || 'Unknown Method'}</span>
+              <span className="text-nowrap">{extractionMethods.length < 1 ? 'Unknown Method' : extractionMethods}</span>
               {!hideFileName && <span className="text-nowrap">{`${task.file.name}`}</span>}
               <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
             </div>
@@ -146,9 +153,10 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
         <div className="collapse-content bg-base-100 text-sm">
           <div className="space-y-4 pt-2">
             {/* Core Information - Compact 4-column grid */}
-            <div className="grid grid-cols-1 gap-1 text-xs md:grid-cols-2 lg:grid-cols-4">
+            <div className="flex items-center justify-around gap-6 text-xs">
               <div>
-                <span className="text-base-content/60">Method:</span> {task.extractionMethod || '-'}
+                <span className="text-base-content/60">Method:</span>{' '}
+                {extractionMethods.length < 1 ? '-' : extractionMethods}
               </div>
               <div>
                 <span className="text-base-content/60">Total Duration:</span> {formatDuration(task.processingTimeMs)}
@@ -160,6 +168,22 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <span className="text-base-content/60">Size:</span>{' '}
                 {task.chunksSize ? `${(task.chunksSize / 1024).toFixed(1)} KB` : '-'}
               </div>
+              <div>
+                <span className="text-base-content/60">Timeout:</span>
+                {task.timeoutMs === undefined ? '-' : task.timeoutMs}ms
+              </div>
+              <div className="flex gap-2">
+                {task.extractionOptions && (
+                  <button type="button" className="btn btn-xs btn-outline" onClick={openExtractionOptionsModal}>
+                    Options
+                  </button>
+                )}
+                {task.metadata && (
+                  <button type="button" className="btn btn-xs btn-outline" onClick={openMetadataModal}>
+                    Metadata
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Process Timeline - 3-Phase Pipeline */}
@@ -167,26 +191,12 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
 
             {/* Additional Data & Actions - Single row */}
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              {task.markdownFileName && (
-                <div className="badge badge-ghost">
-                  <span className="text-base-content/60">MD:</span> {task.markdownFileName}
+              {task.extractionSubTasks.map((subTask) => (
+                <div key={subTask.markdownFileName} className="badge badge-ghost">
+                  <span className="text-base-content/60">MD:</span> {subTask.markdownFileName}
                 </div>
-              )}
-              {task.timeoutMs !== undefined && task.timeoutMs !== null && (
-                <div className="badge badge-ghost">
-                  <span className="text-base-content/60">Timeout:</span> {task.timeoutMs}ms
-                </div>
-              )}
-              {task.extractionOptions && (
-                <button type="button" className="btn btn-xs btn-outline" onClick={openExtractionOptionsModal}>
-                  Options
-                </button>
-              )}
-              {task.metadata && (
-                <button type="button" className="btn btn-xs btn-outline" onClick={openMetadataModal}>
-                  Metadata
-                </button>
-              )}
+              ))}
+
               <div className="text-base-content/40 ml-auto">ID: {task.id}</div>
             </div>
           </div>

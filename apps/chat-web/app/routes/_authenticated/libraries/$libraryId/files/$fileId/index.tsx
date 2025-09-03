@@ -51,9 +51,10 @@ function RouteComponent() {
     <div className="bg-base-100 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          {markdown.fileName === aiLibraryFile.latesExtractionMarkdownFileName ? (
+          {aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === markdownFileName) ? (
             <div className="badge badge-info badge-sm">
-              Latest Markdown File <strong>{markdown.fileName || aiLibraryFile.latesExtractionMarkdownFileName}</strong>
+              Latest Markdown File{' '}
+              <strong>{markdown.fileName || aiLibraryFile.latestExtractionMarkdownFileNames.join(', ')}</strong>
             </div>
           ) : (
             <div className="badge badge-ghost badge-sm">

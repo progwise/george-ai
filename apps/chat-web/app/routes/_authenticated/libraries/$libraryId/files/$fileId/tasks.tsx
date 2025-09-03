@@ -38,7 +38,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
 
   const {
-    data: { aiContentExtractionTasks },
+    data: { aiContentProcessingTasks },
   } = useSuspenseQuery(
     getExtractionTasksQueryOptions({
       libraryId,
@@ -49,8 +49,8 @@ function RouteComponent() {
     }),
   )
 
-  const tasks = aiContentExtractionTasks.tasks
-  const count = aiContentExtractionTasks.count
+  const tasks = aiContentProcessingTasks.tasks
+  const count = aiContentProcessingTasks.count
 
   return (
     <div className="space-y-4">

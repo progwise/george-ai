@@ -8,7 +8,7 @@ import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
 // Import and start workers
-import { startContentExtractionWorker, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
+import { startContentProcessingWorker, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
@@ -32,7 +32,7 @@ console.log(`
 
 // Start workers
 startEnrichmentQueueWorker().catch(console.error)
-startContentExtractionWorker().catch(console.error)
+startContentProcessingWorker().catch(console.error)
 
 const yoga = createYoga({
   schema,

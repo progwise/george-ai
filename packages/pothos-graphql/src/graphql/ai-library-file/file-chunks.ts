@@ -1,4 +1,4 @@
-import { getFileChunks } from '@george-ai/langchain-chat'
+import { getFileChunks, getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
@@ -12,8 +12,9 @@ interface FileChunkType {
   headingPath: string
   chunkIndex: number
   subChunkIndex: number
+  distance?: number
 }
-const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
+export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
     text: t.exposeString('text', { nullable: false }),
@@ -21,6 +22,7 @@ const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
     headingPath: t.exposeString('headingPath', { nullable: false }),
     chunkIndex: t.exposeInt('chunkIndex', { nullable: false }),
     subChunkIndex: t.exposeInt('subChunkIndex', { nullable: false }),
+    distance: t.exposeFloat('distance', { nullable: true }),
   }),
 })
 
@@ -63,7 +65,13 @@ builder.queryField('aiFileChunks', (t) =>
     },
     resolve: async (_source, { fileId, skip, take }, context) => {
       const file = await canAccessFileOrThrow(fileId, context.session.user.id)
-      const result = await getFileChunks({ libraryId: file.libraryId, fileId, skip, take })
+
+      const result = await getFileChunks({
+        libraryId: file.libraryId,
+        fileId,
+        skip,
+        take,
+      })
       return {
         libraryId: file.libraryId,
         fileId,
@@ -73,6 +81,41 @@ builder.queryField('aiFileChunks', (t) =>
         count: result.count,
         chunks: result.chunks,
       }
+    },
+  }),
+)
+
+builder.queryField('aiSimilarFileChunks', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: [FileChunk],
+    nullable: { items: false, list: false },
+    args: {
+      fileId: t.arg.string({ required: true }),
+      term: t.arg.string({ required: false }),
+      hits: t.arg.int({ required: false, defaultValue: 20 }),
+    },
+    resolve: async (_source, { fileId, term, hits }, context) => {
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      if (!file.library.embeddingModelName) {
+        throw new Error(
+          `Cannot perform similarity search. Library ${file.libraryId} does not have an embedding model configured.`,
+        )
+      }
+
+      if (!term || term.length === 0) {
+        return []
+      }
+
+      const result = await getSimilarChunks({
+        fileId,
+        libraryId: file.libraryId,
+        embeddingsModelName: file.library.embeddingModelName,
+        term,
+        hits: hits || undefined,
+      })
+
+      return result
     },
   }),
 )

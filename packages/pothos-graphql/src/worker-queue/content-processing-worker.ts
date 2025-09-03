@@ -3,6 +3,11 @@ import path from 'node:path'
 
 import {
   type ConverterResult,
+  type ExtractionMethodId,
+  type FileConverterOptions,
+  isMethodAvailableForMimeType,
+  isValidExtractionMethod,
+  parseFileConverterOptions,
   transformCsvToMarkdown,
   transformDocxToMarkdown,
   transformExcelToMarkdown,
@@ -10,20 +15,13 @@ import {
   transformPdfToImageToMarkdown,
   transformPdfToMarkdown,
   transformTextToMarkdown,
+  validateOptionsForExtractionMethod,
 } from '@george-ai/file-converter'
 import { getFileDir, getUploadFilePath, saveMarkdownContent } from '@george-ai/file-management'
-import { embedMarkdownFile } from '@george-ai/langchain-chat'
+import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain-chat'
 import { Prisma } from '@george-ai/prismaClient'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
 
-import { isMethodAvailableForMimeType } from '../domain'
-import {
-  type ExtractionMethodId,
-  ExtractionOptions,
-  PdfImageLlmOptions,
-  isValidExtractionMethod,
-  validateExtractionOptions,
-} from '../domain/content-extraction/extraction-options-validation'
 import { prisma } from '../prisma'
 
 let isWorkerRunning = false
@@ -61,6 +59,19 @@ const updateProcessingTask = async (args: {
   data: object
 }): Promise<ProcessingTaskRecord> => {
   const update = await prisma.aiContentProcessingTask.update({
+    include: {
+      extractionSubTasks: true,
+      file: {
+        select: {
+          id: true,
+          name: true,
+          originUri: true,
+          mimeType: true,
+          libraryId: true,
+          library: { select: { embeddingModelName: true } },
+        },
+      },
+    },
     where: { id: args.task.id },
     data: args.data,
   })
@@ -263,6 +274,9 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       console.error(`❌ Embedding phase failed for task ${task.id}: no markdown file`)
       return
     }
+
+    // clear vector store upfront
+    await dropFileFromVectorstore(task.file.libraryId, task.file.id)
     const embeddingPromises = markdownFileNames
       .map(async (markdownFileName) => {
         const embeddingResult = await processEmbeddingPhase({
@@ -401,23 +415,19 @@ const performValidation = async (args: {
 
   const errors: string[] = []
 
-  let allExtractionOptions: ExtractionOptions = {}
+  const fileConverterOptions = parseFileConverterOptions(args.extractionOptions)
   const uploadFilePath = getUploadFilePath({ fileId: args.fileId, libraryId: args.libraryId })
 
   args.extractionSubTasks.forEach((subTask) => {
     if (!isValidExtractionMethod(subTask.extractionMethod)) {
       errors.push(`Invalid extraction method in sub-task: ${subTask.extractionMethod}`)
+      return
     }
-    // Validate and get options
-    const extractionOptions = isValidExtractionMethod(subTask.extractionMethod)
-      ? validateExtractionOptions(subTask.extractionMethod, args.extractionOptions)
-      : null
 
-    allExtractionOptions = { ...allExtractionOptions, ...extractionOptions?.data }
-
-    if (extractionOptions && !extractionOptions.success) {
-      const { error } = extractionOptions
-      errors.push(`Invalid extraction options: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    // Validate options for this specific extraction method
+    const validation = validateOptionsForExtractionMethod(args.extractionOptions, subTask.extractionMethod)
+    if (!validation.success) {
+      errors.push(`Invalid options for ${subTask.extractionMethod}: ${validation.error}`)
     }
     if (subTask.extractionMethod === 'embedding-only') {
       if (!subTask.markdownFileName) {
@@ -450,7 +460,7 @@ const performValidation = async (args: {
       }
       if (
         !isValidExtractionMethod(subTask.extractionMethod) ||
-        !isMethodAvailableForMimeType(subTask.extractionMethod, args.mimeType || '')
+        !isMethodAvailableForMimeType(subTask.extractionMethod, args.mimeType)
       ) {
         errors.push(`Unsupported extraction method: ${subTask.extractionMethod} and mime type: ${args.mimeType}`)
       }
@@ -476,7 +486,7 @@ const performValidation = async (args: {
     success: true,
     validated: {
       extractionSubTasks: args.extractionSubTasks,
-      extractionOptions: allExtractionOptions,
+      extractionOptions: fileConverterOptions,
       embeddingModelName: args.embeddingModelName!,
       uploadFilePath,
     },
@@ -489,7 +499,7 @@ const performContentExtraction = async (args: {
   fileId: string
   libraryId: string
   extractionMethod: ExtractionMethodId
-  extractionOptions: Record<string, unknown>
+  extractionOptions: FileConverterOptions
   uploadFilePath: string
   mimeType: string
 }) => {
@@ -498,10 +508,6 @@ const performContentExtraction = async (args: {
     let result: ConverterResult
 
     switch (args.extractionMethod) {
-      case 'pdf-text-extraction':
-        result = await transformPdfToMarkdown(args.uploadFilePath, args.timeoutSignal)
-        break
-
       case 'docx-extraction':
         result = await transformDocxToMarkdown(args.uploadFilePath)
         break
@@ -519,19 +525,22 @@ const performContentExtraction = async (args: {
         break
 
       case 'text-extraction': {
-        result = await transformTextToMarkdown(args.uploadFilePath, args.mimeType)
+        if (args.mimeType === 'application/pdf') {
+          result = await transformPdfToMarkdown(args.uploadFilePath, args.timeoutSignal)
+        } else {
+          result = await transformTextToMarkdown(args.uploadFilePath, args.mimeType)
+        }
         break
       }
 
       case 'pdf-image-llm': {
-        const ocrOptions = args.extractionOptions as PdfImageLlmOptions
         result = await transformPdfToImageToMarkdown(
           args.uploadFilePath,
           args.timeoutSignal,
-          ocrOptions.imageScale,
-          ocrOptions.ocrPrompt,
-          ocrOptions.ocrModel,
-          ocrOptions.ocrTimeoutPerPage,
+          1, // imageScale - using default for now
+          args.extractionOptions.ocrPrompt,
+          args.extractionOptions.ocrModel,
+          args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
         )
         break
       }

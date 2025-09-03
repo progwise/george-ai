@@ -30,7 +30,10 @@ const evictLRU = (): void => {
   console.log(`Evicted LRU embedding from cache: ${keyToRemove.substring(0, 50)}...`)
 }
 
-export const getEmbeddingWithCache = async (embeddingModelName: string, question: string): Promise<number[]> => {
+export const getEmbeddingWithCache = async (embeddingModelName: string, question?: string): Promise<number[]> => {
+  if (!question) {
+    return []
+  }
   const cacheKey = getCacheKey(embeddingModelName, question)
   const entry = cache.get(cacheKey)
 

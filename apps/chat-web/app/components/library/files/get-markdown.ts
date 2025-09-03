@@ -9,7 +9,7 @@ const getMarkdown = createServerFn({ method: 'GET' })
     z
       .object({
         fileId: z.string().nonempty(),
-        markdownFileName: z.string().nullable().optional(),
+        markdownFileName: z.string().nonempty().optional(),
       })
       .parse(data),
   )

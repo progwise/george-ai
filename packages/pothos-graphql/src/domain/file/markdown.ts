@@ -11,19 +11,21 @@ export const getLatestExtractionMarkdownFileNames = async ({
   fileId: string
   libraryId: string
 }) => {
-  const extractionTask = await prisma.aiContentProcessingTask.findFirst({
+  const latestExtractionTask = await prisma.aiContentProcessingTask.findFirst({
     select: { extractionSubTasks: true },
-    where: { fileId, extractionFinishedAt: { not: null } },
+    where: {
+      fileId,
+      extractionFinishedAt: { not: null },
+      extractionSubTasks: { some: { markdownFileName: { not: null } } },
+    },
     orderBy: { extractionFinishedAt: 'desc' },
   })
 
-  if (extractionTask) {
-    if (!extractionTask.extractionSubTasks.some((subTask) => subTask.markdownFileName && subTask.finishedAt)) {
-      throw new Error('No successfully extracted markdown files in extraction task found.')
-    }
-    return extractionTask.extractionSubTasks
-      .filter((subTask) => subTask.markdownFileName && subTask.finishedAt)
-      .map((subTask) => subTask.markdownFileName!) // Non-null assertion as we filtered above
+  if (latestExtractionTask) {
+    return latestExtractionTask.extractionSubTasks
+      .map((subTask) => subTask.markdownFileName)
+      .filter((name): name is string => !!name)
+      .sort((a, b) => a.localeCompare(b)) // Non-null assertion as we filtered above
   }
 
   const fileDir = getFileDir({ fileId, libraryId })

@@ -121,7 +121,7 @@ const embedFiles = createServerFn({ method: 'GET' })
       return await backendRequest(
         graphql(`
           mutation processFile($fileId: String!) {
-            createContentExtractionTasks(fileId: $fileId) {
+            createContentProcessingTask(fileId: $fileId) {
               id
             }
           }

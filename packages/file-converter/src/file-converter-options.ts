@@ -134,23 +134,19 @@ export const serializeFileConverterOptions = (options: FileConverterOptions): st
     parts.push('enableImageProcessing')
   }
 
-  // Only include values that differ from defaults
-  if (options.ocrPrompt && options.ocrPrompt !== DEFAULT_VALUES.ocrPrompt) {
+  if (options.ocrPrompt) {
     parts.push(`ocrPrompt=${options.ocrPrompt}`)
   }
 
-  if (options.ocrModel && options.ocrModel !== DEFAULT_VALUES.ocrModel) {
+  if (options.ocrModel) {
     parts.push(`ocrModel=${options.ocrModel}`)
   }
 
-  if (options.ocrTimeout !== undefined && options.ocrTimeout !== parseInt(DEFAULT_VALUES.ocrTimeout, 10)) {
+  if (options.ocrTimeout !== undefined) {
     parts.push(`ocrTimeout=${options.ocrTimeout}`)
   }
 
-  if (
-    options.ocrLoopDetectionThreshold !== undefined &&
-    options.ocrLoopDetectionThreshold !== parseInt(DEFAULT_VALUES.ocrLoopDetectionThreshold, 10)
-  ) {
+  if (options.ocrLoopDetectionThreshold !== undefined) {
     parts.push(`ocrLoopDetectionThreshold=${options.ocrLoopDetectionThreshold}`)
   }
 
@@ -178,4 +174,175 @@ export const validateFileConverterOptionsString = (optionsString: string | null 
   } catch (error) {
     throw new Error(`Invalid fileConverterOptions format: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
+}
+
+export const AVAILABLE_MIME_TYPES = [
+  'text/plain',
+  'text/markdown',
+  'text/x-markdown',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+  'application/vnd.ms-excel', // XLS
+  'text/csv',
+  'application/csv',
+  'text/html',
+  'application/xhtml+xml',
+] as const
+
+export type MimeType = (typeof AVAILABLE_MIME_TYPES)[number]
+
+/**
+ * Available extraction methods with their requirements and supported MIME types
+ */
+
+export const AVAILABLE_EXTRACTION_METHOD_NAMES = [
+  'text-extraction',
+  'pdf-image-llm',
+  'docx-extraction',
+  'excel-extraction',
+  'csv-extraction',
+  'html-extraction',
+  'embedding-only',
+] as const
+
+export type ExtractionMethodId = (typeof AVAILABLE_EXTRACTION_METHOD_NAMES)[number]
+
+export const EXTRACTION_METHODS: Record<
+  ExtractionMethodId,
+  {
+    name: string
+    description: string
+    supportedMimeTypes: Array<MimeType>
+    requiresOptions: Array<FileConverterSettingName>
+  }
+> = {
+  'text-extraction': {
+    name: 'Text Extraction',
+    description: 'Extract plain text content',
+    supportedMimeTypes: ['text/plain', 'text/markdown', 'text/x-markdown', 'application/pdf'],
+    requiresOptions: [],
+  },
+  'pdf-image-llm': {
+    name: 'PDF Image OCR',
+    description: 'Extract content from PDF images using LLM',
+    supportedMimeTypes: ['application/pdf'],
+    requiresOptions: ['ocrModel', 'ocrPrompt'],
+  },
+  'docx-extraction': {
+    name: 'DOCX Extraction',
+    description: 'Extract content from Word documents',
+    supportedMimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    requiresOptions: [],
+  },
+  'excel-extraction': {
+    name: 'Excel Extraction',
+    description: 'Extract content from Excel files',
+    supportedMimeTypes: [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+    ],
+    requiresOptions: [],
+  },
+  'csv-extraction': {
+    name: 'CSV Extraction',
+    description: 'Extract content from CSV files',
+    supportedMimeTypes: ['text/csv', 'application/csv'],
+    requiresOptions: [],
+  },
+  'html-extraction': {
+    name: 'HTML Extraction',
+    description: 'Extract content from HTML files',
+    supportedMimeTypes: ['text/html', 'application/xhtml+xml'],
+    requiresOptions: [],
+  },
+  'embedding-only': {
+    name: 'Embedding Only',
+    description: 'Skip extraction, only create embeddings from existing markdown',
+    supportedMimeTypes: [], // Special method, not tied to MIME types
+    requiresOptions: [],
+  },
+} as const
+
+/**
+ * Check if extraction method is valid
+ */
+export const isValidExtractionMethod = (method: string): method is ExtractionMethodId => {
+  const result = method in EXTRACTION_METHODS
+  console.log(`isValidExtractionMethod(${method}) = ${result}`)
+  return result
+}
+
+/**
+ * Validate if file converter options are sufficient for a specific extraction method
+ */
+export const validateOptionsForExtractionMethod = (
+  optionsString: string | null | undefined,
+  extractionMethod: ExtractionMethodId,
+): { success: true; options: FileConverterOptions } | { success: false; error: string } => {
+  try {
+    const options = parseFileConverterOptions(optionsString)
+    const methodConfig = EXTRACTION_METHODS[extractionMethod]
+
+    // Check if required options are present and valid
+    for (const requiredOption of methodConfig.requiresOptions) {
+      if (requiredOption === 'ocrModel' && (!options.ocrModel || options.ocrModel.trim() === '')) {
+        return { success: false, error: `OCR model is required for ${extractionMethod}` }
+      }
+      if (requiredOption === 'ocrPrompt' && (!options.ocrPrompt || options.ocrPrompt.trim() === '')) {
+        return { success: false, error: `OCR prompt is required for ${extractionMethod}` }
+      }
+    }
+
+    return { success: true, options }
+  } catch (error) {
+    return {
+      success: false,
+      error: `Invalid options format: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
+  }
+}
+
+/**
+ * Check if an extraction method supports a specific MIME type
+ */
+export const isMethodAvailableForMimeType = (
+  method: ExtractionMethodId,
+  mimeType: string | null | undefined,
+): boolean => {
+  if (!mimeType) {
+    return false // No MIME type provided
+  }
+  const typedMimeType = AVAILABLE_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
+  console.log(`isMethodAvailableForMimeType(${method}, ${mimeType}) = ${typedMimeType !== undefined}`)
+  if (typedMimeType === undefined) {
+    return false // MIME type not supported at all
+  }
+  const methodConfig = EXTRACTION_METHODS[method]
+  console.log(`Method ${method} supports MIME types: ${methodConfig.supportedMimeTypes.join(', ')}`)
+  return methodConfig.supportedMimeTypes.includes(typedMimeType)
+}
+
+/**
+ * Get all extraction methods available for a specific MIME type
+ */
+export const getAvailableMethodsForMimeType = (
+  mimeType: string,
+): Array<{
+  id: ExtractionMethodId
+  name: string
+  description: string
+}> => {
+  // Check if the MIME type is supported
+  if (!AVAILABLE_MIME_TYPES.includes(mimeType as MimeType)) {
+    return [] // Return empty array for unsupported MIME types
+  }
+
+  return Object.entries(EXTRACTION_METHODS)
+    .filter(([, config]) => config.supportedMimeTypes.includes(mimeType as MimeType))
+    .map(([id, config]) => ({
+      id: id as ExtractionMethodId,
+      name: config.name,
+      description: config.description,
+    }))
 }

@@ -147,6 +147,51 @@ type AiChatModel {
   name: String!
 }
 
+type AiContentExtractionSubTask {
+  contentProcessingTask: AiContentProcessingTask!
+  contentProcessingTaskId: String!
+  extractionMethod: String!
+  failedAt: DateTime
+  finishedAt: DateTime
+  id: ID!
+  markdownFileName: String
+  startedAt: DateTime
+}
+
+type AiContentProcessingTask {
+  chunksCount: Int
+  chunksSize: Int
+  createdAt: DateTime!
+  embeddingFailedAt: DateTime
+  embeddingFinishedAt: DateTime
+  embeddingModelName: String
+  embeddingStartedAt: DateTime
+  embeddingStatus: EmbeddingStatus!
+  embeddingTimeMs: Int
+  embeddingTimeout: Boolean!
+  extractionFailedAt: DateTime
+  extractionFinishedAt: DateTime
+  extractionOptions: String
+  extractionStartedAt: DateTime
+  extractionStatus: ExtractionStatus!
+  extractionSubTasks: [AiContentExtractionSubTask!]!
+  extractionTimeMs: Int
+  extractionTimeout: Boolean!
+  file: AiLibraryFile!
+  fileId: String!
+  id: ID!
+  library: AiLibrary!
+  libraryId: String!
+  metadata: String
+  processingFailedAt: DateTime
+  processingFinishedAt: DateTime
+  processingStartedAt: DateTime
+  processingStatus: ProcessingStatus!
+  processingTimeMs: Int
+  processingTimeout: Boolean!
+  timeoutMs: Int
+}
+
 type AiConversation {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
@@ -204,41 +249,6 @@ AI Embedding Models available in the system
 type AiEmbeddingModel {
   model: String!
   name: String!
-}
-
-type AiFileContentExtractionTask {
-  chunksCount: Int
-  chunksSize: Int
-  createdAt: DateTime!
-  embeddingFailedAt: DateTime
-  embeddingFinishedAt: DateTime
-  embeddingModelName: String
-  embeddingStartedAt: DateTime
-  embeddingStatus: EmbeddingStatus!
-  embeddingTimeMs: Int
-  embeddingTimeout: Boolean!
-  extractionFailedAt: DateTime
-  extractionFinishedAt: DateTime
-  extractionMethod: String!
-  extractionOptions: String
-  extractionStartedAt: DateTime
-  extractionStatus: ExtractionStatus!
-  extractionTimeMs: Int
-  extractionTimeout: Boolean!
-  file: AiLibraryFile!
-  fileId: String!
-  id: ID!
-  library: AiLibrary!
-  libraryId: String!
-  markdownFileName: String
-  metadata: String
-  processingFailedAt: DateTime
-  processingFinishedAt: DateTime
-  processingStartedAt: DateTime
-  processingStatus: ProcessingStatus!
-  processingTimeMs: Int
-  processingTimeout: Boolean!
-  timeoutMs: Int
 }
 
 type AiLibrary {
@@ -364,12 +374,12 @@ type AiLibraryFile {
   fieldValues(fieldIds: [String!]!, language: String!): [FieldValueResult!]!
   id: ID!
   isLegacyFile: Boolean!
-  lastEmbedding: AiFileContentExtractionTask
-  lastExtraction: AiFileContentExtractionTask
-  lastSuccessfulEmbedding: AiFileContentExtractionTask
-  lastSuccessfulExtraction: AiFileContentExtractionTask
+  lastEmbedding: AiContentProcessingTask
+  lastExtraction: AiContentProcessingTask
+  lastSuccessfulEmbedding: AiContentProcessingTask
+  lastSuccessfulExtraction: AiContentProcessingTask
   lastUpdate: AiLibraryUpdate
-  latesExtractionMarkdownFileName: String
+  latestExtractionMarkdownFileNames: [String!]!
   libraryId: String!
   markdown(markdownFileName: String): MarkdownResult!
   mimeType: String!
@@ -619,7 +629,7 @@ type AssistantParticipant implements AiConversationParticipant {
 }
 
 type AvailableMarkdownsQueryResult {
-  fileNames: [String]!
+  fileNames: [String!]!
   skip: Int
   take: Int
   totalCount: Int!
@@ -646,7 +656,7 @@ type ContentExtractionTaskQueryResult {
   skip: Int!
   status: ProcessingStatus
   take: Int!
-  tasks: [AiFileContentExtractionTask!]!
+  tasks: [AiContentProcessingTask!]!
 }
 
 input ConversationInvitationInput {
@@ -682,16 +692,6 @@ type EnrichmentQueueResult {
   success: Boolean
 }
 
-type ExtractionMethod {
-  defaultOptions: String!
-  description: String!
-  id: String!
-  isEnabled: Boolean!
-  name: String!
-  optionsSchema: String!
-  supportedMimeTypes: [String!]!
-}
-
 enum ExtractionStatus {
   completed
   failed
@@ -711,6 +711,7 @@ type FieldValueResult {
 
 type FileChunk {
   chunkIndex: Int!
+  distance: Float
   headingPath: String!
   id: String!
   section: String!
@@ -775,11 +776,6 @@ type MarkdownResult {
   fileName: String!
 }
 
-type MethodRegistry {
-  availableMethods: [ExtractionMethod!]!
-  mimeType: String!
-}
-
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -812,9 +808,9 @@ type Mutation {
     libraryId: String!
   ): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
-  createContentExtractionTasks(fileId: String!): [AiFileContentExtractionTask!]!
+  createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
-  createEmbeddingOnlyTask(existingTaskId: String, fileId: String!): AiFileContentExtractionTask!
+  createEmbeddingOnlyProcessingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -927,7 +923,7 @@ type Query {
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
   aiChatModels: [AiChatModel!]!
-  aiContentExtractionTasks(
+  aiContentProcessingTasks(
     fileId: String
     libraryId: String!
     skip: Int = 0
@@ -963,14 +959,11 @@ type Query {
     take: Int! = 20
   ): AiListFilesQueryResult!
   aiLists: [AiList!]!
+  aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   """
   Get all available OCR-capable vision models
   """
   availableOCRModels: [OCRModel!]!
-  """
-  Get all available extraction methods grouped by mime type
-  """
-  extractionMethodRegistry: [MethodRegistry!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   user(email: String!): User

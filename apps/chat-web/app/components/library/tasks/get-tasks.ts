@@ -21,17 +21,17 @@ const getLibraryTasks = createServerFn({ method: 'GET' })
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query GetContentExtractionTasks(
+        query GetContentProcessingTasks(
           $libraryId: String!
           $fileId: String
           $status: ProcessingStatus
           $skip: Int
           $take: Int
         ) {
-          aiContentExtractionTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {
+          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {
             count
             tasks {
-              ...AiContentExtractionTask_AccordionItem
+              ...AiContentProcessingTask_AccordionItem
             }
           }
         }
@@ -59,4 +59,12 @@ export const getExtractionTasksQueryOptions = (params: {
           take: params.take,
         },
       }),
+    refetchInterval(query) {
+      return query.state.data?.aiContentProcessingTasks.tasks.some(
+        (task) =>
+          task.processingStatus !== ProcessingStatus.Completed && task.processingStatus !== ProcessingStatus.Failed,
+      )
+        ? 500
+        : false
+    },
   })

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { getExtractionTasksQueryOptions } from '../tasks/get-tasks'
-import { createEmbeddingTasks, createExtractionTasks } from './change-files'
+import { createEmbeddingTasks, createProcessingTasks } from './change-files'
 import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
 
@@ -38,7 +38,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
     },
   })
   const { mutate: createExtractionTasksMutation, isPending: createExtractionsTasksIsPending } = useMutation({
-    mutationFn: () => createExtractionTasks({ data: { fileIds: [params.fileId] } }),
+    mutationFn: () => createProcessingTasks({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error

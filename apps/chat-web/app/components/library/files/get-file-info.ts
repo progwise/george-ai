@@ -32,7 +32,7 @@ const getFileInfo = createServerFn({ method: 'GET' })
             processingStatus
             extractionStatus
             embeddingStatus
-            latesExtractionMarkdownFileName
+            latestExtractionMarkdownFileNames
             lastUpdate {
               id
               createdAt

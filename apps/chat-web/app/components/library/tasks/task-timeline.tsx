@@ -4,12 +4,11 @@ import { twMerge } from 'tailwind-merge'
 import { dateTimeString, formatDuration, timeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { AiContentExtractionTask_TimelineFragment } from '../../../gql/graphql'
+import { AiContentProcessingTask_TimelineFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
 graphql(`
-  fragment AiContentExtractionTask_Timeline on AiFileContentExtractionTask {
-    extractionMethod
+  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {
     createdAt
     processingStartedAt
     processingFinishedAt
@@ -30,7 +29,7 @@ graphql(`
 `)
 
 interface TaskTimelineProps {
-  task: AiContentExtractionTask_TimelineFragment
+  task: AiContentProcessingTask_TimelineFragment
 }
 
 export const TaskTimeline = ({ task }: TaskTimelineProps) => {
@@ -137,7 +136,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
         {timelineData.map((milestone, index) => (
           <li
             key={milestone.labels[milestone.status]}
-            className={twMerge('timeline-item', !milestone.time && 'opacity-30')}
+            className={twMerge('timeline-item', !milestone.time && milestone.status !== 'doing' && 'opacity-30')}
           >
             {index !== 0 && <hr />}
             <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
@@ -150,7 +149,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'text-neutral'
                     : milestone.status === 'doing'
-                      ? 'text-info'
+                      ? 'text-info animate-pulse'
                       : milestone.status === 'skipped'
                         ? 'text-neutral-300'
                         : milestone.success
@@ -172,7 +171,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'badge-neutral'
                     : milestone.status === 'doing'
-                      ? 'badge-info'
+                      ? 'badge-info animate-pulse'
                       : milestone.status === 'skipped'
                         ? 'badge-ghost text-base-content/50 font-normal italic'
                         : milestone.success

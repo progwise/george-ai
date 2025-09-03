@@ -11,6 +11,7 @@ export type File = Prisma.AiLibraryFile
 
 export const canAccessFileOrThrow = async (fileId: string, userId: string) => {
   const file = await prisma.aiLibraryFile.findUniqueOrThrow({
+    include: { library: { select: { embeddingModelName: true } } },
     where: { id: fileId },
   })
   await canAccessLibraryOrThrow(file.libraryId, userId)

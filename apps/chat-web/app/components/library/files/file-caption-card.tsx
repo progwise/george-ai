@@ -103,12 +103,12 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
             <li>
               <Link
                 className="btn btn-xs rounded-full"
-                activeProps={{ className: 'btn-active  btn-primary' }}
+                activeProps={{ className: 'btn-active btn-primary' }}
                 activeOptions={{ exact: false }}
-                to="/libraries/$libraryId/files/$fileId/search"
+                to="/libraries/$libraryId/files/$fileId/similarity"
                 params={{ libraryId: file.libraryId, fileId: file.id }}
               >
-                Search
+                Similarity
               </Link>
             </li>
             <li className="text-base-content/50 px-2 font-bold">|</li>

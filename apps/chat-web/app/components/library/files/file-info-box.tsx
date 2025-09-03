@@ -18,7 +18,6 @@ graphql(`
     lastSuccessfulExtraction {
       id
       createdAt
-      markdownFileName
       extractionStartedAt
       extractionFinishedAt
       processingStatus
@@ -27,7 +26,6 @@ graphql(`
     lastSuccessfulEmbedding {
       id
       createdAt
-      markdownFileName
       embeddingStartedAt
       embeddingFinishedAt
       processingStatus

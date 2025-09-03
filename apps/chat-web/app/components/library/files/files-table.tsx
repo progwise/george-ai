@@ -11,7 +11,7 @@ import { ArchiveIcon } from '../../../icons/archive-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { createExtractionTasks, deleteFile } from './change-files'
+import { createProcessingTasks, deleteFile } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -78,7 +78,7 @@ export const FilesTable = ({
   })
 
   const { mutate: mutateReprocessFile, isPending: reprocessPending } = useMutation({
-    mutationFn: (fileId: string) => createExtractionTasks({ data: [fileId] }),
+    mutationFn: (fileId: string) => createProcessingTasks({ data: [fileId] }),
     onError: (error: Error) => {
       toastError(t('errors.createExtractionTasks', { error: error.message }))
     },

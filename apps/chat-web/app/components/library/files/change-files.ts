@@ -53,7 +53,7 @@ export const createEmbeddingTasks = createServerFn({ method: 'POST' })
       const result = await backendRequest(
         graphql(`
           mutation createEmbeddingTasks($id: String!) {
-            createEmbeddingOnlyTask(fileId: $id) {
+            createEmbeddingOnlyProcessingTask(fileId: $id) {
               id
               file {
                 name
@@ -63,20 +63,20 @@ export const createEmbeddingTasks = createServerFn({ method: 'POST' })
         `),
         { id: fileId },
       )
-      return result.createEmbeddingOnlyTask
+      return result.createEmbeddingOnlyProcessingTask
     })
 
     return await Promise.all(createTaskPromises)
   })
 
-export const createExtractionTasks = createServerFn({ method: 'POST' })
+export const createProcessingTasks = createServerFn({ method: 'POST' })
   .validator((data: unknown) => z.object({ fileIds: z.array(z.string()).nonempty() }).parse(data))
   .handler(async ({ data }) => {
     const createProcessingTasksPromises = data.fileIds.map(async (fileId) => {
       const result = await backendRequest(
         graphql(`
           mutation createExtractionTasks($id: String!) {
-            createContentExtractionTasks(fileId: $id) {
+            createContentProcessingTask(fileId: $id) {
               id
               file {
                 name
@@ -86,7 +86,7 @@ export const createExtractionTasks = createServerFn({ method: 'POST' })
         `),
         { id: fileId },
       )
-      return result.createContentExtractionTasks
+      return result.createContentProcessingTask
     })
 
     const allResults = await Promise.all(createProcessingTasksPromises)

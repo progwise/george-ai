@@ -1,5 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { FormattedMarkdown } from '../../../../../../components/formatted-markdown'
@@ -32,6 +34,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const { fileId } = Route.useParams()
   const { skipChunks, takeChunks } = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -45,9 +48,35 @@ function RouteComponent() {
     }),
   )
 
+  const handleSearchClicked = () => {
+    if (!searchInputRef.current) return
+    const query = searchInputRef.current.value
+    if (!query || query.length === 0) return
+
+    navigate({ search: { skipChunks, takeChunks } })
+  }
+
   return (
-    <div>
-      <h3 className="mb-4 flex gap-4 text-xl font-bold">
+    <div className="">
+      <div className="mb-4 flex w-full items-end justify-between">
+        <h3 className="text-xl font-bold">
+          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}
+          {aiFileChunks.count} Chunks
+        </h3>
+        <div className="flex items-center">
+          <label className="input w-100">
+            Find Similarity:
+            <input ref={searchInputRef} type="text" className="grow" placeholder="What did Michael say?" />
+            <button type="button" className={twMerge('btn btn-xs btn-primary')} onClick={() => handleSearchClicked()}>
+              <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </g>
+              </svg>
+            </button>
+          </label>
+        </div>
         <Pagination
           totalItems={aiFileChunks.count}
           itemsPerPage={takeChunks}
@@ -61,11 +90,7 @@ function RouteComponent() {
             navigate({ search: { skipChunks: 0, takeChunks: newPageSize } })
           }}
         />
-        <span>
-          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}
-          {aiFileChunks.count} Chunks
-        </span>
-      </h3>
+      </div>
       <hr className="text-base-300 mb-4" />
       <div className="flex flex-wrap gap-4">
         {aiFileChunks.chunks.map((chunk) => (

@@ -1,9 +1,12 @@
-import { parseFileConverterOptions, serializeFileConverterOptions } from '@george-ai/file-converter'
+import {
+  type ExtractionMethodId,
+  parseFileConverterOptions,
+  serializeFileConverterOptions,
+} from '@george-ai/file-converter'
 import { Prisma } from '@george-ai/prismaClient'
 
 import { prisma } from '../../prisma'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
-import { ExtractionMethodId } from './extraction-options-validation'
 
 interface TaskQuery {
   include?: Prisma.AiContentProcessingTaskInclude
@@ -32,7 +35,9 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
   })
 
   const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
+  console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
+  console.log(`Serialized extraction options:`, extractionOptions)
 
   const extractionMethods: ExtractionMethodId[] = []
   if (converterOptions.enableTextExtraction) {

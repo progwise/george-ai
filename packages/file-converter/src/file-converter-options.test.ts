@@ -27,19 +27,22 @@ describe('fileConverterOptions validation', () => {
     it('should validate and normalize a valid options string', () => {
       const input = 'enableTextExtraction,enableImageProcessing,ocrModel=gpt-4,ocrTimeout=180'
       const result = validateFileConverterOptionsString(input)
-      expect(result).toBe('enableTextExtraction,enableImageProcessing,ocrModel=gpt-4,ocrTimeout=180')
+      // Should include all values including defaults that weren't specified
+      expect(result).toBe('enableTextExtraction,enableImageProcessing,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=5')
     })
 
     it('should handle options with default values', () => {
       const input = 'enableTextExtraction'
       const result = validateFileConverterOptionsString(input)
-      expect(result).toBe('enableTextExtraction')
+      // Should include all default values
+      expect(result).toBe('enableTextExtraction,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5')
     })
 
-    it('should return null when all values are defaults', () => {
+    it('should return serialized string even when all values are defaults', () => {
       const input = 'ocrModel=qwen2.5vl:latest,ocrTimeout=120'
       const result = validateFileConverterOptionsString(input)
-      expect(result).toBe(null)
+      // Should include all values even if they're defaults
+      expect(result).toBe('ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5')
     })
   })
 
@@ -85,7 +88,7 @@ describe('fileConverterOptions validation', () => {
   })
 
   describe('serializeFileConverterOptions', () => {
-    it('should return empty string for all default values', () => {
+    it('should include all values even if they are defaults', () => {
       const options = {
         enableTextExtraction: false,
         enableImageProcessing: false,
@@ -96,10 +99,11 @@ describe('fileConverterOptions validation', () => {
         ocrLoopDetectionThreshold: 5,
       }
       const result = serializeFileConverterOptions(options)
-      expect(result).toBe('')
+      // Should include all values for consistency
+      expect(result).toBe('ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5')
     })
 
-    it('should serialize boolean flags', () => {
+    it('should serialize boolean flags and all other values', () => {
       const options = {
         enableTextExtraction: true,
         enableImageProcessing: true,
@@ -110,7 +114,7 @@ describe('fileConverterOptions validation', () => {
         ocrLoopDetectionThreshold: 5,
       }
       const result = serializeFileConverterOptions(options)
-      expect(result).toBe('enableTextExtraction,enableImageProcessing')
+      expect(result).toBe('enableTextExtraction,enableImageProcessing,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5')
     })
 
     it('should only include non-default values', () => {

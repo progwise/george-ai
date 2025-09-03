@@ -1,5 +1,5 @@
 import { useSearch } from '@tanstack/react-router'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../../gql'
@@ -8,7 +8,7 @@ import { Pagination } from '../../table/pagination'
 
 graphql(`
   fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {
-    latesExtractionMarkdownFileName
+    latestExtractionMarkdownFileNames
     availableExtractionMarkdowns {
       fileNames
       totalCount
@@ -32,6 +32,15 @@ export const MarkdownFileSelector = ({ file, onChange }: MarkdownFileSelectorPro
     detailsRef.current?.removeAttribute('open')
     onChange(fileName)
   }
+
+  const activeFiles = useMemo(() => {
+    return file.latestExtractionMarkdownFileNames
+  }, [file.latestExtractionMarkdownFileNames])
+  const oldFiles = useMemo(() => {
+    return file.availableExtractionMarkdowns.fileNames.filter(
+      (fileName) => file.latestExtractionMarkdownFileNames.indexOf(fileName) === -1,
+    )
+  }, [file.availableExtractionMarkdowns.fileNames, file.latestExtractionMarkdownFileNames])
   return (
     <ul className="menu menu-horizontal bg-base-200 rounded-box menu-sm z-49 items-center shadow-lg">
       <li>
@@ -51,8 +60,8 @@ export const MarkdownFileSelector = ({ file, onChange }: MarkdownFileSelectorPro
                 }}
               />
             </li>
-            {file.availableExtractionMarkdowns.fileNames.map((fileName) => (
-              <li key={`${fileName}`}>
+            {activeFiles.map((fileName) => (
+              <li key={`active-${fileName}`}>
                 <button
                   type="button"
                   className={twMerge(params.markdownFileName === fileName && 'underline')}
@@ -62,6 +71,26 @@ export const MarkdownFileSelector = ({ file, onChange }: MarkdownFileSelectorPro
                 </button>
               </li>
             ))}
+            {oldFiles.length > 0 && (
+              <li>
+                <details>
+                  <summary>Old files</summary>
+                  <ul>
+                    {oldFiles.map((fileName) => (
+                      <li key={`all-${fileName}`}>
+                        <button
+                          type="button"
+                          className={twMerge(params.markdownFileName === fileName && 'underline')}
+                          onClick={() => handleChange(fileName)}
+                        >
+                          <span className="text-nowrap">{fileName || 'no-name'}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            )}
           </ul>
         </details>
       </li>

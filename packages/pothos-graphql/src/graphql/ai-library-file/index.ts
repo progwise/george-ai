@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 
+import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 import { getFileDir } from '@george-ai/file-management'
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { findCacheValue, getAvailableMethodsForMimeType, getFieldValue } from '../../domain'
+import { findCacheValue, getFieldValue } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -12,7 +13,11 @@ import './file-chunks'
 import './queries'
 import './mutations'
 
-import { getLegacyExtractionFileCount, getLegacyExtractionFileNames } from '../../domain/file/markdown'
+import {
+  getLatestExtractionMarkdownFileNames,
+  getLegacyExtractionFileCount,
+  getLegacyExtractionFileNames,
+} from '../../domain/file/markdown'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -324,45 +329,30 @@ builder.prismaObject('AiLibraryFile', {
         }
       },
     }),
-    latesExtractionMarkdownFileNames: t.field({
+    latestExtractionMarkdownFileNames: t.field({
       type: ['String'],
-      nullable: true,
+      nullable: { list: false, items: false },
       resolve: async (file) => {
-        // Get the latest successful extraction task
-        const extractionTask = await prisma.aiContentProcessingTask.findFirst({
-          include: { extractionSubTasks: true },
-          where: { fileId: file.id, extractionFinishedAt: { not: null } },
-          orderBy: { extractionFinishedAt: 'desc' },
-        })
-
-        if (extractionTask) {
-          if (!extractionTask.extractionSubTasks.some((subTask) => subTask.markdownFileName && subTask.finishedAt)) {
-            throw new Error('The uploaded file is missing but extraction task was found.')
-          }
-          return extractionTask.extractionSubTasks
-            .map((subTask) => subTask.markdownFileName)
-            .filter((name): name is string => !!name) // Non-null assertion as we filtered above
-        }
-
-        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
-        const allFiles = await fs.promises.readdir(fileDir)
-        const allMarkdownFiles = allFiles
-          .filter((file) => file.endsWith('.md') && file.startsWith('converted'))
-          .sort((a, b) => b.localeCompare(a))
-          .reverse()
-        if (allMarkdownFiles.length === 0) {
-          return null
-        }
-        return allMarkdownFiles[0]
+        return await getLatestExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
       },
     }),
     markdown: t.field({
       type: MarkdownResult,
       nullable: false,
       args: {
-        markdownFileName: t.arg.string({ required: true }),
+        markdownFileName: t.arg.string({ required: false }),
       },
       resolve: async (file, { markdownFileName }) => {
+        if (!markdownFileName) {
+          const latestFileNames = await getLatestExtractionMarkdownFileNames({
+            fileId: file.id,
+            libraryId: file.libraryId,
+          })
+          if (latestFileNames.length === 0) {
+            throw new Error(`No extracted markdown files found for file ${file.id}`)
+          }
+          markdownFileName = latestFileNames[0]
+        }
         const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
         const filePath = path.resolve(fileDir, markdownFileName)
         const content = await fs.promises.readFile(filePath, 'utf-8')

@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { createEmbeddingTasks, createExtractionTasks } from './change-files'
+import { createEmbeddingTasks, createProcessingTasks } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
@@ -54,7 +54,7 @@ export const FilesActionsBar = ({
   })
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => await createExtractionTasks({ data: fileIds }),
+    mutationFn: async (fileIds: string[]) => await createProcessingTasks({ data: fileIds }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error
