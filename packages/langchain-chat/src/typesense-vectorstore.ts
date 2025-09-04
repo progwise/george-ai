@@ -197,44 +197,6 @@ const sanitizeVector = (vector: number[]) => {
   return sanitizedVector
 }
 
-export const similaritySearch = async (
-  question: string,
-  library: string,
-  embeddingsModelName: string,
-  docName?: string,
-  maxHits?: number,
-) => {
-  const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
-  const sanitizedVector = sanitizeVector(questionAsVector)
-  await ensureVectorStore(library)
-  const searchParams = {
-    collection: getTypesenseSchemaName(library),
-    q: '*',
-    query_by: 'vec',
-    vector_query: `vec:([${sanitizedVector.join(',')}], k:${maxHits || 10})`,
-    exclude_fields: 'vec',
-    ...(docName ? { filter_by: `docName: \`${docName}\`` } : {}),
-  }
-  const multiSearchParams = {
-    searches: [searchParams],
-  }
-  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
-
-  const hits = searchResponse.results[0].hits
-  if (!hits || hits.length === 0) {
-    return []
-  }
-  const docs = hits.map((hit) => ({
-    pageContent: hit?.document.text,
-    docName: hit?.document.docName,
-    docPath: hit?.document.docPath,
-    docId: hit?.document.docId,
-    id: hit?.document.id,
-    originUri: hit?.document.originUri,
-  }))
-  return docs
-}
-
 interface queryVectorStoreOptions {
   perPage: number
   page: number

@@ -2,7 +2,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 
 import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
-import { getSimilarChunks, similaritySearch } from './typesense-vectorstore'
+import { getSimilarChunks } from './typesense-vectorstore'
 
 interface File {
   id: string

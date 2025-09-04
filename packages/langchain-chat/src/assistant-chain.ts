@@ -10,7 +10,7 @@ import { AssistantModel } from './assistant-model'
 import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
 import { Library } from './library'
-import { similaritySearch } from './typesense-vectorstore'
+import { getSimilarChunks } from './typesense-vectorstore'
 
 export interface AssistantChainMessage {
   id: string
@@ -66,20 +66,21 @@ export async function* askAssistantChain(input: {
       libraryUsedFor: library.usedFor,
     })
 
-    const vectorStoreResult = await similaritySearch(
-      libraryPromptResult.searchPrompt,
-      library.id,
-      library.embeddingModelName,
-    )
+    const vectorStoreResult = await getSimilarChunks({
+      term: libraryPromptResult.searchPrompt,
+      hits: 4,
+      embeddingsModelName: library.embeddingModelName,
+      libraryId: library.id,
+    })
 
     const messages = vectorStoreResult.map(
       (result) =>
         new SystemMessage({
-          content: `Found the following document ${result.docName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
+          content: `Found the following document ${result.fileName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
 
         START OF DOCUMENT
 
-        Document content: ${result.pageContent}
+        Document content: ${result.text}
         
         END OF DOCUMENT
         `,
