@@ -764,8 +764,12 @@ export type FileChunk = {
   __typename?: 'FileChunk'
   chunkIndex: Scalars['Int']['output']
   distance?: Maybe<Scalars['Float']['output']>
+  fileId?: Maybe<Scalars['String']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
   headingPath: Scalars['String']['output']
   id: Scalars['String']['output']
+  originUri?: Maybe<Scalars['String']['output']>
+  points?: Maybe<Scalars['Int']['output']>
   section: Scalars['String']['output']
   subChunkIndex: Scalars['Int']['output']
   text: Scalars['String']['output']
@@ -2967,12 +2971,16 @@ export type GetSimilarFileChunksQuery = {
   aiSimilarFileChunks: Array<{
     __typename?: 'FileChunk'
     id: string
+    fileName?: string | null
+    fileId?: string | null
+    originUri?: string | null
     text: string
     section: string
     headingPath: string
     chunkIndex: number
     subChunkIndex: number
     distance?: number | null
+    points?: number | null
   }>
 }
 
@@ -3296,6 +3304,15 @@ export type AiContentProcessingTask_TimelineFragment = {
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
   embeddingModelName?: string | null
+  extractionSubTasks: Array<{
+    __typename?: 'AiContentExtractionSubTask'
+    id: string
+    extractionMethod: string
+    markdownFileName?: string | null
+    startedAt?: string | null
+    finishedAt?: string | null
+    failedAt?: string | null
+  }>
 }
 
 export type ChangeLibraryMutationVariables = Exact<{
@@ -7061,6 +7078,21 @@ export const AiContentProcessingTask_TimelineFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'extractionSubTasks' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'markdownFileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedAt' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -7140,6 +7172,21 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'extractionSubTasks' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'markdownFileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedAt' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -11473,12 +11520,16 @@ export const GetSimilarFileChunksDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'text' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'section' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'headingPath' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunkIndex' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'points' } },
               ],
             },
           },
@@ -12211,6 +12262,21 @@ export const GetContentProcessingTasksDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'extractionSubTasks' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'markdownFileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedAt' } },
+              ],
+            },
+          },
         ],
       },
     },

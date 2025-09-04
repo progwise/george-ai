@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useRef } from 'react'
-import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { FormattedMarkdown } from '../../../../../../components/formatted-markdown'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { Pagination } from '../../../../../../components/table/pagination'
@@ -34,7 +31,6 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const { fileId } = Route.useParams()
   const { skipChunks, takeChunks } = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -48,35 +44,14 @@ function RouteComponent() {
     }),
   )
 
-  const handleSearchClicked = () => {
-    if (!searchInputRef.current) return
-    const query = searchInputRef.current.value
-    if (!query || query.length === 0) return
-
-    navigate({ search: { skipChunks, takeChunks } })
-  }
-
   return (
-    <div className="">
+    <div className="container mx-auto max-w-7xl p-4">
+      {/* Header Section */}
       <div className="mb-4 flex w-full items-end justify-between">
         <h3 className="text-xl font-bold">
-          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}
+          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + aiFileChunks.take, aiFileChunks.count)} of{' '}
           {aiFileChunks.count} Chunks
         </h3>
-        <div className="flex items-center">
-          <label className="input w-100">
-            Find Similarity:
-            <input ref={searchInputRef} type="text" className="grow" placeholder="What did Michael say?" />
-            <button type="button" className={twMerge('btn btn-xs btn-primary')} onClick={() => handleSearchClicked()}>
-              <svg className="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.3-4.3"></path>
-                </g>
-              </svg>
-            </button>
-          </label>
-        </div>
         <Pagination
           totalItems={aiFileChunks.count}
           itemsPerPage={takeChunks}
@@ -91,21 +66,33 @@ function RouteComponent() {
           }}
         />
       </div>
-      <hr className="text-base-300 mb-4" />
-      <div className="flex flex-wrap gap-4">
+
+      {/* Chunks Grid */}
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {aiFileChunks.chunks.map((chunk) => (
-          <div key={chunk.id} className="card card-border bg-base-200 card-xs shadow-sm">
-            <div className="card-body">
-              <h2 className="card-title">Chunk {chunk.chunkIndex + 1}</h2>
-              <p>
-                ñ Semantic Path:
-                {chunk.headingPath} {chunk.subChunkIndex > 0 ? `(part-${chunk.subChunkIndex + 1})` : ''}
-              </p>
-              <div>
-                <FormattedMarkdown markdown={chunk.text} className="text-xs" />
+          <div key={chunk.id} className="card bg-base-100 card-compact shadow-sm transition-shadow hover:shadow-md">
+            <div className="card-body p-3">
+              {/* Header with chunk number */}
+              <div className="mb-2">
+                <div className="badge badge-primary badge-outline badge-sm">#{chunk.chunkIndex + 1}</div>
+                {chunk.subChunkIndex > 0 && (
+                  <span className="badge badge-ghost badge-xs ml-1">part {chunk.subChunkIndex + 1}</span>
+                )}
               </div>
-              <hr />
-              <div className="card-actions justify-end">Internal Chunk Id: {chunk.id}</div>
+
+              {/* Path information */}
+              <div className="mb-2">
+                <div className="text-base-content/70 truncate text-xs" title={chunk.headingPath}>
+                  {chunk.headingPath}
+                </div>
+              </div>
+
+              {/* Content preview */}
+              <div className="flex-1">
+                <div className="bg-base-200 max-h-20 overflow-y-auto rounded p-2">
+                  <pre className="text-base-content/90 text-xs leading-tight">{chunk.text}</pre>
+                </div>
+              </div>
             </div>
           </div>
         ))}

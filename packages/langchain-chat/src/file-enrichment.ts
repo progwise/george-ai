@@ -2,7 +2,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 
 import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
-import { similaritySearch } from './typesense-vectorstore'
+import { getSimilarChunks, similaritySearch } from './typesense-vectorstore'
 
 interface File {
   id: string
@@ -41,15 +41,15 @@ export const getEnrichedValue = async ({
       if (!options.contentQuery) {
         throw new Error('Content query is required when using vector store')
       }
-      const searchResult = await similaritySearch(
-        options.contentQuery,
-        file.libraryId,
-        file.embeddingModelName,
-        file.name,
-        4,
-      )
-      console.log('enrichment search results', searchResult)
-      const searchValue = searchResult.map((result) => result.pageContent).join('\n')
+      const searchResult = await getSimilarChunks({
+        libraryId: file.libraryId,
+        fileId: file.id,
+        term: options.contentQuery,
+        embeddingsModelName: file.embeddingModelName,
+        hits: 4,
+      })
+
+      const searchValue = searchResult.map((result) => result.text).join('\n\n')
       messages.push({
         name: 'vector search',
         label: 'Here is the search result in the vector store',
@@ -63,6 +63,7 @@ export const getEnrichedValue = async ({
 
     const model = getOllamaChatModel(languageModel)
     const prompt = await getEnrichmentPrompt({ instruction, messages })
+    console.log('Enrichment prompt:', prompt.toString())
     const instructionPromptResult = await model.invoke(prompt, {})
     return instructionPromptResult.content.toString()
   } catch (error) {

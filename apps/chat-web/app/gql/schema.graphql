@@ -712,8 +712,12 @@ type FieldValueResult {
 type FileChunk {
   chunkIndex: Int!
   distance: Float
+  fileId: String
+  fileName: String
   headingPath: String!
   id: String!
+  originUri: String
+  points: Int
   section: String!
   subChunkIndex: Int!
   text: String!

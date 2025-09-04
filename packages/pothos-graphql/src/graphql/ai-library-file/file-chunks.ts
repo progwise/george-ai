@@ -7,22 +7,30 @@ console.log('Setting up: AiLibraryFile FileChunks')
 
 interface FileChunkType {
   id: string
+  fileName: string | null
+  fileId: string | null
+  originUri: string | null
   text: string
   section: string
   headingPath: string
   chunkIndex: number
   subChunkIndex: number
   distance?: number
+  points?: number
 }
 export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
+    fileName: t.exposeString('fileName', { nullable: true }),
+    fileId: t.exposeString('fileId', { nullable: true }),
+    originUri: t.exposeString('originUri', { nullable: true }),
     text: t.exposeString('text', { nullable: false }),
     section: t.exposeString('section', { nullable: false }),
     headingPath: t.exposeString('headingPath', { nullable: false }),
     chunkIndex: t.exposeInt('chunkIndex', { nullable: false }),
     subChunkIndex: t.exposeInt('subChunkIndex', { nullable: false }),
     distance: t.exposeFloat('distance', { nullable: true }),
+    points: t.exposeInt('points', { nullable: true }),
   }),
 })
 

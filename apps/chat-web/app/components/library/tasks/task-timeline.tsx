@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, formatDuration, timeString } from '@george-ai/web-utils'
+import { dateTimeString, duration, formatDuration, timeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiContentProcessingTask_TimelineFragment } from '../../../gql/graphql'
@@ -25,6 +25,14 @@ graphql(`
     embeddingTimeMs
     embeddingTimeout
     embeddingModelName
+    extractionSubTasks {
+      id
+      extractionMethod
+      markdownFileName
+      startedAt
+      finishedAt
+      failedAt
+    }
   }
 `)
 
@@ -42,6 +50,12 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
       status: string
       success?: boolean | null
       elapsedTime?: number
+      subTasks?: Array<{
+        name: string
+        startedAt?: string | null
+        finishedAt?: string | null
+        failedAt?: string | null
+      }>
     }> = [
       {
         labels: { done: 'Created', doing: 'Creating', todo: 'Create', skipped: 'no Create' },
@@ -96,6 +110,12 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             ? new Date((task.extractionFinishedAt || task.extractionFailedAt)!).getTime() -
               new Date(task.extractionStartedAt).getTime()
             : undefined,
+        subTasks: task.extractionSubTasks.map((subTask) => ({
+          name: subTask.extractionMethod,
+          startedAt: subTask.startedAt,
+          finishedAt: subTask.finishedAt,
+          failedAt: subTask.failedAt,
+        })),
       },
       {
         labels: { done: 'Embedded', doing: 'Embedding', todo: 'Embed', skipped: 'no Embed' },
@@ -149,7 +169,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'text-neutral'
                     : milestone.status === 'doing'
-                      ? 'text-info animate-pulse'
+                      ? 'text-info animate-jump animate-infinite animate-duration-[2000ms] animate-delay-0 animate-ease-linear animate-normal'
                       : milestone.status === 'skipped'
                         ? 'text-neutral-300'
                         : milestone.success
@@ -171,7 +191,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'badge-neutral'
                     : milestone.status === 'doing'
-                      ? 'badge-info animate-pulse'
+                      ? 'badge-info animate-duration-[2000ms] animate-pulse'
                       : milestone.status === 'skipped'
                         ? 'badge-ghost text-base-content/50 font-normal italic'
                         : milestone.success
@@ -182,6 +202,23 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                 <div className="">{milestone.labels[milestone.status]}</div>
               </div>
               <div className="text-neutral/50 text-xs italic">{formatDuration(milestone.elapsedTime)}</div>
+              <div>
+                {milestone.subTasks && milestone.subTasks.length > 0 && (
+                  <ul className="menu menu-compact">
+                    {milestone.subTasks.map((subTask) => (
+                      <li key={subTask.name} className="px-2">
+                        <div className="text-base-content/50 flex items-center justify-between">
+                          {subTask.startedAt && !subTask.finishedAt && !subTask.failedAt && (
+                            <span className="loading loading-infinity loading-xs"></span>
+                          )}
+                          <span>{duration(subTask.startedAt, subTask.finishedAt || subTask.failedAt)}</span>
+                          <span>{subTask.name}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
             {index !== timelineData.length - 1 && <hr />}
           </li>

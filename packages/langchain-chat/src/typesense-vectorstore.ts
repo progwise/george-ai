@@ -205,7 +205,7 @@ export const similaritySearch = async (
   embeddingsModelName: string,
   docName?: string,
   maxHits?: number,
-): Promise<{ pageContent: string; docName: string }[]> => {
+) => {
   const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, question)
   const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(library)
@@ -222,16 +222,18 @@ export const similaritySearch = async (
   }
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
-  const docs = searchResponse.results
-    .flatMap((result) => result.hits)
-    .map((hit) => ({
-      pageContent: hit?.document.text,
-      docName: hit?.document.docName,
-      docPath: hit?.document.docPath,
-      docId: hit?.document.docId,
-      id: hit?.document.id,
-      originUri: hit?.document.originUri,
-    }))
+  const hits = searchResponse.results[0].hits
+  if (!hits || hits.length === 0) {
+    return []
+  }
+  const docs = hits.map((hit) => ({
+    pageContent: hit?.document.text,
+    docName: hit?.document.docName,
+    docPath: hit?.document.docPath,
+    docId: hit?.document.docId,
+    id: hit?.document.id,
+    originUri: hit?.document.originUri,
+  }))
   return docs
 }
 
@@ -335,11 +337,15 @@ export const getFileChunks = async ({
     take,
     chunks: documents.hits.map((hit: DocumentSchema) => ({
       id: hit.document.id || 'no-id',
+      fileName: hit.document.docName || 'no-name',
+      fileId: hit.document.docId || 'no-file-id',
+      originUri: hit.document.originUri || 'no-uri',
       text: hit.document.text || 'no-txt',
       section: hit.document.section || 'no-section',
       headingPath: hit.document.headingPath || 'no-path',
       chunkIndex: hit.document.chunkIndex || 0,
       subChunkIndex: hit.document.subChunkIndex || 0,
+      points: hit.document.points || 0,
     })),
   }
 }
@@ -376,12 +382,16 @@ export const getSimilarChunks = async (params: {
   }
   const chunks = resultHits.map((hit: DocumentSchema) => ({
     id: hit.document.id || 'no-id',
+    fileName: hit.document.docName || 'no-name',
+    fileId: hit.document.docId || 'no-file-id',
+    originUri: hit.document.originUri || 'no-uri',
     text: hit.document.text || 'no-txt',
     section: hit.document.section || 'no-section',
     headingPath: hit.document.headingPath || 'no-path',
     chunkIndex: hit.document.chunkIndex || 0,
     subChunkIndex: hit.document.subChunkIndex || 0,
     distance: hit.vector_distance || 0,
+    points: hit.document.points || 0,
   }))
   return chunks
 }

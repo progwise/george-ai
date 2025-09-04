@@ -20,12 +20,16 @@ const getSimilarFileChunks = createServerFn({ method: 'GET' })
         query getSimilarFileChunks($fileId: String!, $term: String, $hits: Int!) {
           aiSimilarFileChunks(fileId: $fileId, term: $term, hits: $hits) {
             id
+            fileName
+            fileId
+            originUri
             text
             section
             headingPath
             chunkIndex
             subChunkIndex
             distance
+            points
           }
         }
       `),

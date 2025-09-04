@@ -175,6 +175,14 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             `🔄 Starting extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
           )
 
+          subTask = await updateSubTask({
+            subTask,
+            timeoutSignal,
+            data: {
+              startedAt: new Date(),
+            },
+          })
+
           // Perform the content extraction
           const extractionResult = await performContentExtraction({
             taskId: task.id,
@@ -220,7 +228,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           data: {
             extractionFailedAt: new Date(),
             processingFailedAt: new Date(),
-            metadata: mergeObjectToJsonString(task.metadata, extractionResults),
+            metadata: mergeObjectToJsonString(task.metadata, { extractionResults }),
           },
         })
         console.error(`❌ Extraction phase failed for task ${task.id}`)
@@ -237,7 +245,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
                   result.extractionResult.error instanceof Error ? result.extractionResult.error.message : ''
                 return errorMessage.includes('timeout')
               }) || false,
-            metadata: mergeObjectToJsonString(task.metadata, extractionResults), // TODO: Not loosing metadata from previous steps
+            metadata: mergeObjectToJsonString(task.metadata, { extractionResults }), // TODO: Not loosing metadata from previous steps
           },
         })
       }
@@ -260,7 +268,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       .map((sub) => sub.markdownFileName)
       .filter((name): name is string => !!name) // Non-null as filtered
     if (markdownFileNames.length < 1) {
-      await updateProcessingTask({
+      task = await updateProcessingTask({
         task,
         timeoutSignal,
         data: {
@@ -304,7 +312,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         data: {
           embeddingFailedAt: new Date(),
           processingFailedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, embeddingResults),
+          metadata: mergeObjectToJsonString(task.metadata, { embeddingResults }),
         },
       })
       console.error(`❌ Embedding phase failed for task ${task.id}`)
@@ -321,7 +329,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
               return errorMessage.includes('timeout')
             }) || false,
           processingFinishedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, embeddingResults), // TODO: Not loosing metadata from previous steps
+          metadata: mergeObjectToJsonString(task.metadata, { embeddingResults }), // TODO: Not loosing metadata from previous steps
           chunksCount: embeddingResults.reduce((sum, res) => sum + (res.chunks || 0), 0),
           chunksSize: embeddingResults.reduce((sum, res) => sum + (res.size || 0), 0),
         },
