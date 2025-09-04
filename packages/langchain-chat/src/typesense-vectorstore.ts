@@ -4,8 +4,6 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { getOllamaEmbeddingsModel } from '@george-ai/ai-service-client'
-
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
 
@@ -129,14 +127,6 @@ export const embedMarkdownFile = async (args: {
     throw new Error(`Markdown file not found: ${markdownFilePath}`)
   }
 
-  // Not allowed any more because we handle multiple markdown files for the same source file
-  //await removeFileByName(libraryId, fileName)
-
-  if (args.timeoutSignal.aborted) {
-    console.error(`❌ Embedding operation for file ${fileName} aborted due to timeout`)
-    return { chunks: 0, size: 0, timeout: true }
-  }
-
   const chunks = splitMarkdownFile(markdownFilePath).map((chunk) => ({
     pageContent: chunk.pageContent,
     metadata: {
@@ -150,37 +140,45 @@ export const embedMarkdownFile = async (args: {
     },
   }))
 
-  const embeddings = await getOllamaEmbeddingsModel(embeddingModelName)
-  const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
-  const sanitizedVectors = vectors.map((vector) => sanitizeVector(vector))
+  console.log(`🔍 Importing ${chunks.length} chunks into Typesense for file ${fileName}`)
 
-  if (args.timeoutSignal.aborted) {
-    console.error(`❌ Embedding operation for file ${fileName} aborted due to timeout`)
-    return {
-      chunks: chunks.length,
-      size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
-      timeout: true,
+  const successfulCreatedChunks: typeof chunks = []
+  const failedChunks: Array<{ chunk: (typeof chunks)[number]; errorMessage: string }> = []
+
+  try {
+    for (const chunk of chunks) {
+      if (args.timeoutSignal.aborted) {
+        console.warn('⚠️ Embedding process aborted due to timeout signal')
+        break
+      }
+      try {
+        await vectorTypesenseClient
+          .collections(typesenseVectorStoreConfig.schemaName)
+          .documents()
+          .create({
+            ...chunk.metadata,
+            vec: sanitizeVector(await getEmbeddingWithCache(embeddingModelName, chunk.pageContent)),
+            text: chunk.pageContent,
+            points: 1,
+            chunkIndex: chunk.metadata.chunkIndex,
+            subChunkIndex: chunk.metadata.subChunkIndex,
+          })
+        successfulCreatedChunks.push(chunk)
+      } catch (error) {
+        console.error('❌ Error importing chunk into Typesense:', error, 'Chunk metadata:', chunk.metadata)
+        failedChunks.push({ chunk, errorMessage: (error as Error).message })
+      }
     }
-  }
 
-  await vectorTypesenseClient
-    .collections(typesenseVectorStoreConfig.schemaName)
-    .documents()
-    .import(
-      chunks.map((chunk, index) => ({
-        ...chunk.metadata,
-        vec: sanitizedVectors[index],
-        text: chunk.pageContent,
-        points: 1,
-        chunkIndex: index,
-        subChunkIndex: 0,
-      })),
-      { action: 'create', dirty_values: 'drop' },
-    )
-
-  return {
-    chunks: chunks.length,
-    size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
+    return {
+      chunks: successfulCreatedChunks.length,
+      chunkErrors: failedChunks,
+      size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
+      timeout: args.timeoutSignal.aborted,
+    }
+  } catch (error) {
+    console.error('❌ Error importing documents into Typesense:', error)
+    throw error
   }
 }
 

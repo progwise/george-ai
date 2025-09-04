@@ -300,7 +300,17 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         })
         return embeddingResult
       })
-      .map((p) => p.catch((e) => ({ success: false, error: e, chunks: undefined, size: undefined }))) // Catch errors in individual embeddings
+      .map((p) =>
+        p.catch((e: unknown) => {
+          const failedResult: Awaited<ReturnType<typeof processEmbeddingPhase>> = {
+            success: false,
+            chunks: 0,
+            chunkErrors: [],
+            error: e instanceof Error ? e : new Error('Unknown error during embedding'),
+          }
+          return failedResult
+        }),
+      ) // Catch errors in individual embedding processes
 
     const embeddingResults = await Promise.all(embeddingPromises)
 
@@ -330,7 +340,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             }) || false,
           processingFinishedAt: new Date(),
           metadata: mergeObjectToJsonString(task.metadata, { embeddingResults }), // TODO: Not loosing metadata from previous steps
-          chunksCount: embeddingResults.reduce((sum, res) => sum + (res.chunks || 0), 0),
+          chunksCount: embeddingResults.map((result) => result.chunks).reduce((sum, res) => sum + res, 0),
           chunksSize: embeddingResults.reduce((sum, res) => sum + (res.size || 0), 0),
         },
       })
@@ -396,13 +406,15 @@ const processEmbeddingPhase = async (args: {
     })
 
     return {
-      success: true,
+      success: true, //TODO: Is it a success if there are chunkErrors?
       timeout: embeddedFile.timeout || false,
       chunks: embeddedFile.chunks,
+      chunkErrors: embeddedFile.chunkErrors,
       size: embeddedFile.size,
     }
   } catch (error) {
-    return { success: false, error }
+    console.error(`❌ Error in embedding phase for task ${args.taskId}:`, error)
+    return { success: false, chunks: 0, chunkErrors: [], error }
   }
 }
 
