@@ -362,7 +362,7 @@ enum AiLibraryCrawlerUriType {
 
 type AiLibraryFile {
   archivedAt: DateTime
-  availableExtractionMarkdowns(skip: Int = 0, take: Int = 20): AvailableMarkdownsQueryResult!
+  availableExtractionMarkdownFileNames: [String!]!
   cache: [AiListItemCache!]!
   crawledByCrawler: AiLibraryCrawler
   crawler: AiLibraryCrawler
@@ -380,6 +380,7 @@ type AiLibraryFile {
   lastSuccessfulExtraction: AiContentProcessingTask
   lastUpdate: AiLibraryUpdate
   latestExtractionMarkdownFileNames: [String!]!
+  library: AiLibrary!
   libraryId: String!
   markdown(markdownFileName: String): MarkdownResult!
   mimeType: String!
@@ -626,13 +627,6 @@ type AssistantParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
-}
-
-type AvailableMarkdownsQueryResult {
-  fileNames: [String!]!
-  skip: Int
-  take: Int
-  totalCount: Int!
 }
 
 scalar BigInt

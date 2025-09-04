@@ -50,12 +50,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
       status: string
       success?: boolean | null
       elapsedTime?: number
-      subTasks?: Array<{
-        name: string
-        startedAt?: string | null
-        finishedAt?: string | null
-        failedAt?: string | null
-      }>
+      renderSubTasks?: boolean
     }> = [
       {
         labels: { done: 'Created', doing: 'Creating', todo: 'Create', skipped: 'no Create' },
@@ -110,12 +105,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             ? new Date((task.extractionFinishedAt || task.extractionFailedAt)!).getTime() -
               new Date(task.extractionStartedAt).getTime()
             : undefined,
-        subTasks: task.extractionSubTasks.map((subTask) => ({
-          name: subTask.extractionMethod,
-          startedAt: subTask.startedAt,
-          finishedAt: subTask.finishedAt,
-          failedAt: subTask.failedAt,
-        })),
+        renderSubTasks: true,
       },
       {
         labels: { done: 'Embedded', doing: 'Embedding', todo: 'Embed', skipped: 'no Embed' },
@@ -155,7 +145,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
       <ul className="timeline">
         {timelineData.map((milestone, index) => (
           <li
-            key={milestone.labels[milestone.status]}
+            key={`${milestone.labels[milestone.status]}-${new Date().getTime()}`}
             className={twMerge('timeline-item', !milestone.time && milestone.status !== 'doing' && 'opacity-30')}
           >
             {index !== 0 && <hr />}
@@ -203,16 +193,16 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
               </div>
               <div className="text-neutral/50 text-xs italic">{formatDuration(milestone.elapsedTime)}</div>
               <div>
-                {milestone.subTasks && milestone.subTasks.length > 0 && (
-                  <ul className="menu menu-compact">
-                    {milestone.subTasks.map((subTask) => (
-                      <li key={subTask.name} className="px-2">
-                        <div className="text-base-content/50 flex items-center justify-between">
+                {milestone.renderSubTasks && task.extractionSubTasks && task.extractionSubTasks.length > 0 && (
+                  <ul>
+                    {task.extractionSubTasks.map((subTask) => (
+                      <li key={`subTask-${subTask.id}-${new Date().getTime()}`} className="px-2">
+                        <div className="text-base-content/50 flex items-center justify-between gap-1 text-xs italic">
                           {subTask.startedAt && !subTask.finishedAt && !subTask.failedAt && (
                             <span className="loading loading-infinity loading-xs"></span>
                           )}
                           <span>{duration(subTask.startedAt, subTask.finishedAt || subTask.failedAt)}</span>
-                          <span>{subTask.name}</span>
+                          <span>{subTask.extractionMethod}</span>
                         </div>
                       </li>
                     ))}

@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getExtractionTasksQueryOptions } from '../../../../../../components/library/tasks/get-tasks'
+import { getProcessingTasksQueryOptions } from '../../../../../../components/library/tasks/get-tasks'
 import { TaskAccordionItem } from '../../../../../../components/library/tasks/task-accordion-item'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { ProcessingStatus } from '../../../../../../gql/graphql'
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   }),
   loader: async ({ context, params, deps }) => {
     await context.queryClient.ensureQueryData(
-      getExtractionTasksQueryOptions({
+      getProcessingTasksQueryOptions({
         libraryId: params.libraryId,
         fileId: params.fileId,
         skip: deps.skip,
@@ -40,7 +40,7 @@ function RouteComponent() {
   const {
     data: { aiContentProcessingTasks },
   } = useSuspenseQuery(
-    getExtractionTasksQueryOptions({
+    getProcessingTasksQueryOptions({
       libraryId,
       fileId,
       skip,

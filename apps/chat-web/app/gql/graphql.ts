@@ -401,7 +401,7 @@ export enum AiLibraryCrawlerUriType {
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   archivedAt?: Maybe<Scalars['DateTime']['output']>
-  availableExtractionMarkdowns: AvailableMarkdownsQueryResult
+  availableExtractionMarkdownFileNames: Array<Scalars['String']['output']>
   cache: Array<AiListItemCache>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
   crawler?: Maybe<AiLibraryCrawler>
@@ -419,6 +419,7 @@ export type AiLibraryFile = {
   lastSuccessfulExtraction?: Maybe<AiContentProcessingTask>
   lastUpdate?: Maybe<AiLibraryUpdate>
   latestExtractionMarkdownFileNames: Array<Scalars['String']['output']>
+  library: AiLibrary
   libraryId: Scalars['String']['output']
   markdown: MarkdownResult
   mimeType: Scalars['String']['output']
@@ -433,11 +434,6 @@ export type AiLibraryFile = {
   taskCount: Scalars['Int']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type AiLibraryFileAvailableExtractionMarkdownsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>
-  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type AiLibraryFileFieldValuesArgs = {
@@ -685,14 +681,6 @@ export type AssistantParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
-}
-
-export type AvailableMarkdownsQueryResult = {
-  __typename?: 'AvailableMarkdownsQueryResult'
-  fileNames: Array<Scalars['String']['output']>
-  skip?: Maybe<Scalars['Int']['output']>
-  take?: Maybe<Scalars['Int']['output']>
-  totalCount: Scalars['Int']['output']
 }
 
 export type CleanEnrichmentResult = {
@@ -2915,6 +2903,7 @@ export type GetFileInfoQuery = {
     embeddingStatus: EmbeddingStatus
     latestExtractionMarkdownFileNames: Array<string>
     libraryId: string
+    availableExtractionMarkdownFileNames: Array<string>
     isLegacyFile: boolean
     supportedExtractionMethods: Array<string>
     uploadedAt?: string | null
@@ -2927,13 +2916,6 @@ export type GetFileInfoQuery = {
       message?: string | null
       updateType: string
     } | null
-    availableExtractionMarkdowns: {
-      __typename?: 'AvailableMarkdownsQueryResult'
-      fileNames: Array<string>
-      totalCount: number
-      take?: number | null
-      skip?: number | null
-    }
     lastSuccessfulExtraction?: {
       __typename?: 'AiContentProcessingTask'
       id: string
@@ -3047,13 +3029,7 @@ export type GetMarkdownQuery = {
 export type AiLibraryFile_MarkdownFileSelectorFragment = {
   __typename?: 'AiLibraryFile'
   latestExtractionMarkdownFileNames: Array<string>
-  availableExtractionMarkdowns: {
-    __typename?: 'AvailableMarkdownsQueryResult'
-    fileNames: Array<string>
-    totalCount: number
-    take?: number | null
-    skip?: number | null
-  }
+  availableExtractionMarkdownFileNames: Array<string>
 }
 
 export type AiLibraryBaseFragment = {
@@ -3232,7 +3208,12 @@ export type GetContentProcessingTasksQuery = {
       embeddingTimeMs?: number | null
       embeddingTimeout: boolean
       embeddingModelName?: string | null
-      file: { __typename?: 'AiLibraryFile'; id: string; name: string }
+      file: {
+        __typename?: 'AiLibraryFile'
+        id: string
+        name: string
+        library: { __typename?: 'AiLibrary'; fileConverterOptions?: string | null }
+      }
       extractionSubTasks: Array<{
         __typename?: 'AiContentExtractionSubTask'
         id: string
@@ -3274,7 +3255,12 @@ export type AiContentProcessingTask_AccordionItemFragment = {
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
   embeddingModelName?: string | null
-  file: { __typename?: 'AiLibraryFile'; id: string; name: string }
+  file: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    library: { __typename?: 'AiLibrary'; fileConverterOptions?: string | null }
+  }
   extractionSubTasks: Array<{
     __typename?: 'AiContentExtractionSubTask'
     id: string
@@ -6888,19 +6874,7 @@ export const AiLibraryFile_MarkdownFileSelectorFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'availableExtractionMarkdowns' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'fileNames' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
         ],
       },
     },
@@ -7118,6 +7092,14 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } }],
+                  },
+                },
               ],
             },
           },
@@ -11451,19 +11433,7 @@ export const GetFileInfoDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'availableExtractionMarkdowns' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'fileNames' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
         ],
       },
     },
@@ -12297,6 +12267,14 @@ export const GetContentProcessingTasksDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } }],
+                  },
+                },
               ],
             },
           },

@@ -40,7 +40,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
 
     if (isLegacyFile) {
       statusItems.push(
-        <div key="legacy" className="badge badge-info badge-xs gap-1">
+        <div key="legacy" className="badge badge-info badge-xs gap-1 text-nowrap">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -55,7 +55,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
 
     if (lastSuccessfulExtraction) {
       statusItems.push(
-        <div key="success" className="badge badge-success badge-xs gap-1">
+        <div key="success" className="badge badge-success badge-xs gap-1 text-nowrap">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -70,7 +70,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
 
     if (lastSuccessfulEmbedding) {
       statusItems.push(
-        <div key="timeout" className="badge badge-warning badge-xs gap-1">
+        <div key="timeout" className="badge badge-warning badge-xs gap-1 text-nowrap">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -85,7 +85,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
 
     if (supportedExtractionMethods.length === 0) {
       statusItems.push(
-        <div key="unsupported" className="badge badge-error badge-xs gap-1">
+        <div key="unsupported" className="badge badge-error badge-xs gap-1 text-nowrap">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"

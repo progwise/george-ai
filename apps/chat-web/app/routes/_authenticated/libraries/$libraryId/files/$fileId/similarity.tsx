@@ -175,7 +175,7 @@ function RouteComponent() {
                           <div className="text-right">
                             <div className="font-mono text-xs font-bold">
                               {chunk.distance !== undefined && chunk.distance !== null
-                                ? chunk.distance.toFixed(3)
+                                ? chunk.distance.toFixed(10)
                                 : 'n/a'}
                             </div>
                           </div>

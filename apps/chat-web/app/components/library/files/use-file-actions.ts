@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { getExtractionTasksQueryOptions } from '../tasks/get-tasks'
+import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
 import { createEmbeddingTasks, createProcessingTasks } from './change-files'
 import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
@@ -19,7 +19,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
         queryKey: getFileInfoQueryOptions({ fileId: params.fileId }).queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: getExtractionTasksQueryOptions({ libraryId: params.libraryId, fileId: params.fileId }).queryKey,
+        queryKey: getProcessingTasksQueryOptions({ libraryId: params.libraryId, fileId: params.fileId }).queryKey,
       }),
     ])
   }

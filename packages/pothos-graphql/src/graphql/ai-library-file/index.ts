@@ -13,11 +13,7 @@ import './file-chunks'
 import './queries'
 import './mutations'
 
-import {
-  getLatestExtractionMarkdownFileNames,
-  getLegacyExtractionFileCount,
-  getLegacyExtractionFileNames,
-} from '../../domain/file/markdown'
+import { getLatestExtractionMarkdownFileNames, getLegacyExtractionFileNames } from '../../domain/file/markdown'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -54,54 +50,6 @@ const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('Sou
   }),
 })
 
-const AvailableMarkdownsQueryResult = builder
-  .objectRef<{
-    fileId: string
-    libraryId: string
-    totalCount: number
-    take: number
-    skip: number
-  }>('AvailableMarkdownsQueryResult')
-  .implement({
-    fields: (t) => ({
-      fileNames: t.field({
-        type: ['String'],
-        nullable: { list: false, items: false },
-        resolve: async (parent) => {
-          const markdownFileNamesFromTasks = await prisma.aiContentProcessingTask.findMany({
-            select: { extractionSubTasks: true },
-            where: {
-              fileId: parent.fileId,
-              extractionFinishedAt: { not: null },
-              extractionSubTasks: { some: { markdownFileName: { not: null } } },
-            },
-            orderBy: { extractionFinishedAt: 'desc' },
-            take: parent.take,
-            skip: parent.skip,
-          })
-          if (markdownFileNamesFromTasks.length >= parent.take) {
-            return markdownFileNamesFromTasks.flatMap((task) =>
-              task.extractionSubTasks.map((st) => st.markdownFileName).filter((name): name is string => !!name),
-            ) // Non-null assertion as we filtered above
-          }
-          const legacyFileNames = await getLegacyExtractionFileNames({
-            fileId: parent.fileId,
-            libraryId: parent.libraryId,
-          })
-          return [
-            ...markdownFileNamesFromTasks
-              .flatMap((task) => task.extractionSubTasks.map((st) => st.markdownFileName))
-              .filter((name): name is string => !!name), // Non-null assertion as we filtered above
-            ...legacyFileNames.slice(0, parent.take - markdownFileNamesFromTasks.length),
-          ]
-        },
-      }),
-      totalCount: t.exposeInt('totalCount', { nullable: false }),
-      take: t.exposeInt('take', { nullable: true }),
-      skip: t.exposeInt('skip', { nullable: true }),
-    }),
-  })
-
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
@@ -117,6 +65,7 @@ builder.prismaObject('AiLibraryFile', {
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
+    library: t.relation('library', { nullable: false }),
     dropError: t.exposeString('dropError', { nullable: true }),
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
@@ -308,25 +257,29 @@ builder.prismaObject('AiLibraryFile', {
         return false
       },
     }),
-    availableExtractionMarkdowns: t.field({
-      type: AvailableMarkdownsQueryResult,
+    availableExtractionMarkdownFileNames: t.field({
+      type: ['String'],
       nullable: false,
-      args: {
-        take: t.arg.int({ required: false, defaultValue: 20 }),
-        skip: t.arg.int({ required: false, defaultValue: 0 }),
-      },
-      resolve: async (file, { take, skip }) => {
-        const totalCountTasks = await prisma.aiContentProcessingTask.count({
-          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+      resolve: async (file) => {
+        const markdownFileNamesFromTasks = await prisma.aiContentProcessingTask.findMany({
+          select: { extractionSubTasks: true },
+          where: {
+            fileId: file.id,
+            extractionFinishedAt: { not: null },
+            extractionSubTasks: { some: { markdownFileName: { not: null } } },
+          },
+          orderBy: { extractionFinishedAt: 'desc' },
         })
-        const totalCountLegacies = await getLegacyExtractionFileCount({ fileId: file.id, libraryId: file.libraryId })
-        return {
+        const legacyFileNames = await getLegacyExtractionFileNames({
           fileId: file.id,
           libraryId: file.libraryId,
-          totalCount: totalCountTasks + totalCountLegacies,
-          take: take || 20,
-          skip: skip || 0,
-        }
+        })
+        return [
+          ...markdownFileNamesFromTasks
+            .flatMap((task) => task.extractionSubTasks.map((st) => st.markdownFileName))
+            .filter((name): name is string => !!name), // Non-null assertion as we filtered above
+          ...legacyFileNames,
+        ]
       },
     }),
     latestExtractionMarkdownFileNames: t.field({

@@ -47,33 +47,37 @@ function RouteComponent() {
     },
   } = useSuspenseQuery(getMarkdownQueryOptions({ fileId: fileId, markdownFileName }))
 
+  const selectedMarkdownFileName = markdownFileName || (markdown.fileName ? markdown.fileName : undefined)
+  const isLatestFileSelected =
+    selectedMarkdownFileName &&
+    aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === selectedMarkdownFileName)
   return (
     <div className="bg-base-100 flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          {aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === markdownFileName) ? (
-            <div className="badge badge-info badge-sm">
-              Latest Markdown File{' '}
-              <strong>{markdown.fileName || aiLibraryFile.latestExtractionMarkdownFileNames.join(', ')}</strong>
-            </div>
-          ) : (
-            <div className="badge badge-ghost badge-sm">
-              Showing Markdown File <strong>{markdown.fileName}</strong>
-            </div>
-          )}
-        </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={twMerge('btn btn-info btn-xs btn-outline rounded-full', viewMarkdownSource && 'btn-active')}
-            onClick={toggleViewMarkdownSource}
-          >
-            <>View Source</>
-          </button>
           <MarkdownFileSelector
             file={aiLibraryFile}
+            selectedFileName={selectedMarkdownFileName}
             onChange={(fileName) => navigate({ search: { markdownFileName: fileName || undefined } })}
           />
+        </div>
+        <div className="flex items-center gap-2">
+          {isLatestFileSelected ? (
+            <span className="badge badge-sm badge-primary" title="You are viewing the latest extraction file">
+              Active
+            </span>
+          ) : (
+            <span className="badge badge-sm badge-warning" title="You are viewing the latest extraction file">
+              Outdated
+            </span>
+          )}
+          <button
+            type="button"
+            className={twMerge('btn btn-outline btn-xs rounded-full', viewMarkdownSource && 'btn-active')}
+            onClick={toggleViewMarkdownSource}
+          >
+            View Source
+          </button>
         </div>
       </div>
 

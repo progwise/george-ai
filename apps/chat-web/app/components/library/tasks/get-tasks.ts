@@ -6,7 +6,7 @@ import { graphql } from '../../../gql'
 import { ProcessingStatus } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getLibraryTasks = createServerFn({ method: 'GET' })
+const getProcessingTasks = createServerFn({ method: 'GET' })
   .validator((data: object) =>
     z
       .object({
@@ -40,7 +40,7 @@ const getLibraryTasks = createServerFn({ method: 'GET' })
     )
   })
 
-export const getExtractionTasksQueryOptions = (params: {
+export const getProcessingTasksQueryOptions = (params: {
   libraryId: string
   fileId?: string
   status?: ProcessingStatus
@@ -50,7 +50,7 @@ export const getExtractionTasksQueryOptions = (params: {
   queryOptions({
     queryKey: ['LibraryTasks', { ...params }],
     queryFn: async () =>
-      getLibraryTasks({
+      getProcessingTasks({
         data: {
           libraryId: params.libraryId,
           fileId: params.fileId,
@@ -64,7 +64,7 @@ export const getExtractionTasksQueryOptions = (params: {
         (task) =>
           task.processingStatus !== ProcessingStatus.Completed && task.processingStatus !== ProcessingStatus.Failed,
       )
-        ? 500
+        ? 1000
         : false
     },
   })
