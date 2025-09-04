@@ -71,13 +71,15 @@ function RouteComponent() {
               Outdated
             </span>
           )}
-          <button
-            type="button"
-            className={twMerge('btn btn-outline btn-xs rounded-full', viewMarkdownSource && 'btn-active')}
-            onClick={toggleViewMarkdownSource}
-          >
-            View Source
-          </button>
+          <label className="flex items-center gap-1 text-sm">
+            <input
+              type="checkbox"
+              className={twMerge('toggle toggle-sm', viewMarkdownSource ? 'toggle-primary' : 'toggle-secondary')}
+              checked={viewMarkdownSource}
+              onClick={toggleViewMarkdownSource}
+            />
+            <span className={twMerge(viewMarkdownSource ? 'text-primary' : 'opacity-50')}>Source</span>
+          </label>
         </div>
       </div>
 
