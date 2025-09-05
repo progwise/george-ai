@@ -18,9 +18,17 @@ export async function transformDocxToMarkdown(docxPath: string): Promise<Convert
       },
       timeout: false,
       partialResult: false,
+      success: true,
     }
   } catch (error) {
     console.error(`Error converting DOCX to Markdown: ${docxPath}`, error)
-    throw new Error(`Failed to convert DOCX to Markdown: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }

@@ -3344,6 +3344,7 @@ export type GetContentProcessingTasksQuery = {
         __typename?: 'AiLibraryFile'
         id: string
         name: string
+        libraryId: string
         library: { __typename?: 'AiLibrary'; fileConverterOptions?: string | null }
       }
       extractionSubTasks: Array<{
@@ -3391,6 +3392,7 @@ export type AiContentProcessingTask_AccordionItemFragment = {
     __typename?: 'AiLibraryFile'
     id: string
     name: string
+    libraryId: string
     library: { __typename?: 'AiLibrary'; fileConverterOptions?: string | null }
   }
   extractionSubTasks: Array<{
@@ -7224,6 +7226,7 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },
@@ -12496,6 +12499,7 @@ export const GetContentProcessingTasksDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },

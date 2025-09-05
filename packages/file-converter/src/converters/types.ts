@@ -5,4 +5,5 @@ export interface ConverterResult {
   metadata?: Record<string, unknown>
   timeout: boolean
   partialResult: boolean
+  success: boolean
 }

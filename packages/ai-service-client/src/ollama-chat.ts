@@ -15,10 +15,10 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   // Get semaphore for this instance to throttle concurrent requests
   const semaphore = await ollamaResourceManager.getSemaphore(instance.url)
 
-  // Acquire semaphore before making request
-  await semaphore.acquire()
-
   try {
+    // Acquire semaphore before making request
+    await semaphore.acquire()
+
     // Create dedicated client instance for this request
     const client = new Ollama({
       host: instance.url,
@@ -54,6 +54,9 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
       }
     }
 
+    // Always release semaphore (handles success case and AbortError case)
+    semaphore.release()
+
     // Clear timeout on successful completion
     if (timeoutId) clearTimeout(timeoutId)
 
@@ -86,12 +89,18 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
       }
     }
 
+    // Release semaphore before retry to prevent deadlock
+    semaphore.release()
+
+    // Retry logic
+    if (options.retries && options.retries > 0) {
+      console.warn(`Request failed, retrying... (${options.retries} retries left)`, error)
+      return ollamaChat({ ...options, retries: options.retries - 1 })
+    }
+
     // Re-throw other errors
     throw error
   } finally {
-    // Always release semaphore
-    semaphore.release()
-
     // Optionally refresh semaphore limits based on current GPU memory
     // (Don't await to avoid blocking the response)
     ollamaResourceManager.refreshSemaphore(instance.url).catch((error) => {

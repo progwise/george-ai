@@ -38,6 +38,7 @@ import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './rout
 import { Route as AuthenticatedListsListIdEditImport } from './routes/_authenticated/lists/$listId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdUpdatesImport } from './routes/_authenticated/libraries/$libraryId/updates'
 import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_authenticated/libraries/$libraryId/query'
+import { Route as AuthenticatedLibrariesLibraryIdProcessingImport } from './routes/_authenticated/libraries/$libraryId/processing'
 import { Route as AuthenticatedLibrariesLibraryIdPostprocessImport } from './routes/_authenticated/libraries/$libraryId/postprocess'
 import { Route as AuthenticatedAdminUsersUserIdImport } from './routes/_authenticated/admin/users/$userId'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersRouteImport } from './routes/_authenticated/libraries/$libraryId/crawlers/route'
@@ -233,6 +234,13 @@ const AuthenticatedLibrariesLibraryIdQueryRoute =
   AuthenticatedLibrariesLibraryIdQueryImport.update({
     id: '/query',
     path: '/query',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdProcessingRoute =
+  AuthenticatedLibrariesLibraryIdProcessingImport.update({
+    id: '/processing',
+    path: '/processing',
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
@@ -514,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdPostprocessImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
     }
+    '/_authenticated/libraries/$libraryId/processing': {
+      id: '/_authenticated/libraries/$libraryId/processing'
+      path: '/processing'
+      fullPath: '/libraries/$libraryId/processing'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdProcessingImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
     '/_authenticated/libraries/$libraryId/query': {
       id: '/_authenticated/libraries/$libraryId/query'
       path: '/query'
@@ -787,6 +802,7 @@ const AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren =
 interface AuthenticatedLibrariesLibraryIdRouteRouteChildren {
   AuthenticatedLibrariesLibraryIdCrawlersRouteRoute: typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
   AuthenticatedLibrariesLibraryIdPostprocessRoute: typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
+  AuthenticatedLibrariesLibraryIdProcessingRoute: typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   AuthenticatedLibrariesLibraryIdQueryRoute: typeof AuthenticatedLibrariesLibraryIdQueryRoute
   AuthenticatedLibrariesLibraryIdUpdatesRoute: typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   AuthenticatedLibrariesLibraryIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdIndexRoute
@@ -800,6 +816,8 @@ const AuthenticatedLibrariesLibraryIdRouteRouteChildren: AuthenticatedLibrariesL
       AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren,
     AuthenticatedLibrariesLibraryIdPostprocessRoute:
       AuthenticatedLibrariesLibraryIdPostprocessRoute,
+    AuthenticatedLibrariesLibraryIdProcessingRoute:
+      AuthenticatedLibrariesLibraryIdProcessingRoute,
     AuthenticatedLibrariesLibraryIdQueryRoute:
       AuthenticatedLibrariesLibraryIdQueryRoute,
     AuthenticatedLibrariesLibraryIdUpdatesRoute:
@@ -895,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
+  '/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
@@ -936,6 +955,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
+  '/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
@@ -980,6 +1000,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
   '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/_authenticated/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
+  '/_authenticated/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/_authenticated/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/_authenticated/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/_authenticated/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
@@ -1028,6 +1049,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/crawlers'
     | '/admin/users/$userId'
     | '/libraries/$libraryId/postprocess'
+    | '/libraries/$libraryId/processing'
     | '/libraries/$libraryId/query'
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
@@ -1068,6 +1090,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/admin/users/$userId'
     | '/libraries/$libraryId/postprocess'
+    | '/libraries/$libraryId/processing'
     | '/libraries/$libraryId/query'
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
@@ -1110,6 +1133,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/crawlers'
     | '/_authenticated/admin/users/$userId'
     | '/_authenticated/libraries/$libraryId/postprocess'
+    | '/_authenticated/libraries/$libraryId/processing'
     | '/_authenticated/libraries/$libraryId/query'
     | '/_authenticated/libraries/$libraryId/updates'
     | '/_authenticated/lists/$listId/edit'
@@ -1221,6 +1245,7 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/libraries/$libraryId/crawlers",
         "/_authenticated/libraries/$libraryId/postprocess",
+        "/_authenticated/libraries/$libraryId/processing",
         "/_authenticated/libraries/$libraryId/query",
         "/_authenticated/libraries/$libraryId/updates",
         "/_authenticated/libraries/$libraryId/",
@@ -1290,6 +1315,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/libraries/$libraryId/postprocess": {
       "filePath": "_authenticated/libraries/$libraryId/postprocess.tsx",
+      "parent": "/_authenticated/libraries/$libraryId"
+    },
+    "/_authenticated/libraries/$libraryId/processing": {
+      "filePath": "_authenticated/libraries/$libraryId/processing.tsx",
       "parent": "/_authenticated/libraries/$libraryId"
     },
     "/_authenticated/libraries/$libraryId/query": {

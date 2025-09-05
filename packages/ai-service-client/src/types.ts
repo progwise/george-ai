@@ -9,6 +9,7 @@ export interface ChatOptions {
   messages: Message[]
   timeout?: number // in milliseconds
   onChunk?: (chunk: string) => void // optional streaming callback
+  retries?: number // number of retries on failure (default 3)
 }
 
 export interface AIResponse {

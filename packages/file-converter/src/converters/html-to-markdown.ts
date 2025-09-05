@@ -18,9 +18,16 @@ export async function transformHtmlToMarkdown(htmlPath: string): Promise<Convert
       },
       timeout: false,
       partialResult: false,
+      success: true,
     }
   } catch (error) {
-    console.error(`Error converting HTML to Markdown: ${htmlPath}`, error)
-    throw new Error(`Failed to convert HTML to Markdown: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }

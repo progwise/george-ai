@@ -28,6 +28,7 @@ export async function transformExcelToMarkdown(
           },
           timeout: true,
           partialResult: true,
+          success: false,
         }
       }
       const sheetName = sheetNames[sheetIndex]
@@ -63,10 +64,18 @@ export async function transformExcelToMarkdown(
       },
       timeout: false,
       partialResult: false,
+      success: true,
     }
   } catch (error) {
     console.error(`Error converting Excel to Markdown: ${excelPath}`, error)
-    throw new Error(`Failed to convert Excel to Markdown: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }
 

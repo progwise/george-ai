@@ -44,6 +44,7 @@ export const transformPdfToImageToMarkdown = async (
       console.log(`Processing image ${pageNumber} from PDF: ${imageFilePaths[index]}`)
 
       const response = await chat({
+        retries: 2, // Retry twice on failure
         model: ocrModel,
         messages: [
           {
@@ -120,6 +121,7 @@ export const transformPdfToImageToMarkdown = async (
         errorPages,
         pageResults: pageResults.filter((result) => result),
       },
+      success: false,
     }
   }
 
@@ -145,5 +147,6 @@ export const transformPdfToImageToMarkdown = async (
       errorPages,
       pageResults,
     },
+    success: !globalIssues.timeout && errorPages === 0,
   }
 }

@@ -578,7 +578,7 @@ const performContentExtraction = async (args: {
     )
 
     return {
-      success: true,
+      success: result.success,
       result: {
         extractionTimeMs: result.processingTimeMs,
         notes: result.notes,

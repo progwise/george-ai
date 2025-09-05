@@ -29,6 +29,7 @@ export async function transformCsvToMarkdown(csvPath: string, timeoutSignal: Abo
         partialResult: false,
         timeout: false,
         processingTimeMs: Date.now() - processingStart,
+        success: true,
       }
     }
 
@@ -56,6 +57,7 @@ export async function transformCsvToMarkdown(csvPath: string, timeoutSignal: Abo
             partialResult: true,
             timeout: true,
             processingTimeMs: Date.now() - processingStart,
+            success: false,
           }
         }
         const row = records[i] as string[]
@@ -77,9 +79,17 @@ export async function transformCsvToMarkdown(csvPath: string, timeoutSignal: Abo
       partialResult: false,
       timeout: false,
       processingTimeMs: Date.now() - processingStart,
+      success: true,
     }
   } catch (error) {
     console.error(`Error converting CSV to Markdown: ${csvPath}`, error)
-    throw new Error(`Failed to convert CSV to Markdown: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }

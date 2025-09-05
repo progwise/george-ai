@@ -11,126 +11,139 @@ export async function transformPdfToMarkdown(
   timeoutSignal: AbortSignal,
 ): Promise<ConverterResult> {
   const require = createRequire(import.meta.url)
-
-  const workerPath = require.resolve('pdfjs-dist/legacy/build/pdf.worker.min.mjs')
-  GlobalWorkerOptions.workerSrc = workerPath
-
-  // Get paths to cmaps and standard fonts from pdfjs-dist package
-  const pdfjsLibFolder = require.resolve('pdfjs-dist').replace('/pdfjs-dist/build/pdf.mjs', '')
-  const CMAP_URL = pdfjsLibFolder + '/cmaps/'
-  const CMAP_PACKED = true
-  const STANDARD_FONT_DATA_URL = pdfjsLibFolder + '/standard_fonts/'
-
-  console.log('Converting PDF to markdown with advanced layout preservation:', pdfFilePath)
-
   const processingStart = Date.now()
-  const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
+  try {
+    const workerPath = require.resolve('pdfjs-dist/legacy/build/pdf.worker.min.mjs')
+    GlobalWorkerOptions.workerSrc = workerPath
 
-  const pdfDocument = await getDocument({
-    data: pdfData,
-    cMapUrl: CMAP_URL,
-    cMapPacked: CMAP_PACKED,
-    standardFontDataUrl: STANDARD_FONT_DATA_URL,
-  }).promise
+    // Get paths to cmaps and standard fonts from pdfjs-dist package
+    const pdfjsLibFolder = require.resolve('pdfjs-dist').replace('/pdfjs-dist/build/pdf.mjs', '')
+    const CMAP_URL = pdfjsLibFolder + '/cmaps/'
+    const CMAP_PACKED = true
+    const STANDARD_FONT_DATA_URL = pdfjsLibFolder + '/standard_fonts/'
 
-  let fullMarkdown = ''
-  const totalPages = pdfDocument.numPages
+    console.log('Converting PDF to markdown with advanced layout preservation:', pdfFilePath)
 
-  for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
-    if (timeoutSignal.aborted) {
-      console.error(`❌ PDF to Markdown conversion aborted due to timeout`)
-      return {
-        markdownContent: fullMarkdown,
-        processingTimeMs: Date.now() - processingStart,
-        metadata: {
-          totalPages,
-        },
-        timeout: true,
-        partialResult: true,
-      }
-    }
-    const page = await pdfDocument.getPage(pageNum)
-    const textContent = await page.getTextContent()
+    const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
 
-    // Group text items by their vertical position to identify lines
-    const lines: Array<{
-      y: number
-      items: Array<{ text: string; x: number; width: number; height: number; fontName?: string }>
-    }> = []
+    const pdfDocument = await getDocument({
+      data: pdfData,
+      cMapUrl: CMAP_URL,
+      cMapPacked: CMAP_PACKED,
+      standardFontDataUrl: STANDARD_FONT_DATA_URL,
+    }).promise
 
-    for (const item of textContent.items) {
-      if ('str' in item && item.str.trim()) {
-        const y = Math.round(item.transform[5])
-        const x = Math.round(item.transform[4])
+    let fullMarkdown = ''
+    const totalPages = pdfDocument.numPages
 
-        let line = lines.find((l) => Math.abs(l.y - y) < PDF_LAYOUT.VERTICAL_LINE_THRESHOLD)
-        if (!line) {
-          line = { y, items: [] }
-          lines.push(line)
+    for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+      if (timeoutSignal.aborted) {
+        console.error(`❌ PDF to Markdown conversion aborted due to timeout`)
+        return {
+          markdownContent: fullMarkdown,
+          processingTimeMs: Date.now() - processingStart,
+          metadata: {
+            totalPages,
+          },
+          timeout: true,
+          partialResult: true,
+          success: false,
         }
-
-        line.items.push({
-          text: item.str,
-          x: x,
-          width: item.width || 0,
-          height: item.height || 0,
-          fontName: item.fontName,
-        })
       }
-    }
+      const page = await pdfDocument.getPage(pageNum)
+      const textContent = await page.getTextContent()
 
-    // Sort lines by Y position (top to bottom)
-    lines.sort((a, b) => b.y - a.y)
+      // Group text items by their vertical position to identify lines
+      const lines: Array<{
+        y: number
+        items: Array<{ text: string; x: number; width: number; height: number; fontName?: string }>
+      }> = []
 
-    // Process each line
-    for (const line of lines) {
-      // Sort items in line by X position (left to right)
-      line.items.sort((a, b) => a.x - b.x)
+      for (const item of textContent.items) {
+        if ('str' in item && item.str.trim()) {
+          const y = Math.round(item.transform[5])
+          const x = Math.round(item.transform[4])
 
-      let lineText = ''
-      let prevX: number | null = null
-
-      for (const item of line.items) {
-        // Add spacing based on gap size
-        if (prevX !== null) {
-          const gap = item.x - prevX
-
-          if (gap > PDF_LAYOUT.LARGE_GAP_THRESHOLD) {
-            lineText += ' | ' // Large gap - likely column separator
-          } else {
-            // Always add space between separate text items
-            lineText += ' '
+          let line = lines.find((l) => Math.abs(l.y - y) < PDF_LAYOUT.VERTICAL_LINE_THRESHOLD)
+          if (!line) {
+            line = { y, items: [] }
+            lines.push(line)
           }
+
+          line.items.push({
+            text: item.str,
+            x: x,
+            width: item.width || 0,
+            height: item.height || 0,
+            fontName: item.fontName,
+          })
+        }
+      }
+
+      // Sort lines by Y position (top to bottom)
+      lines.sort((a, b) => b.y - a.y)
+
+      // Process each line
+      for (const line of lines) {
+        // Sort items in line by X position (left to right)
+        line.items.sort((a, b) => a.x - b.x)
+
+        let lineText = ''
+        let prevX: number | null = null
+
+        for (const item of line.items) {
+          // Add spacing based on gap size
+          if (prevX !== null) {
+            const gap = item.x - prevX
+
+            if (gap > PDF_LAYOUT.LARGE_GAP_THRESHOLD) {
+              lineText += ' | ' // Large gap - likely column separator
+            } else {
+              // Always add space between separate text items
+              lineText += ' '
+            }
+          }
+
+          lineText += item.text
+          prevX = item.x + item.width
         }
 
-        lineText += item.text
-        prevX = item.x + item.width
+        // Clean up the line text
+        lineText = lineText.trim()
+
+        if (lineText) {
+          const processedLine = processLineForMarkdown(lineText)
+          fullMarkdown += processedLine + '\n'
+        }
       }
 
-      // Clean up the line text
-      lineText = lineText.trim()
-
-      if (lineText) {
-        const processedLine = processLineForMarkdown(lineText)
-        fullMarkdown += processedLine + '\n'
+      if (pageNum < pdfDocument.numPages) {
+        fullMarkdown += '\n---\n\n' // Page separator
       }
     }
 
-    if (pageNum < pdfDocument.numPages) {
-      fullMarkdown += '\n---\n\n' // Page separator
+    const cleanedMarkdown = cleanupMarkdown(fullMarkdown)
+
+    return {
+      markdownContent: cleanedMarkdown,
+      processingTimeMs: Date.now() - processingStart,
+      metadata: {
+        totalPages,
+      },
+      timeout: false,
+      partialResult: false,
+      success: true,
     }
-  }
-
-  const cleanedMarkdown = cleanupMarkdown(fullMarkdown)
-
-  return {
-    markdownContent: cleanedMarkdown,
-    processingTimeMs: Date.now() - processingStart,
-    metadata: {
-      totalPages,
-    },
-    timeout: false,
-    partialResult: false,
+  } catch (error) {
+    console.error(`Error converting PDF to markdown:`, error)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }
 

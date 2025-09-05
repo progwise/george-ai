@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -11,6 +12,7 @@ import {
   ProcessingStatus,
 } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ExternalLinkIcon } from '../../../icons/external-link-icon'
 import { JsonModal } from '../../json-modal'
 import { TaskTimeline } from './task-timeline'
 
@@ -21,6 +23,7 @@ graphql(`
     file {
       id
       name
+      libraryId
       library {
         fileConverterOptions
       }
@@ -122,8 +125,13 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
         <div className="collapse-title peer-checked:bg-base-100 font-semibold opacity-40 peer-checked:opacity-100">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
-              <span className="text-nowrap">{extractionMethods.length < 1 ? 'Unknown Method' : extractionMethods}</span>
-              {!hideFileName && <span className="text-nowrap">{`${task.file.name}`}</span>}
+              {hideFileName ? (
+                <span className="text-nowrap">
+                  {extractionMethods.length < 1 ? 'Unknown Method' : extractionMethods}
+                </span>
+              ) : (
+                <span className="text-nowrap">{`${task.file.name}`}</span>
+              )}
               <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
             </div>
             <div className="flex gap-2">
@@ -211,6 +219,14 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                     </svg>
                   </button>
                 )}
+                <Link
+                  to="/libraries/$libraryId/files/$fileId/tasks"
+                  params={{ fileId: task.file.id, libraryId: task.file.libraryId }}
+                  className="btn btn-sm btn-circle"
+                  title={`Go to ${task.file.name}`}
+                >
+                  <ExternalLinkIcon className="size-4" />
+                </Link>
               </div>
             </div>
 
