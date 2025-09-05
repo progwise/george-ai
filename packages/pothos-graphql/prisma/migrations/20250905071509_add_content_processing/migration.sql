@@ -1,17 +1,24 @@
 /*
   Warnings:
 
-  - You are about to drop the `AiFileContentExtractionTask` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the column `chunks` on the `AiLibraryFile` table. All the data in the column will be lost.
+  - You are about to drop the column `processedAt` on the `AiLibraryFile` table. All the data in the column will be lost.
+  - You are about to drop the column `processingEndedAt` on the `AiLibraryFile` table. All the data in the column will be lost.
+  - You are about to drop the column `processingErrorAt` on the `AiLibraryFile` table. All the data in the column will be lost.
+  - You are about to drop the column `processingErrorMessage` on the `AiLibraryFile` table. All the data in the column will be lost.
+  - You are about to drop the column `processingStartedAt` on the `AiLibraryFile` table. All the data in the column will be lost.
 
 */
--- DropForeignKey
-ALTER TABLE "AiFileContentExtractionTask" DROP CONSTRAINT "AiFileContentExtractionTask_fileId_fkey";
+-- AlterTable
+ALTER TABLE "AiLibrary" ADD COLUMN     "embeddingTimeoutMs" INTEGER DEFAULT 180000;
 
--- DropForeignKey
-ALTER TABLE "AiFileContentExtractionTask" DROP CONSTRAINT "AiFileContentExtractionTask_libraryId_fkey";
-
--- DropTable
-DROP TABLE "AiFileContentExtractionTask";
+-- AlterTable
+ALTER TABLE "AiLibraryFile" DROP COLUMN "chunks",
+DROP COLUMN "processedAt",
+DROP COLUMN "processingEndedAt",
+DROP COLUMN "processingErrorAt",
+DROP COLUMN "processingErrorMessage",
+DROP COLUMN "processingStartedAt";
 
 -- CreateTable
 CREATE TABLE "AiContentProcessingTask" (

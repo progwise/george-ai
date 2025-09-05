@@ -29,7 +29,7 @@ export default {
     removeAvatar: 'Avatar entfernen',
     removeProfile: 'Benutzerprofil entfernen',
     reembed: 'Embed',
-    reprocess: 'Verarbeiten',
+    reprocess: 'Extract',
     reprocessSuccess: 'Erfolgreich {count} Datei(en) verarbeitet: {files}',
     save: 'Speichern',
     saving: 'Speichern...',
