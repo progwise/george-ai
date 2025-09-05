@@ -57,6 +57,8 @@ export default {
     manageUsers: 'Benutzer verwalten',
     manageUsersDescription:
       'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
+    monitorAiServices: 'AI-Dienste überwachen',
+    monitorAiServicesDescription: 'Status der integrierten AI-Dienste und Modelle anzeigen und verwalten.',
     welcomeMessage:
       'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.',
   },

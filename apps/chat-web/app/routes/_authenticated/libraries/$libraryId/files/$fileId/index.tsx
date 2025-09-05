@@ -47,7 +47,7 @@ function RouteComponent() {
     },
   } = useSuspenseQuery(getMarkdownQueryOptions({ fileId: fileId, markdownFileName }))
 
-  const selectedMarkdownFileName = markdownFileName || (markdown.fileName ? markdown.fileName : undefined)
+  const selectedMarkdownFileName = markdownFileName || (markdown?.fileName ? markdown.fileName : undefined)
   const isLatestFileSelected =
     selectedMarkdownFileName &&
     aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === selectedMarkdownFileName)
@@ -84,7 +84,9 @@ function RouteComponent() {
       </div>
 
       <div className="bg-base-300 rounded-box p-5">
-        {viewMarkdownSource ? (
+        {!markdown ? (
+          <span>No markdown</span>
+        ) : viewMarkdownSource ? (
           <pre className="whitespace-pre-wrap break-words text-sm">
             <code lang="markdown">{markdown.content || t('files.noContentAvailable')}</code>
           </pre>

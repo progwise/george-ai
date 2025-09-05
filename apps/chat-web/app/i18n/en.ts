@@ -56,6 +56,8 @@ export default {
     dashboardTitle: 'Admin Dashboard',
     manageUsers: 'Manage Users',
     manageUsersDescription: 'View all users, activate accounts, edit profiles, and delete users as needed.',
+    monitorAiServices: 'Monitor AI Services',
+    monitorAiServicesDescription: 'View and manage the status of integrated AI services and models.',
     welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.',
   },
   aiAct: {

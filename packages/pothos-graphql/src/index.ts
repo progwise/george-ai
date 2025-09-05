@@ -2,6 +2,7 @@ import { builder } from './graphql/builder'
 
 import './domain/crawler/cron-jobs'
 import './graphql/ai-model'
+import './graphql/ai-service'
 import './graphql/ai-act-assessment'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'

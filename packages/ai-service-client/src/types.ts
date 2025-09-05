@@ -22,5 +22,6 @@ export interface AIResponse {
     tokensProcessed?: number
     timeElapsed?: number
     lastChunkTimestamp?: number
+    instanceUrl?: string // Which OLLAMA instance was used
   }
 }

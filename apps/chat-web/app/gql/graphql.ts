@@ -421,7 +421,7 @@ export type AiLibraryFile = {
   latestExtractionMarkdownFileNames: Array<Scalars['String']['output']>
   library: AiLibrary
   libraryId: Scalars['String']['output']
-  markdown: MarkdownResult
+  markdown?: Maybe<MarkdownResult>
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originModificationDate?: Maybe<Scalars['DateTime']['output']>
@@ -666,6 +666,79 @@ export type AiListSource = {
 
 export type AiListSourceInput = {
   libraryId: Scalars['String']['input']
+}
+
+export type AiModelInfo = {
+  __typename?: 'AiModelInfo'
+  capabilities: Array<Scalars['String']['output']>
+  digest?: Maybe<Scalars['String']['output']>
+  family?: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
+  parameterSize?: Maybe<Scalars['String']['output']>
+  quantizationLevel?: Maybe<Scalars['String']['output']>
+  size?: Maybe<Scalars['Float']['output']>
+}
+
+export type AiResourceUsage = {
+  __typename?: 'AiResourceUsage'
+  availableMemory: Scalars['Float']['output']
+  estimatedRequestMemory: Scalars['Float']['output']
+  maxConcurrency: Scalars['Int']['output']
+  memoryType: Scalars['String']['output']
+  safeMemory: Scalars['Float']['output']
+  totalMemory: Scalars['Float']['output']
+  usedMemory: Scalars['Float']['output']
+  utilizationPercentage: Scalars['Float']['output']
+}
+
+export type AiRunningModel = {
+  __typename?: 'AiRunningModel'
+  activeRequests?: Maybe<Scalars['Int']['output']>
+  expiresAt?: Maybe<Scalars['String']['output']>
+  memoryUsage?: Maybe<Scalars['Float']['output']>
+  name: Scalars['String']['output']
+  processingLoad?: Maybe<Scalars['String']['output']>
+  size?: Maybe<Scalars['Float']['output']>
+}
+
+export type AiServiceClusterStatus = {
+  __typename?: 'AiServiceClusterStatus'
+  availableInstances: Scalars['Int']['output']
+  bestInstanceId?: Maybe<Scalars['String']['output']>
+  healthyInstances: Scalars['Int']['output']
+  instances: Array<AiServiceInstance>
+  lastUpdated: Scalars['DateTime']['output']
+  serviceTypes: Array<AiServiceType>
+  totalInstances: Scalars['Int']['output']
+  totalMaxConcurrency: Scalars['Int']['output']
+  totalMemory: Scalars['Float']['output']
+  totalUsedMemory: Scalars['Float']['output']
+}
+
+export type AiServiceInstance = {
+  __typename?: 'AiServiceInstance'
+  available: Scalars['Boolean']['output']
+  availableModels?: Maybe<Array<AiModelInfo>>
+  currentConcurrency: Scalars['Int']['output']
+  error?: Maybe<Scalars['String']['output']>
+  id: Scalars['String']['output']
+  loadScore?: Maybe<Scalars['Float']['output']>
+  maxQueueLength?: Maybe<Scalars['Int']['output']>
+  metadata?: Maybe<Scalars['String']['output']>
+  queueLength: Scalars['Int']['output']
+  resourceUsage?: Maybe<AiResourceUsage>
+  responseTime?: Maybe<Scalars['Float']['output']>
+  runningModels?: Maybe<Array<AiRunningModel>>
+  type: AiServiceType
+  url: Scalars['String']['output']
+  version?: Maybe<Scalars['String']['output']>
+}
+
+export enum AiServiceType {
+  Anthropic = 'ANTHROPIC',
+  Gemini = 'GEMINI',
+  Ollama = 'OLLAMA',
+  Openai = 'OPENAI',
 }
 
 export type AssistantParticipant = AiConversationParticipant & {
@@ -1255,6 +1328,7 @@ export type Query = {
   aiListEnrichmentQueue: Array<AiListEnrichmentQueue>
   aiListFiles: AiListFilesQueryResult
   aiLists: Array<AiList>
+  aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
   /** Get all available OCR-capable vision models */
   availableOCRModels: Array<OcrModel>
@@ -1660,6 +1734,64 @@ export type LoginMutation = {
     avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
+  }
+}
+
+export type GetAiServiceStatusQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAiServiceStatusQuery = {
+  __typename?: 'Query'
+  aiServiceStatus: {
+    __typename?: 'AiServiceClusterStatus'
+    totalInstances: number
+    availableInstances: number
+    healthyInstances: number
+    totalMemory: number
+    totalUsedMemory: number
+    totalMaxConcurrency: number
+    bestInstanceId?: string | null
+    serviceTypes: Array<AiServiceType>
+    lastUpdated: string
+    instances: Array<{
+      __typename?: 'AiServiceInstance'
+      id: string
+      url: string
+      type: AiServiceType
+      available: boolean
+      responseTime?: number | null
+      loadScore?: number | null
+      currentConcurrency: number
+      queueLength: number
+      maxQueueLength?: number | null
+      version?: string | null
+      error?: string | null
+      runningModels?: Array<{
+        __typename?: 'AiRunningModel'
+        name: string
+        size?: number | null
+        memoryUsage?: number | null
+        expiresAt?: string | null
+        activeRequests?: number | null
+      }> | null
+      availableModels?: Array<{
+        __typename?: 'AiModelInfo'
+        name: string
+        size?: number | null
+        capabilities: Array<string>
+        family?: string | null
+        parameterSize?: string | null
+      }> | null
+      resourceUsage?: {
+        __typename?: 'AiResourceUsage'
+        totalMemory: number
+        usedMemory: number
+        availableMemory: number
+        safeMemory: number
+        maxConcurrency: number
+        utilizationPercentage: number
+        memoryType: string
+      } | null
+    }>
   }
 }
 
@@ -3022,7 +3154,7 @@ export type GetMarkdownQuery = {
   __typename?: 'Query'
   aiLibraryFile: {
     __typename?: 'AiLibraryFile'
-    markdown: { __typename?: 'MarkdownResult'; fileName: string; content: string }
+    markdown?: { __typename?: 'MarkdownResult'; fileName: string; content: string } | null
   }
 }
 
@@ -8335,6 +8467,103 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const GetAiServiceStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAiServiceStatus' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiServiceStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'instances' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'responseTime' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'loadScore' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'runningModels' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'memoryUsage' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'activeRequests' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'availableModels' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'capabilities' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'family' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parameterSize' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'resourceUsage' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'usedMemory' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'availableMemory' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'safeMemory' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'maxConcurrency' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'utilizationPercentage' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'memoryType' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'currentConcurrency' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'queueLength' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'maxQueueLength' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'availableInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'healthyInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'bestInstanceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'serviceTypes' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastUpdated' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAiServiceStatusQuery, GetAiServiceStatusQueryVariables>
 export const EnsureUserProfileDocument = {
   kind: 'Document',
   definitions: [

@@ -4,6 +4,8 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
+import { getOllamaEmbedding } from '@george-ai/ai-service-client'
+
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
 
@@ -157,7 +159,7 @@ export const embedMarkdownFile = async (args: {
           .documents()
           .create({
             ...chunk.metadata,
-            vec: sanitizeVector(await getEmbeddingWithCache(embeddingModelName, chunk.pageContent)),
+            vec: sanitizeVector(await getOllamaEmbedding(embeddingModelName, chunk.pageContent)), // Do not use cache for file chunks
             text: chunk.pageContent,
             points: 1,
             chunkIndex: chunk.metadata.chunkIndex,
@@ -333,8 +335,6 @@ export const getSimilarChunks = async (params: {
     searches: [searchParams],
   }
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
-
-  console.log('Typesense similarity search response:', JSON.stringify(searchResponse, null, 2))
 
   const resultHits = searchResponse.results[0].hits
   if (!resultHits || resultHits.length === 0) {

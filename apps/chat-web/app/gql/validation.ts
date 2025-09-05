@@ -14,6 +14,7 @@ import {
   AiListFieldInput,
   AiListInput,
   AiListSourceInput,
+  AiServiceType,
   ConversationInvitationInput,
   EmbeddingStatus,
   ExtractionStatus,
@@ -33,6 +34,8 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
 export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
+
+export const AiServiceTypeSchema = z.nativeEnum(AiServiceType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 

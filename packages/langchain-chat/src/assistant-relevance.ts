@@ -36,7 +36,7 @@ export const getRelevance = async ({
     chat_history: chatHistory,
   })
 
-  const model = getOllamaChatModel(modelName)
+  const model = await getOllamaChatModel(modelName)
 
   const isRelevantAnswer = await model.invoke(prompt, {})
   return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'

@@ -30,7 +30,7 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = getOllamaChatModel(input.assistant.languageModel)
+  const model = await getOllamaChatModel(input.assistant.languageModel)
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({

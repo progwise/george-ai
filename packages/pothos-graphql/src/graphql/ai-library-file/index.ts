@@ -291,7 +291,7 @@ builder.prismaObject('AiLibraryFile', {
     }),
     markdown: t.field({
       type: MarkdownResult,
-      nullable: false,
+      nullable: true,
       args: {
         markdownFileName: t.arg.string({ required: false }),
       },
@@ -302,7 +302,7 @@ builder.prismaObject('AiLibraryFile', {
             libraryId: file.libraryId,
           })
           if (latestFileNames.length === 0) {
-            throw new Error(`No extracted markdown files found for file ${file.id}`)
+            return null
           }
           markdownFileName = latestFileNames[0]
         }

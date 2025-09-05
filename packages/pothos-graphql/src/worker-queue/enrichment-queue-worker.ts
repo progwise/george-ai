@@ -46,7 +46,7 @@ async function processQueueItem(queueItem: {
 
     // If no rows were updated, the item was likely deleted or already processed
     if (updatedItem.count === 0) {
-      console.log(`⚠️ Queue item ${queueItem.id} no longer exists or is not pending, skipping`)
+      console.log(`⚠️ Enrichment queue item ${queueItem.id} no longer exists or is not pending, skipping`)
       return
     }
 

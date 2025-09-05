@@ -6,6 +6,9 @@ import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
 
 import { getUserContext } from './getUserContext'
 
+// Simple in-memory lock for file uploads to prevent race conditions
+const uploadLocks = new Set<string>()
+
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
     httpResponse.status(405).send('Method Not Allowed')
@@ -60,6 +63,16 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   }
 
   const uploadedFilePath = getUploadFilePath({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+  const lockKey = fileInfo.id
+
+  // Check if file is already being uploaded
+  if (uploadLocks.has(lockKey)) {
+    httpResponse.status(409).send('Bad Request: File upload already in progress')
+    return
+  }
+
+  // Acquire lock
+  uploadLocks.add(lockKey)
 
   const filestream = fs.createWriteStream(uploadedFilePath, {
     flags: 'a',
@@ -67,6 +80,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
 
   filestream.on('error', (error) => {
     console.error(error)
+    uploadLocks.delete(lockKey)
     httpResponse.statusCode = 400
     httpResponse.write(JSON.stringify({ status: 'error in filestream', description: error }))
     httpResponse.end()
@@ -82,9 +96,11 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
           libraryId: fileInfo.libraryId,
           userId: context.session!.user.id,
         })
+        uploadLocks.delete(lockKey)
         httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {
         console.error('Error during file processing:', error)
+        uploadLocks.delete(lockKey)
         httpResponse.statusCode = 500
         httpResponse.write(JSON.stringify({ status: 'error', description: 'Error during file processing' }))
         httpResponse.end()
@@ -97,6 +113,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     if (!httpRequest.complete) {
       console.warn('Upload aborted, cleaning up...', fileInfo.id, fileInfo.name)
       filestream.close()
+      uploadLocks.delete(lockKey)
       const fileDir = getFileDir({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
       try {
         await fs.promises.rm(fileDir, { recursive: true, force: true })

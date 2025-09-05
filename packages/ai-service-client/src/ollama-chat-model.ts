@@ -1,14 +1,18 @@
 import { ChatOllama } from '@langchain/ollama'
 
-const headers = new Headers()
+import { ollamaResourceManager } from './ollama-resource-manager.js'
 
-if (process.env.OLLAMA_API_KEY) {
-  headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
-}
-export const getOllamaChatModel = (modelName: string) => {
+export const getOllamaChatModel = async (modelName: string) => {
+  // Select best OLLAMA instance that has this specific model
+  const { instance } = await ollamaResourceManager.selectBestInstance(modelName)
+  const headers = new Headers()
+
+  if (instance.apiKey) {
+    headers.append('X-API-Key', instance.apiKey)
+  }
   return new ChatOllama({
     model: modelName,
-    baseUrl: process.env.OLLAMA_BASE_URL,
+    baseUrl: instance.url,
     headers,
   })
 }

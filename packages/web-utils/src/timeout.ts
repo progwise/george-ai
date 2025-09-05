@@ -9,7 +9,11 @@ export const createTimeoutSignal = ({ timeoutMs, onTimeout }: CreateTimeoutOptio
 
   const timeout = setTimeout(async () => {
     timeoutController.abort()
-    await onTimeout()
+    try {
+      await onTimeout()
+    } catch (error) {
+      console.error('Error in onTimeout callback', error)
+    }
   }, timeoutMs)
   return { timeoutSignal, clearTimeoutSignal: () => clearTimeout(timeout) }
 }

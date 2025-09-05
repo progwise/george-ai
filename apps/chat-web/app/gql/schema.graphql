@@ -382,7 +382,7 @@ type AiLibraryFile {
   latestExtractionMarkdownFileNames: [String!]!
   library: AiLibrary!
   libraryId: String!
-  markdown(markdownFileName: String): MarkdownResult!
+  markdown(markdownFileName: String): MarkdownResult
   mimeType: String!
   name: String!
   originModificationDate: DateTime
@@ -613,6 +613,74 @@ type AiListSource {
 
 input AiListSourceInput {
   libraryId: String!
+}
+
+type AiModelInfo {
+  capabilities: [String!]!
+  digest: String
+  family: String
+  name: String!
+  parameterSize: String
+  quantizationLevel: String
+  size: Float
+}
+
+type AiResourceUsage {
+  availableMemory: Float!
+  estimatedRequestMemory: Float!
+  maxConcurrency: Int!
+  memoryType: String!
+  safeMemory: Float!
+  totalMemory: Float!
+  usedMemory: Float!
+  utilizationPercentage: Float!
+}
+
+type AiRunningModel {
+  activeRequests: Int
+  expiresAt: String
+  memoryUsage: Float
+  name: String!
+  processingLoad: String
+  size: Float
+}
+
+type AiServiceClusterStatus {
+  availableInstances: Int!
+  bestInstanceId: String
+  healthyInstances: Int!
+  instances: [AiServiceInstance!]!
+  lastUpdated: DateTime!
+  serviceTypes: [AiServiceType!]!
+  totalInstances: Int!
+  totalMaxConcurrency: Int!
+  totalMemory: Float!
+  totalUsedMemory: Float!
+}
+
+type AiServiceInstance {
+  available: Boolean!
+  availableModels: [AiModelInfo!]
+  currentConcurrency: Int!
+  error: String
+  id: String!
+  loadScore: Float
+  maxQueueLength: Int
+  metadata: String
+  queueLength: Int!
+  resourceUsage: AiResourceUsage
+  responseTime: Float
+  runningModels: [AiRunningModel!]
+  type: AiServiceType!
+  url: String!
+  version: String
+}
+
+enum AiServiceType {
+  ANTHROPIC
+  GEMINI
+  OLLAMA
+  OPENAI
 }
 
 type AssistantParticipant implements AiConversationParticipant {
@@ -957,6 +1025,7 @@ type Query {
     take: Int! = 20
   ): AiListFilesQueryResult!
   aiLists: [AiList!]!
+  aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   """
   Get all available OCR-capable vision models

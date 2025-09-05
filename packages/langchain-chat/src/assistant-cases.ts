@@ -64,7 +64,7 @@ export const getConditionIsTrue = async (input: {
   if (process.env.OLLAMA_API_KEY) {
     headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
   }
-  const model = getOllamaChatModel(input.assistant.languageModel)
+  const model = await getOllamaChatModel(input.assistant.languageModel)
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})
 

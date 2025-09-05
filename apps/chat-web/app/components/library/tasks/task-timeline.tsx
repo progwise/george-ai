@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { dateTimeString, duration, formatDuration, timeString } from '@george-ai/web-utils'
@@ -43,102 +42,99 @@ interface TaskTimelineProps {
 export const TaskTimeline = ({ task }: TaskTimelineProps) => {
   const { language } = useTranslation()
 
-  const timelineData = useMemo(() => {
-    const milestones: Array<{
-      labels: Record<string, string>
-      time?: string | null
-      status: string
-      success?: boolean | null
-      elapsedTime?: number
-      renderSubTasks?: boolean
-    }> = [
-      {
-        labels: { done: 'Created', doing: 'Creating', todo: 'Create', skipped: 'no Create' },
-        time: task.createdAt,
-        status: 'done' as const,
-        success: true,
-      },
-      {
-        labels: { done: 'Started', doing: 'Starting', todo: 'Start' },
-        time: task.processingStartedAt,
-        status: task.processingStartedAt ? ('done' as const) : ('todo' as const),
-        success: !task.processingStartedAt ? undefined : true,
-        elapsedTime: task.processingStartedAt
-          ? new Date(task.processingStartedAt).getTime() - new Date(task.createdAt).getTime()
+  const timelineData: Array<{
+    labels: Record<string, string>
+    time?: string | null
+    status: string
+    success?: boolean | null
+    elapsedTime?: number
+    renderSubTasks?: boolean
+  }> = [
+    {
+      labels: { done: 'Created', doing: 'Creating', todo: 'Create', skipped: 'no Create' },
+      time: task.createdAt,
+      status: 'done' as const,
+      success: true,
+    },
+    {
+      labels: { done: 'Started', doing: 'Starting', todo: 'Start' },
+      time: task.processingStartedAt,
+      status: !task.processingStartedAt ? ('doing' as const) : ('done' as const),
+      success: !task.processingStartedAt ? undefined : true,
+      elapsedTime:
+        (task.processingStartedAt ? new Date(task.processingStartedAt).getTime() : Date.now()) -
+        new Date(task.createdAt).getTime(),
+    },
+    {
+      labels: { done: 'Validated', doing: 'Validating', todo: 'Validate', skipped: 'no Validate' },
+      time: task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt,
+      status:
+        task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt
+          ? ('done' as const)
+          : task.processingStartedAt
+            ? ('doing' as const)
+            : ('todo' as const),
+      success:
+        task.processingFailedAt && !task.extractionStartedAt && !task.embeddingStartedAt
+          ? false
+          : task.extractionStartedAt || task.embeddingStartedAt
+            ? true
+            : undefined,
+      elapsedTime:
+        task.processingStartedAt && (task.extractionStartedAt || task.embeddingStartedAt)
+          ? new Date((task.extractionStartedAt || task.embeddingStartedAt)!).getTime() -
+            new Date(task.processingStartedAt).getTime()
           : undefined,
-      },
-      {
-        labels: { done: 'Validated', doing: 'Validating', todo: 'Validate', skipped: 'no Validate' },
-        time: task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt,
-        status:
-          task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt
-            ? ('done' as const)
-            : task.processingStartedAt
-              ? ('doing' as const)
-              : ('todo' as const),
-        success:
-          task.processingFailedAt && !task.extractionStartedAt && !task.embeddingStartedAt
-            ? false
-            : task.extractionStartedAt || task.embeddingStartedAt
-              ? true
-              : undefined,
-        elapsedTime:
-          task.processingStartedAt && (task.extractionStartedAt || task.embeddingStartedAt)
-            ? new Date((task.extractionStartedAt || task.embeddingStartedAt)!).getTime() -
-              new Date(task.processingStartedAt).getTime()
-            : undefined,
-      },
-      {
-        labels: { done: 'Extracted', doing: 'Extracting', todo: 'Extract', skipped: 'no Extract' },
-        time: task.extractionFinishedAt || task.extractionFailedAt,
-        status:
-          task.extractionFinishedAt || task.extractionFailedAt
-            ? 'done'
-            : task.extractionStartedAt
-              ? 'doing'
-              : task.embeddingStartedAt || task.processingFailedAt || task.processingFinishedAt
-                ? ('skipped' as const)
-                : 'todo',
-        success: task.extractionFailedAt ? false : task.extractionFinishedAt ? true : undefined,
-        elapsedTime:
-          task.extractionStartedAt && (task.extractionFinishedAt || task.extractionFailedAt)
-            ? new Date((task.extractionFinishedAt || task.extractionFailedAt)!).getTime() -
-              new Date(task.extractionStartedAt).getTime()
-            : undefined,
-        renderSubTasks: true,
-      },
-      {
-        labels: { done: 'Embedded', doing: 'Embedding', todo: 'Embed', skipped: 'no Embed' },
-        time: task.embeddingFinishedAt || task.embeddingFailedAt,
-        status:
-          task.embeddingFinishedAt || task.embeddingFailedAt
-            ? 'done'
-            : task.embeddingStartedAt
-              ? 'doing'
-              : !(task.processingFailedAt && !task.processingFinishedAt)
-                ? ('todo' as const)
-                : ('skipped' as const),
-        success: task.embeddingFailedAt ? false : task.embeddingFinishedAt ? true : undefined,
-        elapsedTime:
-          task.embeddingStartedAt && (task.embeddingFinishedAt || task.embeddingFailedAt)
-            ? new Date((task.embeddingFinishedAt || task.embeddingFailedAt)!).getTime() -
-              new Date(task.embeddingStartedAt).getTime()
-            : undefined,
-      },
-      {
-        labels: { done: 'Finished', doing: 'Finishing', todo: 'Finish', skipped: 'no Finish' },
-        time: task.processingFinishedAt || task.processingFailedAt,
-        status:
-          task.processingFinishedAt || task.processingFailedAt
-            ? 'done'
-            : task.embeddingFinishedAt || task.embeddingFailedAt
-              ? ('doing' as const)
-              : ('todo' as const),
-        success: !(task.processingFinishedAt || task.processingFailedAt) ? undefined : !!task.processingFinishedAt,
-      },
-    ]
-    return milestones
-  }, [task])
+    },
+    {
+      labels: { done: 'Extracted', doing: 'Extracting', todo: 'Extract', skipped: 'no Extract' },
+      time: task.extractionFinishedAt || task.extractionFailedAt,
+      status:
+        task.extractionFinishedAt || task.extractionFailedAt
+          ? 'done'
+          : task.extractionStartedAt
+            ? 'doing'
+            : task.embeddingStartedAt || task.processingFailedAt || task.processingFinishedAt
+              ? ('skipped' as const)
+              : 'todo',
+      success: task.extractionFailedAt ? false : task.extractionFinishedAt ? true : undefined,
+      elapsedTime:
+        task.extractionStartedAt && (task.extractionFinishedAt || task.extractionFailedAt)
+          ? new Date((task.extractionFinishedAt || task.extractionFailedAt)!).getTime() -
+            new Date(task.extractionStartedAt).getTime()
+          : undefined,
+      renderSubTasks: true,
+    },
+    {
+      labels: { done: 'Embedded', doing: 'Embedding', todo: 'Embed', skipped: 'no Embed' },
+      time: task.embeddingFinishedAt || task.embeddingFailedAt,
+      status:
+        task.embeddingFinishedAt || task.embeddingFailedAt
+          ? 'done'
+          : task.embeddingStartedAt
+            ? 'doing'
+            : !(task.processingFailedAt && !task.processingFinishedAt)
+              ? ('todo' as const)
+              : ('skipped' as const),
+      success: task.embeddingFailedAt ? false : task.embeddingFinishedAt ? true : undefined,
+      elapsedTime:
+        task.embeddingStartedAt && (task.embeddingFinishedAt || task.embeddingFailedAt)
+          ? new Date((task.embeddingFinishedAt || task.embeddingFailedAt)!).getTime() -
+            new Date(task.embeddingStartedAt).getTime()
+          : undefined,
+    },
+    {
+      labels: { done: 'Finished', doing: 'Finishing', todo: 'Finish', skipped: 'no Finish' },
+      time: task.processingFinishedAt || task.processingFailedAt,
+      status:
+        task.processingFinishedAt || task.processingFailedAt
+          ? 'done'
+          : task.embeddingFinishedAt || task.embeddingFailedAt
+            ? ('doing' as const)
+            : ('todo' as const),
+      success: !(task.processingFinishedAt || task.processingFailedAt) ? undefined : !!task.processingFinishedAt,
+    },
+  ]
 
   return (
     <div className="space-y-2">

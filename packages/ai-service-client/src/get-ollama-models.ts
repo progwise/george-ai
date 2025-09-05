@@ -1,82 +1,42 @@
 import { isChatModel, isEmbeddingModel, isVisionModel } from './model-classifier'
+import { ollamaResourceManager } from './ollama-resource-manager'
 
-const getOllamaChatModels = async () => {
-  if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
-    throw new Error('OLLAMA_BASE_URL environment variable is not set')
-  }
-  const headers = new Headers()
-  if (process.env.OLLAMA_API_KEY) {
-    headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
-  }
-  const ollamaModelsResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/tags`, { headers })
-  if (!ollamaModelsResponse.ok) {
-    throw new Error('Failed to fetch OLLAMA models')
-  }
-  const ollamaModelsContent = (await ollamaModelsResponse.json()) as {
-    models: { name: string; model: string }[]
+/**
+ * Get all unique models from all Ollama instances
+ */
+async function getAllAvailableModels() {
+  // Get all unique model names from all instances
+  const instanceList = await ollamaResourceManager.getInstanceList()
+  const allModels = new Set<string>()
+  for (const instance of instanceList) {
+    if (instance.availableModels) {
+      instance.availableModels.forEach((model) => allModels.add(model))
+    }
   }
 
-  return ollamaModelsContent.models
-    .filter((model) => isChatModel(model.name))
-    .sort((a, b) => a.name.localeCompare(b.name))
+  return Array.from(allModels).sort((a, b) => a.localeCompare(b))
 }
 
-const getOllamaVisionModels = async () => {
-  if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
-    throw new Error('OLLAMA_BASE_URL environment variable is not set')
-  }
-  const headers = new Headers()
-  if (process.env.OLLAMA_API_KEY) {
-    headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
-  }
-  const ollamaModelsResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/tags`, { headers })
-  if (!ollamaModelsResponse.ok) {
-    throw new Error('Failed to fetch OLLAMA models')
-  }
-  const ollamaModelsContent = (await ollamaModelsResponse.json()) as {
-    models: { name: string; model: string }[]
-  }
-
-  return ollamaModelsContent.models
-    .filter((model) => isVisionModel(model.name))
-    .sort((a, b) => a.name.localeCompare(b.name))
-}
-
+/**
+ * Get available chat models from all Ollama instances
+ */
 export const getChatModels = async () => {
-  const ollamaModels = await getOllamaChatModels()
-  return [...ollamaModels]
+  const allModels = await getAllAvailableModels()
+  return allModels.filter(isChatModel).map((name) => ({ name, model: name }))
 }
 
 /**
  * Get available OCR-capable vision models for image-to-text extraction
  */
 export const getOCRModels = async () => {
-  const ollamaVisionModels = await getOllamaVisionModels()
-  return [...ollamaVisionModels]
+  const allModels = await getAllAvailableModels()
+  return allModels.filter(isVisionModel).map((name) => ({ name, model: name }))
 }
 
-const getOllamaEmbeddingModels = async () => {
-  if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
-    throw new Error('OLLAMA_BASE_URL environment variable is not set')
-  }
-  const headers = new Headers()
-  if (process.env.OLLAMA_API_KEY) {
-    headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
-  }
-  const ollamaModelsResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/tags`, { headers })
-  if (!ollamaModelsResponse.ok) {
-    throw new Error('Failed to fetch OLLAMA models')
-  }
-  const ollamaModelsContent = (await ollamaModelsResponse.json()) as {
-    models: { name: string; model: string }[]
-  }
-
-  return ollamaModelsContent.models
-    .filter((model) => isEmbeddingModel(model.name))
-    .sort((a, b) => a.name.localeCompare(b.name))
-}
-
+/**
+ * Get available embedding models from all Ollama instances
+ */
 export const getEmbeddingModels = async () => {
-  const ollamaModels = await getOllamaEmbeddingModels()
-  return [...ollamaModels]
+  const allModels = await getAllAvailableModels()
+  return allModels.filter(isEmbeddingModel).map((name) => ({ name, model: name }))
 }

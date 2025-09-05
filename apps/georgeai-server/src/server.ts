@@ -31,9 +31,14 @@ console.log(`
   `)
 
 // Start workers
-startEnrichmentQueueWorker().catch(console.error)
-startContentProcessingWorker().catch(console.error)
-
+if (import.meta.env.VITE_AUTOSTART_ENRICHMENT_WORKER === 'true') {
+  console.log('Auto-starting enrichment queue worker...')
+  startEnrichmentQueueWorker().catch(console.error)
+}
+if (import.meta.env.VITE_AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
+  console.log('Auto-starting content processing worker...')
+  startContentProcessingWorker().catch(console.error)
+}
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',

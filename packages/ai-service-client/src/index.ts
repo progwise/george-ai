@@ -1,6 +1,7 @@
 export { chat, ollamaChat } from './ollama-chat'
 export { getOllamaChatModel } from './ollama-chat-model'
 export { getOllamaEmbedding } from './ollama-embed'
-export { getOllamaEmbeddingsModel } from './ollama-embedding-model'
 export { getChatModels, getOCRModels, getEmbeddingModels } from './get-ollama-models'
+export { ollamaResourceManager } from './ollama-resource-manager'
 export type { ChatOptions, AIResponse, Message } from './types'
+export { getAiServiceClusterStatus } from './ai-service-status'

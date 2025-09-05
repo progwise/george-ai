@@ -40,7 +40,6 @@ export const getEmbeddingWithCache = async (embeddingModelName: string, question
   if (entry) {
     // Update last access time
     entry.lastAccessDate = new Date()
-    console.log(`Embeddings cache hit for: ${cacheKey.substring(0, 50)}...`)
     return entry.vector
   }
 

@@ -28,7 +28,6 @@ export const getEnrichedValue = async ({
     contentQuery: string | null
   }
 }) => {
-  console.log(`Getting enriched value for ${file.id} with model ${languageModel}`)
   if (!languageModel) {
     throw new Error('Cannot enrich file without language model')
   }
@@ -61,9 +60,8 @@ export const getEnrichedValue = async ({
       messages.push({ name: item.name, label: `Here is the context value for ${item.name}`, value: item.value })
     })
 
-    const model = getOllamaChatModel(languageModel)
+    const model = await getOllamaChatModel(languageModel)
     const prompt = await getEnrichmentPrompt({ instruction, messages })
-    console.log('Enrichment prompt:', prompt.toString())
     const instructionPromptResult = await model.invoke(prompt, {})
     return instructionPromptResult.content.toString()
   } catch (error) {
