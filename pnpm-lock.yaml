@@ -262,9 +262,12 @@ importers:
 
   packages/ai-service-client:
     dependencies:
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../web-utils
       ollama:
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.5.17
+        version: 0.5.17
       zod:
         specifier: ^3.23.8
         version: 3.24.2
@@ -290,6 +293,9 @@ importers:
       typescript-eslint:
         specifier: ^8.18.0
         version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.13.8)(lightningcss@1.29.2)(terser@5.39.0)
 
   packages/file-converter:
     dependencies:
@@ -530,6 +536,9 @@ importers:
       typescript-eslint:
         specifier: ^8.18.0
         version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.13.8)(lightningcss@1.29.2)(terser@5.39.0)
 
 packages:
 
@@ -6294,6 +6303,9 @@ packages:
   ollama@0.5.16:
     resolution: {integrity: sha512-OEbxxOIUZtdZgOaTPAULo051F5y+Z1vosxEYOoABPnQKeW7i4O8tJNlxCB+xioyoorVqgjkdj+TA1f1Hy2ug/w==}
 
+  ollama@0.5.17:
+    resolution: {integrity: sha512-q5LmPtk6GLFouS+3aURIVl+qcAOPC4+Msmx7uBb3pd+fxI55WnGjmLZ0yijI/CYy79x0QPGx3BwC3u5zv9fBvQ==}
+
   on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
     engines: {node: '>= 0.8'}
@@ -10055,7 +10067,7 @@ snapshots:
   '@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.2)(zod@3.24.2)))':
     dependencies:
       '@langchain/core': 0.3.42(openai@4.90.0(ws@8.18.2)(zod@3.24.2))
-      ollama: 0.5.16
+      ollama: 0.5.17
       uuid: 10.0.0
       zod: 3.24.2
       zod-to-json-schema: 3.24.3(zod@3.24.2)
@@ -15220,6 +15232,10 @@ snapshots:
   ohash@1.1.5: {}
 
   ollama@0.5.16:
+    dependencies:
+      whatwg-fetch: 3.6.20
+
+  ollama@0.5.17:
     dependencies:
       whatwg-fetch: 3.6.20
 

@@ -59,6 +59,8 @@ export default {
       'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
     monitorAiServices: 'AI-Dienste überwachen',
     monitorAiServicesDescription: 'Status der integrierten AI-Dienste und Modelle anzeigen und verwalten.',
+    manageQueues: 'Warteschlangen verwalten',
+    manageQueuesDescription: 'Queue-Worker steuern und fehlgeschlagene Verarbeitungsaufgaben verwalten.',
     welcomeMessage:
       'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.',
   },
@@ -265,6 +267,8 @@ export default {
     reprocessFiles: 'Fehler beim verarbeiten von {count} Dateien: {files}.',
     removeParticipantFailed: 'Fehler beim Entfernen des Teilnehmers: {error}',
     requiredField: 'Erforderlich',
+    embeddingTimeoutMinimum: 'Minimaler Embedding-Timeout ist 30 Sekunden',
+    embeddingTimeoutMaximum: 'Maximaler Embedding-Timeout ist 30 Minuten',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
     uploadFileIsMissng: 'Hochgeladene Datei fehlt',
   },
@@ -351,6 +355,7 @@ export default {
     details: 'Details',
     email: 'E-Mail',
     embeddingModelName: 'AI Modell für Embeddings',
+    embeddingTimeoutMs: 'Embedding-Timeout (ms)',
     error: 'Fehler',
     expiresAt: 'Läuft ab',
     files: 'Dateien',
@@ -443,6 +448,7 @@ export default {
     placeholders: {
       description: 'Beschreiben Sie Ihre Bibliothek',
       embeddingModelName: 'Mit diesem Modell werden Daten in Vektoren umgewandelt',
+      embeddingTimeoutMs: 'Zeit in Millisekunden bevor Embedding-Task abbricht (30000-1800000)',
       name: 'Name Ihrer Bibliothek',
     },
     removeParticipant: 'Teilnehmer entfernen',

@@ -3,7 +3,8 @@ import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-rout
 
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library'
-import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-or-leave-dialog-button'
+import { LibraryDeleteDialog } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-dialog'
+import { LibraryLeaveDialog } from '../../../../components/library/library-delete-or-leave-dialog-button/library-leave-dialog'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
@@ -40,7 +41,13 @@ function RouteComponent() {
         </div>
         <div className="flex min-w-0 items-center justify-end gap-2">
           <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
-          <LibraryDeleteOrLeaveDialogButton library={aiLibrary} userId={user.id} />
+
+          {user.id === aiLibrary.ownerId ? (
+            <LibraryDeleteDialog library={aiLibrary} />
+          ) : (
+            <LibraryLeaveDialog library={aiLibrary} />
+          )}
+
           <button
             type="button"
             onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId } })}

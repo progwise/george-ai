@@ -15,6 +15,7 @@ export const PROCESSING_STATUS = [
   'embeddingFinished',
   'completed',
   'timedOut',
+  'cancelled',
   'failed',
 ] as const
 export type ProcessingStatus = (typeof PROCESSING_STATUS)[number]
@@ -29,9 +30,9 @@ export const getExtractionStatus = (task: ContentProcessingTask | null): Extract
   if (!task) return 'none'
   if (task.extractionFailedAt) return 'failed'
   if (task.extractionFinishedAt) return 'completed'
-  if (task.extractionStartedAt) return 'running'
-  if (task.embeddingStartedAt) return 'skipped'
   if (task.processingFailedAt || task.processingFinishedAt) return 'skipped'
+  if (task.embeddingStartedAt) return 'skipped'
+  if (task.extractionStartedAt) return 'running'
   return 'pending'
 }
 
@@ -39,13 +40,14 @@ export const getEmbeddingStatus = (task: ContentProcessingTask | null): Embeddin
   if (!task) return 'none'
   if (task.embeddingFailedAt) return 'failed'
   if (task.embeddingFinishedAt) return 'completed'
-  if (task.embeddingStartedAt) return 'running'
   if (task.processingFailedAt || task.processingFinishedAt) return 'skipped'
+  if (task.embeddingStartedAt) return 'running'
   return 'pending'
 }
 
 export const getProcessingStatus = (task: ContentProcessingTask | null): ProcessingStatus => {
   if (!task) return 'none'
+  if (task.processingCancelled) return 'cancelled' // Treat cancelled as failed for status purposes
   if (task.processingTimeout) return 'timedOut'
   if (task.processingFailedAt) return 'failed'
   if (task.processingFinishedAt) return 'completed'
@@ -119,19 +121,22 @@ export function getTaskStatusWhereClause(status: ProcessingStatus): Prisma.AiCon
       return {
         embeddingFinishedAt: { not: null },
       }
-    case 'completed':
+    case 'cancelled':
       return {
-        processingFinishedAt: { not: null },
+        processingCancelled: true,
       }
     case 'timedOut':
       return {
         processingTimeout: true,
       }
+    case 'completed':
+      return {
+        processingFinishedAt: { not: null },
+      }
     case 'failed':
       return {
         processingFailedAt: { not: null },
       }
-
     default:
       throw new Error(`Task status not implemented: ${status}`)
   }

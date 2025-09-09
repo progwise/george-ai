@@ -29,6 +29,7 @@ builder.prismaObject('AiLibrary', {
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
     embeddingModelName: t.exposeString('embeddingModelName'),
+    embeddingTimeoutMs: t.exposeInt('embeddingTimeoutMs'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
     users: t.prismaField({
       type: ['User'],

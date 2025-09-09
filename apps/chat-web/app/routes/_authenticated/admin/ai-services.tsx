@@ -32,22 +32,28 @@ function AiServicesAdminPage() {
     return `${gb.toFixed(1)} GB`
   }
 
-  // Format load score for display
-  const formatLoadScore = (score: number | null | undefined) => {
-    if (score === null || score === undefined) return 'N/A'
-    return score.toFixed(1)
+  // Calculate memory utilization percentage
+  const getMemoryUtilization = (used: number, total: number) => {
+    if (total === 0) return 0
+    return Math.round((used / total) * 100)
   }
 
   // Get status badge classes
-  const getStatusBadge = (available: boolean, error: string | null | undefined) => {
-    if (error) return 'badge-error'
-    return available ? 'badge-success' : 'badge-warning'
+  const getStatusBadge = (isOnline: boolean) => {
+    return isOnline ? 'badge-success' : 'badge-error'
+  }
+
+  // Get utilization color based on percentage
+  const getUtilizationColor = (percentage: number) => {
+    if (percentage < 50) return 'progress-success'
+    if (percentage < 80) return 'progress-warning'
+    return 'progress-error'
   }
 
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">AI Services Administration</h1>
+        <h1 className="text-3xl font-bold">Ollama Service Administration</h1>
         <div className="flex gap-2">
           <label className="label cursor-pointer">
             <input
@@ -67,17 +73,20 @@ function AiServicesAdminPage() {
       {/* Cluster Overview */}
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Total Instances</div>
+          <div className="stat-title">Instances</div>
           <div className="stat-value text-primary">{serviceStatus.totalInstances}</div>
           <div className="stat-desc">
-            {serviceStatus.availableInstances} available, {serviceStatus.healthyInstances} healthy
+            {serviceStatus.availableInstances} available • {serviceStatus.healthyInstances} healthy
           </div>
         </div>
 
         <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Total Memory</div>
+          <div className="stat-title">Total VRAM</div>
           <div className="stat-value text-secondary">{formatMemory(serviceStatus.totalMemory)}</div>
-          <div className="stat-desc">{formatMemory(serviceStatus.totalUsedMemory)} used</div>
+          <div className="stat-desc">
+            {formatMemory(serviceStatus.totalUsedMemory)} used (
+            {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
+          </div>
         </div>
 
         <div className="stat bg-base-200 rounded-lg">
@@ -87,169 +96,184 @@ function AiServicesAdminPage() {
         </div>
 
         <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Best Instance</div>
-          <div className="stat-value text-sm">{serviceStatus.bestInstanceId || 'N/A'}</div>
-          <div className="stat-desc">Lowest load score</div>
-        </div>
-      </div>
-
-      {/* Service Types */}
-      <div className="mb-6">
-        <h2 className="mb-2 text-xl font-semibold">Service Types</h2>
-        <div className="flex gap-2">
-          {serviceStatus.serviceTypes.map((type) => (
-            <div key={type} className="badge badge-outline badge-lg">
-              {type}
-            </div>
-          ))}
+          <div className="stat-title">Queue Length</div>
+          <div className="stat-value text-info">{serviceStatus.totalQueueLength}</div>
+          <div className="stat-desc">Total waiting requests</div>
         </div>
       </div>
 
       {/* Individual Instances */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Service Instances</h2>
+        <h2 className="text-2xl font-semibold">Ollama Instances</h2>
 
-        {serviceStatus.instances.map((instance) => (
-          <div key={instance.id} className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h3 className="card-title">
-                    {instance.id}
-                    <div className={`badge ${getStatusBadge(instance.available, instance.error)}`}>
-                      {instance.error ? 'Error' : instance.available ? 'Online' : 'Offline'}
-                    </div>
-                    <div className="badge badge-outline">{instance.type}</div>
-                  </h3>
-                  <p className="text-sm opacity-70">{instance.url}</p>
-                  {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
-                </div>
-                <div className="stats stats-horizontal bg-base-200 text-center">
-                  <div className="stat px-4 py-2">
-                    <div className="stat-title text-xs">Response Time</div>
-                    <div className="stat-value text-sm">
-                      {instance.responseTime ? `${instance.responseTime.toFixed(0)}ms` : 'N/A'}
-                    </div>
-                  </div>
-                  <div className="stat px-4 py-2">
-                    <div className="stat-title text-xs">Load Score</div>
-                    <div className="stat-value text-sm">{formatLoadScore(instance.loadScore)}</div>
-                  </div>
-                  <div className="stat px-4 py-2">
-                    <div className="stat-title text-xs">Queue</div>
-                    <div className="stat-value text-sm">
-                      {instance.queueLength}/{instance.maxQueueLength || '?'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {serviceStatus.instances.length === 0 ? (
+          <div className="alert alert-warning">
+            <span>No Ollama instances found. Please check your configuration.</span>
+          </div>
+        ) : (
+          serviceStatus.instances
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((instance) => {
+              const memoryUtilization = getMemoryUtilization(instance.usedVram, instance.totalVram)
 
-              {instance.error && (
-                <div className="alert alert-error mb-4">
-                  <span className="text-sm">{instance.error}</span>
-                </div>
-              )}
+              return (
+                <div key={instance.name} className="card bg-base-100 shadow-xl">
+                  <div className="card-body">
+                    {/* Instance Header */}
+                    <div className="mb-4 flex items-start justify-between">
+                      <div>
+                        <h3 className="card-title">
+                          {instance.name}
+                          <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
+                            {instance.isOnline ? 'Online' : 'Offline'}
+                          </div>
+                          <div className="badge badge-outline">{instance.type}</div>
+                        </h3>
+                        <p className="text-sm opacity-70">{instance.url}</p>
+                        {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
+                      </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                {/* Resource Usage */}
-                {instance.resourceUsage && (
-                  <div>
-                    <h4 className="mb-2 font-semibold">Resource Usage ({instance.resourceUsage.memoryType})</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Total Memory:</span>
-                        <span>{formatMemory(instance.resourceUsage.totalMemory)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Used Memory:</span>
-                        <span>{formatMemory(instance.resourceUsage.usedMemory)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Available Memory:</span>
-                        <span>{formatMemory(instance.resourceUsage.availableMemory)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Utilization:</span>
-                        <span>{instance.resourceUsage.utilizationPercentage.toFixed(1)}%</span>
-                      </div>
-                      <progress
-                        className="progress progress-primary w-full"
-                        value={instance.resourceUsage.utilizationPercentage}
-                        max="100"
-                      ></progress>
-                      <div className="flex justify-between text-sm">
-                        <span>Max Concurrency:</span>
-                        <span>{instance.resourceUsage.maxConcurrency}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Current Concurrency:</span>
-                        <span>{instance.currentConcurrency}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Running Models */}
-                <div>
-                  <h4 className="mb-2 font-semibold">Running Models ({instance.runningModels?.length || 0})</h4>
-                  <div className="max-h-40 space-y-1 overflow-y-auto">
-                    {instance.runningModels && instance.runningModels.length > 0 ? (
-                      instance.runningModels.map((model) => (
-                        <div key={model.name} className="bg-base-200 flex justify-between rounded p-2 text-sm">
-                          <span className="font-mono">{model.name}</span>
-                          <span>{model.memoryUsage ? formatMemory(model.memoryUsage) : 'N/A'}</span>
+                      {/* Memory Stats */}
+                      <div className="stats stats-vertical lg:stats-horizontal bg-base-200">
+                        <div className="stat">
+                          <div className="stat-title text-xs">VRAM Usage</div>
+                          <div className="stat-value text-sm">{formatMemory(instance.usedVram)}</div>
+                          <div className="stat-desc text-xs">of {formatMemory(instance.totalVram)}</div>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm opacity-50">No running models</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+                        <div className="stat">
+                          <div className="stat-title text-xs">Utilization</div>
+                          <div className="stat-value text-sm">{memoryUtilization}%</div>
+                          <div className="stat-desc text-xs">
+                            <progress
+                              className={`progress w-16 ${getUtilizationColor(memoryUtilization)}`}
+                              value={memoryUtilization}
+                              max="100"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-              {/* Available Models */}
-              <div className="mt-4">
-                <div className="collapse-arrow bg-base-200 collapse">
-                  <input type="checkbox" />
-                  <div className="collapse-title text-sm font-medium">
-                    Available Models ({instance.availableModels?.length || 0})
-                  </div>
-                  <div className="collapse-content">
-                    <div className="grid max-h-60 grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2">
-                      {instance.availableModels && instance.availableModels.length > 0 ? (
-                        instance.availableModels.map((model) => (
-                          <div key={model.name} className="bg-base-100 rounded p-2">
-                            <div className="font-mono text-sm">{model.name}</div>
-                            <div className="text-xs opacity-70">
-                              {model.family && <span>Family: {model.family} | </span>}
-                              {model.size !== undefined && model.size !== null && (
-                                <span>Size: {formatMemory(model.size)} | </span>
-                              )}
-                              Capabilities: {model.capabilities?.join(', ') || 'Unknown'}
+                    {/* Content Grid */}
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                      {/* Available Models (Collapsible) */}
+                      <div>
+                        <div className="bg-base-200 collapse">
+                          <input type="checkbox" />
+                          <div className="collapse-title text-sm font-semibold">
+                            <div className="flex items-center gap-2">
+                              <div className="badge badge-info badge-sm">{instance.availableModels?.length || 0}</div>
+                              Available Models
                             </div>
                           </div>
-                        ))
-                      ) : (
-                        <p className="text-sm opacity-50">No available models</p>
-                      )}
+                          <div className="collapse-content">
+                            <div className="max-h-48 space-y-1 overflow-y-auto pt-2">
+                              {instance.availableModels && instance.availableModels.length > 0 ? (
+                                instance.availableModels.map((model) => (
+                                  <div key={model.name} className="card card-compact bg-base-100">
+                                    <div className="card-body">
+                                      <div className="font-mono text-xs font-medium">{model.name}</div>
+                                      <div className="text-xs opacity-70">
+                                        {model.family && (
+                                          <span className="badge badge-ghost badge-xs mr-1">{model.family}</span>
+                                        )}
+                                        {model.size && <span>Size: {formatMemory(model.size)}</span>}
+                                        {model.parameterSize && <span> • {model.parameterSize} params</span>}
+                                      </div>
+                                      {model.capabilities && model.capabilities.length > 0 && (
+                                        <div className="mt-1 flex flex-wrap gap-1">
+                                          {model.capabilities.map((cap) => (
+                                            <div key={cap} className="badge badge-outline badge-xs">
+                                              {cap}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="py-2 text-center text-xs opacity-50">No models available</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Running Models */}
+                      <div>
+                        <h4 className="mb-3 flex items-center gap-2 font-semibold">
+                          <div className="badge badge-success badge-sm">{instance.runningModels?.length || 0}</div>
+                          Running Models
+                        </h4>
+                        <div className="max-h-48 space-y-2 overflow-y-auto">
+                          {instance.runningModels && instance.runningModels.length > 0 ? (
+                            instance.runningModels.map((model) => (
+                              <div key={model.name} className="card card-compact bg-base-200">
+                                <div className="card-body">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-mono text-sm font-medium">{model.name}</span>
+                                    <div className="badge badge-info badge-sm">{model.activeRequests} active</div>
+                                  </div>
+                                  <div className="flex justify-between text-xs opacity-70">
+                                    <span>Size: {formatMemory(model.size)}</span>
+                                    {model.expiresAt && (
+                                      <span>Expires: {new Date(model.expiresAt).toLocaleTimeString()}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="py-4 text-center text-sm opacity-50">No models currently running</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Model Queues */}
+                      <div>
+                        <h4 className="mb-3 flex items-center gap-2 font-semibold">
+                          <div className="badge badge-warning badge-sm">{instance.modelQueues?.length || 0}</div>
+                          Model Queues
+                        </h4>
+                        <div className="max-h-48 space-y-2 overflow-y-auto">
+                          {instance.modelQueues && instance.modelQueues.length > 0 ? (
+                            instance.modelQueues.map((queue) => (
+                              <div key={queue.modelName} className="card card-compact bg-base-200">
+                                <div className="card-body">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-mono text-sm font-medium">{queue.modelName}</span>
+                                    <div className="badge badge-outline badge-sm">
+                                      {queue.queueLength}/{queue.maxConcurrency}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs opacity-70">
+                                    Est. size per request: {formatMemory(queue.estimatedRequestSize)}
+                                  </div>
+                                  {queue.queueLength > 0 && (
+                                    <progress
+                                      className="progress progress-warning w-full"
+                                      value={queue.queueLength}
+                                      max={queue.maxConcurrency}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="py-4 text-center text-sm opacity-50">No active queues</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        ))}
+              )
+            })
+        )}
       </div>
 
-      {serviceStatus.instances.length === 0 && (
-        <div className="alert alert-warning">
-          <span>No AI service instances found. Please check your configuration.</span>
-        </div>
-      )}
-
-      <div className="mt-8 text-center text-sm opacity-50">
-        Last updated: {new Date(serviceStatus.lastUpdated).toLocaleString()}
-      </div>
+      <div className="mt-8 text-center text-sm opacity-50">Last updated: {new Date().toLocaleString()}</div>
     </div>
   )
 }

@@ -12,9 +12,11 @@ import {
   ProcessingStatus,
 } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { CancelIcon } from '../../../icons/cancel-icon'
 import { ExternalLinkIcon } from '../../../icons/external-link-icon'
 import { JsonModal } from '../../json-modal'
 import { TaskTimeline } from './task-timeline'
+import { useTaskActions } from './use-task-actions'
 
 graphql(`
   fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {
@@ -61,6 +63,8 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
   const { language } = useTranslation()
   const extractionOptionsModalRef = useRef<HTMLDialogElement>(null)
   const metadataModalRef = useRef<HTMLDialogElement>(null)
+
+  const { cancelProcessingTask } = useTaskActions({ libraryId: task.file.libraryId, fileId: task.file.id })
 
   const openExtractionOptionsModal = () => {
     console.log('Opening Extraction Options Modal', extractionOptionsModalRef.current)
@@ -139,13 +143,13 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
-                <span className="text-base-content/80">Extraction</span>
+                <span className="text-base-content/80">Extraction {task.extractionStatus}</span>
               </span>
               <span className={twMerge('badge badge-sm badge-outline', getStatusBadgeClass(task.embeddingStatus))}>
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
-                <span className="text-base-content/80">Embedding</span>
+                <span className="text-base-content/80">Embedding {task.embeddingStatus}</span>
               </span>
               <span
                 className={twMerge(
@@ -156,7 +160,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
-                <span className="text-base-content/80">Processing</span>
+                <span className="text-base-content/80">Processing {task.processingStatus}</span>
               </span>
             </div>
           </div>
@@ -183,8 +187,13 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <span className="text-base-content/60">Timeout:</span>
                 {task.timeoutMs === undefined ? '-' : task.timeoutMs}ms
               </div>
-              <div className="flex gap-2">
-                <button type="button" className="btn btn-sm btn-circle" onClick={openExtractionOptionsModal}>
+              <ul className="menu menu-horizontal bg-base-200 rounded-box gap-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-circle tooltip"
+                  data-tip="Extraction Options"
+                  onClick={openExtractionOptionsModal}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -202,7 +211,12 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                   </svg>
                 </button>
                 {task.metadata && (
-                  <button type="button" className="btn btn-sm btn-circle" onClick={openMetadataModal}>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-circle tooltip"
+                    data-tip="Process Data"
+                    onClick={openMetadataModal}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -219,15 +233,25 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                     </svg>
                   </button>
                 )}
+                {!task.processingFailedAt && !task.processingFinishedAt && (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-circle tooltip"
+                    data-tip="Cancel Processing"
+                    onClick={() => cancelProcessingTask({ taskId: task.id, fileId: task.file.id })}
+                  >
+                    <CancelIcon className="size-6" />
+                  </button>
+                )}
                 <Link
                   to="/libraries/$libraryId/files/$fileId/tasks"
                   params={{ fileId: task.file.id, libraryId: task.file.libraryId }}
-                  className="btn btn-sm btn-circle"
-                  title={`Go to ${task.file.name}`}
+                  className="btn btn-sm btn-circle tooltip"
+                  data-tip={`Go to file's tasks`}
                 >
                   <ExternalLinkIcon className="size-4" />
                 </Link>
-              </div>
+              </ul>
             </div>
 
             {/* Process Timeline - 3-Phase Pipeline */}

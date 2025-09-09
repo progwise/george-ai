@@ -1,22 +1,12 @@
-import { getAiServiceClusterStatus } from '@george-ai/ai-service-client'
+import { getClusterStatus } from '@george-ai/ai-service-client'
 
 import { builder } from '../builder'
-
-// Enum for AI service types
-const AiServiceType = builder.enumType('AiServiceType', {
-  values: {
-    OLLAMA: {},
-    OPENAI: {},
-    ANTHROPIC: {},
-    GEMINI: {},
-  },
-})
 
 // Generic AI model information
 const AiModelInfo = builder.simpleObject('AiModelInfo', {
   fields: (t) => ({
     name: t.string({ nullable: false }),
-    size: t.float({ nullable: true }),
+    size: t.float({ nullable: false }),
     digest: t.string({ nullable: true }),
     parameterSize: t.string({ nullable: true }),
     quantizationLevel: t.string({ nullable: true }),
@@ -29,37 +19,29 @@ const AiModelInfo = builder.simpleObject('AiModelInfo', {
 const AiRunningModel = builder.simpleObject('AiRunningModel', {
   fields: (t) => ({
     name: t.string({ nullable: false }),
-    size: t.float({ nullable: true }),
-    memoryUsage: t.float({ nullable: true }),
-    expiresAt: t.string({ nullable: true }),
-    processingLoad: t.string({ nullable: true }),
-    activeRequests: t.int({ nullable: true }),
+    size: t.float({ nullable: false }),
+    expiresAt: t.string({ nullable: false }),
+    activeRequests: t.int({ nullable: false }),
   }),
 })
 
-// Memory/resource usage information
-const AiResourceUsage = builder.simpleObject('AiResourceUsage', {
+const AiModelQueue = builder.simpleObject('AiModelQueue', {
   fields: (t) => ({
-    totalMemory: t.float({ nullable: false }),
-    usedMemory: t.float({ nullable: false }),
-    availableMemory: t.float({ nullable: false }),
-    safeMemory: t.float({ nullable: false }),
+    modelName: t.string({ nullable: false }),
+    queueLength: t.int({ nullable: false }),
     maxConcurrency: t.int({ nullable: false }),
-    estimatedRequestMemory: t.float({ nullable: false }),
-    utilizationPercentage: t.float({ nullable: false }),
-    memoryType: t.string({ nullable: false }), // "GPU", "CPU", "Mixed"
+    estimatedRequestSize: t.float({ nullable: false }),
   }),
 })
 
 // Individual AI service instance status
 const AiServiceInstance = builder.simpleObject('AiServiceInstance', {
   fields: (t) => ({
-    id: t.string({ nullable: false }),
+    name: t.string({ nullable: false }),
     url: t.string({ nullable: false }),
-    type: t.field({ type: AiServiceType, nullable: false }),
-    available: t.boolean({ nullable: false }),
-    responseTime: t.float({ nullable: true }),
-    loadScore: t.float({ nullable: true }),
+    type: t.string({ nullable: false }),
+    isOnline: t.boolean({ nullable: false }),
+    version: t.string({ nullable: false }),
     runningModels: t.field({
       type: [AiRunningModel],
       nullable: { list: true, items: false },
@@ -68,16 +50,12 @@ const AiServiceInstance = builder.simpleObject('AiServiceInstance', {
       type: [AiModelInfo],
       nullable: { list: true, items: false },
     }),
-    resourceUsage: t.field({
-      type: AiResourceUsage,
-      nullable: true,
+    modelQueues: t.field({
+      type: [AiModelQueue],
+      nullable: { list: true, items: false },
     }),
-    currentConcurrency: t.int({ nullable: false }),
-    queueLength: t.int({ nullable: false }),
-    maxQueueLength: t.int({ nullable: true }),
-    version: t.string({ nullable: true }),
-    error: t.string({ nullable: true }),
-    metadata: t.string({ nullable: true }), // JSON string for service-specific data
+    totalVram: t.float({ nullable: false }),
+    usedVram: t.float({ nullable: false }),
   }),
 })
 
@@ -94,12 +72,7 @@ const AiServiceClusterStatus = builder.simpleObject('AiServiceClusterStatus', {
     totalMemory: t.float({ nullable: false }),
     totalUsedMemory: t.float({ nullable: false }),
     totalMaxConcurrency: t.int({ nullable: false }),
-    bestInstanceId: t.string({ nullable: true }),
-    serviceTypes: t.field({
-      type: [AiServiceType],
-      nullable: { list: false, items: false },
-    }),
-    lastUpdated: t.field({ type: 'DateTime', nullable: false }),
+    totalQueueLength: t.int({ nullable: false }),
   }),
 })
 
@@ -118,7 +91,8 @@ builder.queryField('aiServiceStatus', (t) =>
       }
 
       try {
-        return await getAiServiceClusterStatus()
+        const status = await getClusterStatus()
+        return status
       } catch (error) {
         console.error('Error fetching AI service status:', error)
         throw new Error('Failed to fetch AI service status')

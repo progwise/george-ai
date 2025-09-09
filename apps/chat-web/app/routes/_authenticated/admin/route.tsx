@@ -1,6 +1,7 @@
 import { Link, Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ListViewIcon } from '../../../icons/list-view-icon'
 import { ServerIcon } from '../../../icons/server-icon'
 import { UsersIcon } from '../../../icons/users-icon'
 
@@ -101,6 +102,21 @@ function RouteComponent() {
               >
                 <ServerIcon className="mr-2 h-4 w-4" />
                 {t('admin.monitorAiServices')}
+              </Link>
+
+              <Link
+                to="/admin/queues"
+                activeProps={{
+                  className:
+                    'tab tab-active [--tab-bg:theme(colors.accent)] [--tab-color:theme(colors.accent-content)]',
+                }}
+                inactiveProps={{
+                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+                }}
+                activeOptions={{ exact: false }}
+              >
+                <ListViewIcon className="mr-2 h-4 w-4" />
+                {t('admin.manageQueues')}
               </Link>
             </nav>
           </div>

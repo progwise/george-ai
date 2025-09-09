@@ -62,9 +62,12 @@ export const getProcessingTasksQueryOptions = (params: {
     refetchInterval(query) {
       return query.state.data?.aiContentProcessingTasks.tasks.some(
         (task) =>
-          task.processingStatus !== ProcessingStatus.Completed && task.processingStatus !== ProcessingStatus.Failed,
+          task.processingStatus !== ProcessingStatus.Completed &&
+          task.processingStatus !== ProcessingStatus.Failed &&
+          task.processingStatus !== ProcessingStatus.Cancelled &&
+          task.processingStatus !== ProcessingStatus.TimedOut,
       )
-        ? 1000
+        ? 5000
         : false
     },
   })

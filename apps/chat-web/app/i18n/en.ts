@@ -58,6 +58,8 @@ export default {
     manageUsersDescription: 'View all users, activate accounts, edit profiles, and delete users as needed.',
     monitorAiServices: 'Monitor AI Services',
     monitorAiServicesDescription: 'View and manage the status of integrated AI services and models.',
+    manageQueues: 'Manage Queues',
+    manageQueuesDescription: 'Control queue workers and manage failed processing tasks.',
     welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.',
   },
   aiAct: {
@@ -261,6 +263,8 @@ export default {
     reprocessFiles: 'An error occurred while processing {count} files: {files}.',
     removeParticipantFailed: 'Failed to remove participant: {error}',
     requiredField: 'Required',
+    embeddingTimeoutMinimum: 'Minimum embedding timeout is 30 seconds',
+    embeddingTimeoutMaximum: 'Maximum embedding timeout is 30 minutes',
     unexpectedError: 'An unexpected error occurred',
     uploadedFileIsMissing: 'The uploaded file is missing.',
   },
@@ -346,6 +350,7 @@ export default {
     details: 'Details',
     email: 'Email',
     embeddingModelName: 'AI Model for Embeddings',
+    embeddingTimeoutMs: 'Embedding Timeout (ms)',
     error: 'Error',
 
     expiresAt: 'Expires',
@@ -439,6 +444,7 @@ export default {
     placeholders: {
       description: 'Describe your library',
       embeddingModelName: 'With this model, data is transformed into vectors',
+      embeddingTimeoutMs: 'Time in milliseconds before embedding task times out (30000-1800000)',
       name: 'Name your library',
     },
     removeParticipant: 'Remove participant',

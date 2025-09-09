@@ -139,14 +139,6 @@ input AiBaseCaseInputType {
   sequence: Float
 }
 
-"""
-AI Chat Models available in the system
-"""
-type AiChatModel {
-  model: String!
-  name: String!
-}
-
 type AiContentExtractionSubTask {
   contentProcessingTask: AiContentProcessingTask!
   contentProcessingTaskId: String!
@@ -243,19 +235,12 @@ interface AiConversationParticipant {
   userId: ID
 }
 
-"""
-AI Embedding Models available in the system
-"""
-type AiEmbeddingModel {
-  model: String!
-  name: String!
-}
-
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
   embeddingModelName: String
+  embeddingTimeoutMs: Int
   fileConverterOptions: String
   filesCount: Int!
   id: ID!
@@ -421,6 +406,7 @@ type AiLibraryFileQueryResult {
 input AiLibraryInput {
   description: String
   embeddingModelName: String
+  embeddingTimeoutMs: Int
   fileConverterOptions: String
   icon: String
   name: String!
@@ -622,65 +608,45 @@ type AiModelInfo {
   name: String!
   parameterSize: String
   quantizationLevel: String
-  size: Float
+  size: Float!
 }
 
-type AiResourceUsage {
-  availableMemory: Float!
-  estimatedRequestMemory: Float!
+type AiModelQueue {
+  estimatedRequestSize: Float!
   maxConcurrency: Int!
-  memoryType: String!
-  safeMemory: Float!
-  totalMemory: Float!
-  usedMemory: Float!
-  utilizationPercentage: Float!
+  modelName: String!
+  queueLength: Int!
 }
 
 type AiRunningModel {
-  activeRequests: Int
-  expiresAt: String
-  memoryUsage: Float
+  activeRequests: Int!
+  expiresAt: String!
   name: String!
-  processingLoad: String
-  size: Float
+  size: Float!
 }
 
 type AiServiceClusterStatus {
   availableInstances: Int!
-  bestInstanceId: String
   healthyInstances: Int!
   instances: [AiServiceInstance!]!
-  lastUpdated: DateTime!
-  serviceTypes: [AiServiceType!]!
   totalInstances: Int!
   totalMaxConcurrency: Int!
   totalMemory: Float!
+  totalQueueLength: Int!
   totalUsedMemory: Float!
 }
 
 type AiServiceInstance {
-  available: Boolean!
   availableModels: [AiModelInfo!]
-  currentConcurrency: Int!
-  error: String
-  id: String!
-  loadScore: Float
-  maxQueueLength: Int
-  metadata: String
-  queueLength: Int!
-  resourceUsage: AiResourceUsage
-  responseTime: Float
+  isOnline: Boolean!
+  modelQueues: [AiModelQueue!]
+  name: String!
   runningModels: [AiRunningModel!]
-  type: AiServiceType!
+  totalVram: Float!
+  type: String!
   url: String!
-  version: String
-}
-
-enum AiServiceType {
-  ANTHROPIC
-  GEMINI
-  OLLAMA
-  OPENAI
+  usedVram: Float!
+  version: String!
 }
 
 type AssistantParticipant implements AiConversationParticipant {
@@ -854,7 +820,9 @@ type Mutation {
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
+  cancelContentProcessingTasks(libraryId: String): QueueOperationResult!
   cancelFileUpload(fileId: String!): Boolean!
+  cancelProcessingTask(fileId: String!, taskId: String!): AiContentProcessingTask!
   cleanListEnrichments(
     """
     Field ID to clean
@@ -863,6 +831,8 @@ type Mutation {
     listId: String!
   ): CleanEnrichmentResult!
   clearEmbeddedFiles(libraryId: String!): Boolean
+  clearFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
+  clearPendingTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   computeFieldValue(fieldId: String!, fileId: String!): ComputeFieldValueResult
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
@@ -914,9 +884,11 @@ type Mutation {
   removeListField(id: String!): AiListField!
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
+  retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  startAllQueueWorkers: QueueOperationResult!
   startListEnrichment(
     """
     Field ID to enrich
@@ -924,6 +896,7 @@ type Mutation {
     fieldId: String!
     listId: String!
   ): EnrichmentQueueResult!
+  startQueueWorker(queueType: QueueType!): QueueOperationResult!
   startSingleEnrichment(
     """
     Field ID to enrich
@@ -936,6 +909,7 @@ type Mutation {
     listId: String!
   ): EnrichmentQueueResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
+  stopAllQueueWorkers: QueueOperationResult!
   stopListEnrichment(
     """
     Field ID to stop enrichment for
@@ -943,6 +917,7 @@ type Mutation {
     fieldId: String!
     listId: String!
   ): EnrichmentQueueResult!
+  stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -963,12 +938,8 @@ type Mutation {
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
 
-type OCRModel {
-  model: String!
-  name: String!
-}
-
 enum ProcessingStatus {
+  cancelled
   completed
   embedding
   embeddingFailed
@@ -988,7 +959,7 @@ type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
-  aiChatModels: [AiChatModel!]!
+  aiChatModels: [String!]!
   aiContentProcessingTasks(
     fileId: String
     libraryId: String!
@@ -999,7 +970,7 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
-  aiEmbeddingModels: [AiEmbeddingModel!]!
+  aiEmbeddingModels: [String!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
@@ -1027,16 +998,48 @@ type Query {
   aiLists: [AiList!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
+  aiVisionModels: [String!]!
   """
   Get all available OCR-capable vision models
   """
-  availableOCRModels: [OCRModel!]!
+  availableOCRModels: [String!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
+  queueSystemStatus: QueueSystemStatus!
   user(email: String!): User
   userProfile: UserProfile!
   users: [User!]!
   version: String
+}
+
+type QueueOperationResult {
+  affectedCount: Int
+  message: String!
+  success: Boolean!
+}
+
+type QueueStatus {
+  completedTasks: Int!
+  failedTasks: Int!
+  isRunning: Boolean!
+  lastProcessedAt: String
+  pendingTasks: Int!
+  processingTasks: Int!
+  queueType: QueueType!
+}
+
+type QueueSystemStatus {
+  allWorkersRunning: Boolean!
+  lastUpdated: String!
+  queues: [QueueStatus!]!
+  totalFailedTasks: Int!
+  totalPendingTasks: Int!
+  totalProcessingTasks: Int!
+}
+
+enum QueueType {
+  CONTENT_PROCESSING
+  ENRICHMENT
 }
 
 type SharePointValidationResult {

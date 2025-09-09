@@ -201,6 +201,7 @@ model AiContentProcessingTask {
   processingStartedAt  DateTime? // When worker picks up task (start of entire pipeline)
   processingFinishedAt DateTime? // When entire pipeline completes (success/fail/timeout)
   processingFailedAt   DateTime? // Infrastructure timeout (worker stuck, not legitimate long processing)
+  processingCancelled  Boolean   @default(false) // User-requested cancellation
   processingTimeout    Boolean   @default(false)
 
   // Extraction phase timestamps

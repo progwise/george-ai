@@ -18,6 +18,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     icon: t.string({ required: false }),
     embeddingModelName: t.string({ required: false }),
     fileConverterOptions: t.string({ required: false }),
+    embeddingTimeoutMs: t.int({ required: false }),
   }),
 })
 

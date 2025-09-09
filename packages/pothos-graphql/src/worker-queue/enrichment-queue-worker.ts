@@ -327,5 +327,9 @@ export function stopEnrichmentQueueWorker() {
   console.log('🛑 Stopped enrichment queue worker')
 }
 
+export function isEnrichmentWorkerRunning(): boolean {
+  return isWorkerRunning
+}
+
 // Note: The worker is started explicitly by the server in server.ts
 // This ensures proper initialization order and error handling

@@ -27,6 +27,7 @@ import { Route as AuthenticatedAdminIndexImport } from './routes/_authenticated/
 import { Route as AuthenticatedLibrariesAuthGoogleImport } from './routes/_authenticated/libraries/auth-google'
 import { Route as AuthenticatedConversationsConversationIdImport } from './routes/_authenticated/conversations/$conversationId'
 import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
+import { Route as AuthenticatedAdminQueuesImport } from './routes/_authenticated/admin/queues'
 import { Route as AuthenticatedAdminAiServicesImport } from './routes/_authenticated/admin/ai-services'
 import { Route as AuthenticatedListsListIdRouteImport } from './routes/_authenticated/lists/$listId/route'
 import { Route as AuthenticatedLibrariesLibraryIdRouteImport } from './routes/_authenticated/libraries/$libraryId/route'
@@ -159,6 +160,12 @@ const AuthenticatedAssistantsAssistantIdRoute =
     path: '/assistants/$assistantId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+
+const AuthenticatedAdminQueuesRoute = AuthenticatedAdminQueuesImport.update({
+  id: '/queues',
+  path: '/queues',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 
 const AuthenticatedAdminAiServicesRoute =
   AuthenticatedAdminAiServicesImport.update({
@@ -438,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAiServicesImport
       parentRoute: typeof AuthenticatedAdminRouteImport
     }
+    '/_authenticated/admin/queues': {
+      id: '/_authenticated/admin/queues'
+      path: '/queues'
+      fullPath: '/admin/queues'
+      preLoaderRoute: typeof AuthenticatedAdminQueuesImport
+      parentRoute: typeof AuthenticatedAdminRouteImport
+    }
     '/_authenticated/assistants/$assistantId': {
       id: '/_authenticated/assistants/$assistantId'
       path: '/assistants/$assistantId'
@@ -683,6 +697,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAiServicesRoute: typeof AuthenticatedAdminAiServicesRoute
+  AuthenticatedAdminQueuesRoute: typeof AuthenticatedAdminQueuesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
   AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
@@ -691,6 +706,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminAiServicesRoute: AuthenticatedAdminAiServicesRoute,
+    AuthenticatedAdminQueuesRoute: AuthenticatedAdminQueuesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
     AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
@@ -901,6 +917,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
+  '/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -944,6 +961,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
+  '/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -988,6 +1006,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
   '/_authenticated/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
+  '/_authenticated/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -1037,6 +1056,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/lists/$listId'
     | '/admin/ai-services'
+    | '/admin/queues'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
@@ -1079,6 +1099,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/admin/ai-services'
+    | '/admin/queues'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
@@ -1121,6 +1142,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/lists/$listId'
     | '/_authenticated/admin/ai-services'
+    | '/_authenticated/admin/queues'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$conversationId'
     | '/_authenticated/libraries/auth-google'
@@ -1225,6 +1247,7 @@ export const routeTree = rootRoute
       "parent": "/_authenticated",
       "children": [
         "/_authenticated/admin/ai-services",
+        "/_authenticated/admin/queues",
         "/_authenticated/admin/",
         "/_authenticated/admin/users/$userId",
         "/_authenticated/admin/users/"
@@ -1263,6 +1286,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/admin/ai-services": {
       "filePath": "_authenticated/admin/ai-services.tsx",
+      "parent": "/_authenticated/admin"
+    },
+    "/_authenticated/admin/queues": {
+      "filePath": "_authenticated/admin/queues.tsx",
       "parent": "/_authenticated/admin"
     },
     "/_authenticated/assistants/$assistantId": {

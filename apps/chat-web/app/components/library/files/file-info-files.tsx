@@ -20,7 +20,6 @@ interface FileInfoFilesProps {
 export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
   const { t } = useTranslation()
   const uploadedFile = file.sourceFiles.find((f) => f.fileName === 'upload')
-  console.log('file.sourceFiles', file.sourceFiles)
   return (
     <ul className="menu menu-xs bg-base-200 rounded-box w-xs shadow-lg">
       <li>

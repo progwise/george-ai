@@ -17,6 +17,9 @@ export const mergeObjectToJsonString = (originalJson?: string | null, newData?: 
   }
   const parsed = safeJsonParse(originalJson)
   if (!parsed.success) {
+    console.warn('Failed to parse JSON, overwriting with new data:', parsed.error)
+    console.warn('Original JSON:', originalJson)
+    console.warn('New Data:', newData)
     return originalJson ?? null
   }
   return JSON.stringify({ ...parsed.data, ...newData })

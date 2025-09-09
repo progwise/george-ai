@@ -3,20 +3,11 @@ export interface Message {
   content: string
   images?: string[]
 }
-
-export interface ChatOptions {
-  model: string
-  messages: Message[]
-  timeout?: number // in milliseconds
-  onChunk?: (chunk: string) => void // optional streaming callback
-  retries?: number // number of retries on failure (default 3)
-}
-
 export interface AIResponse {
   content: string // All content received
   success: boolean // Whether processing completed normally
   issues?: {
-    timeout: boolean // Processing timeout
+    timeout?: boolean // Processing timeout
     partialResult: boolean // Content is incomplete
   }
   metadata?: {
@@ -25,4 +16,5 @@ export interface AIResponse {
     lastChunkTimestamp?: number
     instanceUrl?: string // Which OLLAMA instance was used
   }
+  error?: object
 }

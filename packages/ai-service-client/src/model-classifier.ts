@@ -138,6 +138,23 @@ export const classifyModel = (modelName: string): ModelClassification => {
   }
 }
 
+export const getCapabilitiesForModel = (modelName: string): string[] => {
+  const classification = classifyModel(modelName)
+  const capabilities: string[] = []
+
+  if (classification.isChatModel) {
+    capabilities.push('chat')
+  }
+  if (classification.isEmbeddingModel) {
+    capabilities.push('embedding')
+  }
+  if (classification.isVisionModel) {
+    capabilities.push('vision')
+    capabilities.push('ocr')
+  }
+
+  return capabilities
+}
 /**
  * Filters models for embedding use
  */

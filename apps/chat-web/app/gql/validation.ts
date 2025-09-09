@@ -14,11 +14,11 @@ import {
   AiListFieldInput,
   AiListInput,
   AiListSourceInput,
-  AiServiceType,
   ConversationInvitationInput,
   EmbeddingStatus,
   ExtractionStatus,
   ProcessingStatus,
+  QueueType,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -35,13 +35,13 @@ export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny
 
 export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
 
-export const AiServiceTypeSchema = z.nativeEnum(AiServiceType)
-
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
 
 export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
+
+export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -128,6 +128,7 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   return z.object({
     description: z.string().nullish(),
     embeddingModelName: z.string().nullish(),
+    embeddingTimeoutMs: z.number().nullish(),
     fileConverterOptions: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),

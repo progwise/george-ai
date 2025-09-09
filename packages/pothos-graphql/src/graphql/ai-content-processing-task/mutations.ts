@@ -3,6 +3,7 @@ import {
   createEmbeddingOnlyTask,
 } from '../../domain/content-extraction/content-extraction-task'
 import { canAccessFileOrThrow } from '../../domain/file'
+import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiFileContentExtractionTask Mutations')
@@ -46,6 +47,30 @@ builder.mutationField('createEmbeddingOnlyProcessingTask', (t) =>
 
       // Create embedding-only task
       const task = await createEmbeddingOnlyTask(fileId, { existingTaskId, query })
+
+      return task
+    },
+  }),
+)
+
+builder.mutationField('cancelProcessingTask', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiContentProcessingTask',
+    nullable: false,
+    args: {
+      taskId: t.arg.string({ required: true }),
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _parent, { taskId, fileId }, context) => {
+      // Check permissions
+      await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      // Create embedding-only task
+      const task = await prisma.aiContentProcessingTask.update({
+        where: { id: taskId },
+        data: { processingCancelled: true },
+        ...query,
+      })
 
       return task
     },

@@ -11,16 +11,14 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
         query GetAiServiceStatus {
           aiServiceStatus {
             instances {
-              id
+              name
               url
               type
-              available
-              responseTime
-              loadScore
+              isOnline
+              version
               runningModels {
                 name
                 size
-                memoryUsage
                 expiresAt
                 activeRequests
               }
@@ -31,20 +29,14 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
                 family
                 parameterSize
               }
-              resourceUsage {
-                totalMemory
-                usedMemory
-                availableMemory
-                safeMemory
+              totalVram
+              usedVram
+              modelQueues {
+                modelName
+                queueLength
                 maxConcurrency
-                utilizationPercentage
-                memoryType
+                estimatedRequestSize
               }
-              currentConcurrency
-              queueLength
-              maxQueueLength
-              version
-              error
             }
             totalInstances
             availableInstances
@@ -52,9 +44,7 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
             totalMemory
             totalUsedMemory
             totalMaxConcurrency
-            bestInstanceId
-            serviceTypes
-            lastUpdated
+            totalQueueLength
           }
         }
       `),

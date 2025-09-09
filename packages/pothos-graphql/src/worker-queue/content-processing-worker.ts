@@ -49,14 +49,43 @@ type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
   }
 }>
 
+type ProcessingTaskUpdate = Prisma.AiContentProcessingTaskUpdateInput
+
 type ExtractionSubTaskRecord = Prisma.AiContentExtractionSubTaskGetPayload<{
-  select: { id: true; extractionMethod: true; markdownFileName: true; finishedAt: true; failedAt: true }
+  select: {
+    id: true
+    createdAt: true
+    startedAt: true
+    contentProcessingTaskId: true
+    extractionMethod: true
+    markdownFileName: true
+    finishedAt: true
+    failedAt: true
+  }
 }>
+
+type ExtractionSubTaskUpdate = Prisma.AiContentExtractionSubTaskUpdateInput
+
+class ProcessingTaskAbortError extends Error {
+  cause: 'timeout' | 'cancel'
+  data: { processingTask?: ProcessingTaskRecord; subTask?: ExtractionSubTaskRecord }
+  constructor(props: {
+    cause: 'timeout' | 'cancel'
+    data: { processingTask?: ProcessingTaskRecord; subTask?: ExtractionSubTaskRecord }
+  }) {
+    const { cause, data } = props
+    super(
+      `Processing task ${data.processingTask ? data.processingTask.id : data.subTask?.contentProcessingTaskId} ${data.subTask ? data.subTask.id : ' no subtask'} aborted due to ${cause}`,
+    )
+    this.cause = cause
+    this.data = data
+  }
+}
 
 const updateProcessingTask = async (args: {
   task: ProcessingTaskRecord
   timeoutSignal: AbortSignal
-  data: object
+  data: ProcessingTaskUpdate
 }): Promise<ProcessingTaskRecord> => {
   const update = await prisma.aiContentProcessingTask.update({
     include: {
@@ -76,28 +105,57 @@ const updateProcessingTask = async (args: {
     data: args.data,
   })
   if (args.timeoutSignal.aborted) {
-    console.error(`❌ Task ${args.task.id} aborted due to timeout`)
-    throw new Error('Operation aborted')
+    console.warn(`❌ Task ${args.task.id} aborted due to timeout`)
+    throw new ProcessingTaskAbortError({
+      cause: 'timeout',
+      data: { processingTask: { ...update, processingTimeout: true } },
+    })
   }
-  return { ...args.task, ...update }
+  if (!update.processingCancelled) {
+    return update
+  } else {
+    console.warn(`❌ Task ${args.task.id} aborted due to user cancellation`)
+    throw new ProcessingTaskAbortError({
+      cause: 'cancel',
+      data: { processingTask: { ...update, processingCancelled: true } },
+    })
+  }
 }
 
-const updateSubTask = async (args: { subTask: ExtractionSubTaskRecord; timeoutSignal?: AbortSignal; data: object }) => {
+const updateSubTask = async (args: {
+  subTask: ExtractionSubTaskRecord
+  timeoutSignal: AbortSignal
+  data: ExtractionSubTaskUpdate
+}): Promise<ExtractionSubTaskRecord> => {
   const update = await prisma.aiContentExtractionSubTask.update({
+    include: { contentProcessingTask: { select: { processingCancelled: true } } },
     where: { id: args.subTask.id },
     data: args.data,
   })
-  if (args.timeoutSignal?.aborted) {
-    console.error(`❌ Sub-task ${args.subTask.id} aborted due to timeout`)
-    throw new Error('Operation aborted')
+
+  if (args.timeoutSignal.aborted) {
+    console.warn(`❌ Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to timeout`)
+    throw new ProcessingTaskAbortError({
+      cause: 'timeout',
+      data: { subTask: { ...update } },
+    })
   }
-  return { ...args.subTask, ...update }
+
+  if (update.contentProcessingTask.processingCancelled) {
+    console.warn(`❌ Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to user cancellation`)
+    throw new ProcessingTaskAbortError({
+      cause: 'cancel',
+      data: { subTask: { ...update } },
+    })
+  }
+
+  return update
 }
 
 async function processTask(args: { task: ProcessingTaskRecord }) {
   processingCount++
 
-  let task: ProcessingTaskRecord = { ...args.task }
+  let { task } = args
 
   const { timeoutSignal, clearTimeoutSignal } = createTimeoutSignal({
     timeoutMs: task.timeoutMs || 30 * 60 * 1000,
@@ -203,7 +261,6 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
                 failedAt: new Date(),
               },
             })
-            return { subTask, extractionResult }
           } else {
             subTask = await updateSubTask({
               subTask,
@@ -211,16 +268,28 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
                 finishedAt: new Date(),
                 markdownFileName: extractionResult.result!.markdownFileName,
               },
+              timeoutSignal,
             })
-            return { subTask, extractionResult }
           }
+          console.log(
+            `✅ Completed extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
+          )
+          return { subTask, extractionResult }
         })
-        .map((p) => p.catch((e) => ({ subTask: null, extractionResult: { success: false, error: e } }))) // Catch errors in individual extraction methods
-
       // Await all extraction methods
-      const extractionResults = await Promise.all(extractionResultPromises)
+      const extractionResults = await Promise.allSettled(extractionResultPromises)
 
-      const allSuccessful = extractionResults.every((res) => res.extractionResult.success)
+      console.log(`🔄 Saving extraction results for task ${task.id}`)
+
+      const extractionResultsFulfilled = extractionResults
+        .filter((result) => result.status === 'fulfilled')
+        .map((res) => res.value)
+
+      const failedExtractions = extractionResults.filter((r) => r.status === 'rejected')
+
+      console.error('failedExtractions', failedExtractions)
+
+      const allSuccessful = extractionResultsFulfilled.every((result) => result.extractionResult.success)
       if (!allSuccessful) {
         task = await updateProcessingTask({
           task,
@@ -240,7 +309,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           data: {
             extractionFinishedAt: new Date(),
             extractionTimeout:
-              extractionResults.some((result) => {
+              extractionResultsFulfilled.some((result) => {
                 const errorMessage =
                   result.extractionResult.error instanceof Error ? result.extractionResult.error.message : ''
                 return errorMessage.includes('timeout')
@@ -347,6 +416,41 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     }
     console.log(`✅ Completed embedding phase for task ${task.id}`)
   } catch (error) {
+    if (error instanceof ProcessingTaskAbortError) {
+      const failedTask = await prisma.aiContentProcessingTask.findUniqueOrThrow({ where: { id: task.id } })
+      if (error.cause === 'cancel') {
+        await prisma.aiContentProcessingTask.update({
+          where: { id: task.id },
+          data: {
+            processingFinishedAt: failedTask.processingFinishedAt || new Date(),
+            processingCancelled: true,
+            extractionFailedAt: failedTask.extractionStartedAt && !failedTask.extractionFinishedAt ? new Date() : null,
+            embeddingFailedAt: failedTask.embeddingStartedAt && !failedTask.embeddingFinishedAt ? new Date() : null,
+            extractionSubTasks: {
+              updateMany: { where: { finishedAt: null, failedAt: null }, data: { failedAt: new Date() } },
+            },
+          },
+        })
+      } else if (error.cause === 'timeout') {
+        await prisma.aiContentProcessingTask.update({
+          where: { id: task.id },
+          data: {
+            processingFailedAt: failedTask.processingFailedAt || new Date(),
+            processingTimeout: true,
+            extractionFailedAt: failedTask.extractionStartedAt && !failedTask.extractionFinishedAt ? new Date() : null,
+            embeddingFailedAt: failedTask.embeddingStartedAt && !failedTask.embeddingFinishedAt ? new Date() : null,
+            extractionSubTasks: {
+              updateMany: { where: { finishedAt: null, failedAt: null }, data: { failedAt: new Date() } },
+            },
+          },
+        })
+      }
+
+      console.log(
+        `❌ Task ${error.data.processingTask ? error.data.processingTask.id : error.data.subTask?.contentProcessingTaskId} aborted due to ${error.cause}`,
+      )
+      return
+    }
     // Catch unexpected infrastructure errors (DB offline, out of memory, etc.)
     // Business logic errors are handled in validation and extraction phases
     console.error(`❌ Infrastructure error in task ${task.id}:`, error)
@@ -358,10 +462,15 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         timeoutSignal,
         data: {
           processingFailedAt: new Date(),
+          extractionFailedAt: task.extractionStartedAt && !task.extractionFinishedAt ? new Date() : null,
+          embeddingFailedAt: task.embeddingStartedAt && !task.embeddingFinishedAt ? new Date() : null,
           metadata: mergeObjectToJsonString(task?.metadata, {
             infrastructureError: error instanceof Error ? error.message : 'Unknown infrastructure error',
             timestamp: new Date().toISOString(),
           }),
+          extractionSubTasks: {
+            updateMany: { where: { finishedAt: null, failedAt: null }, data: { failedAt: new Date() } },
+          },
         },
       })
     } catch (dbError) {
@@ -621,7 +730,15 @@ async function processQueue() {
         },
       },
       where: {
-        processingStartedAt: null, // Only get tasks that haven't been picked up yet
+        OR: [
+          { processingStartedAt: null }, // Not started yet
+          {
+            processingStartedAt: { not: null },
+            processingFinishedAt: null,
+            processingFailedAt: null,
+            OR: [{ processingTimeout: true }, { processingCancelled: true }],
+          }, // Started but not finished/failed/timed out/cancelled
+        ],
       },
       orderBy: { createdAt: 'asc' }, // Process oldest tasks first
       take: availableCapacity,
@@ -649,7 +766,7 @@ export async function startContentProcessingWorker() {
   isWorkerRunning = true
   console.log('🚀 Starting content processing worker...')
 
-  // Process queue immediately and wait for completion
+  // Process queue immediately
   await processQueue()
 
   // Set up interval to process queue
@@ -672,4 +789,8 @@ export function stopContentProcessingWorker() {
   }
 
   console.log('🛑 Stopped content processing worker')
+}
+
+export function isContentProcessingWorkerRunning(): boolean {
+  return isWorkerRunning
 }

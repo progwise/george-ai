@@ -1,4 +1,4 @@
-import { type AIResponse, chat } from '@george-ai/ai-service-client'
+import { ollamaChat } from '@george-ai/ai-service-client'
 
 import { transformPdfToImages } from './pdf-to-images.js'
 import { ConverterResult } from './types.js'
@@ -15,21 +15,6 @@ export const transformPdfToImageToMarkdown = async (
 ): Promise<ConverterResult> => {
   const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
-  console.log(
-    `Processing ${base64Images.length} images with model ${ocrModel}, timeout per page ${ocrTimeoutPerPage}ms (concurrency managed by OLLAMA resource manager)`,
-  )
-
-  // Store responses in order
-  const responses: (string | null)[] = new Array(base64Images.length).fill(null)
-  const pageResults: Array<{
-    page: number
-    issues?: AIResponse['issues']
-    metadata?: AIResponse['metadata']
-  }> = new Array(base64Images.length)
-  let errorPages = 0
-  let hasGlobalIssues = false
-  const globalIssues: AIResponse['issues'] = { timeout: false, partialResult: false }
-
   const startTime = Date.now()
 
   // Process all pages concurrently - OLLAMA resource manager handles throttling
@@ -37,14 +22,13 @@ export const transformPdfToImageToMarkdown = async (
     const pageNumber = index + 1
 
     if (timeoutSignal.aborted) {
-      return null
+      return { index, aborted: true }
     }
 
     try {
       console.log(`Processing image ${pageNumber} from PDF: ${imageFilePaths[index]}`)
 
-      const response = await chat({
-        retries: 2, // Retry twice on failure
+      const response = await ollamaChat({
         model: ocrModel,
         messages: [
           {
@@ -54,99 +38,44 @@ export const transformPdfToImageToMarkdown = async (
           },
         ],
         timeout: ocrTimeoutPerPage,
-        onChunk: (chunk) => {
-          if (chunk.length > 50) {
-            console.log(`Processing page ${pageNumber}...`, chunk.substring(0, 50) + '...')
-          }
-        },
+        abortSignal: timeoutSignal,
       })
 
-      // Check for specific issues
-      if (response.issues?.timeout || response.issues?.partialResult) {
-        console.warn(`Page ${pageNumber} processed with issues:`, response.issues)
-
-        const issueNote = response.issues.timeout
-          ? '*Note: Processing timed out*'
-          : response.issues.partialResult
-            ? '*Note: Processing completed with partial result*'
-            : '*Note: Processing completed with issues*'
-
-        responses[index] = `# Image Content for Page ${pageNumber}\n\n${response.content}\n\n${issueNote}`
-        pageResults[index] = {
-          page: pageNumber,
-          issues: response.issues,
-          metadata: response.metadata,
-        }
-
-        // Track global issues
-        hasGlobalIssues = true
-        if (response.issues.timeout) globalIssues.timeout = true
-        if (response.issues.partialResult) globalIssues.partialResult = true
-      } else {
-        console.log(
-          `Successfully processed page ${pageNumber} (instance: ${response.metadata?.instanceUrl || 'unknown'})`,
-        )
-        responses[index] = `# Image Content for Page ${pageNumber}\n\n${response.content}`
-        pageResults[index] = { page: pageNumber, metadata: response.metadata }
-      }
-
-      return { index, success: true }
+      return { index, response }
     } catch (error) {
-      console.error(`Error processing image ${pageNumber}:`, error)
-      errorPages++
-      responses[index] = `# Image Content for Page ${pageNumber}\n\nError processing image: ${(error as Error).message}`
-      pageResults[index] = { page: pageNumber }
+      console.error(`Error starting image processing ${pageNumber} file ${filePath}:`, error)
       return { index, error: error as Error }
     }
   })
 
-  // Wait for all pages to complete
+  // Wait for all pages to complete or fail
   const results = await Promise.all(pagePromises)
 
-  // Count errors from results
-  errorPages = results.filter((result) => result?.error).length
-
-  // Check if processing was aborted
-  if (timeoutSignal.aborted) {
-    console.error(`❌ PDF to Images to Markdown conversion aborted due to callers timeout`)
-    const processedCount = results.filter((result) => result?.success).length
-    return {
-      markdownContent: responses.filter((r) => r !== null).join('\n\n'),
-      partialResult: true,
-      timeout: true,
-      processingTimeMs: Date.now() - startTime,
-      metadata: {
-        totalPages: base64Images.length,
-        processedPages: processedCount,
-        errorPages,
-        pageResults: pageResults.filter((result) => result),
-      },
-      success: false,
-    }
-  }
-
-  const processingTime = Date.now() - startTime
-  const responseMarkdown = responses.join('\n\n') || 'PDF2Image2Markdown conversion returned no text.'
-
-  console.log(`Completed PDF processing for ${filePath}`, {
-    totalPages: base64Images.length,
-    processedPages: base64Images.length - errorPages,
-    errorPages,
-    processingTime,
-    hasGlobalIssues,
-  })
+  const errorPages = results.filter(
+    (result) => result.aborted || result.error || result.error || (result.response && !result.response.success),
+  )
 
   return {
-    markdownContent: responseMarkdown,
-    partialResult: globalIssues.partialResult || errorPages > 0,
-    timeout: globalIssues.timeout,
-    processingTimeMs: processingTime,
+    markdownContent: results
+      .map((result) => `# Page ${result.index} \n\n` + result.response?.content || '')
+      .join('\n\n'),
+    partialResult: errorPages.length > 0,
+    timeout: timeoutSignal.aborted,
+    processingTimeMs: Date.now() - startTime,
     metadata: {
+      results: results.map((result) => ({
+        pageIndex: result.index,
+        success: !!(result.response && result.response.success),
+        aborted: !!result.aborted,
+        error: result.error,
+        tokensProcessed: result.response?.metadata?.tokensProcessed,
+        timeElapsedMs: result.response?.metadata?.timeElapsed,
+        instanceUrl: result.response?.metadata?.instanceUrl,
+      })),
       totalPages: base64Images.length,
-      processedPages: base64Images.length - errorPages,
+      processedPages: base64Images.length - errorPages.length,
       errorPages,
-      pageResults,
     },
-    success: !globalIssues.timeout && errorPages === 0,
+    success: errorPages.length === 0 && !timeoutSignal.aborted,
   }
 }

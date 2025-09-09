@@ -2,7 +2,8 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import React, { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { AiLibraryDetailFragment } from '../../gql/graphql'
+import { graphql } from '../../gql'
+import { AiLibraryForm_LibraryFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
@@ -13,8 +14,21 @@ import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 import { getLibraryUpdateFormSchema, updateLibrary } from './update-library'
 
+graphql(`
+  fragment AiLibraryForm_Library on AiLibrary {
+    id
+    name
+    embeddingTimeoutMs
+    ownerId
+    filesCount
+    description
+    embeddingModelName
+    fileConverterOptions
+  }
+`)
+
 export interface LibraryEditFormProps {
-  library: AiLibraryDetailFragment
+  library: AiLibraryForm_LibraryFragment
 }
 
 export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactElement => {
@@ -66,8 +80,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const mappedEmbeddingModels = useMemo(
     () =>
       aiEmbeddingModels.map((model) => ({
-        id: model.model,
-        name: model.name,
+        id: model,
+        name: model,
       })),
     [aiEmbeddingModels],
   )
@@ -75,8 +89,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const mappedChatModels = useMemo(
     () =>
       aiChatModels.map((model) => ({
-        id: model.model,
-        name: model.name,
+        id: model,
+        name: model,
       })),
     [aiChatModels],
   )
@@ -172,6 +186,16 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
               value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
               className="col-span-1"
               placeholder={t('libraries.placeholders.embeddingModelName')}
+              {...fieldProps}
+            />
+
+            <Input
+              name="embeddingTimeoutMs"
+              type="number"
+              label={t('labels.embeddingTimeoutMs')}
+              value={library.embeddingTimeoutMs?.toString() || '180000'}
+              className="col-span-1"
+              placeholder={t('libraries.placeholders.embeddingTimeoutMs')}
               {...fieldProps}
             />
           </div>
