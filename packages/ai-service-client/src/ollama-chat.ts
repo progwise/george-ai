@@ -1,6 +1,6 @@
 import { getErrorObject } from '@george-ai/web-utils'
 
-import { getOllamaClient } from './ollama-client.js'
+import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
 import type { AIResponse, Message } from './types.js'
 
@@ -31,39 +31,51 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
     await semaphore.acquire()
 
     // Create dedicated client instance for this request
-    const client = getOllamaClient(instance.config)
+    //const client = getOllamaClient(instance.config)
 
-    const response = await client.chat({
-      model: options.model,
-      messages: options.messages,
-      stream: true, // Always stream internally for loop detection
-    })
+    // const response = await client.chat({
+    //   model: options.model,
+    //   messages: options.messages,
+    //   stream: true, // Always stream internally for loop detection
+    // })
+    const response = await getChatResponseStream(instance.config, options.model, options.messages, options.abortSignal)
+    const reader = response.getReader()
 
-    for await (const chunk of response) {
-      if (options.abortSignal?.aborted) {
-        isAborted = true
-        response.abort()
-        break
-      }
+    try {
+      while (true) {
+        const { done, value: chunk } = await reader.read()
 
-      if (options.timeout && Date.now() - startTimeout > options.timeout) {
-        hasTimeout = true
-        response.abort()
-        break
-      }
+        if (done) break
 
-      const content = chunk.message?.content || ''
+        if (options.abortSignal?.aborted) {
+          isAborted = true
+          break
+        }
 
-      if (content) {
-        allContent += content
-        tokenCount++
-        lastChunkTimestamp = Date.now()
+        if (options.timeout && Date.now() - startTimeout > options.timeout) {
+          hasTimeout = true
+          break
+        }
 
-        // Optional streaming callback
-        if (options.onChunk) {
-          options.onChunk(content)
+        if (chunk.error) {
+          console.warn(`Error chunk received from OLLAMA ${instance.config.url}:`, chunk.error)
+          throw new Error(`Error chunk received from OLLAMA: ${chunk.error}`)
+        }
+        const content = chunk.message?.content || ''
+
+        if (content) {
+          allContent += content
+          tokenCount++
+          lastChunkTimestamp = Date.now()
+
+          // Optional streaming callback
+          if (options.onChunk) {
+            options.onChunk(content)
+          }
         }
       }
+    } finally {
+      reader.releaseLock()
     }
 
     semaphore.release()

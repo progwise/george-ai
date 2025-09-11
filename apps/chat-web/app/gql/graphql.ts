@@ -904,6 +904,7 @@ export type Mutation = {
   deleteLibraryFiles: Scalars['Int']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
+  dropOutdatedMarkdowns: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
@@ -936,7 +937,7 @@ export type Mutation = {
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   updateAssessmentQuestion: Scalars['DateTime']['output']
-  updateLibrary?: Maybe<AiLibrary>
+  updateLibrary: AiLibrary
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
   updateListField: AiListField
@@ -1108,6 +1109,10 @@ export type MutationDeleteListArgs = {
 
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
+}
+
+export type MutationDropOutdatedMarkdownsArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationEnsureUserProfileArgs = {
@@ -2971,6 +2976,12 @@ export type CreateExtractionTasksMutation = {
   }
 }
 
+export type DropOutdatedMarkdownFilesMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type DropOutdatedMarkdownFilesMutation = { __typename?: 'Mutation'; dropOutdatedMarkdowns: number }
+
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -3309,6 +3320,8 @@ export type GetMarkdownQuery = {
 
 export type AiLibraryFile_MarkdownFileSelectorFragment = {
   __typename?: 'AiLibraryFile'
+  id: string
+  libraryId: string
   latestExtractionMarkdownFileNames: Array<string>
   availableExtractionMarkdownFileNames: Array<string>
 }
@@ -3614,7 +3627,7 @@ export type ChangeLibraryMutationVariables = Exact<{
 
 export type ChangeLibraryMutation = {
   __typename?: 'Mutation'
-  updateLibrary?: {
+  updateLibrary: {
     __typename?: 'AiLibrary'
     id: string
     name: string
@@ -3624,7 +3637,7 @@ export type ChangeLibraryMutation = {
     description?: string | null
     embeddingModelName?: string | null
     fileConverterOptions?: string | null
-  } | null
+  }
 }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
@@ -7207,6 +7220,8 @@ export const AiLibraryFile_MarkdownFileSelectorFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
           { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
         ],
@@ -11837,6 +11852,39 @@ export const CreateExtractionTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateExtractionTasksMutation, CreateExtractionTasksMutationVariables>
+export const DropOutdatedMarkdownFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropOutdatedMarkdownFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropOutdatedMarkdowns' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropOutdatedMarkdownFilesMutation, DropOutdatedMarkdownFilesMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -12200,6 +12248,8 @@ export const GetFileInfoDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
           { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
         ],

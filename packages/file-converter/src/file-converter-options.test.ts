@@ -28,8 +28,11 @@ describe('fileConverterOptions validation', () => {
       const input = 'enableTextExtraction,enableImageProcessing,ocrModel=gpt-4,ocrTimeout=180'
       const result = validateFileConverterOptionsString(input)
       // Should include all values including defaults that weren't specified
+      const encodedPrompt = encodeURIComponent(
+        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+      )
       expect(result).toBe(
-        'enableTextExtraction,enableImageProcessing,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=5',
+        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -37,8 +40,11 @@ describe('fileConverterOptions validation', () => {
       const input = 'enableTextExtraction'
       const result = validateFileConverterOptionsString(input)
       // Should include all default values
+      const encodedPrompt = encodeURIComponent(
+        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+      )
       expect(result).toBe(
-        'enableTextExtraction,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5',
+        `enableTextExtraction,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -46,8 +52,11 @@ describe('fileConverterOptions validation', () => {
       const input = 'ocrModel=qwen2.5vl:latest,ocrTimeout=120'
       const result = validateFileConverterOptionsString(input)
       // Should include all values even if they're defaults
+      const encodedPrompt = encodeURIComponent(
+        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+      )
       expect(result).toBe(
-        'ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5',
+        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
       )
     })
   })
@@ -91,6 +100,22 @@ describe('fileConverterOptions validation', () => {
       const result = parseFileConverterOptions(`ocrPrompt=${prompt}`)
       expect(result.ocrPrompt).toBe(prompt)
     })
+
+    it('should handle ocrPrompt with encoded commas', () => {
+      const prompt = 'Extract: item1, item2, item3'
+      const encodedPrompt = encodeURIComponent(prompt)
+      const result = parseFileConverterOptions(`ocrPrompt=${encodedPrompt}`)
+      expect(result.ocrPrompt).toBe(prompt)
+    })
+
+    it('should handle ocrPrompt with encoded special characters', () => {
+      const prompt = 'Use format: list, separated, values & symbols (100%)'
+      const encodedPrompt = encodeURIComponent(prompt)
+      const result = parseFileConverterOptions(`enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=gpt-4`)
+      expect(result.ocrPrompt).toBe(prompt)
+      expect(result.enableImageProcessing).toBe(true)
+      expect(result.ocrModel).toBe('gpt-4')
+    })
   })
 
   describe('serializeFileConverterOptions', () => {
@@ -106,8 +131,11 @@ describe('fileConverterOptions validation', () => {
       }
       const result = serializeFileConverterOptions(options)
       // Should include all values for consistency
+      const encodedPrompt = encodeURIComponent(
+        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+      )
       expect(result).toBe(
-        'ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5',
+        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -122,8 +150,11 @@ describe('fileConverterOptions validation', () => {
         ocrLoopDetectionThreshold: 5,
       }
       const result = serializeFileConverterOptions(options)
+      const encodedPrompt = encodeURIComponent(
+        'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
+      )
       expect(result).toBe(
-        'enableTextExtraction,enableImageProcessing,ocrPrompt=Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.,ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5',
+        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -138,7 +169,7 @@ describe('fileConverterOptions validation', () => {
       }
       const result = serializeFileConverterOptions(options)
       expect(result).toBe(
-        'enableTextExtraction,ocrPrompt=Custom prompt,ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=10',
+        'enableTextExtraction,ocrPrompt=Custom%20prompt,ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=10',
       )
     })
   })
@@ -151,6 +182,33 @@ describe('fileConverterOptions validation', () => {
       const reparsed = parseFileConverterOptions(serialized)
 
       expect(reparsed).toEqual(parsed)
+    })
+
+    it('should maintain data with special characters through parse and serialize', () => {
+      const promptWithSpecialChars = 'Extract: item1, item2, item3 & more (100%)'
+      const encoded = encodeURIComponent(promptWithSpecialChars)
+      const original = `enableImageProcessing,ocrPrompt=${encoded},ocrModel=gpt-4`
+
+      const parsed = parseFileConverterOptions(original)
+      const serialized = serializeFileConverterOptions(parsed)
+      const reparsed = parseFileConverterOptions(serialized)
+
+      expect(reparsed).toEqual(parsed)
+      expect(reparsed.ocrPrompt).toBe(promptWithSpecialChars)
+    })
+
+    it('should handle validateFileConverterOptionsString round-trip with encoding', () => {
+      const promptWithCommas = 'Format: list, separated, values'
+      const encoded = encodeURIComponent(promptWithCommas)
+      const input = `enableImageProcessing,ocrPrompt=${encoded},ocrModel=gpt-4`
+
+      const validated = validateFileConverterOptionsString(input)
+      expect(validated).not.toBeNull()
+
+      const parsed = parseFileConverterOptions(validated!)
+      expect(parsed.ocrPrompt).toBe(promptWithCommas)
+      expect(parsed.enableImageProcessing).toBe(true)
+      expect(parsed.ocrModel).toBe('gpt-4')
     })
   })
 })

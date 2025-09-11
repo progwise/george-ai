@@ -2,3 +2,4 @@ packages:
   - 'apps/chat-web'
   - 'apps/georgeai-server'
   - 'packages/*'
+  - '!packages/ai-models'

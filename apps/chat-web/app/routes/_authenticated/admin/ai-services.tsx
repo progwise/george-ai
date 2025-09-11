@@ -177,7 +177,7 @@ function AiServicesAdminPage() {
                                         {model.family && (
                                           <span className="badge badge-ghost badge-xs mr-1">{model.family}</span>
                                         )}
-                                        {model.size && <span>Size: {formatMemory(model.size)}</span>}
+                                        {model.size !== undefined && <span>Size: {formatMemory(model.size)}</span>}
                                         {model.parameterSize && <span> • {model.parameterSize} params</span>}
                                       </div>
                                       {model.capabilities && model.capabilities.length > 0 && (

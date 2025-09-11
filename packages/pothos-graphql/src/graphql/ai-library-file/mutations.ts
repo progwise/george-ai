@@ -1,5 +1,6 @@
 import { canAccessLibraryOrThrow, deleteFile, deleteLibraryFiles } from '../../domain'
 import { canAccessFileOrThrow } from '../../domain/file'
+import { dropOutdatedMarkdowns } from '../../domain/file/markdown'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -82,6 +83,24 @@ builder.mutationField('cancelFileUpload', (t) =>
       await canAccessFileOrThrow(fileId, context.session.user.id)
       await deleteFile(fileId, context.session.user.id)
       return true
+    },
+  }),
+)
+
+builder.mutationField('dropOutdatedMarkdowns', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'Int',
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, { fileId }, context) => {
+      // Check permissions
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      const droppedCount = await dropOutdatedMarkdowns({ fileId, libraryId: file.libraryId })
+
+      return droppedCount
     },
   }),
 )

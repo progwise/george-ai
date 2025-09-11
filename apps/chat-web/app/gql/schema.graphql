@@ -859,6 +859,7 @@ type Mutation {
   deleteLibraryFiles(libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
+  dropOutdatedMarkdowns(fileId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
@@ -927,7 +928,7 @@ type Mutation {
     id: String!
   ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
-  updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary
+  updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!

@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { Message } from './types'
+
 const OllamaModelSchema = z.object({
   name: z.string(),
   model: z.string(),
@@ -96,8 +98,30 @@ const OllamaRunningModelsResponseSchema = z.object({
   models: z.array(OllamaRunningModelSchema),
 })
 
-const OllamaStreamChunkSchema = z.object({
+const OllamaCompletionSchema = z.object({
+  model: z.string(),
+  created_at: z.string(),
   response: z.string().optional(),
+  done: z.boolean().optional(),
+  total_duration: z.number().optional(),
+  load_duration: z.number().optional(),
+  prompt_eval_count: z.number().optional(),
+  prompt_eval_duration: z.number().optional(),
+  eval_count: z.number().optional(),
+  eval_duration: z.number().optional(),
+  context: z.array(z.number()).optional(),
+})
+
+const OllamaStreamChunkSchema = z.object({
+  model: z.string().optional(),
+  modelName: z.string(), // Added field to track which model this chunk is from
+  message: z
+    .object({
+      role: z.enum(['system', 'user', 'assistant']),
+      content: z.string().optional(),
+      images: z.array(z.string()).optional(), // base64 encoded images
+    })
+    .optional(),
   error: z.string().optional(),
   done: z.boolean().optional(), // Error-only chunks might not have done field
   context: z.array(z.number()).optional(),
@@ -184,24 +208,30 @@ async function getOllamaModelInfo(params: FetchParams, modelName: string): Promi
   return { ...data, timestamp: Date.now() }
 }
 
-async function loadOllamaModel(params: FetchParams, modelName: string): Promise<{ done: boolean }> {
-  const data = ollamaApiPost(params, '/api/generate', { model: modelName }, z.object({ done: z.boolean() }))
+async function getCompletion(params: FetchParams, modelName: string, prompt: string, images?: string[]) {
+  const data = await ollamaApiPost(
+    params,
+    '/api/generate',
+    { model: modelName, prompt, images, stream: false },
+    OllamaCompletionSchema,
+  )
   return data
 }
 
 async function getChatResponseStream(
   params: FetchParams,
   modelName: string,
-  prompt: string,
-  images: string[],
+  messages: Message[],
+  abortSignal?: AbortSignal,
 ): Promise<ReadableStream<OllamaStreamChunk>> {
-  const response = await fetch(`${params.url}/api/generate`, {
+  const response = await fetch(`${params.url}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(params.apiKey ? { 'X-API-Key': params.apiKey } : {}),
     },
-    body: JSON.stringify({ model: modelName, stream: true, prompt, images }),
+    body: JSON.stringify({ model: modelName, stream: true, messages }),
+    signal: abortSignal,
   })
 
   if (!response.ok) {
@@ -214,16 +244,28 @@ async function getChatResponseStream(
     throw new Error('No response body stream from Ollama')
   }
 
-  // Create a transform stream that parses JSON chunks
+  // Create a transform stream that parses JSON chunks and respects abort signal
   const transformStream = new TransformStream<string, OllamaStreamChunk>({
+    start(controller) {
+      // Listen for abort signal and close the stream
+      abortSignal?.addEventListener('abort', () => {
+        controller.terminate()
+      })
+    },
     transform(chunk, controller) {
+      // Check if aborted before processing
+      if (abortSignal?.aborted) {
+        controller.terminate()
+        return
+      }
+
       // Split by newlines in case multiple JSON objects are in one chunk
       const lines = chunk.split('\n').filter((line) => line.trim())
 
       for (const line of lines) {
         try {
           const jsonData = JSON.parse(line)
-          const parsedChunk = OllamaStreamChunkSchema.parse(jsonData)
+          const parsedChunk = OllamaStreamChunkSchema.parse({ ...jsonData, modelName: modelName })
           controller.enqueue(parsedChunk)
         } catch (error) {
           console.warn('Failed to parse JSON chunk:', line, error)
@@ -236,13 +278,19 @@ async function getChatResponseStream(
   return response.body.pipeThrough(new TextDecoderStream()).pipeThrough(transformStream)
 }
 
+async function loadOllamaModel(params: FetchParams, modelName: string): Promise<{ done: boolean }> {
+  console.log(`Loading Ollama model ${modelName}...`)
+  const data = ollamaApiPost(params, '/api/chat', { model: modelName }, z.object({ done: z.boolean() }))
+  return data
+}
+
 async function unloadOllamaModel(
   params: FetchParams,
   modelName: string,
 ): Promise<{ done: boolean; done_reason: string }> {
   const data = ollamaApiPost(
     params,
-    '/api/generate',
+    '/api/chat',
     { model: modelName, keep_alive: 0 },
     z.object({ done: z.boolean(), done_reason: z.string() }),
   )
@@ -272,4 +320,5 @@ export {
   unloadOllamaModel,
   generateOllamaEmbeddings,
   getChatResponseStream,
+  getCompletion,
 }

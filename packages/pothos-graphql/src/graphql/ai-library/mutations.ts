@@ -25,6 +25,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
 builder.mutationField('updateLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
+    nullable: false,
     args: {
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryInput, required: true }),

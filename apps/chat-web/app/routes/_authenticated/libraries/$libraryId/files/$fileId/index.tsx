@@ -76,7 +76,7 @@ function RouteComponent() {
               type="checkbox"
               className={twMerge('toggle toggle-sm', viewMarkdownSource ? 'toggle-primary' : 'toggle-secondary')}
               checked={viewMarkdownSource}
-              onClick={toggleViewMarkdownSource}
+              onChange={toggleViewMarkdownSource}
             />
             <span className={twMerge(viewMarkdownSource ? 'text-primary' : 'opacity-50')}>Source</span>
           </label>

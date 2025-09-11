@@ -13,7 +13,10 @@ import './file-chunks'
 import './queries'
 import './mutations'
 
-import { getLatestExtractionMarkdownFileNames, getLegacyExtractionFileNames } from '../../domain/file/markdown'
+import {
+  getExistingExtractionMarkdownFileNames,
+  getLatestExtractionMarkdownFileNames,
+} from '../../domain/file/markdown'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -261,25 +264,7 @@ builder.prismaObject('AiLibraryFile', {
       type: ['String'],
       nullable: false,
       resolve: async (file) => {
-        const markdownFileNamesFromTasks = await prisma.aiContentProcessingTask.findMany({
-          select: { extractionSubTasks: true },
-          where: {
-            fileId: file.id,
-            extractionFinishedAt: { not: null },
-            extractionSubTasks: { some: { markdownFileName: { not: null } } },
-          },
-          orderBy: { extractionFinishedAt: 'desc' },
-        })
-        const legacyFileNames = await getLegacyExtractionFileNames({
-          fileId: file.id,
-          libraryId: file.libraryId,
-        })
-        return [
-          ...markdownFileNamesFromTasks
-            .flatMap((task) => task.extractionSubTasks.map((st) => st.markdownFileName))
-            .filter((name): name is string => !!name), // Non-null assertion as we filtered above
-          ...legacyFileNames,
-        ]
+        return getExistingExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
       },
     }),
     latestExtractionMarkdownFileNames: t.field({

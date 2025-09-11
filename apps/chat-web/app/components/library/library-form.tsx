@@ -5,6 +5,8 @@ import { twMerge } from 'tailwind-merge'
 import { graphql } from '../../gql'
 import { AiLibraryForm_LibraryFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { toastError } from '../georgeToaster'
@@ -49,32 +51,19 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => updateLibrary({ data }),
-    onSettled: () => {
-      queryClient.invalidateQueries(getLibrariesQueryOptions())
-      queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
+    onError: (error) => {
+      toastError(t('toasts.saveError', { error: error.message }))
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries(getLibrariesQueryOptions()),
+        queryClient.invalidateQueries(getLibraryQueryOptions(library.id)),
+      ])
     },
   })
 
   const fieldProps = {
     schema,
-    onBlur: () => {
-      const formData = new FormData(formRef.current!)
-      const parseResult = schema.safeParse(Object.fromEntries(formData))
-      if (parseResult.success) {
-        saveLibrary(formData)
-      } else {
-        toastError(
-          <>
-            {t('errors.validationFailed')}
-            <ul>
-              {parseResult.error.errors.map((error) => (
-                <li key={error.path.join('.')}>{error.message}</li>
-              ))}
-            </ul>
-          </>,
-        )
-      }
-    },
   }
 
   const mappedEmbeddingModels = useMemo(
@@ -106,7 +95,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     for (const pair of pairs) {
       const [key, value] = pair.split('=', 2)
       if (key?.trim() === optionName && value !== undefined) {
-        const trimmedValue = value.trim()
+        const trimmedValue = decodeURIComponent(value.trim())
         // Return default if the stored value is empty
         return trimmedValue || defaultValue
       }
@@ -114,36 +103,79 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     return defaultValue
   }
 
-  const updateFileConverterOptions = () => {
-    if (!formRef.current || !fileConverterOptionsRef.current) return
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
-    const formData = new FormData(formRef.current)
-    const options: string[] = []
+    const formData = new FormData(e.currentTarget)
+    saveLibrary(formData)
+  }
 
-    if (formData.get('enableTextExtraction') === 'on') options.push('enableTextExtraction')
-    if (formData.get('enableImageProcessing') === 'on') {
-      options.push('enableImageProcessing')
+  const handleReset = () => {
+    if (formRef.current) {
+      // Reset form to original library values
+      formRef.current.reset()
+
+      // Reset the hidden file converter options field to original value
+      if (fileConverterOptionsRef.current) {
+        fileConverterOptionsRef.current.value = library.fileConverterOptions ?? ''
+      }
+    }
+  }
+
+  const changeFileConverterOptions = (optionName: string, optionValue: string | boolean) => {
+    const currentOptions = fileConverterOptionsRef.current?.value
+      ? fileConverterOptionsRef.current.value.split(',').map((opt) => opt.trim())
+      : []
+    const optionIndex = currentOptions.findIndex(
+      (opt) => opt.trim().startsWith(optionName + '=') || opt.trim() === optionName,
+    )
+
+    if (optionValue === '' || optionValue === false) {
+      // Remove the option if it exists
+      if (optionIndex !== -1) {
+        currentOptions.splice(optionIndex, 1)
+      }
+    } else {
+      const newOption = optionValue === true ? `${optionName}` : `${optionName}=${encodeURIComponent(optionValue)}`
+      if (optionIndex !== -1) {
+        currentOptions[optionIndex] = newOption
+      } else {
+        currentOptions.push(newOption)
+      }
     }
 
-    // Always preserve OCR settings values, regardless of enableImageProcessing state
-    options.push(`ocrPrompt=${formData.get('ocrPrompt') || ''}`)
-    options.push(`ocrModel=${formData.get('ocrModel') || 'qwen2.5vl:latest'}`)
-    options.push(`ocrTimeout=${formData.get('ocrTimeout') || '120'}`)
-
-    fileConverterOptionsRef.current.value = options.join(',')
-    saveLibrary(new FormData(formRef.current))
+    const newOptionsString = currentOptions.join(',')
+    if (fileConverterOptionsRef.current) {
+      fileConverterOptionsRef.current.value = newOptionsString
+    }
   }
 
   return (
-    <form id={library.id} ref={formRef} className="mx-auto max-w-4xl space-y-6">
+    <form id={library.id} ref={formRef} className="mx-auto max-w-4xl space-y-6" onSubmit={(e) => handleSubmit(e)}>
       <LoadingSpinner isLoading={saveIsPending} />
       <input type="hidden" name="id" value={library.id || ''} />
       <input
+        ref={fileConverterOptionsRef}
         type="hidden"
         name="fileConverterOptions"
-        ref={fileConverterOptionsRef}
-        value={library.fileConverterOptions || ''}
+        value={library.fileConverterOptions ?? ''}
       />
+      <div className="flex items-center justify-end">
+        <ul className="menu bg-base-200 lg:menu-horizontal rounded-box gap-x-2">
+          <li>
+            <button type="submit" className="btn btn-ghost btn-primary btn-sm" disabled={saveIsPending}>
+              <SaveIcon className="h-5 w-5" />
+              Save
+            </button>
+          </li>
+          <li>
+            <button type="button" className="btn btn-sm btn-ghost btn-secondary" onClick={handleReset}>
+              <ReprocessIcon className="h-5 w-5" />
+              Reset
+            </button>
+          </li>
+        </ul>
+      </div>
       {/* Basic Information Card */}
       <div className="card bg-base-100 shadow-md">
         <div className="card-body">
@@ -219,7 +251,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     type="checkbox"
                     className="checkbox checkbox-sm mr-3"
                     defaultChecked={currentOptions.includes('enableTextExtraction')}
-                    onChange={updateFileConverterOptions}
+                    onChange={(e) =>
+                      changeFileConverterOptions('enableTextExtraction', e.target.checked ? true : false)
+                    }
                   />
                   <div>
                     <span className="text-sm font-medium">{t('labels.enableTextExtraction')}</span>
@@ -234,7 +268,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     type="checkbox"
                     className="checkbox checkbox-sm mr-3"
                     defaultChecked={isImageProcessingEnabled}
-                    onChange={updateFileConverterOptions}
+                    onChange={(e) =>
+                      changeFileConverterOptions('enableImageProcessing', e.target.checked ? true : false)
+                    }
                   />
                   <div>
                     <span className="text-sm font-medium">{t('labels.enableImageOcrProcessing')}</span>
@@ -267,9 +303,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       placeholder={t('labels.ocrPromptPlaceholder')}
                       readonly={!isImageProcessingEnabled}
                       {...fieldProps}
-                      onBlur={() => {
-                        fieldProps.onBlur()
-                        updateFileConverterOptions()
+                      onBlur={(e) => {
+                        changeFileConverterOptions('ocrPrompt', e.target.value)
                       }}
                     />
 
@@ -285,9 +320,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       placeholder={t('labels.ocrModelPlaceholder')}
                       readonly={!isImageProcessingEnabled}
                       {...fieldProps}
-                      onBlur={() => {
-                        fieldProps.onBlur()
-                        updateFileConverterOptions()
+                      onBlur={(item) => {
+                        changeFileConverterOptions('ocrModel', item?.id || '')
                       }}
                     />
 
@@ -301,8 +335,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       readonly={!isImageProcessingEnabled}
                       {...fieldProps}
                       onBlur={() => {
-                        fieldProps.onBlur()
-                        updateFileConverterOptions()
+                        changeFileConverterOptions('ocrTimeout', formRef.current?.ocrTimeout.value || '120')
                       }}
                     />
                   </div>

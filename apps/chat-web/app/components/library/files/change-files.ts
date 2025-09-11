@@ -93,3 +93,16 @@ export const createProcessingTasks = createServerFn({ method: 'POST' })
 
     return allResults.flatMap((result) => (result ? result : []))
   })
+
+export const dropOutdatedMarkdownFiles = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    return backendRequest(
+      graphql(`
+        mutation dropOutdatedMarkdownFiles($fileId: String!) {
+          dropOutdatedMarkdowns(fileId: $fileId)
+        }
+      `),
+      data,
+    )
+  })

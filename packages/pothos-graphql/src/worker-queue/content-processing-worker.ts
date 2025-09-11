@@ -333,7 +333,6 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     })
 
     const markdownFileNames = task.extractionSubTasks
-      .filter((sub) => sub.finishedAt)
       .map((sub) => sub.markdownFileName)
       .filter((name): name is string => !!name) // Non-null as filtered
     if (markdownFileNames.length < 1) {
@@ -570,9 +569,6 @@ const performValidation = async (args: {
         if (!fs.existsSync(markdownPath)) {
           errors.push(`Markdown file for embedding-only sub-task not found: ${subTask.markdownFileName}`)
         }
-      }
-      if (!subTask.finishedAt) {
-        errors.push(`Extraction sub-task not finished for method: ${subTask.extractionMethod}`)
       }
     } else {
       if (subTask.markdownFileName) {

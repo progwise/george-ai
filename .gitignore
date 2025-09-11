@@ -15,6 +15,9 @@ build
 .smb-credentials
 .smb-mounts
 .sharepoint-credentials
+# Python virtual environments do not work accross computers
+.venv
+venv
 
 # Fine-tuning
 apps/fine-tuning/split_output

@@ -13,7 +13,7 @@ interface FileMenuProps {
 
 export const FileMenu = ({ file }: FileMenuProps) => {
   const { t } = useTranslation()
-  const { createEmbeddingTasksMutation, createExtractionTasksMutation, createTasksMutationPending } = useFileActions({
+  const { createEmbeddingTasks, createExtractionTasks, fileActionPending } = useFileActions({
     libraryId: file.libraryId,
     fileId: file.id,
   })
@@ -38,14 +38,14 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   const reverseClassNames = 'flex flex-row-reverse md:flex-row'
   const buttonProps = {
     className: twMerge('btn btn-xs rounded-full', reverseClassNames),
-    disabled: !!createTasksMutationPending,
+    disabled: !!fileActionPending,
     type: 'button' as const,
   }
 
   return (
     <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap items-end shadow-lg md:items-center">
       <li>
-        <button {...buttonProps} onClick={() => createEmbeddingTasksMutation()}>
+        <button {...buttonProps} onClick={() => createEmbeddingTasks()}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -65,7 +65,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
         </button>
       </li>
       <li>
-        <button {...buttonProps} onClick={() => createExtractionTasksMutation()}>
+        <button {...buttonProps} onClick={() => createExtractionTasks()}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

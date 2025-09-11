@@ -210,7 +210,7 @@ export const FilesTable = ({
             </tr>
           </thead>
           <tbody>
-            {files?.map((file, index) => (
+            {files.map((file, index) => (
               <tr key={file.id} className="hover:bg-base-200">
                 <td>
                   <input
@@ -246,18 +246,20 @@ export const FilesTable = ({
                   {file.taskCount ?? '-'}/{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}
                 </td>
                 <td>
-                  {dateTimeStringArray(file.lastSuccessfulEmbedding?.processingFinishedAt, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.lastSuccessfulEmbedding?.processingFinishedAt &&
+                    dateTimeStringArray(file.lastSuccessfulEmbedding?.processingFinishedAt, language).map((item) => (
+                      <div key={item} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
                 </td>
                 <td>
-                  {dateTimeStringArray(file.originModificationDate, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.originModificationDate &&
+                    dateTimeStringArray(file.originModificationDate, language).map((item) => (
+                      <div key={item} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
                 </td>
                 <td className="flex items-center gap-2">
                   <Link

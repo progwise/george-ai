@@ -284,6 +284,9 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.13.8
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.5.0
       eslint:
         specifier: ^9.17.0
         version: 9.21.0(jiti@2.4.2)
@@ -294,8 +297,8 @@ importers:
         specifier: ^8.18.0
         version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
       vitest:
-        specifier: ^2.1.4
-        version: 2.1.9(@types/node@22.13.8)(lightningcss@1.29.2)(terser@5.39.0)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.8)(@vitest/ui@3.1.1)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
 
   packages/file-converter:
     dependencies:
@@ -9798,7 +9801,7 @@ snapshots:
       '@whatwg-node/fetch': 0.10.5
       chalk: 4.1.2
       debug: 4.4.1(supports-color@9.4.0)
-      dotenv: 16.4.7
+      dotenv: 16.5.0
       graphql: 16.10.0
       graphql-request: 6.1.0(graphql@16.10.0)
       http-proxy-agent: 7.0.2
@@ -12637,7 +12640,7 @@ snapshots:
       chokidar: 4.0.3
       confbox: 0.1.8
       defu: 6.1.4
-      dotenv: 16.4.7
+      dotenv: 16.5.0
       giget: 1.2.5
       jiti: 2.4.2
       mlly: 1.7.4

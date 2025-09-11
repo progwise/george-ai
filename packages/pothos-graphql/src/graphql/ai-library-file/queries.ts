@@ -25,7 +25,6 @@ const LibraryFileQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async (root) => {
-          console.log('Counting AI library files for library:', root.libraryId)
           return prisma.aiLibraryFile.count({
             where: {
               libraryId: root.libraryId,

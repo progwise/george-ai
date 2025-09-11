@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["TAVILY_API_KEY", "OPENAI_API_KEY"],
+  "globalEnv": [],
   "tasks": {
     "build": {
       "dependsOn": []

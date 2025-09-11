@@ -37,7 +37,6 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
   const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
-  console.log(`Serialized extraction options:`, extractionOptions)
 
   const extractionMethods: ExtractionMethodId[] = []
   if (converterOptions.enableTextExtraction) {
@@ -154,12 +153,10 @@ export const createEmbeddingOnlyTask = async (
     data: {
       fileId,
       libraryId: file.libraryId,
-      extractionFinishedAt: new Date(),
       extractionSubTasks: {
-        create: availableMarkdowns.map(({ markdownFileName, extractionFinishedAt }) => ({
+        create: availableMarkdowns.map(({ markdownFileName }) => ({
           extractionMethod: 'embedding-only',
           markdownFileName,
-          finishedAt: extractionFinishedAt,
         })),
       },
       // Special embedding-only method that uses existing markdown

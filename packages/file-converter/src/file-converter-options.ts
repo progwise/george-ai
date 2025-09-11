@@ -111,7 +111,7 @@ export const parseFileConverterOptions = (optionsString: string | null | undefin
     } else if (key === 'ocrPrompt' || key === 'ocrModel') {
       // Keep as string, but only if not empty
       if (value) {
-        options[key] = value
+        options[key] = decodeURIComponent(value)
       }
     }
   }
@@ -135,7 +135,7 @@ export const serializeFileConverterOptions = (options: FileConverterOptions): st
   }
 
   if (options.ocrPrompt) {
-    parts.push(`ocrPrompt=${options.ocrPrompt}`)
+    parts.push(`ocrPrompt=${encodeURIComponent(options.ocrPrompt)}`)
   }
 
   if (options.ocrModel) {

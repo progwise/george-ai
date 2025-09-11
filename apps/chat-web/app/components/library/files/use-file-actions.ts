@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
-import { createEmbeddingTasks, createProcessingTasks } from './change-files'
+import { createEmbeddingTasks, createProcessingTasks, dropOutdatedMarkdownFiles } from './change-files'
 import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
 
@@ -23,7 +23,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
       }),
     ])
   }
-  const { mutate: createEmbeddingTasksMutation, isPending: createEmbeddingTasksIsPending } = useMutation({
+  const { mutate: createEmbeddingTasksMutate, isPending: createEmbeddingTasksIsPending } = useMutation({
     mutationFn: () => createEmbeddingTasks({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
@@ -37,7 +37,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
       invalidateQueries()
     },
   })
-  const { mutate: createExtractionTasksMutation, isPending: createExtractionsTasksIsPending } = useMutation({
+  const { mutate: createExtractionTasksMutate, isPending: createExtractionsTasksIsPending } = useMutation({
     mutationFn: () => createProcessingTasks({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
@@ -54,9 +54,28 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
     },
   })
 
+  const { mutate: dropOutdatedMarkdownFilesMutate, isPending: createOutdatedMarkdownFilesPending } = useMutation({
+    mutationFn: () => dropOutdatedMarkdownFiles({ data: { fileId: params.fileId } }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : t('errors.dropOutdatedMarkdownFiles', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      toastSuccess(t('actions.dropOutdatedMarkdownFilesSuccess', { count: data.dropOutdatedMarkdowns }))
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
   return {
-    createEmbeddingTasksMutation,
-    createExtractionTasksMutation,
-    createTasksMutationPending: createEmbeddingTasksIsPending || createExtractionsTasksIsPending,
+    createEmbeddingTasks: createEmbeddingTasksMutate,
+    createExtractionTasks: createExtractionTasksMutate,
+    dropOutdatedMarkdownFiles: dropOutdatedMarkdownFilesMutate,
+    fileActionPending:
+      createEmbeddingTasksIsPending || createExtractionsTasksIsPending || createOutdatedMarkdownFilesPending,
   }
 }
