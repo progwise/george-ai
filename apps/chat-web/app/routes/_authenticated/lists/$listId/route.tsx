@@ -37,49 +37,57 @@ function RouteComponent() {
   } = useSuspenseQuery(getListQueryOptions(params.listId))
 
   return (
-    <div className="">
-      <ul className="bg-base-200 menu-horizontal rounded-box flex w-full justify-start gap-2 p-2">
-        <li className="">
-          <NewListButton variant="ghost" />
-        </li>
-        <li className="w-60 items-center">
-          <ListSelector lists={aiLists} selectedListId={params.listId} />
-        </li>
-        <li className="">
-          <Link
-            to="/lists/$listId"
-            className="btn btn-sm"
-            activeProps={{ className: 'btn-active' }}
-            params={{ listId: params.listId }}
-            activeOptions={{ exact: true, includeSearch: false }}
-          >
-            <ListViewIcon className="size-6" />
-            {t('lists.view')}
-          </Link>
-        </li>
-        <li className="">
-          <Link
-            to="/lists/$listId/edit"
-            className="btn btn-sm"
-            activeProps={{ className: 'btn-active' }}
-            params={{ listId: params.listId }}
-            activeOptions={{ exact: true }}
-          >
-            <EditIcon className="size-6" />
-            {t('lists.edit')}
-          </Link>
-        </li>
-        <li className="">
-          <ListExportButton listId={params.listId} />
-        </li>
-        <li className="grow-1"></li>
-        <li className="flex justify-self-end">
-          <ListParticipants list={aiList} users={usersData.users} userId={user.id} />
-          {aiList.ownerId === user.id && <ListDeleteButton list={aiList} />}
-        </li>
-      </ul>
-
-      <Outlet />
+    <div className="flex flex-col gap-4">
+      <div>
+        <ul className="bg-base-200 menu menu-horizontal rounded-box gap-2">
+          <li className="">
+            <NewListButton variant="ghost" />
+          </li>
+          <li className="">
+            <ListSelector lists={aiLists} selectedListId={params.listId} />
+          </li>
+          <li className="">
+            <Link
+              to="/lists/$listId"
+              className="btn btn-sm"
+              params={{ listId: params.listId }}
+              activeOptions={{ exact: true, includeSearch: false }}
+              activeProps={{ className: 'btn-active' }}
+            >
+              <ListViewIcon />
+              {t('lists.view')}
+            </Link>
+          </li>
+          <li className="">
+            <Link
+              to="/lists/$listId/edit"
+              className="btn btn-sm"
+              params={{ listId: params.listId }}
+              activeOptions={{ exact: true }}
+              activeProps={{ className: 'btn-active' }}
+            >
+              <EditIcon />
+              {t('lists.edit')}
+            </Link>
+          </li>
+          <li>
+            <ListExportButton listId={params.listId} />
+          </li>
+        </ul>
+        <ul className="bg-base-200 menu menu-horizontal rounded-box float-right">
+          <li className="">
+            <ListParticipants list={aiList} users={usersData.users} userId={user.id} />
+          </li>
+          {aiList.ownerId === user.id && (
+            <li className="">
+              <ListDeleteButton list={aiList} />
+            </li>
+          )}
+        </ul>
+      </div>
+      <div>
+        <Outlet />
+      </div>
     </div>
   )
 }

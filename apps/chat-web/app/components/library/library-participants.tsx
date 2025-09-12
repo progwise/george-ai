@@ -11,7 +11,6 @@ import { removeLibraryParticipant } from '../../server-functions/library-partici
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
 import { getLibrariesQueryOptions } from './get-libraries'
@@ -103,10 +102,8 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   }
 
   return (
-    <div className="flex w-full items-center justify-between gap-2 overflow-visible">
-      <LoadingSpinner isLoading={removeParticipantIsPending} />
-
-      <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
+    <div className="p-0">
+      <div className="flex -space-x-2 overflow-visible px-2 py-0 transition-all duration-300 hover:space-x-1">
         <div className="relative transition-transform">
           <span
             className="tooltip tooltip-bottom cursor-pointer"

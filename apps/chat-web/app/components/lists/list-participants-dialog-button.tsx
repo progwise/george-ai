@@ -4,10 +4,9 @@ import { useMemo, useRef, useState } from 'react'
 import { graphql } from '../../gql'
 import { ListParticipantsDialogButton_ListFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { PlusIcon } from '../../icons/plus-icon'
+import { UserPlusIcon } from '../../icons/user-plus-icon'
 import { DialogForm } from '../dialog-form'
 import { addListParticipants } from '../list-participations'
-import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 import { getListQueryOptions } from './get-list'
 import { getListsQueryOptions } from './get-lists'
@@ -65,14 +64,14 @@ export const ListParticipantsDialogButton = ({ list, users }: ListParticipantsDi
     <>
       <button
         type="button"
-        className="btn btn-neutral btn-sm tooltip tooltip-left"
+        className="btn btn-sm tooltip tooltip-left"
         onClick={handleOpen}
         data-tip={t('actions.add')}
+        disabled={isPending}
       >
-        <PlusIcon />
+        <UserPlusIcon />
       </button>
 
-      <LoadingSpinner isLoading={isPending} />
       <DialogForm
         ref={dialogRef}
         title={t('texts.addParticipants')}

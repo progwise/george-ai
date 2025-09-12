@@ -859,14 +859,13 @@ type Mutation {
   deleteFiles(fileIds: [ID!]!): Int!
   deleteLibrary(id: String!): Boolean
   deleteLibraryFiles(libraryId: String!): Int!
-  deleteList(id: String!): AiList!
+  deleteList(id: String!): Boolean!
   deleteMessage(messageId: String!): AiConversationMessage
   dropOutdatedMarkdowns(fileId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
-  leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User!
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   removeAssistantParticipant(assistantId: String!, userId: String!): User!

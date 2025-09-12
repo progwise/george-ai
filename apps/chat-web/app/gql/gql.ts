@@ -105,13 +105,12 @@ type Documents = {
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    id\n    libraryId\n    latestExtractionMarkdownFileNames\n    availableExtractionMarkdownFileNames\n  }\n': typeof types.AiLibraryFile_MarkdownFileSelectorFragmentDoc
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': typeof types.AiLibrariesDocument
-  '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n      ...LibraryLeaveDialog_Library\n    }\n  }\n': typeof types.AiLibraryDetailDocument
+  '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n    }\n  }\n': typeof types.AiLibraryDetailDocument
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFile(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
   '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ': typeof types.ProcessFileDocument
   '\n  mutation deleteLibraryFiles($libraryId: String!) {\n    deleteLibraryFiles(libraryId: $libraryId)\n  }\n': typeof types.DeleteLibraryFilesDocument
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id)\n  }\n': typeof types.DeleteLibraryDocument
   '\n  fragment LibraryDeleteDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n': typeof types.LibraryDeleteDialog_LibraryFragmentDoc
-  '\n  fragment LibraryLeaveDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n': typeof types.LibraryLeaveDialog_LibraryFragmentDoc
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateLibraryDocument
   '\n  fragment LibraryParticipantsDialogButton_Library on AiLibrary {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n': typeof types.LibraryParticipantsDialogButton_LibraryFragmentDoc
@@ -130,7 +129,7 @@ type Documents = {
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
   '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n': typeof types.CleanEnrichmentsDocument
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ': typeof types.CreateListDocument
-  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ': typeof types.DeleteListDocument
+  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id)\n        }\n      ': typeof types.DeleteListDocument
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
   '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_EditableFieldFragmentDoc
@@ -370,7 +369,7 @@ const documents: Documents = {
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n':
     types.AiLibraryBaseFragmentDoc,
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': types.AiLibrariesDocument,
-  '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n      ...LibraryLeaveDialog_Library\n    }\n  }\n':
+  '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n    }\n  }\n':
     types.AiLibraryDetailDocument,
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFile(data: $file) {\n              id\n            }\n          }\n        ':
     types.PrepareFileDocument,
@@ -381,8 +380,6 @@ const documents: Documents = {
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id)\n  }\n': types.DeleteLibraryDocument,
   '\n  fragment LibraryDeleteDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n':
     types.LibraryDeleteDialog_LibraryFragmentDoc,
-  '\n  fragment LibraryLeaveDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n':
-    types.LibraryLeaveDialog_LibraryFragmentDoc,
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n':
     types.AiLibraryForm_LibraryFragmentDoc,
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ':
@@ -419,7 +416,7 @@ const documents: Documents = {
     types.CleanEnrichmentsDocument,
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ':
     types.CreateListDocument,
-  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ':
+  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id)\n        }\n      ':
     types.DeleteListDocument,
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
@@ -1095,8 +1092,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n      ...LibraryLeaveDialog_Library\n    }\n  }\n',
-): (typeof documents)['\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n      ...LibraryLeaveDialog_Library\n    }\n  }\n']
+  source: '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n    }\n  }\n',
+): (typeof documents)['\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      ...LibraryParticipants_Library\n      ...LibraryDeleteDialog_Library\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1127,12 +1124,6 @@ export function graphql(
 export function graphql(
   source: '\n  fragment LibraryDeleteDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n',
 ): (typeof documents)['\n  fragment LibraryDeleteDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  fragment LibraryLeaveDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n',
-): (typeof documents)['\n  fragment LibraryLeaveDialog_Library on AiLibrary {\n    id\n    name\n    filesCount\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1245,8 +1236,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ']
+  source: '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteList($id: String!) {\n          deleteList(id: $id)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

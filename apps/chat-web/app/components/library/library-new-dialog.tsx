@@ -65,7 +65,7 @@ export const LibraryNewDialog = () => {
 
   return (
     <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
+      <button type="button" className="btn btn-primary btn-ghost btn-sm" onClick={showDialog}>
         {t('libraries.addNewButton')}
       </button>
       <DialogForm

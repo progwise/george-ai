@@ -476,7 +476,7 @@ export default {
       'Sie sind dabei, die Liste "{name}" zu löschen. Dies kann nicht rückgängig gemacht werden.',
     deleteSuccess: '{name} erfolgreich gelöscht.',
     deleteError: 'Fehler beim Löschen der Liste: {message}',
-    edit: 'Bearbeiten',
+    edit: 'Einstellungen',
     firstList: 'Noch keine Listen vorhanden, starte Deine erste...',
     idRequired: 'Listen-ID ist erforderlich.',
     labelCreatedAt: 'Erstellt',
@@ -493,7 +493,7 @@ export default {
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateSuccess: 'Liste erfolgreich aktualisiert',
     users: 'Benutzer',
-    view: 'Ansicht',
+    view: 'Liste',
     fields: {
       listIdRequired: 'Listen-ID ist erforderlich.',
       nameRequired: 'Feldname ist erforderlich.',

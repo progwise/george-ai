@@ -124,8 +124,11 @@ builder.prismaObject('AiList', {
       type: ['User'],
       nullable: false,
       select: { participants: { select: { user: true } } },
-      resolve: (_query, list) => {
-        return list.participants.map((participant) => participant.user)
+      resolve: async (query, list) => {
+        return await prisma.user.findMany({
+          where: { listParticipations: { some: { listId: list.id } } },
+          ...query,
+        })
       },
     }),
     fields: t.relation('fields', { nullable: false }),

@@ -904,14 +904,13 @@ export type Mutation = {
   deleteFiles: Scalars['Int']['output']
   deleteLibrary?: Maybe<Scalars['Boolean']['output']>
   deleteLibraryFiles: Scalars['Int']['output']
-  deleteList: AiList
+  deleteList: Scalars['Boolean']['output']
   deleteMessage?: Maybe<AiConversationMessage>
   dropOutdatedMarkdowns: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
-  leaveLibraryParticipant?: Maybe<User>
   login: User
   prepareFile?: Maybe<AiLibraryFile>
   removeAssistantParticipant: User
@@ -3376,7 +3375,7 @@ export type AiLibraryDetailQuery = {
     description?: string | null
     embeddingModelName?: string | null
     fileConverterOptions?: string | null
-    owner: { __typename?: 'User'; name?: string | null }
+    owner: { __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }
     users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
   }
 }
@@ -3406,13 +3405,6 @@ export type DeleteLibraryMutationVariables = Exact<{
 export type DeleteLibraryMutation = { __typename?: 'Mutation'; deleteLibrary?: boolean | null }
 
 export type LibraryDeleteDialog_LibraryFragment = {
-  __typename?: 'AiLibrary'
-  id: string
-  name: string
-  filesCount: number
-}
-
-export type LibraryLeaveDialog_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   name: string
@@ -3801,7 +3793,7 @@ export type DeleteListMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type DeleteListMutation = { __typename?: 'Mutation'; deleteList: { __typename?: 'AiList'; name: string } }
+export type DeleteListMutation = { __typename?: 'Mutation'; deleteList: boolean }
 
 export type ListEditForm_ListFragment = {
   __typename?: 'AiList'
@@ -7312,24 +7304,6 @@ export const LibraryDeleteDialog_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<LibraryDeleteDialog_LibraryFragment, unknown>
-export const LibraryLeaveDialog_LibraryFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryLeaveDialog_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<LibraryLeaveDialog_LibraryFragment, unknown>
 export const AiLibraryForm_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -12736,7 +12710,6 @@ export const AiLibraryDetailDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryForm_Library' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipants_Library' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryDeleteDialog_Library' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryLeaveDialog_Library' } },
               ],
             },
           },
@@ -12844,19 +12817,6 @@ export const AiLibraryDetailDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'LibraryDeleteDialog_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryLeaveDialog_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -13911,10 +13871,6 @@ export const DeleteListDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-            },
           },
         ],
       },

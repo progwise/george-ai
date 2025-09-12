@@ -1,14 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library'
-import { LibraryDeleteDialog } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-dialog'
-import { LibraryLeaveDialog } from '../../../../components/library/library-delete-or-leave-dialog-button/library-leave-dialog'
+import { LibraryDeleteDialog } from '../../../../components/library/library-delete-dialog'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
-import { BackIcon } from '../../../../icons/back-icon'
 import { getUsersQueryOptions } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
@@ -30,108 +28,112 @@ function RouteComponent() {
   const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
 
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { user } = Route.useRouteContext()
 
   return (
-    <article className="flex w-full flex-col gap-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full sm:w-64">
-          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
-        </div>
-        <div className="flex min-w-0 items-center justify-end gap-2">
-          <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
-
-          {user.id === aiLibrary.ownerId ? (
-            <LibraryDeleteDialog library={aiLibrary} />
-          ) : (
-            <LibraryLeaveDialog library={aiLibrary} />
+    <article>
+      <div className="mb-4 flex w-full items-center justify-between">
+        <ul className="bg-base-200 menu menu-horizontal rounded-box gap-2">
+          <li>
+            <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: true }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.details')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/postprocess"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.postprocess')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/files"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.files')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/query"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.query')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/crawlers"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.crawlers')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/processing"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.processing')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/libraries/$libraryId/updates"
+              params={{ libraryId }}
+              className="btn btn-sm"
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'btn-active' }}
+              role="tab"
+            >
+              {t('labels.updates')}
+            </Link>
+          </li>
+        </ul>
+        <ul className="bg-base-200 menu menu-horizontal rounded-box float-right">
+          <li className="flex items-center">
+            <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
+          </li>
+          {user.id === aiLibrary.ownerId && (
+            <li>
+              <LibraryDeleteDialog library={aiLibrary} />
+            </li>
           )}
-
-          <button
-            type="button"
-            onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId } })}
-            className="btn btn-sm tooltip tooltip-left"
-            data-tip={t('tooltips.goToOverview')}
-          >
-            <BackIcon />
-          </button>
-        </div>
+        </ul>
       </div>
-
-      <div role="tablist" className="tabs tabs-border w-fit">
-        <Link
-          to="/libraries/$libraryId"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: true }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.details')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/postprocess"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.postprocess')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/files"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.files')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/query"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.query')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/crawlers"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.crawlers')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/processing"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.processing')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/updates"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.updates')}
-        </Link>
-      </div>
-      <div role="tabpanel" className="md:px-10">
+      <div>
         <Outlet />
       </div>
     </article>

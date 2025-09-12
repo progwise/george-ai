@@ -76,6 +76,7 @@ export const Select = <T extends ZodRawShape>({
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenInputRef} value={selectedItem?.id || ''} />
         <Listbox
+          className="input"
           disabled={disabled || readonly}
           required={required}
           items={options}

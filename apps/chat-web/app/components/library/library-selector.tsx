@@ -44,6 +44,7 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
   return (
     <Listbox
       items={libraries}
+      className="outline-base-content/30 outline"
       selectedItem={selectedLibrary}
       onChange={(library) => library && handleLibraryChange(library.id)}
     />

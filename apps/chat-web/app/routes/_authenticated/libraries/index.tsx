@@ -26,10 +26,13 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
-        <LibraryNewDialog />
-      </div>
+      <ul className="bg-base-200 menu-horizontal rounded-box flex w-full justify-start gap-2 p-2">
+        <li>{t('libraries.myLibraries')}</li>
+        <li className="grow-1"></li>
+        <li className="flex items-center">
+          <LibraryNewDialog />
+        </li>
+      </ul>
 
       {data.aiLibraries.length < 1 ? (
         <h3>{t('libraries.noLibrariesFound')}</h3>

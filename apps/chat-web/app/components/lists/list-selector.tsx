@@ -40,11 +40,11 @@ export const ListSelector = ({ lists, selectedListId }: ListSelectorProps) => {
   return (
     <Listbox
       items={lists}
+      className="outline-base-content/30 outline"
       selectedItem={lists.find((item) => item.id === selectedListId)}
       onChange={(list) =>
         list && navigate({ to: getListRoute(list.id), params: (prev: object) => ({ ...prev, listId: selectedListId }) })
       }
-      className="h-full"
     />
   )
 }

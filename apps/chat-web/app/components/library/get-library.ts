@@ -14,7 +14,6 @@ const aiLibraryDetailQueryDocument = graphql(`
       ...AiLibraryForm_Library
       ...LibraryParticipants_Library
       ...LibraryDeleteDialog_Library
-      ...LibraryLeaveDialog_Library
     }
   }
 `)

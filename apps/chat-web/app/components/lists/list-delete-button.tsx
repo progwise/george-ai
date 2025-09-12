@@ -8,7 +8,6 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { LoadingSpinner } from '../loading-spinner'
 import { deleteList } from './delete-list'
 import { getListQueryOptions } from './get-list'
 import { getListsQueryOptions } from './get-lists'
@@ -31,8 +30,8 @@ export const ListDeleteButton = ({ list }: ListDeleteButtonProps) => {
   const navigate = useNavigate()
   const { mutate, isPending } = useMutation({
     mutationFn: () => deleteList({ data: list.id }),
-    onSuccess: async ({ deleteList }) => {
-      toastSuccess(t('lists.deleteSuccess', { name: deleteList.name }))
+    onSuccess: async () => {
+      toastSuccess(t('lists.deleteSuccess', { name: list.name }))
       await Promise.all([
         queryClient.invalidateQueries(getListsQueryOptions()),
         queryClient.removeQueries(getListQueryOptions(list.id)),
@@ -50,15 +49,14 @@ export const ListDeleteButton = ({ list }: ListDeleteButtonProps) => {
     mutate()
   }
   return (
-    <>
-      <LoadingSpinner isLoading={isPending} />
-      <button type="button" className="btn btn-sm" onClick={handleButtonClick}>
+    <section className="m-0 inline-block p-0">
+      <button type="button" className="btn btn-sm" onClick={handleButtonClick} disabled={isPending}>
         <TrashIcon className="size-6" />
-        {t('lists.delete')}
       </button>
+
       <DialogForm ref={dialogRef} title={t('lists.deleteDialogTitle')} onSubmit={handleSubmit}>
         {t('lists.deleteDialogConfirmation', { name: list.name })}
       </DialogForm>
-    </>
+    </section>
   )
 }

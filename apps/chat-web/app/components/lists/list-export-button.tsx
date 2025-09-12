@@ -236,7 +236,7 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
           </>
         ) : (
           <>
-            <DownloadIcon className="size-4" />
+            <DownloadIcon />
             {t('lists.export.button')}
           </>
         )}

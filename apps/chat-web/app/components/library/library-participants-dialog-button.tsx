@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { graphql } from '../../gql'
 import { LibraryParticipantsDialogButton_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { PlusIcon } from '../../icons/plus-icon'
+import { UserPlusIcon } from '../../icons/user-plus-icon'
 import { addLibraryParticipants } from '../../server-functions/library-participations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
@@ -65,11 +65,11 @@ export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParti
     <>
       <button
         type="button"
-        className="btn btn-neutral btn-sm tooltip tooltip-left"
+        className="btn btn-sm tooltip tooltip-left"
         onClick={handleOpen}
         data-tip={t('actions.add')}
       >
-        <PlusIcon />
+        <UserPlusIcon />
       </button>
 
       <LoadingSpinner isLoading={isPending} />

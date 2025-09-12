@@ -469,7 +469,7 @@ export default {
     deleteDialogConfirmation: 'You are about to delete the list "{name}". This cannot be undone.',
     deleteSuccess: 'Successfully deleted {name}.',
     deleteError: 'Error deleting list: {message}',
-    edit: 'Edit',
+    edit: 'Settings',
     firstList: 'No lists yet, start your first now...',
     idRequired: 'List ID is required.',
     labelCreatedAt: 'Created',
@@ -485,7 +485,7 @@ export default {
     updateError: 'Error updating list: {message}',
     updateSuccess: 'List updated successfully',
     users: 'Users',
-    view: 'View',
+    view: 'List',
     fields: {
       listIdRequired: 'List ID is required.',
       nameRequired: 'Field name is required.',

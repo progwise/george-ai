@@ -33,10 +33,7 @@ export const Listbox = <T extends { id: string; name: string }>({
       <ListboxButton
         disabled={disabled}
         aria-required={required}
-        className={twMerge(
-          'focus:outline-primary input validator grid w-full cursor-default grid-cols-1 focus:outline-2',
-          className,
-        )}
+        className={twMerge('focus:outline-primary grid w-full cursor-default grid-cols-1', className)}
       >
         <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
           {selectedItem ? (

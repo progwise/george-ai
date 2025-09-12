@@ -4,13 +4,13 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { LibraryDeleteDialog_LibraryFragment } from '../../../gql/graphql'
-import { useTranslation } from '../../../i18n/use-translation-hook'
-import { TrashIcon } from '../../../icons/trash-icon'
-import { backendRequest } from '../../../server-functions/backend'
-import { DialogForm } from '../../dialog-form'
-import { getLibrariesQueryOptions } from '../get-libraries'
+import { graphql } from '../../gql'
+import { LibraryDeleteDialog_LibraryFragment } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { TrashIcon } from '../../icons/trash-icon'
+import { backendRequest } from '../../server-functions/backend'
+import { DialogForm } from '../dialog-form'
+import { getLibrariesQueryOptions } from './get-libraries'
 
 const deleteFilesDocument = graphql(`
   mutation deleteLibraryFiles($libraryId: String!) {
@@ -69,12 +69,13 @@ export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
   const fileCount = library.filesCount ?? 0
 
   return (
-    <>
+    <section className="m-0 inline-block p-0">
       <button
         type="button"
-        className="btn btn-ghost btn-sm tooltip tooltip-left"
+        className="btn btn-sm tooltip tooltip-left"
         data-tip={t('tooltips.delete')}
         onClick={() => dialogReference.current?.showModal()}
+        disabled={isPending}
       >
         <TrashIcon className="size-6" />
       </button>
@@ -89,6 +90,6 @@ export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
         submitButtonText={t('actions.delete')}
         disabledSubmit={isPending}
       />
-    </>
+    </section>
   )
 }
