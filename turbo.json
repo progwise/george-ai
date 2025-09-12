@@ -10,7 +10,14 @@
     },
     "test": {
       "dependsOn": [],
-      "env": ["DATABASE_URL_TEST", "OLLAMA_BASE_URL", "MODEL_NAME_CHAT", "MODEL_NAME_VL", "MODEL_NAME_EMBEDDING"]
+      "env": [
+        "DATABASE_URL_TEST",
+        "OLLAMA_BASE_URL",
+        "MODEL_NAME_CHAT",
+        "MODEL_NAME_VL",
+        "MODEL_NAME_EMBEDDING",
+        "GITHUB_TOKEN"
+      ]
     },
     "lint": {
       "dependsOn": []
