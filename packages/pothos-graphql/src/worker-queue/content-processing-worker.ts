@@ -662,11 +662,11 @@ const performContentExtraction = async (args: {
         result = await transformPdfToImageToMarkdown(
           args.uploadFilePath,
           args.timeoutSignal,
-          args.extractionOptions.ocrImageScale || 1.5, // imageScale - using default for now
+          args.extractionOptions.ocrImageScale,
           args.extractionOptions.ocrPrompt,
           args.extractionOptions.ocrModel,
           args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
-          args.extractionOptions.ocrMaxConsecutiveRepeats || 5,
+          args.extractionOptions.ocrMaxConsecutiveRepeats,
         )
         break
       }

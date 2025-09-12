@@ -67,12 +67,10 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
   const { cancelProcessingTask } = useTaskActions({ libraryId: task.file.libraryId, fileId: task.file.id })
 
   const openExtractionOptionsModal = () => {
-    console.log('Opening Extraction Options Modal', extractionOptionsModalRef.current)
     extractionOptionsModalRef.current?.showModal()
   }
 
   const openMetadataModal = () => {
-    console.log('Opening Metadata Modal', metadataModalRef.current)
     metadataModalRef.current?.showModal()
   }
 

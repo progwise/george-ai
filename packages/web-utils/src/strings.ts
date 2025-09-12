@@ -31,8 +31,7 @@ export const formatFileSize = (bytes: number | null | undefined) => {
 export const checkLineRepetition = (lines: string[], minConsecutiveRepeats: number = 5): boolean => {
   if (lines.length < 20) return false // Need at least 20 lines to check for repetition
 
-  // Check pattern sizes from 1 to 20 (increased from 5 to handle larger patterns)
-  for (let patternSize = 1; patternSize <= 100; patternSize++) {
+  for (let patternSize = 1; patternSize <= 30; patternSize++) {
     // Need at least minConsecutiveRepeats * patternSize lines to detect repetition
     const requiredLines = minConsecutiveRepeats * patternSize
     if (lines.length < requiredLines) continue

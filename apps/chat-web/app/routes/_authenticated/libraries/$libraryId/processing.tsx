@@ -50,8 +50,6 @@ function RouteComponent() {
   const tasks = aiContentProcessingTasks.tasks
   const count = aiContentProcessingTasks.count
 
-  console.log('tasks', { count, take, skip, status, tasks })
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

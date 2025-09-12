@@ -293,7 +293,6 @@ export const EXTRACTION_METHODS: Record<
  */
 export const isValidExtractionMethod = (method: string): method is ExtractionMethodId => {
   const result = method in EXTRACTION_METHODS
-  console.log(`isValidExtractionMethod(${method}) = ${result}`)
   return result
 }
 
@@ -338,12 +337,10 @@ export const isMethodAvailableForMimeType = (
     return false // No MIME type provided
   }
   const typedMimeType = AVAILABLE_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
-  console.log(`isMethodAvailableForMimeType(${method}, ${mimeType}) = ${typedMimeType !== undefined}`)
   if (typedMimeType === undefined) {
     return false // MIME type not supported at all
   }
   const methodConfig = EXTRACTION_METHODS[method]
-  console.log(`Method ${method} supports MIME types: ${methodConfig.supportedMimeTypes.join(', ')}`)
   return methodConfig.supportedMimeTypes.includes(typedMimeType)
 }
 

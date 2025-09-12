@@ -18,7 +18,6 @@ builder.mutationField('createList', (t) =>
       data: t.arg({ type: AiListInput, required: true }),
     },
     resolve: async (query, _source, { data }, { session }) => {
-      console.log('mutation', data)
       const existingList = await prisma.aiList.findFirst({ where: { ownerId: session.user.id, name: data.name } })
       if (existingList) {
         throw new Error(`List for current user with name ${data.name} already exists`)
