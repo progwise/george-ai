@@ -160,6 +160,7 @@ export const Input = <T extends ZodRawShape>({
           onBlur={handleBlur}
           onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
+          {...(type === 'number' && { step: 'any' })}
         />
       )}
     </fieldset>

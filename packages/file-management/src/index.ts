@@ -86,17 +86,19 @@ export const getTimestampedMarkdownFilePath = ({
   }
 }
 
-export const saveMarkdownContent = async (
-  fileId: string,
-  libraryId: string,
-  extractionMethod: string,
-  markdownContent: string,
-): Promise<string> => {
-  const fileName = `${fileId}_${extractionMethod}_${Date.now()}.md`
+export const saveMarkdownContent = async (args: {
+  fileId: string
+  libraryId: string
+  extractionMethod: string
+  markdown: string
+  model?: string
+}): Promise<string> => {
+  const { fileId, libraryId, extractionMethod, model, markdown } = args
+  const fileName = `${extractionMethod + (model !== undefined ? '_' + model : '')}_${Date.now()}.md`
   const fileDir = getFileDir({ fileId, libraryId })
   const filePath = path.join(fileDir, fileName)
 
-  await fs.promises.writeFile(filePath, markdownContent, 'utf-8')
+  await fs.promises.writeFile(filePath, markdown, 'utf-8')
 
   return fileName
 }

@@ -361,6 +361,8 @@ export default {
     expiresAt: 'Läuft ab',
     files: 'Dateien',
     fileConverterOptions: 'Datei-Konverteroptionen',
+    ocrImageScale: 'OCR Bildskalierung',
+    ocrMaxConsecutiveRepeats: 'OCR max. aufeinanderfolgende Wiederholungen',
     ocrSettings: 'OCR-Einstellungen',
     ocrPrompt: 'OCR-Analyse-Prompt',
     ocrModel: 'OCR-Modell',

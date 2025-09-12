@@ -662,10 +662,11 @@ const performContentExtraction = async (args: {
         result = await transformPdfToImageToMarkdown(
           args.uploadFilePath,
           args.timeoutSignal,
-          1, // imageScale - using default for now
+          args.extractionOptions.ocrImageScale || 1.5, // imageScale - using default for now
           args.extractionOptions.ocrPrompt,
           args.extractionOptions.ocrModel,
           args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
+          args.extractionOptions.ocrMaxConsecutiveRepeats || 5,
         )
         break
       }
@@ -675,12 +676,13 @@ const performContentExtraction = async (args: {
     }
 
     // Save markdown file
-    const markdownFileName = await saveMarkdownContent(
-      args.fileId,
-      args.libraryId,
-      args.extractionMethod as ExtractionMethodId,
-      result.markdownContent,
-    )
+    const markdownFileName = await saveMarkdownContent({
+      fileId: args.fileId,
+      libraryId: args.libraryId,
+      extractionMethod: args.extractionMethod,
+      markdown: result.markdownContent,
+      model: args.extractionMethod === 'pdf-image-llm' ? args.extractionOptions.ocrModel : undefined,
+    })
 
     return {
       success: result.success,

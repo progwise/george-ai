@@ -32,7 +32,7 @@ describe('fileConverterOptions validation', () => {
         'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       )
       expect(result).toBe(
-        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=5`,
+        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=gpt-4,ocrTimeout=180,ocrImageScale=1.5,ocrMaxConsecutiveRepeats=5,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -44,7 +44,7 @@ describe('fileConverterOptions validation', () => {
         'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       )
       expect(result).toBe(
-        `enableTextExtraction,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
+        `enableTextExtraction,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrImageScale=1.5,ocrMaxConsecutiveRepeats=5,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -56,7 +56,7 @@ describe('fileConverterOptions validation', () => {
         'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       )
       expect(result).toBe(
-        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
+        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrImageScale=1.5,ocrMaxConsecutiveRepeats=5,ocrLoopDetectionThreshold=5`,
       )
     })
   })
@@ -65,6 +65,7 @@ describe('fileConverterOptions validation', () => {
     it('should parse null to default values', () => {
       const result = parseFileConverterOptions(null)
       expect(result).toEqual({
+        ocrImageScale: 1.5,
         enableTextExtraction: false,
         enableImageProcessing: false,
         ocrPrompt:
@@ -128,6 +129,8 @@ describe('fileConverterOptions validation', () => {
         ocrModel: 'qwen2.5vl:latest',
         ocrTimeout: 120,
         ocrLoopDetectionThreshold: 5,
+        ocrImageScale: 2.1,
+        ocrMaxConsecutiveRepeats: 3,
       }
       const result = serializeFileConverterOptions(options)
       // Should include all values for consistency
@@ -135,7 +138,7 @@ describe('fileConverterOptions validation', () => {
         'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       )
       expect(result).toBe(
-        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
+        `ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrImageScale=2.1,ocrMaxConsecutiveRepeats=3,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -148,13 +151,15 @@ describe('fileConverterOptions validation', () => {
         ocrModel: 'qwen2.5vl:latest',
         ocrTimeout: 120,
         ocrLoopDetectionThreshold: 5,
+        ocrImageScale: 4.7,
+        ocrMaxConsecutiveRepeats: 7,
       }
       const result = serializeFileConverterOptions(options)
       const encodedPrompt = encodeURIComponent(
         'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
       )
       expect(result).toBe(
-        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrLoopDetectionThreshold=5`,
+        `enableTextExtraction,enableImageProcessing,ocrPrompt=${encodedPrompt},ocrModel=qwen2.5vl:latest,ocrTimeout=120,ocrImageScale=4.7,ocrMaxConsecutiveRepeats=7,ocrLoopDetectionThreshold=5`,
       )
     })
 
@@ -166,10 +171,12 @@ describe('fileConverterOptions validation', () => {
         ocrModel: 'gpt-4',
         ocrTimeout: 180,
         ocrLoopDetectionThreshold: 10,
+        ocrImageScale: 1.8,
+        ocrMaxConsecutiveRepeats: 10,
       }
       const result = serializeFileConverterOptions(options)
       expect(result).toBe(
-        'enableTextExtraction,ocrPrompt=Custom%20prompt,ocrModel=gpt-4,ocrTimeout=180,ocrLoopDetectionThreshold=10',
+        'enableTextExtraction,ocrPrompt=Custom%20prompt,ocrModel=gpt-4,ocrTimeout=180,ocrImageScale=1.8,ocrMaxConsecutiveRepeats=10,ocrLoopDetectionThreshold=10',
       )
     })
   })

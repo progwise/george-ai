@@ -8,6 +8,8 @@ export const KNOWN_OPTIONS = [
   'ocrModel',
   'ocrTimeout',
   'ocrLoopDetectionThreshold',
+  'ocrImageScale',
+  'ocrMaxConsecutiveRepeats',
 ] as const
 
 export type FileConverterSettingName = (typeof KNOWN_OPTIONS)[number]
@@ -19,6 +21,8 @@ export const DEFAULT_VALUES: Record<string, string> = {
   ocrModel: 'qwen2.5vl:latest',
   ocrTimeout: '120',
   ocrLoopDetectionThreshold: '5',
+  ocrImageScale: '1.5',
+  ocrMaxConsecutiveRepeats: '5',
 }
 
 /**
@@ -34,6 +38,8 @@ export const FileConverterOptionsSchema = z.object({
   ocrModel: z.string().default(DEFAULT_VALUES.ocrModel),
   ocrTimeout: z.number().default(parseInt(DEFAULT_VALUES.ocrTimeout, 10)),
   ocrLoopDetectionThreshold: z.number().default(parseInt(DEFAULT_VALUES.ocrLoopDetectionThreshold, 10)),
+  ocrImageScale: z.number().default(1.5),
+  ocrMaxConsecutiveRepeats: z.number().default(5),
 })
 
 export type FileConverterOptions = z.infer<typeof FileConverterOptionsSchema>
@@ -113,6 +119,16 @@ export const parseFileConverterOptions = (optionsString: string | null | undefin
       if (value) {
         options[key] = decodeURIComponent(value)
       }
+    } else if (key === 'ocrImageScale') {
+      const parsed = parseFloat(value)
+      if (!isNaN(parsed)) {
+        options[key] = parsed
+      }
+    } else if (key === 'ocrMaxConsecutiveRepeats') {
+      const parsed = parseInt(value, 10)
+      if (!isNaN(parsed)) {
+        options[key] = parsed
+      }
     }
   }
 
@@ -144,6 +160,14 @@ export const serializeFileConverterOptions = (options: FileConverterOptions): st
 
   if (options.ocrTimeout !== undefined) {
     parts.push(`ocrTimeout=${options.ocrTimeout}`)
+  }
+
+  if (options.ocrImageScale !== undefined) {
+    parts.push(`ocrImageScale=${options.ocrImageScale}`)
+  }
+
+  if (options.ocrMaxConsecutiveRepeats !== undefined) {
+    parts.push(`ocrMaxConsecutiveRepeats=${options.ocrMaxConsecutiveRepeats}`)
   }
 
   if (options.ocrLoopDetectionThreshold !== undefined) {

@@ -354,6 +354,8 @@ export default {
 
     expiresAt: 'Expires',
     fileConverterOptions: 'File Converter Options',
+    ocrImageScale: 'OCR Image Scale',
+    ocrMaxConsecutiveRepeats: 'OCR Max Consecutive Repeats',
     ocrSettings: 'OCR Settings',
     ocrPrompt: 'OCR Analysis Prompt',
     ocrModel: 'OCR Model',

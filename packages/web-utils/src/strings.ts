@@ -31,34 +31,18 @@ export const formatFileSize = (bytes: number | null | undefined) => {
 export const checkLineRepetition = (lines: string[], minConsecutiveRepeats: number = 5): boolean => {
   if (lines.length < 20) return false // Need at least 20 lines to check for repetition
 
-  // Check pattern sizes from 1 to 5
-  for (let patternSize = 1; patternSize <= 5; patternSize++) {
+  // Check pattern sizes from 1 to 20 (increased from 5 to handle larger patterns)
+  for (let patternSize = 1; patternSize <= 100; patternSize++) {
     // Need at least minConsecutiveRepeats * patternSize lines to detect repetition
     const requiredLines = minConsecutiveRepeats * patternSize
     if (lines.length < requiredLines) continue
 
-    // Get the pattern from the end
-    const pattern = lines.slice(-patternSize)
+    const slices = Array.from({ length: minConsecutiveRepeats }, (_, i) =>
+      lines.slice(lines.length - patternSize * (i + 1), lines.length - patternSize * (i + 1) + patternSize).join('\n'),
+    )
 
-    // Check if this pattern repeats consecutively minConsecutiveRepeats times
-    let consecutiveMatches = 0
-
-    // Check backwards from the end in chunks of patternSize
-    for (let i = lines.length - patternSize; i >= 0; i -= patternSize) {
-      const segment = lines.slice(i, i + patternSize)
-
-      // If segment is shorter than pattern size, we can't match
-      if (segment.length < patternSize) break
-
-      if (segment.join('') === pattern.join('')) {
-        consecutiveMatches++
-      } else {
-        // Pattern broken, reset counter
-        break
-      }
-    }
-
-    if (consecutiveMatches >= minConsecutiveRepeats) {
+    const lastPattern = slices[0]
+    if (slices.every((s) => s === lastPattern)) {
       return true
     }
   }

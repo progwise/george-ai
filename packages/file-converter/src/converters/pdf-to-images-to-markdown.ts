@@ -12,6 +12,7 @@ export const transformPdfToImageToMarkdown = async (
   ocrPrompt: string,
   ocrModel: string,
   ocrTimeoutPerPage: number, // in milliseconds
+  ocrMaxConsecutiveRepeats: number = 5, // number of repetitions to trigger abort
 ): Promise<ConverterResult> => {
   const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
@@ -32,6 +33,10 @@ export const transformPdfToImageToMarkdown = async (
         model: ocrModel,
         messages: [
           {
+            role: 'system',
+            content: 'You are a helpful assistant that extracts text from images.',
+          },
+          {
             role: 'user',
             content: ocrPrompt,
             images: [base64Image],
@@ -39,6 +44,7 @@ export const transformPdfToImageToMarkdown = async (
         ],
         timeout: ocrTimeoutPerPage,
         abortSignal: timeoutSignal,
+        abortOnConsecutiveRepeats: ocrMaxConsecutiveRepeats,
       })
 
       return { index, response }

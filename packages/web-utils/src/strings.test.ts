@@ -295,30 +295,13 @@ describe('checkLineRepetition', () => {
   })
 
   it('should handle real-world LLM endless loop scenario', () => {
-    const lines = [
-      'Here is my response to your question.',
-      'I need to think about this carefully.',
-      'Let me provide you with the information.',
-      'This is an important topic to consider.',
-      'I want to give you a thorough answer.',
-      'Based on the context provided...',
-      'The key points to understand are:',
-      '1. First point',
-      '2. Second point',
-      '3. Third point',
-      'In conclusion, I believe that...',
-      'However, I should also mention...',
-      "It's worth noting that...",
-      'Additionally, you should consider...',
-      "Furthermore, it's important to...",
-      // Endless repetition starts here (LLM got stuck)
-      'I hope this helps!',
-      'I hope this helps!',
-      'I hope this helps!',
-      'I hope this helps!',
-      'I hope this helps!',
-    ]
+    const lines = realWorldDataRepetitive.trim().split('\n')
     expect(checkLineRepetition(lines)).toBe(true)
+  })
+
+  it('should handle real-world LLM no endless loop scenario', () => {
+    const lines = realWorldDataNotRepetitive.trim().split('\n')
+    expect(checkLineRepetition(lines)).toBe(false)
   })
 })
 
@@ -372,3 +355,323 @@ describe('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('')
   })
 })
+
+const realWorldDataRepetitive = `
+DRAFT (DATE) 05.05.2021 (10:00 Uhr) (3)
+COLOURS Black/white
+DIMENSIONS 184 x 230 mm
+MATERIAL NUMBER CP 90004328/10
+NOTICE 069645
+MATERIAL NUMBER LEO 069645
+PREVIOUS MATERIAL NUMBER LEO 054720
+Black spot: 5 x 2 mm (width x height)
+Position: 112.5 x 0.65 mm
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Lot: EXP:
+Imprinting area
+Etalpa®
+0.25 microgram/microgrammes/
+Mikrogramm zachte capsules/
+Microgram zachte capsules/
+capsules molles/Weichkapseln
+Alfacalcidol
+CHEPLAPHARM Arzneimittel GmbH
+90004328/10
+Lot: EXP:
+Imprinting area
+Lot: EXP:`
+
+const realWorldDataNotRepetitive =
+  realWorldDataRepetitive +
+  `
+Additional unique lines to break repetition
+This document contains important information.
+Please read all sections carefully.
+Contact support if you have any questions.
+End of document.
+`

@@ -1,4 +1,4 @@
-import { getErrorObject } from '@george-ai/web-utils'
+import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
 
 import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
@@ -10,6 +10,7 @@ interface ChatOptions {
   timeout?: number // in milliseconds
   onChunk?: (chunk: string) => void // optional streaming callback
   abortSignal?: AbortSignal // optional abort signal to cancel the request
+  abortOnConsecutiveRepeats?: number // number of repetitions to trigger abort
 }
 
 export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
@@ -30,14 +31,6 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
     // Acquire semaphore before making request
     await semaphore.acquire()
 
-    // Create dedicated client instance for this request
-    //const client = getOllamaClient(instance.config)
-
-    // const response = await client.chat({
-    //   model: options.model,
-    //   messages: options.messages,
-    //   stream: true, // Always stream internally for loop detection
-    // })
     const response = await getChatResponseStream(instance.config, options.model, options.messages, options.abortSignal)
     const reader = response.getReader()
 
@@ -65,6 +58,15 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
 
         if (content) {
           allContent += content
+          if (
+            options.abortOnConsecutiveRepeats &&
+            checkLineRepetition(allContent.split('\n'), options.abortOnConsecutiveRepeats)
+          ) {
+            console.warn('Detected line repetition, stopping further processing.', allContent)
+            throw new Error(
+              `Aborted due to detected line repetition in response. Max allowed repetitions of ${options.abortOnConsecutiveRepeats} exceeded.`,
+            )
+          }
           tokenCount++
           lastChunkTimestamp = Date.now()
 

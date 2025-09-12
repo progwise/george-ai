@@ -338,6 +338,34 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                         changeFileConverterOptions('ocrTimeout', formRef.current?.ocrTimeout.value || '120')
                       }}
                     />
+
+                    <Input
+                      name="ocrImageScale"
+                      type="number"
+                      label={t('labels.ocrImageScale')}
+                      value={parseOptionValue('ocrImageScale', '1.5')}
+                      className="col-span-1"
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        changeFileConverterOptions('ocrImageScale', formRef.current?.ocrImageScale.value || '1.5')
+                      }}
+                    />
+                    <Input
+                      name="ocrMaxConsecutiveRepeats"
+                      type="number"
+                      label={t('labels.ocrMaxConsecutiveRepeats')}
+                      value={parseOptionValue('ocrMaxConsecutiveRepeats', '5')}
+                      className="col-span-1"
+                      readonly={!isImageProcessingEnabled}
+                      {...fieldProps}
+                      onBlur={() => {
+                        changeFileConverterOptions(
+                          'ocrMaxConsecutiveRepeats',
+                          formRef.current?.ocrMaxConsecutiveRepeats.value || '5',
+                        )
+                      }}
+                    />
                   </div>
                 </div>
               </div>
