@@ -23,7 +23,6 @@ const deleteAssistant = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    console.log(data)
     return await backendRequest(
       graphql(`
         mutation deleteAiAssistant($assistantId: String!) {

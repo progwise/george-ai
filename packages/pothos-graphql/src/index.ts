@@ -1,10 +1,13 @@
 import { builder } from './graphql/builder'
 
-import './cron-jobs'
-import './enrichment-queue-worker'
+import './domain/crawler/cron-jobs'
+import './graphql/ai-model'
+import './graphql/ai-service'
 import './graphql/ai-act-assessment'
+import './graphql/queue-management'
 import './graphql/ai-assistant'
 import './graphql/ai-assistant-participation'
+import './graphql/ai-content-processing-task'
 import './graphql/ai-conversation'
 import './graphql/ai-conversation-invitation'
 import './graphql/ai-conversation-message'
@@ -16,9 +19,9 @@ import './graphql/ai-library-file'
 import './graphql/ai-library-participation'
 import './graphql/ai-library-update'
 import './graphql/ai-library-usage'
-import './graphql/ai-model'
 import './graphql/ai-list'
 import './graphql/contact-request'
+import './graphql/extraction-method'
 import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
@@ -28,7 +31,19 @@ const schema = builder.toSchema()
 
 export { schema }
 
-export * from './assistant-icon'
-export * from './file-upload'
-export * from './graphql/context'
-export * from './prisma'
+export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
+export { checkUser, updateUserAvatarUrl, getUserByMail, getUserAvatarsPath } from './domain/user'
+export { isProviderAvatar } from './domain/user/avatar-provider'
+export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
+export { canAccessLibraryOrThrow } from './domain/library'
+export { canAccessListOrThrow } from './domain/list'
+
+export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
+export { startContentProcessingWorker } from './worker-queue/content-processing-worker'
+export {
+  subscribeConversationMessagesUpdate,
+  unsubscribeConversationMessagesUpdates,
+  subscribeEnrichmentQueueUpdates,
+  unsubscribeEnrichmentQueueUpdates,
+} from './subscriptions'
+export type { Context } from './graphql/context'

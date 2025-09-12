@@ -2,15 +2,24 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { AiLibraryBaseFragment } from '../../../gql/graphql'
+import { graphql } from '../../../gql'
+import { LibraryLeaveDialog_LibraryFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
 import { leaveLibraryParticipant } from '../../../server-functions/library-participations'
 import { DialogForm } from '../../dialog-form'
 import { getLibrariesQueryOptions } from '../get-libraries'
 
+graphql(`
+  fragment LibraryLeaveDialog_Library on AiLibrary {
+    id
+    name
+    filesCount
+  }
+`)
+
 interface LibraryLeaveDialogProps {
-  library: AiLibraryBaseFragment
+  library: LibraryLeaveDialog_LibraryFragment
 }
 
 export const LibraryLeaveDialog = ({ library }: LibraryLeaveDialogProps) => {

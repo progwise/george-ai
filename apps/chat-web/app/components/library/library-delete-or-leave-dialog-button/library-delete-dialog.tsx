@@ -5,7 +5,7 @@ import { useRef } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
-import { AiLibraryDetailFragment } from '../../../gql/graphql'
+import { LibraryDeleteDialog_LibraryFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
@@ -13,17 +13,14 @@ import { DialogForm } from '../../dialog-form'
 import { getLibrariesQueryOptions } from '../get-libraries'
 
 const deleteFilesDocument = graphql(`
-  mutation dropFiles($libraryId: String!) {
-    dropFiles(libraryId: $libraryId) {
-      id
-      libraryId
-    }
+  mutation deleteLibraryFiles($libraryId: String!) {
+    deleteLibraryFiles(libraryId: $libraryId)
   }
 `)
 
 const deleteLibraryDocument = graphql(`
-  mutation deleteAiLibrary($id: String!) {
-    deleteAiLibrary(id: $id)
+  mutation deleteLibrary($id: String!) {
+    deleteLibrary(id: $id)
   }
 `)
 
@@ -39,8 +36,15 @@ const deleteLibrary = createServerFn({ method: 'GET' })
     return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
+graphql(`
+  fragment LibraryDeleteDialog_Library on AiLibrary {
+    id
+    name
+    filesCount
+  }
+`)
 interface LibraryDeleteDialogProps {
-  library: AiLibraryDetailFragment
+  library: LibraryDeleteDialog_LibraryFragment
 }
 
 export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {

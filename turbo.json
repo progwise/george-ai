@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["TAVILY_API_KEY", "OPENAI_API_KEY"],
+  "globalEnv": [],
   "tasks": {
     "build": {
       "dependsOn": []
@@ -10,7 +10,14 @@
     },
     "test": {
       "dependsOn": [],
-      "env": ["DATABASE_URL_TEST"]
+      "env": [
+        "DATABASE_URL_TEST",
+        "OLLAMA_BASE_URL",
+        "MODEL_NAME_CHAT",
+        "MODEL_NAME_VL",
+        "MODEL_NAME_EMBEDDING",
+        "GITHUB_TOKEN"
+      ]
     },
     "lint": {
       "dependsOn": []

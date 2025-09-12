@@ -1,8 +1,11 @@
-export { transformToMarkdown } from './file-converter'
-
 export { transformPdfToMarkdown } from './converters/pdf-to-markdown'
+export { transformPdfToImageToMarkdown } from './converters/pdf-to-images-to-markdown'
+export { transformDocxToMarkdown } from './converters/docs-to-markdown'
 export { transformExcelToMarkdown } from './converters/excel-to-markdown'
-export { transformPdfToImages } from './converters/pdf-to-images'
+export { transformCsvToMarkdown } from './converters/csv-to-markdown'
+export { transformHtmlToMarkdown } from './converters/html-to-markdown'
+export { transformTextToMarkdown } from './converters/text-to-markdown'
 export * from './file-converter-options'
 
 export { PDF_LAYOUT, SUPPORTED_MIME_TYPES, type SupportedMimeType } from './constants'
+export { type ConverterResult } from './converters/types'

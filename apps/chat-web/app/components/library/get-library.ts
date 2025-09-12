@@ -7,22 +7,14 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-graphql(`
-  fragment AiLibraryDetail on AiLibrary {
-    ...AiLibraryBase
-    ownerId
-    filesCount
-    description
-    embeddingModelName
-    fileConverterOptions
-  }
-`)
-
 const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {
     aiLibrary(libraryId: $libraryId) {
-      ...AiLibraryDetail
+      ...AiLibraryBase
+      ...AiLibraryForm_Library
       ...LibraryParticipants_Library
+      ...LibraryDeleteDialog_Library
+      ...LibraryLeaveDialog_Library
     }
   }
 `)

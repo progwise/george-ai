@@ -4,90 +4,105 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
-export const dropFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const dropFilePromises = ctx.data.map((fileId) =>
-      backendRequest(
-        graphql(`
-          mutation dropFile($id: String!) {
-            dropFile(fileId: $id) {
-              id
-              name
-            }
-          }
-        `),
-        { id: fileId },
-      ).catch((error) => {
-        console.error(`Error dropping file ${fileId}:`, error)
-      }),
+export const deleteLibraryFiles = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ libraryId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    return backendRequest(
+      graphql(`
+        mutation deleteLibraryFiles($libraryId: String!) {
+          deleteLibraryFiles(libraryId: $libraryId)
+        }
+      `),
+      data,
     )
-    const result = await Promise.all(dropFilePromises).catch((error) => {
-      console.error('Error dropping files:', error)
-      throw new Error('Failed to drop files')
-    })
-    return result.filter((file) => file !== undefined)
   })
 
-export const reEmbedFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const reEmbedFilePromises = ctx.data.map(async (fileId) => {
+export const deleteFile = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    return backendRequest(
+      graphql(`
+        mutation deleteFile($fileId: String!) {
+          deleteFile(fileId: $fileId) {
+            id
+            name
+          }
+        }
+      `),
+      data,
+    )
+  })
+
+export const deleteFiles = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileIds: z.array(z.string().nonempty()) }).parse(data))
+  .handler(async ({ data }) => {
+    return backendRequest(
+      graphql(`
+        mutation deleteFiles($fileIds: [ID!]!) {
+          deleteFiles(fileIds: $fileIds)
+        }
+      `),
+      data,
+    )
+  })
+
+export const createEmbeddingTasks = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileIds: z.array(z.string()).nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    const createTaskPromises = data.fileIds.map(async (fileId) => {
       const result = await backendRequest(
         graphql(`
-          mutation reEmbedFiles($id: String!) {
-            embedFile(fileId: $id) {
+          mutation createEmbeddingTasks($id: String!) {
+            createEmbeddingOnlyProcessingTask(fileId: $id) {
               id
-              name
-              chunks
+              file {
+                name
+              }
             }
           }
         `),
         { id: fileId },
       )
-      return result.embedFile
+      return result.createEmbeddingOnlyProcessingTask
     })
 
-    return await Promise.all(reEmbedFilePromises)
+    return await Promise.all(createTaskPromises)
   })
 
-export const reprocessFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const reprocessFilePromises = ctx.data.map((fileId) =>
-      backendRequest(
+export const createProcessingTasks = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileIds: z.array(z.string()).nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    const createProcessingTasksPromises = data.fileIds.map(async (fileId) => {
+      const result = await backendRequest(
         graphql(`
-          mutation reprocessFile($id: String!) {
-            processFile(fileId: $id) {
+          mutation createExtractionTasks($id: String!) {
+            createContentProcessingTask(fileId: $id) {
               id
-              name
-              chunks
-              size
-              uploadedAt
-              processedAt
-              processingErrorMessage
+              file {
+                name
+              }
             }
           }
         `),
         { id: fileId },
-      ),
-    )
+      )
+      return result.createContentProcessingTask
+    })
 
-    return await Promise.all(reprocessFilePromises)
+    const allResults = await Promise.all(createProcessingTasksPromises)
+
+    return allResults.flatMap((result) => (result ? result : []))
   })
 
-export const dropAllFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const clearEmbeddedFilesPromise = ctx.data.map((libraryId) =>
-      backendRequest(
-        graphql(`
-          mutation clearEmbeddedFiles($libraryId: String!) {
-            clearEmbeddedFiles(libraryId: $libraryId)
-          }
-        `),
-        { libraryId: libraryId },
-      ),
+export const dropOutdatedMarkdownFiles = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => z.object({ fileId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) => {
+    return backendRequest(
+      graphql(`
+        mutation dropOutdatedMarkdownFiles($fileId: String!) {
+          dropOutdatedMarkdowns(fileId: $fileId)
+        }
+      `),
+      data,
     )
-    return await Promise.all(clearEmbeddedFilesPromise)
   })

@@ -1,12 +1,34 @@
 import mammoth from 'mammoth'
 
-export async function transformDocxToMarkdown(docxPath: string): Promise<string> {
+import { ConverterResult } from './types'
+
+export async function transformDocxToMarkdown(docxPath: string): Promise<ConverterResult> {
+  const processingStart = Date.now()
+
   try {
     // @ts-expect-error - convertToMarkdown exists but not in type definitions
     const result = await mammoth.convertToMarkdown({ path: docxPath })
-    return result.value.trim()
+    const markdownContent = result.value.trim()
+
+    return {
+      markdownContent,
+      processingTimeMs: Date.now() - processingStart,
+      metadata: {
+        messages: result.messages,
+      },
+      timeout: false,
+      partialResult: false,
+      success: true,
+    }
   } catch (error) {
     console.error(`Error converting DOCX to Markdown: ${docxPath}`, error)
-    throw new Error(`Failed to convert DOCX to Markdown: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }
