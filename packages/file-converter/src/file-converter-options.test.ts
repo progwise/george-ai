@@ -73,6 +73,7 @@ describe('fileConverterOptions validation', () => {
         ocrModel: 'qwen2.5vl:latest',
         ocrTimeout: 120,
         ocrLoopDetectionThreshold: 5,
+        ocrMaxConsecutiveRepeats: 5,
       })
     })
 
