@@ -153,92 +153,89 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
   return (
     <div className="space-y-2">
       <ul className="timeline">
-        {timelineData.map(
-          (milestone, index) =>
-            milestone.status !== 'skipped' && (
-              <li
-                key={`${milestone.labels[milestone.status]}-${new Date().getTime()}`}
-                className={twMerge('timeline-item', !milestone.time && milestone.status !== 'doing' && 'opacity-30')}
+        {timelineData.map((milestone, index) => (
+          <li
+            key={`${milestone.labels[milestone.status]}-${new Date().getTime()}`}
+            className={twMerge('timeline-item', !milestone.time && milestone.status !== 'doing' && 'opacity-30')}
+          >
+            {index !== 0 && <hr />}
+            <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
+              {index === 0 ? dateTimeString(milestone.time, language) : timeString(milestone.time, language)}
+            </div>
+            <div className="timeline-middle">
+              <svg
+                className={twMerge(
+                  'h-3 w-3',
+                  milestone.status === 'todo'
+                    ? 'text-neutral'
+                    : milestone.status === 'doing'
+                      ? 'text-info animate-jump animate-infinite animate-duration-[2000ms] animate-delay-0 animate-ease-linear animate-normal'
+                      : milestone.status === 'skipped'
+                        ? 'text-neutral-300'
+                        : milestone.success
+                          ? 'text-success'
+                          : 'text-error',
+                )}
+                strokeWidth={2}
+                fill="currentColor"
+                stroke="black"
+                viewBox="0 0 20 20"
               >
-                {index !== 0 && <hr />}
-                <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
-                  {index === 0 ? dateTimeString(milestone.time, language) : timeString(milestone.time, language)}
-                </div>
-                <div className="timeline-middle">
-                  <svg
-                    className={twMerge(
-                      'h-3 w-3',
-                      milestone.status === 'todo'
-                        ? 'text-neutral'
-                        : milestone.status === 'doing'
-                          ? 'text-info animate-jump animate-infinite animate-duration-[2000ms] animate-delay-0 animate-ease-linear animate-normal'
-                          : milestone.status === 'skipped'
-                            ? 'text-neutral-300'
-                            : milestone.success
-                              ? 'text-success'
-                              : 'text-error',
-                    )}
-                    strokeWidth={2}
-                    fill="currentColor"
-                    stroke="black"
-                    viewBox="0 0 20 20"
-                  >
-                    <circle cx="10" cy="10" r="8" />
-                  </svg>
-                </div>
-                <div className="timeline-end mx-4 flex flex-col items-center gap-2">
-                  <div
-                    className={twMerge(
-                      'badge badge-sm font-semibold',
-                      milestone.status === 'todo'
-                        ? 'badge-neutral'
-                        : milestone.status === 'doing'
-                          ? 'badge-info animate-duration-[2000ms] animate-pulse'
-                          : milestone.status === 'skipped'
-                            ? 'badge-ghost text-base-content/50 font-normal italic'
-                            : milestone.success
-                              ? 'badge-success'
-                              : 'badge-error',
-                    )}
-                  >
-                    <div className="">{milestone.labels[milestone.status]}</div>
-                  </div>
-                  <div className="text-neutral/50 text-xs italic">
-                    {milestone.status !== 'doing' ? (
-                      formatDuration(milestone.elapsedTime)
-                    ) : milestone.start ? (
-                      <StopWatch start={new Date(milestone.start)} refreshMs={300} format="lcd" />
-                    ) : (
-                      '-'
-                    )}
-                  </div>
-                  <div>
-                    {milestone.renderSubTasks && task.extractionSubTasks && task.extractionSubTasks.length > 0 && (
-                      <ul>
-                        {task.extractionSubTasks.map((subTask) => (
-                          <li key={`subTask-${subTask.id}-${new Date().getTime()}`} className="px-2">
-                            <div className="text-base-content/50 flex items-center justify-end gap-1 text-xs italic">
-                              <span>
-                                {!subTask.startedAt ? (
-                                  ''
-                                ) : !subTask.finishedAt && !subTask.failedAt ? (
-                                  <StopWatch format="lcd" start={new Date(subTask.startedAt)} refreshMs={200} />
-                                ) : (
-                                  duration(subTask.startedAt, (subTask.finishedAt || subTask.failedAt)!)
-                                )}
-                              </span>
-                              <span>{subTask.extractionMethod}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                {index !== timelineData.length - 1 && <hr />}
-              </li>
-            ),
-        )}
+                <circle cx="10" cy="10" r="8" />
+              </svg>
+            </div>
+            <div className="timeline-end mx-4 flex flex-col items-center gap-2">
+              <div
+                className={twMerge(
+                  'badge badge-sm font-semibold',
+                  milestone.status === 'todo'
+                    ? 'badge-neutral'
+                    : milestone.status === 'doing'
+                      ? 'badge-info animate-duration-[2000ms] animate-pulse'
+                      : milestone.status === 'skipped'
+                        ? 'badge-ghost text-base-content/50 font-normal italic'
+                        : milestone.success
+                          ? 'badge-success'
+                          : 'badge-error',
+                )}
+              >
+                <div className="">{milestone.labels[milestone.status]}</div>
+              </div>
+              <div className="text-neutral/50 text-xs italic">
+                {milestone.status !== 'doing' ? (
+                  formatDuration(milestone.elapsedTime)
+                ) : milestone.start ? (
+                  <StopWatch start={new Date(milestone.start)} refreshMs={300} format="lcd" />
+                ) : (
+                  '-'
+                )}
+              </div>
+              <div>
+                {milestone.renderSubTasks && task.extractionSubTasks && task.extractionSubTasks.length > 0 && (
+                  <ul>
+                    {task.extractionSubTasks.map((subTask) => (
+                      <li key={`subTask-${subTask.id}-${new Date().getTime()}`} className="px-2">
+                        <div className="text-base-content/50 flex items-center justify-end gap-1 text-xs italic">
+                          <span>
+                            {!subTask.startedAt ? (
+                              ''
+                            ) : !subTask.finishedAt && !subTask.failedAt ? (
+                              <StopWatch format="lcd" start={new Date(subTask.startedAt)} refreshMs={200} />
+                            ) : (
+                              duration(subTask.startedAt, (subTask.finishedAt || subTask.failedAt)!)
+                            )}
+                          </span>
+                          <span>{subTask.extractionMethod}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+            {index !== timelineData.length - 1 && <hr />}
+          </li>
+        ))}
       </ul>
     </div>
   )
