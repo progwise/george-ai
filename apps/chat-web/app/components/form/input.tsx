@@ -14,6 +14,7 @@ interface InputProps<T extends ZodRawShape> {
   placeholder?: string
   required?: boolean
   disabled?: boolean
+  readonly?: boolean
   schema?: z.ZodObject<T>
   onChange?: (event: InputChangeEvent) => void
   onBlur?: (event: InputBlurEvent) => void
@@ -31,6 +32,7 @@ export const Input = <T extends ZodRawShape>({
   placeholder,
   required,
   disabled,
+  readonly,
   schema,
   onChange,
   onBlur,
@@ -96,7 +98,11 @@ export const Input = <T extends ZodRawShape>({
   return (
     <fieldset className={twMerge('fieldset group', type === 'textarea' && 'flex flex-col', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
-        <span className={twMerge('group-has-aria-invalid:text-error', disabled && 'text-co')}>{label}</span>
+        <span
+          className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
+        >
+          {label}
+        </span>
         <span className="text-error">{errors.join(', ')}</span>
         {required && <span className="text-error">*</span>}
       </legend>
@@ -114,11 +120,15 @@ export const Input = <T extends ZodRawShape>({
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className="input validator w-full flex-1 resize-none whitespace-pre-wrap break-words py-1 leading-normal"
+          className={twMerge(
+            'input validator w-full flex-1 resize-none whitespace-pre-wrap break-words py-1 leading-normal',
+            readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
+          )}
           style={{ font: 'inherit' }}
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
+          readOnly={readonly}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={(e) => e.target.select()}
@@ -138,14 +148,19 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
-          className="input validator w-full"
+          className={twMerge(
+            'input validator w-full',
+            readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
+          )}
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
+          readOnly={readonly}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
+          {...(type === 'number' && { step: 'any' })}
         />
       )}
     </fieldset>

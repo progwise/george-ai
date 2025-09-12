@@ -5,6 +5,7 @@ import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { Prisma, PrismaClient } from '@george-ai/prismaClient'
 
+import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
 
@@ -20,13 +21,19 @@ const builder = new SchemaBuilder<{
   AuthContexts: {
     isLoggedIn: LoggedInContext
   }
-  Objects: {
-    AiLibraryUsageResult: {
-      usageId: string | null
-      deletedCount: number | null
-    }
-  }
   Scalars: {
+    ProcessingStatus: {
+      Input: (typeof PROCESSING_STATUS)[number]
+      Output: (typeof PROCESSING_STATUS)[number]
+    }
+    ExtractionStatus: {
+      Input: (typeof EXTRACTION_STATUS)[number]
+      Output: (typeof EXTRACTION_STATUS)[number]
+    }
+    EmbeddingStatus: {
+      Input: (typeof EMBEDDING_STATUS)[number]
+      Output: (typeof EMBEDDING_STATUS)[number]
+    }
     Date: {
       Input: Date
       Output: Date

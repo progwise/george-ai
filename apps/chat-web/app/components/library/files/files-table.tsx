@@ -1,16 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
 
 import { dateTimeString, dateTimeStringArray } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
+import { AiLibraryFile_TableItemFragment, ExtractionStatus, ProcessingStatus } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { dropFiles, reprocessFiles } from './change-files'
+import { createProcessingTasks, deleteFile } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -23,13 +24,22 @@ graphql(`
     originUri
     mimeType
     size
-    chunks
     uploadedAt
-    processedAt
-    processingErrorMessage
     dropError
+    createdAt
     originModificationDate
     archivedAt
+    taskCount
+    processingStatus
+    extractionStatus
+    embeddingStatus
+    lastSuccessfulEmbedding {
+      id
+      createdAt
+      processingFinishedAt
+      chunksCount
+      chunksSize
+    }
   }
 `)
 interface FilesTableProps {
@@ -51,20 +61,16 @@ export const FilesTable = ({
   const allSelected = pageFileIds.every((id) => selectedFileIds.includes(id))
 
   const { mutate: mutateDropFile, isPending: dropPending } = useMutation({
-    mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
+    mutationFn: (fileId: string) => deleteFile({ data: fileId }),
     onError: (error: Error) => {
       const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
       console.error('Error dropping file:', { error: errorMessage })
       toastError(t('errors.dropFile', { error: errorMessage }))
     },
     onSuccess: (data) => {
-      if (data.length < 1) {
-        toastError(t('errors.dropFiles', { count: 0, error: 'no Files dropped' }))
-        return
-      }
-      const droppedFile = data[0].dropFile
-      setSelectedFileIds((prev) => prev.filter((id) => id !== droppedFile.id))
-      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${droppedFile.name}`)
+      const { deleteFile } = data
+      setSelectedFileIds((prev) => prev.filter((id) => id !== deleteFile.id))
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${deleteFile.name}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -72,21 +78,16 @@ export const FilesTable = ({
   })
 
   const { mutate: mutateReprocessFile, isPending: reprocessPending } = useMutation({
-    mutationFn: (fileId: string) => reprocessFiles({ data: [fileId] }),
+    mutationFn: (fileId: string) => createProcessingTasks({ data: [fileId] }),
     onError: (error: Error) => {
-      console.error('Error reprocessing file:', error)
-      toastError(t('errors.reprocessFile', { error: error.message }))
+      toastError(t('errors.createExtractionTasks', { error: error.message }))
     },
     onSuccess: (data) => {
       if (data.length !== 1) {
-        toastError(t('errors.reprocessFile', { error: 'no Files re-processed' }))
+        toastError(t('errors.createExtractionTasks', { error: 'no Files re-processed' }))
         return
       }
-      if (data[0].processFile.processingErrorMessage) {
-        toastError(t('errors.reprocessFile', { error: data[0].processFile.processingErrorMessage }))
-        return
-      }
-      toastSuccess(t('actions.reprocessSuccess', { count: 1 }) + `: ${data[0].processFile.name}`)
+      toastSuccess(t('actions.createExtractionTasksSuccess', { count: 1 }) + `: ${data[0].file.name}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -147,11 +148,21 @@ export const FilesTable = ({
                       {t('labels.archived')}
                     </span>
                   )}
-                  {file.processingErrorMessage && (
-                    <span className="tooltip tooltip-left flex items-center" data-tip={file.processingErrorMessage}>
-                      <ExclamationIcon />
-                    </span>
-                  )}
+                  <span
+                    className={twMerge(
+                      'badge badge-sm gap-1',
+                      file.extractionStatus === ExtractionStatus.Failed
+                        ? 'badge-error'
+                        : file.extractionStatus === ExtractionStatus.Completed
+                          ? 'badge-success'
+                          : file.extractionStatus === ExtractionStatus.Running
+                            ? 'badge-info'
+                            : 'badge-neutral',
+                    )}
+                    title={file.extractionStatus}
+                  >
+                    {t('labels.extractionStatus', { status: file.extractionStatus })}
+                  </span>
                 </div>
               </div>
 
@@ -159,9 +170,9 @@ export const FilesTable = ({
                 <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
                 <span>{t('labels.chunks')}:</span>
-                <span>{file.chunks ?? '-'}</span>
+                <span>{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}</span>
                 <span>{t('labels.processed')}:</span>
-                <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                <span>{dateTimeString(file.lastSuccessfulEmbedding?.processingFinishedAt, language) || '-'}</span>
                 {file.originModificationDate && (
                   <>
                     <span>{t('labels.originModified')}:</span>
@@ -190,14 +201,16 @@ export const FilesTable = ({
               <th>#</th>
               <th>{t('labels.name')}</th>
               <th>#{t('labels.size')}</th>
-              <th>#{t('labels.chunks')}</th>
+              <th>
+                #{t('labels.conversions')}/#{t('labels.chunks')}
+              </th>
               <th>{t('labels.processed')}</th>
               <th>{t('labels.originModified')}</th>
               <th>{t('labels.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {files?.map((file, index) => (
+            {files.map((file, index) => (
               <tr key={file.id} className="hover:bg-base-200">
                 <td>
                   <input
@@ -229,20 +242,24 @@ export const FilesTable = ({
                   </a>
                 </td>
                 <td>{file.size ?? '-'}</td>
-                <td>{file.chunks ?? '-'}</td>
                 <td>
-                  {dateTimeStringArray(file.processedAt, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.taskCount ?? '-'}/{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}
                 </td>
                 <td>
-                  {dateTimeStringArray(file.originModificationDate, language).map((item) => (
-                    <div key={item} className="text-nowrap">
-                      {item}
-                    </div>
-                  ))}
+                  {file.lastSuccessfulEmbedding?.processingFinishedAt &&
+                    dateTimeStringArray(file.lastSuccessfulEmbedding?.processingFinishedAt, language).map((item) => (
+                      <div key={item} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
+                </td>
+                <td>
+                  {file.originModificationDate &&
+                    dateTimeStringArray(file.originModificationDate, language).map((item) => (
+                      <div key={item} className="text-nowrap">
+                        {item}
+                      </div>
+                    ))}
                 </td>
                 <td className="flex items-center gap-2">
                   <Link
@@ -263,8 +280,8 @@ export const FilesTable = ({
                   <button type="button" className="btn btn-xs" onClick={() => mutateReprocessFile(file.id)}>
                     {t('actions.reprocess')}
                   </button>
-                  {file.processingErrorMessage && (
-                    <span className="tooltip" data-tip={file.processingErrorMessage}>
+                  {file.processingStatus === ProcessingStatus.Failed && (
+                    <span className="tooltip" data-tip={file.processingStatus}>
                       <ExclamationIcon />
                     </span>
                   )}

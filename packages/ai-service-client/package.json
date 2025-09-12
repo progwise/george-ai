@@ -1,0 +1,30 @@
+{
+  "name": "@george-ai/ai-service-client",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.4",
+  "author": "progwise.net",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@george-ai/web-utils": "workspace:*",
+    "ollama": "^0.5.17",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@george-ai/package-configs": "workspace:*",
+    "@langchain/ollama": "^0.2.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "dotenv": "^16.4.5",
+    "vitest": "^3.1.1"
+  }
+}

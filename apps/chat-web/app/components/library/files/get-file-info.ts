@@ -5,19 +5,20 @@ import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getFileInfo = createServerFn({ method: 'GET' })
-  .validator((data: { fileId: string; libraryId: string }) =>
+  .validator((data: unknown) =>
     z
       .object({
         fileId: z.string().nonempty(),
-        libraryId: z.string().nonempty(),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getFileInfo($fileId: String!, $libraryId: String!) {
-          aiLibraryFile(fileId: $fileId, libraryId: $libraryId) {
+        query getFileInfo($fileId: String!) {
+          aiLibraryFile(fileId: $fileId) {
+            ...AiLibraryFileInfo_CaptionCard
+            ...AiLibraryFile_MarkdownFileSelector
             id
             name
             originUri
@@ -27,9 +28,11 @@ const getFileInfo = createServerFn({ method: 'GET' })
             createdAt
             updatedAt
             archivedAt
-            processedAt
-            processingErrorMessage
             originModificationDate
+            processingStatus
+            extractionStatus
+            embeddingStatus
+            latestExtractionMarkdownFileNames
             lastUpdate {
               id
               createdAt
@@ -39,12 +42,12 @@ const getFileInfo = createServerFn({ method: 'GET' })
           }
         }
       `),
-      { fileId: data.fileId, libraryId: data.libraryId },
+      { fileId: data.fileId },
     )
     return result
   })
 
-export const getFileInfoQueryOptions = (params: { fileId: string; libraryId: string }) => ({
-  queryKey: ['fileChunks', params.fileId, params],
-  queryFn: () => getFileInfo({ data: { fileId: params.fileId, libraryId: params.libraryId } }),
+export const getFileInfoQueryOptions = (params: { fileId: string }) => ({
+  queryKey: ['FileInfo', params.fileId, params],
+  queryFn: () => getFileInfo({ data: { fileId: params.fileId } }),
 })

@@ -123,6 +123,25 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     window.$RefreshReg$ = () => {}
     window.$RefreshSig$ = () => (type) => type`,
           },
+      {
+        children: `
+            const originalConsoleInfo = console.info
+            console.info = (...args) => {
+              if (
+                !args.length ||
+                args.some(
+                  (arg) =>
+                    typeof arg === 'string' &&
+                    arg.trim().startsWith('Injected From Server:')
+                )
+              ) {
+                return
+              }
+
+              originalConsoleInfo.apply(console, args)
+}           
+            `,
+      },
     ],
   }),
   component: RootDocument,

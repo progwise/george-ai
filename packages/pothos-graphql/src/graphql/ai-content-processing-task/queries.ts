@@ -1,0 +1,84 @@
+import { canAccessLibraryOrThrow } from '../../domain'
+import { ProcessingStatus, getTaskStatusWhereClause } from '../../domain/content-extraction/task-status'
+import { prisma } from '../../prisma'
+import { builder } from '../builder'
+
+console.log('Setting up: AiFileContentExtractionTask Queries')
+
+const ContentExtractionTaskQueryResult = builder
+  .objectRef<{
+    libraryId: string
+    fileId?: string
+    status?: ProcessingStatus
+    take: number
+    skip: number
+  }>('ContentExtractionTaskQueryResult')
+  .implement({
+    fields: (t) => ({
+      libraryId: t.exposeString('libraryId', { nullable: false }),
+      fileId: t.exposeString('fileId', { nullable: true }),
+      status: t.field({
+        type: 'ProcessingStatus',
+        nullable: true,
+        resolve: ({ status }) => status,
+      }),
+      take: t.exposeInt('take', { nullable: false }),
+      skip: t.exposeInt('skip', { nullable: false }),
+      count: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async ({ libraryId, fileId, status }) => {
+          return prisma.aiContentProcessingTask.count({
+            where: {
+              libraryId,
+              ...(fileId ? { fileId } : {}),
+              ...(status ? getTaskStatusWhereClause(status) : {}),
+            },
+          })
+        },
+      }),
+      tasks: t.prismaField({
+        type: ['AiContentProcessingTask'],
+        nullable: { list: false, items: false },
+        resolve: (query, { libraryId, fileId, take, skip, status }) => {
+          return prisma.aiContentProcessingTask.findMany({
+            ...query,
+            where: {
+              libraryId,
+              ...(fileId ? { fileId } : {}),
+              ...(status ? getTaskStatusWhereClause(status) : {}),
+            },
+            orderBy: { createdAt: 'desc' },
+            take: take ?? 20,
+            skip: skip ?? 0,
+          })
+        },
+      }),
+    }),
+  })
+
+builder.queryField('aiContentProcessingTasks', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: ContentExtractionTaskQueryResult,
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      fileId: t.arg.string({ required: false }),
+      status: t.arg({ type: 'ProcessingStatus', required: false }),
+      take: t.arg.int({ required: false, defaultValue: 20 }),
+      skip: t.arg.int({ required: false, defaultValue: 0 }),
+    },
+    resolve: async (_parent, args, context) => {
+      // Check permissions
+      await canAccessLibraryOrThrow(args.libraryId, context.session.user.id)
+
+      return {
+        libraryId: args.libraryId,
+        fileId: args.fileId || undefined,
+        status: args.status || undefined,
+        take: args.take ?? 20,
+        skip: args.skip ?? 0,
+      }
+    },
+  }),
+)

@@ -7,9 +7,9 @@ import { Language, getLanguage, translate } from '../../i18n'
 import { backendRequest } from '../../server-functions/backend'
 
 const updateLibraryDocument = graphql(`
-  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
-    updateAiLibrary(id: $id, data: $data) {
-      ...AiLibraryDetail
+  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {
+    updateLibrary(id: $id, data: $data) {
+      ...AiLibraryForm_Library
     }
   }
 `)
@@ -21,6 +21,11 @@ export const getLibraryUpdateFormSchema = (language: Language) =>
     description: z.string().nullish(),
     embeddingModelName: z.string().nullish(),
     fileConverterOptions: z.string().nullish(),
+    embeddingTimeoutMs: z.coerce
+      .number()
+      .min(30000, translate('errors.embeddingTimeoutMinimum', language))
+      .max(1800000, translate('errors.embeddingTimeoutMaximum', language))
+      .nullish(),
   })
 
 export const updateLibrary = createServerFn({ method: 'POST' })
@@ -36,6 +41,7 @@ export const updateLibrary = createServerFn({ method: 'POST' })
         description: parsedData.description,
         embeddingModelName: parsedData.embeddingModelName,
         fileConverterOptions: parsedData.fileConverterOptions,
+        embeddingTimeoutMs: parsedData.embeddingTimeoutMs,
       }),
     }
   })

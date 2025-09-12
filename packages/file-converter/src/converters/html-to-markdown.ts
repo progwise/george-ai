@@ -1,13 +1,33 @@
 import { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } from '@kingsword/node-html-markdown'
 import fs from 'node:fs/promises'
 
-export async function transformHtmlToMarkdown(csvPath: string): Promise<string> {
+import { ConverterResult } from './types'
+
+export async function transformHtmlToMarkdown(htmlPath: string): Promise<ConverterResult> {
+  const processingStart = Date.now()
+
   try {
-    const csvContent = await fs.readFile(csvPath, 'utf-8')
-    const markdown = NodeHtmlMarkdown.translate(csvContent, {} as NodeHtmlMarkdownOptions)
-    return markdown.trim()
+    const htmlContent = await fs.readFile(htmlPath, 'utf-8')
+    const markdown = NodeHtmlMarkdown.translate(htmlContent, {} as NodeHtmlMarkdownOptions)
+
+    return {
+      markdownContent: markdown.trim(),
+      processingTimeMs: Date.now() - processingStart,
+      metadata: {
+        originalLength: htmlContent.length,
+      },
+      timeout: false,
+      partialResult: false,
+      success: true,
+    }
   } catch (error) {
-    console.error(`Error reading CSV file: ${csvPath}`, error)
-    throw new Error(`Failed to read CSV file: ${(error as Error).message}`)
+    return {
+      markdownContent: '',
+      processingTimeMs: Date.now() - processingStart,
+      notes: (error as Error).message,
+      timeout: false,
+      partialResult: false,
+      success: false,
+    }
   }
 }

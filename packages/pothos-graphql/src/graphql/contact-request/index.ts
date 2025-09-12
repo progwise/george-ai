@@ -1,4 +1,4 @@
-import { sendMail } from '../../mailer'
+import { sendMail } from '../../domain/mailer'
 import { builder } from '../builder'
 
 builder.mutationField('createContactRequest', (t) =>

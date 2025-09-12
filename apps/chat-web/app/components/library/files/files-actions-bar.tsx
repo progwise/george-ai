@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { reEmbedFiles, reprocessFiles } from './change-files'
+import { createEmbeddingTasks, createProcessingTasks } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
@@ -35,18 +35,17 @@ export const FilesActionsBar = ({
   onShowArchivedChange,
   archivedCount,
 }: FilesActionsBarProps) => {
-  const { t, tx } = useTranslation()
+  const { t } = useTranslation()
 
   const { mutate: reEmbedFilesMutate, isPending: reEmbedFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => await reEmbedFiles({ data: fileIds }),
+    mutationFn: async (fileIds: string[]) => await createEmbeddingTasks({ data: fileIds }),
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : t('errors.embedFiles', { error: 'Unknown error', files: '' })
+        error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      const totalChunks = data.reduce((sum, file) => sum + (file.chunks || 0), 0)
-      toastSuccess(t('actions.embedSuccess', { count: data.length, chunks: totalChunks }))
+      toastSuccess(t('actions.createEmbeddingTasksSuccess', { count: data.length }))
     },
     onSettled: () => {
       setCheckedFileIds([])
@@ -55,50 +54,16 @@ export const FilesActionsBar = ({
   })
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => await reprocessFiles({ data: fileIds }),
-
+    mutationFn: async (fileIds: string[]) => await createProcessingTasks({ data: fileIds }),
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
+        error instanceof Error
+          ? error.message
+          : t('errors.createExtractionTasks', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
-      const errorFiles = data.filter(
-        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
-      )
-      const successFiles = data.filter(
-        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
-      )
-      if (errorFiles.length > 0) {
-        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
-        toastError(
-          tx('errors.reprocessFiles', {
-            count: errorFileNames.length,
-            files: (
-              <ul>
-                {errorFileNames.map((fileName) => (
-                  <li key={fileName}>{fileName}</li>
-                ))}
-              </ul>
-            ),
-          }),
-        )
-      }
-      if (successFiles.length > 0) {
-        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
-        toastSuccess(
-          tx('actions.reprocessSuccess', {
-            count: successFileNames.length,
-            files: (
-              <ul>
-                {successFileNames.map((fileName) => (
-                  <li key={fileName}>{fileName}</li>
-                ))}
-              </ul>
-            ),
-          }),
-        )
-      }
+      toastSuccess(t('actions.createExtractionTasksSuccess', { count: data.length }))
     },
     onSettled: () => {
       setCheckedFileIds([])

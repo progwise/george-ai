@@ -1,4 +1,4 @@
-import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../avatar-provider'
+import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -69,6 +69,7 @@ builder.queryField('user', (t) =>
 builder.mutationField('login', (t) =>
   t.prismaField({
     type: 'User',
+    nullable: false,
     args: {
       jwtToken: t.arg.string({ required: true }),
     },

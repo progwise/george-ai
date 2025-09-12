@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { getFileDir } from '@george-ai/file-management'
-import { getMimeTypeForFile } from '@george-ai/pothos-graphql'
+import { canAccessFileOrThrow } from '@george-ai/pothos-graphql'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { getUserContext } from './getUserContext'
@@ -26,9 +26,9 @@ export const libraryFiles = async (request: Request, response: Response) => {
   }
 
   try {
+    const fileInfo = await canAccessFileOrThrow(fileId, context.session.user.id)
     const libraryFilePath = getFileDir({ libraryId, fileId, errorIfNotExists: true })
     const fileNames = await fs.promises.readdir(libraryFilePath)
-    const mainMimeType = await getMimeTypeForFile(fileId)
 
     if (!fileName) {
       response.json(fileNames).end()
@@ -55,14 +55,16 @@ export const libraryFiles = async (request: Request, response: Response) => {
     // Get file stats for size and content type determination
     const stats = await fs.promises.stat(fullFilePath)
     let mimeType = getMimeTypeFromExtension(fileName)
+    let downloadFilename = fileName
     if (fileName === 'upload') {
-      mimeType = mainMimeType
+      downloadFilename = fileInfo.name
+      mimeType = fileInfo.mimeType || 'application/octet-stream'
     }
 
     // Set appropriate headers
     response.setHeader('Content-Type', mimeType)
     response.setHeader('Content-Length', stats.size)
-    response.setHeader('Content-Disposition', `inline; filename="${fileName}"`)
+    response.setHeader('Content-Disposition', `attachment; filename="${downloadFilename}"`)
 
     // For text files, set charset
     if (mimeType.startsWith('text/') || mimeType.includes('json') || mimeType.includes('xml')) {

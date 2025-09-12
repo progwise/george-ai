@@ -1,7 +1,8 @@
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { ChatOllama } from '@langchain/ollama'
 
-import { similaritySearch } from './typesense-vectorstore'
+import { getOllamaChatModel } from '@george-ai/ai-service-client'
+
+import { getSimilarChunks } from './typesense-vectorstore'
 
 interface File {
   id: string
@@ -27,7 +28,6 @@ export const getEnrichedValue = async ({
     contentQuery: string | null
   }
 }) => {
-  console.log(`Getting enriched value for ${file.id} with model ${languageModel}`)
   if (!languageModel) {
     throw new Error('Cannot enrich file without language model')
   }
@@ -40,15 +40,15 @@ export const getEnrichedValue = async ({
       if (!options.contentQuery) {
         throw new Error('Content query is required when using vector store')
       }
-      const searchResult = await similaritySearch(
-        options.contentQuery,
-        file.libraryId,
-        file.embeddingModelName,
-        file.name,
-        4,
-      )
-      console.log('enrichment search results', searchResult)
-      const searchValue = searchResult.map((result) => result.pageContent).join('\n')
+      const searchResult = await getSimilarChunks({
+        libraryId: file.libraryId,
+        fileId: file.id,
+        term: options.contentQuery,
+        embeddingsModelName: file.embeddingModelName,
+        hits: 4,
+      })
+
+      const searchValue = searchResult.map((result) => result.text).join('\n\n')
       messages.push({
         name: 'vector search',
         label: 'Here is the search result in the vector store',
@@ -60,10 +60,7 @@ export const getEnrichedValue = async ({
       messages.push({ name: item.name, label: `Here is the context value for ${item.name}`, value: item.value })
     })
 
-    const model = new ChatOllama({
-      model: languageModel,
-      baseUrl: process.env.OLLAMA_BASE_URL,
-    })
+    const model = await getOllamaChatModel(languageModel)
     const prompt = await getEnrichmentPrompt({ instruction, messages })
     const instructionPromptResult = await model.invoke(prompt, {})
     return instructionPromptResult.content.toString()

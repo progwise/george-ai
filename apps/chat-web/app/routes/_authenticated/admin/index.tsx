@@ -2,6 +2,9 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArrowRight } from '../../../icons/arrow-right'
+import { ListViewIcon } from '../../../icons/list-view-icon'
+import { ServerIcon } from '../../../icons/server-icon'
+import { UsersIcon } from '../../../icons/users-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/')({
   beforeLoad: ({ context }) => {
@@ -17,34 +20,106 @@ function AdminDashboard() {
   const { t } = useTranslation()
 
   return (
-    <article className="flex w-full flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">{t('admin.dashboardTitle')}</h3>
-      </div>
+    <div className="from-base-200 via-base-100 to-base-200 min-h-screen bg-gradient-to-br">
+      <div className="container mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-primary mb-2 text-4xl font-bold">{t('admin.dashboardTitle')}</h1>
+          <p className="text-lg opacity-80">{t('admin.welcomeMessage')}</p>
+        </div>
 
-      <div className="space-y-4">
-        <p>{t('admin.welcomeMessage')}</p>
-
-        <div>
-          <h3 className="mb-3">{t('admin.availableFunctions')}</h3>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <Link to="/admin/users" className="group">
-              <div className="card bg-base-100 shadow-sm transition-shadow hover:shadow-md">
-                <div className="card-body p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="card-title">{t('admin.manageUsers')}</h2>
-                      <p className="text-sm">{t('admin.manageUsersDescription')}</p>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Users Management Card */}
+          <Link to="/admin/users" className="group">
+            <div className="card from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 border bg-gradient-to-br shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+              <div className="card-body p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-4 flex items-center gap-4">
+                      <div className="bg-primary/20 rounded-full p-3">
+                        <UsersIcon className="text-primary h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="card-title mb-1 text-xl">{t('admin.manageUsers')}</h3>
+                        <div className="badge badge-primary badge-outline">User Management</div>
+                      </div>
                     </div>
-                    <ArrowRight className="size-5 shrink-0 opacity-70 group-hover:opacity-100" />
+                    <p className="text-sm leading-relaxed opacity-80">{t('admin.manageUsersDescription')}</p>
                   </div>
+                  <ArrowRight className="h-6 w-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
+                </div>
+
+                {/* Feature highlights */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="badge badge-sm badge-ghost">View Users</div>
+                  <div className="badge badge-sm badge-ghost">Edit Profiles</div>
+                  <div className="badge badge-sm badge-ghost">Activate Accounts</div>
                 </div>
               </div>
-            </Link>
-          </div>
+            </div>
+          </Link>
+
+          {/* AI Services Monitoring Card */}
+          <Link to="/admin/ai-services" className="group">
+            <div className="card from-secondary/10 to-secondary/5 border-secondary/20 hover:border-secondary/40 border bg-gradient-to-br shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+              <div className="card-body p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-4 flex items-center gap-4">
+                      <div className="bg-secondary/20 rounded-full p-3">
+                        <ServerIcon className="text-secondary h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="card-title mb-1 text-xl">{t('admin.monitorAiServices')}</h3>
+                        <div className="badge badge-secondary badge-outline">System Monitoring</div>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-relaxed opacity-80">{t('admin.monitorAiServicesDescription')}</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
+                </div>
+
+                {/* Feature highlights */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="badge badge-sm badge-ghost">GPU Memory</div>
+                  <div className="badge badge-sm badge-ghost">Model Status</div>
+                  <div className="badge badge-sm badge-ghost">Load Balancing</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Queue Management Card */}
+          <Link to="/admin/queues" className="group">
+            <div className="card from-accent/10 to-accent/5 border-accent/20 hover:border-accent/40 border bg-gradient-to-br shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+              <div className="card-body p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-4 flex items-center gap-4">
+                      <div className="bg-accent/20 rounded-full p-3">
+                        <ListViewIcon className="text-accent h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="card-title mb-1 text-xl">{t('admin.manageQueues')}</h3>
+                        <div className="badge badge-accent badge-outline">Queue Control</div>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-relaxed opacity-80">{t('admin.manageQueuesDescription')}</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
+                </div>
+
+                {/* Feature highlights */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="badge badge-sm badge-ghost">Start/Stop Workers</div>
+                  <div className="badge badge-sm badge-ghost">Retry Failed Tasks</div>
+                  <div className="badge badge-sm badge-ghost">Monitor Status</div>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
-    </article>
+    </div>
   )
 }

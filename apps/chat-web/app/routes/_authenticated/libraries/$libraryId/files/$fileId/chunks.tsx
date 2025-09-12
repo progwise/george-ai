@@ -2,7 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { FormattedMarkdown } from '../../../../../../components/formatted-markdown'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { Pagination } from '../../../../../../components/table/pagination'
@@ -22,20 +21,17 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
       context.queryClient.ensureQueryData(
         getFileChunksQueryOptions({
           fileId: params.fileId,
-          libraryId: params.libraryId,
           skip: deps.skipChunks,
           take: deps.takeChunks,
         }),
       ),
-      context.queryClient.ensureQueryData(
-        getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
-      ),
+      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
     ])
   },
 })
 
 function RouteComponent() {
-  const { fileId, libraryId } = Route.useParams()
+  const { fileId } = Route.useParams()
   const { skipChunks, takeChunks } = Route.useSearch()
   const navigate = Route.useNavigate()
   const {
@@ -43,15 +39,19 @@ function RouteComponent() {
   } = useSuspenseQuery(
     getFileChunksQueryOptions({
       fileId,
-      libraryId,
       skip: skipChunks,
       take: takeChunks,
     }),
   )
 
   return (
-    <div>
-      <h3 className="mb-4 flex gap-4 text-xl font-bold">
+    <div className="container mx-auto max-w-7xl p-4">
+      {/* Header Section */}
+      <div className="mb-4 flex w-full items-end justify-between">
+        <h3 className="text-xl font-bold">
+          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + aiFileChunks.take, aiFileChunks.count)} of{' '}
+          {aiFileChunks.count} Chunks
+        </h3>
         <Pagination
           totalItems={aiFileChunks.count}
           itemsPerPage={takeChunks}
@@ -65,26 +65,34 @@ function RouteComponent() {
             navigate({ search: { skipChunks: 0, takeChunks: newPageSize } })
           }}
         />
-        <span>
-          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}
-          {aiFileChunks.count} Chunks
-        </span>
-      </h3>
-      <hr className="text-base-300 mb-4" />
-      <div className="flex flex-wrap gap-4">
+      </div>
+
+      {/* Chunks Grid */}
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {aiFileChunks.chunks.map((chunk) => (
-          <div key={chunk.id} className="card card-border bg-base-200 card-xs shadow-sm">
-            <div className="card-body">
-              <h2 className="card-title">Chunk {chunk.chunkIndex + 1}</h2>
-              <p>
-                ñ Semantic Path:
-                {chunk.headingPath} {chunk.subChunkIndex > 0 ? `(part-${chunk.subChunkIndex + 1})` : ''}
-              </p>
-              <div>
-                <FormattedMarkdown markdown={chunk.text} className="text-xs" />
+          <div key={chunk.id} className="card bg-base-100 card-compact shadow-sm transition-shadow hover:shadow-md">
+            <div className="card-body p-3">
+              {/* Header with chunk number */}
+              <div className="mb-2">
+                <div className="badge badge-primary badge-outline badge-sm">#{chunk.chunkIndex + 1}</div>
+                {chunk.subChunkIndex > 0 && (
+                  <span className="badge badge-ghost badge-xs ml-1">part {chunk.subChunkIndex + 1}</span>
+                )}
               </div>
-              <hr />
-              <div className="card-actions justify-end">Internal Chunk Id: {chunk.id}</div>
+
+              {/* Path information */}
+              <div className="mb-2">
+                <div className="text-base-content/70 truncate text-xs" title={chunk.headingPath}>
+                  {chunk.headingPath}
+                </div>
+              </div>
+
+              {/* Content preview */}
+              <div className="flex-1">
+                <div className="bg-base-200 max-h-20 overflow-y-auto rounded p-2">
+                  <pre className="text-base-content/90 text-xs leading-tight">{chunk.text}</pre>
+                </div>
+              </div>
             </div>
           </div>
         ))}

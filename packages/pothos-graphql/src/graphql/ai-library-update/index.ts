@@ -1,4 +1,4 @@
-import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
+import { canAccessLibraryOrThrow } from '../../domain'
 import { builder, prisma } from '../builder'
 
 builder.prismaObject('AiLibraryUpdate', {
@@ -33,7 +33,7 @@ const LibraryUpdateQueryResult = builder
         nullable: false,
         resolve: async (query, root, _args, context) => {
           const library = await prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
-          canAccessLibraryOrThrow(context, root.libraryId)
+          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
           return library
         },
       }),
@@ -44,7 +44,7 @@ const LibraryUpdateQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async (root, _args, context) => {
-          canAccessLibraryOrThrow(context, root.libraryId)
+          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
           console.log('Counting AI library updates for library:', root.libraryId, 'and crawler:', root.crawlerId)
           return prisma.aiLibraryUpdate.count({
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },
@@ -55,7 +55,7 @@ const LibraryUpdateQueryResult = builder
         type: ['AiLibraryUpdate'],
         nullable: false,
         resolve: async (query, root, _args, context) => {
-          canAccessLibraryOrThrow(context, root.libraryId)
+          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
           return prisma.aiLibraryUpdate.findMany({
             ...query,
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },

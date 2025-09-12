@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express'
 import fs from 'fs'
 
-import { isProviderAvatar } from '@george-ai/pothos-graphql/src/avatar-provider'
-import { checkUser, getUserAvatarsPath, updateUserAvatarUrl } from '@george-ai/pothos-graphql/src/file-upload'
+import { isProviderAvatar } from '@george-ai/pothos-graphql'
+import { checkUser, getUserAvatarsPath, updateUserAvatarUrl } from '@george-ai/pothos-graphql'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 const allowedFileTypes = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']

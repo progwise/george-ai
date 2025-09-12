@@ -1,6 +1,7 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { ChatOllama } from '@langchain/ollama'
+
+import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
 import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
@@ -9,7 +10,7 @@ import { AssistantModel } from './assistant-model'
 import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
 import { Library } from './library'
-import { similaritySearch } from './typesense-vectorstore'
+import { getSimilarChunks } from './typesense-vectorstore'
 
 export interface AssistantChainMessage {
   id: string
@@ -29,10 +30,7 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = new ChatOllama({
-    model: input.assistant.languageModel,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-  })
+  const model = await getOllamaChatModel(input.assistant.languageModel)
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({
@@ -68,20 +66,21 @@ export async function* askAssistantChain(input: {
       libraryUsedFor: library.usedFor,
     })
 
-    const vectorStoreResult = await similaritySearch(
-      libraryPromptResult.searchPrompt,
-      library.id,
-      library.embeddingModelName,
-    )
+    const vectorStoreResult = await getSimilarChunks({
+      term: libraryPromptResult.searchPrompt,
+      hits: 4,
+      embeddingsModelName: library.embeddingModelName,
+      libraryId: library.id,
+    })
 
     const messages = vectorStoreResult.map(
       (result) =>
         new SystemMessage({
-          content: `Found the following document ${result.docName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
+          content: `Found the following document ${result.fileName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
 
         START OF DOCUMENT
 
-        Document content: ${result.pageContent}
+        Document content: ${result.text}
         
         END OF DOCUMENT
         `,
