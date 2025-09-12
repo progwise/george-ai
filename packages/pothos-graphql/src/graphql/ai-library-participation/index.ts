@@ -54,12 +54,10 @@ builder.mutationField('removeLibraryParticipant', (t) =>
       const isOwner = library.ownerId === actorId
       const isSelf = userId === actorId
 
-      // Nur Owner darf andere entfernen; jeder darf sich selbst entfernen
       if (!isOwner && !isSelf) {
         throw new Error('Only the owner can remove other participants')
       }
 
-      // Optional: Owner darf nicht „entfernt“ werden (falls Owner auch in der Teilnehmer-Tabelle steht)
       if (userId === library.ownerId && !isSelf) {
         throw new Error('The library owner cannot be removed by others')
       }

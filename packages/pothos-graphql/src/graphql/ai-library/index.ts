@@ -35,8 +35,13 @@ builder.prismaObject('AiLibrary', {
       type: ['User'],
       nullable: false,
       select: { participants: { select: { user: true } } },
-      resolve: (_query, library) => {
-        return library.participants.map((participant) => participant.user)
+      resolve: async (query, library) => {
+        return await prisma.user.findMany({
+          ...query,
+          where: {
+            libraryParticipations: { some: { libraryId: library.id } },
+          },
+        })
       },
     }),
   }),
