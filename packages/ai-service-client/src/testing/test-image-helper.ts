@@ -33,37 +33,37 @@ const downloadTestAsset = async (filename: string): Promise<string> => {
     // Step 1: Get the release info to find the asset
     const releaseUrl = `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${RELEASE_TAG}`
     console.log(`Getting release info from ${releaseUrl}...`)
-    
+
     const releaseResponse = await fetch(releaseUrl, {
       headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'test-image-helper'
-      }
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'test-image-helper',
+      },
     })
 
     if (!releaseResponse.ok) {
       throw new Error(`Failed to get release info: ${releaseResponse.statusText}`)
     }
 
-    const release = await releaseResponse.json() as { assets: Array<{ name: string; id: number }> }
-    const asset = release.assets.find(a => a.name === filename)
-    
+    const release = (await releaseResponse.json()) as { assets: Array<{ name: string; id: number }> }
+    const asset = release.assets.find((a) => a.name === filename)
+
     if (!asset) {
-      const availableAssets = release.assets.map(a => a.name).join(', ')
+      const availableAssets = release.assets.map((a) => a.name).join(', ')
       throw new Error(`Asset ${filename} not found in release ${RELEASE_TAG}. Available assets: ${availableAssets}`)
     }
 
     // Step 2: Download the asset using the GitHub API
     const assetUrl = `https://api.github.com/repos/${GITHUB_REPO}/releases/assets/${asset.id}`
     console.log(`Downloading asset from ${assetUrl}...`)
-    
+
     const assetResponse = await fetch(assetUrl, {
       headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/octet-stream',
-        'User-Agent': 'test-image-helper'
-      }
+        Authorization: `token ${token}`,
+        Accept: 'application/octet-stream',
+        'User-Agent': 'test-image-helper',
+      },
     })
 
     if (!assetResponse.ok) {
