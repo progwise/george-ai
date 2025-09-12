@@ -444,7 +444,7 @@ export default {
     lastUpdates: 'Letzte Aktualisierungen',
     leave: 'Bibliothek verlassen',
     leaveConfirmation: 'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden.',
-    myLibraries: 'Meine Bibliotheken',
+    myLibraries: '{count} Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
     nameLibrary: 'Name',
     owner: 'Besitzer',

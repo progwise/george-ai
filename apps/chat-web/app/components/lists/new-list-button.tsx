@@ -44,7 +44,7 @@ export const NewListButton = ({ className, showText = true, variant = 'ghost' }:
   const schema = useMemo(() => getCreateListSchema(language), [language])
 
   return (
-    <>
+    <section className="m-0 inline-block p-0">
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
@@ -71,6 +71,6 @@ export const NewListButton = ({ className, showText = true, variant = 'ghost' }:
           required={true}
         />
       </DialogForm>
-    </>
+    </section>
   )
 }

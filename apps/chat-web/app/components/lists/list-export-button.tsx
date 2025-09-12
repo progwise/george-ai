@@ -221,7 +221,7 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
   const sortedFields = [...(aiList.fields || [])].sort((a, b) => a.order - b.order)
 
   return (
-    <>
+    <section className="m-0 inline-block p-0">
       <button
         type="button"
         className="btn btn-sm"
@@ -244,7 +244,7 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
 
       {/* Export Dialog */}
       {showDialog && (
-        <div className="modal modal-open">
+        <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="mb-4 text-lg font-bold">{t('lists.export.dialog.title')}</h3>
 
@@ -308,8 +308,13 @@ export const ListExportButton = ({ listId }: ListExportButtonProps) => {
               </button>
             </div>
           </div>
-        </div>
+          <form method="dialog" className="modal-backdrop" onClick={() => setShowDialog(false)}>
+            <button type="button" onClick={() => setShowDialog(false)}>
+              Close
+            </button>
+          </form>
+        </dialog>
       )}
-    </>
+    </section>
   )
 }

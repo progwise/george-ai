@@ -27,7 +27,9 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <ul className="bg-base-200 menu-horizontal rounded-box flex w-full justify-start gap-2 p-2">
-        <li>{t('libraries.myLibraries')}</li>
+        <li>
+          <h3 className="text-l font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
+        </li>
         <li className="grow-1"></li>
         <li className="flex items-center">
           <LibraryNewDialog />

@@ -438,7 +438,7 @@ export default {
     lastUpdates: 'Last updates',
     leave: 'Leave library',
     leaveConfirmation: 'You are about to leave this library. It cannot be undone.',
-    myLibraries: 'My libraries',
+    myLibraries: '{count} Libraries',
     noLibrariesFound: 'No libraries found',
     nameLibrary: 'Name',
     owner: 'Owner',
