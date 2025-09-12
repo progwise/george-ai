@@ -74,6 +74,65 @@ cd e2e-tests && pnpm test
 pnpm test path/to/test.spec.ts
 ```
 
+### Creating New Packages
+
+When creating new packages in the monorepo, use this standard template:
+
+**package.json**:
+
+```json
+{
+  "name": "@george-ai/package-name",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.4",
+  "author": "progwise.net",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    // Add specific dependencies here
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  }
+}
+```
+
+**tsconfig.json**:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
 ## Architecture Overview
 
 George AI is a monorepo using pnpm workspaces with the following structure:
@@ -305,6 +364,43 @@ These functions are particularly useful for form handling where arrays need to b
 
 ### React Patterns
 
+#### Data Fetching with TanStack Router + Query
+
+Use this pattern for pages with server-side data fetching and client-side suspense:
+
+```typescript
+// Route definition with loader and suspense query
+export const Route = createFileRoute('/my-route')({
+  component: MyComponent,
+  validateSearch: z.object({
+    skip: z.coerce.number().default(0),
+    take: z.coerce.number().default(10),
+  }),
+  loaderDeps: ({ search: { skip, take } }) => ({ skip, take }),
+  loader: async ({ context, deps }) => {
+    // Pre-fetch data server-side
+    await Promise.all([
+      context.queryClient.ensureQueryData(getMyDataQueryOptions(deps.skip, deps.take)),
+    ])
+  },
+})
+
+function MyComponent() {
+  // Use suspense query with the same options
+  const { data } = useSuspenseQuery(getMyDataQueryOptions(search.skip, search.take))
+
+  // Component renders immediately with data
+  return <div>{data.items.map(...)}</div>
+}
+```
+
+**Benefits**:
+
+- Server-side data pre-fetching (faster initial load)
+- Client-side suspense (no loading states needed)
+- URL-based state management with search params
+- Automatic invalidation and refresh
+
 #### useLocalStorage Hook
 
 For state that should persist in localStorage, use the `useLocalstorage` hook:
@@ -426,3 +522,95 @@ When adding new translation keys (especially for form validation), ensure both f
 - **Always run linting and typecheck** commands before committing
 - **NEVER commit changes** unless the user explicitly asks you to
 - **Use the established patterns** described in this document for consistency
+- **NEVER create wrapper functions that don't add value** - Use direct calls instead of unnecessary abstractions (e.g., prefer `mySet.delete(key)` over `removeKey()` wrapper)
+
+### GraphQL and Server Functions
+
+#### Using Generated GraphQL Functions
+
+- **ALWAYS use codegen-generated GraphQL functions** for type safety
+- **Never use raw GraphQL strings** in server functions
+
+```typescript
+// ✅ Correct - Use generated function with full type safety
+import { graphql } from '../../../gql'
+
+const result = await backendRequest(
+  graphql(`
+    query GetAiServiceStatus {
+      aiServiceStatus { ... }
+    }
+  `),
+  {}
+)
+// result.aiServiceStatus is fully typed
+
+// ❌ Wrong - Raw GraphQL string, no type safety
+const QUERY = `query GetAiServiceStatus { ... }`
+const result = await backendRequest(QUERY, {})
+// result is 'any' type
+```
+
+#### Server Function Location Pattern
+
+- **Do NOT use the `/server-functions/` folder** - it's deprecated
+- **Place server functions with their related components**
+- Use the pattern: `app/components/[feature]/[action].ts`
+
+```typescript
+// ✅ Correct location
+app / components / admin / ai - services / get - ai - service - status.ts
+
+// ❌ Wrong location (deprecated)
+app / server - functions / ai - services.ts
+```
+
+#### GraphQL Nullable Field Configuration
+
+- **CRITICAL**: Always specify nullability explicitly for GraphQL fields
+- **For lists**: Use `nullable: { list: false, items: false }` syntax
+- **Never omit nullable settings** - this causes TypeScript errors
+
+```typescript
+// ✅ Correct - Explicit nullability for all field types
+const MyType = builder.simpleObject('MyType', {
+  fields: (t) => ({
+    name: t.string({ nullable: false }),
+    optionalField: t.string({ nullable: true }),
+    requiredList: t.field({
+      type: [SomeType],
+      nullable: { list: false, items: false }, // List cannot be null, items cannot be null
+    }),
+    optionalList: t.field({
+      type: [SomeType],
+      nullable: { list: true, items: false }, // List can be null, but items cannot
+    }),
+    stringList: t.stringList({ nullable: { list: false, items: false } }),
+  }),
+})
+
+// ❌ Wrong - Missing nullability causes TypeScript errors
+const BadType = builder.simpleObject('BadType', {
+  fields: (t) => ({
+    name: t.string(), // Missing nullable: false
+    list: t.field({ type: [SomeType] }), // Missing nullable configuration
+  }),
+})
+```
+
+#### After Adding New GraphQL Schema
+
+When you add new GraphQL queries, mutations, or schema changes:
+
+1. **Run codegen to generate types**:
+
+   ```bash
+   cd /workspaces/george-ai/apps/chat-web && pnpm codegen
+   ```
+
+2. **This automatically creates**:
+   - TypeScript types for your schema
+   - Type-safe GraphQL functions
+   - Proper IDE autocomplete and error checking
+
+- Always define a GraphQL Fragment for components and rely on codegen instead of defining your own interfaces for entities. We did it for example in library/files/file-caption-card.tsx.

@@ -1,17 +1,33 @@
+import fs from 'fs'
+import path from 'path'
+
+import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
+import { getFileDir } from '@george-ai/file-management'
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { deleteFile } from '../../file-upload'
+import { findCacheValue, getFieldValue } from '../../domain'
 import { prisma } from '../../prisma'
-import { findCacheValue, getFieldValue } from '../../utils/field-value-resolver'
-import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
-import { canAccessListOrThrow } from '../ai-list/utils'
 import { builder } from '../builder'
 
-import './process-file'
-import './read-file'
 import './file-chunks'
+import './queries'
+import './mutations'
 
-// Type for field value results
+import {
+  getExistingExtractionMarkdownFileNames,
+  getLatestExtractionMarkdownFileNames,
+} from '../../domain/file/markdown'
+
+console.log('Setting up: AiLibraryFile')
+
+const MarkdownResult = builder.objectRef<{ fileName: string; content: string }>('MarkdownResult').implement({
+  fields: (t) => ({
+    fileName: t.exposeString('fileName', { nullable: false }),
+    content: t.exposeString('content', { nullable: false }),
+  }),
+})
+
+//TODO: Move to ai-list and remove it here from the file
 const FieldValueResult = builder
   .objectRef<{
     fieldId: string
@@ -30,38 +46,14 @@ const FieldValueResult = builder
     }),
   })
 
-console.log('Setting up: AiLibraryFile')
+const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('SourceFileLink').implement({
+  fields: (t) => ({
+    fileName: t.exposeString('fileName', { nullable: false }),
+    url: t.exposeString('url', { nullable: false }),
+  }),
+})
 
-async function dropFileById(fileId: string) {
-  const file = await prisma.aiLibraryFile.findUnique({
-    where: { id: fileId },
-  })
-  if (!file) {
-    throw new Error(`File not found: ${fileId}`)
-  }
-
-  let dropError: string | null = null
-
-  try {
-    await deleteFile(file.id, file.libraryId)
-    return file
-  } catch (error) {
-    dropError = error instanceof Error ? error.message : String(error)
-    console.error(`Error dropping file ${fileId}:`, dropError)
-    try {
-      // goes possibly wrong if file record was already deleted above
-      await prisma.aiLibraryFile.update({
-        where: { id: file.id },
-        data: { dropError },
-      })
-    } catch (updateError) {
-      console.error(`Error updating file drop error for ${fileId}:`, updateError)
-    }
-    return { ...file, dropError }
-  }
-}
-
-export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
+builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -72,23 +64,39 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     docPath: t.exposeString('docPath', { nullable: true }),
     mimeType: t.exposeString('mimeType', { nullable: false }),
     size: t.exposeInt('size', { nullable: true }),
-    chunks: t.exposeInt('chunks', { nullable: true }),
     uploadedAt: t.expose('uploadedAt', { type: 'DateTime', nullable: true }),
-    processedAt: t.expose('processedAt', {
-      type: 'DateTime',
-      nullable: true,
-    }),
-    processingStartedAt: t.expose('processingStartedAt', { type: 'DateTime', nullable: true }),
-    processingEndedAt: t.expose('processingEndedAt', { type: 'DateTime', nullable: true }),
-    processingErrorAt: t.expose('processingErrorAt', { type: 'DateTime', nullable: true }),
-    processingErrorMessage: t.exposeString('processingErrorMessage', { nullable: true }),
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
+    library: t.relation('library', { nullable: false }),
     dropError: t.exposeString('dropError', { nullable: true }),
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
+    sourceFiles: t.field({
+      type: [SourceFileLink],
+      nullable: { list: false, items: false },
+      resolve: async (file) => {
+        const dir = getFileDir({ libraryId: file.libraryId, fileId: file.id })
+        if (!fs.existsSync(dir)) {
+          return []
+        }
+        const files = await fs.promises.readdir(dir)
+        return files.map((fileName) => ({
+          fileName,
+          url: process.env.BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileName}`,
+        }))
+      },
+    }),
+    supportedExtractionMethods: t.field({
+      type: ['String'],
+      nullable: { list: false, items: false },
+      resolve: (file) => {
+        const supportedMethods = getAvailableMethodsForMimeType(file.mimeType)
+        return supportedMethods.map((method) => method.name)
+      },
+    }),
+    crawler: t.relation('crawledByCrawler', { nullable: true }),
     lastUpdate: t.prismaField({
       type: 'AiLibraryUpdate',
       nullable: true,
@@ -100,18 +108,206 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
         })
       },
     }),
+    // TODO: Add status type for file status incl. extraction/embedding/file status
+    status: t.field({
+      type: 'String',
+      nullable: false,
+      resolve: (file) => {
+        if (file.archivedAt) {
+          return 'archived'
+        }
+        if (file.uploadedAt) {
+          return 'uploaded'
+        }
+        if (file.dropError) {
+          return 'error'
+        }
+        return 'pending'
+      },
+    }),
+
+    taskCount: t.relationCount('contentExtractionTasks', { nullable: false }),
+    processingStatus: t.field({
+      type: 'ProcessingStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { createdAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        // Check in order of specificity (most specific first)
+        if (lastTask.processingTimeout) return 'timedOut'
+        if (lastTask.embeddingFailedAt) return 'embeddingFailed'
+        if (lastTask.embeddingFinishedAt) return 'embeddingFinished'
+        if (lastTask.embeddingStartedAt) return 'embedding'
+        if (lastTask.extractionFailedAt) return 'extractionFailed'
+        if (lastTask.extractionFinishedAt) return 'extractionFinished'
+        if (lastTask.extractionStartedAt) return 'extracting'
+        if (lastTask.processingFailedAt) return 'validationFailed'
+        if (lastTask.processingFinishedAt) return 'completed'
+        if (lastTask.processingStartedAt) return 'validating'
+        return 'pending'
+      },
+    }),
+
+    extractionStatus: t.field({
+      type: 'ExtractionStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { extractionStartedAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        if (lastTask.extractionFailedAt) return 'failed'
+        if (lastTask.extractionFinishedAt) return 'completed'
+        if (lastTask.extractionStartedAt) return 'running'
+        return 'pending'
+      },
+    }),
+
+    lastExtraction: t.prismaField({
+      type: 'AiContentProcessingTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiContentProcessingTask.findFirst({
+          ...query,
+          where: { fileId: file.id, extractionStartedAt: { not: null } },
+          orderBy: { extractionStartedAt: 'desc' },
+        })
+      },
+    }),
+
+    lastSuccessfulExtraction: t.prismaField({
+      type: 'AiContentProcessingTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiContentProcessingTask.findFirst({
+          ...query,
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+          orderBy: { extractionFinishedAt: 'desc' },
+        })
+      },
+    }),
+
+    embeddingStatus: t.field({
+      type: 'EmbeddingStatus',
+      nullable: false,
+      resolve: async (file) => {
+        const lastTask = await prisma.aiContentProcessingTask.findFirst({
+          where: { fileId: file.id },
+          orderBy: { embeddingStartedAt: 'desc' },
+        })
+        if (!lastTask) {
+          return 'none'
+        }
+        if (lastTask.embeddingFailedAt) return 'failed'
+        if (lastTask.embeddingFinishedAt) return 'completed'
+        if (lastTask.embeddingStartedAt) return 'running'
+        return 'pending'
+      },
+    }),
+
+    lastEmbedding: t.prismaField({
+      type: 'AiContentProcessingTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiContentProcessingTask.findFirst({
+          ...query,
+          where: { fileId: file.id, embeddingStartedAt: { not: null } },
+          orderBy: { embeddingStartedAt: 'desc' },
+        })
+      },
+    }),
+
+    lastSuccessfulEmbedding: t.prismaField({
+      type: 'AiContentProcessingTask',
+      nullable: true,
+      resolve: async (query, file) => {
+        return await prisma.aiContentProcessingTask.findFirst({
+          ...query,
+          where: { fileId: file.id, embeddingFinishedAt: { not: null } },
+          orderBy: { embeddingFinishedAt: 'desc' },
+        })
+      },
+    }),
+
+    isLegacyFile: t.field({
+      type: 'Boolean',
+      nullable: false,
+      resolve: async (file) => {
+        // A legacy file is one that does not have any content extraction tasks
+        const count = await prisma.aiContentProcessingTask.count({
+          where: { fileId: file.id, extractionFinishedAt: { not: null } },
+        })
+
+        if (count > 0) {
+          return false
+        }
+
+        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
+        const allFiles = await fs.promises.readdir(fileDir)
+        const allMarkdownFiles = allFiles.filter((file) => file.endsWith('.md'))
+        if (allMarkdownFiles.some((file) => file.startsWith('converted'))) {
+          return true
+        }
+
+        return false
+      },
+    }),
+    availableExtractionMarkdownFileNames: t.field({
+      type: ['String'],
+      nullable: false,
+      resolve: async (file) => {
+        return getExistingExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
+      },
+    }),
+    latestExtractionMarkdownFileNames: t.field({
+      type: ['String'],
+      nullable: { list: false, items: false },
+      resolve: async (file) => {
+        return await getLatestExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
+      },
+    }),
+    markdown: t.field({
+      type: MarkdownResult,
+      nullable: true,
+      args: {
+        markdownFileName: t.arg.string({ required: false }),
+      },
+      resolve: async (file, { markdownFileName }) => {
+        if (!markdownFileName) {
+          const latestFileNames = await getLatestExtractionMarkdownFileNames({
+            fileId: file.id,
+            libraryId: file.libraryId,
+          })
+          if (latestFileNames.length === 0) {
+            return null
+          }
+          markdownFileName = latestFileNames[0]
+        }
+        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
+        const filePath = path.resolve(fileDir, markdownFileName)
+        const content = await fs.promises.readFile(filePath, 'utf-8')
+        return { fileName: markdownFileName, content }
+      },
+    }),
+
     cache: t.relation('cache', { nullable: false }),
-    fieldValues: t.withAuth({ isLoggedIn: true }).field({
+    //TODO: Move it to aiList and remove it here from the file
+    fieldValues: t.field({
       type: [FieldValueResult],
       nullable: { list: false, items: false },
       args: {
         fieldIds: t.arg.stringList({ required: true }),
         language: t.arg.string({ required: true }),
       },
-      resolve: async (file, { fieldIds, language }, context) => {
-        // Verify user has access to the file's library
-        await canAccessLibraryOrThrow(context, file.libraryId)
-
+      resolve: async (file, { fieldIds, language }) => {
         // Get all field definitions with their associated lists
         const fields = await prisma.aiListField.findMany({
           where: { id: { in: fieldIds } },
@@ -121,11 +317,6 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
             },
           },
         })
-
-        // Check authorization for each field's list
-        for (const field of fields) {
-          canAccessListOrThrow(field.list, context.session.user)
-        }
 
         // Get file with required relations
         const fileWithRelations = await prisma.aiLibraryFile.findUnique({
@@ -217,224 +408,3 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     }),
   }),
 })
-
-export const AiLibraryFileInput = builder.inputType('AiLibraryFileInput', {
-  fields: (t) => ({
-    name: t.string({ required: true }),
-    originUri: t.string({ required: true }),
-    mimeType: t.string({ required: true }),
-    libraryId: t.string({ required: true }),
-  }),
-})
-
-builder.mutationField('prepareFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    args: {
-      data: t.arg({ type: AiLibraryFileInput, required: true }),
-    },
-    resolve: async (query, _source, { data }) => {
-      const library = await prisma.aiLibrary.findUnique({
-        where: { id: data.libraryId },
-      })
-      if (!library) {
-        throw new Error(`Library not found: ${data.libraryId}`)
-      }
-      return await prisma.aiLibraryFile.create({
-        ...query,
-        data,
-      })
-    },
-  }),
-)
-
-const LibraryFileQueryResult = builder
-  .objectRef<{ libraryId: string; take: number; skip: number; showArchived?: boolean }>('AiLibraryFileQueryResult')
-  .implement({
-    description: 'Query result for AI library files',
-    fields: (t) => ({
-      libraryId: t.exposeString('libraryId', { nullable: false }),
-      library: t.withAuth({ isLoggedIn: true }).prismaField({
-        type: 'AiLibrary',
-        nullable: false,
-        resolve: async (query, root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-          return prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
-        },
-      }),
-      take: t.exposeInt('take', { nullable: false }),
-      skip: t.exposeInt('skip', { nullable: false }),
-      showArchived: t.exposeBoolean('showArchived', { nullable: true }),
-      count: t.withAuth({ isLoggedIn: true }).field({
-        type: 'Int',
-        nullable: false,
-        resolve: async (root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-          console.log('Counting AI library files for library:', root.libraryId)
-          return prisma.aiLibraryFile.count({
-            where: {
-              libraryId: root.libraryId,
-              ...(root.showArchived ? {} : { archivedAt: null }),
-            },
-          })
-        },
-      }),
-      archivedCount: t.withAuth({ isLoggedIn: true }).field({
-        type: 'Int',
-        nullable: false,
-        resolve: async (root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-          console.log('Counting archived AI library files for library:', root.libraryId)
-          return prisma.aiLibraryFile.count({
-            where: {
-              libraryId: root.libraryId,
-              archivedAt: { not: null }, // Only archived files
-            },
-          })
-        },
-      }),
-      files: t.withAuth({ isLoggedIn: true }).prismaField({
-        type: ['AiLibraryFile'],
-        nullable: false,
-        resolve: async (query, root, args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-          console.log('Fetching AI library files for library:', query)
-          return prisma.aiLibraryFile.findMany({
-            ...query,
-            where: {
-              libraryId: root.libraryId,
-              ...(root.showArchived ? {} : { archivedAt: null }),
-            },
-            orderBy: { createdAt: 'desc' },
-            take: root.take ?? 10,
-            skip: root.skip ?? 0,
-          })
-        },
-      }),
-    }),
-  })
-
-builder.queryField('aiLibraryFile', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      libraryId: t.arg.string({ required: true }),
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _parent, { libraryId, fileId }) => {
-      // TODO: Check access rights
-      const file = await prisma.aiLibraryFile.findFirstOrThrow({ where: { libraryId, id: fileId } })
-      return file
-    },
-  }),
-)
-
-builder.queryField('aiLibraryFiles', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: LibraryFileQueryResult,
-    nullable: false,
-    args: {
-      libraryId: t.arg.string({ required: true }),
-      skip: t.arg.int({ required: true, defaultValue: 0 }),
-      take: t.arg.int({ required: true, defaultValue: 20 }),
-      showArchived: t.arg.boolean({ required: false, defaultValue: false }),
-    },
-    resolve: (_root, args) => {
-      return {
-        libraryId: args.libraryId,
-        take: args.take ?? 10,
-        skip: args.skip ?? 0,
-        showArchived: args.showArchived ?? false,
-      }
-    },
-  }),
-)
-
-builder.mutationField('dropFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { fileId }) => {
-      return await dropFileById(fileId)
-    },
-  }),
-)
-
-builder.mutationField('dropFiles', (t) =>
-  t.prismaField({
-    type: ['AiLibraryFile'],
-    nullable: { list: false, items: false },
-    args: {
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { libraryId }) => {
-      const files = await prisma.aiLibraryFile.findMany({
-        ...query,
-        where: { libraryId },
-      })
-
-      const results = []
-
-      for (const file of files) {
-        const droppedFile = await dropFileById(file.id)
-        results.push(droppedFile)
-      }
-      return results
-    },
-  }),
-)
-
-builder.mutationField('cancelFileUpload', (t) =>
-  t.field({
-    type: 'Boolean',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (_source, { fileId, libraryId }) => {
-      await deleteFile(fileId, libraryId)
-      return true
-    },
-  }),
-)

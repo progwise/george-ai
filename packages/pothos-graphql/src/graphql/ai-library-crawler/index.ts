@@ -1,17 +1,22 @@
 import { GraphQLError } from 'graphql'
 
-import { stopCronJob, upsertCronJob } from '../../cron-jobs'
-import { deleteFile } from '../../file-upload'
+import { deleteFile } from '../../domain'
+import { canAccessLibraryOrThrow, runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
-import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
-import { runCrawler, stopCrawler } from './run-crawler'
 
-import './sharepoint'
+import '../../domain/crawler/sharepoint'
 
-import { removeSharePointCredentials, updateCrawlerSharePointCredentials } from './sharepoint-credentials-manager'
-import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
+import {
+  removeSharePointCredentials,
+  updateCrawlerSharePointCredentials,
+} from '../../domain/crawler/sharepoint-credentials-manager'
+import {
+  ensureCrawlerSmbShareMount,
+  ensureCrawlerSmbShareUnmount,
+  updateCrawlerSmbMount,
+} from '../../domain/crawler/smb-mount-manager'
 
 console.log('Setting up: AiLibraryCrawler')
 
@@ -48,7 +53,7 @@ const UpdateStats = builder.simpleObject('UpdateStats', {
   }),
 })
 
-const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
+builder.prismaObject('AiLibraryCrawlerRun', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     crawlerId: t.exposeID('crawlerId', { nullable: false }),
@@ -156,10 +161,10 @@ builder.prismaObject('AiLibraryCrawler', {
     maxFileSize: t.exposeInt('maxFileSize', { nullable: true }),
     minFileSize: t.exposeInt('minFileSize', { nullable: true }),
     allowedMimeTypes: t.exposeString('allowedMimeTypes', { nullable: true }),
-    lastRun: t.field({
-      type: AiLibraryCrawlerRun,
+    lastRun: t.prismaField({
+      type: 'AiLibraryCrawlerRun',
       nullable: true,
-      resolve: (crawler) =>
+      resolve: (_query, crawler) =>
         prisma.aiLibraryCrawlerRun.findFirst({
           where: { crawlerId: crawler.id },
           take: 1,
@@ -191,14 +196,14 @@ builder.prismaObject('AiLibraryCrawler', {
     cronJob: t.relation('cronJob'),
     filesCount: t.relationCount('files', { nullable: false }),
     runCount: t.relationCount('runs', { nullable: false }),
-    runs: t.field({
-      type: [AiLibraryCrawlerRun],
+    runs: t.prismaField({
+      type: ['AiLibraryCrawlerRun'],
       args: {
         take: t.arg.int({ defaultValue: 10 }),
         skip: t.arg.int({ defaultValue: 0 }),
       },
       nullable: false,
-      resolve: (crawler, args) =>
+      resolve: (_query, crawler, args) =>
         prisma.aiLibraryCrawlerRun.findMany({
           where: { crawlerId: crawler.id },
           take: args.take,
@@ -210,31 +215,33 @@ builder.prismaObject('AiLibraryCrawler', {
 })
 
 builder.queryField('aiLibraryCrawler', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
     nullable: false,
     args: {
       crawlerId: t.arg.string({ required: true }),
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { crawlerId, libraryId }) =>
-      prisma.aiLibraryCrawler.findFirstOrThrow({
+    resolve: async (query, _source, { crawlerId, libraryId }, context) => {
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      return prisma.aiLibraryCrawler.findFirstOrThrow({
         ...query,
         where: { id: crawlerId, libraryId },
-      }),
+      })
+    },
   }),
 )
 
 builder.queryField('aiLibraryCrawlerRun', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
-    type: AiLibraryCrawlerRun,
+    type: 'AiLibraryCrawlerRun',
     nullable: false,
     args: {
       crawlerRunId: t.arg.string({ required: true }),
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { crawlerRunId, libraryId }, context) => {
-      await canAccessLibraryOrThrow(context, libraryId)
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
       return await prisma.aiLibraryCrawlerRun.findFirstOrThrow({
         ...query,
         where: { id: crawlerRunId, crawler: { libraryId } },
@@ -244,14 +251,16 @@ builder.queryField('aiLibraryCrawlerRun', (t) =>
 )
 
 builder.mutationField('createAiLibraryCrawler', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
     args: {
       libraryId: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryCrawlerInput, required: true }),
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
-    resolve: async (_query, _source, { libraryId, data, credentials }) => {
+    resolve: async (_query, _source, { libraryId, data, credentials }, context) => {
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+
       const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
 
       const crawler = await prisma.aiLibraryCrawler.create({
@@ -298,23 +307,21 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 )
 
 builder.mutationField('updateAiLibraryCrawler', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
     args: {
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryCrawlerInput, required: true }),
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
-    resolve: async (_query, _source, { id, data, credentials }) => {
+    resolve: async (query, _source, { id, data, credentials }, context) => {
       const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
-      const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
+      const existingCrawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
+        ...query,
         where: { id },
-        include: { cronJob: true },
+        include: { ...query.include, cronJob: true },
       })
-
-      if (!existingCrawler) {
-        throw new GraphQLError(`Crawler not found`)
-      }
+      await canAccessLibraryOrThrow(existingCrawler?.libraryId, context.session.user.id)
 
       if (data.uriType === 'http') {
         await ensureCrawlerSmbShareUnmount({ crawlerId: id })
@@ -367,7 +374,7 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
     type: 'String',
     nullable: false,
     args: {
-      crawlerId: t.arg.string(),
+      crawlerId: t.arg.string({ required: true }),
     },
     resolve: async (_source, { crawlerId }, context) => {
       const run = await runCrawler({ crawlerId, userId: context.session.user.id })
@@ -391,16 +398,17 @@ builder.mutationField('stopAiLibraryCrawler', (t) =>
 )
 
 builder.mutationField('deleteAiLibraryCrawler', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { id }) => {
+    resolve: async (_query, _source, { id }, context) => {
       const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
         where: { id },
         include: { cronJob: true, files: true },
       })
+      await canAccessLibraryOrThrow(crawler.libraryId, context.session.user.id)
 
       await Promise.all(crawler.files.map((file) => deleteFile(file.id, file.libraryId)))
       await prisma.aiLibraryCrawler.delete({ where: { id } })

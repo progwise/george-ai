@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@george-ai/package-configs": "workspace:*",
     "typescript": "^5.7.2"
   }
 }

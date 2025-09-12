@@ -1,6 +1,6 @@
+import { canAccessListOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { canAccessListOrThrow } from './utils'
 
 console.log('Setting up: AiList queries')
 
@@ -34,18 +34,8 @@ builder.queryField('aiList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      // ToDo: refactor
-      const listWithParticipants = await prisma.aiList.findFirstOrThrow({
-        ...query,
-        include: { participants: true },
-        where: { id },
-      })
-      canAccessListOrThrow(listWithParticipants, context.session.user)
-
-      const list = await prisma.aiList.findFirstOrThrow({
-        ...query,
-        where: { id },
-      })
+      const list = await prisma.aiList.findFirstOrThrow({ ...query, include: { participants: true }, where: { id } })
+      await canAccessListOrThrow(id, context.session.user.id)
       return list
     },
   }),
@@ -69,16 +59,14 @@ const ListFilesQueryResult = builder
       orderBy: t.exposeString('orderBy', { nullable: true }),
       orderDirection: t.exposeString('orderDirection', { nullable: true }),
       showArchived: t.exposeBoolean('showArchived', { nullable: true }),
-      count: t.withAuth({ isLoggedIn: true }).field({
+      count: t.field({
         type: 'Int',
         nullable: false,
-        resolve: async (root, _args, context) => {
+        resolve: async (root) => {
           const list = await prisma.aiList.findFirstOrThrow({
             where: { id: root.listId },
-            include: { participants: true, sources: true },
+            include: { sources: true },
           })
-          canAccessListOrThrow(list, context.session.user)
-
           const libraryIds = list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null)
           if (libraryIds.length === 0) return 0
 
@@ -90,15 +78,14 @@ const ListFilesQueryResult = builder
           })
         },
       }),
-      files: t.withAuth({ isLoggedIn: true }).prismaField({
+      files: t.prismaField({
         type: ['AiLibraryFile'],
         nullable: false,
-        resolve: async (query, root, _args, context) => {
+        resolve: async (query, root) => {
           const list = await prisma.aiList.findFirstOrThrow({
             where: { id: root.listId },
-            include: { participants: true, sources: true, fields: true },
+            include: { sources: true, fields: true },
           })
-          canAccessListOrThrow(list, context.session.user)
 
           const libraryIds = list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null)
           if (libraryIds.length === 0) return []
@@ -180,7 +167,9 @@ builder.queryField('aiListFiles', (t) =>
       orderDirection: t.arg.string({ required: false }),
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
-    resolve: (_root, args) => {
+    resolve: async (_root, args, context) => {
+      await canAccessListOrThrow(args.listId, context.session.user.id)
+
       return {
         listId: args.listId,
         take: args.take ?? 20,
@@ -202,11 +191,7 @@ builder.queryField('aiListEnrichmentQueue', (t) =>
       status: t.arg.string({ required: false }),
     },
     resolve: async (query, _source, { listId, status }, context) => {
-      const list = await prisma.aiList.findFirstOrThrow({
-        where: { id: listId },
-        include: { participants: true },
-      })
-      canAccessListOrThrow(list, context.session.user)
+      await canAccessListOrThrow(listId, context.session.user.id)
 
       return prisma.aiListEnrichmentQueue.findMany({
         ...query,

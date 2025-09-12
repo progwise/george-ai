@@ -64,3 +64,13 @@
 @utility container {
   @apply mx-auto px-1;
 }
+
+dl.properties {
+  @apply border-base-300 bg-base-200 grid grid-cols-[min-content_min-content] gap-x-2 rounded-lg border p-2;
+}
+dl.properties dt {
+  @apply text-base-content/50 ml-0.5 text-nowrap font-medium italic;
+}
+dl.properties dd {
+  @apply text-base-content/50 mb-1 ml-2;
+}

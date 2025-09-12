@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 
 import {
+  canAccessListOrThrow,
   subscribeEnrichmentQueueUpdates,
   unsubscribeEnrichmentQueueUpdates,
-} from '@george-ai/pothos-graphql/src/enrichment-queue-subscription'
-import { prisma } from '@george-ai/pothos-graphql/src/prisma'
+} from '@george-ai/pothos-graphql'
 
 import { getUserContext } from './getUserContext'
 
@@ -50,25 +50,10 @@ export const enrichmentQueueSSE = async (request: Request, response: Response) =
 
   // Authorization check - verify user has access to the list
   try {
-    const list = await prisma.aiList.findFirst({
-      where: { id: listId },
-      include: { participants: true },
-    })
-
-    if (!list) {
-      response.status(404).send('List not found')
-      return
-    }
-
-    const hasAccess = list.ownerId === user.id || list.participants.some((p) => p.userId === user.id)
-
-    if (!hasAccess) {
-      response.status(403).send('Forbidden: Access denied to list')
-      return
-    }
+    await canAccessListOrThrow(listId, user.id)
   } catch (error) {
     console.error('SSE authorization error:', error)
-    response.status(500).send('Internal server error')
+    response.status(403).send('Forbidden: Access denied to list')
     return
   }
 

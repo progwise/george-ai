@@ -13,7 +13,7 @@ interface ChunkMetadata {
  * This splits a markdown file into multiple chunks based on the semantics of the markdown content.
  * It prioritizes splitting at heading boundaries to maintain context and tracks the heading hierarchy.
  */
-export const splitMarkdown = (markdownFilePath: string): Document<ChunkMetadata>[] => {
+export const splitMarkdownFile = (markdownFilePath: string): Document<ChunkMetadata>[] => {
   const content = fs.readFileSync(markdownFilePath, 'utf-8')
 
   // Split content into sections based on headings

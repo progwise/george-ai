@@ -208,9 +208,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
               <Select
                 label={t('lists.fields.aiModel')}
                 name="languageModel"
-                options={availableModels.map((model) => ({ id: model.model, name: model.name }))}
+                options={availableModels.map((model) => ({ id: model, name: model }))}
                 value={availableModels
-                  .map((model) => ({ id: model.model, name: model.name }))
+                  .map((model) => ({ id: model, name: model }))
                   .find((model) => model.id === editField?.languageModel)}
                 placeholder={t('lists.fields.selectAiModel')}
                 schema={schema}

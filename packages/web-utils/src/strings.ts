@@ -27,3 +27,23 @@ export const formatFileSize = (bytes: number | null | undefined) => {
   const mb = bytes / (1024 * 1024)
   return mb.toString()
 }
+
+export const checkLineRepetition = (lines: string[], minConsecutiveRepeats: number = 5): boolean => {
+  if (lines.length < 20) return false // Need at least 20 lines to check for repetition
+
+  for (let patternSize = 1; patternSize <= 30; patternSize++) {
+    // Need at least minConsecutiveRepeats * patternSize lines to detect repetition
+    const requiredLines = minConsecutiveRepeats * patternSize
+    if (lines.length < requiredLines) continue
+
+    const slices = Array.from({ length: minConsecutiveRepeats }, (_, i) =>
+      lines.slice(lines.length - patternSize * (i + 1), lines.length - patternSize * (i + 1) + patternSize).join('\n'),
+    )
+
+    const lastPattern = slices[0]
+    if (slices.every((s) => s === lastPattern)) {
+      return true
+    }
+  }
+  return false
+}

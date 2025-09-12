@@ -140,7 +140,6 @@ const getUserFilter = (filter?: string, statusFilter?: string) => {
         throw new Error(`Unknown status filter: ${statusFilter}`)
     }
   }
-  console.log('User filter:', JSON.stringify(whereCondition))
   return whereCondition
 }
 

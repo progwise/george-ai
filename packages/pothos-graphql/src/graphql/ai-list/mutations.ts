@@ -1,6 +1,6 @@
+import { canAccessListOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { canAccessListOrThrow } from './utils'
 
 console.log('Setting up: AiList mutations')
 
@@ -43,7 +43,7 @@ builder.mutationField('updateList', (t) =>
       if (!existingList) {
         throw new Error(`List for current user with id ${id} not found`)
       }
-      canAccessListOrThrow(existingList, session.user)
+      await canAccessListOrThrow(existingList.id, session.user.id)
       const updatedList = await prisma.aiList.update({ ...query, data, where: { id } })
       return updatedList
     },
@@ -51,25 +51,18 @@ builder.mutationField('updateList', (t) =>
 )
 
 builder.mutationField('deleteList', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiList',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'Boolean',
     nullable: false,
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { id }, { session }) => {
-      const existingList = await prisma.aiList.findFirst({
-        ...query,
-        include: { participants: true },
-        where: { ownerId: session.user.id, id },
-      })
-      if (!existingList) {
-        throw new Error(`List for current user with id ${id} not found`)
-      }
-      canAccessListOrThrow(existingList, session.user)
+    resolve: async (_source, { id }, { session }) => {
+      const existingList = canAccessListOrThrow(id, session.user.id)
+
       await prisma.aiListSource.deleteMany({ where: { listId: id } })
       await prisma.aiList.delete({ where: { id } })
-      return existingList
+      return !!existingList
     },
   }),
 )
@@ -171,14 +164,10 @@ builder.mutationField('addListSource', (t) =>
       data: t.arg({ type: AiListSourceInput, required: true }),
     },
     resolve: async (query, _source, { listId, data }, { session }) => {
-      const existingList = await prisma.aiList.findFirst({
-        include: { participants: true },
+      const existingList = await prisma.aiList.findFirstOrThrow({
         where: { id: listId },
       })
-      if (!existingList) {
-        throw new Error(`List with id ${listId} not found`)
-      }
-      canAccessListOrThrow(existingList, session.user)
+      canAccessListOrThrow(existingList.id, session.user.id)
 
       // Check if library exists and user has access
       const library = await prisma.aiLibrary.findFirst({
@@ -268,15 +257,11 @@ builder.mutationField('removeListSource', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, { session }) => {
-      const existingSource = await prisma.aiListSource.findFirst({
+      const existingSource = await prisma.aiListSource.findFirstOrThrow({
         ...query,
         where: { id },
-        include: { list: { include: { participants: true } } },
       })
-      if (!existingSource) {
-        throw new Error(`List source with id ${id} not found`)
-      }
-      canAccessListOrThrow(existingSource.list, session.user)
+      await canAccessListOrThrow(existingSource.listId, session.user.id)
 
       await prisma.aiListSource.delete({ where: { id } })
       return existingSource
@@ -309,14 +294,10 @@ builder.mutationField('addListField', (t) =>
       data: t.arg({ type: AiListFieldInput, required: true }),
     },
     resolve: async (query, _source, { listId, data }, { session }) => {
-      const existingList = await prisma.aiList.findFirst({
-        include: { participants: true },
+      const existingList = await prisma.aiList.findFirstOrThrow({
         where: { id: listId },
       })
-      if (!existingList) {
-        throw new Error(`List with id ${listId} not found`)
-      }
-      canAccessListOrThrow(existingList, session.user)
+      await canAccessListOrThrow(existingList.id, session.user.id)
 
       // Validate field type
       const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
@@ -366,14 +347,10 @@ builder.mutationField('updateListField', (t) =>
       data: t.arg({ type: AiListFieldInput, required: true }),
     },
     resolve: async (query, _source, { id, data }, { session }) => {
-      const existingField = await prisma.aiListField.findFirst({
+      const existingField = await prisma.aiListField.findFirstOrThrow({
         where: { id },
-        include: { list: { include: { participants: true } } },
       })
-      if (!existingField) {
-        throw new Error(`List field with id ${id} not found`)
-      }
-      canAccessListOrThrow(existingField.list, session.user)
+      await canAccessListOrThrow(existingField.listId, session.user.id)
 
       // Validate field type if changed
       const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
@@ -428,15 +405,11 @@ builder.mutationField('removeListField', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, { session }) => {
-      const existingField = await prisma.aiListField.findFirst({
+      const existingField = await prisma.aiListField.findFirstOrThrow({
         ...query,
         where: { id },
-        include: { list: { include: { participants: true } } },
       })
-      if (!existingField) {
-        throw new Error(`List field with id ${id} not found`)
-      }
-      canAccessListOrThrow(existingField.list, session.user)
+      await canAccessListOrThrow(existingField.listId, session.user.id)
 
       await prisma.aiListField.delete({ where: { id } })
       return existingField
@@ -471,12 +444,11 @@ builder.mutationField('computeFieldValue', (t) =>
         // Get the field
         const field = await prisma.aiListField.findFirst({
           where: { id: fieldId },
-          include: { list: { include: { participants: true } } },
         })
         if (!field) {
           throw new Error(`Field with id ${fieldId} not found`)
         }
-        canAccessListOrThrow(field.list, session.user)
+        await canAccessListOrThrow(field.listId, session.user.id)
 
         // Only compute for LLM fields
         if (field.sourceType !== 'llm_computed') {
@@ -484,28 +456,13 @@ builder.mutationField('computeFieldValue', (t) =>
         }
 
         // Get the file
-        const file = await prisma.aiLibraryFile.findFirst({
+        const file = await prisma.aiLibraryFile.findFirstOrThrow({
           where: { id: fileId },
           include: { library: true },
         })
-        if (!file) {
-          throw new Error(`File with id ${fileId} not found`)
-        }
 
         // Check access to the library
-        const hasAccess = await prisma.aiLibrary.findFirst({
-          where: {
-            id: file.libraryId,
-            OR: [
-              { ownerId: session.user.id },
-              { isPublic: true },
-              { participants: { some: { userId: session.user.id } } },
-            ],
-          },
-        })
-        if (!hasAccess) {
-          throw new Error('Access denied to file library')
-        }
+        await canAccessListOrThrow(field.listId, session.user.id)
 
         // TODO: Read the converted.md file content and use LLM to compute the value
         // For now, return a placeholder
@@ -579,18 +536,14 @@ builder.mutationField('startListEnrichment', (t) =>
     resolve: async (_source, { listId, fieldId }, { session }) => {
       console.log('🔍 Starting enrichment for listId:', listId, 'fieldId:', fieldId)
       try {
-        const list = await prisma.aiList.findFirst({
+        const list = await prisma.aiList.findFirstOrThrow({
           where: { id: listId },
           include: {
-            participants: true,
             fields: { where: { sourceType: 'llm_computed', id: fieldId } },
             sources: { include: { library: { include: { files: true } } } },
           },
         })
-        if (!list) {
-          throw new Error(`List with id ${listId} not found`)
-        }
-        canAccessListOrThrow(list, session.user)
+        await canAccessListOrThrow(list.id, session.user.id)
 
         // Get the specific field to enrich
         const fieldToEnrich = list.fields.find((f) => f.id === fieldId)
@@ -676,18 +629,14 @@ builder.mutationField('startSingleEnrichment', (t) =>
     resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
       console.log('🔍 Starting single enrichment for listId:', listId, 'fieldId:', fieldId, 'fileId:', fileId)
       try {
-        const list = await prisma.aiList.findFirst({
+        const list = await prisma.aiList.findFirstOrThrow({
           where: { id: listId },
           include: {
-            participants: true,
             fields: { where: { sourceType: 'llm_computed', id: fieldId } },
             sources: { include: { library: { include: { files: { where: { id: fileId } } } } } },
           },
         })
-        if (!list) {
-          throw new Error(`List with id ${listId} not found`)
-        }
-        canAccessListOrThrow(list, session.user)
+        await canAccessListOrThrow(list.id, session.user.id)
 
         // Get the specific field to enrich
         const fieldToEnrich = list.fields.find((f) => f.id === fieldId)
@@ -759,14 +708,11 @@ builder.mutationField('stopListEnrichment', (t) =>
     },
     resolve: async (_source, { listId, fieldId }, { session }) => {
       try {
-        const list = await prisma.aiList.findFirst({
+        const list = await prisma.aiList.findFirstOrThrow({
           where: { id: listId },
           include: { participants: true },
         })
-        if (!list) {
-          throw new Error(`List with id ${listId} not found`)
-        }
-        canAccessListOrThrow(list, session.user)
+        await canAccessListOrThrow(list.id, session.user.id)
 
         // Remove pending queue items for the specific field
         const deletedItems = await prisma.aiListEnrichmentQueue.deleteMany({
@@ -818,17 +764,14 @@ builder.mutationField('cleanListEnrichments', (t) =>
     },
     resolve: async (_source, { listId, fieldId }, { session }) => {
       try {
-        const list = await prisma.aiList.findFirst({
+        const list = await prisma.aiList.findFirstOrThrow({
           where: { id: listId },
           include: {
             participants: true,
             fields: { where: { sourceType: 'llm_computed', id: fieldId } },
           },
         })
-        if (!list) {
-          throw new Error(`List with id ${listId} not found`)
-        }
-        canAccessListOrThrow(list, session.user)
+        await canAccessListOrThrow(list.id, session.user.id)
 
         // Get the specific field to clean
         const fieldToClean = list.fields.find((f) => f.id === fieldId)
@@ -882,14 +825,11 @@ builder.mutationField('removeFromEnrichmentQueue', (t) =>
     },
     resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
       try {
-        const list = await prisma.aiList.findFirst({
+        const list = await prisma.aiList.findFirstOrThrow({
           where: { id: listId },
           include: { participants: true },
         })
-        if (!list) {
-          throw new Error(`List with id ${listId} not found`)
-        }
-        canAccessListOrThrow(list, session.user)
+        await canAccessListOrThrow(list.id, session.user.id)
 
         // Remove queue items for the specific file+field combination that are pending or processing
         const deletedItems = await prisma.aiListEnrichmentQueue.deleteMany({

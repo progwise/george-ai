@@ -1,25 +1,36 @@
-import { getFileChunks } from '@george-ai/langchain-chat'
+import { getFileChunks, getSimilarChunks } from '@george-ai/langchain-chat'
 
-import { prisma } from '../../prisma'
-import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
+import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
+
+console.log('Setting up: AiLibraryFile FileChunks')
 
 interface FileChunkType {
   id: string
+  fileName: string | null
+  fileId: string | null
+  originUri: string | null
   text: string
   section: string
   headingPath: string
   chunkIndex: number
   subChunkIndex: number
+  distance?: number
+  points?: number
 }
-const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
+export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
+    fileName: t.exposeString('fileName', { nullable: true }),
+    fileId: t.exposeString('fileId', { nullable: true }),
+    originUri: t.exposeString('originUri', { nullable: true }),
     text: t.exposeString('text', { nullable: false }),
     section: t.exposeString('section', { nullable: false }),
     headingPath: t.exposeString('headingPath', { nullable: false }),
     chunkIndex: t.exposeInt('chunkIndex', { nullable: false }),
     subChunkIndex: t.exposeInt('subChunkIndex', { nullable: false }),
+    distance: t.exposeFloat('distance', { nullable: true }),
+    points: t.exposeInt('points', { nullable: true }),
   }),
 })
 
@@ -57,23 +68,62 @@ builder.queryField('aiFileChunks', (t) =>
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
       take: t.arg.int({ required: true }),
       skip: t.arg.int({ required: true }),
     },
-    resolve: async (_source, { fileId, libraryId, skip, take }, context) => {
-      canAccessLibraryOrThrow(context, libraryId)
-      const fileInfo = await prisma.aiLibraryFile.findFirstOrThrow({ where: { libraryId, id: fileId } })
-      const result = await getFileChunks({ libraryId, fileId, skip, take })
-      return {
-        libraryId,
+    resolve: async (_source, { fileId, skip, take }, context) => {
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      const result = await getFileChunks({
+        libraryId: file.libraryId,
         fileId,
-        fileName: fileInfo.name,
+        skip,
+        take,
+      })
+      return {
+        libraryId: file.libraryId,
+        fileId,
+        fileName: file.name,
         skip,
         take,
         count: result.count,
         chunks: result.chunks,
       }
+    },
+  }),
+)
+
+builder.queryField('aiSimilarFileChunks', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: [FileChunk],
+    nullable: { items: false, list: false },
+    args: {
+      fileId: t.arg.string({ required: true }),
+      term: t.arg.string({ required: false }),
+      hits: t.arg.int({ required: false, defaultValue: 20 }),
+    },
+    resolve: async (_source, { fileId, term, hits }, context) => {
+      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+
+      if (!file.library.embeddingModelName) {
+        throw new Error(
+          `Cannot perform similarity search. Library ${file.libraryId} does not have an embedding model configured.`,
+        )
+      }
+
+      if (!term || term.length === 0) {
+        return []
+      }
+
+      const result = await getSimilarChunks({
+        fileId,
+        libraryId: file.libraryId,
+        embeddingsModelName: file.library.embeddingModelName,
+        term,
+        hits: hits || undefined,
+      })
+
+      return result
     },
   }),
 )
