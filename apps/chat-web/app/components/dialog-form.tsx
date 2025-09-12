@@ -1,4 +1,4 @@
-import { RefObject } from 'react'
+import { RefObject, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -29,15 +29,17 @@ export const DialogForm = ({
   buttonOptions = 'cancelAndConfirm',
 }: DialogFormProps) => {
   const { t } = useTranslation()
-
+  const formRef = useRef<HTMLFormElement | null>(null)
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     onSubmit(formData)
+    event.currentTarget.reset()
   }
 
   const handleClose = () => {
     ref.current?.close()
+    formRef.current?.reset()
   }
 
   // using react portals prevents animation issues with the modal
@@ -46,7 +48,7 @@ export const DialogForm = ({
       <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
-        <form method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
+        <form ref={formRef} method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
           <div className="flex flex-1 flex-col gap-2">{children}</div>
           <div className="modal-action flex justify-end gap-2">
             {buttonOptions === 'onlyClose' ? (
