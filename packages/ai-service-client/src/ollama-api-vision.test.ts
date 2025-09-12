@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { type OllamaStreamChunk, getChatResponseStream } from './ollama-api'
-import { TestImages } from './testing/test-image-helper'
+import { getTestImage } from './testing/test-image-helper'
 
 const instances = process.env.OLLAMA_BASE_URL
   ? [{ url: process.env.OLLAMA_BASE_URL, apiKey: process.env.OLLAMA_API_KEY! }]
@@ -18,7 +18,7 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
     it.each(modelNames)(
       'should analyze a photo with model %s',
       async (modelName) => {
-        const catImage = TestImages.getImage('cat-medium.png')
+        const catImage = await getTestImage('cat-medium.png')
 
         const stream = await getChatResponseStream(instance, modelName, [
           { role: 'user', content: 'Describe this image', images: [catImage] },
@@ -69,7 +69,7 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       'should analyze a packaging image in parallel %s',
       async (model) => {
         // Load the pharmaceutical packaging image
-        const pharmaceuticalImage = TestImages.getImage('page-1.png')
+        const pharmaceuticalImage = await getTestImage('page-1.png')
 
         const runAnalysis = async (number: number) => {
           console.log(`Run ${number} - Analyzing pharmaceutical image with model ${model} on ${instance.url}`)
@@ -140,7 +140,7 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       it.each(modelNames)(
         `should analyze model %s`,
         async (model) => {
-          const image = TestImages.getImage(fileName)
+          const image = await getTestImage(fileName)
 
           const stream = await getChatResponseStream(instance, model, [
             { role: 'user', content: 'Describe this image', images: [image] },
@@ -185,8 +185,8 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       'should handle multiple images in conversation with model %s',
       async (model) => {
         // Load both images
-        const image1 = TestImages.getImage('cat-medium.png')
-        const image2 = TestImages.getImage('vancouver-medium.png')
+        const image1 = await getTestImage('cat-medium.png')
+        const image2 = await getTestImage('vancouver-medium.png')
 
         // First message with pharmaceutical image
         const stream = await getChatResponseStream(instance, model, [

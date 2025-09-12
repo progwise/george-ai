@@ -1,4 +1,6 @@
 export default async () => {
+  process.env.GITHUB_TOKEN = process.env.GITHUB_TOKEN!
+
   process.env.OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL!
   process.env.OLLAMA_API_KEY = process.env.OLLAMA_API_KEY!
   process.env.OLLAMA_VRAM_GB = process.env.OLLAMA_VRAM_GB!

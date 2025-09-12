@@ -18,6 +18,7 @@ build
 # Python virtual environments do not work accross computers
 .venv
 venv
+.test-cache
 
 # Fine-tuning
 apps/fine-tuning/split_output
