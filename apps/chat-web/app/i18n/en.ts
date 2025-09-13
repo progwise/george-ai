@@ -483,6 +483,8 @@ export default {
     removeParticipant: 'Remove participant from list',
     removeParticipantConfirmation: 'You are about to remove {participantName} from this list. This cannot be undone.',
     updateError: 'Error updating list: {message}',
+    updateParticipantsSuccess:
+      'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
     updateSuccess: 'List updated successfully',
     users: 'Users',
     view: 'List',

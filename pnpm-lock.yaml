@@ -66,8 +66,8 @@ importers:
         specifier: ^2.59.0
         version: 2.59.0
       daisyui:
-        specifier: ^5.0.28
-        version: 5.0.28
+        specifier: ^5.1.10
+        version: 5.1.10
       graphql:
         specifier: ^16.7.1
         version: 16.10.0
@@ -4259,8 +4259,8 @@ packages:
   csv-parse@5.6.0:
     resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
-  daisyui@5.0.28:
-    resolution: {integrity: sha512-H082p8Lg3c7Se9wTbjfSOOhfUbp3BnOM2+cdr3OeY5G1Ll7GYLXB9NWLHgitkTsB1pQKwHRYYchqN2YG0VVShg==}
+  daisyui@5.1.10:
+    resolution: {integrity: sha512-p1J/HME2WmaSiy6u2alIbeP3gd5PNVft3+6Bdll0BRSm/UdI4084+pD01LxFug/5wGexNewWqbcEL6nB2n2o+Q==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -12633,7 +12633,7 @@ snapshots:
 
   csv-parse@5.6.0: {}
 
-  daisyui@5.0.28: {}
+  daisyui@5.1.10: {}
 
   data-uri-to-buffer@4.0.1: {}
 

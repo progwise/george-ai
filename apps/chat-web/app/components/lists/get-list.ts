@@ -12,11 +12,26 @@ const getList = createServerFn({ method: 'GET' })
       graphql(`
         query getList($listId: String!) {
           aiList(id: $listId) {
+            id
+            owner {
+              id
+              name
+              username
+              avatarUrl
+            }
+            participants {
+              id
+              user {
+                id
+                name
+                username
+                avatarUrl
+              }
+            }
             ...ListsBase
             ...ListEditForm_List
             ...ListSourcesManager_List
             ...ListFieldsTable_List
-            ...ListParticipants_List
           }
         }
       `),

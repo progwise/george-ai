@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 
 import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-act-guide'
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
@@ -11,8 +11,6 @@ import { getAssistantQueryOptions } from '../../../components/assistant/get-assi
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import { useTranslation } from '../../../i18n/use-translation-hook'
-import { BackIcon } from '../../../icons/back-icon'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
@@ -27,8 +25,6 @@ export const Route = createFileRoute('/_authenticated/assistants/$assistantId')(
 })
 
 function RouteComponent() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
   const { user } = Route.useRouteContext()
   const ownerId = user.id
   const { assistantId } = Route.useParams()
@@ -57,14 +53,6 @@ function RouteComponent() {
         </div>
         <div className="flex min-w-0 items-center justify-end gap-2">
           <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
-          <button
-            type="button"
-            className="btn btn-sm tooltip tooltip-left"
-            data-tip={t('tooltips.goToOverview')}
-            onClick={() => navigate({ to: '..' })}
-          >
-            <BackIcon />
-          </button>
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">

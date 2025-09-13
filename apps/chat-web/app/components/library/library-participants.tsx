@@ -11,7 +11,7 @@ import { removeLibraryParticipant } from '../../server-functions/library-partici
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { ParticipantsViewer } from '../participants-viewer'
+import { ParticipantsViewer } from '../participant/participants-viewer'
 import { UserAvatar } from '../user-avatar'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
@@ -156,11 +156,9 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
               <DropdownContent>
                 <ParticipantsViewer
                   participants={library.users}
-                  ownerId={library.ownerId}
-                  userId={userId}
                   isOwner={isOwner}
-                  onRemoveParticipant={handleRemoveParticipantFromDropdown}
-                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
+                  onRemoveParticipant={(participant) => handleRemoveParticipantFromDropdown(participant.id)}
+                  skipParticipants={MAX_VISIBLE_PARTICIPANTS}
                 />
               </DropdownContent>
             </div>

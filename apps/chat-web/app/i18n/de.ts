@@ -491,6 +491,8 @@ export default {
     removeParticipantConfirmation:
       'Sie sind dabei, {participantName} von dieser Liste zu entfernen. Dies kann nicht rückgängig gemacht werden.',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
+    updateParticipantsSuccess:
+      'Teilnehmer der Liste erfolgreich aktualisiert: {addedParticipants} hinzugefügt, {removedParticipants} entfernt, insgesamt {totalParticipants} Teilnehmer.',
     updateSuccess: 'Liste erfolgreich aktualisiert',
     users: 'Benutzer',
     view: 'Liste',

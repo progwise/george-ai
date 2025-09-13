@@ -92,7 +92,9 @@ builder.queryField('aiAssistants', (t) =>
     resolve: (query, _source, _args, context) => {
       return prisma.aiAssistant.findMany({
         ...query,
-        where: { participants: { some: { userId: context.session.user.id } } },
+        where: {
+          OR: [{ ownerId: context.session.user.id }, { participants: { some: { userId: context.session.user.id } } }],
+        },
       })
     },
   }),
@@ -144,9 +146,6 @@ builder.mutationField('createAiAssistant', (t) =>
         data: {
           name,
           ownerId: userId,
-          participants: {
-            create: [{ userId }],
-          },
         },
       })
     },

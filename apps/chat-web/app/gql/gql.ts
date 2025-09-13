@@ -123,8 +123,6 @@ type Documents = {
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
-  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddListParticipantDocument
-  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveListParticipantDocument
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
   '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n': typeof types.CleanEnrichmentsDocument
@@ -135,7 +133,7 @@ type Documents = {
   '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_EditableFieldFragmentDoc
   '\n  query aiListFilesWithValues(\n    $listId: String!\n    $skip: Int!\n    $take: Int!\n    $orderBy: String\n    $orderDirection: String\n    $fieldIds: [String!]!\n    $language: String!\n  ) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      listId\n      count\n      take\n      skip\n      orderBy\n      orderDirection\n      files {\n        id\n        name\n        libraryId\n        fieldValues(fieldIds: $fieldIds, language: $language) {\n          fieldId\n          fieldName\n          displayValue\n          enrichmentErrorMessage\n          queueStatus\n        }\n      }\n    }\n  }\n': typeof types.AiListFilesWithValuesDocument
   '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n': typeof types.AiListFilesDocument
-  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListParticipants_List\n          }\n        }\n      ': typeof types.GetListDocument
+  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            id\n            owner {\n              id\n              name\n              username\n              avatarUrl\n            }\n            participants {\n              id\n              user {\n                id\n                name\n                username\n                avatarUrl\n              }\n            }\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ': typeof types.GetListDocument
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ': typeof types.GetUserListsDocument
   '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n': typeof types.ListDeleteButton_ListFragmentDoc
@@ -147,8 +145,6 @@ type Documents = {
   '\n  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {\n    listId\n    count\n    take\n    skip\n    orderBy\n    orderDirection\n    files {\n      ...ListFilesTable_File\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
   '\n  fragment ListFieldsTable_Field on AiListField {\n    id\n    listId\n    name\n    type\n    order\n    sourceType\n    fileProperty\n    prompt\n    contentQuery\n    languageModel\n    useVectorStore\n    pendingItemsCount\n    processingItemsCount\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.ListFieldsTable_FieldFragmentDoc
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
-  '\n  fragment ListParticipantsDialogButton_List on AiList {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n': typeof types.ListParticipantsDialogButton_ListFragmentDoc
-  '\n  fragment ListParticipants_List on AiList {\n    id\n    owner {\n      id\n      name\n      username\n      avatarUrl\n    }\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...ListParticipantsDialogButton_List\n  }\n': typeof types.ListParticipants_ListFragmentDoc
   '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n': typeof types.ListSelector_ListFragmentDoc
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n        owner {\n          name\n        }\n      }\n    }\n  }\n': typeof types.ListSourcesManager_ListFragmentDoc
   '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            queuedItems\n            error\n          }\n        }\n      ': typeof types.RemoveFromEnrichmentQueueDocument
@@ -159,6 +155,8 @@ type Documents = {
   '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    stopListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n': typeof types.StopListEnrichmentDocument
   '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
+  '\n        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {\n          updateListParticipants(listId: $listId, userIds: $userIds) {\n            addedParticipants\n            removedParticipants\n            totalParticipants\n          }\n        }\n      ': typeof types.UpdateListParticipantsDocument
+  '\n        mutation removeListParticipant($listId: String!, $participantId: String!) {\n          removeListParticipant(listId: $listId, participantId: $participantId)\n        }\n      ': typeof types.RemoveListParticipantDocument
   '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': typeof types.AiChatModelsDocument
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': typeof types.AiEmbeddingModelsDocument
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
@@ -404,10 +402,6 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
-  '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n':
-    types.AddListParticipantDocument,
-  '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n':
-    types.RemoveListParticipantDocument,
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ':
     types.AddListFieldDocument,
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ':
@@ -428,7 +422,7 @@ const documents: Documents = {
     types.AiListFilesWithValuesDocument,
   '\n  query aiListFiles($listId: String!, $skip: Int!, $take: Int!, $orderBy: String, $orderDirection: String) {\n    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {\n      ...ListFilesTable_FilesQueryResult\n    }\n  }\n':
     types.AiListFilesDocument,
-  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListParticipants_List\n          }\n        }\n      ':
+  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            id\n            owner {\n              id\n              name\n              username\n              avatarUrl\n            }\n            participants {\n              id\n              user {\n                id\n                name\n                username\n                avatarUrl\n              }\n            }\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ':
     types.GetListDocument,
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListsBaseFragmentDoc,
@@ -451,10 +445,6 @@ const documents: Documents = {
     types.ListFieldsTable_FieldFragmentDoc,
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n  }\n':
     types.ListFieldsTable_ListFragmentDoc,
-  '\n  fragment ListParticipantsDialogButton_List on AiList {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n':
-    types.ListParticipantsDialogButton_ListFragmentDoc,
-  '\n  fragment ListParticipants_List on AiList {\n    id\n    owner {\n      id\n      name\n      username\n      avatarUrl\n    }\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...ListParticipantsDialogButton_List\n  }\n':
-    types.ListParticipants_ListFragmentDoc,
   '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n':
     types.ListSelector_ListFragmentDoc,
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n        owner {\n          name\n        }\n      }\n    }\n  }\n':
@@ -475,6 +465,10 @@ const documents: Documents = {
     types.UpdateListFieldDocument,
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateListDocument,
+  '\n        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {\n          updateListParticipants(listId: $listId, userIds: $userIds) {\n            addedParticipants\n            removedParticipants\n            totalParticipants\n          }\n        }\n      ':
+    types.UpdateListParticipantsDocument,
+  '\n        mutation removeListParticipant($listId: String!, $participantId: String!) {\n          removeListParticipant(listId: $listId, participantId: $participantId)\n        }\n      ':
+    types.RemoveListParticipantDocument,
   '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': types.AiChatModelsDocument,
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': types.AiEmbeddingModelsDocument,
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
@@ -1200,18 +1194,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation addListParticipant($listId: String!, $userIds: [String!]!) {\n    addListParticipants(listId: $listId, userIds: $userIds) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation removeListParticipant($listId: String!, $userId: String!) {\n    removeListParticipant(listId: $listId, userId: $userId) {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ']
 /**
@@ -1272,8 +1254,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListParticipants_List\n          }\n        }\n      ',
-): (typeof documents)['\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListParticipants_List\n          }\n        }\n      ']
+  source: '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            id\n            owner {\n              id\n              name\n              username\n              avatarUrl\n            }\n            participants {\n              id\n              user {\n                id\n                name\n                username\n                avatarUrl\n              }\n            }\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ',
+): (typeof documents)['\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            id\n            owner {\n              id\n              name\n              username\n              avatarUrl\n            }\n            participants {\n              id\n              user {\n                id\n                name\n                username\n                avatarUrl\n              }\n            }\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1344,18 +1326,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListParticipantsDialogButton_List on AiList {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  fragment ListParticipantsDialogButton_List on AiList {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  fragment ListParticipants_List on AiList {\n    id\n    owner {\n      id\n      name\n      username\n      avatarUrl\n    }\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...ListParticipantsDialogButton_List\n  }\n',
-): (typeof documents)['\n  fragment ListParticipants_List on AiList {\n    id\n    owner {\n      id\n      name\n      username\n      avatarUrl\n    }\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...ListParticipantsDialogButton_List\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n',
 ): (typeof documents)['\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n']
 /**
@@ -1412,6 +1382,18 @@ export function graphql(
 export function graphql(
   source: '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {\n          updateListParticipants(listId: $listId, userIds: $userIds) {\n            addedParticipants\n            removedParticipants\n            totalParticipants\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {\n          updateListParticipants(listId: $listId, userIds: $userIds) {\n            addedParticipants\n            removedParticipants\n            totalParticipants\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation removeListParticipant($listId: String!, $participantId: String!) {\n          removeListParticipant(listId: $listId, participantId: $participantId)\n        }\n      ',
+): (typeof documents)['\n        mutation removeListParticipant($listId: String!, $participantId: String!) {\n          removeListParticipant(listId: $listId, participantId: $participantId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

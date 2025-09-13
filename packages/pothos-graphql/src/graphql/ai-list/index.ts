@@ -120,17 +120,6 @@ builder.prismaObject('AiList', {
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     participants: t.relation('participants', { nullable: false }),
-    users: t.prismaField({
-      type: ['User'],
-      nullable: { list: false, items: false },
-      select: { participants: { select: { user: true } } },
-      resolve: async (query, list) => {
-        return await prisma.user.findMany({
-          where: { listParticipations: { some: { listId: list.id } } },
-          ...query,
-        })
-      },
-    }),
     fields: t.relation('fields', { nullable: false }),
     sources: t.relation('sources', { nullable: false }),
     enrichmentQueue: t.relation('enrichmentQueue', { nullable: false }),

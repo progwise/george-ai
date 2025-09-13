@@ -544,7 +544,6 @@ export type AiList = {
   participants: Array<AiListParticipant>
   sources: Array<AiListSource>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-  users: Array<User>
 }
 
 export type AiListEnrichmentQueue = {
@@ -875,7 +874,6 @@ export type Mutation = {
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   addListField: AiListField
-  addListParticipants: Array<User>
   addListSource: AiListSource
   cancelContentProcessingTasks: QueueOperationResult
   cancelFileUpload: Scalars['Boolean']['output']
@@ -919,7 +917,7 @@ export type Mutation = {
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
-  removeListParticipant: User
+  removeListParticipant: Scalars['Boolean']['output']
   removeListSource: AiListSource
   resetAssessmentAnswers: Scalars['DateTime']['output']
   retryFailedTasks: QueueOperationResult
@@ -943,6 +941,7 @@ export type Mutation = {
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
   updateListField: AiListField
+  updateListParticipants: UpdateListParticipantsResult
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
@@ -978,11 +977,6 @@ export type MutationAddLibraryUsageArgs = {
 export type MutationAddListFieldArgs = {
   data: AiListFieldInput
   listId: Scalars['String']['input']
-}
-
-export type MutationAddListParticipantsArgs = {
-  listId: Scalars['String']['input']
-  userIds: Array<Scalars['String']['input']>
 }
 
 export type MutationAddListSourceArgs = {
@@ -1177,7 +1171,7 @@ export type MutationRemoveListFieldArgs = {
 
 export type MutationRemoveListParticipantArgs = {
   listId: Scalars['String']['input']
-  userId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }
 
 export type MutationRemoveListSourceArgs = {
@@ -1278,6 +1272,11 @@ export type MutationUpdateListArgs = {
 export type MutationUpdateListFieldArgs = {
   data: AiListFieldInput
   id: Scalars['String']['input']
+}
+
+export type MutationUpdateListParticipantsArgs = {
+  listId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']>
 }
 
 export type MutationUpdateMessageArgs = {
@@ -1512,6 +1511,13 @@ export type SourceFileLink = {
   __typename?: 'SourceFileLink'
   fileName: Scalars['String']['output']
   url: Scalars['String']['output']
+}
+
+export type UpdateListParticipantsResult = {
+  __typename?: 'UpdateListParticipantsResult'
+  addedParticipants: Scalars['Int']['output']
+  removedParticipants: Scalars['Int']['output']
+  totalParticipants: Scalars['Int']['output']
 }
 
 export type UpdateStats = {
@@ -3707,26 +3713,6 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
-export type AddListParticipantMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
-}>
-
-export type AddListParticipantMutation = {
-  __typename?: 'Mutation'
-  addListParticipants: Array<{ __typename?: 'User'; id: string }>
-}
-
-export type RemoveListParticipantMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  userId: Scalars['String']['input']
-}>
-
-export type RemoveListParticipantMutation = {
-  __typename?: 'Mutation'
-  removeListParticipant: { __typename?: 'User'; id: string }
-}
-
 export type AddListFieldMutationVariables = Exact<{
   listId: Scalars['String']['input']
   data: AiListFieldInput
@@ -3895,6 +3881,12 @@ export type GetListQuery = {
     createdAt: string
     updatedAt?: string | null
     name: string
+    owner: { __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }
+    participants: Array<{
+      __typename?: 'AiListParticipant'
+      id: string
+      user: { __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }
+    }>
     sources: Array<{
       __typename?: 'AiListSource'
       id: string
@@ -3923,8 +3915,6 @@ export type GetListQuery = {
       processingItemsCount: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
-    owner: { __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }
-    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
   }
 }
 
@@ -4093,21 +4083,6 @@ export type ListFieldsTable_ListFragment = {
   }>
 }
 
-export type ListParticipantsDialogButton_ListFragment = {
-  __typename?: 'AiList'
-  id: string
-  ownerId: string
-  users: Array<{ __typename?: 'User'; id: string }>
-}
-
-export type ListParticipants_ListFragment = {
-  __typename?: 'AiList'
-  id: string
-  ownerId: string
-  owner: { __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }
-  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
-}
-
 export type ListSelector_ListFragment = {
   __typename?: 'AiList'
   id: string
@@ -4236,6 +4211,28 @@ export type UpdateListMutationVariables = Exact<{
 }>
 
 export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typename?: 'AiList'; id: string } | null }
+
+export type UpdateListParticipantsMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+}>
+
+export type UpdateListParticipantsMutation = {
+  __typename?: 'Mutation'
+  updateListParticipants: {
+    __typename?: 'UpdateListParticipantsResult'
+    addedParticipants: number
+    removedParticipants: number
+    totalParticipants: number
+  }
+}
+
+export type RemoveListParticipantMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
+}>
+
+export type RemoveListParticipantMutation = { __typename?: 'Mutation'; removeListParticipant: boolean }
 
 export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -8001,94 +7998,6 @@ export const ListFieldsTable_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListFieldsTable_ListFragment, unknown>
-export const ListParticipantsDialogButton_ListFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListParticipantsDialogButton_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'users' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListParticipantsDialogButton_ListFragment, unknown>
-export const ListParticipants_ListFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListParticipants_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'owner' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'users' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-              ],
-            },
-          },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListParticipantsDialogButton_List' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListParticipantsDialogButton_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'users' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListParticipants_ListFragment, unknown>
 export const ListSelector_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -13527,106 +13436,6 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
-export const AddListParticipantDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'addListParticipant' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'addListParticipants' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AddListParticipantMutation, AddListParticipantMutationVariables>
-export const RemoveListParticipantDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeListParticipant' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeListParticipant' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveListParticipantMutation, RemoveListParticipantMutationVariables>
 export const AddListFieldDocument = {
   kind: 'Document',
   definitions: [
@@ -14161,11 +13970,47 @@ export const GetListDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'participants' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_List' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListParticipants_List' } },
               ],
             },
           },
@@ -14198,26 +14043,6 @@ export const GetListDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListParticipantsDialogButton_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'users' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
@@ -14310,44 +14135,6 @@ export const GetListDocument = {
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } }],
             },
           },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListParticipants_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'owner' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'users' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-              ],
-            },
-          },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListParticipantsDialogButton_List' } },
         ],
       },
     },
@@ -15004,6 +14791,106 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
+export const UpdateListParticipantsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateListParticipants' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateListParticipants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'addedParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'removedParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalParticipants' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateListParticipantsMutation, UpdateListParticipantsMutationVariables>
+export const RemoveListParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeListParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeListParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'participantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveListParticipantMutation, RemoveListParticipantMutationVariables>
 export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [

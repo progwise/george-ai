@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
-import { UserFragment } from '../gql/graphql'
-import { useTranslation } from '../i18n/use-translation-hook'
-import { UserAvatar } from './user-avatar'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { UserAvatar } from '../user-avatar'
+import { CandidateParticipantUser } from './entity-participant.types'
 
 interface UsersSelectorProps {
-  users: UserFragment[]
+  users: CandidateParticipantUser[]
   selectedUserIds: string[]
   setSelectedUserIds: Dispatch<SetStateAction<string[]>>
   className?: string
@@ -25,11 +25,12 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       const isSearchMatching: boolean =
         isSearchEnabled &&
         (user.username.toLowerCase().includes(search) ||
-          user.email.toLowerCase().includes(search) ||
-          user.profile?.firstName?.toLowerCase().includes(search) ||
-          user.profile?.lastName?.toLowerCase().includes(search) ||
-          user.profile?.business?.toLowerCase().includes(search) ||
-          user.profile?.position?.toLowerCase().includes(search) ||
+          user.name?.toLowerCase().includes(search) ||
+          user.email?.toLowerCase().includes(search) ||
+          user.firstName?.toLowerCase().includes(search) ||
+          user.lastName?.toLowerCase().includes(search) ||
+          user.business?.toLowerCase().includes(search) ||
+          user.position?.toLowerCase().includes(search) ||
           false)
 
       return isCurrentlySelected || isSearchMatching
@@ -76,7 +77,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
           </label>
           <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
             {displayedUsers.map((user) => {
-              const formattedUser = `${user.username} (${user.email}${user.profile?.business ? ' | ' + user.profile.business : ''})`
+              const formattedUser = `${user.name} (${user.email}${user?.business ? ' | ' + user.business : ''})`
               return (
                 <label key={user.id} className="label">
                   <input

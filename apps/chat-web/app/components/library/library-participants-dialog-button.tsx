@@ -8,7 +8,7 @@ import { UserPlusIcon } from '../../icons/user-plus-icon'
 import { addLibraryParticipants } from '../../server-functions/library-participations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
-import { UsersSelector } from '../users-selector'
+import { UsersSelector } from '../participant/users-selector'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 

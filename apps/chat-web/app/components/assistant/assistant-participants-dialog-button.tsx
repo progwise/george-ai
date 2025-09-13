@@ -8,7 +8,7 @@ import { PlusIcon } from '../../icons/plus-icon'
 import { addAssistantParticipants } from '../../server-functions/assistant-participations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
-import { UsersSelector } from '../users-selector'
+import { UsersSelector } from '../participant/users-selector'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`

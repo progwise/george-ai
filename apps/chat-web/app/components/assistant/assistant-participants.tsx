@@ -11,7 +11,7 @@ import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { ParticipantsViewer } from '../participants-viewer'
+import { ParticipantsViewer } from '../participant/participants-viewer'
 import { UserAvatar } from '../user-avatar'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
 import { getAssistantQueryOptions } from './get-assistant'
@@ -149,11 +149,9 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
               <DropdownContent>
                 <ParticipantsViewer
                   participants={assistant.users}
-                  ownerId={assistant.ownerId}
-                  userId={userId}
                   isOwner={isOwner}
-                  onRemoveParticipant={handleRemoveParticipantFromDropdown}
-                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
+                  onRemoveParticipant={(participant) => handleRemoveParticipantFromDropdown(participant.id)}
+                  skipParticipants={MAX_VISIBLE_PARTICIPANTS}
                 />
               </DropdownContent>
             </div>

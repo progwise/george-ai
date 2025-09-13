@@ -490,7 +490,6 @@ type AiList {
   participants: [AiListParticipant!]!
   sources: [AiListSource!]!
   updatedAt: DateTime
-  users: [User!]!
 }
 
 type AiListEnrichmentQueue {
@@ -820,7 +819,6 @@ type Mutation {
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
-  addListParticipants(listId: String!, userIds: [String!]!): [User!]!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelContentProcessingTasks(libraryId: String): QueueOperationResult!
   cancelFileUpload(fileId: String!): Boolean!
@@ -884,7 +882,7 @@ type Mutation {
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
-  removeListParticipant(listId: String!, userId: String!): User!
+  removeListParticipant(listId: String!, participantId: String!): Boolean!
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
@@ -934,6 +932,7 @@ type Mutation {
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
+  updateListParticipants(listId: String!, userIds: [String!]!): UpdateListParticipantsResult!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
@@ -1054,6 +1053,12 @@ type SharePointValidationResult {
 type SourceFileLink {
   fileName: String!
   url: String!
+}
+
+type UpdateListParticipantsResult {
+  addedParticipants: Int!
+  removedParticipants: Int!
+  totalParticipants: Int!
 }
 
 type UpdateStats {

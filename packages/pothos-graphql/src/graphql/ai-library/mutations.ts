@@ -71,9 +71,6 @@ builder.mutationField('createLibrary', (t) =>
         data: {
           ...validatedData,
           ownerId: userId,
-          participants: {
-            create: [{ userId }],
-          },
         },
       })
     },
