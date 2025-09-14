@@ -15,7 +15,13 @@ interface TopNavigationLinkProps {
 }
 
 const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
-  <Link to={to} className="btn btn-ghost" activeProps={{ className: 'btn-active' }} activeOptions={{ exact: false }}>
+  <Link
+    to={to}
+    className="transition-colors"
+    inactiveProps={{ className: 'hover:bg-base-300 text-base-content/50 hover:text-base-content hover:animate-pulse' }}
+    activeProps={{ className: 'bg-base-content/70 text-base-100' }}
+    activeOptions={{ exact: false }}
+  >
     {children}
   </Link>
 )
@@ -37,24 +43,34 @@ export default function TopNavigation({ user }: TopNavigationProps) {
           !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >
-        <nav className="navbar px-body gap-2 text-sm lg:gap-4">
+        <nav className="navbar px-body gap-2 text-sm">
           {/* Logo and Brand-Name */}
-          <div className="flex grow text-nowrap">
+          <div className="navbar-start flex grow text-nowrap">
             <Link to="/" className="flex items-center gap-2 text-nowrap text-xl font-bold">
-              <BowlerLogoIcon className="size-10" />
+              <BowlerLogoIcon className="hover:animate-wiggle size-10" />
               <h1>George-AI</h1>
             </Link>
           </div>
 
-          {/* Links to other pages */}
-          <div className="flex items-center gap-1 max-md:hidden">
-            <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
-            <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
-            <TopNavigationLink to="/lists">{t('topNavigation.lists')}</TopNavigationLink>
-            <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
+          <div className="navbar-center">
+            <ul className="menu menu-horizontal menu-lg max-md:hidden">
+              <li>
+                <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
+              </li>
+              <li>
+                <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
+              </li>
+              <li>
+                <TopNavigationLink to="/lists">{t('topNavigation.lists')}</TopNavigationLink>
+              </li>
+              <li>
+                <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
+              </li>
+            </ul>
           </div>
-
-          <SettingsDropdown user={user} />
+          <div className="navbar-end">
+            <SettingsDropdown user={user} />
+          </div>
         </nav>
       </header>
 

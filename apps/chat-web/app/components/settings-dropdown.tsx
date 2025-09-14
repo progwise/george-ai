@@ -35,13 +35,18 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
   }
 
   return (
-    <div className="dropdown dropdown-end">
+    <div className="dropdown dropdown-hover dropdown-end">
       {/* Menu button */}
-      <div tabIndex={0} role="button" className="btn btn-ghost btn-circle list-none">
+      <div
+        tabIndex={0}
+        role="button"
+        className="btn btn-ghost btn-circle hover:scale-115 list-none transition-all"
+        aria-label="User menu"
+      >
         {user ? <UserAvatar user={user} className="size-10" /> : <MenuEllipsisIcon className="size-6" />}
       </div>
 
-      <ul tabIndex={0} className="dropdown-content menu rounded-box bg-base-200 min-w-55 mt-2 shadow-sm">
+      <ul tabIndex={0} className="dropdown-content menu rounded-box bg-base-200 min-w-55 shadow-sm">
         {/* Link to profile */}
         {user && (
           <>
