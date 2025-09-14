@@ -68,7 +68,7 @@ const RootDocument = () => {
         <AuthProvider>
           <>
             <TopNavigation user={user ?? undefined} />
-            <div className="flex grow flex-col">
+            <div className="flex grow flex-col p-4">
               <Outlet />
             </div>
             <Scripts />

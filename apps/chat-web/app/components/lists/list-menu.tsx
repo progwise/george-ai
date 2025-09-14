@@ -64,20 +64,40 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
     listSelectorDetailsRef.current.open = false
   }, [list.id])
 
+  useEffect(() => {
+    if (!deleteDialogRef.current) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (listSelectorDetailsRef.current && !listSelectorDetailsRef.current.contains(e.target as Node)) {
+        listSelectorDetailsRef.current.open = false
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown)
+    }
+  }, [])
+
   if (!user) return null
   return (
     <div>
-      <ul className="menu bg-base-200 menu-horizontal rounded-box w-full">
+      <ul className="menu menu-horizontal rounded-box w-full">
         <li>
-          <span className="text-primary/50 text-nowrap text-xl font-semibold">{t('lists.title')}</span>
+          <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('lists.title')}</span>
         </li>
         <li>
           <details ref={listSelectorDetailsRef} className="z-50">
-            <summary className="text-primary text-nowrap text-xl font-semibold">{list.name}</summary>
-            <ul>
+            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
+              {list.name}
+            </summary>
+            <ul className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
               {selectableLists.map((list) => (
                 <li key={list.id}>
-                  <Link to={'.'} className="text-nowrap" params={{ listId: list.id }}>
+                  <Link
+                    to={'.'}
+                    className="text-nowrap"
+                    params={{ listId: list.id }}
+                    activeProps={{ className: 'font-bold' }}
+                  >
                     {list.name}
                   </Link>
                 </li>
