@@ -7,9 +7,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getLibrariesQueryOptions } from '../library/get-libraries'
 import { LoadingSpinner } from '../loading-spinner'
-import { addListSource } from './add-list-source'
-import { getListQueryOptions } from './get-list'
-import { removeListSource } from './remove-list-source'
+import { addListSource, getListQueryOptions, removeListSource } from './server-functions'
 
 graphql(`
   fragment ListSourcesManager_List on AiList {

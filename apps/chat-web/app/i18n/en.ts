@@ -399,6 +399,8 @@ export default {
     processing: 'Processing',
     query: 'Query',
     remainingStorage: 'Remaining Storage',
+    removeParticipantConfirmation: 'You are about to remove a participant. This cannot be undone.',
+    removeParticipantConfirmationTitle: 'Confirm removal',
     reset: 'Reset',
     saturday: 'Saturday',
     size: 'Size',
@@ -451,10 +453,13 @@ export default {
     removeParticipant: 'Remove participant',
     removeParticipantConfirmation:
       'You are about to remove {participantName} from this library. This cannot be undone.',
+    removeParticipantSuccess: 'Participant successfully removed',
     saveError: 'Error saving library: {message}',
     saveSuccess: 'Library {name} saved successfully',
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
+    updateParticipantsSuccess:
+      'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
     users: 'Users',
   },
   lists: {
@@ -482,6 +487,7 @@ export default {
     placeholderName: 'Product catalog extended.',
     removeParticipant: 'Remove participant from list',
     removeParticipantConfirmation: 'You are about to remove {participantName} from this list. This cannot be undone.',
+    title: 'List',
     updateError: 'Error updating list: {message}',
     updateParticipantsSuccess:
       'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',

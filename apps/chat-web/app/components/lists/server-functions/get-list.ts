@@ -2,8 +2,8 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
 const getList = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
@@ -13,25 +13,11 @@ const getList = createServerFn({ method: 'GET' })
         query getList($listId: String!) {
           aiList(id: $listId) {
             id
-            owner {
-              id
-              name
-              username
-              avatarUrl
-            }
-            participants {
-              id
-              user {
-                id
-                name
-                username
-                avatarUrl
-              }
-            }
             ...ListsBase
             ...ListEditForm_List
             ...ListSourcesManager_List
             ...ListFieldsTable_List
+            ...ListMenu_AiList
           }
         }
       `),

@@ -247,9 +247,9 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
+  participants: [AiLibraryParticipant!]!
   updatedAt: DateTime!
   url: String
-  users: [User!]!
 }
 
 type AiLibraryCrawler {
@@ -411,6 +411,15 @@ input AiLibraryInput {
   icon: String
   name: String!
   url: String
+}
+
+type AiLibraryParticipant {
+  createdAt: DateTime!
+  id: ID!
+  library: AiLibrary!
+  libraryId: String!
+  user: User!
+  userId: String!
 }
 
 type AiLibraryQueryHit {
@@ -816,7 +825,6 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
-  addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
@@ -857,7 +865,7 @@ type Mutation {
   deleteFiles(fileIds: [ID!]!): Int!
   deleteLibrary(id: String!): Boolean
   deleteLibraryFiles(libraryId: String!): Int!
-  deleteList(id: String!): Boolean!
+  deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
   dropOutdatedMarkdowns(fileId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
@@ -879,7 +887,7 @@ type Mutation {
     fileId: String!
     listId: String!
   ): EnrichmentQueueResult!
-  removeLibraryParticipant(libraryId: String!, userId: String!): User!
+  removeLibraryParticipant(libraryId: String!, participantId: String!): Boolean!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
   removeListParticipant(listId: String!, participantId: String!): Boolean!
@@ -929,6 +937,7 @@ type Mutation {
   ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
+  updateLibraryParticipants(libraryId: String!, userIds: [String!]!): UpdateLibraryParticipantsResult!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
@@ -1053,6 +1062,12 @@ type SharePointValidationResult {
 type SourceFileLink {
   fileName: String!
   url: String!
+}
+
+type UpdateLibraryParticipantsResult {
+  addedParticipants: Int!
+  removedParticipants: Int!
+  totalParticipants: Int!
 }
 
 type UpdateListParticipantsResult {

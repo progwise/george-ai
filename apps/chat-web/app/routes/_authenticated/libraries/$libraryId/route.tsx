@@ -1,12 +1,16 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { useRef } from 'react'
 
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library'
 import { LibraryDeleteDialog } from '../../../../components/library/library-delete-dialog'
-import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
+import { useLibraryActions } from '../../../../components/library/use-library-actions'
+import { EntityParticipants } from '../../../../components/participant/entity-participants'
+import { EntityParticipantsDialog } from '../../../../components/participant/entity-participants-dialog'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
+import { UserPlusIcon } from '../../../../icons/user-plus-icon'
 import { getUsersQueryOptions } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
@@ -20,6 +24,8 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
 })
 
 function RouteComponent() {
+  const entityParticipantsDialogRef = useRef<HTMLDialogElement | null>(null)
+
   const { libraryId } = Route.useParams()
   const {
     data: { aiLibraries },
@@ -30,10 +36,12 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { user } = Route.useRouteContext()
 
+  const { updateParticipants, removeParticipant } = useLibraryActions(libraryId)
+
   return (
     <article>
       <div className="mb-4 flex w-full items-center justify-between">
-        <ul className="bg-base-200 menu menu-horizontal rounded-box gap-2">
+        <ul className="bg-base-200 menu menu-horizontal rounded-box flex-nowrap gap-1">
           <li>
             <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
           </li>
@@ -122,16 +130,38 @@ function RouteComponent() {
             </Link>
           </li>
         </ul>
-        <ul className="bg-base-200 menu menu-horizontal rounded-box float-right">
-          <li className="flex items-center">
-            <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
+        <ul className="menu menu-horizontal flex-nowrap gap-2">
+          <li className="grow-1 items-end">
+            <EntityParticipants
+              entityName={aiLibrary.name}
+              owner={aiLibrary.owner}
+              participants={aiLibrary.participants}
+              onRemoveParticipant={(participant) => removeParticipant(participant)}
+            />
           </li>
-          {user.id === aiLibrary.ownerId && (
-            <li>
-              <LibraryDeleteDialog library={aiLibrary} />
-            </li>
+          {aiLibrary.ownerId === user.id && (
+            <>
+              <li>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => entityParticipantsDialogRef.current?.showModal()}
+                >
+                  <UserPlusIcon className="size-6" />
+                </button>
+              </li>
+              <li className="">
+                <LibraryDeleteDialog library={aiLibrary} />
+              </li>
+            </>
           )}
         </ul>
+        <EntityParticipantsDialog
+          ref={entityParticipantsDialogRef}
+          users={usersData.users}
+          participants={aiLibrary.participants}
+          onUpdateParticipants={({ userIds }) => userIds && updateParticipants({ userIds })}
+        />
       </div>
       <div>
         <Outlet />

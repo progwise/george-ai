@@ -47,7 +47,7 @@ export default function TopNavigation({ user }: TopNavigationProps) {
           </div>
 
           {/* Links to other pages */}
-          <div className="flex items-center gap-1 max-lg:hidden">
+          <div className="flex items-center gap-1 max-md:hidden">
             <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
             <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
             <TopNavigationLink to="/lists">{t('topNavigation.lists')}</TopNavigationLink>

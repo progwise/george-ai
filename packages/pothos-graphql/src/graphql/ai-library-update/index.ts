@@ -45,7 +45,6 @@ const LibraryUpdateQueryResult = builder
         nullable: false,
         resolve: async (root, _args, context) => {
           await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
-          console.log('Counting AI library updates for library:', root.libraryId, 'and crawler:', root.crawlerId)
           return prisma.aiLibraryUpdate.count({
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },
           })

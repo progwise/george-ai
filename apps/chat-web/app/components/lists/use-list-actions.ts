@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -6,8 +7,7 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getListQueryOptions } from './get-list'
-import { getListsQueryOptions } from './get-lists'
+import { deleteListFn, getListQueryOptions, getListsQueryOptions } from './server-functions'
 
 export const updateListParticipants = createServerFn({ method: 'POST' })
   .validator((data: unknown) =>
@@ -62,6 +62,22 @@ export const removeListParticipant = createServerFn({ method: 'POST' })
 export const useListActions = (listId: string) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const navigate = useNavigate()
+
+  const { mutate: deleteList, isPending: deleteListIsPending } = useMutation({
+    mutationFn: () => deleteListFn({ data: listId }),
+    onSuccess: async ({ deleteList }) => {
+      toastSuccess(t('lists.deleteSuccess', { name: deleteList.name }))
+    },
+    onError: (error) => toastError(t('lists.deleteError', { message: error.message })),
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries(getListsQueryOptions()),
+        queryClient.removeQueries(getListQueryOptions(listId)),
+      ])
+      await navigate({ to: '/lists' })
+    },
+  })
 
   const { mutate: updateParticipants, isPending: updateParticipantsIsPending } = useMutation({
     mutationFn: async ({ userIds }: { userIds: string[] }) => {
@@ -85,16 +101,22 @@ export const useListActions = (listId: string) => {
     mutationFn: async ({ participantId }: { participantId: string }) => {
       return await removeListParticipant({ data: { participantId, listId } })
     },
-    onSuccess: async (data) => {
-      console.log('removeParticipant success', { data })
-      toastSuccess(t('notifications.participantRemoved'))
-      await queryClient.invalidateQueries(getListQueryOptions(listId))
-      await queryClient.invalidateQueries(getListsQueryOptions())
+    onSuccess: async () => {
+      toastSuccess(t('lists.removeParticipantSuccess'))
     },
     onError: (error) => {
       toastError(t('errors.removeParticipantFailed', { error: error.message }))
     },
+    onSettled: async () => {
+      await queryClient.invalidateQueries(getListQueryOptions(listId))
+      await queryClient.invalidateQueries(getListsQueryOptions())
+    },
   })
 
-  return { updateParticipants, removeParticipant, isPending: updateParticipantsIsPending || removeParticipantIsPending }
+  return {
+    deleteList,
+    updateParticipants,
+    removeParticipant,
+    isPending: updateParticipantsIsPending || removeParticipantIsPending || deleteListIsPending,
+  }
 }

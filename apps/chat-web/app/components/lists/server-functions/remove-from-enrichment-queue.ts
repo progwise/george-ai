@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { Language, getLanguage, translate } from '../../i18n'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { Language, getLanguage, translate } from '../../../i18n'
+import { backendRequest } from '../../../server-functions/backend'
 
 // Export schema function for form validation
 export const getRemoveFromQueueSchema = (language: Language) =>

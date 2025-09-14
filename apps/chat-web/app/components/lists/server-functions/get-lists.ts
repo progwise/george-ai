@@ -1,8 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
-import { graphql } from '../../gql'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
 graphql(`
   fragment ListsBase on AiList {
@@ -19,8 +19,7 @@ const getLists = createServerFn({ method: 'GET' }).handler(async (ctx) =>
       query getUserLists {
         aiLists {
           ...ListsBase
-          ...ListSelector_List
-          ...ListDeleteButton_List
+          ...ListMenu_AiLists
         }
       }
     `),

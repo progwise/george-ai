@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 
-import { graphql } from '../../gql'
-import { getLanguage } from '../../i18n'
-import { backendRequest } from '../../server-functions/backend'
-import { getListFieldFormSchema } from './field-modal'
+import { graphql } from '../../../gql'
+import { getLanguage } from '../../../i18n'
+import { backendRequest } from '../../../server-functions/backend'
+import { getListFieldFormSchema } from './../field-modal'
 
 export const addListField = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {

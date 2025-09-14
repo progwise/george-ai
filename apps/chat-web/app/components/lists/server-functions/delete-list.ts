@@ -1,16 +1,19 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
-export const deleteList = createServerFn({ method: 'POST' })
+export const deleteListFn = createServerFn({ method: 'POST' })
   .validator((id: string) => z.string().nonempty().parse(id))
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
         mutation deleteList($id: String!) {
-          deleteList(id: $id)
+          deleteList(id: $id) {
+            id
+            name
+          }
         }
       `),
       { id: ctx.data },

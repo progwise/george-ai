@@ -51,18 +51,28 @@ builder.mutationField('updateList', (t) =>
 )
 
 builder.mutationField('deleteList', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: 'Boolean',
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiList',
     nullable: false,
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { id }, { session }) => {
-      const existingList = canAccessListOrThrow(id, session.user.id)
+    resolve: async (_source, query, { id }, { session }) => {
+      await canAccessListOrThrow(id, session.user.id)
 
-      await prisma.aiListSource.deleteMany({ where: { listId: id } })
-      await prisma.aiList.delete({ where: { id } })
-      return !!existingList
+      const result = await prisma.$transaction(async (prisma) => {
+        // Delete related data first due to foreign key constraints
+        await prisma.aiListParticipant.deleteMany({ where: { listId: id } })
+        await prisma.aiListFieldContext.deleteMany({ where: { field: { listId: id } } })
+        await prisma.aiListField.deleteMany({ where: { listId: id } })
+        await prisma.aiListItemCache.deleteMany({ where: { field: { listId: id } } })
+        await prisma.aiListEnrichmentQueue.deleteMany({ where: { listId: id } })
+        await prisma.aiListSource.deleteMany({ where: { listId: id } })
+        const deletedList = await prisma.aiList.delete({ ...query, where: { id } })
+        return deletedList
+      })
+
+      return result
     },
   }),
 )

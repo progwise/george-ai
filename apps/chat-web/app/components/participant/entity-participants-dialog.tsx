@@ -1,16 +1,42 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { graphql } from '../../gql'
+import { Assistant_EntityParticipantsDialogFragment, User_EntityParticipantsDialogFragment } from '../../gql/graphql'
 import EmailIcon from '../../icons/email-icon'
 import { AssistantIcon } from '../assistant/assistant-icon'
 import { UserAvatar } from '../user-avatar'
-import { CandidateParticipantAssistant, CandidateParticipantUser, EntityParticipant } from './entity-participant.types'
+import { EntityParticipant } from './entity-participant.types'
+
+graphql(`
+  fragment User_EntityParticipantsDialog on User {
+    id
+    name
+    username
+    given_name
+    family_name
+    email
+    avatarUrl
+    profile {
+      position
+      business
+    }
+  }
+
+  fragment Assistant_EntityParticipantsDialog on AiAssistant {
+    id
+    name
+    description
+    iconUrl
+    ownerId
+  }
+`)
 
 interface EntityParticipantsDialogProps {
   ref: React.RefObject<HTMLDialogElement | null>
   participants: EntityParticipant[]
-  users?: CandidateParticipantUser[] | null
-  assistants?: CandidateParticipantAssistant[] | null
+  users?: User_EntityParticipantsDialogFragment[] | null
+  assistants?: Assistant_EntityParticipantsDialogFragment[] | null
   invitedEmails?: string[] | null
   onUpdateParticipants: ({
     userIds,
@@ -26,15 +52,56 @@ interface EntityParticipantsDialogProps {
 export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) => {
   const { ref, users, assistants, invitedEmails, onUpdateParticipants, participants } = props
   const [filterTerm, setFilterTerm] = useState<string>('')
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(
-    participants.filter((p) => p.user).map((p) => p.user!.id),
-  )
-  const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>(
-    participants.filter((p) => p.assistant).map((p) => p.assistant!.id),
-  )
-  const [selectedInvitedEmails, setSelectedInvitedEmails] = useState<string[]>(
-    participants.filter((p) => p.invitedEmail).map((p) => p.invitedEmail!),
-  )
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+  const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
+  const [selectedInvitedEmails, setSelectedInvitedEmails] = useState<string[]>([])
+
+  const filteredCandidates = useMemo(() => {
+    const filter = filterTerm.toLowerCase().trim()
+    return {
+      users: users?.filter(
+        (user) =>
+          user.name?.toLowerCase().includes(filter) ||
+          user.username?.toLowerCase().includes(filter) ||
+          user.email?.toLowerCase().includes(filter) ||
+          user.profile?.position?.toLowerCase().includes(filter) ||
+          user.profile?.business?.toLowerCase().includes(filter),
+      ),
+      assistants: assistants?.filter((assistant) => assistant.name.toLowerCase().includes(filter)),
+      invitedEmails: invitedEmails?.filter((email) => email.toLowerCase().includes(filter)),
+    }
+  }, [users, assistants, invitedEmails, filterTerm])
+
+  const participantsUnchanged = useMemo(() => {
+    const currentUserIds = participants.filter((p) => p.user).map((p) => p.user!.id)
+    const currentAssistantIds = participants.filter((p) => p.assistant).map((p) => p.assistant!.id)
+    const currentInvitedEmails = participants.filter((p) => p.invitedEmail).map((p) => p.invitedEmail!)
+
+    // Check if selected lists are the same as current lists
+    const usersUnchanged =
+      selectedUserIds.length === currentUserIds.length && selectedUserIds.every((id) => currentUserIds.includes(id))
+    const assistantsUnchanged =
+      selectedAssistantIds.length === currentAssistantIds.length &&
+      selectedAssistantIds.every((id) => currentAssistantIds.includes(id))
+    const emailsUnchanged =
+      selectedInvitedEmails.length === currentInvitedEmails.length &&
+      selectedInvitedEmails.every((email) => currentInvitedEmails.includes(email))
+
+    return usersUnchanged && assistantsUnchanged && emailsUnchanged
+  }, [participants, selectedUserIds, selectedAssistantIds, selectedInvitedEmails])
+
+  const resetParticipants = useCallback(() => {
+    setSelectedUserIds(participants.filter((p) => p.user).map((p) => p.user!.id))
+    setSelectedAssistantIds(participants.filter((p) => p.assistant).map((p) => p.assistant!.id))
+    setSelectedInvitedEmails(participants.filter((p) => p.invitedEmail).map((p) => p.invitedEmail!))
+  }, [participants])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      resetParticipants()
+    }, 100)
+    return () => clearTimeout(timeout)
+  }, [resetParticipants])
 
   const handleUpdateParticipantsClick = () => {
     onUpdateParticipants({
@@ -45,21 +112,9 @@ export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) =
     ref.current?.close()
   }
 
-  const filteredCandidates = useMemo(() => {
-    const filter = filterTerm.toLowerCase().trim()
-    return {
-      users: users?.filter(
-        (user) =>
-          user.name?.toLowerCase().includes(filter) ||
-          user.username?.toLowerCase().includes(filter) ||
-          user.email?.toLowerCase().includes(filter) ||
-          user.position?.toLowerCase().includes(filter) ||
-          user.business?.toLowerCase().includes(filter),
-      ),
-      assistants: assistants?.filter((assistant) => assistant.name.toLowerCase().includes(filter)),
-      invitedEmails: invitedEmails?.filter((email) => email.toLowerCase().includes(filter)),
-    }
-  }, [users, assistants, invitedEmails, filterTerm])
+  const handleResetClick = () => {
+    resetParticipants()
+  }
 
   return (
     <dialog ref={ref} className="modal">
@@ -99,34 +154,35 @@ export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) =
                             <UserAvatar user={user} className="size-16" />
                           </div>
                           <div className="flex flex-col items-start gap-1">
-                            <div className="text-xs font-semibold uppercase opacity-90">
-                              {user.name || user.username}
-                            </div>
-                            <div className="text-xs font-semibold opacity-60">
-                              <span>
-                                {user.firstName} {user.lastName}
-                              </span>
-                              <span>
-                                {user.position} {user.business}
-                              </span>
-                              <span>{user.id}</span>
+                            <div className="text-xs font-semibold uppercase opacity-90">{user.username}</div>
+                            <div className="flex w-full items-center gap-6 text-xs">
+                              <div>
+                                <span className="text-base-content/60">Name:</span>
+                                {user.given_name} {user.family_name}
+                              </div>
+                              <div>
+                                <span className="text-base-content/60">Company:</span>
+                                {user.profile?.position} {user.profile?.business}
+                              </div>
                             </div>
                           </div>
                           <div>
                             <label>
                               <input
                                 type="checkbox"
-                                defaultChecked
                                 className="checkbox"
                                 name="userIds"
                                 checked={selectedUserIds.includes(user.id)}
-                                onClick={() => {
+                                onChange={() => {
                                   setSelectedUserIds((prev) =>
                                     prev.includes(user.id) ? prev.filter((id) => id !== user.id) : [...prev, user.id],
                                   )
                                 }}
                               />
                             </label>
+                          </div>
+                          <div className="text-base-content/40 grow-1 absolute bottom-4 right-2 text-xs">
+                            ID: {user.id}
                           </div>
                         </li>
                       ))}
@@ -167,7 +223,7 @@ export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) =
                                 className="checkbox"
                                 name="userIds"
                                 checked={selectedAssistantIds.includes(assistant.id)}
-                                onClick={() => {
+                                onChange={() => {
                                   setSelectedAssistantIds((prev) =>
                                     prev.includes(assistant.id)
                                       ? prev.filter((id) => id !== assistant.id)
@@ -210,7 +266,7 @@ export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) =
                                 className="checkbox"
                                 name="userIds"
                                 checked={selectedAssistantIds.includes(email)}
-                                onClick={() => {
+                                onChange={() => {
                                   setSelectedInvitedEmails((prev) =>
                                     prev.includes(email) ? prev.filter((id) => id !== email) : [...prev, email],
                                   )
@@ -228,11 +284,37 @@ export const EntityParticipantsDialog = (props: EntityParticipantsDialogProps) =
           </div>
         </div>
 
-        <div className="modal-action">
-          <span>{selectedUserIds.length} Users</span>
-          <button type="button" className="btn btn-primary btn-sm" onClick={handleUpdateParticipantsClick}>
-            Update Participants
-          </button>
+        <div className="modal-action justify-between">
+          <div className="flex items-center gap-2">
+            {filteredCandidates.users && <div className="badge badge-info">{`${selectedUserIds.length}`} Users</div>}
+            {filteredCandidates.assistants && (
+              <div className="badge badge-info">{`${selectedAssistantIds.length}`} Assistants</div>
+            )}
+            {filteredCandidates.invitedEmails && (
+              <div className="badge badge-info">{`${selectedInvitedEmails.length}`} Invitations</div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button type="button" className="btn btn-neutral btn-sm" onClick={() => ref.current?.close()}>
+              Close
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              disabled={participantsUnchanged}
+              onClick={handleResetClick}
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={participantsUnchanged}
+              onClick={handleUpdateParticipantsClick}
+            >
+              Update
+            </button>
+          </div>
         </div>
       </div>
       {/* clicking outside the modal will close it */}

@@ -12,8 +12,7 @@ import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
-import { addListField } from './add-list-field'
-import { updateListField } from './update-list-field'
+import { addListField, updateListField } from './server-functions'
 
 export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language, useVectorStore: boolean) =>
   z.object({

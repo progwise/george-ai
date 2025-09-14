@@ -35,7 +35,7 @@ export const UserAvatar = ({ user, className }: UserAvatarProps) => {
   if (shouldShowImage) {
     return (
       <div className={twMerge('avatar', className)}>
-        <div className="border-base-content rounded-full border">
+        <div className="border-base-content/20 rounded-full border">
           <img
             src={displayAvatarUrl}
             alt={user.name || 'User avatar'}
@@ -50,7 +50,7 @@ export const UserAvatar = ({ user, className }: UserAvatarProps) => {
   } else {
     return (
       <div className={twMerge('avatar avatar-placeholder', className)}>
-        <div className="bg-base-300 text-base-content border-base-content flex w-full items-center justify-center rounded-full border">
+        <div className="bg-base-300 text-base-content border-base-content/20 flex w-full items-center justify-center rounded-full border">
           {user.name ? <span>{user.name.charAt(0).toUpperCase()}</span> : <UserIcon />}
         </div>
       </div>

@@ -1,14 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { Language, getLanguage, translate } from '../../i18n'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { Language, getLanguage, translate } from '../../../i18n'
+import { backendRequest } from '../../../server-functions/backend'
 
 export const getCreateListSchema = (language: Language) =>
   z.object({ name: z.string().nonempty(translate('lists.nameRequired', language)) })
 
-export const createList = createServerFn({ method: 'POST' })
+export const createListFn = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const entries = Object.fromEntries(data)

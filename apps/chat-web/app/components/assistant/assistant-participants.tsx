@@ -151,7 +151,6 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
                   participants={assistant.users}
                   isOwner={isOwner}
                   onRemoveParticipant={(participant) => handleRemoveParticipantFromDropdown(participant.id)}
-                  skipParticipants={MAX_VISIBLE_PARTICIPANTS}
                 />
               </DropdownContent>
             </div>

@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { Language, getLanguage, translate } from '../../i18n'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { Language, getLanguage, translate } from '../../../i18n'
+import { backendRequest } from '../../../server-functions/backend'
 
 export const getRemoveListFieldSchema = (language: Language) =>
   z.object({

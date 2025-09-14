@@ -31,10 +31,7 @@ builder.mutationField('updateLibrary', (t) =>
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: async (query, _source, { id, data }, context) => {
-      const library = await prisma.aiLibrary.findUniqueOrThrow({
-        where: { id },
-      })
-      await canAccessLibraryOrThrow(library.id, context.session.user.id)
+      await canAccessLibraryOrThrow(id, context.session.user.id)
 
       // Validate fileConverterOptions if provided
       const validatedData = {
@@ -98,13 +95,105 @@ builder.mutationField('deleteLibrary', (t) =>
   }),
 )
 
+const UpdateLibraryParticipantsResult = builder.simpleObject('UpdateLibraryParticipantsResult', {
+  fields: (t) => ({
+    addedParticipants: t.int({ nullable: false }),
+    removedParticipants: t.int({ nullable: false }),
+    totalParticipants: t.int({ nullable: false }),
+  }),
+})
+
+builder.mutationField('updateLibraryParticipants', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: UpdateLibraryParticipantsResult,
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      userIds: t.arg.stringList({ required: true }),
+    },
+    resolve: async (_source, { libraryId, userIds }, context) => {
+      const library = await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      if (library.ownerId !== context.session.user.id) {
+        throw new Error('Only the owner can update participants')
+      }
+      const existingParticipants = await prisma.aiLibraryParticipant.findMany({
+        where: { libraryId },
+      })
+
+      const newUserIds = userIds.filter(
+        (userId) => !existingParticipants.some((participant) => participant.userId === userId),
+      )
+
+      const removedUserIds = existingParticipants
+        .map((participant) => participant.userId)
+        .filter((userId) => !userIds.includes(userId))
+
+      const newParticipants = await prisma.aiLibraryParticipant.createMany({
+        data: newUserIds.map((userId) => ({
+          libraryId,
+          userId,
+        })),
+      })
+
+      const removedParticipants = await prisma.aiLibraryParticipant.deleteMany({
+        where: {
+          libraryId,
+          userId: { in: removedUserIds },
+        },
+      })
+
+      const totalParticipants = await prisma.aiLibraryParticipant.count({
+        where: { libraryId },
+      })
+
+      return {
+        addedParticipants: newParticipants.count,
+        removedParticipants: removedParticipants.count,
+        totalParticipants,
+      }
+    },
+  }),
+)
+
+builder.mutationField('removeLibraryParticipant', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'Boolean',
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      participantId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { libraryId, participantId }, context) => {
+      const currentUserId = context.session.user.id
+      const participant = await prisma.aiLibraryParticipant.findUniqueOrThrow({
+        where: { id: participantId, libraryId },
+        select: { libraryId: true, userId: true, library: { select: { ownerId: true } } },
+      })
+
+      const isOwner = participant.library.ownerId === currentUserId
+      const isSelf = participant.userId === currentUserId
+
+      if (!isOwner && !isSelf) {
+        throw new Error('Only the owner can remove other participants')
+      }
+
+      await prisma.aiLibraryParticipant.delete({
+        where: { id: participantId },
+      })
+
+      return true
+    },
+  }),
+)
+
 builder.mutationField('clearEmbeddedFiles', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     args: {
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (_parent, { libraryId }) => {
+    resolve: async (_parent, { libraryId }, context) => {
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
       await dropVectorStore(libraryId)
       await prisma.aiLibraryFile.deleteMany({
         where: { libraryId },

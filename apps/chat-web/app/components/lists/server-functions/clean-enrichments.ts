@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
 const CleanEnrichmentsDocument = graphql(`
   mutation CleanEnrichments($listId: String!, $fieldId: String!) {

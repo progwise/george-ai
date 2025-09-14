@@ -405,6 +405,9 @@ export default {
     originModified: 'Original geändert',
     query: 'Abfrage',
     remainingStorage: 'Verbleibender Speicher',
+    removeParticipantConfirmation:
+      'Sie sind dabei, einen Teilnehmer zu entfernen. Dies kann nicht rückgängig gemacht werden.',
+    removeParticipantConfirmationTitle: 'Teilnehmer entfernen',
     reset: 'Zurücksetzen',
     saturday: 'Samstag',
     size: 'Größe',
@@ -457,10 +460,13 @@ export default {
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
       'Sie sind dabei, {participantName} von dieser Bibliothek zu entfernen. Dies kann nicht rückgängig gemacht werden.',
+    removeParticipantSuccess: 'Teilnehmer erfolgreich entfernt',
     saveError: 'Fehler beim Speichern der Bibliothek: {message}',
     saveSuccess: 'Bibliothek {name} erfolgreich gespeichert',
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
+    updateParticipantsSuccess:
+      'Teilnehmer der Bibliothek erfolgreich aktualisiert: {addedParticipants} hinzugefügt, {removedParticipants} entfernt, insgesamt {totalParticipants} Teilnehmer.',
     users: 'Benutzer',
   },
   lists: {
@@ -490,6 +496,7 @@ export default {
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
       'Sie sind dabei, {participantName} von dieser Liste zu entfernen. Dies kann nicht rückgängig gemacht werden.',
+    title: 'Liste',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateParticipantsSuccess:
       'Teilnehmer der Liste erfolgreich aktualisiert: {addedParticipants} hinzugefügt, {removedParticipants} entfernt, insgesamt {totalParticipants} Teilnehmer.',
