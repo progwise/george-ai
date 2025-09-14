@@ -1,6 +1,6 @@
-import { canAccessListOrThrow } from '../../domain'
-import { prisma } from '../../prisma'
-import { builder } from '../builder'
+import { canAccessListOrThrow } from './../../domain'
+import { prisma } from './../../prisma'
+import { builder } from './../builder'
 
 console.log('Setting up: AiList mutations')
 
@@ -57,7 +57,7 @@ builder.mutationField('deleteList', (t) =>
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (_source, query, { id }, { session }) => {
+    resolve: async (query, _source, { id }, { session }) => {
       await canAccessListOrThrow(id, session.user.id)
 
       const result = await prisma.$transaction(async (prisma) => {
@@ -155,7 +155,6 @@ builder.mutationField('removeListParticipant', (t) =>
       const isOwner = participant.list.ownerId === currentUserId
       const isSelf = participant.userId === currentUserId
 
-      // Nur Owner darf andere entfernen; jeder darf sich selbst entfernen
       if (!isOwner && !isSelf) {
         throw new Error('Only the owner can remove other participants')
       }
