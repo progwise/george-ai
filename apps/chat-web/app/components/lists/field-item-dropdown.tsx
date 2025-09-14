@@ -5,9 +5,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { PlayIcon } from '../../icons/play-icon'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getListQueryOptions } from './get-list'
-import { removeFromEnrichmentQueue } from './remove-from-enrichment-queue'
-import { startSingleEnrichment } from './start-single-enrichment'
+import { getListQueryOptions, removeFromEnrichmentQueue, startSingleEnrichment } from './server-functions'
 
 interface FieldItemDropdownProps {
   listId: string

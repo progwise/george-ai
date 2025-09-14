@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { PlusIcon } from '../../icons/plus-icon'
 import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
@@ -65,7 +66,8 @@ export const LibraryNewDialog = () => {
 
   return (
     <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
+      <button type="button" className="btn btn-primary btn-ghost btn-sm" onClick={showDialog}>
+        <PlusIcon className="mr-2 h-4 w-4" />
         {t('libraries.addNewButton')}
       </button>
       <DialogForm

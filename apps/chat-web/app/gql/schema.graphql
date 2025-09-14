@@ -247,9 +247,9 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
+  participants: [AiLibraryParticipant!]!
   updatedAt: DateTime!
   url: String
-  users: [User!]!
 }
 
 type AiLibraryCrawler {
@@ -411,6 +411,15 @@ input AiLibraryInput {
   icon: String
   name: String!
   url: String
+}
+
+type AiLibraryParticipant {
+  createdAt: DateTime!
+  id: ID!
+  library: AiLibrary!
+  libraryId: String!
+  user: User!
+  userId: String!
 }
 
 type AiLibraryQueryHit {
@@ -585,7 +594,7 @@ type AiListParticipant {
   id: ID!
   list: AiList!
   listId: String!
-  user: AiList!
+  user: User!
   userId: String!
 }
 
@@ -816,7 +825,6 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
-  addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
@@ -864,7 +872,6 @@ type Mutation {
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
-  leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User!
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
@@ -880,9 +887,10 @@ type Mutation {
     fileId: String!
     listId: String!
   ): EnrichmentQueueResult!
-  removeLibraryParticipant(libraryId: String!, userId: String!): User!
+  removeLibraryParticipant(libraryId: String!, participantId: String!): Boolean!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
+  removeListParticipant(listId: String!, participantId: String!): Boolean!
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
@@ -929,9 +937,11 @@ type Mutation {
   ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
+  updateLibraryParticipants(libraryId: String!, userIds: [String!]!): UpdateLibraryParticipantsResult!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
+  updateListParticipants(listId: String!, userIds: [String!]!): UpdateListParticipantsResult!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
@@ -1052,6 +1062,18 @@ type SharePointValidationResult {
 type SourceFileLink {
   fileName: String!
   url: String!
+}
+
+type UpdateLibraryParticipantsResult {
+  addedParticipants: Int!
+  removedParticipants: Int!
+  totalParticipants: Int!
+}
+
+type UpdateListParticipantsResult {
+  addedParticipants: Int!
+  removedParticipants: Int!
+  totalParticipants: Int!
 }
 
 type UpdateStats {

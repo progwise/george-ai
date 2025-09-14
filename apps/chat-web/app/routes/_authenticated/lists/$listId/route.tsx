@@ -1,12 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { getListQueryOptions } from '../../../../components/lists/get-list'
-import { getListsQueryOptions } from '../../../../components/lists/get-lists'
-import { ListDeleteButton } from '../../../../components/lists/list-delete-button'
-import { ListExportButton } from '../../../../components/lists/list-export-button'
-import { ListSelector } from '../../../../components/lists/list-selector'
-import { NewListButton } from '../../../../components/lists/new-list-button'
+import { ListMenu } from '../../../../components/lists/list-menu'
+import { getListQueryOptions } from '../../../../components/lists/server-functions'
+import { getListsQueryOptions } from '../../../../components/lists/server-functions'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
@@ -24,6 +21,7 @@ export const Route = createFileRoute('/_authenticated/lists/$listId')({
 function RouteComponent() {
   const { t } = useTranslation()
   const params = Route.useParams()
+
   const {
     data: { aiLists },
   } = useSuspenseQuery(getListsQueryOptions())
@@ -32,48 +30,39 @@ function RouteComponent() {
   } = useSuspenseQuery(getListQueryOptions(params.listId))
 
   return (
-    <div className="">
-      <ul className="bg-base-200 menu-horizontal rounded-box flex w-full justify-start gap-2 p-2">
-        <li className="">
-          <NewListButton variant="ghost" />
-        </li>
-        <li className="w-60 items-center">
-          <ListSelector lists={aiLists} selectedListId={params.listId} />
-        </li>
-        <li className="">
-          <Link
-            to="/lists/$listId"
-            className="btn btn-sm"
-            activeProps={{ className: 'btn-active' }}
-            params={{ listId: params.listId }}
-            activeOptions={{ exact: true, includeSearch: false }}
-          >
-            <ListViewIcon className="size-6" />
-            {t('lists.view')}
-          </Link>
-        </li>
-        <li className="">
-          <Link
-            to="/lists/$listId/edit"
-            className="btn btn-sm"
-            activeProps={{ className: 'btn-active' }}
-            params={{ listId: params.listId }}
-            activeOptions={{ exact: true }}
-          >
-            <EditIcon className="size-6" />
-            {t('lists.edit')}
-          </Link>
-        </li>
-        <li className="">
-          <ListExportButton listId={params.listId} />
-        </li>
-        <li className="grow-1"></li>
-        <li className="justify-self-end">
-          <ListDeleteButton list={aiList} />
-        </li>
-      </ul>
+    <div className="flex flex-col gap-4">
+      <ListMenu list={aiList} selectableLists={aiLists} />
 
-      <Outlet />
+      <div role="tablist" className="tabs tabs-lift justify-end">
+        <Link
+          to="/lists/$listId"
+          className="tab"
+          params={{ listId: params.listId }}
+          activeOptions={{ exact: true, includeSearch: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          <ListViewIcon />
+          {t('lists.view')}
+        </Link>
+        <Link
+          to="/lists/$listId/edit"
+          className="tab"
+          params={{ listId: params.listId }}
+          activeOptions={{ exact: true }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          <EditIcon />
+          {t('lists.edit')}
+        </Link>
+        <input type="radio" className="tab hidden" defaultChecked />
+        <div className="tab-content bg-base-100 border-base-300 border p-3">
+          <div className="max-w-dvw relative max-h-[100dvh] overflow-scroll">
+            <Outlet />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

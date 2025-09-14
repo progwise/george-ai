@@ -9,7 +9,7 @@ const BottomNavigationMobile = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <div className="dock z-40">
         <Link to="/conversations" activeProps={{ className: 'dock-active' }}>
           <ConversationIcon className="size-6" />

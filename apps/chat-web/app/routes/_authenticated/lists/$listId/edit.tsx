@@ -2,8 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { ListEditForm } from '../../../../components/lists/edit-form'
-import { getListQueryOptions } from '../../../../components/lists/get-list'
 import { ListSourcesManager } from '../../../../components/lists/list-sources-manager'
+import { getListQueryOptions } from '../../../../components/lists/server-functions'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/edit')({
   component: RouteComponent,

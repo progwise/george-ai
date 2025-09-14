@@ -18,7 +18,7 @@ import { Pagination } from '../table/pagination'
 import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
-import { getListFilesWithValuesQueryOptions } from './get-list-files-with-values'
+import { getListFilesWithValuesQueryOptions } from './server-functions'
 
 graphql(`
   fragment ListFilesTable_File on AiLibraryFile {

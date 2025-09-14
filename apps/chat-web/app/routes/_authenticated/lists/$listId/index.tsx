@@ -2,9 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
-import { getListQueryOptions } from '../../../../components/lists/get-list'
-import { getListFilesWithValuesQueryOptions } from '../../../../components/lists/get-list-files-with-values'
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
+import { getListFilesWithValuesQueryOptions, getListQueryOptions } from '../../../../components/lists/server-functions'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 interface ListSearchParams {

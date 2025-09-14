@@ -16,27 +16,15 @@ const getTranslatedString = (key: string, language: Language, values?: Record<st
   if (currentObject === undefined) {
     return key
   }
-  const translatedText = currentObject.toString()
-  const stringList: Array<string> = []
+  let translatedText = currentObject.toString()
   if (values) {
     const availablePlaceholders = Object.keys(values)
-    let remainingText = translatedText
 
     availablePlaceholders.forEach((placeholder) => {
-      const [before, after] = remainingText.split(`{${placeholder}}`)
-      stringList.push(before)
-      stringList.push(values[placeholder].toString())
-      remainingText = after || ''
+      translatedText = translatedText.replace(`{${placeholder}}`, values[placeholder].toString())
     })
-
-    if (remainingText) {
-      stringList.push(remainingText)
-    }
-
-    return stringList.join('')
-  } else {
-    return translatedText
   }
+  return translatedText
 }
 
 const getTranslatedJSX = (

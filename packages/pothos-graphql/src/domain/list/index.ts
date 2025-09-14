@@ -9,10 +9,10 @@ export const canAccessListOrThrow = async (listId: string, userId: string) => {
   })
 
   if (list.ownerId === userId) {
-    return true
+    return list
   }
   if (list.participants.some((participation) => participation.userId === userId)) {
-    return true
+    return list
   }
   throw new Error(`User ${userId} can not access list`)
 }

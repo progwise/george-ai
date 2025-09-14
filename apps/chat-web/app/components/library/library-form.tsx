@@ -160,27 +160,28 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
         name="fileConverterOptions"
         value={library.fileConverterOptions ?? ''}
       />
-      <div className="flex items-center justify-end">
-        <ul className="menu bg-base-200 lg:menu-horizontal rounded-box gap-x-2">
-          <li>
-            <button type="submit" className="btn btn-ghost btn-primary btn-sm" disabled={saveIsPending}>
-              <SaveIcon className="h-5 w-5" />
-              Save
-            </button>
-          </li>
-          <li>
-            <button type="button" className="btn btn-sm btn-ghost btn-secondary" onClick={handleReset}>
-              <ReprocessIcon className="h-5 w-5" />
-              Reset
-            </button>
-          </li>
-        </ul>
-      </div>
+
       {/* Basic Information Card */}
       <div className="card bg-base-100 shadow-md">
-        <div className="card-body">
+        <div className="card-title flex items-center justify-between px-6 pt-4">
           <h2 className="card-title mb-4 text-xl">{t('labels.basicInformation')}</h2>
 
+          <ul className="menu bg-base-200 lg:menu-horizontal rounded-box gap-x-2">
+            <li>
+              <button type="submit" className="btn btn-ghost btn-primary btn-sm" disabled={saveIsPending}>
+                <SaveIcon className="h-5 w-5" />
+                Save
+              </button>
+            </li>
+            <li>
+              <button type="button" className="btn btn-sm btn-ghost btn-secondary" onClick={handleReset}>
+                <ReprocessIcon className="h-5 w-5" />
+                Reset
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div className="card-body">
           <div className="space-y-4">
             {/* Library Name */}
             <Input

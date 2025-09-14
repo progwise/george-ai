@@ -1,8 +1,16 @@
+import { twMerge } from 'tailwind-merge'
+
 import type { IconProps } from './icon-props'
 
 export const DownloadIcon = ({ className }: IconProps) => {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      className={twMerge('size-4', className)}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

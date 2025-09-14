@@ -1,16 +1,19 @@
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
-import { getListsQueryOptions } from '../../../components/lists/get-lists'
-import { NewListButton } from '../../../components/lists/new-list-button'
+import { NewListDialog } from '../../../components/lists/new-list-dialog'
+import { getListsQueryOptions } from '../../../components/lists/server-functions'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ListPlusIcon } from '../../../icons/list-plus-icon'
 
 export const Route = createFileRoute('/_authenticated/lists/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const newListDialogRef = useRef<HTMLDialogElement | null>(null)
+
   const navigate = Route.useNavigate()
   const { t } = useTranslation()
 
@@ -32,7 +35,16 @@ function RouteComponent() {
     <div className="absolute flex h-screen w-full">
       <div className="prose mx-auto mt-8">
         <p>{t('lists.firstList')}</p>
-        <NewListButton variant="primary" />
+        <button
+          type="button"
+          onClick={() => newListDialogRef.current?.showModal()}
+          className="btn btn-sm"
+          title={t('lists.newList')}
+        >
+          <ListPlusIcon className="size-6" />
+          <span>{t('lists.newList')}</span>
+        </button>
+        <NewListDialog ref={newListDialogRef} />
       </div>
     </div>
   )

@@ -7,8 +7,7 @@ import { EditIcon } from '../../icons/edit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { toastSuccess } from '../georgeToaster'
 import { EnrichmentControls } from './enrichment-controls'
-import { getListQueryOptions } from './get-list'
-import { removeListField } from './remove-list-field'
+import { getListQueryOptions, removeListField } from './server-functions'
 
 interface FieldHeaderDropdownProps {
   field: ListFieldsTable_ListFragment['fields'][0]

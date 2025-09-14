@@ -42,7 +42,6 @@ export const DialogForm = ({
     formRef.current?.reset()
   }
 
-  // using react portals prevents animation issues with the modal
   return (
     <dialog className="modal" ref={ref}>
       <div className={twMerge('modal-box flex flex-col', className)}>

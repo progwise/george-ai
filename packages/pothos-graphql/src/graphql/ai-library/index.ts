@@ -7,6 +7,18 @@ import './mutations'
 
 console.log('Setting up: AiLibrary')
 
+builder.prismaObject('AiLibraryParticipant', {
+  name: 'AiLibraryParticipant',
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    user: t.relation('user', { nullable: false }),
+    userId: t.exposeString('userId', { nullable: false }),
+    library: t.relation('library', { nullable: false }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+  }),
+})
+
 builder.prismaObject('AiLibrary', {
   name: 'AiLibrary',
   fields: (t) => ({
@@ -31,19 +43,6 @@ builder.prismaObject('AiLibrary', {
     embeddingModelName: t.exposeString('embeddingModelName'),
     embeddingTimeoutMs: t.exposeInt('embeddingTimeoutMs'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
-    users: t.prismaField({
-      type: ['User'],
-      nullable: false,
-      select: { participants: { select: { user: true } } },
-      resolve: (_query, library) => {
-        const users = library.participants.map((participant) => participant.user)
-        // Sort participants: owner first, then other users
-        return users.sort((a, b) => {
-          if (a.id === library.ownerId) return -1
-          if (b.id === library.ownerId) return 1
-          return 0
-        })
-      },
-    }),
+    participants: t.relation('participants', { nullable: false }),
   }),
 })

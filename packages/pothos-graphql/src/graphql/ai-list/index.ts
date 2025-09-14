@@ -13,7 +13,7 @@ builder.prismaObject('AiListParticipant', {
     listId: t.exposeString('listId', { nullable: false }),
     list: t.relation('list', { nullable: false }),
     userId: t.exposeString('userId', { nullable: false }),
-    user: t.relation('list', { nullable: false }),
+    user: t.relation('user', { nullable: false }),
   }),
 })
 

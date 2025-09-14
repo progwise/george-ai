@@ -17,6 +17,11 @@ export const isProviderAvatar = (avatarUrl: string | null): boolean => {
 export const addCacheBustingToAvatarUrl = (avatarUrl: string | null): string | null => {
   if (!avatarUrl) return null
 
+  if (!avatarUrl.startsWith('http')) {
+    // Relative URLs (e.g., from local uploads) should not be modified
+    return avatarUrl
+  }
+
   // Don't modify provider URLs
   if (isProviderAvatar(avatarUrl)) {
     return avatarUrl
