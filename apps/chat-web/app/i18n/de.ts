@@ -567,7 +567,7 @@ export default {
     },
     files: {
       title: 'Dateien',
-      showColumns: 'Spalten anzeigen',
+      showColumns: '{count}/{total} Spalten',
       pageSize: 'Pro Seite',
       filterPlaceholder: 'Filter...',
       noFiles: 'Keine Dateien gefunden',

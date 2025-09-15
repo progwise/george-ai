@@ -356,7 +356,6 @@ type AiLibraryFile {
   dropError: String
   embeddingStatus: EmbeddingStatus!
   extractionStatus: ExtractionStatus!
-  fieldValues(fieldIds: [String!]!, language: String!): [FieldValueResult!]!
   id: ID!
   isLegacyFile: Boolean!
   lastEmbedding: AiContentProcessingTask
@@ -562,18 +561,21 @@ input AiListFieldInput {
   useVectorStore: Boolean
 }
 
-"""
-Query result for AI list files from all source libraries
-"""
-type AiListFilesQueryResult {
-  count: Int!
-  files: [AiLibraryFile!]!
-  listId: String!
-  orderBy: String
-  orderDirection: String
-  showArchived: Boolean
-  skip: Int!
-  take: Int!
+input AiListFilterInput {
+  fieldId: String!
+  filterType: AiListFilterType!
+  value: String!
+}
+
+enum AiListFilterType {
+  contains
+  ends_with
+  equals
+  is_empty
+  is_not_empty
+  not_contains
+  not_equals
+  starts_with
 }
 
 input AiListInput {
@@ -782,6 +784,42 @@ type HumanParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+type ListItemQueryResult {
+  origin: ListItemResult!
+  values: [FieldValueResult!]!
+}
+
+type ListItemResult {
+  archivedAt: DateTime
+  createdAt: DateTime!
+  docPath: String
+  dropError: String
+  id: ID!
+  libraryId: String!
+  libraryName: String!
+  mimeType: String!
+  name: String!
+  originModificationDate: DateTime
+  originUri: String
+  size: Int
+  type: String!
+  updatedAt: DateTime
+  uploadedAt: DateTime
+}
+
+"""
+Query result for AI list files from all source libraries
+"""
+type ListItemsQueryResult {
+  count: Int!
+  items: [ListItemQueryResult!]!
+  orderBy: String
+  orderDirection: String
+  showArchived: Boolean
+  skip: Int!
+  take: Int!
 }
 
 type ManagedUser {
@@ -998,14 +1036,16 @@ type Query {
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
   aiListEnrichmentQueue(listId: String!, status: String): [AiListEnrichmentQueue!]!
-  aiListFiles(
+  aiListItems(
+    fieldIds: [String!]!
+    filters: [AiListFilterInput!]
     listId: String!
     orderBy: String
     orderDirection: String
     showArchived: Boolean = false
     skip: Int! = 0
     take: Int! = 20
-  ): AiListFilesQueryResult!
+  ): ListItemsQueryResult!
   aiLists: [AiList!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!

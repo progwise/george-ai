@@ -221,6 +221,7 @@ builder.mutationField('addListSource', (t) =>
 
       // Auto-create file property fields for this list if they don't exist
       const filePropertyFields = [
+        { property: 'source', name: 'Source', type: 'string' },
         { property: 'name', name: 'Filename', type: 'string' },
         { property: 'originUri', name: 'Origin URI', type: 'string' },
         { property: 'crawlerUrl', name: 'Crawler URL', type: 'string' },

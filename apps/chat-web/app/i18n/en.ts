@@ -558,7 +558,7 @@ export default {
     },
     files: {
       title: 'Files',
-      showColumns: 'Show columns',
+      showColumns: '{count}/{total} columns',
       pageSize: 'Per page',
       filterPlaceholder: 'Filter...',
       noFiles: 'No files found',

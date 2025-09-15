@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
+import { FieldFilter } from '../use-list-filters'
 
 const getListFilesWithValuesSchema = z.object({
   listId: z.string().nonempty(),
@@ -12,7 +13,13 @@ const getListFilesWithValuesSchema = z.object({
   orderBy: z.string().optional(),
   orderDirection: z.enum(['asc', 'desc']).optional(),
   fieldIds: z.array(z.string()),
-  language: z.string(),
+  filters: z.array(
+    z.object({
+      fieldId: z.string().nonempty(),
+      filterType: z.enum(['equals', 'starts_with', 'ends_with', 'contains', 'not_contains']),
+      value: z.string().nonempty(),
+    }),
+  ),
 })
 
 const listFilesWithValuesDocument = graphql(`
@@ -23,20 +30,31 @@ const listFilesWithValuesDocument = graphql(`
     $orderBy: String
     $orderDirection: String
     $fieldIds: [String!]!
-    $language: String!
+    $filters: [AiListFilterInput!]!
   ) {
-    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: $orderBy, orderDirection: $orderDirection) {
-      listId
+    aiListItems(
+      listId: $listId
+      fieldIds: $fieldIds
+      filters: $filters
+      skip: $skip
+      take: $take
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+    ) {
       count
       take
       skip
       orderBy
       orderDirection
-      files {
-        id
-        name
-        libraryId
-        fieldValues(fieldIds: $fieldIds, language: $language) {
+      items {
+        origin {
+          id
+          type
+          name
+          libraryId
+          libraryName
+        }
+        values {
           fieldId
           fieldName
           displayValue
@@ -57,7 +75,7 @@ const getListFilesWithValues = createServerFn({ method: 'GET' })
       orderBy?: string
       orderDirection?: 'asc' | 'desc'
       fieldIds: string[]
-      language: string
+      filters: FieldFilter[]
     }) => getListFilesWithValuesSchema.parse(data),
   )
   .handler(async (ctx) => {
@@ -71,7 +89,7 @@ export const getListFilesWithValuesQueryOptions = (params: {
   orderBy?: string
   orderDirection?: 'asc' | 'desc'
   fieldIds: string[]
-  language: string
+  filters: FieldFilter[]
   hasActiveEnrichments: boolean
 }) =>
   queryOptions({

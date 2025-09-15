@@ -8,30 +8,6 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastSuccess } from '../georgeToaster'
 import { getListExportData, getListExportDataOptions } from './server-functions'
 
-// GraphQL fragments for export functionality
-graphql(`
-  fragment ListExport_File on AiLibraryFile {
-    id
-    name
-    originUri
-    mimeType
-    size
-    originModificationDate
-    crawledByCrawler {
-      id
-      uri
-    }
-    cache {
-      id
-      fieldId
-      valueString
-      valueNumber
-      valueDate
-      valueBoolean
-    }
-  }
-`)
-
 graphql(`
   fragment ListExport_Field on AiListField {
     id
@@ -59,15 +35,15 @@ interface ListExportDialogProps {
 }
 
 export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
   const [selectedFieldIds, setSelectedFieldIds] = useState<string[]>([])
   const [maxRows, setMaxRows] = useState(1000)
 
   // First fetch just the list info to get fields and total count
   const {
-    data: { aiList, aiListFiles },
-  } = useSuspenseQuery(getListExportDataOptions(listId, 0, 0, [], language))
+    data: { aiList, aiListItems },
+  } = useSuspenseQuery(getListExportDataOptions(listId, 0, 0, []))
 
   const handleExport = async () => {
     if (isExporting) return
@@ -91,20 +67,19 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
           skip: 0,
           take: maxRows,
           fieldIds: selectedFieldIds,
-          language,
         },
       })
 
-      const filesToExport = exportData.aiListFiles.files
+      const itemsToExport = exportData.aiListItems.items
 
       // Generate CSV header
       const headers = selectedFields.map((field) => field.name)
       const csvRows = [headers.join(',')]
 
       // Generate CSV data rows
-      filesToExport.forEach((file) => {
+      itemsToExport.forEach((item) => {
         const rowData = selectedFieldIds.map((fieldId) => {
-          const fieldValue = file.fieldValues.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
+          const fieldValue = item.values.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
           const value = fieldValue?.displayValue || ''
 
           // Convert to string and escape CSV special characters
@@ -210,7 +185,7 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
             max={10000}
           />
           <div className="text-base-content/60 mt-1 text-xs">
-            {t('lists.export.dialog.totalFiles', { count: aiListFiles.count })}
+            {t('lists.export.dialog.totalFiles', { count: aiListItems.count })}
           </div>
         </div>
 

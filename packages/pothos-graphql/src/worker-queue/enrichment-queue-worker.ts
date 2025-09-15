@@ -89,20 +89,7 @@ async function processQueueItem(queueItem: {
     // Get actual values for context fields
     const contextWithValues = await Promise.all(
       field.context.map(async (item) => {
-        // Get cached value if this is a computed field
-        let cachedValue = null
-        if (item.contextField.sourceType === 'llm_computed') {
-          cachedValue = await prisma.aiListItemCache.findUnique({
-            where: {
-              fileId_fieldId: {
-                fileId: queueItem.fileId,
-                fieldId: item.contextFieldId,
-              },
-            },
-          })
-        }
-
-        const { value } = await getFieldValue(file, item.contextField, cachedValue)
+        const { value } = await getFieldValue(file, item.contextField)
         return {
           name: item.contextField.name,
           value: value || '',

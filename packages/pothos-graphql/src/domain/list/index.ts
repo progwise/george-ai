@@ -1,10 +1,15 @@
 import type { Prisma } from '@george-ai/prismaClient'
+import { DefaultArgs } from '@george-ai/prismaClient/runtime/library'
 
 import { prisma } from '../../prisma'
 
-export const canAccessListOrThrow = async (listId: string, userId: string) => {
+export const canAccessListOrThrow = async (
+  listId: string,
+  userId: string,
+  options?: { include: Prisma.AiListInclude<DefaultArgs> },
+) => {
   const list = await prisma.aiList.findFirstOrThrow({
-    select: { participants: true, ownerId: true },
+    include: { participants: true, ...(options?.include || {}) },
     where: { id: listId },
   })
 
@@ -27,10 +32,10 @@ export async function getFieldValue(
     include: {
       crawledByCrawler: true
       cache: true
+      library: true
     }
   }>,
   field: Prisma.AiListFieldGetPayload<object>,
-  cache?: Prisma.AiListItemCacheGetPayload<object> | null,
 ): Promise<{ value: string | null; errorMessage: string | null }> {
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
@@ -64,11 +69,18 @@ export async function getFieldValue(
       case 'mimeType':
         value = file.mimeType
         break
+      case 'source':
+        value = file.library.name
+        break
       default:
         value = null
     }
     return { value, errorMessage: null }
   }
+
+  console.log('Finding cache value for field', field.id, 'and file', file.id)
+  console.log('File cache:', file.cache)
+  const cache = findCacheValue(file, field.id)
 
   // Handle computed fields - use cached value if available
   if (field.sourceType === 'llm_computed' && cache) {
@@ -107,5 +119,5 @@ export function findCacheValue(
   }>,
   fieldId: string,
 ): Prisma.AiListItemCacheGetPayload<object> | null {
-  return file.cache?.find((cache) => cache.fieldId === fieldId) || null
+  return file.cache.find((cache) => cache.fieldId === fieldId) || null
 }

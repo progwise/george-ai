@@ -12,6 +12,8 @@ import {
   AiLibraryFileInput,
   AiLibraryInput,
   AiListFieldInput,
+  AiListFilterInput,
+  AiListFilterType,
   AiListInput,
   AiListSourceInput,
   ConversationInvitationInput,
@@ -34,6 +36,8 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
 export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
+
+export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
@@ -148,6 +152,14 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     sourceType: z.string(),
     type: z.string(),
     useVectorStore: z.boolean().nullish(),
+  })
+}
+
+export function AiListFilterInputSchema(): z.ZodObject<Properties<AiListFilterInput>> {
+  return z.object({
+    fieldId: z.string(),
+    filterType: AiListFilterTypeSchema,
+    value: z.string(),
   })
 }
 

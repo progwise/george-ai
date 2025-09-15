@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
 import { getListFilesWithValuesQueryOptions, getListQueryOptions } from '../../../../components/lists/server-functions'
-import { useTranslation } from '../../../../i18n/use-translation-hook'
+import { useListFilters } from '../../../../components/lists/use-list-filters'
 
 interface ListSearchParams {
   page?: number
@@ -32,7 +32,6 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/')({
 function RouteComponent() {
   const { listId } = Route.useParams()
   const { page = 0, pageSize = 20, orderBy = 'name', orderDirection = 'asc' } = Route.useSearch()
-  const { t, language } = useTranslation()
   const navigate = Route.useNavigate()
 
   const {
@@ -47,8 +46,10 @@ function RouteComponent() {
   // Get field IDs for the query
   const fieldIds = aiList.fields.map((field) => field.id)
 
+  const { filters } = useListFilters(listId)
+
   const {
-    data: { aiListFiles },
+    data: { aiListItems },
   } = useSuspenseQuery(
     getListFilesWithValuesQueryOptions({
       listId,
@@ -57,8 +58,8 @@ function RouteComponent() {
       orderBy,
       orderDirection,
       fieldIds,
-      language,
       hasActiveEnrichments,
+      filters,
     }),
   )
 
@@ -79,13 +80,7 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-base-content/70">
-          {t('lists.files.title')} - {aiList.sources.length} {t('lists.sources.currentSources').toLowerCase()}
-        </p>
-      </div>
-
-      <ListFieldsTable list={aiList} listFiles={aiListFiles} onPageChange={handlePageChange} />
+      <ListFieldsTable list={aiList} listItems={aiListItems} onPageChange={handlePageChange} />
     </div>
   )
 }

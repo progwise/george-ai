@@ -18,27 +18,32 @@ import { Pagination } from '../table/pagination'
 import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
+import { ListFieldsTableFilterBadges } from './list-fields-table-filter-badges'
+import { ListFieldsTableMenu } from './list-fields-table-menu'
 import { getListFilesWithValuesQueryOptions } from './server-functions'
+import { useListFilters } from './use-list-filters'
 
 graphql(`
-  fragment ListFilesTable_File on AiLibraryFile {
+  fragment ListItemTable_Item on ListItemResult {
     id
     name
     libraryId
+    libraryName
   }
 `)
 
 // Note: We can't use variables in fragments, so fieldValues will be queried separately
 graphql(`
-  fragment ListFilesTable_FilesQueryResult on AiListFilesQueryResult {
-    listId
+  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {
     count
     take
     skip
     orderBy
     orderDirection
-    files {
-      ...ListFilesTable_File
+    items {
+      origin {
+        ...ListItemTable_Item
+      }
     }
   }
 `)
@@ -61,6 +66,8 @@ graphql(`
     context {
       contextFieldId
     }
+    ...ListFieldsTableFilters_AiListField
+    ...ListFieldsTableMenu_AiListField
   }
 `)
 
@@ -75,18 +82,20 @@ graphql(`
 
 interface ListFieldsTableProps {
   list: ListFieldsTable_ListFragment
-  listFiles: ListFilesTable_FilesQueryResultFragment
+  listItems: ListFilesTable_FilesQueryResultFragment
   onPageChange?: (page: number, pageSize: number, orderBy?: string, orderDirection?: 'asc' | 'desc') => void
 }
 
-export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTableProps) => {
-  const { t, language } = useTranslation()
+export const ListFieldsTable = ({ list, listItems, onPageChange }: ListFieldsTableProps) => {
+  const { t } = useTranslation()
+
+  const { filters } = useListFilters(list.id)
 
   // Extract state from fragment data (managed by URL/route)
-  const currentPage = Math.floor(listFiles.skip / listFiles.take)
-  const pageSize = listFiles.take
-  const sortBy = listFiles.orderBy || 'name'
-  const sortDirection = (listFiles.orderDirection as 'asc' | 'desc') || 'asc'
+  const currentPage = Math.floor(listItems.skip / listItems.take)
+  const pageSize = listItems.take
+  const sortBy = listItems.orderBy || 'name'
+  const sortDirection = (listItems.orderDirection as 'asc' | 'desc') || 'asc'
 
   // Sort fields by order for consistent display
   const sortedFields = useMemo(() => {
@@ -103,13 +112,13 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
 
   const { data: filesWithValues } = useSuspenseQuery(
     getListFilesWithValuesQueryOptions({
-      listId: listFiles.listId,
-      skip: listFiles.skip,
-      take: listFiles.take,
-      orderBy: listFiles.orderBy || undefined,
-      orderDirection: listFiles.orderDirection as 'asc' | 'desc' | undefined,
+      listId: list.id,
+      skip: listItems.skip,
+      take: listItems.take,
+      orderBy: listItems.orderBy || undefined,
+      orderDirection: listItems.orderDirection as 'asc' | 'desc' | undefined,
       fieldIds,
-      language,
+      filters,
       hasActiveEnrichments,
     }),
   )
@@ -183,10 +192,10 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     (fileId: string, fieldId: string): { value: string | null; error: string | null; queueStatus: string | null } => {
       if (!filesWithValues) return { value: null, error: null, queueStatus: null }
 
-      const file = filesWithValues.aiListFiles.files.find((f: { id: string }) => f.id === fileId)
-      if (!file) return { value: null, error: null, queueStatus: null }
+      const items = filesWithValues.aiListItems.items.find((item) => item.origin.id === fileId)
+      if (!items) return { value: null, error: null, queueStatus: null }
 
-      const fieldValue = file.fieldValues.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
+      const fieldValue = items.values.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
       return {
         value: fieldValue?.displayValue || null,
         error: fieldValue?.enrichmentErrorMessage || null,
@@ -209,13 +218,6 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
         onPageChange?.(0, pageSize, field.id, newSortDirection)
       }
     }
-  }
-
-  const toggleFieldVisibility = (fieldId: string) => {
-    setFieldVisibility((prev) => ({
-      ...(prev || {}),
-      [fieldId]: !(prev?.[fieldId] ?? true),
-    }))
   }
 
   const visibleFieldsArray = sortedFields.filter((field) => fieldVisibility?.[field.id] ?? true)
@@ -287,32 +289,35 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Field visibility toggles */}
-        <div className="flex flex-wrap gap-2">
-          <span className="text-sm font-medium">{t('lists.files.showColumns')}:</span>
-          {sortedFields.map((field) => (
-            <label key={field.id} className="flex items-center gap-1 text-sm">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                checked={fieldVisibility?.[field.id] ?? true}
-                onChange={() => toggleFieldVisibility(field.id)}
-              />
-              {field.name}
-            </label>
-          ))}
+      <div className="">
+        <div className="grow-1 flex flex-row items-center gap-2">
+          <div className="grow-1 flex items-center gap-2">
+            <ListFieldsTableMenu
+              listId={list.id}
+              fields={sortedFields.map((f) => ({ ...f, visible: fieldVisibility?.[f.id] ?? true }))}
+              onVisibilityChange={(fieldId, visible) => {
+                setFieldVisibility((prev) => ({
+                  ...prev,
+                  [fieldId]: visible,
+                }))
+              }}
+            />
+          </div>
+          <div className="align-right">
+            <Pagination
+              totalItems={listItems.count}
+              itemsPerPage={pageSize}
+              currentPage={currentPage + 1} // Convert from 0-based to 1-based
+              onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => onPageChange?.(0, newPageSize, sortBy, sortDirection)}
+            />
+          </div>
         </div>
 
         {/* Pagination with page size selector */}
-        <Pagination
-          totalItems={listFiles.count}
-          itemsPerPage={pageSize}
-          currentPage={currentPage + 1} // Convert from 0-based to 1-based
-          onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
-          showPageSizeSelector={true}
-          onPageSizeChange={(newPageSize) => onPageChange?.(0, newPageSize, sortBy, sortDirection)}
-        />
+
+        <ListFieldsTableFilterBadges listId={list.id} fields={sortedFields} />
       </div>
 
       {/* Grid Table */}
@@ -409,7 +414,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
           </div>
 
           {/* Data Rows */}
-          {listFiles.files.length === 0 ? (
+          {listItems.items.length === 0 ? (
             <div
               className="border-base-300 border-b border-r p-8 text-center"
               style={{ gridColumn: `1 / ${visibleFieldsArray.length + 2}` }}
@@ -417,15 +422,15 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
               {t('lists.files.noFiles')}
             </div>
           ) : (
-            listFiles.files.map((file) =>
+            listItems.items.map((item) =>
               visibleFieldsArray
                 .map((field) => {
-                  const { value, error, queueStatus } = getFieldData(file.id, field.id)
+                  const { value, error, queueStatus } = getFieldData(item.origin.id, field.id)
                   const displayValue = value?.toString() || '-'
 
                   return (
                     <div
-                      key={`${file.id}-${field.id}`}
+                      key={`${item.origin.id}-${field.id}`}
                       className="border-base-300 hover:bg-base-100 border-b border-r p-2 text-sm"
                       style={{
                         minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
@@ -435,7 +440,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                       {field.sourceType === 'llm_computed' ? (
                         <div className="group relative flex items-center gap-1">
                           <span
-                            id={`${file.id}-${field.id}`}
+                            id={`${item.origin.id}-${field.id}`}
                             className={twMerge(
                               'flex-1 overflow-hidden text-nowrap',
                               !value && error && 'text-error text-xs',
@@ -459,7 +464,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                             className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
                             onClick={(e) => {
                               e.stopPropagation()
-                              const itemKey = `${file.id}-${field.id}`
+                              const itemKey = `${item.origin.id}-${field.id}`
                               setItemDropdownOpen(itemDropdownOpen === itemKey ? null : itemKey)
                             }}
                           >
@@ -468,10 +473,10 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                           <FieldItemDropdown
                             listId={list.id}
                             fieldId={field.id}
-                            fileId={file.id}
+                            fileId={item.origin.id}
                             fieldName={field.name}
-                            fileName={file.name}
-                            isOpen={itemDropdownOpen === `${file.id}-${field.id}`}
+                            fileName={item.origin.name}
+                            isOpen={itemDropdownOpen === `${item.origin.id}-${field.id}`}
                             onClose={() => setItemDropdownOpen(null)}
                             queueStatus={queueStatus}
                           />
@@ -480,8 +485,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                         <Link
                           to="/libraries/$libraryId/files/$fileId"
                           params={{
-                            libraryId: file.libraryId,
-                            fileId: file.id,
+                            libraryId: item.origin.libraryId,
+                            fileId: item.origin.id,
                           }}
                           className="link link-primary block overflow-hidden text-nowrap"
                           title={displayValue}
@@ -499,7 +504,11 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                           {displayValue}
                         </a>
                       ) : (
-                        <div id={`${file.id}-${field.id}`} className="overflow-hidden text-nowrap" title={displayValue}>
+                        <div
+                          id={`${item.origin.id}-${field.id}`}
+                          className="overflow-hidden text-nowrap"
+                          title={displayValue}
+                        >
                           {displayValue}
                         </div>
                       )}
@@ -509,7 +518,7 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                 .concat(
                   // Add empty cell for "Add Field" column
                   <div
-                    key={`${file.id}-add-field`}
+                    key={`${item.origin.id}-add-field`}
                     className="border-base-300 border-b border-r"
                     style={{ width: '60px', minWidth: '60px' }}
                   />,
@@ -523,8 +532,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
       <div className="text-base-content/70 text-sm">
         {t('lists.files.showing', {
           start: currentPage * pageSize + 1,
-          end: Math.min((currentPage + 1) * pageSize, listFiles.count),
-          total: listFiles.count,
+          end: Math.min((currentPage + 1) * pageSize, listItems.count),
+          total: listItems.count,
         })}
       </div>
 

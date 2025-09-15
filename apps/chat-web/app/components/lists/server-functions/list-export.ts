@@ -7,17 +7,27 @@ import { backendRequest } from '../../../server-functions/backend'
 
 // Query for export data - now uses centralized fieldValues
 const exportDataDocument = graphql(`
-  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!, $language: String!) {
+  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!) {
     aiList(id: $listId) {
       ...ListExport_List
     }
-    aiListFiles(listId: $listId, skip: $skip, take: $take, orderBy: "name", orderDirection: "asc") {
+    aiListItems(
+      listId: $listId
+      fieldIds: $fieldIds
+      skip: $skip
+      take: $take
+      orderBy: "name"
+      orderDirection: "asc"
+    ) {
       count
-      files {
-        id
-        name
-        libraryId
-        fieldValues(fieldIds: $fieldIds, language: $language) {
+      items {
+        origin {
+          id
+          name
+          libraryId
+          libraryName
+        }
+        values {
           fieldId
           fieldName
           displayValue
@@ -35,7 +45,6 @@ export const getListExportData = createServerFn({ method: 'GET' })
       skip: z.number(),
       take: z.number(),
       fieldIds: z.array(z.string()),
-      language: z.string(),
     }),
   )
   .handler(async (ctx) => {
@@ -43,14 +52,8 @@ export const getListExportData = createServerFn({ method: 'GET' })
   })
 
 // Query options for export data
-export const getListExportDataOptions = (
-  listId: string,
-  skip: number,
-  take: number,
-  fieldIds: string[],
-  language: string,
-) =>
+export const getListExportDataOptions = (listId: string, skip: number, take: number, fieldIds: string[]) =>
   queryOptions({
-    queryKey: ['ListExportData', listId, skip, take, fieldIds, language],
-    queryFn: () => getListExportData({ data: { listId, skip, take, fieldIds, language } }),
+    queryKey: ['ListExportData', listId, skip, take, fieldIds],
+    queryFn: () => getListExportData({ data: { listId, skip, take, fieldIds } }),
   })
