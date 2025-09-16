@@ -1,3 +1,5 @@
+import type { Prisma } from '@george-ai/prismaClient'
+
 import { prisma } from '../../prisma'
 
 export const canAccessLibraryOrThrow = async (libraryId: string, userId: string) => {
@@ -19,3 +21,7 @@ export const canAccessLibraryOrThrow = async (libraryId: string, userId: string)
 
   return library
 }
+
+export const getAccessLibraryWhere = (userId: string): Prisma.AiLibraryWhereInput => ({
+  OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
+})

@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import React, { useRef } from 'react'
 import { z } from 'zod'
 
@@ -7,6 +7,7 @@ import { debounce } from '@george-ai/web-utils'
 
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { getSimilarFileChunksOptions } from '../../../../../../components/library/files/get-file-similarity'
+import { getContentQueriesQueryOptions } from '../../../../../../components/lists/server-functions/get-content-queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/similarity')({
   component: RouteComponent,
@@ -28,6 +29,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
         }),
       ),
       context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
+      context.queryClient.ensureQueryData(getContentQueriesQueryOptions({ libraryId: params.libraryId })),
     ])
   },
 })
@@ -47,12 +49,13 @@ function RouteComponent() {
     }),
   )
 
-  const handleSearchClicked = async () => {
-    if (!termInputRef.current) return
-    const term = termInputRef.current.value
-    if (!term || term.length === 0) return
-    await navigate({ search: { term, hits } })
-  }
+  const {
+    data: { aiContentQueries },
+  } = useSuspenseQuery(
+    getContentQueriesQueryOptions({
+      libraryId: Route.useParams().libraryId,
+    }),
+  )
 
   const handleTermChange = debounce(async () => {
     if (!termInputRef.current) return
@@ -83,8 +86,59 @@ function RouteComponent() {
         {/* Search Input */}
         <div className="mt-6">
           <div className="form-control w-full">
-            <label className="label">
+            <label className="label flex justify-between">
               <span className="label-text font-semibold">Term</span>
+              {aiContentQueries.length > 0 && (
+                <div className="dropdown-end dropdown">
+                  <label tabIndex={0} className="btn btn-ghost btn-sm gap-1 normal-case">
+                    Pick List Field Queries
+                    <svg
+                      className="h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </label>
+                  <div tabIndex={0} className="dropdown-content rounded-box bg-base-100 mt-2 p-2 shadow">
+                    {aiContentQueries.map((cq) => (
+                      <div key={cq.fieldId} className="card card-xs bg-base-200 mb-2 flex flex-col gap-1 p-2">
+                        <div className="card-title text-sm font-semibold">
+                          <Link className="link" to="/lists/$listId" params={{ listId: cq.listId }}>
+                            {cq.listName} - {cq.fieldName}
+                          </Link>
+                        </div>
+                        <div className="card-body p-0">
+                          <pre className="whitespace-pre-wrap break-words text-xs">
+                            {!cq.contentQuery || cq.contentQuery.length < 1
+                              ? 'no-content'
+                              : cq.contentQuery.length > 200
+                                ? `${cq.contentQuery.slice(0, 197)}...`
+                                : cq.contentQuery}
+                          </pre>
+                        </div>
+                        <div className="card-actions justify-between">
+                          <div className="badge badge-ghost badge-xs text-base-content/40 font-mono">#{cq.fieldId}</div>
+                          <button
+                            type="button"
+                            className="btn btn-xs btn-outline btn-primary self-end"
+                            onClick={async () => {
+                              if (!termInputRef.current) return
+                              termInputRef.current.value = cq.contentQuery || ''
+                              await navigate({ search: { term: cq.contentQuery || '', hits } })
+                            }}
+                          >
+                            Take
+                          </button>
+                        </div>
+                        <div className="card-side text-right"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </label>
             <div className="flex gap-2">
               <textarea
@@ -95,14 +149,6 @@ function RouteComponent() {
                 onChange={handleTermChange}
                 rows={2}
               />
-              <button type="button" className="btn btn-primary self-start" onClick={() => handleSearchClicked()}>
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                  </g>
-                </svg>
-              </button>
             </div>
           </div>
         </div>

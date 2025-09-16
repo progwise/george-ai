@@ -10,17 +10,14 @@ export const canAccessListOrThrow = async (
 ) => {
   const list = await prisma.aiList.findFirstOrThrow({
     include: { participants: true, ...(options?.include || {}) },
-    where: { id: listId },
+    where: { AND: [{ id: listId }, getCanAccessListWhere(userId)] },
   })
-
-  if (list.ownerId === userId) {
-    return list
-  }
-  if (list.participants.some((participation) => participation.userId === userId)) {
-    return list
-  }
-  throw new Error(`User ${userId} can not access list`)
+  return list
 }
+
+export const getCanAccessListWhere = (userId: string): Prisma.AiListWhereInput => ({
+  OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
+})
 
 /**
  * Resolves the display value for a given field and file combination.
@@ -78,8 +75,6 @@ export async function getFieldValue(
     return { value, errorMessage: null }
   }
 
-  console.log('Finding cache value for field', field.id, 'and file', file.id)
-  console.log('File cache:', file.cache)
   const cache = findCacheValue(file, field.id)
 
   // Handle computed fields - use cached value if available

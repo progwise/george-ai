@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
@@ -14,7 +15,11 @@ import { toastError, toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListField, updateListField } from './server-functions'
 
-export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language, useVectorStore: boolean) =>
+export const getListFieldFormSchema = (
+  editMode: 'update' | 'create',
+  language: Language,
+  contentQueryEnabled: boolean,
+) =>
   z.object({
     id:
       editMode === 'update'
@@ -35,7 +40,7 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       .string()
       .min(10, translate('lists.fields.promptTooShort', language))
       .max(2000, translate('lists.fields.promptTooLong', language)),
-    contentQuery: useVectorStore
+    contentQuery: contentQueryEnabled
       ? z
           .string()
           .transform((val) => val?.trim() || '')
@@ -113,16 +118,23 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   const availableFields = list.fields || []
 
   // Get current context field IDs for edit mode
-  const currentContextIds = editField?.context?.map((c) => c.contextFieldId) || []
+  const currentContextIds = useMemo(() => editField?.context?.map((c) => c.contextFieldId) || [], [editField])
 
-  const isEditMode = !!editField
+  const isEditMode = useMemo(() => !!editField, [editField])
 
   // State for vector store checkbox
-  const [useVectorStore, setUseVectorStore] = useState(editField?.useVectorStore || false)
+  const [contentQueryEnabled, setContentQueryEnabled] = useState(false)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setContentQueryEnabled(!!editField?.useVectorStore)
+    }, 100) // slight delay to ensure checkbox state updates correctly when modal opens in edit mode
+    return () => clearTimeout(timeout)
+  }, [editField])
 
   const schema = useMemo(
-    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language, useVectorStore),
-    [isEditMode, language, useVectorStore],
+    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language, contentQueryEnabled),
+    [isEditMode, language, contentQueryEnabled],
   )
 
   const addFieldMutation = useMutation({
@@ -143,9 +155,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
     mutationFn: async (formData: FormData) => {
       return await updateListField({ data: formData })
     },
-    onSuccess: (data) => {
+    onSuccess: ({ updateListField }) => {
       // Show success toast with field name
-      toastSuccess(t('lists.fields.updateSuccess', { name: data.updateListField.name }))
+      toastSuccess(t('lists.fields.updateSuccess', { name: updateListField.name }))
 
       // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
@@ -248,9 +260,10 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                       <input
                         type="checkbox"
                         name="useVectorStore"
+                        value="on"
                         className="checkbox checkbox-sm"
-                        checked={useVectorStore}
-                        onChange={(e) => setUseVectorStore(e.target.checked)}
+                        defaultChecked={editField?.useVectorStore || false}
+                        onChange={(e) => setContentQueryEnabled(e.target.checked)}
                       />
                       <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
                         {t('lists.fields.vectorStoreLabel')}
@@ -259,11 +272,14 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                     <input
                       type="text"
                       name="contentQuery"
-                      className="input input-sm flex-1"
+                      className={twMerge(
+                        'input input-sm flex-1',
+                        !contentQueryEnabled && 'bg-base-300 text-base-content/50',
+                      )}
                       placeholder={t('lists.fields.contentQueryPlaceholder')}
                       defaultValue={editField?.contentQuery || ''}
-                      disabled={!useVectorStore}
-                      required={useVectorStore}
+                      readOnly={!contentQueryEnabled}
+                      required={contentQueryEnabled}
                       aria-label={t('lists.fields.contentQueryPlaceholder')}
                     />
                   </div>

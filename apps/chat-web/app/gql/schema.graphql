@@ -698,6 +698,14 @@ type ContentExtractionTaskQueryResult {
   tasks: [AiContentProcessingTask!]!
 }
 
+type ContentQueryResult {
+  contentQuery: String
+  fieldId: String!
+  fieldName: String!
+  listId: String!
+  listName: String!
+}
+
 input ConversationInvitationInput {
   allowDifferentEmailAddress: Boolean!
   allowMultipleParticipants: Boolean!
@@ -1016,6 +1024,7 @@ type Query {
     status: ProcessingStatus
     take: Int = 20
   ): ContentExtractionTaskQueryResult!
+  aiContentQueries(libraryId: String, listId: String): [ContentQueryResult!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!

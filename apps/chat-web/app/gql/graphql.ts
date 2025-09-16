@@ -757,6 +757,15 @@ export type ContentExtractionTaskQueryResult = {
   tasks: Array<AiContentProcessingTask>
 }
 
+export type ContentQueryResult = {
+  __typename?: 'ContentQueryResult'
+  contentQuery?: Maybe<Scalars['String']['output']>
+  fieldId: Scalars['String']['output']
+  fieldName: Scalars['String']['output']
+  listId: Scalars['String']['output']
+  listName: Scalars['String']['output']
+}
+
 export type ConversationInvitationInput = {
   allowDifferentEmailAddress: Scalars['Boolean']['input']
   allowMultipleParticipants: Scalars['Boolean']['input']
@@ -1372,6 +1381,7 @@ export type Query = {
   aiAssistants: Array<AiAssistant>
   aiChatModels: Array<Scalars['String']['output']>
   aiContentProcessingTasks: ContentExtractionTaskQueryResult
+  aiContentQueries: Array<ContentQueryResult>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
@@ -1417,6 +1427,11 @@ export type QueryAiContentProcessingTasksArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>
   status?: InputMaybe<ProcessingStatus>
   take?: InputMaybe<Scalars['Int']['input']>
+}
+
+export type QueryAiContentQueriesArgs = {
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  listId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type QueryAiConversationArgs = {
@@ -4049,6 +4064,23 @@ export type DeleteListMutation = {
   deleteList: { __typename?: 'AiList'; id: string; name: string }
 }
 
+export type GetContentQueriesQueryVariables = Exact<{
+  listId?: InputMaybe<Scalars['String']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type GetContentQueriesQuery = {
+  __typename?: 'Query'
+  aiContentQueries: Array<{
+    __typename?: 'ContentQueryResult'
+    fieldId: string
+    fieldName: string
+    listId: string
+    listName: string
+    contentQuery?: string | null
+  }>
+}
+
 export type AiListFilesWithValuesQueryVariables = Exact<{
   listId: Scalars['String']['input']
   skip: Scalars['Int']['input']
@@ -4312,6 +4344,7 @@ export type UpdateListFieldMutation = {
     sourceType: string
     fileProperty?: string | null
     prompt?: string | null
+    useVectorStore?: boolean | null
     contentQuery?: string | null
     languageModel?: string | null
   }
@@ -13970,6 +14003,59 @@ export const DeleteListDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
+export const GetContentQueriesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getContentQueries' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiContentQueries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetContentQueriesQuery, GetContentQueriesQueryVariables>
 export const AiListFilesWithValuesDocument = {
   kind: 'Document',
   definitions: [
@@ -14953,6 +15039,7 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],

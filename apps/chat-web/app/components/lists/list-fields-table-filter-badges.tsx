@@ -7,7 +7,6 @@ interface ListFieldsTableFilterBadgesProps {
 }
 export const ListFieldsTableFilterBadges = ({ listId, fields }: ListFieldsTableFilterBadgesProps) => {
   const { filters, clearFieldFilters, removeFilter } = useListFilters(listId)
-  console.log('ListFieldsTableFilterBadges render', { listId, fields, filters })
   return (
     <div className="flex flex-row flex-wrap gap-2 p-2">
       {fields

@@ -10,7 +10,8 @@ export const updateListField = createServerFn({ method: 'POST' })
     const language = await getLanguage()
     const entries = Object.fromEntries(data)
     const useVectorStore = entries.useVectorStore === 'on'
-    return getListFieldFormSchema('update', language, useVectorStore).parse(entries)
+    const validatedData = getListFieldFormSchema('update', language, useVectorStore).parse(entries)
+    return validatedData
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -25,6 +26,7 @@ export const updateListField = createServerFn({ method: 'POST' })
             sourceType
             fileProperty
             prompt
+            useVectorStore
             contentQuery
             languageModel
           }

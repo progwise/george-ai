@@ -137,7 +137,6 @@ export const ListItemsQueryResult = builder
               libraryId: {
                 in: list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null),
               },
-              cache: { every: { fieldId: { in: fields.map((field) => field.id) } } },
               ...(showArchived ? {} : { archivedAt: null }),
               ...fitersWhere,
             },

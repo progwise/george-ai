@@ -66,7 +66,5 @@ export const useListFilters = (listId: string) => {
     [listId, queryClient],
   )
 
-  console.log('useListFilters', { listId, filters })
-
   return { filters, getFilterValue, updateFilter, removeFilter, clearFieldFilters, clearAllFilters }
 }

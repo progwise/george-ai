@@ -24,7 +24,7 @@ const getFieldPropertyFilterExpression = (filter: { filterType: AiListFilterType
     case 'contains':
       return { contains: filter.value, mode: QueryMode.insensitive }
     case 'not_contains':
-      return { not: { contains: filter.value, mode: QueryMode.insensitive } }
+      return { not: { contains: filter.value }, mode: QueryMode.insensitive }
     case 'starts_with':
       return { startsWith: filter.value, mode: QueryMode.insensitive }
     case 'ends_with':
@@ -51,6 +51,7 @@ const getFilePropertyFilterWhere = (
   switch (field.fileProperty) {
     case 'name':
     case 'originUri':
+    case 'mimeType':
       return { [field.fileProperty]: getFieldPropertyFilterExpression(filter) }
     case 'source':
       return {
