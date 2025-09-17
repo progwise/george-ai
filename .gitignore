@@ -8,6 +8,7 @@ node_modules
 .cache
 gaidata
 build
+.pgadmin-data
 .pnp.*
 .typesense-data
 .postgres-data*
@@ -19,6 +20,7 @@ build
 .venv
 venv
 .test-cache
+
 
 # Fine-tuning
 apps/fine-tuning/split_output

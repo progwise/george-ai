@@ -5,7 +5,8 @@ import { PlayIcon } from '../../icons/play-icon'
 import SparklesIcon from '../../icons/sparkles-icon'
 import { StopIcon } from '../../icons/stop-icon'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { cleanEnrichments, getListQueryOptions, startEnrichment, stopEnrichment } from './server-functions'
+import { getListQueryOptions } from './queries'
+import { cleanEnrichments, startEnrichment, stopEnrichment } from './server-functions'
 
 interface EnrichmentControlsProps {
   listId: string

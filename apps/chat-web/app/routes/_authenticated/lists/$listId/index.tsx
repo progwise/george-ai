@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
-import { getListFilesWithValuesQueryOptions, getListQueryOptions } from '../../../../components/lists/server-functions'
+import { getListFilesWithValuesQueryOptions, getListQueryOptions } from '../../../../components/lists/queries'
 import { useListFilters } from '../../../../components/lists/use-list-filters'
 
 interface ListSearchParams {

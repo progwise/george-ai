@@ -37,7 +37,7 @@ builder.prismaObject('AiListField', {
       type: 'Int',
       nullable: false,
       resolve: async (parent) => {
-        const count = await prisma.aiListEnrichmentQueue.count({
+        const count = await prisma.aiEnrichmentTask.count({
           where: { listId: parent.listId, fieldId: parent.id, status: 'pending' },
         })
         return count
@@ -47,7 +47,7 @@ builder.prismaObject('AiListField', {
       type: 'Int',
       nullable: false,
       resolve: async (parent) => {
-        const count = await prisma.aiListEnrichmentQueue.count({
+        const count = await prisma.aiEnrichmentTask.count({
           where: { listId: parent.listId, fieldId: parent.id, status: 'processing' },
         })
         return count
@@ -91,25 +91,6 @@ builder.prismaObject('AiListSource', {
   }),
 })
 
-builder.prismaObject('AiListEnrichmentQueue', {
-  name: 'AiListEnrichmentQueue',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    listId: t.exposeString('listId', { nullable: false }),
-    fieldId: t.exposeString('fieldId', { nullable: false }),
-    fileId: t.exposeString('fileId', { nullable: false }),
-    status: t.exposeString('status', { nullable: false }),
-    priority: t.exposeInt('priority', { nullable: false }),
-    requestedAt: t.expose('requestedAt', { type: 'DateTime', nullable: false }),
-    startedAt: t.expose('startedAt', { type: 'DateTime' }),
-    completedAt: t.expose('completedAt', { type: 'DateTime' }),
-    error: t.exposeString('error'),
-    list: t.relation('list', { nullable: false }),
-    field: t.relation('field', { nullable: false }),
-    file: t.relation('file', { nullable: false }),
-  }),
-})
-
 builder.prismaObject('AiList', {
   name: 'AiList',
   fields: (t) => ({
@@ -122,6 +103,6 @@ builder.prismaObject('AiList', {
     participants: t.relation('participants', { nullable: false }),
     fields: t.relation('fields', { nullable: false }),
     sources: t.relation('sources', { nullable: false }),
-    enrichmentQueue: t.relation('enrichmentQueue', { nullable: false }),
+    enrichmentTasks: t.relation('enrichmentTasks', { nullable: false }),
   }),
 })

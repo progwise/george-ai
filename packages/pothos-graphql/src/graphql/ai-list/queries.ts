@@ -62,6 +62,24 @@ builder.queryField('aiListItems', (t) =>
       const list = await canAccessListOrThrow(args.listId, context.session.user.id, { include: { sources: true } })
 
       const fields = await prisma.aiListField.findMany({
+        select: {
+          id: true,
+          name: true,
+          sourceType: true,
+          fileProperty: true,
+          type: true,
+          cachedValues: {
+            select: {
+              fileId: true,
+              valueString: true,
+              valueNumber: true,
+              valueBoolean: true,
+              valueDate: true,
+              enrichmentErrorMessage: true,
+            },
+          },
+        },
+
         where: { id: { in: args.fieldIds }, listId: args.listId },
       })
 
@@ -75,33 +93,6 @@ builder.queryField('aiListItems', (t) =>
         filters: args.filters ?? [],
         showArchived: args.showArchived ?? false,
       }
-    },
-  }),
-)
-
-builder.queryField('aiListEnrichmentQueue', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: ['AiListEnrichmentQueue'],
-    nullable: false,
-    args: {
-      listId: t.arg.string({ required: true }),
-      status: t.arg.string({ required: false }),
-    },
-    resolve: async (query, _source, { listId, status }, context) => {
-      await canAccessListOrThrow(listId, context.session.user.id)
-
-      return prisma.aiListEnrichmentQueue.findMany({
-        ...query,
-        where: {
-          listId,
-          ...(status ? { status } : {}),
-        },
-        orderBy: [
-          { status: 'asc' }, // processing first, then pending, then completed/failed
-          { priority: 'desc' },
-          { requestedAt: 'asc' },
-        ],
-      })
     },
   }),
 )

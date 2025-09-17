@@ -36,6 +36,7 @@ import { Route as AuthenticatedLibrariesLibraryIdIndexImport } from './routes/_a
 import { Route as AuthenticatedAdminUsersIndexImport } from './routes/_authenticated/admin/users/index'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
 import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
+import { Route as AuthenticatedListsListIdEnrichmentsImport } from './routes/_authenticated/lists/$listId/enrichments'
 import { Route as AuthenticatedListsListIdEditImport } from './routes/_authenticated/lists/$listId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdUpdatesImport } from './routes/_authenticated/libraries/$libraryId/updates'
 import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_authenticated/libraries/$libraryId/query'
@@ -221,6 +222,13 @@ const AuthenticatedProfileProfileIdAdminConfirmRoute =
     id: '/profile/$profileId/admin-confirm',
     path: '/profile/$profileId/admin-confirm',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedListsListIdEnrichmentsRoute =
+  AuthenticatedListsListIdEnrichmentsImport.update({
+    id: '/enrichments',
+    path: '/enrichments',
+    getParentRoute: () => AuthenticatedListsListIdRouteRoute,
   } as any)
 
 const AuthenticatedListsListIdEditRoute =
@@ -564,6 +572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedListsListIdEditImport
       parentRoute: typeof AuthenticatedListsListIdRouteImport
     }
+    '/_authenticated/lists/$listId/enrichments': {
+      id: '/_authenticated/lists/$listId/enrichments'
+      path: '/enrichments'
+      fullPath: '/lists/$listId/enrichments'
+      preLoaderRoute: typeof AuthenticatedListsListIdEnrichmentsImport
+      parentRoute: typeof AuthenticatedListsListIdRouteImport
+    }
     '/_authenticated/profile/$profileId/admin-confirm': {
       id: '/_authenticated/profile/$profileId/admin-confirm'
       path: '/profile/$profileId/admin-confirm'
@@ -853,12 +868,15 @@ const AuthenticatedLibrariesLibraryIdRouteRouteWithChildren =
 
 interface AuthenticatedListsListIdRouteRouteChildren {
   AuthenticatedListsListIdEditRoute: typeof AuthenticatedListsListIdEditRoute
+  AuthenticatedListsListIdEnrichmentsRoute: typeof AuthenticatedListsListIdEnrichmentsRoute
   AuthenticatedListsListIdIndexRoute: typeof AuthenticatedListsListIdIndexRoute
 }
 
 const AuthenticatedListsListIdRouteRouteChildren: AuthenticatedListsListIdRouteRouteChildren =
   {
     AuthenticatedListsListIdEditRoute: AuthenticatedListsListIdEditRoute,
+    AuthenticatedListsListIdEnrichmentsRoute:
+      AuthenticatedListsListIdEnrichmentsRoute,
     AuthenticatedListsListIdIndexRoute: AuthenticatedListsListIdIndexRoute,
   }
 
@@ -934,6 +952,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
+  '/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
@@ -977,6 +996,7 @@ export interface FileRoutesByTo {
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
+  '/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
@@ -1023,6 +1043,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/_authenticated/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/_authenticated/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
+  '/_authenticated/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
   '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
@@ -1073,6 +1094,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/query'
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
+    | '/lists/$listId/enrichments'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/admin/users'
@@ -1115,6 +1137,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/query'
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
+    | '/lists/$listId/enrichments'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/admin/users'
@@ -1159,6 +1182,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/query'
     | '/_authenticated/libraries/$libraryId/updates'
     | '/_authenticated/lists/$listId/edit'
+    | '/_authenticated/lists/$listId/enrichments'
     | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
     | '/_authenticated/admin/users/'
@@ -1281,6 +1305,7 @@ export const routeTree = rootRoute
       "parent": "/_authenticated",
       "children": [
         "/_authenticated/lists/$listId/edit",
+        "/_authenticated/lists/$listId/enrichments",
         "/_authenticated/lists/$listId/"
       ]
     },
@@ -1358,6 +1383,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/lists/$listId/edit": {
       "filePath": "_authenticated/lists/$listId/edit.tsx",
+      "parent": "/_authenticated/lists/$listId"
+    },
+    "/_authenticated/lists/$listId/enrichments": {
+      "filePath": "_authenticated/lists/$listId/enrichments.tsx",
       "parent": "/_authenticated/lists/$listId"
     },
     "/_authenticated/profile/$profileId/admin-confirm": {

@@ -7,7 +7,8 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { deleteListFn, getListQueryOptions, getListsQueryOptions } from './server-functions'
+import { getListQueryOptions, getListsQueryOptions } from './queries'
+import { deleteListFn } from './server-functions'
 
 export const updateListParticipants = createServerFn({ method: 'POST' })
   .validator((data: unknown) =>

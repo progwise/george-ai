@@ -256,6 +256,23 @@ export type AiConversationParticipant = {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+export type AiEnrichmentTask = {
+  __typename?: 'AiEnrichmentTask'
+  completedAt?: Maybe<Scalars['DateTime']['output']>
+  error?: Maybe<Scalars['String']['output']>
+  field: AiListField
+  fieldId: Scalars['String']['output']
+  file: AiLibraryFile
+  fileId: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  list: AiList
+  listId: Scalars['String']['output']
+  priority: Scalars['Int']['output']
+  requestedAt: Scalars['DateTime']['output']
+  startedAt?: Maybe<Scalars['DateTime']['output']>
+  status: EnrichmentStatus
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   crawlers: Array<AiLibraryCrawler>
@@ -539,7 +556,7 @@ export type AiLibraryUsage = {
 export type AiList = {
   __typename?: 'AiList'
   createdAt: Scalars['DateTime']['output']
-  enrichmentQueue: Array<AiListEnrichmentQueue>
+  enrichmentTasks: Array<AiEnrichmentTask>
   fields: Array<AiListField>
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
@@ -548,23 +565,6 @@ export type AiList = {
   participants: Array<AiListParticipant>
   sources: Array<AiListSource>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type AiListEnrichmentQueue = {
-  __typename?: 'AiListEnrichmentQueue'
-  completedAt?: Maybe<Scalars['DateTime']['output']>
-  error?: Maybe<Scalars['String']['output']>
-  field: AiListField
-  fieldId: Scalars['String']['output']
-  file: AiLibraryFile
-  fileId: Scalars['String']['output']
-  id: Scalars['ID']['output']
-  list: AiList
-  listId: Scalars['String']['output']
-  priority: Scalars['Int']['output']
-  requestedAt: Scalars['DateTime']['output']
-  startedAt?: Maybe<Scalars['DateTime']['output']>
-  status: Scalars['String']['output']
 }
 
 export type AiListField = {
@@ -781,11 +781,31 @@ export enum EmbeddingStatus {
   Skipped = 'skipped',
 }
 
-export type EnrichmentQueueResult = {
-  __typename?: 'EnrichmentQueueResult'
+export type EnrichmentQueueMutationResult = {
+  __typename?: 'EnrichmentQueueMutationResult'
   error?: Maybe<Scalars['String']['output']>
   queuedItems?: Maybe<Scalars['Int']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type EnrichmentQueueResult = {
+  __typename?: 'EnrichmentQueueResult'
+  enrichments: Array<AiEnrichmentTask>
+  fieldId?: Maybe<Scalars['String']['output']>
+  fileId?: Maybe<Scalars['String']['output']>
+  listId?: Maybe<Scalars['String']['output']>
+  skip?: Maybe<Scalars['Int']['output']>
+  status?: Maybe<EnrichmentStatus>
+  take?: Maybe<Scalars['Int']['output']>
+  totalCount: Scalars['Int']['output']
+}
+
+export enum EnrichmentStatus {
+  Canceled = 'canceled',
+  Completed = 'completed',
+  Failed = 'failed',
+  InProgress = 'in_progress',
+  Pending = 'pending',
 }
 
 export enum ExtractionStatus {
@@ -966,7 +986,7 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
-  removeFromEnrichmentQueue: EnrichmentQueueResult
+  removeFromEnrichmentQueue: EnrichmentQueueMutationResult
   removeLibraryParticipant: Scalars['Boolean']['output']
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -978,12 +998,12 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
-  startListEnrichment: EnrichmentQueueResult
+  startListEnrichment: EnrichmentQueueMutationResult
   startQueueWorker: QueueOperationResult
-  startSingleEnrichment: EnrichmentQueueResult
+  startSingleEnrichment: EnrichmentQueueMutationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
-  stopListEnrichment: EnrichmentQueueResult
+  stopListEnrichment: EnrichmentQueueMutationResult
   stopQueueWorker: QueueOperationResult
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
@@ -1396,7 +1416,7 @@ export type Query = {
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiList: AiList
-  aiListEnrichmentQueue: Array<AiListEnrichmentQueue>
+  aiListEnrichments: EnrichmentQueueResult
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiServiceStatus: AiServiceClusterStatus
@@ -1489,9 +1509,13 @@ export type QueryAiListArgs = {
   id: Scalars['String']['input']
 }
 
-export type QueryAiListEnrichmentQueueArgs = {
-  listId: Scalars['String']['input']
-  status?: InputMaybe<Scalars['String']['input']>
+export type QueryAiListEnrichmentsArgs = {
+  fieldId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
+  listId?: InputMaybe<Scalars['String']['input']>
+  skip?: InputMaybe<Scalars['Int']['input']>
+  status?: InputMaybe<EnrichmentStatus>
+  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type QueryAiListItemsArgs = {
@@ -3822,6 +3846,28 @@ export type ListEditForm_ListFragment = {
   updatedAt?: string | null
 }
 
+export type EnrichmentAccordionItem_EnrichmentFragment = {
+  __typename?: 'AiEnrichmentTask'
+  id: string
+  listId: string
+  fileId: string
+  fieldId: string
+  status: EnrichmentStatus
+  priority: number
+  requestedAt: string
+  startedAt?: string | null
+  completedAt?: string | null
+  error?: string | null
+  field: { __typename?: 'AiListField'; id: string; name: string }
+  file: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    library: { __typename?: 'AiLibrary'; id: string; name: string }
+  }
+  list: { __typename?: 'AiList'; id: string; name: string }
+}
+
 export type FieldModal_ListFragment = {
   __typename?: 'AiList'
   id: string
@@ -3993,77 +4039,6 @@ export type ListSourcesManager_ListFragment = {
   }>
 }
 
-export type AddListFieldMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  data: AiListFieldInput
-}>
-
-export type AddListFieldMutation = {
-  __typename?: 'Mutation'
-  addListField: {
-    __typename?: 'AiListField'
-    id: string
-    name: string
-    type: string
-    order: number
-    sourceType: string
-    fileProperty?: string | null
-    prompt?: string | null
-    contentQuery?: string | null
-    languageModel?: string | null
-  }
-}
-
-export type AddListSourceMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  data: AiListSourceInput
-}>
-
-export type AddListSourceMutation = {
-  __typename?: 'Mutation'
-  addListSource: {
-    __typename?: 'AiListSource'
-    id: string
-    libraryId?: string | null
-    library?: {
-      __typename?: 'AiLibrary'
-      id: string
-      name: string
-      owner: { __typename?: 'User'; name?: string | null }
-    } | null
-  }
-}
-
-export type CleanEnrichmentsMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  fieldId: Scalars['String']['input']
-}>
-
-export type CleanEnrichmentsMutation = {
-  __typename?: 'Mutation'
-  cleanListEnrichments: {
-    __typename?: 'CleanEnrichmentResult'
-    success?: boolean | null
-    clearedItems?: number | null
-    error?: string | null
-  }
-}
-
-export type CreateListMutationVariables = Exact<{
-  data: AiListInput
-}>
-
-export type CreateListMutation = { __typename?: 'Mutation'; createList: { __typename?: 'AiList'; id: string } }
-
-export type DeleteListMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type DeleteListMutation = {
-  __typename?: 'Mutation'
-  deleteList: { __typename?: 'AiList'; id: string; name: string }
-}
-
 export type GetContentQueriesQueryVariables = Exact<{
   listId?: InputMaybe<Scalars['String']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
@@ -4079,6 +4054,50 @@ export type GetContentQueriesQuery = {
     listName: string
     contentQuery?: string | null
   }>
+}
+
+export type GetEnrichmentsQueryVariables = Exact<{
+  listId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
+  fieldId?: InputMaybe<Scalars['String']['input']>
+  take: Scalars['Int']['input']
+  skip: Scalars['Int']['input']
+  status?: InputMaybe<EnrichmentStatus>
+}>
+
+export type GetEnrichmentsQuery = {
+  __typename?: 'Query'
+  aiListEnrichments: {
+    __typename?: 'EnrichmentQueueResult'
+    listId?: string | null
+    fileId?: string | null
+    fieldId?: string | null
+    take?: number | null
+    skip?: number | null
+    status?: EnrichmentStatus | null
+    totalCount: number
+    enrichments: Array<{
+      __typename?: 'AiEnrichmentTask'
+      id: string
+      listId: string
+      fileId: string
+      fieldId: string
+      status: EnrichmentStatus
+      priority: number
+      requestedAt: string
+      startedAt?: string | null
+      completedAt?: string | null
+      error?: string | null
+      field: { __typename?: 'AiListField'; id: string; name: string }
+      file: {
+        __typename?: 'AiLibraryFile'
+        id: string
+        name: string
+        library: { __typename?: 'AiLibrary'; id: string; name: string }
+      }
+      list: { __typename?: 'AiList'; id: string; name: string }
+    }>
+  }
 }
 
 export type AiListFilesWithValuesQueryVariables = Exact<{
@@ -4214,6 +4233,77 @@ export type GetUserListsQuery = {
   }>
 }
 
+export type AddListFieldMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  data: AiListFieldInput
+}>
+
+export type AddListFieldMutation = {
+  __typename?: 'Mutation'
+  addListField: {
+    __typename?: 'AiListField'
+    id: string
+    name: string
+    type: string
+    order: number
+    sourceType: string
+    fileProperty?: string | null
+    prompt?: string | null
+    contentQuery?: string | null
+    languageModel?: string | null
+  }
+}
+
+export type AddListSourceMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  data: AiListSourceInput
+}>
+
+export type AddListSourceMutation = {
+  __typename?: 'Mutation'
+  addListSource: {
+    __typename?: 'AiListSource'
+    id: string
+    libraryId?: string | null
+    library?: {
+      __typename?: 'AiLibrary'
+      id: string
+      name: string
+      owner: { __typename?: 'User'; name?: string | null }
+    } | null
+  }
+}
+
+export type CleanEnrichmentsMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+}>
+
+export type CleanEnrichmentsMutation = {
+  __typename?: 'Mutation'
+  cleanListEnrichments: {
+    __typename?: 'CleanEnrichmentResult'
+    success?: boolean | null
+    clearedItems?: number | null
+    error?: string | null
+  }
+}
+
+export type CreateListMutationVariables = Exact<{
+  data: AiListInput
+}>
+
+export type CreateListMutation = { __typename?: 'Mutation'; createList: { __typename?: 'AiList'; id: string } }
+
+export type DeleteListMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteListMutation = {
+  __typename?: 'Mutation'
+  deleteList: { __typename?: 'AiList'; id: string; name: string }
+}
+
 export type ListExportDataQueryVariables = Exact<{
   listId: Scalars['String']['input']
   skip: Scalars['Int']['input']
@@ -4262,7 +4352,7 @@ export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
 export type RemoveFromEnrichmentQueueMutation = {
   __typename?: 'Mutation'
   removeFromEnrichmentQueue: {
-    __typename?: 'EnrichmentQueueResult'
+    __typename?: 'EnrichmentQueueMutationResult'
     success?: boolean | null
     queuedItems?: number | null
     error?: string | null
@@ -4295,7 +4385,7 @@ export type StartListEnrichmentMutationVariables = Exact<{
 export type StartListEnrichmentMutation = {
   __typename?: 'Mutation'
   startListEnrichment: {
-    __typename?: 'EnrichmentQueueResult'
+    __typename?: 'EnrichmentQueueMutationResult'
     success?: boolean | null
     queuedItems?: number | null
     error?: string | null
@@ -4310,7 +4400,11 @@ export type StartSingleEnrichmentMutationVariables = Exact<{
 
 export type StartSingleEnrichmentMutation = {
   __typename?: 'Mutation'
-  startSingleEnrichment: { __typename?: 'EnrichmentQueueResult'; success?: boolean | null; error?: string | null }
+  startSingleEnrichment: {
+    __typename?: 'EnrichmentQueueMutationResult'
+    success?: boolean | null
+    error?: string | null
+  }
 }
 
 export type StopListEnrichmentMutationVariables = Exact<{
@@ -4321,7 +4415,7 @@ export type StopListEnrichmentMutationVariables = Exact<{
 export type StopListEnrichmentMutation = {
   __typename?: 'Mutation'
   stopListEnrichment: {
-    __typename?: 'EnrichmentQueueResult'
+    __typename?: 'EnrichmentQueueMutationResult'
     success?: boolean | null
     queuedItems?: number | null
     error?: string | null
@@ -7700,6 +7794,75 @@ export const ListEditForm_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListEditForm_ListFragment, unknown>
+export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EnrichmentAccordionItem_Enrichment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiEnrichmentTask' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'priority' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'requestedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'field' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'file' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'list' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnrichmentAccordionItem_EnrichmentFragment, unknown>
 export const FieldModal_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -13746,263 +13909,6 @@ export const RemoveLibraryParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
-export const AddListFieldDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'addListField' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'addListField' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AddListFieldMutation, AddListFieldMutationVariables>
-export const AddListSourceDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'addListSource' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListSourceInput' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'addListSource' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'library' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'owner' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AddListSourceMutation, AddListSourceMutationVariables>
-export const CleanEnrichmentsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'CleanEnrichments' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cleanListEnrichments' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fieldId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'clearedItems' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CleanEnrichmentsMutation, CleanEnrichmentsMutationVariables>
-export const CreateListDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createList' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createList' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateListMutation, CreateListMutationVariables>
-export const DeleteListDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteList' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteList' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
 export const GetContentQueriesDocument = {
   kind: 'Document',
   definitions: [
@@ -14056,6 +13962,176 @@ export const GetContentQueriesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetContentQueriesQuery, GetContentQueriesQueryVariables>
+export const GetEnrichmentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getEnrichments' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'status' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'EnrichmentStatus' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiListEnrichments' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'status' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'status' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'enrichments' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'EnrichmentAccordionItem_Enrichment' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EnrichmentAccordionItem_Enrichment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiEnrichmentTask' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'priority' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'requestedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'field' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'file' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'list' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEnrichmentsQuery, GetEnrichmentsQueryVariables>
 export const AiListFilesWithValuesDocument = {
   kind: 'Document',
   definitions: [
@@ -14525,6 +14601,263 @@ export const GetUserListsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserListsQuery, GetUserListsQueryVariables>
+export const AddListFieldDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addListField' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addListField' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddListFieldMutation, AddListFieldMutationVariables>
+export const AddListSourceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addListSource' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListSourceInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addListSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'owner' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddListSourceMutation, AddListSourceMutationVariables>
+export const CleanEnrichmentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CleanEnrichments' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cleanListEnrichments' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'clearedItems' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CleanEnrichmentsMutation, CleanEnrichmentsMutationVariables>
+export const CreateListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateListMutation, CreateListMutationVariables>
+export const DeleteListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
 export const ListExportDataDocument = {
   kind: 'Document',
   definitions: [

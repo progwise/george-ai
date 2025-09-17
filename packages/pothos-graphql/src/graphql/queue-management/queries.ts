@@ -20,23 +20,23 @@ builder.queryField('queueSystemStatus', (t) =>
       }
 
       // Get enrichment queue stats
-      const enrichmentPending = await prisma.aiListEnrichmentQueue.count({
+      const enrichmentPending = await prisma.aiEnrichmentTask.count({
         where: { startedAt: null, completedAt: null, status: { not: 'failed' } },
       })
 
-      const enrichmentProcessing = await prisma.aiListEnrichmentQueue.count({
+      const enrichmentProcessing = await prisma.aiEnrichmentTask.count({
         where: { startedAt: { not: null }, completedAt: null, status: { not: 'failed' } },
       })
 
-      const enrichmentFailed = await prisma.aiListEnrichmentQueue.count({
+      const enrichmentFailed = await prisma.aiEnrichmentTask.count({
         where: { status: 'failed' },
       })
 
-      const enrichmentCompleted = await prisma.aiListEnrichmentQueue.count({
+      const enrichmentCompleted = await prisma.aiEnrichmentTask.count({
         where: { completedAt: { not: null } },
       })
 
-      const enrichmentLastProcessed = await prisma.aiListEnrichmentQueue.findFirst({
+      const enrichmentLastProcessed = await prisma.aiEnrichmentTask.findFirst({
         where: { completedAt: { not: null } },
         orderBy: { completedAt: 'desc' },
         select: { completedAt: true },

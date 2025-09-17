@@ -475,6 +475,7 @@ export default {
     deleteSuccess: 'Successfully deleted {name}.',
     deleteError: 'Error deleting list: {message}',
     edit: 'Settings',
+    enrichments: 'Enrichments',
     firstList: 'No lists yet, start your first now...',
     idRequired: 'List ID is required.',
     labelCreatedAt: 'Created',

@@ -2,8 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { ListMenu } from '../../../../components/lists/list-menu'
-import { getListQueryOptions } from '../../../../components/lists/server-functions'
-import { getListsQueryOptions } from '../../../../components/lists/server-functions'
+import { getListQueryOptions, getListsQueryOptions } from '../../../../components/lists/queries'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
@@ -44,6 +43,17 @@ function RouteComponent() {
         >
           <ListViewIcon />
           {t('lists.view')}
+        </Link>
+        <Link
+          to="/lists/$listId/enrichments"
+          className="tab"
+          params={{ listId: params.listId }}
+          activeOptions={{ exact: true, includeSearch: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          <EditIcon />
+          {t('lists.enrichments')}
         </Link>
         <Link
           to="/lists/$listId/edit"

@@ -7,7 +7,7 @@ import { debounce } from '@george-ai/web-utils'
 
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { getSimilarFileChunksOptions } from '../../../../../../components/library/files/get-file-similarity'
-import { getContentQueriesQueryOptions } from '../../../../../../components/lists/server-functions/get-content-queries'
+import { getContentQueriesQueryOptions } from '../../../../../../components/lists/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/similarity')({
   component: RouteComponent,

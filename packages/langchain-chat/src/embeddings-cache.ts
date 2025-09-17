@@ -45,8 +45,13 @@ export const getEmbeddingWithCache = async (embeddingModelName: string, question
 
   // Not in cache, compute the embedding
   console.log(`Embeddings cache miss for: ${cacheKey.substring(0, 50)}...`)
-  const vector = await getOllamaEmbedding(embeddingModelName, question)
+  const embeddingsResult = await getOllamaEmbedding(embeddingModelName, question)
 
+  if (embeddingsResult.embeddings.length === 0) {
+    throw new Error('No embeddings returned from Ollama')
+  }
+
+  const vector = embeddingsResult.embeddings[0]
   // Evict LRU if we're at max capacity
   if (cache.size >= MAX_CACHE_SIZE) {
     evictLRU()

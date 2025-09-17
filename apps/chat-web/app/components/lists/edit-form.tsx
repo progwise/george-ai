@@ -9,7 +9,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { getListsQueryOptions, getUpdateListSchema, updateList } from './server-functions'
+import { getListsQueryOptions } from './queries'
+import { getUpdateListSchema, updateList } from './server-functions'
 
 graphql(`
   fragment ListEditForm_List on AiList {

@@ -20,7 +20,7 @@ import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
 import { ListFieldsTableFilterBadges } from './list-fields-table-filter-badges'
 import { ListFieldsTableMenu } from './list-fields-table-menu'
-import { getListFilesWithValuesQueryOptions } from './server-functions'
+import { getListFilesWithValuesQueryOptions } from './queries'
 import { useListFilters } from './use-list-filters'
 
 graphql(`

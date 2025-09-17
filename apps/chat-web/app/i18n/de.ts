@@ -483,6 +483,7 @@ export default {
     deleteSuccess: '{name} erfolgreich gelöscht.',
     deleteError: 'Fehler beim Löschen der Liste: {message}',
     edit: 'Einstellungen',
+    enrichments: 'Anreicherungen',
     firstList: 'Noch keine Listen vorhanden, starte Deine erste...',
     idRequired: 'Listen-ID ist erforderlich.',
     labelCreatedAt: 'Erstellt',

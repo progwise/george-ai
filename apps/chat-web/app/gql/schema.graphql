@@ -235,6 +235,22 @@ interface AiConversationParticipant {
   userId: ID
 }
 
+type AiEnrichmentTask {
+  completedAt: DateTime
+  error: String
+  field: AiListField!
+  fieldId: String!
+  file: AiLibraryFile!
+  fileId: String!
+  id: ID!
+  list: AiList!
+  listId: String!
+  priority: Int!
+  requestedAt: DateTime!
+  startedAt: DateTime
+  status: EnrichmentStatus!
+}
+
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
@@ -489,7 +505,7 @@ type AiLibraryUsage {
 
 type AiList {
   createdAt: DateTime!
-  enrichmentQueue: [AiListEnrichmentQueue!]!
+  enrichmentTasks: [AiEnrichmentTask!]!
   fields: [AiListField!]!
   id: ID!
   name: String!
@@ -498,22 +514,6 @@ type AiList {
   participants: [AiListParticipant!]!
   sources: [AiListSource!]!
   updatedAt: DateTime
-}
-
-type AiListEnrichmentQueue {
-  completedAt: DateTime
-  error: String
-  field: AiListField!
-  fieldId: String!
-  file: AiLibraryFile!
-  fileId: String!
-  id: ID!
-  list: AiList!
-  listId: String!
-  priority: Int!
-  requestedAt: DateTime!
-  startedAt: DateTime
-  status: String!
 }
 
 type AiListField {
@@ -733,10 +733,29 @@ enum EmbeddingStatus {
   skipped
 }
 
-type EnrichmentQueueResult {
+type EnrichmentQueueMutationResult {
   error: String
   queuedItems: Int
   success: Boolean
+}
+
+type EnrichmentQueueResult {
+  enrichments: [AiEnrichmentTask!]!
+  fieldId: String
+  fileId: String
+  listId: String
+  skip: Int
+  status: EnrichmentStatus
+  take: Int
+  totalCount: Int!
+}
+
+enum EnrichmentStatus {
+  canceled
+  completed
+  failed
+  in_progress
+  pending
 }
 
 enum ExtractionStatus {
@@ -932,7 +951,7 @@ type Mutation {
     """
     fileId: String!
     listId: String!
-  ): EnrichmentQueueResult!
+  ): EnrichmentQueueMutationResult!
   removeLibraryParticipant(libraryId: String!, participantId: String!): Boolean!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -950,7 +969,7 @@ type Mutation {
     """
     fieldId: String!
     listId: String!
-  ): EnrichmentQueueResult!
+  ): EnrichmentQueueMutationResult!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
   startSingleEnrichment(
     """
@@ -962,7 +981,7 @@ type Mutation {
     """
     fileId: String!
     listId: String!
-  ): EnrichmentQueueResult!
+  ): EnrichmentQueueMutationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
   stopListEnrichment(
@@ -971,7 +990,7 @@ type Mutation {
     """
     fieldId: String!
     listId: String!
-  ): EnrichmentQueueResult!
+  ): EnrichmentQueueMutationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
@@ -1044,7 +1063,14 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
-  aiListEnrichmentQueue(listId: String!, status: String): [AiListEnrichmentQueue!]!
+  aiListEnrichments(
+    fieldId: String
+    fileId: String
+    listId: String
+    skip: Int = 0
+    status: EnrichmentStatus
+    take: Int = 20
+  ): EnrichmentQueueResult!
   aiListItems(
     fieldIds: [String!]!
     filters: [AiListFilterInput!]

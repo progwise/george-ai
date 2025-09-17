@@ -19,21 +19,31 @@ export const getCanAccessListWhere = (userId: string): Prisma.AiListWhereInput =
   OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
 })
 
-/**
- * Resolves the display value for a given field and file combination.
- * This utility handles both file property fields and computed fields with cached values.
- * Returns both the value and any enrichment error message.
- */
-export async function getFieldValue(
+export function getFieldValue(
   file: Prisma.AiLibraryFileGetPayload<{
     include: {
-      crawledByCrawler: true
-      cache: true
-      library: true
+      crawledByCrawler: { select: { uri: true } }
+      library: { select: { name: true } }
     }
   }>,
-  field: Prisma.AiListFieldGetPayload<object>,
-): Promise<{ value: string | null; errorMessage: string | null }> {
+  field: Prisma.AiListFieldGetPayload<{
+    select: {
+      sourceType: true
+      fileProperty: true
+      type: true
+      cachedValues: {
+        select: {
+          fileId: true
+          valueString: true
+          valueNumber: true
+          valueBoolean: true
+          valueDate: true
+          enrichmentErrorMessage: true
+        }
+      }
+    }
+  }>,
+): { value: string | null; errorMessage: string | null } {
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
     let value: string | null = null
@@ -45,16 +55,7 @@ export async function getFieldValue(
         value = file.originUri
         break
       case 'crawlerUrl': {
-        // Check if we have the crawler data already loaded
-        if (file.crawledByCrawler) {
-          value = file.crawledByCrawler.uri || null
-        } else if (file.crawledByCrawlerId) {
-          // Fallback: query the crawler if we have the ID
-          const crawler = await prisma.aiLibraryCrawler.findFirst({
-            where: { id: file.crawledByCrawlerId },
-          })
-          value = crawler?.uri || null
-        }
+        value = file.crawledByCrawler?.uri || null
         break
       }
       case 'originModificationDate':
@@ -75,7 +76,7 @@ export async function getFieldValue(
     return { value, errorMessage: null }
   }
 
-  const cache = findCacheValue(file, field.id)
+  const cache = field.cachedValues.find((cache) => cache.fileId === file.id) || null
 
   // Handle computed fields - use cached value if available
   if (field.sourceType === 'llm_computed' && cache) {

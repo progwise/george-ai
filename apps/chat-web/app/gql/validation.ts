@@ -18,6 +18,7 @@ import {
   AiListSourceInput,
   ConversationInvitationInput,
   EmbeddingStatus,
+  EnrichmentStatus,
   ExtractionStatus,
   ProcessingStatus,
   QueueType,
@@ -40,6 +41,8 @@ export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriTyp
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
+
+export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
 

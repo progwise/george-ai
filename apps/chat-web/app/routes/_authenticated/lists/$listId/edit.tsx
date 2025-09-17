@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { ListEditForm } from '../../../../components/lists/edit-form'
 import { ListSourcesManager } from '../../../../components/lists/list-sources-manager'
-import { getListQueryOptions } from '../../../../components/lists/server-functions'
+import { getListQueryOptions } from '../../../../components/lists/queries'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/edit')({
   component: RouteComponent,

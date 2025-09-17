@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { NewListDialog } from '../../../components/lists/new-list-dialog'
-import { getListsQueryOptions } from '../../../components/lists/server-functions'
+import { getListsQueryOptions } from '../../../components/lists/queries'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ListPlusIcon } from '../../../icons/list-plus-icon'
 

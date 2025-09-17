@@ -85,7 +85,25 @@ export const ListItemQueryResult = builder
       }
     }>
     list: Prisma.AiListGetPayload<{ include: { sources: true } }>
-    fields: Prisma.AiListFieldGetPayload<object>[]
+    fields: Prisma.AiListFieldGetPayload<{
+      select: {
+        id: true
+        name: true
+        sourceType: true
+        fileProperty: true
+        type: true
+        cachedValues: {
+          select: {
+            fileId: true
+            valueString: true
+            valueNumber: true
+            valueBoolean: true
+            valueDate: true
+            enrichmentErrorMessage: true
+          }
+        }
+      }
+    }>[]
   }>('ListItemQueryResult')
   .implement({
     fields: (t) => ({
@@ -103,7 +121,7 @@ export const ListItemQueryResult = builder
           return fields.map(async (field) => ({
             fieldId: field.id,
             fieldName: field.name,
-            displayValue: await getFieldValue(file, field).then((res) => res.value),
+            displayValue: getFieldValue(file, field).value,
             queueStatus: 'unknown',
             enrichmentErrorMessage: 'unknown',
           }))
@@ -115,7 +133,25 @@ export const ListItemQueryResult = builder
 export const ListItemsQueryResult = builder
   .objectRef<{
     list: Prisma.AiListGetPayload<{ include: { sources: true } }>
-    fields: Prisma.AiListFieldGetPayload<object>[]
+    fields: Prisma.AiListFieldGetPayload<{
+      select: {
+        id: true
+        name: true
+        sourceType: true
+        fileProperty: true
+        type: true
+        cachedValues: {
+          select: {
+            fileId: true
+            valueString: true
+            valueNumber: true
+            valueBoolean: true
+            valueDate: true
+            enrichmentErrorMessage: true
+          }
+        }
+      }
+    }>[]
     skip: number
     take: number
     orderBy?: string
