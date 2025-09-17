@@ -8,7 +8,7 @@ const EnrichmentQueueTasksMutationResult = builder
     createdTasksCount: number
     cleanedUpTasksCount: number
     cleanedUpEnrichmentsCount?: number
-  }>('EnrichmentQueueMutationResult')
+  }>('EnrichmentQueueTasksMutationResult')
   .implement({
     fields: (t) => ({
       createdTasksCount: t.exposeInt('createdTasksCount', { nullable: true }),
@@ -64,8 +64,14 @@ builder.mutationField('createEnrichmentTasks', (t) =>
               context: {
                 include: {
                   contextField: {
-                    select: { id: true, name: true, fileProperty: true, sourceType: true, type: true },
-                    include: { cachedValues: true },
+                    select: {
+                      id: true,
+                      name: true,
+                      fileProperty: true,
+                      sourceType: true,
+                      type: true,
+                      cachedValues: true,
+                    },
                   },
                 },
               },
@@ -80,6 +86,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                     include: {
                       crawledByCrawler: { select: { id: true, uri: true } },
                       library: { select: { id: true, name: true, embeddingModelName: true } },
+                      cache: { where: { fieldId } },
                     },
                   },
                 },
@@ -125,14 +132,14 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
         const createTasksResult = await tx.aiEnrichmentTask.createMany({
           data: files.map((file) => {
-            const metaData = getEnrichmentTaskInputMetadata({ validatedField, file })
+            const metadata = getEnrichmentTaskInputMetadata({ validatedField, file })
             return {
               listId,
               fieldId,
               fileId: file.id,
               status: 'pending',
               priority: 0,
-              metaData: JSON.stringify(metaData),
+              metadata: JSON.stringify({ input: metadata }),
             }
           }),
         })

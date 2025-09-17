@@ -22,16 +22,17 @@ export const removeFromEnrichmentQueue = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {
-          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {
-            success
-            queuedItems
-            error
+          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {
+            createdTasksCount
+            cleanedUpTasksCount
+            cleanedUpEnrichmentsCount
           }
         }
       `),
       { listId: data.listId, fieldId: data.fieldId, fileId: data.fileId },
     )
+    return result.deletePendingEnrichmentTasks
   })

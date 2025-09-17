@@ -25,5 +25,6 @@ builder.prismaObject('AiEnrichmentTask', {
     list: t.relation('list', { nullable: false }),
     field: t.relation('field', { nullable: false }),
     file: t.relation('file', { nullable: false }),
+    metadata: t.exposeString('metadata'), // JSON string
   }),
 })

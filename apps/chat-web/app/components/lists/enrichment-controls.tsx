@@ -27,16 +27,16 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing, onActionExec
       return await startEnrichment({ data: formData })
     },
     onSuccess: async (data) => {
-      if (data.success) {
+      if (data.createdTasksCount !== undefined) {
         toastSuccess(
           t('lists.enrichment.started', {
-            count: data.queuedItems || 0,
+            count: data.createdTasksCount || 0,
           }),
         )
         await queryClient.invalidateQueries(getListQueryOptions(listId))
         await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
       } else {
-        toastError(data.error || t('lists.enrichment.startError'))
+        toastError(t('lists.enrichment.startError'))
       }
     },
     onError: (error) => {
@@ -54,12 +54,12 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing, onActionExec
       return await stopEnrichment({ data: formData })
     },
     onSuccess: async (data) => {
-      if (data.success) {
+      if (data.cleanedUpTasksCount !== undefined) {
         toastSuccess(t('lists.enrichment.stopped'))
         await queryClient.invalidateQueries(getListQueryOptions(listId))
         await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
       } else {
-        toastError(data.error || t('lists.enrichment.stopError'))
+        toastError(t('lists.enrichment.stopError'))
       }
     },
     onError: (error) => {
@@ -77,16 +77,16 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing, onActionExec
       return await cleanEnrichments({ data: formData })
     },
     onSuccess: async (data) => {
-      if (data.cleanListEnrichments.success) {
+      if (data.cleanedUpEnrichmentsCount !== undefined) {
         toastSuccess(
           t('lists.enrichment.cleaned', {
-            count: data.cleanListEnrichments.clearedItems || 0,
+            count: data.cleanedUpEnrichmentsCount || 0,
           }),
         )
         await queryClient.invalidateQueries(getListQueryOptions(listId))
         await queryClient.invalidateQueries({ queryKey: ['AiListFiles'] })
       } else {
-        toastError(data.cleanListEnrichments.error || t('lists.enrichment.cleanError'))
+        toastError(t('lists.enrichment.cleanError'))
       }
     },
     onError: (error) => {

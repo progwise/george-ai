@@ -9,12 +9,12 @@ const startEnrichmentSchema = z.object({
   fieldId: z.string().nonempty(),
 })
 
-const startEnrichmentDocument = graphql(`
-  mutation StartListEnrichment($listId: String!, $fieldId: String!) {
-    startListEnrichment(listId: $listId, fieldId: $fieldId) {
-      success
-      queuedItems
-      error
+const CreateListEnrichmentTasksDocument = graphql(`
+  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {
+    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {
+      createdTasksCount
+      cleanedUpTasksCount
+      cleanedUpEnrichmentsCount
     }
   }
 `)
@@ -27,9 +27,9 @@ export const startEnrichment = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = ctx.data
-    const result = await backendRequest(startEnrichmentDocument, {
+    const result = await backendRequest(CreateListEnrichmentTasksDocument, {
       listId: data.listId,
       fieldId: data.fieldId,
     })
-    return result.startListEnrichment
+    return result.createEnrichmentTasks
   })

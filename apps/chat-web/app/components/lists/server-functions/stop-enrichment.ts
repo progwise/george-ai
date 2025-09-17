@@ -11,10 +11,10 @@ const stopEnrichmentSchema = z.object({
 
 const stopEnrichmentDocument = graphql(`
   mutation StopListEnrichment($listId: String!, $fieldId: String!) {
-    stopListEnrichment(listId: $listId, fieldId: $fieldId) {
-      success
-      queuedItems
-      error
+    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {
+      cleanedUpTasksCount
+      cleanedUpEnrichmentsCount
+      createdTasksCount
     }
   }
 `)
@@ -31,5 +31,5 @@ export const stopEnrichment = createServerFn({ method: 'POST' })
       listId: data.listId,
       fieldId: data.fieldId,
     })
-    return result.stopListEnrichment
+    return result.deletePendingEnrichmentTasks
   })

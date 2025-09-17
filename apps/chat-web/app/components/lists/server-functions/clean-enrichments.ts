@@ -7,9 +7,9 @@ import { backendRequest } from '../../../server-functions/backend'
 const CleanEnrichmentsDocument = graphql(`
   mutation CleanEnrichments($listId: String!, $fieldId: String!) {
     cleanListEnrichments(listId: $listId, fieldId: $fieldId) {
-      success
-      clearedItems
-      error
+      createdTasksCount
+      cleanedUpTasksCount
+      cleanedUpEnrichmentsCount
     }
   }
 `)
@@ -32,5 +32,5 @@ export const cleanEnrichments = createServerFn({
       fieldId: data.fieldId,
     })
 
-    return result
+    return result.cleanListEnrichments
   })

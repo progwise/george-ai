@@ -41,7 +41,6 @@ export const ListItemResult = builder
       include: {
         library: true
         crawledByCrawler: true
-        cache: true
       }
     }>
   >('ListItemResult')
@@ -92,16 +91,6 @@ export const ListItemQueryResult = builder
         sourceType: true
         fileProperty: true
         type: true
-        cachedValues: {
-          select: {
-            fileId: true
-            valueString: true
-            valueNumber: true
-            valueBoolean: true
-            valueDate: true
-            enrichmentErrorMessage: true
-          }
-        }
       }
     }>[]
   }>('ListItemQueryResult')
@@ -121,9 +110,14 @@ export const ListItemQueryResult = builder
           return fields.map(async (field) => ({
             fieldId: field.id,
             fieldName: field.name,
-            displayValue: getFieldValue(file, field).value,
-            queueStatus: 'unknown',
-            enrichmentErrorMessage: 'unknown',
+            ...(() => {
+              const { value, errorMessage } = getFieldValue(file, field)
+              return {
+                displayValue: value ? value : errorMessage,
+                queueStatus: value ? 'done' : 'pending',
+                enrichmentErrorMessage: errorMessage,
+              }
+            })(),
           }))
         },
       }),
@@ -140,16 +134,6 @@ export const ListItemsQueryResult = builder
         sourceType: true
         fileProperty: true
         type: true
-        cachedValues: {
-          select: {
-            fileId: true
-            valueString: true
-            valueNumber: true
-            valueBoolean: true
-            valueDate: true
-            enrichmentErrorMessage: true
-          }
-        }
       }
     }>[]
     skip: number
@@ -168,7 +152,13 @@ export const ListItemsQueryResult = builder
         resolve: async ({ list, fields, skip, take, orderBy, orderDirection, filters, showArchived }) => {
           const fitersWhere = await getListFiltersWhere(filters)
           const files = await prisma.aiLibraryFile.findMany({
-            include: { library: true, crawledByCrawler: true, cache: true }, // loads all caches for the file and not only the relevant ones
+            include: {
+              library: true,
+              crawledByCrawler: true,
+              cache: {
+                where: { fieldId: { in: fields.map((field) => field.id) } },
+              },
+            }, // loads all caches for the file and not only the relevant ones
             where: {
               libraryId: {
                 in: list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null),

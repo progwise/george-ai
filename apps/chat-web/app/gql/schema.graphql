@@ -245,6 +245,7 @@ type AiEnrichmentTask {
   id: ID!
   list: AiList!
   listId: String!
+  metadata: String
   priority: Int!
   requestedAt: DateTime!
   startedAt: DateTime
@@ -529,8 +530,8 @@ type AiListField {
   pendingItemsCount: Int!
   processingItemsCount: Int!
   prompt: String
-  sourceType: String!
-  type: String!
+  sourceType: ListFieldSourceType!
+  type: ListFieldType!
   useVectorStore: Boolean
 }
 
@@ -553,11 +554,11 @@ input AiListFieldInput {
   """
   Source type: file_property or llm_computed
   """
-  sourceType: String!
+  sourceType: ListFieldSourceType!
   """
   Field type: string, number, date, datetime, boolean
   """
-  type: String!
+  type: ListFieldType!
   useVectorStore: Boolean
 }
 
@@ -676,12 +677,6 @@ type AssistantParticipant implements AiConversationParticipant {
 
 scalar BigInt
 
-type CleanEnrichmentResult {
-  clearedItems: Int
-  error: String
-  success: Boolean
-}
-
 type ComputeFieldValueResult {
   error: String
   success: Boolean
@@ -733,12 +728,6 @@ enum EmbeddingStatus {
   skipped
 }
 
-type EnrichmentQueueMutationResult {
-  error: String
-  queuedItems: Int
-  success: Boolean
-}
-
 type EnrichmentQueueResult {
   enrichments: [AiEnrichmentTask!]!
   fieldId: String
@@ -748,6 +737,12 @@ type EnrichmentQueueResult {
   status: EnrichmentStatus
   take: Int
   totalCount: Int!
+}
+
+type EnrichmentQueueTasksMutationResult {
+  cleanedUpEnrichmentsCount: Int
+  cleanedUpTasksCount: Int
+  createdTasksCount: Int
 }
 
 enum EnrichmentStatus {
@@ -811,6 +806,20 @@ type HumanParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+enum ListFieldSourceType {
+  file_property
+  llm_computed
+}
+
+enum ListFieldType {
+  boolean
+  date
+  datetime
+  number
+  string
+  text
 }
 
 type ListItemQueryResult {
@@ -898,11 +907,18 @@ type Mutation {
   cancelProcessingTask(fileId: String!, taskId: String!): AiContentProcessingTask!
   cleanListEnrichments(
     """
-    Field ID to clean
+    Optional Field ID to only clean enrichments for a specific field
     """
-    fieldId: String!
+    fieldId: String
+    """
+    Optional File ID to only clean enrichments for a specific file
+    """
+    fileId: String
+    """
+    List ID to clean enrichments for. Without additional arguments it will clean all enriched values from all fields and items in the list
+    """
     listId: String!
-  ): CleanEnrichmentResult!
+  ): EnrichmentQueueTasksMutationResult!
   clearEmbeddedFiles(libraryId: String!): Boolean
   clearFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   clearPendingTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
@@ -920,6 +936,21 @@ type Mutation {
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   createEmbeddingOnlyProcessingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
+  createEnrichmentTasks(
+    """
+    Field ID to enrich
+    """
+    fieldId: String!
+    """
+    Optional File ID to only create task for a specific file
+    """
+    fileId: String
+    listId: String!
+    """
+    Only create tasks for files that do not yet have a cached value for this field
+    """
+    onlyMissingValues: Boolean = true
+  ): EnrichmentQueueTasksMutationResult!
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -932,6 +963,20 @@ type Mutation {
   deleteLibraryFiles(libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
+  deletePendingEnrichmentTasks(
+    """
+    Field ID to stop enrichment for
+    """
+    fieldId: String
+    """
+    File ID to stop enrichment for
+    """
+    fileId: String
+    """
+    List ID to stop enrichment for
+    """
+    listId: String!
+  ): EnrichmentQueueTasksMutationResult!
   dropOutdatedMarkdowns(fileId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
@@ -941,17 +986,6 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
-  removeFromEnrichmentQueue(
-    """
-    Field ID to remove from queue
-    """
-    fieldId: String!
-    """
-    File ID to remove from queue
-    """
-    fileId: String!
-    listId: String!
-  ): EnrichmentQueueMutationResult!
   removeLibraryParticipant(libraryId: String!, participantId: String!): Boolean!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -963,34 +997,9 @@ type Mutation {
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startAllQueueWorkers: QueueOperationResult!
-  startListEnrichment(
-    """
-    Field ID to enrich
-    """
-    fieldId: String!
-    listId: String!
-  ): EnrichmentQueueMutationResult!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
-  startSingleEnrichment(
-    """
-    Field ID to enrich
-    """
-    fieldId: String!
-    """
-    File ID to enrich
-    """
-    fileId: String!
-    listId: String!
-  ): EnrichmentQueueMutationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
-  stopListEnrichment(
-    """
-    Field ID to stop enrichment for
-    """
-    fieldId: String!
-    listId: String!
-  ): EnrichmentQueueMutationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage

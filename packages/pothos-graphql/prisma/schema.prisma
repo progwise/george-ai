@@ -366,7 +366,7 @@ model AiListField {
   createdAt DateTime @default(now())
   listId    String
   name      String
-  type      String // 'string', 'number', 'date', 'datetime', 'boolean'
+  type      String // 'text', 'number', 'date', 'datetime', 'boolean'
   order     Int      @default(0) // Display order in table
 
   // Source configuration

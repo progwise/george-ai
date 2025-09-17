@@ -20,6 +20,8 @@ import {
   EmbeddingStatus,
   EnrichmentStatus,
   ExtractionStatus,
+  ListFieldSourceType,
+  ListFieldType,
   ProcessingStatus,
   QueueType,
   UserInput,
@@ -45,6 +47,10 @@ export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
+
+export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
+
+export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 
 export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
 
@@ -152,8 +158,8 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     name: z.string(),
     order: z.number().nullish(),
     prompt: z.string().nullish(),
-    sourceType: z.string(),
-    type: z.string(),
+    sourceType: ListFieldSourceTypeSchema,
+    type: ListFieldTypeSchema,
     useVectorStore: z.boolean().nullish(),
   })
 }

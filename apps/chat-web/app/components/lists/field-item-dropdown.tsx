@@ -59,13 +59,13 @@ export const FieldItemDropdown = ({
       return await startSingleEnrichment({ data: formData })
     },
     onSuccess: async (data) => {
-      if (data.startSingleEnrichment.success) {
+      if (data.createdTasksCount === 1) {
         toastSuccess(t('lists.enrichment.singleStarted', { field: fieldName, file: fileName }))
         // Invalidate specific queries to preserve pagination
         await queryClient.invalidateQueries(getListQueryOptions(listId))
         await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
       } else {
-        toastError(data.startSingleEnrichment.error || t('lists.enrichment.startError'))
+        toastError(t('lists.enrichment.startError'))
       }
     },
     onError: (error) => {
@@ -84,13 +84,13 @@ export const FieldItemDropdown = ({
       return await removeFromEnrichmentQueue({ data: formData })
     },
     onSuccess: async (data) => {
-      if (data.removeFromEnrichmentQueue.success) {
+      if (data.cleanedUpTasksCount !== undefined) {
         toastSuccess(t('lists.enrichment.removedFromQueue', { field: fieldName, file: fileName }))
         // Invalidate specific queries to preserve pagination
         await queryClient.invalidateQueries(getListQueryOptions(listId))
         await queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] })
       } else {
-        toastError(data.removeFromEnrichmentQueue.error || t('lists.enrichment.removeError'))
+        toastError(t('lists.enrichment.removeError'))
       }
     },
     onError: (error) => {

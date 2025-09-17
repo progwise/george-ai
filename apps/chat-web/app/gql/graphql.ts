@@ -267,6 +267,7 @@ export type AiEnrichmentTask = {
   id: Scalars['ID']['output']
   list: AiList
   listId: Scalars['String']['output']
+  metadata?: Maybe<Scalars['String']['output']>
   priority: Scalars['Int']['output']
   requestedAt: Scalars['DateTime']['output']
   startedAt?: Maybe<Scalars['DateTime']['output']>
@@ -581,8 +582,8 @@ export type AiListField = {
   pendingItemsCount: Scalars['Int']['output']
   processingItemsCount: Scalars['Int']['output']
   prompt?: Maybe<Scalars['String']['output']>
-  sourceType: Scalars['String']['output']
-  type: Scalars['String']['output']
+  sourceType: ListFieldSourceType
+  type: ListFieldType
   useVectorStore?: Maybe<Scalars['Boolean']['output']>
 }
 
@@ -604,9 +605,9 @@ export type AiListFieldInput = {
   order?: InputMaybe<Scalars['Int']['input']>
   prompt?: InputMaybe<Scalars['String']['input']>
   /** Source type: file_property or llm_computed */
-  sourceType: Scalars['String']['input']
+  sourceType: ListFieldSourceType
   /** Field type: string, number, date, datetime, boolean */
-  type: Scalars['String']['input']
+  type: ListFieldType
   useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
 
@@ -732,13 +733,6 @@ export type AssistantParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
-export type CleanEnrichmentResult = {
-  __typename?: 'CleanEnrichmentResult'
-  clearedItems?: Maybe<Scalars['Int']['output']>
-  error?: Maybe<Scalars['String']['output']>
-  success?: Maybe<Scalars['Boolean']['output']>
-}
-
 export type ComputeFieldValueResult = {
   __typename?: 'ComputeFieldValueResult'
   error?: Maybe<Scalars['String']['output']>
@@ -781,13 +775,6 @@ export enum EmbeddingStatus {
   Skipped = 'skipped',
 }
 
-export type EnrichmentQueueMutationResult = {
-  __typename?: 'EnrichmentQueueMutationResult'
-  error?: Maybe<Scalars['String']['output']>
-  queuedItems?: Maybe<Scalars['Int']['output']>
-  success?: Maybe<Scalars['Boolean']['output']>
-}
-
 export type EnrichmentQueueResult = {
   __typename?: 'EnrichmentQueueResult'
   enrichments: Array<AiEnrichmentTask>
@@ -798,6 +785,13 @@ export type EnrichmentQueueResult = {
   status?: Maybe<EnrichmentStatus>
   take?: Maybe<Scalars['Int']['output']>
   totalCount: Scalars['Int']['output']
+}
+
+export type EnrichmentQueueTasksMutationResult = {
+  __typename?: 'EnrichmentQueueTasksMutationResult'
+  cleanedUpEnrichmentsCount?: Maybe<Scalars['Int']['output']>
+  cleanedUpTasksCount?: Maybe<Scalars['Int']['output']>
+  createdTasksCount?: Maybe<Scalars['Int']['output']>
 }
 
 export enum EnrichmentStatus {
@@ -865,6 +859,20 @@ export type HumanParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
+}
+
+export enum ListFieldSourceType {
+  FileProperty = 'file_property',
+  LlmComputed = 'llm_computed',
+}
+
+export enum ListFieldType {
+  Boolean = 'boolean',
+  Date = 'date',
+  Datetime = 'datetime',
+  Number = 'number',
+  String = 'string',
+  Text = 'text',
 }
 
 export type ListItemQueryResult = {
@@ -951,7 +959,7 @@ export type Mutation = {
   cancelContentProcessingTasks: QueueOperationResult
   cancelFileUpload: Scalars['Boolean']['output']
   cancelProcessingTask: AiContentProcessingTask
-  cleanListEnrichments: CleanEnrichmentResult
+  cleanListEnrichments: EnrichmentQueueTasksMutationResult
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   clearFailedTasks: QueueOperationResult
   clearPendingTasks: QueueOperationResult
@@ -965,6 +973,7 @@ export type Mutation = {
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
   createEmbeddingOnlyProcessingTask: AiContentProcessingTask
+  createEnrichmentTasks: EnrichmentQueueTasksMutationResult
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -977,6 +986,7 @@ export type Mutation = {
   deleteLibraryFiles: Scalars['Int']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
+  deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
   dropOutdatedMarkdowns: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
@@ -986,7 +996,6 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
-  removeFromEnrichmentQueue: EnrichmentQueueMutationResult
   removeLibraryParticipant: Scalars['Boolean']['output']
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -998,12 +1007,9 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
-  startListEnrichment: EnrichmentQueueMutationResult
   startQueueWorker: QueueOperationResult
-  startSingleEnrichment: EnrichmentQueueMutationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
-  stopListEnrichment: EnrichmentQueueMutationResult
   stopQueueWorker: QueueOperationResult
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
@@ -1067,7 +1073,8 @@ export type MutationCancelProcessingTaskArgs = {
 }
 
 export type MutationCleanListEnrichmentsArgs = {
-  fieldId: Scalars['String']['input']
+  fieldId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
 }
 
@@ -1133,6 +1140,13 @@ export type MutationCreateEmbeddingOnlyProcessingTaskArgs = {
   fileId: Scalars['String']['input']
 }
 
+export type MutationCreateEnrichmentTasksArgs = {
+  fieldId: Scalars['String']['input']
+  fileId?: InputMaybe<Scalars['String']['input']>
+  listId: Scalars['String']['input']
+  onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export type MutationCreateLibraryArgs = {
   data: AiLibraryInput
 }
@@ -1181,6 +1195,12 @@ export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationDeletePendingEnrichmentTasksArgs = {
+  fieldId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
+  listId: Scalars['String']['input']
+}
+
 export type MutationDropOutdatedMarkdownsArgs = {
   fileId: Scalars['String']['input']
 }
@@ -1216,12 +1236,6 @@ export type MutationRemoveAssistantParticipantArgs = {
 
 export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
-}
-
-export type MutationRemoveFromEnrichmentQueueArgs = {
-  fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
-  listId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryParticipantArgs = {
@@ -1269,28 +1283,12 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
-export type MutationStartListEnrichmentArgs = {
-  fieldId: Scalars['String']['input']
-  listId: Scalars['String']['input']
-}
-
 export type MutationStartQueueWorkerArgs = {
   queueType: QueueType
 }
 
-export type MutationStartSingleEnrichmentArgs = {
-  fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
-  listId: Scalars['String']['input']
-}
-
 export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
-}
-
-export type MutationStopListEnrichmentArgs = {
-  fieldId: Scalars['String']['input']
-  listId: Scalars['String']['input']
 }
 
 export type MutationStopQueueWorkerArgs = {
@@ -3857,6 +3855,7 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
   requestedAt: string
   startedAt?: string | null
   completedAt?: string | null
+  metadata?: string | null
   error?: string | null
   field: { __typename?: 'AiListField'; id: string; name: string }
   file: {
@@ -3871,14 +3870,20 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
 export type FieldModal_ListFragment = {
   __typename?: 'AiList'
   id: string
-  fields: Array<{ __typename?: 'AiListField'; id: string; name: string; type: string; sourceType: string }>
+  fields: Array<{
+    __typename?: 'AiListField'
+    id: string
+    name: string
+    type: ListFieldType
+    sourceType: ListFieldSourceType
+  }>
 }
 
 export type FieldModal_EditableFieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
-  type: string
+  type: ListFieldType
   prompt?: string | null
   contentQuery?: string | null
   languageModel?: string | null
@@ -3891,9 +3896,9 @@ export type ListExport_FieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
-  type: string
+  type: ListFieldType
   order: number
-  sourceType: string
+  sourceType: ListFieldSourceType
   fileProperty?: string | null
 }
 
@@ -3905,9 +3910,9 @@ export type ListExport_ListFragment = {
     __typename?: 'AiListField'
     id: string
     name: string
-    type: string
+    type: ListFieldType
     order: number
-    sourceType: string
+    sourceType: ListFieldSourceType
     fileProperty?: string | null
   }>
 }
@@ -3916,14 +3921,14 @@ export type ListFieldsTableFilters_AiListFieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
-  type: string
+  type: ListFieldType
 }
 
 export type ListFieldsTableMenu_AiListFieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
-  type: string
+  type: ListFieldType
 }
 
 export type ListItemTable_ItemFragment = {
@@ -3952,9 +3957,9 @@ export type ListFieldsTable_FieldFragment = {
   id: string
   listId: string
   name: string
-  type: string
+  type: ListFieldType
   order: number
-  sourceType: string
+  sourceType: ListFieldSourceType
   fileProperty?: string | null
   prompt?: string | null
   contentQuery?: string | null
@@ -3973,9 +3978,9 @@ export type ListFieldsTable_ListFragment = {
     id: string
     listId: string
     name: string
-    type: string
+    type: ListFieldType
     order: number
-    sourceType: string
+    sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
     contentQuery?: string | null
@@ -4087,6 +4092,7 @@ export type GetEnrichmentsQuery = {
       requestedAt: string
       startedAt?: string | null
       completedAt?: string | null
+      metadata?: string | null
       error?: string | null
       field: { __typename?: 'AiListField'; id: string; name: string }
       file: {
@@ -4170,9 +4176,9 @@ export type GetListQuery = {
       id: string
       listId: string
       name: string
-      type: string
+      type: ListFieldType
       order: number
-      sourceType: string
+      sourceType: ListFieldSourceType
       fileProperty?: string | null
       prompt?: string | null
       contentQuery?: string | null
@@ -4244,9 +4250,9 @@ export type AddListFieldMutation = {
     __typename?: 'AiListField'
     id: string
     name: string
-    type: string
+    type: ListFieldType
     order: number
-    sourceType: string
+    sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
     contentQuery?: string | null
@@ -4282,10 +4288,10 @@ export type CleanEnrichmentsMutationVariables = Exact<{
 export type CleanEnrichmentsMutation = {
   __typename?: 'Mutation'
   cleanListEnrichments: {
-    __typename?: 'CleanEnrichmentResult'
-    success?: boolean | null
-    clearedItems?: number | null
-    error?: string | null
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
   }
 }
 
@@ -4321,9 +4327,9 @@ export type ListExportDataQuery = {
       __typename?: 'AiListField'
       id: string
       name: string
-      type: string
+      type: ListFieldType
       order: number
-      sourceType: string
+      sourceType: ListFieldSourceType
       fileProperty?: string | null
     }>
   }
@@ -4351,11 +4357,11 @@ export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
 
 export type RemoveFromEnrichmentQueueMutation = {
   __typename?: 'Mutation'
-  removeFromEnrichmentQueue: {
-    __typename?: 'EnrichmentQueueMutationResult'
-    success?: boolean | null
-    queuedItems?: number | null
-    error?: string | null
+  deletePendingEnrichmentTasks: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
   }
 }
 
@@ -4377,18 +4383,18 @@ export type RemoveListSourceMutation = {
   removeListSource: { __typename?: 'AiListSource'; id: string }
 }
 
-export type StartListEnrichmentMutationVariables = Exact<{
+export type CreateListEnrichmentTasksMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
 }>
 
-export type StartListEnrichmentMutation = {
+export type CreateListEnrichmentTasksMutation = {
   __typename?: 'Mutation'
-  startListEnrichment: {
-    __typename?: 'EnrichmentQueueMutationResult'
-    success?: boolean | null
-    queuedItems?: number | null
-    error?: string | null
+  createEnrichmentTasks: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
   }
 }
 
@@ -4400,10 +4406,11 @@ export type StartSingleEnrichmentMutationVariables = Exact<{
 
 export type StartSingleEnrichmentMutation = {
   __typename?: 'Mutation'
-  startSingleEnrichment: {
-    __typename?: 'EnrichmentQueueMutationResult'
-    success?: boolean | null
-    error?: string | null
+  createEnrichmentTasks: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
   }
 }
 
@@ -4414,11 +4421,11 @@ export type StopListEnrichmentMutationVariables = Exact<{
 
 export type StopListEnrichmentMutation = {
   __typename?: 'Mutation'
-  stopListEnrichment: {
-    __typename?: 'EnrichmentQueueMutationResult'
-    success?: boolean | null
-    queuedItems?: number | null
-    error?: string | null
+  deletePendingEnrichmentTasks: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
+    createdTasksCount?: number | null
   }
 }
 
@@ -4433,9 +4440,9 @@ export type UpdateListFieldMutation = {
     __typename?: 'AiListField'
     id: string
     name: string
-    type: string
+    type: ListFieldType
     order: number
-    sourceType: string
+    sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
     useVectorStore?: boolean | null
@@ -7813,6 +7820,7 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'requestedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
           { kind: 'Field', name: { kind: 'Name', value: 'error' } },
           {
             kind: 'Field',
@@ -14082,6 +14090,7 @@ export const GetEnrichmentsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'requestedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
           { kind: 'Field', name: { kind: 'Name', value: 'error' } },
           {
             kind: 'Field',
@@ -14770,9 +14779,9 @@ export const CleanEnrichmentsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'clearedItems' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
               ],
             },
           },
@@ -15057,7 +15066,7 @@ export const RemoveFromEnrichmentQueueDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
+            name: { kind: 'Name', value: 'deletePendingEnrichmentTasks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -15078,9 +15087,9 @@ export const RemoveFromEnrichmentQueueDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'queuedItems' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
               ],
             },
           },
@@ -15163,13 +15172,13 @@ export const RemoveListSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveListSourceMutation, RemoveListSourceMutationVariables>
-export const StartListEnrichmentDocument = {
+export const CreateListEnrichmentTasksDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'StartListEnrichment' },
+      name: { kind: 'Name', value: 'CreateListEnrichmentTasks' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -15187,7 +15196,7 @@ export const StartListEnrichmentDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'startListEnrichment' },
+            name: { kind: 'Name', value: 'createEnrichmentTasks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -15203,9 +15212,9 @@ export const StartListEnrichmentDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'queuedItems' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
               ],
             },
           },
@@ -15213,7 +15222,7 @@ export const StartListEnrichmentDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<StartListEnrichmentMutation, StartListEnrichmentMutationVariables>
+} as unknown as DocumentNode<CreateListEnrichmentTasksMutation, CreateListEnrichmentTasksMutationVariables>
 export const StartSingleEnrichmentDocument = {
   kind: 'Document',
   definitions: [
@@ -15243,7 +15252,7 @@ export const StartSingleEnrichmentDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'startSingleEnrichment' },
+            name: { kind: 'Name', value: 'createEnrichmentTasks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -15260,12 +15269,18 @@ export const StartSingleEnrichmentDocument = {
                 name: { kind: 'Name', value: 'fileId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'onlyMissingValues' },
+                value: { kind: 'BooleanValue', value: false },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
               ],
             },
           },
@@ -15298,7 +15313,7 @@ export const StopListEnrichmentDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'stopListEnrichment' },
+            name: { kind: 'Name', value: 'deletePendingEnrichmentTasks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -15314,9 +15329,9 @@ export const StopListEnrichmentDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'queuedItems' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
               ],
             },
           },

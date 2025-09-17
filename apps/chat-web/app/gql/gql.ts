@@ -124,7 +124,7 @@ type Documents = {
   '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ': typeof types.UpdateLibraryParticipantsDocument
   '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ': typeof types.RemoveLibraryParticipantDocument
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
-  '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
+  '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
   '\n  fragment FieldModal_EditableField on AiListField {\n    id\n    name\n    type\n    prompt\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_EditableFieldFragmentDoc
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n': typeof types.ListExport_FieldFragmentDoc
@@ -146,16 +146,16 @@ type Documents = {
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ': typeof types.GetUserListsDocument
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
-  '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n': typeof types.CleanEnrichmentsDocument
+  '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n': typeof types.CleanEnrichmentsDocument
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ': typeof types.CreateListDocument
   '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteListDocument
   '\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListItems(\n      listId: $listId\n      fieldIds: $fieldIds\n      skip: $skip\n      take: $take\n      orderBy: "name"\n      orderDirection: "asc"\n    ) {\n      count\n      items {\n        origin {\n          id\n          name\n          libraryId\n          libraryName\n        }\n        values {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n': typeof types.ListExportDataDocument
-  '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            queuedItems\n            error\n          }\n        }\n      ': typeof types.RemoveFromEnrichmentQueueDocument
+  '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.RemoveFromEnrichmentQueueDocument
   '\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ': typeof types.RemoveListFieldDocument
   '\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ': typeof types.RemoveListSourceDocument
-  '\n  mutation StartListEnrichment($listId: String!, $fieldId: String!) {\n    startListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n': typeof types.StartListEnrichmentDocument
-  '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          startSingleEnrichment(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            error\n          }\n        }\n      ': typeof types.StartSingleEnrichmentDocument
-  '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    stopListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n': typeof types.StopListEnrichmentDocument
+  '\n  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {\n    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n': typeof types.CreateListEnrichmentTasksDocument
+  '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          createEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId, onlyMissingValues: false) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.StartSingleEnrichmentDocument
+  '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n      createdTasksCount\n    }\n  }\n': typeof types.StopListEnrichmentDocument
   '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {\n          updateListParticipants(listId: $listId, userIds: $userIds) {\n            addedParticipants\n            removedParticipants\n            totalParticipants\n          }\n        }\n      ': typeof types.UpdateListParticipantsDocument
@@ -406,7 +406,7 @@ const documents: Documents = {
     types.RemoveLibraryParticipantDocument,
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
-  '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
+  '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
     types.EnrichmentAccordionItem_EnrichmentFragmentDoc,
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n':
     types.FieldModal_ListFragmentDoc,
@@ -449,7 +449,7 @@ const documents: Documents = {
     types.AddListFieldDocument,
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ':
     types.AddListSourceDocument,
-  '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n':
+  '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n':
     types.CleanEnrichmentsDocument,
   '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ':
     types.CreateListDocument,
@@ -457,17 +457,17 @@ const documents: Documents = {
     types.DeleteListDocument,
   '\n  query ListExportData($listId: String!, $skip: Int!, $take: Int!, $fieldIds: [String!]!) {\n    aiList(id: $listId) {\n      ...ListExport_List\n    }\n    aiListItems(\n      listId: $listId\n      fieldIds: $fieldIds\n      skip: $skip\n      take: $take\n      orderBy: "name"\n      orderDirection: "asc"\n    ) {\n      count\n      items {\n        origin {\n          id\n          name\n          libraryId\n          libraryName\n        }\n        values {\n          fieldId\n          fieldName\n          displayValue\n        }\n      }\n    }\n  }\n':
     types.ListExportDataDocument,
-  '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            queuedItems\n            error\n          }\n        }\n      ':
+  '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ':
     types.RemoveFromEnrichmentQueueDocument,
   '\n        mutation removeListField($id: String!) {\n          removeListField(id: $id) {\n            id\n          }\n        }\n      ':
     types.RemoveListFieldDocument,
   '\n        mutation removeListSource($id: String!) {\n          removeListSource(id: $id) {\n            id\n          }\n        }\n      ':
     types.RemoveListSourceDocument,
-  '\n  mutation StartListEnrichment($listId: String!, $fieldId: String!) {\n    startListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n':
-    types.StartListEnrichmentDocument,
-  '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          startSingleEnrichment(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            error\n          }\n        }\n      ':
+  '\n  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {\n    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n':
+    types.CreateListEnrichmentTasksDocument,
+  '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          createEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId, onlyMissingValues: false) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ':
     types.StartSingleEnrichmentDocument,
-  '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    stopListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n':
+  '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n      createdTasksCount\n    }\n  }\n':
     types.StopListEnrichmentDocument,
   '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ':
     types.UpdateListFieldDocument,
@@ -1206,8 +1206,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n',
-): (typeof documents)['\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n']
+  source: '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1338,8 +1338,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n',
-): (typeof documents)['\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      success\n      clearedItems\n      error\n    }\n  }\n']
+  source: '\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n',
+): (typeof documents)['\n  mutation CleanEnrichments($listId: String!, $fieldId: String!) {\n    cleanListEnrichments(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1362,8 +1362,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            queuedItems\n            error\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          removeFromEnrichmentQueue(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            queuedItems\n            error\n          }\n        }\n      ']
+  source: '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1380,20 +1380,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation StartListEnrichment($listId: String!, $fieldId: String!) {\n    startListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n',
-): (typeof documents)['\n  mutation StartListEnrichment($listId: String!, $fieldId: String!) {\n    startListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n']
+  source: '\n  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {\n    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n',
+): (typeof documents)['\n  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {\n    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      createdTasksCount\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          startSingleEnrichment(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            error\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          startSingleEnrichment(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            success\n            error\n          }\n        }\n      ']
+  source: '\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          createEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId, onlyMissingValues: false) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          createEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId, onlyMissingValues: false) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    stopListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n',
-): (typeof documents)['\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    stopListEnrichment(listId: $listId, fieldId: $fieldId) {\n      success\n      queuedItems\n      error\n    }\n  }\n']
+  source: '\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n      createdTasksCount\n    }\n  }\n',
+): (typeof documents)['\n  mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n      cleanedUpTasksCount\n      cleanedUpEnrichmentsCount\n      createdTasksCount\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

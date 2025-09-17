@@ -2,29 +2,31 @@ import { z } from 'zod'
 
 import { Prisma } from '@george-ai/prismaClient'
 
-import { getFieldValue } from '../list'
+import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES, getFieldValue } from '../list'
 
 export const EnrichmentStatusValues = ['pending', 'in_progress', 'completed', 'failed', 'canceled']
 
 export type EnrichmentStatusType = (typeof EnrichmentStatusValues)[number]
 
 export const ContextFieldSchema = z.object({
-  name: z.string(),
-  id: z.string(),
-  sourceType: z.enum(['file_property', 'extraction', 'enrichment']),
-  type: z.enum(['text', 'number', 'boolean', 'date', 'datetime']),
-  fileProperty: z.string().nullable(),
-  cachedValues: z.array(
-    z.object({
-      fileId: z.string(),
-      valueString: z.string().nullable(),
-      valueNumber: z.number().nullable(),
-      valueBoolean: z.boolean().nullable(),
-      valueDate: z.date().nullable(),
-      valueDatetime: z.date().nullable(),
-      enrichmentErrorMessage: z.string().nullable(),
-    }),
-  ),
+  contextField: z.object({
+    id: z.string(),
+    name: z.string(),
+    sourceType: z.enum(LIST_FIELD_SOURCE_TYPES),
+    type: z.enum(LIST_FIELD_TYPES),
+    fileProperty: z.string().nullable(),
+    cachedValues: z.array(
+      z.object({
+        fileId: z.string(),
+        valueString: z.string().nullable(),
+        valueNumber: z.number().nullable(),
+        valueBoolean: z.boolean().nullable(),
+        valueDate: z.date().nullable(),
+        valueDatetime: z.date().nullable(),
+        enrichmentErrorMessage: z.string().nullable(),
+      }),
+    ),
+  }),
 })
 
 export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVectorStore?: boolean | null }) =>
@@ -33,8 +35,9 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
     name: z.string(),
     languageModel: z.string(),
     prompt: z.string().min(1, 'Prompt is required'),
-    type: z.enum(['text', 'number', 'boolean', 'date', 'datetime']),
+    type: z.enum(LIST_FIELD_TYPES),
     fileProperty: z.null(),
+    sourceType: z.literal('llm_computed'),
     contentQuery: useVectorStore
       ? z.string().min(1, 'Content query is required when using vector store')
       : z.string().optional(),
@@ -61,7 +64,7 @@ export const EnrichmentMetadataSchema = z.object({
         errorMessage: z.string().nullable(),
       }),
     ),
-    dataType: z.enum(['text', 'number', 'boolean', 'date', 'datetime']),
+    dataType: z.enum(LIST_FIELD_TYPES),
     libraryEmbeddingModel: z.string().optional(),
     contentQuery: z.string().optional(),
     useVectorStore: z.boolean(),
@@ -103,14 +106,15 @@ export const getEnrichmentTaskInputMetadata = ({
     include: {
       crawledByCrawler: { select: { id: true; uri: true } }
       library: { select: { id: true; name: true; embeddingModelName: true } }
+      cache: true
     }
   }>
 }): EnrichmentMetadata['input'] => {
   const contextFields = validatedField.context.map((contextField) => {
-    const { value, errorMessage } = getFieldValue(file, contextField)
+    const { value, errorMessage } = getFieldValue(file, contextField.contextField)
     return {
-      fieldId: contextField.id,
-      fieldName: contextField.name,
+      fieldId: contextField.contextField.id,
+      fieldName: contextField.contextField.name,
       value,
       errorMessage,
     }
@@ -131,6 +135,7 @@ export const getEnrichmentTaskInputMetadata = ({
 }
 
 export const validateEnrichmentTaskForProcessing = (enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>) => {
-  const parsed = EnrichmentMetadataSchema.safeParse(enrichmentTask.metadata)
+  const metadata = JSON.parse(enrichmentTask.metadata || '{}')
+  const parsed = EnrichmentMetadataSchema.safeParse(metadata)
   return parsed
 }

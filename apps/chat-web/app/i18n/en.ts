@@ -539,6 +539,15 @@ export default {
       markdownLabel: 'Markdown',
       useVectorStoreHelp: 'Enable targeted search within document content',
       addField: 'Add Field',
+      types: {
+        boolean: 'Boolean',
+        date: 'Date',
+        datetime: 'Date & Time',
+        number: 'Number',
+
+        string: 'String',
+        text: 'Text',
+      },
       updateField: 'Update Field',
       vectorStoreLabel: 'Content Search',
     },

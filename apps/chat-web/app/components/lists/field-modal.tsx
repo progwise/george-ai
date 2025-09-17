@@ -6,7 +6,12 @@ import { z } from 'zod'
 import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
-import { FieldModal_EditableFieldFragment, FieldModal_ListFragment } from '../../gql/graphql'
+import {
+  FieldModal_EditableFieldFragment,
+  FieldModal_ListFragment,
+  ListFieldSourceType,
+  ListFieldType,
+} from '../../gql/graphql'
 import { Language, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
@@ -33,8 +38,8 @@ export const getListFieldFormSchema = (
       .string()
       .min(2, translate('lists.fields.nameTooShort', language))
       .max(100, translate('lists.fields.nameTooLong', language)),
-    type: z.string().nonempty(translate('lists.fields.typeRequired', language)),
-    sourceType: z.string().nonempty(translate('lists.fields.sourceTypeRequired', language)),
+    type: z.nativeEnum(ListFieldType, { message: translate('lists.fields.typeRequired', language) }),
+    sourceType: z.nativeEnum(ListFieldSourceType, { message: translate('lists.fields.sourceTypeRequired', language) }),
     languageModel: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
     prompt: z
       .string()
@@ -98,14 +103,6 @@ interface FieldModalProps {
   maxOrder: number
   editField?: FieldModal_EditableFieldFragment | null
 }
-
-const FIELD_TYPES = [
-  { value: 'string', label: 'Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'boolean', label: 'Yes/No' },
-  { value: 'date', label: 'Date' },
-  { value: 'datetime', label: 'Date & Time' },
-]
 
 export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
   const queryClient = useQueryClient()
@@ -179,6 +176,20 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
     }
   }
 
+  const dataTypeOptions = useMemo(
+    () =>
+      Object.keys(ListFieldType).map((key: keyof typeof ListFieldType) => ({
+        id: ListFieldType[key],
+        name: t(`lists.fields.types.${ListFieldType[key]}`),
+      })),
+    [t],
+  )
+
+  const dataTypeDefaultOptions = useMemo(
+    () => dataTypeOptions.find((option) => option.id === ListFieldType.Text),
+    [dataTypeOptions],
+  )
+
   if (!isOpen) return null
 
   return (
@@ -208,10 +219,8 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
               <Select
                 label={t('lists.fields.dataType')}
                 name="type"
-                options={FIELD_TYPES.map((type) => ({ id: type.value, name: type.label }))}
-                value={FIELD_TYPES.map((type) => ({ id: type.value, name: type.label })).find(
-                  (type) => type.id === (editField?.type || 'string'),
-                )}
+                options={dataTypeOptions}
+                value={dataTypeOptions.find((option) => option.id === editField?.type) || dataTypeDefaultOptions}
                 schema={schema}
                 required
               />

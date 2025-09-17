@@ -17,15 +17,17 @@ export const startSingleEnrichment = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         mutation startSingleEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {
-          startSingleEnrichment(listId: $listId, fieldId: $fieldId, fileId: $fileId) {
-            success
-            error
+          createEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId, onlyMissingValues: false) {
+            createdTasksCount
+            cleanedUpTasksCount
+            cleanedUpEnrichmentsCount
           }
         }
       `),
       data,
     )
+    return result.createEnrichmentTasks
   })

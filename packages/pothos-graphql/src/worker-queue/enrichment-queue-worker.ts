@@ -15,10 +15,10 @@ const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue call
 
 async function processQueueItem({
   enrichmentTask,
-  metaData,
+  metadata,
 }: {
   enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>
-  metaData: EnrichmentMetadata
+  metadata: EnrichmentMetadata
 }) {
   try {
     // Mark as processing - use upsert to handle the case where item was deleted
@@ -56,24 +56,39 @@ async function processQueueItem({
       issues: [],
     }
 
+    messages.push({
+      role: 'user',
+      content: metadata.input.aiGenerationPrompt,
+    })
+
+    messages.push({
+      role: 'user',
+      content: `The data type you must return is: ${metadata.input.dataType}`,
+    })
+
+    messages.push({
+      role: 'user',
+      content: `Here comes the data you need to process:')`,
+    })
+
     try {
       messages.push(
-        ...metaData.input.contextFields.map((ctx) => ({
+        ...metadata.input.contextFields.map((ctx) => ({
           role: 'user' as const,
-          content: `Here is the context value for ${ctx.fieldName}: ${ctx.value}`,
+          content: `Here is the context for ${ctx.fieldName}: \n${ctx.value}`,
         })),
       )
 
-      if (metaData.input.useVectorStore) {
-        if (!metaData.input.contentQuery || !metaData.input.libraryEmbeddingModel) {
+      if (metadata.input.useVectorStore) {
+        if (!metadata.input.contentQuery || !metadata.input.libraryEmbeddingModel) {
           throw new Error(
             `Content query and library embedding model are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
           )
         }
         const similarChunks = await getSimilarChunks({
-          embeddingsModelName: metaData.input.libraryEmbeddingModel,
-          term: metaData.input.contentQuery,
-          libraryId: metaData.input.libraryId,
+          embeddingsModelName: metadata.input.libraryEmbeddingModel,
+          term: metadata.input.contentQuery,
+          libraryId: metadata.input.libraryId,
           hits: 4,
         })
 
@@ -87,21 +102,16 @@ async function processQueueItem({
 
         messages.push({
           role: 'user',
-          content: `Here is the search result in the vector store:\n\n${similarChunks
+          content: `Here is the search result in the vector store:\n${similarChunks
             .map((chunk) => chunk.text)
             .join('\n\n')}`,
         })
       }
 
-      messages.push({
-        role: 'user',
-        content: metaData.input.aiGenerationPrompt,
-      })
-
       outputMetaData.messages = messages
       const chatResponse = await ollamaChat({
-        messages,
-        model: metaData.input.aiModel,
+        messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
+        model: metadata.input.aiModel,
       })
       computedValue = chatResponse.content.trim()
 
@@ -136,15 +146,15 @@ async function processQueueItem({
         fieldId: enrichmentTask.fieldId,
         valueString: computedValue,
         valueNumber:
-          metaData.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
         valueBoolean:
-          metaData.input.dataType === 'boolean'
+          metadata.input.dataType === 'boolean'
             ? computedValue
               ? computedValue.toLowerCase() === 'true'
               : null
             : null,
         valueDate:
-          metaData.input.dataType === 'date' || metaData.input.dataType === 'datetime'
+          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
             ? computedValue
               ? new Date(computedValue)
               : null
@@ -154,15 +164,15 @@ async function processQueueItem({
       update: {
         valueString: computedValue,
         valueNumber:
-          metaData.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
         valueBoolean:
-          metaData.input.dataType === 'boolean'
+          metadata.input.dataType === 'boolean'
             ? computedValue
               ? computedValue.toLowerCase() === 'true'
               : null
             : null,
         valueDate:
-          metaData.input.dataType === 'date' || metaData.input.dataType === 'datetime'
+          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
             ? computedValue
               ? new Date(computedValue)
               : null
@@ -180,7 +190,7 @@ async function processQueueItem({
       data: {
         status: 'completed',
         completedAt: new Date(),
-        metadata: JSON.stringify({ ...metaData, output: outputMetaData }),
+        metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
       },
     })
 
@@ -288,7 +298,7 @@ async function processQueue() {
             },
           })
         } else {
-          return processQueueItem({ enrichmentTask, metaData: validationResult.data })
+          return processQueueItem({ enrichmentTask, metadata: validationResult.data })
         }
       }),
     )
