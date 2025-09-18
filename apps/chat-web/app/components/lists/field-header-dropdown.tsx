@@ -105,7 +105,6 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
                 listId={field.listId}
                 fieldId={field.id}
                 isProcessing={field.pendingItemsCount > 0 || field.processingItemsCount > 0}
-                onActionExecuted={() => onClose()}
               />
             </div>
           </>

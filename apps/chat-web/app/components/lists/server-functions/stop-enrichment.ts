@@ -9,27 +9,26 @@ const stopEnrichmentSchema = z.object({
   fieldId: z.string().nonempty(),
 })
 
-const stopEnrichmentDocument = graphql(`
-  mutation StopListEnrichment($listId: String!, $fieldId: String!) {
-    deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {
-      cleanedUpTasksCount
-      cleanedUpEnrichmentsCount
-      createdTasksCount
-    }
-  }
-`)
-
-export const stopEnrichment = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    const listId = data.get('listId')
-    const fieldId = data.get('fieldId')
-    return stopEnrichmentSchema.parse({ listId, fieldId })
+export const stopEnrichmentFn = createServerFn({ method: 'POST' })
+  .validator((data: { listId: string; fieldId: string }) => {
+    return stopEnrichmentSchema.parse(data)
   })
   .handler(async (ctx) => {
     const data = ctx.data
-    const result = await backendRequest(stopEnrichmentDocument, {
-      listId: data.listId,
-      fieldId: data.fieldId,
-    })
+    const result = await backendRequest(
+      graphql(`
+        mutation StopListEnrichment($listId: String!, $fieldId: String!) {
+          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {
+            cleanedUpTasksCount
+            cleanedUpEnrichmentsCount
+            createdTasksCount
+          }
+        }
+      `),
+      {
+        listId: data.listId,
+        fieldId: data.fieldId,
+      },
+    )
     return result.deletePendingEnrichmentTasks
   })

@@ -89,7 +89,8 @@ async function processQueueItem({
           embeddingsModelName: metadata.input.libraryEmbeddingModel,
           term: metadata.input.contentQuery,
           libraryId: metadata.input.libraryId,
-          hits: 4,
+          fileId: metadata.input.fileId,
+          hits: 3,
         })
 
         outputMetaData.similarChunks = similarChunks.map((chunk) => ({

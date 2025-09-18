@@ -7,29 +7,42 @@ import { backendRequest } from '../../../server-functions/backend'
 const startEnrichmentSchema = z.object({
   listId: z.string().nonempty(),
   fieldId: z.string().nonempty(),
+  fileId: z.string().nonempty().optional(),
 })
 
-const CreateListEnrichmentTasksDocument = graphql(`
-  mutation CreateListEnrichmentTasks($listId: String!, $fieldId: String!) {
-    createEnrichmentTasks(listId: $listId, fieldId: $fieldId) {
-      createdTasksCount
-      cleanedUpTasksCount
-      cleanedUpEnrichmentsCount
-    }
-  }
-`)
-
-export const startEnrichment = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    const listId = data.get('listId')
-    const fieldId = data.get('fieldId')
-    return startEnrichmentSchema.parse({ listId, fieldId })
+export const startEnrichmentFn = createServerFn({ method: 'POST' })
+  .validator((data: { listId: string; fieldId: string; fileId?: string }) => {
+    return startEnrichmentSchema.parse(data)
   })
   .handler(async (ctx) => {
     const data = ctx.data
-    const result = await backendRequest(CreateListEnrichmentTasksDocument, {
-      listId: data.listId,
-      fieldId: data.fieldId,
-    })
+    const onlyMissingValues = !data.fileId
+    const result = await backendRequest(
+      graphql(`
+        mutation CreateListEnrichmentTasks(
+          $listId: String!
+          $fieldId: String!
+          $fileId: String
+          $onlyMissingValues: Boolean
+        ) {
+          createEnrichmentTasks(
+            listId: $listId
+            fieldId: $fieldId
+            fileId: $fileId
+            onlyMissingValues: $onlyMissingValues
+          ) {
+            createdTasksCount
+            cleanedUpTasksCount
+            cleanedUpEnrichmentsCount
+          }
+        }
+      `),
+      {
+        listId: data.listId,
+        fieldId: data.fieldId,
+        fileId: data.fileId,
+        onlyMissingValues,
+      },
+    )
     return result.createEnrichmentTasks
   })

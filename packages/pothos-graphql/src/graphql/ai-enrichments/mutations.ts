@@ -181,7 +181,7 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
   }),
 )
 
-builder.mutationField('cleanListEnrichments', (t) =>
+builder.mutationField('clearListEnrichments', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: EnrichmentQueueTasksMutationResult,
     nullable: false,

@@ -269,9 +269,42 @@ export type AiEnrichmentTask = {
   listId: Scalars['String']['output']
   metadata?: Maybe<Scalars['String']['output']>
   priority: Scalars['Int']['output']
+  processingData: AiEnrichmentTaskProcessingData
   requestedAt: Scalars['DateTime']['output']
   startedAt?: Maybe<Scalars['DateTime']['output']>
   status: EnrichmentStatus
+}
+
+export type AiEnrichmentTaskProcessingData = {
+  __typename?: 'AiEnrichmentTaskProcessingData'
+  input?: Maybe<AiEnrichmentTaskProcessingDataInput>
+  output?: Maybe<AiEnrichmentTaskProcessingDataOutput>
+}
+
+export type AiEnrichmentTaskProcessingDataInput = {
+  __typename?: 'AiEnrichmentTaskProcessingDataInput'
+  aiGenerationPrompt: Scalars['String']['output']
+  aiModel: Scalars['String']['output']
+  contentQuery?: Maybe<Scalars['String']['output']>
+  contextFields: Array<EnrichmentTaskContextField>
+  dataType: ListFieldType
+  fieldId: Scalars['String']['output']
+  fieldName: Scalars['String']['output']
+  fileId: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+  libraryEmbeddingModel?: Maybe<Scalars['String']['output']>
+  libraryId: Scalars['String']['output']
+  libraryName: Scalars['String']['output']
+  useVectorStore: Scalars['Boolean']['output']
+}
+
+export type AiEnrichmentTaskProcessingDataOutput = {
+  __typename?: 'AiEnrichmentTaskProcessingDataOutput'
+  aiInstance?: Maybe<Scalars['String']['output']>
+  enrichedValue?: Maybe<Scalars['String']['output']>
+  issues: Array<Scalars['String']['output']>
+  messages: Array<EnrichmentTaskMessage>
+  similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
 }
 
 export type AiLibrary = {
@@ -802,6 +835,29 @@ export enum EnrichmentStatus {
   Pending = 'pending',
 }
 
+export type EnrichmentTaskContextField = {
+  __typename?: 'EnrichmentTaskContextField'
+  errorMessage?: Maybe<Scalars['String']['output']>
+  fieldId: Scalars['String']['output']
+  fieldName: Scalars['String']['output']
+  value?: Maybe<Scalars['String']['output']>
+}
+
+export type EnrichmentTaskMessage = {
+  __typename?: 'EnrichmentTaskMessage'
+  content: Scalars['String']['output']
+  role: Scalars['String']['output']
+}
+
+export type EnrichmentTaskSimilarChunk = {
+  __typename?: 'EnrichmentTaskSimilarChunk'
+  distance: Scalars['Float']['output']
+  fileId: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+  id: Scalars['String']['output']
+  text: Scalars['String']['output']
+}
+
 export enum ExtractionStatus {
   Completed = 'completed',
   Failed = 'failed',
@@ -959,9 +1015,9 @@ export type Mutation = {
   cancelContentProcessingTasks: QueueOperationResult
   cancelFileUpload: Scalars['Boolean']['output']
   cancelProcessingTask: AiContentProcessingTask
-  cleanListEnrichments: EnrichmentQueueTasksMutationResult
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   clearFailedTasks: QueueOperationResult
+  clearListEnrichments: EnrichmentQueueTasksMutationResult
   clearPendingTasks: QueueOperationResult
   computeFieldValue?: Maybe<ComputeFieldValueResult>
   confirmConversationInvitation?: Maybe<AiConversation>
@@ -1072,12 +1128,6 @@ export type MutationCancelProcessingTaskArgs = {
   taskId: Scalars['String']['input']
 }
 
-export type MutationCleanListEnrichmentsArgs = {
-  fieldId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
-  listId: Scalars['String']['input']
-}
-
 export type MutationClearEmbeddedFilesArgs = {
   libraryId: Scalars['String']['input']
 }
@@ -1085,6 +1135,12 @@ export type MutationClearEmbeddedFilesArgs = {
 export type MutationClearFailedTasksArgs = {
   libraryId?: InputMaybe<Scalars['String']['input']>
   queueType: QueueType
+}
+
+export type MutationClearListEnrichmentsArgs = {
+  fieldId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
+  listId: Scalars['String']['input']
 }
 
 export type MutationClearPendingTasksArgs = {
@@ -3857,6 +3913,44 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
   completedAt?: string | null
   metadata?: string | null
   error?: string | null
+  processingData: {
+    __typename?: 'AiEnrichmentTaskProcessingData'
+    input?: {
+      __typename?: 'AiEnrichmentTaskProcessingDataInput'
+      fileId: string
+      fileName: string
+      libraryId: string
+      libraryName: string
+      aiModel: string
+      aiGenerationPrompt: string
+      dataType: ListFieldType
+      libraryEmbeddingModel?: string | null
+      contentQuery?: string | null
+      useVectorStore: boolean
+      contextFields: Array<{
+        __typename?: 'EnrichmentTaskContextField'
+        fieldId: string
+        fieldName: string
+        value?: string | null
+        errorMessage?: string | null
+      }>
+    } | null
+    output?: {
+      __typename?: 'AiEnrichmentTaskProcessingDataOutput'
+      aiInstance?: string | null
+      enrichedValue?: string | null
+      issues: Array<string>
+      similarChunks?: Array<{
+        __typename?: 'EnrichmentTaskSimilarChunk'
+        id: string
+        fileName: string
+        fileId: string
+        text: string
+        distance: number
+      }> | null
+      messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
+    } | null
+  }
   field: { __typename?: 'AiListField'; id: string; name: string }
   file: {
     __typename?: 'AiLibraryFile'
@@ -4094,6 +4188,44 @@ export type GetEnrichmentsQuery = {
       completedAt?: string | null
       metadata?: string | null
       error?: string | null
+      processingData: {
+        __typename?: 'AiEnrichmentTaskProcessingData'
+        input?: {
+          __typename?: 'AiEnrichmentTaskProcessingDataInput'
+          fileId: string
+          fileName: string
+          libraryId: string
+          libraryName: string
+          aiModel: string
+          aiGenerationPrompt: string
+          dataType: ListFieldType
+          libraryEmbeddingModel?: string | null
+          contentQuery?: string | null
+          useVectorStore: boolean
+          contextFields: Array<{
+            __typename?: 'EnrichmentTaskContextField'
+            fieldId: string
+            fieldName: string
+            value?: string | null
+            errorMessage?: string | null
+          }>
+        } | null
+        output?: {
+          __typename?: 'AiEnrichmentTaskProcessingDataOutput'
+          aiInstance?: string | null
+          enrichedValue?: string | null
+          issues: Array<string>
+          similarChunks?: Array<{
+            __typename?: 'EnrichmentTaskSimilarChunk'
+            id: string
+            fileName: string
+            fileId: string
+            text: string
+            distance: number
+          }> | null
+          messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
+        } | null
+      }
       field: { __typename?: 'AiListField'; id: string; name: string }
       file: {
         __typename?: 'AiLibraryFile'
@@ -4280,14 +4412,15 @@ export type AddListSourceMutation = {
   }
 }
 
-export type CleanEnrichmentsMutationVariables = Exact<{
+export type ClearEnrichmentsMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
+  fileId?: InputMaybe<Scalars['String']['input']>
 }>
 
-export type CleanEnrichmentsMutation = {
+export type ClearEnrichmentsMutation = {
   __typename?: 'Mutation'
-  cleanListEnrichments: {
+  clearListEnrichments: {
     __typename?: 'EnrichmentQueueTasksMutationResult'
     createdTasksCount?: number | null
     cleanedUpTasksCount?: number | null
@@ -4386,6 +4519,8 @@ export type RemoveListSourceMutation = {
 export type CreateListEnrichmentTasksMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
+  fileId?: InputMaybe<Scalars['String']['input']>
+  onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type CreateListEnrichmentTasksMutation = {
@@ -7821,6 +7956,84 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processingData' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'input' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'contextFields' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dataType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryEmbeddingModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'output' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'similarChunks' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'text' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'messages' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiInstance' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enrichedValue' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'issues' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'error' } },
           {
             kind: 'Field',
@@ -14091,6 +14304,84 @@ export const GetEnrichmentsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'completedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processingData' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'input' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'contextFields' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dataType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryEmbeddingModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'output' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'similarChunks' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'text' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'messages' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiInstance' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enrichedValue' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'issues' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'error' } },
           {
             kind: 'Field',
@@ -14739,13 +15030,13 @@ export const AddListSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<AddListSourceMutation, AddListSourceMutationVariables>
-export const CleanEnrichmentsDocument = {
+export const ClearEnrichmentsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'CleanEnrichments' },
+      name: { kind: 'Name', value: 'ClearEnrichments' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -14757,13 +15048,18 @@ export const CleanEnrichmentsDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'cleanListEnrichments' },
+            name: { kind: 'Name', value: 'clearListEnrichments' },
             arguments: [
               {
                 kind: 'Argument',
@@ -14774,6 +15070,11 @@ export const CleanEnrichmentsDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fieldId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
             ],
             selectionSet: {
@@ -14789,7 +15090,7 @@ export const CleanEnrichmentsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<CleanEnrichmentsMutation, CleanEnrichmentsMutationVariables>
+} as unknown as DocumentNode<ClearEnrichmentsMutation, ClearEnrichmentsMutationVariables>
 export const CreateListDocument = {
   kind: 'Document',
   definitions: [
@@ -15190,6 +15491,16 @@ export const CreateListEnrichmentTasksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'onlyMissingValues' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -15207,6 +15518,16 @@ export const CreateListEnrichmentTasksDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fieldId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'onlyMissingValues' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'onlyMissingValues' } },
               },
             ],
             selectionSet: {

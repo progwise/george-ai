@@ -84,7 +84,7 @@ export function getFieldValue(
   const cache = caches.length === 1 ? caches[0] : null
 
   if (!cache) {
-    return { value: null, errorMessage: 'no cache hit' }
+    return { value: '-', errorMessage: null }
   }
   if (field.sourceType !== 'llm_computed') {
     return { value: null, errorMessage: 'not an llm computed field' }
