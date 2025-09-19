@@ -4,13 +4,25 @@ import { DefaultArgs } from '@george-ai/prismaClient/runtime/library'
 import { prisma } from '../../prisma'
 
 export * from './filter'
-export * from './sorting'
 
 export const LIST_FIELD_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean'] as const
 export type FieldType = (typeof LIST_FIELD_TYPES)[number]
 
 export const LIST_FIELD_SOURCE_TYPES = ['file_property', 'llm_computed'] as const
 export type FieldSourceType = (typeof LIST_FIELD_SOURCE_TYPES)[number]
+
+export const LIST_FIELD_FILE_PROPERTIES = [
+  'name',
+  'originUri',
+  'crawlerUrl',
+  'originModificationDate',
+  'size',
+  'mimeType',
+  'source',
+  'processedAt',
+  'lastUpdate',
+] as const
+export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
 
 export const canAccessListOrThrow = async (
   listId: string,
@@ -31,6 +43,7 @@ export const getCanAccessListWhere = (userId: string): Prisma.AiListWhereInput =
 export function getFieldValue(
   file: Prisma.AiLibraryFileGetPayload<{
     include: {
+      contentExtractionTasks: { select: { processingFinishedAt: true } }
       crawledByCrawler: { select: { uri: true } }
       library: { select: { name: true } }
       cache: true
@@ -71,6 +84,12 @@ export function getFieldValue(
         break
       case 'source':
         value = file.library.name
+        break
+      case 'processedAt':
+        value = file.contentExtractionTasks?.[0]?.processingFinishedAt?.toISOString() || null
+        break
+      case 'lastUpdate':
+        value = file.updatedAt.toISOString()
         break
       default:
         value = null

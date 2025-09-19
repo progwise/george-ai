@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { AiListFilterType } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 import { FieldFilter, FieldSorting } from '../use-list-settings'
 
@@ -14,7 +15,7 @@ const getListItemsSchema = z.object({
   filters: z.array(
     z.object({
       fieldId: z.string().nonempty(),
-      filterType: z.enum(['equals', 'starts_with', 'ends_with', 'contains', 'not_contains']),
+      filterType: z.nativeEnum(AiListFilterType),
       value: z.string().nonempty(),
     }),
   ),

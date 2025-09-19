@@ -4,11 +4,14 @@ import { getFieldValue } from '../../domain'
 import {
   type AiListFilterType,
   AiListFilterTypeValues,
+  FieldFileProperty,
+  FieldSourceType,
+  FieldType,
   getListFiltersWhere,
-  getListSortingOrderBy,
 } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { getFileIdsForListItems } from './get-file-ids'
 
 export const AiListFilterEnumType = builder.enumType('AiListFilterType', {
   values: AiListFilterTypeValues,
@@ -99,6 +102,9 @@ export const ListItemQueryResult = builder
         enrichmentTasks: {
           select: { fieldId: true; status: true }
         }
+        contentExtractionTasks: {
+          select: { processingFinishedAt: true }
+        }
       }
     }>
     list: Prisma.AiListGetPayload<{ include: { sources: true } }>
@@ -145,15 +151,14 @@ export const ListItemQueryResult = builder
 export const ListItemsQueryResult = builder
   .objectRef<{
     list: Prisma.AiListGetPayload<{ include: { sources: true } }>
-    fields: Prisma.AiListFieldGetPayload<{
-      select: {
-        id: true
-        name: true
-        sourceType: true
-        fileProperty: true
-        type: true
-      }
-    }>[]
+    fields: {
+      id: string
+      listId: string
+      name: string
+      sourceType: FieldSourceType
+      fileProperty: FieldFileProperty | null
+      type: FieldType
+    }[]
     skip: number
     take: number
     sorting: { fieldId: string; direction: 'asc' | 'desc' }[]
@@ -167,8 +172,16 @@ export const ListItemsQueryResult = builder
         type: [ListItemQueryResult],
         nullable: { list: false, items: false },
         resolve: async ({ list, fields, skip, take, sorting, filters, showArchived }) => {
-          const fitersWhere = await getListFiltersWhere(filters)
-          const sortingOrderBy = await getListSortingOrderBy(sorting, fields)
+          const fileIds = await getFileIdsForListItems({
+            listId: list.id,
+            fields,
+            sorting,
+            filters,
+            showArchived: !!showArchived,
+            skip,
+            take,
+          })
+
           const files = await prisma.aiLibraryFile.findMany({
             include: {
               library: true,
@@ -180,20 +193,25 @@ export const ListItemsQueryResult = builder
                 where: { completedAt: null, listId: list.id },
                 select: { fieldId: true, status: true },
               },
-            }, // loads all caches for the file and not only the relevant ones
-            where: {
-              libraryId: {
-                in: list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null),
+              contentExtractionTasks: {
+                where: { processingFinishedAt: { not: null } },
+                orderBy: { processingFinishedAt: 'desc' },
+                take: 1,
               },
-              ...(showArchived ? {} : { archivedAt: null }),
-              ...fitersWhere,
             },
-            skip,
-            take,
-            orderBy: [...sortingOrderBy],
+            where: { id: { in: fileIds } },
           })
 
-          return files.map((file) => ({ file, list, fields }))
+          // preserve order and map to ListItemQueryResult structure
+          const result = fileIds
+            .map((fileId) => files.find((f) => f.id === fileId))
+            .filter((file): file is NonNullable<typeof file> => !!file)
+            .map((file) => ({
+              file,
+              list,
+              fields,
+            }))
+          return result
         },
       }),
       take: t.exposeInt('take', { nullable: false }),

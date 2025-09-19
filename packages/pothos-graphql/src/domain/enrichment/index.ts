@@ -109,6 +109,7 @@ export const getEnrichmentTaskInputMetadata = ({
       crawledByCrawler: { select: { id: true; uri: true } }
       library: { select: { id: true; name: true; embeddingModelName: true } }
       cache: true
+      contentExtractionTasks: { select: { processingFinishedAt: true } }
     }
   }>
 }): EnrichmentMetadata['input'] => {

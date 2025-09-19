@@ -65,6 +65,59 @@ const getFilePropertyFilterWhere = (
           uri: getFieldPropertyFilterExpression(filter),
         },
       }
+    case 'processedAt':
+      return {
+        contentExtractionTasks: {
+          every: {
+            processingFinishedAt:
+              filter.filterType === 'is_empty'
+                ? null
+                : filter.filterType === 'is_not_empty'
+                  ? { not: null }
+                  : filter.filterType === 'equals'
+                    ? { equals: new Date(filter.value) }
+                    : filter.filterType === 'not_equals'
+                      ? { not: new Date(filter.value) }
+                      : undefined,
+          },
+        },
+      }
+    case 'size': {
+      const sizeValue = parseInt(filter.value, 10)
+      if (isNaN(sizeValue)) {
+        throw new Error(`Invalid size value for filter: ${filter.value}`)
+      }
+      return {
+        size:
+          filter.filterType === 'is_empty'
+            ? null
+            : filter.filterType === 'is_not_empty'
+              ? { not: null }
+              : filter.filterType === 'equals'
+                ? { equals: sizeValue }
+                : filter.filterType === 'not_equals'
+                  ? { not: sizeValue }
+                  : undefined,
+      }
+    }
+    case 'originModificationDate': {
+      const dateValue = new Date(filter.value)
+      if (isNaN(dateValue.getTime())) {
+        throw new Error(`Invalid date value for filter: ${filter.value}`)
+      }
+      return {
+        originModificationDate:
+          filter.filterType === 'is_empty'
+            ? null
+            : filter.filterType === 'is_not_empty'
+              ? { not: null }
+              : filter.filterType === 'equals'
+                ? { equals: dateValue }
+                : filter.filterType === 'not_equals'
+                  ? { not: dateValue }
+                  : undefined,
+      }
+    }
     default:
       throw new Error(`Unsupported file property filter: ${field.fileProperty}`)
   }

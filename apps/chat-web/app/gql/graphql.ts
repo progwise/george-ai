@@ -927,6 +927,17 @@ export type HumanParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+export enum ListFieldFileProperty {
+  CrawlerUrl = 'crawlerUrl',
+  MimeType = 'mimeType',
+  Name = 'name',
+  OriginModificationDate = 'originModificationDate',
+  OriginUri = 'originUri',
+  ProcessedAt = 'processedAt',
+  Size = 'size',
+  Source = 'source',
+}
+
 export enum ListFieldSourceType {
   FileProperty = 'file_property',
   LlmComputed = 'llm_computed',

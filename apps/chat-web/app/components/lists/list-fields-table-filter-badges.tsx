@@ -23,6 +23,8 @@ export const ListFieldsTableFilterBadges = ({ listId, fields }: ListFieldsTableF
                   {filter.filterType === 'ends_with' && `ends with "${filter.value}"`}
                   {filter.filterType === 'contains' && `contains "${filter.value}"`}
                   {filter.filterType === 'not_contains' && `not contains "${filter.value}"`}
+                  {filter.filterType === 'is_empty' && `is empty`}
+                  {filter.filterType === 'is_not_empty' && `is not empty`}
                   <button
                     type="button"
                     className="btn-xs btn-circle btn-ghost"

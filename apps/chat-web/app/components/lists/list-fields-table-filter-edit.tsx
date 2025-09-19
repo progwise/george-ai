@@ -32,6 +32,27 @@ const FilterValueInput = ({
   remove: () => void
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
+  if (type === 'is_empty' || type === 'is_not_empty') {
+    return (
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text">{type === 'is_empty' ? 'Is empty' : 'Is not empty'}</span>
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm"
+            checked={!!value}
+            onChange={(e) => {
+              if (e.target.checked) {
+                update('1')
+              } else {
+                remove()
+              }
+            }}
+          />
+        </label>
+      </div>
+    )
+  }
   return (
     <label className="input input-xs">
       {type === 'contains' ? 'Contains' : 'Contains not'}
@@ -41,10 +62,7 @@ const FilterValueInput = ({
         className="grow"
         placeholder="xyz"
         defaultValue={value || ''}
-        onMouseOut={() => {
-          // inputRef.current?.parentElement?.focus()
-          // inputRef.current?.blur()
-        }}
+        onMouseOut={() => {}}
       />
       <button
         type="button"
@@ -118,6 +136,20 @@ export const ListFieldsTableFilterEdit = ({ listId, fields }: ListFieldsTableFil
                     updateFilter({ fieldId: field.id, filterType: 'not_contains', value: newValue })
                   }
                   remove={() => removeFilter(field.id, 'not_contains')}
+                />
+                <FilterValueInput
+                  field={field}
+                  type="is_empty"
+                  value={getFilterValue(field.id, 'is_empty') || undefined}
+                  update={() => updateFilter({ fieldId: field.id, filterType: 'is_empty', value: '1' })}
+                  remove={() => removeFilter(field.id, 'is_empty')}
+                />
+                <FilterValueInput
+                  field={field}
+                  type="is_not_empty"
+                  value={getFilterValue(field.id, 'is_not_empty') || undefined}
+                  update={() => updateFilter({ fieldId: field.id, filterType: 'is_not_empty', value: '1' })}
+                  remove={() => removeFilter(field.id, 'is_not_empty')}
                 />
               </div>
             </div>

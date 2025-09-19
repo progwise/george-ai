@@ -119,12 +119,7 @@ export const useFieldSettings = (fields: ListFieldSettings_FieldFragment[]) => {
   }, [fields, fieldVisibility])
 
   const sortableFields = useMemo(() => {
-    return fields.filter(
-      (field) =>
-        (field.sourceType === 'file_property' &&
-          ['name', 'processedAt', 'originModificationDate'].includes(field.fileProperty || '')) ||
-        field.sourceType === 'llm_computed',
-    )
+    return fields.filter((field) => field.sourceType === 'file_property' || field.sourceType === 'llm_computed')
   }, [fields])
 
   return {

@@ -22,6 +22,7 @@ import {
   EmbeddingStatus,
   EnrichmentStatus,
   ExtractionStatus,
+  ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
   ProcessingStatus,
@@ -51,6 +52,8 @@ export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
+
+export const ListFieldFilePropertySchema = z.nativeEnum(ListFieldFileProperty)
 
 export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 

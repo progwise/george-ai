@@ -6,7 +6,7 @@ import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 import { Prisma, PrismaClient } from '@george-ai/prismaClient'
 
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
-import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
+import { LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
 import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
 
@@ -30,6 +30,10 @@ const builder = new SchemaBuilder<{
     ListFieldType: {
       Input: (typeof LIST_FIELD_TYPES)[number]
       Output: (typeof LIST_FIELD_TYPES)[number]
+    }
+    ListFieldFileProperty: {
+      Input: (typeof LIST_FIELD_FILE_PROPERTIES)[number]
+      Output: (typeof LIST_FIELD_FILE_PROPERTIES)[number]
     }
     ProcessingStatus: {
       Input: (typeof PROCESSING_STATUS)[number]

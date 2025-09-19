@@ -87,6 +87,11 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                       crawledByCrawler: { select: { id: true, uri: true } },
                       library: { select: { id: true, name: true, embeddingModelName: true } },
                       cache: { where: { fieldId } },
+                      contentExtractionTasks: {
+                        where: { processingFinishedAt: { not: null } },
+                        orderBy: { processingFinishedAt: 'desc' },
+                        take: 1,
+                      },
                     },
                   },
                 },

@@ -868,6 +868,17 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
+enum ListFieldFileProperty {
+  crawlerUrl
+  mimeType
+  name
+  originModificationDate
+  originUri
+  processedAt
+  size
+  source
+}
+
 enum ListFieldSourceType {
   file_property
   llm_computed

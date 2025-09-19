@@ -1,4 +1,7 @@
+import { z } from 'zod'
+
 import { canAccessListOrThrow } from '../../domain'
+import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { AiListFilterInput, AiListSortingInput, ListItemsQueryResult } from './field-values'
@@ -59,10 +62,10 @@ builder.queryField('aiListItems', (t) =>
     },
     resolve: async (_root, args, context) => {
       const list = await canAccessListOrThrow(args.listId, context.session.user.id, { include: { sources: true } })
-
       const fields = await prisma.aiListField.findMany({
         select: {
           id: true,
+          listId: true,
           name: true,
           sourceType: true,
           fileProperty: true,
@@ -74,9 +77,16 @@ builder.queryField('aiListItems', (t) =>
 
       return {
         list: list,
-        fields: fields,
-        take: args.take ?? 20,
+        fields: fields.map((field) => ({
+          id: field.id,
+          listId: field.listId,
+          name: field.name,
+          sourceType: z.enum(LIST_FIELD_SOURCE_TYPES).parse(field.sourceType),
+          fileProperty: z.enum(LIST_FIELD_FILE_PROPERTIES).nullable().parse(field.fileProperty),
+          type: field.type as FieldType,
+        })),
         skip: args.skip ?? 0,
+        take: args.take ?? 20,
         sorting: args.sorting ?? [],
         filters: args.filters ?? [],
         showArchived: args.showArchived ?? false,
