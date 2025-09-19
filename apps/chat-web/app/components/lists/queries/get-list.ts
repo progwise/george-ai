@@ -12,12 +12,16 @@ const getList = createServerFn({ method: 'GET' })
       graphql(`
         query getList($listId: String!) {
           aiList(id: $listId) {
-            id
             ...ListsBase
             ...ListEditForm_List
             ...ListSourcesManager_List
             ...ListFieldsTable_List
+            ...ListFieldsTableMenu_AiList
             ...ListMenu_AiList
+            fields {
+              ...ListFieldsTableFilters_AiListField
+              ...ListFieldSettings_Field
+            }
           }
         }
       `),

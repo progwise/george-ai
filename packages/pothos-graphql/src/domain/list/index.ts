@@ -3,6 +3,9 @@ import { DefaultArgs } from '@george-ai/prismaClient/runtime/library'
 
 import { prisma } from '../../prisma'
 
+export * from './filter'
+export * from './sorting'
+
 export const LIST_FIELD_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean'] as const
 export type FieldType = (typeof LIST_FIELD_TYPES)[number]
 

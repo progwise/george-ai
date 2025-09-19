@@ -685,6 +685,16 @@ export type AiListParticipant = {
   userId: Scalars['String']['output']
 }
 
+export enum AiListSortingDirection {
+  Asc = 'asc',
+  Desc = 'desc',
+}
+
+export type AiListSortingInput = {
+  direction: AiListSortingDirection
+  fieldId: Scalars['String']['input']
+}
+
 export type AiListSource = {
   __typename?: 'AiListSource'
   createdAt: Scalars['DateTime']['output']
@@ -831,8 +841,8 @@ export enum EnrichmentStatus {
   Canceled = 'canceled',
   Completed = 'completed',
   Failed = 'failed',
-  InProgress = 'in_progress',
   Pending = 'pending',
+  Processing = 'processing',
 }
 
 export type EnrichmentTaskContextField = {
@@ -961,11 +971,10 @@ export type ListItemsQueryResult = {
   __typename?: 'ListItemsQueryResult'
   count: Scalars['Int']['output']
   items: Array<ListItemQueryResult>
-  orderBy?: Maybe<Scalars['String']['output']>
-  orderDirection?: Maybe<Scalars['String']['output']>
   showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
+  unfilteredCount: Scalars['Int']['output']
 }
 
 export type ManagedUser = {
@@ -1576,10 +1585,9 @@ export type QueryAiListItemsArgs = {
   fieldIds: Array<Scalars['String']['input']>
   filters?: InputMaybe<Array<AiListFilterInput>>
   listId: Scalars['String']['input']
-  orderBy?: InputMaybe<Scalars['String']['input']>
-  orderDirection?: InputMaybe<Scalars['String']['input']>
   showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
+  sorting?: InputMaybe<Array<AiListSortingInput>>
   take?: Scalars['Int']['input']
 }
 
@@ -3973,7 +3981,7 @@ export type FieldModal_ListFragment = {
   }>
 }
 
-export type FieldModal_EditableFieldFragment = {
+export type FieldModal_FieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
@@ -4018,19 +4026,24 @@ export type ListFieldsTableFilters_AiListFieldFragment = {
   type: ListFieldType
 }
 
-export type ListFieldsTableMenu_AiListFieldFragment = {
+export type ListFieldsTableMenu_AiListFragment = { __typename?: 'AiList'; id: string; name: string }
+
+export type ListFieldsTableMenu_FieldFragment = {
   __typename?: 'AiListField'
   id: string
   name: string
   type: ListFieldType
-}
-
-export type ListItemTable_ItemFragment = {
-  __typename?: 'ListItemResult'
-  id: string
-  name: string
-  libraryId: string
-  libraryName: string
+  listId: string
+  processingItemsCount: number
+  pendingItemsCount: number
+  sourceType: ListFieldSourceType
+  fileProperty?: string | null
+  prompt?: string | null
+  contentQuery?: string | null
+  languageModel?: string | null
+  useVectorStore?: boolean | null
+  order: number
+  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
 export type ListFilesTable_FilesQueryResultFragment = {
@@ -4038,30 +4051,25 @@ export type ListFilesTable_FilesQueryResultFragment = {
   count: number
   take: number
   skip: number
-  orderBy?: string | null
-  orderDirection?: string | null
   items: Array<{
     __typename?: 'ListItemQueryResult'
-    origin: { __typename?: 'ListItemResult'; id: string; name: string; libraryId: string; libraryName: string }
+    origin: {
+      __typename?: 'ListItemResult'
+      id: string
+      type: string
+      name: string
+      libraryId: string
+      libraryName: string
+    }
+    values: Array<{
+      __typename?: 'FieldValueResult'
+      fieldId: string
+      fieldName: string
+      displayValue?: string | null
+      enrichmentErrorMessage?: string | null
+      queueStatus?: string | null
+    }>
   }>
-}
-
-export type ListFieldsTable_FieldFragment = {
-  __typename?: 'AiListField'
-  id: string
-  listId: string
-  name: string
-  type: ListFieldType
-  order: number
-  sourceType: ListFieldSourceType
-  fileProperty?: string | null
-  prompt?: string | null
-  contentQuery?: string | null
-  languageModel?: string | null
-  useVectorStore?: boolean | null
-  pendingItemsCount: number
-  processingItemsCount: number
-  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
 export type ListFieldsTable_ListFragment = {
@@ -4070,20 +4078,38 @@ export type ListFieldsTable_ListFragment = {
   fields: Array<{
     __typename?: 'AiListField'
     id: string
-    listId: string
     name: string
     type: ListFieldType
-    order: number
     sourceType: ListFieldSourceType
+    listId: string
+    processingItemsCount: number
+    pendingItemsCount: number
     fileProperty?: string | null
     prompt?: string | null
     contentQuery?: string | null
     languageModel?: string | null
     useVectorStore?: boolean | null
-    pendingItemsCount: number
-    processingItemsCount: number
+    order: number
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
+}
+
+export type ListFieldsTable_FieldFragment = {
+  __typename?: 'AiListField'
+  listId: string
+  processingItemsCount: number
+  pendingItemsCount: number
+  id: string
+  sourceType: ListFieldSourceType
+  fileProperty?: string | null
+  name: string
+  type: ListFieldType
+  prompt?: string | null
+  contentQuery?: string | null
+  languageModel?: string | null
+  useVectorStore?: boolean | null
+  order: number
+  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
 export type ListMenu_AiListFragment = {
@@ -4238,25 +4264,22 @@ export type GetEnrichmentsQuery = {
   }
 }
 
-export type AiListFilesWithValuesQueryVariables = Exact<{
+export type GetListItemsQueryVariables = Exact<{
   listId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
-  orderBy?: InputMaybe<Scalars['String']['input']>
-  orderDirection?: InputMaybe<Scalars['String']['input']>
+  sorting?: InputMaybe<Array<AiListSortingInput> | AiListSortingInput>
   fieldIds: Array<Scalars['String']['input']> | Scalars['String']['input']
   filters: Array<AiListFilterInput> | AiListFilterInput
 }>
 
-export type AiListFilesWithValuesQuery = {
+export type GetListItemsQuery = {
   __typename?: 'Query'
   aiListItems: {
     __typename?: 'ListItemsQueryResult'
     count: number
     take: number
     skip: number
-    orderBy?: string | null
-    orderDirection?: string | null
     items: Array<{
       __typename?: 'ListItemQueryResult'
       origin: {
@@ -4292,6 +4315,23 @@ export type GetListQuery = {
     createdAt: string
     updatedAt?: string | null
     name: string
+    fields: Array<{
+      __typename?: 'AiListField'
+      id: string
+      name: string
+      type: ListFieldType
+      sourceType: ListFieldSourceType
+      listId: string
+      processingItemsCount: number
+      pendingItemsCount: number
+      fileProperty?: string | null
+      prompt?: string | null
+      contentQuery?: string | null
+      languageModel?: string | null
+      useVectorStore?: boolean | null
+      order: number
+      context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+    }>
     sources: Array<{
       __typename?: 'AiListSource'
       id: string
@@ -4302,23 +4342,6 @@ export type GetListQuery = {
         name: string
         owner: { __typename?: 'User'; name?: string | null }
       } | null
-    }>
-    fields: Array<{
-      __typename?: 'AiListField'
-      id: string
-      listId: string
-      name: string
-      type: ListFieldType
-      order: number
-      sourceType: ListFieldSourceType
-      fileProperty?: string | null
-      prompt?: string | null
-      contentQuery?: string | null
-      languageModel?: string | null
-      useVectorStore?: boolean | null
-      pendingItemsCount: number
-      processingItemsCount: number
-      context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
     owner: {
       __typename?: 'User'
@@ -4592,6 +4615,24 @@ export type UpdateListMutationVariables = Exact<{
 }>
 
 export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typename?: 'AiList'; id: string } | null }
+
+export type ListFieldSettings_FieldFragment = {
+  __typename?: 'AiListField'
+  id: string
+  listId: string
+  processingItemsCount: number
+  pendingItemsCount: number
+  sourceType: ListFieldSourceType
+  fileProperty?: string | null
+  name: string
+  type: ListFieldType
+  prompt?: string | null
+  contentQuery?: string | null
+  languageModel?: string | null
+  useVectorStore?: boolean | null
+  order: number
+  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+}
 
 export type UpdateListParticipantsMutationVariables = Exact<{
   listId: Scalars['String']['input']
@@ -8084,66 +8125,6 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<EnrichmentAccordionItem_EnrichmentFragment, unknown>
-export const FieldModal_ListFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'FieldModal_List' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'fields' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<FieldModal_ListFragment, unknown>
-export const FieldModal_EditableFieldFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'FieldModal_EditableField' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'context' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<FieldModal_EditableFieldFragment, unknown>
 export const ListExport_FieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8206,76 +8187,6 @@ export const ListExport_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListExport_ListFragment, unknown>
-export const ListItemTable_ItemFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListItemTable_Item' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemResult' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListItemTable_ItemFragment, unknown>
-export const ListFilesTable_FilesQueryResultFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemsQueryResult' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'take' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'orderBy' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'orderDirection' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'items' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'origin' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListItemTable_Item' } }],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListItemTable_Item' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemResult' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListFilesTable_FilesQueryResultFragment, unknown>
 export const ListFieldsTableFilters_AiListFieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8294,12 +8205,29 @@ export const ListFieldsTableFilters_AiListFieldFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListFieldsTableFilters_AiListFieldFragment, unknown>
-export const ListFieldsTableMenu_AiListFieldFragmentDoc = {
+export const ListFieldsTableMenu_AiListFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' },
+      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiList' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFieldsTableMenu_AiListFragment, unknown>
+export const FieldModal_FieldFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -8307,11 +8235,24 @@ export const ListFieldsTableMenu_AiListFieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<ListFieldsTableMenu_AiListFieldFragment, unknown>
+} as unknown as DocumentNode<FieldModal_FieldFragment, unknown>
 export const ListFieldsTable_FieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8322,19 +8263,31 @@ export const ListFieldsTable_FieldFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'context' },
@@ -8343,39 +8296,229 @@ export const ListFieldsTable_FieldFragmentDoc = {
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
         ],
       },
     },
   ],
 } as unknown as DocumentNode<ListFieldsTable_FieldFragment, unknown>
+export const ListFieldSettings_FieldFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldSettings_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_Field' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFieldSettings_FieldFragment, unknown>
+export const ListFieldsTableMenu_FieldFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTableMenu_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldSettings_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldSettings_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFieldsTableMenu_FieldFragment, unknown>
+export const ListFilesTable_FilesQueryResultFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemsQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'items' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'values' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFilesTable_FilesQueryResultFragment, unknown>
+export const FieldModal_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'fields' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FieldModal_ListFragment, unknown>
 export const ListFieldsTable_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8395,12 +8538,13 @@ export const ListFieldsTable_ListFragmentDoc = {
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } }],
             },
           },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_List' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' },
+      name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -8408,19 +8552,19 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -8431,29 +8575,37 @@ export const ListFieldsTable_ListFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'context' },
+            name: { kind: 'Name', value: 'fields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+              ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' } },
         ],
       },
     },
@@ -14432,13 +14584,13 @@ export const GetEnrichmentsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEnrichmentsQuery, GetEnrichmentsQueryVariables>
-export const AiListFilesWithValuesDocument = {
+export const GetListItemsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiListFilesWithValues' },
+      name: { kind: 'Name', value: 'getListItems' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -14457,13 +14609,14 @@ export const AiListFilesWithValuesDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orderDirection' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sorting' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListSortingInput' } },
+            },
+          },
         },
         {
           kind: 'VariableDefinition',
@@ -14525,13 +14678,8 @@ export const AiListFilesWithValuesDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'orderBy' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'orderDirection' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'orderDirection' } },
+                name: { kind: 'Name', value: 'sorting' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sorting' } },
               },
             ],
             selectionSet: {
@@ -14540,8 +14688,6 @@ export const AiListFilesWithValuesDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'orderBy' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'orderDirection' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'items' },
@@ -14586,7 +14732,7 @@ export const AiListFilesWithValuesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiListFilesWithValuesQuery, AiListFilesWithValuesQueryVariables>
+} as unknown as DocumentNode<GetListItemsQuery, GetListItemsQueryVariables>
 export const GetListDocument = {
   kind: 'Document',
   definitions: [
@@ -14617,12 +14763,23 @@ export const GetListDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_List' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableMenu_AiList' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListMenu_AiList' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'fields' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' } },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldSettings_Field' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -14631,7 +14788,7 @@ export const GetListDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' },
+      name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -14639,19 +14796,19 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'context' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+            },
+          },
         ],
       },
     },
@@ -14662,29 +14819,37 @@ export const GetListDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'pendingItemsCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'processingItemsCount' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_Field' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FieldModal_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'context' },
+            name: { kind: 'Name', value: 'fields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+              ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTableMenu_AiListField' } },
         ],
       },
     },
@@ -14803,6 +14968,19 @@ export const GetListDocument = {
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } }],
             },
           },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FieldModal_List' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTableMenu_AiList' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
         ],
       },
     },
@@ -14844,6 +15022,31 @@ export const GetListDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTableFilters_AiListField' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldSettings_Field' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
         ],
       },
     },
@@ -15244,16 +15447,6 @@ export const ListExportDataDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'take' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'orderBy' },
-                value: { kind: 'StringValue', value: 'name', block: false },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'orderDirection' },
-                value: { kind: 'StringValue', value: 'asc', block: false },
               },
             ],
             selectionSet: {

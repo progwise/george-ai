@@ -21,6 +21,9 @@ async function processQueueItem({
   metadata: EnrichmentMetadata
 }) {
   try {
+    if (!metadata.input) {
+      throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
+    }
     // Mark as processing - use upsert to handle the case where item was deleted
     await prisma.aiEnrichmentTask.update({
       where: {
@@ -295,7 +298,18 @@ async function processQueue() {
             data: {
               status: 'failed',
               completedAt: new Date(),
-              error: `Validation error: ${validationResult.error}`,
+              error: validationResult.error
+                ? `Validation error: ${validationResult.error}`
+                : `no input data for processing for task ${enrichmentTask.id}`,
+            },
+          })
+        } else if (!validationResult.data.input) {
+          return prisma.aiEnrichmentTask.update({
+            where: { id: enrichmentTask.id },
+            data: {
+              status: 'failed',
+              completedAt: new Date(),
+              error: `no input data for processing for task ${enrichmentTask.id}`,
             },
           })
         } else {

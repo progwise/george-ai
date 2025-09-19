@@ -2,7 +2,7 @@ import { EnrichmentMetadata } from '../../domain'
 import { builder } from '../builder'
 
 const AiEnrichmentTaskProcessingDataInput = builder
-  .objectRef<EnrichmentMetadata['input']>('AiEnrichmentTaskProcessingDataInput')
+  .objectRef<NonNullable<EnrichmentMetadata['input']>>('AiEnrichmentTaskProcessingDataInput')
   .implement({
     fields: (t) => ({
       fieldId: t.exposeString('fileId', { nullable: false }),
@@ -16,7 +16,7 @@ const AiEnrichmentTaskProcessingDataInput = builder
       contextFields: t.field({
         type: [
           builder
-            .objectRef<EnrichmentMetadata['input']['contextFields'][number]>('EnrichmentTaskContextField')
+            .objectRef<NonNullable<EnrichmentMetadata['input']>['contextFields'][number]>('EnrichmentTaskContextField')
             .implement({
               fields: (t) => ({
                 fieldId: t.exposeString('fieldId', { nullable: false }),

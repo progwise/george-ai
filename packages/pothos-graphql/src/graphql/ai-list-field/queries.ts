@@ -29,10 +29,10 @@ builder.queryField('aiContentQueries', (t) =>
         where: {
           AND: [
             { list: listAccessWhere },
-            { list: { sources: { every: { library: libraryAccessWhere } } } },
+            { list: { sources: { some: { library: libraryAccessWhere } } } },
             { contentQuery: { not: null } },
             args.listId ? { listId: args.listId } : {},
-            args.libraryId ? { list: { sources: { every: { libraryId: { equals: args.libraryId } } } } } : {},
+            args.libraryId ? { list: { sources: { some: { libraryId: { equals: args.libraryId } } } } } : {},
           ],
         },
         orderBy: [{ list: { name: 'asc' } }, { name: 'asc' }],

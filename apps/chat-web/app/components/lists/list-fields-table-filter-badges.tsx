@@ -1,12 +1,12 @@
 import { ListFieldsTableFilters_AiListFieldFragment } from '../../gql/graphql'
-import { useListFilters } from './use-list-filters'
+import { useListSettings } from './use-list-settings'
 
 interface ListFieldsTableFilterBadgesProps {
   listId: string
   fields: ListFieldsTableFilters_AiListFieldFragment[]
 }
 export const ListFieldsTableFilterBadges = ({ listId, fields }: ListFieldsTableFilterBadgesProps) => {
-  const { filters, clearFieldFilters, removeFilter } = useListFilters(listId)
+  const { filters, clearFieldFilters, removeFilter } = useListSettings(listId)
   return (
     <div className="flex flex-row flex-wrap gap-2 p-2">
       {fields

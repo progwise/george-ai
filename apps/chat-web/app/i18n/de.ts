@@ -492,6 +492,7 @@ export default {
     labelUpdatedAt: 'Aktualisiert',
     nameRequired: 'Name ist Pflicht.',
     newList: 'Neue Liste',
+    noFilesFound: 'Keine Dateien gefunden. Fügen Sie Bibliotheksquellen hinzu, um die Liste zu füllen.',
     owner: 'Besitzer',
     placeholderName: 'Erweiterter Produktkatalog',
     removeParticipant: 'Teilnehmer entfernen',

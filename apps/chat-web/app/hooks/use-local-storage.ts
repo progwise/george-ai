@@ -1,5 +1,7 @@
 import { SetStateAction, useEffect, useState } from 'react'
 
+import { useQueryState } from './use-query-state'
+
 const getFromLocalStorage = <T>(key: string) => {
   const saved = localStorage.getItem(key)
   if (saved) {
@@ -9,7 +11,7 @@ const getFromLocalStorage = <T>(key: string) => {
 }
 
 export const useLocalstorage = <T>(key: string) => {
-  const [internalValue, setInternalValue] = useState<T | null>(null)
+  const [internalValue, setInternalValue] = useQueryState<T>(key)
 
   const [hasLoaded, setHasLoaded] = useState(false)
 
@@ -26,7 +28,7 @@ export const useLocalstorage = <T>(key: string) => {
     }, 0)
 
     return () => clearTimeout(timeoutId)
-  }, [key, hasLoaded])
+  }, [key, hasLoaded, setInternalValue])
 
   const setValue = (newValue: SetStateAction<T | null>) => {
     const prev = hasLoaded ? internalValue : getFromLocalStorage<T>(key)

@@ -121,7 +121,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                   </span>
                 </>
               )}
-              {enrichment.status === EnrichmentStatus.InProgress && (
+              {enrichment.status === EnrichmentStatus.Processing && (
                 <>
                   <span className="text-base-content/40">•</span>
                   <span className="text-info">Processing...</span>
@@ -140,7 +140,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               className={twMerge(
                 'badge badge-sm badge-outline',
                 enrichment.status === EnrichmentStatus.Pending ? 'badge-warning' : '',
-                enrichment.status === EnrichmentStatus.InProgress ? 'badge-info' : '',
+                enrichment.status === EnrichmentStatus.Processing ? 'badge-info' : '',
                 enrichment.status === EnrichmentStatus.Completed ? 'badge-success' : '',
                 enrichment.status === EnrichmentStatus.Failed ? 'badge-error' : '',
                 enrichment.status === EnrichmentStatus.Canceled ? 'badge-secondary' : '',
@@ -207,7 +207,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                     'font-medium',
                     enrichment.status === EnrichmentStatus.Completed && 'text-success',
                     enrichment.status === EnrichmentStatus.Failed && 'text-error',
-                    enrichment.status === EnrichmentStatus.InProgress && 'text-info',
+                    enrichment.status === EnrichmentStatus.Processing && 'text-info',
                     enrichment.status === EnrichmentStatus.Pending && 'text-warning',
                   )}
                 >

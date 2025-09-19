@@ -64,7 +64,7 @@ function RouteComponent() {
             >
               <option value="">All Statuses</option>
               <option value={EnrichmentStatus.Pending}>Pending</option>
-              <option value={EnrichmentStatus.InProgress}>In progress</option>
+              <option value={EnrichmentStatus.Processing}>In progress</option>
               <option value={EnrichmentStatus.Canceled}>Cancelled</option>
               <option value={EnrichmentStatus.Completed}>Completed</option>
               <option value={EnrichmentStatus.Failed}>Failed</option>

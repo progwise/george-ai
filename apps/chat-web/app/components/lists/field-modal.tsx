@@ -7,7 +7,7 @@ import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import {
-  FieldModal_EditableFieldFragment,
+  FieldModal_FieldFragment,
   FieldModal_ListFragment,
   ListFieldSourceType,
   ListFieldType,
@@ -81,7 +81,7 @@ graphql(`
 `)
 
 graphql(`
-  fragment FieldModal_EditableField on AiListField {
+  fragment FieldModal_Field on AiListField {
     id
     name
     type
@@ -101,7 +101,7 @@ interface FieldModalProps {
   isOpen: boolean
   onClose: () => void
   maxOrder: number
-  editField?: FieldModal_EditableFieldFragment | null
+  editField?: FieldModal_FieldFragment | null
 }
 
 export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {

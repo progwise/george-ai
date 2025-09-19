@@ -11,14 +11,7 @@ const exportDataDocument = graphql(`
     aiList(id: $listId) {
       ...ListExport_List
     }
-    aiListItems(
-      listId: $listId
-      fieldIds: $fieldIds
-      skip: $skip
-      take: $take
-      orderBy: "name"
-      orderDirection: "asc"
-    ) {
+    aiListItems(listId: $listId, fieldIds: $fieldIds, skip: $skip, take: $take) {
       count
       items {
         origin {

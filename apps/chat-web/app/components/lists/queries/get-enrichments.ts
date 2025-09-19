@@ -71,7 +71,7 @@ export const getEnrichmentsQueryOptions = (args: {
       const hasActiveEnrichments =
         data?.aiListEnrichments.enrichments.some(
           (enrichment) =>
-            enrichment.status === EnrichmentStatus.InProgress || enrichment.status === EnrichmentStatus.Pending,
+            enrichment.status === EnrichmentStatus.Processing || enrichment.status === EnrichmentStatus.Pending,
         ) || false
       return hasActiveEnrichments ? 2000 : false // Poll every 2 seconds if enrichments are active
     },

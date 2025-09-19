@@ -4,7 +4,7 @@ import { Prisma } from '@george-ai/prismaClient'
 
 import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES, getFieldValue } from '../list'
 
-export const EnrichmentStatusValues = ['pending', 'in_progress', 'completed', 'failed', 'canceled']
+export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'failed', 'canceled']
 
 export type EnrichmentStatusType = (typeof EnrichmentStatusValues)[number]
 
@@ -40,7 +40,7 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
     sourceType: z.literal('llm_computed'),
     contentQuery: useVectorStore
       ? z.string().min(1, 'Content query is required when using vector store')
-      : z.string().optional(),
+      : z.string().nullable().optional(),
     useVectorStore: z.boolean(),
     listId: z.string(),
     context: z.array(ContextFieldSchema),
@@ -49,26 +49,28 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
 export type ValidatedListField = z.infer<ReturnType<typeof getFieldEnrichmentValidationSchema>>
 
 export const EnrichmentMetadataSchema = z.object({
-  input: z.object({
-    fileId: z.string(),
-    fileName: z.string(),
-    libraryId: z.string(),
-    libraryName: z.string(),
-    aiModel: z.string(),
-    aiGenerationPrompt: z.string(),
-    contextFields: z.array(
-      z.object({
-        fieldId: z.string(),
-        fieldName: z.string(),
-        value: z.string().nullable(),
-        errorMessage: z.string().nullable(),
-      }),
-    ),
-    dataType: z.enum(LIST_FIELD_TYPES),
-    libraryEmbeddingModel: z.string().optional(),
-    contentQuery: z.string().optional(),
-    useVectorStore: z.boolean(),
-  }),
+  input: z
+    .object({
+      fileId: z.string(),
+      fileName: z.string(),
+      libraryId: z.string(),
+      libraryName: z.string(),
+      aiModel: z.string(),
+      aiGenerationPrompt: z.string(),
+      contextFields: z.array(
+        z.object({
+          fieldId: z.string(),
+          fieldName: z.string(),
+          value: z.string().nullable(),
+          errorMessage: z.string().nullable(),
+        }),
+      ),
+      dataType: z.enum(LIST_FIELD_TYPES),
+      libraryEmbeddingModel: z.string().optional(),
+      contentQuery: z.string().optional(),
+      useVectorStore: z.boolean(),
+    })
+    .optional(),
   output: z
     .object({
       similarChunks: z

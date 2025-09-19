@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 
-import { FieldModal_EditableFieldFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
+import { FieldModal_FieldFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { EditIcon } from '../../icons/edit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -14,7 +14,7 @@ interface FieldHeaderDropdownProps {
   field: ListFieldsTable_ListFragment['fields'][0]
   isOpen: boolean
   onClose: () => void
-  onEdit: (field: FieldModal_EditableFieldFragment) => void
+  onEdit: (field: FieldModal_FieldFragment) => void
 }
 
 export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {

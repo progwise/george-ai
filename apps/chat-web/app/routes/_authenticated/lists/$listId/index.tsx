@@ -3,14 +3,17 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
-import { getListFilesWithValuesQueryOptions, getListQueryOptions } from '../../../../components/lists/queries'
-import { useListFilters } from '../../../../components/lists/use-list-filters'
+import { ListFieldsTableFilterBadges } from '../../../../components/lists/list-fields-table-filter-badges'
+import { ListFieldsTableMenu } from '../../../../components/lists/list-fields-table-menu'
+import { getListItemsQueryOptions, getListQueryOptions } from '../../../../components/lists/queries'
+import { useFieldSettings } from '../../../../components/lists/use-field-settings'
+import { useListSettings } from '../../../../components/lists/use-list-settings'
+import { Pagination } from '../../../../components/table/pagination'
+import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 interface ListSearchParams {
   page?: number
   pageSize?: number
-  orderBy?: string
-  orderDirection?: 'asc' | 'desc'
 }
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/')({
@@ -18,69 +21,87 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/')({
   validateSearch: (search: Record<string, unknown>): ListSearchParams => ({
     page: Number(search.page) || 0,
     pageSize: Number(search.pageSize) || 20,
-    orderBy: (search.orderBy as string) || 'name',
-    orderDirection: (search.orderDirection as 'asc' | 'desc') || 'asc',
   }),
   loader: async ({ context, params }) => {
-    // Load initial data - let the component handle search params
-    // Note: We only load the list data here, the files will be loaded by the component
-    // with the proper field IDs and language after the list data is available
     await context.queryClient.ensureQueryData(getListQueryOptions(params.listId))
   },
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
+
   const { listId } = Route.useParams()
-  const { page = 0, pageSize = 20, orderBy = 'name', orderDirection = 'asc' } = Route.useSearch()
+  const { page = 0, pageSize = 20 } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const {
     data: { aiList },
   } = useSuspenseQuery(getListQueryOptions(listId))
 
-  // Check if there are any active enrichments for the files query
-  const hasActiveEnrichments = aiList.fields.some(
-    (field) => field.pendingItemsCount > 0 || field.processingItemsCount > 0,
-  )
+  const { filters, sorting } = useListSettings(listId)
 
-  // Get field IDs for the query
-  const fieldIds = aiList.fields.map((field) => field.id)
+  const { visibleFields } = useFieldSettings(aiList.fields || [])
 
-  const { filters } = useListFilters(listId)
-
-  const {
-    data: { aiListItems },
-  } = useSuspenseQuery(
-    getListFilesWithValuesQueryOptions({
+  const { data: aiListItems } = useSuspenseQuery(
+    getListItemsQueryOptions({
       listId,
       skip: page * pageSize,
       take: pageSize,
-      orderBy,
-      orderDirection,
-      fieldIds,
-      hasActiveEnrichments,
+      fieldIds: visibleFields.map((f) => f.id),
+      sorting,
       filters,
     }),
   )
 
   const handlePageChange = useCallback(
-    (newPage: number, newPageSize: number, newOrderBy?: string, newOrderDirection?: 'asc' | 'desc') => {
+    (newPage: number, newPageSize: number) => {
       navigate({
         search: {
           page: newPage,
           pageSize: newPageSize,
-          orderBy: newOrderBy || orderBy,
-          orderDirection: newOrderDirection || orderDirection,
         },
         replace: true,
       })
     },
-    [navigate, orderBy, orderDirection],
+    [navigate],
   )
 
   return (
     <div className="space-y-6">
-      <ListFieldsTable list={aiList} listItems={aiListItems} onPageChange={handlePageChange} />
+      <div className="space-y-4">
+        {/* Controls */}
+        <div className="">
+          <div className="grow-1 flex flex-row items-center gap-2">
+            <div className="grow-1 flex items-center gap-2">
+              <ListFieldsTableMenu list={aiList} fields={aiList.fields} />
+
+              {/* Summary */}
+              <div className="text-base-content/70 text-sm">
+                {t('lists.files.showing', {
+                  start: page * pageSize + 1,
+                  end: Math.min((page + 1) * pageSize, aiListItems.count),
+                  total: aiListItems.count,
+                })}
+              </div>
+            </div>
+            <div className="align-right">
+              <Pagination
+                totalItems={aiListItems.count}
+                itemsPerPage={pageSize}
+                currentPage={page + 1} // Convert from 0-based to 1-based
+                onPageChange={(page) => handlePageChange(page - 1, pageSize)} // Convert back to 0-based
+                showPageSizeSelector={true}
+                onPageSizeChange={(newPageSize) => handlePageChange(0, newPageSize)}
+              />
+            </div>
+          </div>
+
+          {/* Pagination with page size selector */}
+
+          <ListFieldsTableFilterBadges listId={aiList.id} fields={aiList.fields} />
+        </div>
+        <ListFieldsTable list={aiList} listItems={aiListItems} />
+      </div>
     </div>
   )
 }

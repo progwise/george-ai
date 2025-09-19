@@ -631,6 +631,16 @@ type AiListParticipant {
   userId: String!
 }
 
+enum AiListSortingDirection {
+  asc
+  desc
+}
+
+input AiListSortingInput {
+  direction: AiListSortingDirection!
+  fieldId: String!
+}
+
 type AiListSource {
   createdAt: DateTime!
   id: ID!
@@ -779,8 +789,8 @@ enum EnrichmentStatus {
   canceled
   completed
   failed
-  in_progress
   pending
+  processing
 }
 
 type EnrichmentTaskContextField {
@@ -901,11 +911,10 @@ Query result for AI list files from all source libraries
 type ListItemsQueryResult {
   count: Int!
   items: [ListItemQueryResult!]!
-  orderBy: String
-  orderDirection: String
   showArchived: Boolean
   skip: Int!
   take: Int!
+  unfilteredCount: Int!
 }
 
 type ManagedUser {
@@ -1134,10 +1143,9 @@ type Query {
     fieldIds: [String!]!
     filters: [AiListFilterInput!]
     listId: String!
-    orderBy: String
-    orderDirection: String
     showArchived: Boolean = false
     skip: Int! = 0
+    sorting: [AiListSortingInput!]
     take: Int! = 20
   ): ListItemsQueryResult!
   aiLists: [AiList!]!

@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 import { graphql } from '../../gql'
 import { ListFieldsTableFilters_AiListFieldFragment } from '../../gql/graphql'
 import { PlusIcon } from '../../icons/plus-icon'
-import { FieldFilterType, useListFilters } from './use-list-filters'
+import { FieldFilterType, useListSettings } from './use-list-settings'
 
 graphql(`
   fragment ListFieldsTableFilters_AiListField on AiListField {
@@ -68,7 +68,7 @@ const FilterValueInput = ({
 }
 
 export const ListFieldsTableFilterEdit = ({ listId, fields }: ListFieldsTableFilterEditProps) => {
-  const { getFilterValue, updateFilter, removeFilter, clearFieldFilters } = useListFilters(listId)
+  const { getFilterValue, updateFilter, removeFilter, clearFieldFilters } = useListSettings(listId)
 
   return (
     <div className="dropdown dropdown-bottom flex text-sm">

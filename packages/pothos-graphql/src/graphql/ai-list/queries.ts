@@ -1,7 +1,7 @@
 import { canAccessListOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { AiListFilterInput, ListItemsQueryResult } from './field-values'
+import { AiListFilterInput, AiListSortingInput, ListItemsQueryResult } from './field-values'
 
 console.log('Setting up: AiList queries')
 
@@ -53,8 +53,7 @@ builder.queryField('aiListItems', (t) =>
       fieldIds: t.arg.stringList({ required: true }),
       skip: t.arg.int({ required: true, defaultValue: 0 }),
       take: t.arg.int({ required: true, defaultValue: 20 }),
-      orderBy: t.arg.string({ required: false }),
-      orderDirection: t.arg.string({ required: false }),
+      sorting: t.arg({ type: [AiListSortingInput!], required: false }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
@@ -78,8 +77,7 @@ builder.queryField('aiListItems', (t) =>
         fields: fields,
         take: args.take ?? 20,
         skip: args.skip ?? 0,
-        orderBy: args.orderBy ?? undefined,
-        orderDirection: args.orderDirection === 'desc' ? ('desc' as const) : ('asc' as const),
+        sorting: args.sorting ?? [],
         filters: args.filters ?? [],
         showArchived: args.showArchived ?? false,
       }

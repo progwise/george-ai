@@ -484,6 +484,7 @@ export default {
     labelUpdatedAt: 'Update',
     nameRequired: 'Name is required.',
     newList: 'New list',
+    noFilesFound: 'No files found. Add library sources to populate the list.',
     owner: 'Owner',
     placeholderName: 'Product catalog extended.',
     removeParticipant: 'Remove participant from list',
