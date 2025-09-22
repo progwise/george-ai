@@ -264,8 +264,6 @@ type AiEnrichmentTaskProcessingDataInput {
   contentQuery: String
   contextFields: [EnrichmentTaskContextField!]!
   dataType: ListFieldType!
-  fieldId: String!
-  fieldName: String!
   fileId: String!
   fileName: String!
   libraryEmbeddingModel: String

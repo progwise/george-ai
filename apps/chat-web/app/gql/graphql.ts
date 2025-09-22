@@ -288,8 +288,6 @@ export type AiEnrichmentTaskProcessingDataInput = {
   contentQuery?: Maybe<Scalars['String']['output']>
   contextFields: Array<EnrichmentTaskContextField>
   dataType: ListFieldType
-  fieldId: Scalars['String']['output']
-  fieldName: Scalars['String']['output']
   fileId: Scalars['String']['output']
   fileName: Scalars['String']['output']
   libraryEmbeddingModel?: Maybe<Scalars['String']['output']>

@@ -71,7 +71,7 @@ async function processQueueItem({
 
     messages.push({
       role: 'user',
-      content: `Here comes the data you need to process:')`,
+      content: `Here comes the data you need to process:`,
     })
 
     try {

@@ -5,8 +5,6 @@ const AiEnrichmentTaskProcessingDataInput = builder
   .objectRef<NonNullable<EnrichmentMetadata['input']>>('AiEnrichmentTaskProcessingDataInput')
   .implement({
     fields: (t) => ({
-      fieldId: t.exposeString('fileId', { nullable: false }),
-      fieldName: t.exposeString('fileName', { nullable: false }),
       fileId: t.exposeString('fileId', { nullable: false }),
       fileName: t.exposeString('fileName', { nullable: false }),
       libraryId: t.exposeString('libraryId', { nullable: false }),

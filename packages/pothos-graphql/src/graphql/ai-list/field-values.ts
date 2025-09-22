@@ -130,15 +130,15 @@ export const ListItemQueryResult = builder
       values: t.field({
         type: [FieldValueResult],
         nullable: { list: false, items: false },
-        resolve: async ({ fields, file }) => {
-          return fields.map(async (field) => ({
+        resolve: ({ fields, file }) => {
+          return fields.map((field) => ({
             fieldId: field.id,
             fieldName: field.name,
             ...(() => {
               const { value, errorMessage } = getFieldValue(file, field)
               return {
                 displayValue: value ? value : errorMessage,
-                queueStatus: file.enrichmentTasks.length < 1 ? 'done' : file.enrichmentTasks[0].status, // TODO: fill from EntchmentTasks
+                queueStatus: file.enrichmentTasks.length < 1 ? 'done' : file.enrichmentTasks[0].status,
                 enrichmentErrorMessage: errorMessage,
               }
             })(),
