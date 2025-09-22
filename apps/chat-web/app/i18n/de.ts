@@ -267,6 +267,7 @@ export default {
     reprocessFile: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
     reprocessFiles: 'Fehler beim verarbeiten von {count} Dateien: {files}.',
     removeParticipantFailed: 'Fehler beim Entfernen des Teilnehmers: {error}',
+    reorderFieldFailed: 'Fehler beim Ändern der Feldreihenfolge: {error}',
     requiredField: 'Erforderlich',
     embeddingTimeoutMinimum: 'Minimaler Embedding-Timeout ist 30 Sekunden',
     embeddingTimeoutMaximum: 'Maximaler Embedding-Timeout ist 30 Minuten',
@@ -559,6 +560,7 @@ export default {
       },
       updateField: 'Feld aktualisieren',
       vectorStoreLabel: 'Inhaltssuche',
+      reorderSuccess: 'Feldreihenfolge erfolgreich aktualisiert',
     },
     sources: {
       title: 'Bibliotheksquellen',

@@ -37,7 +37,7 @@ builder.prismaObject('AiList', {
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     participants: t.relation('participants', { nullable: false }),
-    fields: t.relation('fields', { nullable: false }),
+    fields: t.relation('fields', { nullable: false, query: { orderBy: { order: 'asc' } } }),
     sources: t.relation('sources', { nullable: false }),
     enrichmentTasks: t.relation('enrichmentTasks', { nullable: false }),
   }),

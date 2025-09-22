@@ -929,6 +929,7 @@ export type HumanParticipant = AiConversationParticipant & {
 
 export enum ListFieldFileProperty {
   CrawlerUrl = 'crawlerUrl',
+  LastUpdate = 'lastUpdate',
   MimeType = 'mimeType',
   Name = 'name',
   OriginModificationDate = 'originModificationDate',
@@ -1077,6 +1078,7 @@ export type Mutation = {
   removeListField: AiListField
   removeListParticipant: Scalars['Boolean']['output']
   removeListSource: AiListSource
+  reorderListFields: Array<AiListField>
   resetAssessmentAnswers: Scalars['DateTime']['output']
   retryFailedTasks: QueueOperationResult
   runAiLibraryCrawler: Scalars['String']['output']
@@ -1335,6 +1337,11 @@ export type MutationRemoveListParticipantArgs = {
 
 export type MutationRemoveListSourceArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationReorderListFieldsArgs = {
+  fieldId: Scalars['String']['input']
+  newPlace: Scalars['Int']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
@@ -4044,6 +4051,7 @@ export type ListFieldsTableMenu_FieldFragment = {
   id: string
   name: string
   type: ListFieldType
+  order: number
   listId: string
   processingItemsCount: number
   pendingItemsCount: number
@@ -4053,7 +4061,6 @@ export type ListFieldsTableMenu_FieldFragment = {
   contentQuery?: string | null
   languageModel?: string | null
   useVectorStore?: boolean | null
-  order: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4516,6 +4523,28 @@ export type ListExportDataQuery = {
   }
 }
 
+export type UpdateListParticipantsMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+}>
+
+export type UpdateListParticipantsMutation = {
+  __typename?: 'Mutation'
+  updateListParticipants: {
+    __typename?: 'UpdateListParticipantsResult'
+    addedParticipants: number
+    removedParticipants: number
+    totalParticipants: number
+  }
+}
+
+export type RemoveListParticipantMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
+}>
+
+export type RemoveListParticipantMutation = { __typename?: 'Mutation'; removeListParticipant: boolean }
+
 export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
@@ -4548,6 +4577,16 @@ export type RemoveListSourceMutationVariables = Exact<{
 export type RemoveListSourceMutation = {
   __typename?: 'Mutation'
   removeListSource: { __typename?: 'AiListSource'; id: string }
+}
+
+export type ReorderListFieldsMutationVariables = Exact<{
+  fieldId: Scalars['String']['input']
+  newPlace: Scalars['Int']['input']
+}>
+
+export type ReorderListFieldsMutation = {
+  __typename?: 'Mutation'
+  reorderListFields: Array<{ __typename?: 'AiListField'; id: string; name: string; order: number }>
 }
 
 export type CreateListEnrichmentTasksMutationVariables = Exact<{
@@ -4630,6 +4669,7 @@ export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typ
 export type ListFieldSettings_FieldFragment = {
   __typename?: 'AiListField'
   id: string
+  order: number
   listId: string
   processingItemsCount: number
   pendingItemsCount: number
@@ -4641,31 +4681,8 @@ export type ListFieldSettings_FieldFragment = {
   contentQuery?: string | null
   languageModel?: string | null
   useVectorStore?: boolean | null
-  order: number
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
-
-export type UpdateListParticipantsMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
-}>
-
-export type UpdateListParticipantsMutation = {
-  __typename?: 'Mutation'
-  updateListParticipants: {
-    __typename?: 'UpdateListParticipantsResult'
-    addedParticipants: number
-    removedParticipants: number
-    totalParticipants: number
-  }
-}
-
-export type RemoveListParticipantMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
-}>
-
-export type RemoveListParticipantMutation = { __typename?: 'Mutation'; removeListParticipant: boolean }
 
 export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -8323,6 +8340,7 @@ export const ListFieldSettings_FieldFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
         ],
       },
@@ -8440,6 +8458,7 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
         ],
       },
@@ -15057,6 +15076,7 @@ export const GetListDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_Field' } },
         ],
       },
@@ -15542,6 +15562,106 @@ export const ListExportDataDocument = {
     },
   ],
 } as unknown as DocumentNode<ListExportDataQuery, ListExportDataQueryVariables>
+export const UpdateListParticipantsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateListParticipants' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateListParticipants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'addedParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'removedParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalParticipants' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateListParticipantsMutation, UpdateListParticipantsMutationVariables>
+export const RemoveListParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeListParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeListParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'participantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveListParticipantMutation, RemoveListParticipantMutationVariables>
 export const RemoveFromEnrichmentQueueDocument = {
   kind: 'Document',
   definitions: [
@@ -15677,6 +15797,57 @@ export const RemoveListSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveListSourceMutation, RemoveListSourceMutationVariables>
+export const ReorderListFieldsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'reorderListFields' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'newPlace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reorderListFields' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'newPlace' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'newPlace' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReorderListFieldsMutation, ReorderListFieldsMutationVariables>
 export const CreateListEnrichmentTasksDocument = {
   kind: 'Document',
   definitions: [
@@ -15970,106 +16141,6 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
-export const UpdateListParticipantsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'updateListParticipants' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateListParticipants' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'addedParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'removedParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalParticipants' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpdateListParticipantsMutation, UpdateListParticipantsMutationVariables>
-export const RemoveListParticipantDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeListParticipant' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeListParticipant' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'participantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveListParticipantMutation, RemoveListParticipantMutationVariables>
 export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [

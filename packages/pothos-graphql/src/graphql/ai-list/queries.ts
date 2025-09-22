@@ -73,6 +73,7 @@ builder.queryField('aiListItems', (t) =>
         },
 
         where: { id: { in: args.fieldIds }, listId: args.listId },
+        orderBy: { order: 'asc' },
       })
 
       return {

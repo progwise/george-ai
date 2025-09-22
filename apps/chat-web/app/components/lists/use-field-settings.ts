@@ -7,6 +7,7 @@ import { useLocalstorage } from '../../hooks/use-local-storage'
 graphql(`
   fragment ListFieldSettings_Field on AiListField {
     id
+    order
     ...ListFieldsTable_Field
   }
 `)
@@ -25,6 +26,7 @@ export const useFieldSettings = (fields: ListFieldSettings_FieldFragment[]) => {
   // Keep column widths ref in sync
   columnWidthsRef.current = columnWidths
   const [isResizing, setIsResizing] = useState<string | null>(null)
+  const [isOrdering, setIsOrdering] = useState<string | null>(null)
 
   // Ensure all fields have width values - only set defaults when needed
   useEffect(() => {
@@ -49,7 +51,7 @@ export const useFieldSettings = (fields: ListFieldSettings_FieldFragment[]) => {
   }, [fields])
 
   // Column resizing handlers
-  const handleMouseDown = useCallback(
+  const handleResizeMouseDown = useCallback(
     (columnId: string, event: React.MouseEvent) => {
       event.preventDefault()
       event.stopPropagation()
@@ -114,21 +116,58 @@ export const useFieldSettings = (fields: ListFieldSettings_FieldFragment[]) => {
   // Sort fields by order for consistent display
   const visibleFields = useMemo(() => {
     if (!fieldVisibility) return fields
-    const result = fields.filter((field) => (fieldVisibility ? fieldVisibility[field.id] !== false : true))
+    const result = fields
+      .filter((field) => (fieldVisibility ? fieldVisibility[field.id] !== false : true))
+      .sort((a, b) => a.order - b.order)
     return result
   }, [fields, fieldVisibility])
 
-  const sortableFields = useMemo(() => {
-    return fields.filter((field) => field.sourceType === 'file_property' || field.sourceType === 'llm_computed')
-  }, [fields])
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const handleDrop = useCallback(
+    (targetFieldId: string, event: React.DragEvent) => {
+      event.preventDefault()
+      const draggedFieldId = event.dataTransfer.getData('fieldId')
+
+      if (draggedFieldId && draggedFieldId !== targetFieldId) {
+        const draggedField = fields.find((f) => f.id === draggedFieldId)
+        const targetField = fields.find((f) => f.id === targetFieldId)
+
+        if (draggedField && targetField) {
+          // The onFieldReorder callback will be passed from the parent component
+          return { draggedFieldId, targetFieldId, newOrder: targetField.order }
+        }
+      }
+
+      return null
+    },
+    [fields],
+  )
+
+  const handleDragStart = useCallback((fieldId: string, event: React.DragEvent) => {
+    event.dataTransfer.setData('fieldId', fieldId)
+    event.dataTransfer.effectAllowed = 'move'
+    setIsOrdering(fieldId)
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    setIsOrdering(null)
+  }, [])
 
   return {
     fieldVisibility,
     setFieldVisibility,
-    handleMouseDown,
+    handleResizeMouseDown,
+    handleDragOver,
+    handleDrop,
+    handleDragStart,
+    handleDragEnd,
     isResizing,
+    isOrdering,
     columnWidths,
     visibleFields,
-    sortableFields,
   }
 }

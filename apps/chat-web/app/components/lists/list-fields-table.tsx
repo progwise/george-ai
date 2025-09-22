@@ -16,6 +16,7 @@ import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
 import { useFieldSettings } from './use-field-settings'
+import { useListActions } from './use-list-actions'
 import { useListSettings } from './use-list-settings'
 
 // Note: We can't use variables in fragments, so fieldValues will be queried separately
@@ -73,14 +74,20 @@ interface ListFieldsTableProps {
 export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { t } = useTranslation()
 
-  const { visibleFields, sortableFields, isResizing, handleMouseDown, columnWidths } = useFieldSettings(
-    list.fields || [],
-  )
+  const {
+    visibleFields,
+    isResizing,
+    isOrdering,
+    handleResizeMouseDown,
+    handleDragOver,
+    handleDrop,
+    handleDragStart,
+    handleDragEnd,
+    columnWidths,
+  } = useFieldSettings(list.fields || [])
 
   const { getSortingDirection, toggleSorting } = useListSettings(list.id)
-
-  const { isReordering } = { isReordering: '' } // Placeholder for future drag-and-drop reordering feature
-  // Check if there are any active enrichments (pending or processing)
+  const { reorderFields } = useListActions(list.id)
 
   const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
@@ -120,6 +127,16 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     setEditField(null)
   }
 
+  const handleFieldReorder = (targetFieldId: string, event: React.DragEvent) => {
+    const dropResult = handleDrop(targetFieldId, event)
+    if (dropResult) {
+      reorderFields({
+        fieldId: dropResult.draggedFieldId,
+        newPlace: dropResult.newOrder,
+      })
+    }
+  }
+
   return (
     <div>
       {listItems.count === 0 ? (
@@ -146,20 +163,23 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                   style={{
                     minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
                     width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
+                    opacity: isOrdering === field.id ? 0.5 : 1,
                   }}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleFieldReorder(field.id, e)}
                 >
+                  <div
+                    className="absolute left-1 top-2.5 h-full w-2 cursor-grab transition-colors before:content-['⋮⋮']"
+                    draggable={true}
+                    onDragStart={(e) => handleDragStart(field.id, e)}
+                    onDragEnd={handleDragEnd}
+                  ></div>
+
                   <div className="space-y-2 p-2">
                     {/* Field header with sorting and dropdown */}
                     <div className="flex items-center justify-between gap-1">
-                      <div
-                        className="hover:bg-primary/30 absolute left-1 top-2.5 h-full w-2 cursor-grabbing transition-colors before:content-['⋮⋮']"
-                        style={{
-                          backgroundColor: isReordering === field.id ? 'rgba(59, 130, 246, 0.5)' : 'transparent',
-                          right: '-1px',
-                        }}
-                      ></div>
                       <div className="flex flex-1 items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap pl-2 hover:overflow-visible">
-                        {sortableFields.find((sortableField) => sortableField.id === field.id) ? (
+                        {visibleFields.find((sortableField) => sortableField.id === field.id) ? (
                           <button
                             type="button"
                             className="hover:text-primary flex items-center gap-1"
@@ -212,7 +232,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                       backgroundColor: isResizing === field.id ? 'rgba(59, 130, 246, 0.5)' : 'transparent',
                       right: '-1px',
                     }}
-                    onMouseDown={(e) => handleMouseDown(field.id, e)}
+                    onMouseDown={(e) => handleResizeMouseDown(field.id, e)}
                   />
                 </div>
               ))}

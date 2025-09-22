@@ -192,7 +192,7 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
         {/* Dialog Actions */}
         <div className="modal-action">
           <button type="button" className="btn btn-ghost" disabled={isExporting} onClick={() => ref.current?.close()}>
-            {t('actions.cancel')}
+            {t('actions.close')}
           </button>
           <button
             type="button"

@@ -262,6 +262,7 @@ export default {
     reprocessFile: 'An error occurred while reprocessing the file: {error}',
     reprocessFiles: 'An error occurred while processing {count} files: {files}.',
     removeParticipantFailed: 'Failed to remove participant: {error}',
+    reorderFieldFailed: 'Failed to reorder field: {error}',
     requiredField: 'Required',
     embeddingTimeoutMinimum: 'Minimum embedding timeout is 30 seconds',
     embeddingTimeoutMaximum: 'Maximum embedding timeout is 30 minutes',
@@ -551,6 +552,7 @@ export default {
       },
       updateField: 'Update Field',
       vectorStoreLabel: 'Content Search',
+      reorderSuccess: 'Field order updated successfully',
     },
     sources: {
       title: 'Library Sources',

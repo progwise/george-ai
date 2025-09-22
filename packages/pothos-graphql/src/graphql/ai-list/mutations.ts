@@ -288,3 +288,54 @@ builder.mutationField('removeListSource', (t) =>
     },
   }),
 )
+
+builder.mutationField('reorderListFields', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['AiListField'],
+    nullable: false,
+    args: {
+      fieldId: t.arg.string({ required: true }),
+      newPlace: t.arg.int({ required: true }),
+    },
+    resolve: async (query, _source, { fieldId, newPlace }, { session }) => {
+      const field = await prisma.aiListField.findUniqueOrThrow({
+        where: { id: fieldId },
+        select: { id: true, listId: true },
+      })
+      await canAccessListOrThrow(field.listId, session.user.id)
+
+      if (newPlace < 0) {
+        throw new Error('newPlace must be 0 or greater')
+      }
+
+      const allFields = await prisma.aiListField.findMany({
+        where: { listId: field.listId },
+        orderBy: { order: 'asc' },
+        select: { id: true },
+      })
+
+      const currentIndex = allFields.findIndex((f) => f.id === fieldId)
+      if (currentIndex === -1) {
+        throw new Error('Field not found in its own list?')
+      }
+
+      // Remove the field from its current position
+      allFields.splice(currentIndex, 1)
+      // Insert the field at the new position
+      allFields.splice(newPlace, 0, field)
+
+      // Reassign orders
+      const updatedFields = await Promise.all(
+        allFields.map((f, index) =>
+          prisma.aiListField.update({
+            where: { id: f.id },
+            data: { order: index },
+            ...query,
+          }),
+        ),
+      )
+
+      return updatedFields
+    },
+  }),
+)

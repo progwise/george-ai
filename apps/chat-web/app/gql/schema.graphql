@@ -870,6 +870,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 enum ListFieldFileProperty {
   crawlerUrl
+  lastUpdate
   mimeType
   name
   originModificationDate
@@ -1061,6 +1062,7 @@ type Mutation {
   removeListField(id: String!): AiListField!
   removeListParticipant(listId: String!, participantId: String!): Boolean!
   removeListSource(id: String!): AiListSource!
+  reorderListFields(fieldId: String!, newPlace: Int!): [AiListField!]!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   runAiLibraryCrawler(crawlerId: String!): String!

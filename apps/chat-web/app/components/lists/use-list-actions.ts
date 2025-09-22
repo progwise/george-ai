@@ -1,64 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
-import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { backendRequest } from '../../server-functions/backend'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getListQueryOptions, getListsQueryOptions } from './queries'
-import { deleteListFn } from './server-functions'
-
-export const updateListParticipants = createServerFn({ method: 'POST' })
-  .validator((data: unknown) =>
-    z
-      .object({
-        listId: z.string(),
-        userIds: z.array(z.string()),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        mutation updateListParticipants($listId: String!, $userIds: [String!]!) {
-          updateListParticipants(listId: $listId, userIds: $userIds) {
-            addedParticipants
-            removedParticipants
-            totalParticipants
-          }
-        }
-      `),
-      {
-        listId: ctx.data.listId,
-        userIds: ctx.data.userIds,
-      },
-    ),
-  )
-
-export const removeListParticipant = createServerFn({ method: 'POST' })
-  .validator((data: unknown) =>
-    z
-      .object({
-        listId: z.string(),
-        participantId: z.string(),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        mutation removeListParticipant($listId: String!, $participantId: String!) {
-          removeListParticipant(listId: $listId, participantId: $participantId)
-        }
-      `),
-      {
-        listId: ctx.data.listId,
-        participantId: ctx.data.participantId,
-      },
-    ),
-  )
+import { deleteListFn, removeListParticipant, reorderListFields, updateListParticipants } from './server-functions'
 
 export const useListActions = (listId: string) => {
   const queryClient = useQueryClient()
@@ -114,10 +60,28 @@ export const useListActions = (listId: string) => {
     },
   })
 
+  const { mutate: reorderFields, isPending: reorderFieldsIsPending } = useMutation({
+    mutationFn: async ({ fieldId, newPlace }: { fieldId: string; newPlace: number }) => {
+      return await reorderListFields({ data: { fieldId, newPlace } })
+    },
+    onSuccess: async () => {
+      toastSuccess(t('lists.fields.reorderSuccess'))
+    },
+    onError: (error) => {
+      toastError(t('errors.reorderFieldFailed', { error: error.message }))
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries(getListQueryOptions(listId))
+      await queryClient.invalidateQueries(getListsQueryOptions())
+    },
+  })
+
   return {
     deleteList,
     updateParticipants,
     removeParticipant,
-    isPending: updateParticipantsIsPending || removeParticipantIsPending || deleteListIsPending,
+    reorderFields,
+    isPending:
+      updateParticipantsIsPending || removeParticipantIsPending || deleteListIsPending || reorderFieldsIsPending,
   }
 }
