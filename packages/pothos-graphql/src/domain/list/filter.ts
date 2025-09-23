@@ -20,7 +20,7 @@ export type AiListFilterType = (typeof AiListFilterTypeValues)[number]
 const getFieldPropertyFilterExpression = (filter: { filterType: AiListFilterType; value: string }) => {
   switch (filter.filterType) {
     case 'not_equals':
-      return { not: filter.value }
+      return { not: filter.value, mode: QueryMode.insensitive }
     case 'contains':
       return { contains: filter.value, mode: QueryMode.insensitive }
     case 'not_contains':

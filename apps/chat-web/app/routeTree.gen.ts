@@ -36,6 +36,7 @@ import { Route as AuthenticatedLibrariesLibraryIdIndexImport } from './routes/_a
 import { Route as AuthenticatedAdminUsersIndexImport } from './routes/_authenticated/admin/users/index'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
 import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
+import { Route as AuthenticatedListsListIdStatisticsImport } from './routes/_authenticated/lists/$listId/statistics'
 import { Route as AuthenticatedListsListIdEnrichmentsImport } from './routes/_authenticated/lists/$listId/enrichments'
 import { Route as AuthenticatedListsListIdEditImport } from './routes/_authenticated/lists/$listId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdUpdatesImport } from './routes/_authenticated/libraries/$libraryId/updates'
@@ -222,6 +223,13 @@ const AuthenticatedProfileProfileIdAdminConfirmRoute =
     id: '/profile/$profileId/admin-confirm',
     path: '/profile/$profileId/admin-confirm',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedListsListIdStatisticsRoute =
+  AuthenticatedListsListIdStatisticsImport.update({
+    id: '/statistics',
+    path: '/statistics',
+    getParentRoute: () => AuthenticatedListsListIdRouteRoute,
   } as any)
 
 const AuthenticatedListsListIdEnrichmentsRoute =
@@ -579,6 +587,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedListsListIdEnrichmentsImport
       parentRoute: typeof AuthenticatedListsListIdRouteImport
     }
+    '/_authenticated/lists/$listId/statistics': {
+      id: '/_authenticated/lists/$listId/statistics'
+      path: '/statistics'
+      fullPath: '/lists/$listId/statistics'
+      preLoaderRoute: typeof AuthenticatedListsListIdStatisticsImport
+      parentRoute: typeof AuthenticatedListsListIdRouteImport
+    }
     '/_authenticated/profile/$profileId/admin-confirm': {
       id: '/_authenticated/profile/$profileId/admin-confirm'
       path: '/profile/$profileId/admin-confirm'
@@ -869,6 +884,7 @@ const AuthenticatedLibrariesLibraryIdRouteRouteWithChildren =
 interface AuthenticatedListsListIdRouteRouteChildren {
   AuthenticatedListsListIdEditRoute: typeof AuthenticatedListsListIdEditRoute
   AuthenticatedListsListIdEnrichmentsRoute: typeof AuthenticatedListsListIdEnrichmentsRoute
+  AuthenticatedListsListIdStatisticsRoute: typeof AuthenticatedListsListIdStatisticsRoute
   AuthenticatedListsListIdIndexRoute: typeof AuthenticatedListsListIdIndexRoute
 }
 
@@ -877,6 +893,8 @@ const AuthenticatedListsListIdRouteRouteChildren: AuthenticatedListsListIdRouteR
     AuthenticatedListsListIdEditRoute: AuthenticatedListsListIdEditRoute,
     AuthenticatedListsListIdEnrichmentsRoute:
       AuthenticatedListsListIdEnrichmentsRoute,
+    AuthenticatedListsListIdStatisticsRoute:
+      AuthenticatedListsListIdStatisticsRoute,
     AuthenticatedListsListIdIndexRoute: AuthenticatedListsListIdIndexRoute,
   }
 
@@ -953,6 +971,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
   '/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
+  '/lists/$listId/statistics': typeof AuthenticatedListsListIdStatisticsRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
@@ -997,6 +1016,7 @@ export interface FileRoutesByTo {
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
   '/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
+  '/lists/$listId/statistics': typeof AuthenticatedListsListIdStatisticsRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
@@ -1044,6 +1064,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/_authenticated/lists/$listId/edit': typeof AuthenticatedListsListIdEditRoute
   '/_authenticated/lists/$listId/enrichments': typeof AuthenticatedListsListIdEnrichmentsRoute
+  '/_authenticated/lists/$listId/statistics': typeof AuthenticatedListsListIdStatisticsRoute
   '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
@@ -1095,6 +1116,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
     | '/lists/$listId/enrichments'
+    | '/lists/$listId/statistics'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/admin/users'
@@ -1138,6 +1160,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/updates'
     | '/lists/$listId/edit'
     | '/lists/$listId/enrichments'
+    | '/lists/$listId/statistics'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/admin/users'
@@ -1183,6 +1206,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/updates'
     | '/_authenticated/lists/$listId/edit'
     | '/_authenticated/lists/$listId/enrichments'
+    | '/_authenticated/lists/$listId/statistics'
     | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
     | '/_authenticated/admin/users/'
@@ -1306,6 +1330,7 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/lists/$listId/edit",
         "/_authenticated/lists/$listId/enrichments",
+        "/_authenticated/lists/$listId/statistics",
         "/_authenticated/lists/$listId/"
       ]
     },
@@ -1387,6 +1412,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/lists/$listId/enrichments": {
       "filePath": "_authenticated/lists/$listId/enrichments.tsx",
+      "parent": "/_authenticated/lists/$listId"
+    },
+    "/_authenticated/lists/$listId/statistics": {
+      "filePath": "_authenticated/lists/$listId/statistics.tsx",
       "parent": "/_authenticated/lists/$listId"
     },
     "/_authenticated/profile/$profileId/admin-confirm": {

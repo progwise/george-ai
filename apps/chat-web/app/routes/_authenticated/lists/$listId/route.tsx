@@ -6,6 +6,7 @@ import { getListQueryOptions, getListsQueryOptions } from '../../../../component
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
+import { StatisticsIcon } from '../../../../icons/statistics-icon'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId')({
   component: RouteComponent,
@@ -54,6 +55,17 @@ function RouteComponent() {
         >
           <EditIcon />
           {t('lists.enrichments')}
+        </Link>
+        <Link
+          to="/lists/$listId/statistics"
+          className="tab"
+          params={{ listId: params.listId }}
+          activeOptions={{ exact: true }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          <StatisticsIcon />
+          {t('lists.statistics')}
         </Link>
         <Link
           to="/lists/$listId/edit"

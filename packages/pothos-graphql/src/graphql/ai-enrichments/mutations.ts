@@ -1,7 +1,13 @@
-import { canAccessListOrThrow, getCanAccessListWhere } from '../../domain'
+import PrismaClient from '@george-ai/prismaClient'
+
+import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
+import { getListFiltersWhere } from '../../domain/list'
 import { prisma } from '../../prisma'
+import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
+
+const QueryMode = PrismaClient.Prisma.QueryMode
 
 const EnrichmentQueueTasksMutationResult = builder
   .objectRef<{
@@ -33,33 +39,14 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         defaultValue: true,
         description: 'Only create tasks for files that do not yet have a cached value for this field',
       }),
+      filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, fileId, onlyMissingValues }, { session }) => {
+    resolve: async (_source, { listId, fieldId, fileId, onlyMissingValues, filters }, { session }) => {
       console.log('🔍 Starting enrichment for listId:', listId, 'fieldId:', fieldId)
-      const list = await prisma.aiList.findFirstOrThrow({
-        where: {
-          AND: [
-            { id: listId },
-            getCanAccessListWhere(session.user.id),
-            onlyMissingValues
-              ? {
-                  fields: {
-                    some: {
-                      AND: [
-                        { id: fieldId },
-                        { sourceType: 'llm_computed' },
-                        { cachedValues: { none: { OR: [{ fieldId }, { enrichmentErrorMessage: { not: null } }] } } },
-                      ],
-                    },
-                  },
-                }
-              : {},
-          ],
-        },
+      const list = await canAccessListOrThrow(listId, session.user.id, {
         include: {
           fields: {
-            where: { sourceType: 'llm_computed', id: fieldId },
-            take: 1,
+            where: { id: fieldId },
             include: {
               context: {
                 include: {
@@ -77,30 +64,87 @@ builder.mutationField('createEnrichmentTasks', (t) =>
               },
             },
           },
-          sources: {
-            include: {
-              library: {
-                include: {
-                  files: {
-                    where: fileId ? { id: fileId } : {},
-                    include: {
-                      crawledByCrawler: { select: { id: true, uri: true } },
-                      library: { select: { id: true, name: true, embeddingModelName: true } },
-                      cache: { where: { fieldId } },
-                      contentExtractionTasks: {
-                        where: { processingFinishedAt: { not: null } },
-                        orderBy: { processingFinishedAt: 'desc' },
-                        take: 1,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          sources: { include: { library: true } },
         },
       })
 
+      if (list.fields.length === 0) {
+        throw new Error(`Cannot create enrichment tasks: Field ${fieldId} not found in list ${listId}`)
+      }
+
+      const field = list.fields[0]
+      if (field.sourceType !== 'llm_computed') {
+        throw new Error(`Cannot create enrichment tasks for field ${fieldId}: Field is not enrichable`)
+      }
+
+      const libraryIds = list.sources
+        .map((source) => source.libraryId)
+        .filter((libraryId) => libraryId !== null) as string[]
+
+      const filterConditions = await getListFiltersWhere(filters || [])
+      console.log('Applying filters to enrichment:', JSON.stringify(filterConditions, null, 2))
+      const files = await prisma.aiLibraryFile.findMany({
+        include: {
+          crawledByCrawler: { select: { id: true, uri: true } },
+          library: { select: { id: true, name: true, embeddingModelName: true } },
+          cache: { where: { fieldId } },
+          contentExtractionTasks: {
+            where: { processingFinishedAt: { not: null } },
+            orderBy: { processingFinishedAt: 'desc' },
+            take: 1,
+          },
+        },
+        where: {
+          ...filterConditions,
+          ...(fileId ? { id: fileId } : {}),
+          libraryId: { in: libraryIds },
+          archivedAt: null,
+          ...(onlyMissingValues
+            ? {
+                OR: [
+                  // Files with no cache entry for this field at all
+                  {
+                    cache: {
+                      none: { fieldId },
+                    },
+                  },
+                  // Files with cache entry but no valid value (all value fields are null or contain placeholder values)
+                  {
+                    cache: {
+                      some: {
+                        AND: [
+                          { fieldId },
+                          {
+                            OR: [
+                              // All value fields are null (no value computed yet)
+                              {
+                                AND: [
+                                  { valueString: null },
+                                  { valueBoolean: null },
+                                  { valueDate: null },
+                                  { valueNumber: null },
+                                ],
+                              },
+                              // Or contains placeholder values that indicate missing data (case-insensitive)
+                              { valueString: { equals: 'unknown', mode: QueryMode.insensitive } },
+                              { valueString: { equals: 'n/a', mode: QueryMode.insensitive } },
+                              { valueString: { equals: 'na', mode: QueryMode.insensitive } },
+                              { valueString: { equals: 'none', mode: QueryMode.insensitive } },
+                              { valueString: { equals: 'null', mode: QueryMode.insensitive } },
+                              { valueString: { equals: '', mode: QueryMode.insensitive } },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              }
+            : {}),
+        },
+      })
+
+      console.log('found files for enrichment:', files.length)
       const {
         success: fieldValidationSuccess,
         data: validatedField,
@@ -115,7 +159,6 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         )
       }
 
-      const files = list.sources.flatMap((source) => source.library?.files || [])
       if (files.length === 0) {
         return {
           success: true,

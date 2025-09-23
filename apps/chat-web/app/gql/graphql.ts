@@ -596,6 +596,7 @@ export type AiList = {
   ownerId: Scalars['String']['output']
   participants: Array<AiListParticipant>
   sources: Array<AiListSource>
+  statistics: Array<AiListFieldStatistics>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -640,6 +641,20 @@ export type AiListFieldInput = {
   /** Field type: string, number, date, datetime, boolean */
   type: ListFieldType
   useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export type AiListFieldStatistics = {
+  __typename?: 'AiListFieldStatistics'
+  cacheCount: Scalars['Int']['output']
+  completedTasksCount: Scalars['Int']['output']
+  failedTasksCount: Scalars['Int']['output']
+  fieldId: Scalars['String']['output']
+  fieldName: Scalars['String']['output']
+  itemCount: Scalars['Int']['output']
+  listId: Scalars['String']['output']
+  pendingTasksCount: Scalars['Int']['output']
+  processingTasksCount: Scalars['Int']['output']
+  valuesCount: Scalars['Int']['output']
 }
 
 export type AiListFilterInput = {
@@ -824,6 +839,7 @@ export type EnrichmentQueueResult = {
   listId?: Maybe<Scalars['String']['output']>
   skip?: Maybe<Scalars['Int']['output']>
   status?: Maybe<EnrichmentStatus>
+  statusCounts: Array<EnrichmentStatusCount>
   take?: Maybe<Scalars['Int']['output']>
   totalCount: Scalars['Int']['output']
 }
@@ -841,6 +857,12 @@ export enum EnrichmentStatus {
   Failed = 'failed',
   Pending = 'pending',
   Processing = 'processing',
+}
+
+export type EnrichmentStatusCount = {
+  __typename?: 'EnrichmentStatusCount'
+  count: Scalars['Int']['output']
+  status: EnrichmentStatus
 }
 
 export type EnrichmentTaskContextField = {
@@ -1219,6 +1241,7 @@ export type MutationCreateEmbeddingOnlyProcessingTaskArgs = {
 export type MutationCreateEnrichmentTasksArgs = {
   fieldId: Scalars['String']['input']
   fileId?: InputMaybe<Scalars['String']['input']>
+  filters?: InputMaybe<Array<AiListFilterInput>>
   listId: Scalars['String']['input']
   onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -4217,6 +4240,7 @@ export type GetEnrichmentsQuery = {
     skip?: number | null
     status?: EnrichmentStatus | null
     totalCount: number
+    statusCounts: Array<{ __typename?: 'EnrichmentStatusCount'; status: EnrichmentStatus; count: number }>
     enrichments: Array<{
       __typename?: 'AiEnrichmentTask'
       id: string
@@ -4347,6 +4371,18 @@ export type GetListQuery = {
       useVectorStore?: boolean | null
       order: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+    }>
+    statistics: Array<{
+      __typename?: 'AiListFieldStatistics'
+      fieldId: string
+      fieldName: string
+      itemCount: number
+      cacheCount: number
+      valuesCount: number
+      completedTasksCount: number
+      failedTasksCount: number
+      pendingTasksCount: number
+      processingTasksCount: number
     }>
     sources: Array<{
       __typename?: 'AiListSource'
@@ -4592,6 +4628,7 @@ export type CreateListEnrichmentTasksMutationVariables = Exact<{
   fieldId: Scalars['String']['input']
   fileId?: InputMaybe<Scalars['String']['input']>
   onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
+  filters?: InputMaybe<Array<AiListFilterInput> | AiListFilterInput>
 }>
 
 export type CreateListEnrichmentTasksMutation = {
@@ -4739,6 +4776,24 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type ListStatistics_AiListFragment = {
+  __typename?: 'AiList'
+  id: string
+  name: string
+  statistics: Array<{
+    __typename?: 'AiListFieldStatistics'
+    fieldId: string
+    fieldName: string
+    itemCount: number
+    cacheCount: number
+    valuesCount: number
+    completedTasksCount: number
+    failedTasksCount: number
+    pendingTasksCount: number
+    processingTasksCount: number
+  }>
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -8880,6 +8935,41 @@ export const UserProfileForm_UserProfileFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
+export const ListStatistics_AiListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListStatistics_AiList' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'statistics' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListStatistics_AiListFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -14452,6 +14542,17 @@ export const GetEnrichmentsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'statusCounts' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'enrichments' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -14792,6 +14893,7 @@ export const GetListDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListStatistics_AiList' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_List' } },
@@ -14920,6 +15022,36 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListStatistics_AiList' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'statistics' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -15874,6 +16006,17 @@ export const CreateListEnrichmentTasksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'onlyMissingValues' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilterInput' } },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -15901,6 +16044,11 @@ export const CreateListEnrichmentTasksDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'onlyMissingValues' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'onlyMissingValues' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
               },
             ],
             selectionSet: {

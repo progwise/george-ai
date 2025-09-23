@@ -4,14 +4,28 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getEnrichmentsQueryOptions, getListQueryOptions } from './queries'
 import { clearEnrichmentsFn, startEnrichmentFn, stopEnrichmentFn } from './server-functions'
+import { FieldFilter } from './use-list-settings'
 
 export const useEnrichmentActions = (listId: string) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
   const { mutate: startEnrichment, isPending: startEnrichmentIsPending } = useMutation({
-    mutationFn: async (args: { fieldId: string; fileId?: string }) => {
-      return await startEnrichmentFn({ data: { listId, fieldId: args.fieldId, fileId: args.fileId } })
+    mutationFn: async (args: {
+      fieldId: string
+      fileId?: string
+      onlyMissingValues?: boolean
+      filters?: FieldFilter[]
+    }) => {
+      return await startEnrichmentFn({
+        data: {
+          listId,
+          fieldId: args.fieldId,
+          fileId: args.fileId,
+          onlyMissingValues: args.onlyMissingValues,
+          filters: args.filters,
+        },
+      })
     },
     onSuccess: async (data) => {
       if (data.createdTasksCount !== undefined) {

@@ -499,6 +499,7 @@ export default {
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
       'Sie sind dabei, {participantName} von dieser Liste zu entfernen. Dies kann nicht rückgängig gemacht werden.',
+    statistics: 'Statistiken',
     title: 'Liste',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateParticipantsSuccess:

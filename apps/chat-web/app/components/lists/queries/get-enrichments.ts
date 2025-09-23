@@ -10,7 +10,7 @@ export const QueryEnrichmentsArgsSchema = z.object({
   listId: z.string().optional(),
   fileId: z.string().optional(),
   fieldId: z.string().optional(),
-  take: z.number().min(1).max(100).default(20),
+  take: z.number().min(0).max(100).default(20),
   skip: z.number().min(0).default(0),
   status: z.nativeEnum(EnrichmentStatus).optional(),
 })
@@ -43,6 +43,10 @@ const getEnrichments = createServerFn({ method: 'GET' })
             skip
             status
             totalCount
+            statusCounts {
+              status
+              count
+            }
             enrichments {
               id
               ...EnrichmentAccordionItem_Enrichment
@@ -69,9 +73,10 @@ export const getEnrichmentsQueryOptions = (args: {
       // Check if there are active enrichments in the current data
       const data = query.state.data
       const hasActiveEnrichments =
-        data?.aiListEnrichments.enrichments.some(
-          (enrichment) =>
-            enrichment.status === EnrichmentStatus.Processing || enrichment.status === EnrichmentStatus.Pending,
+        data?.aiListEnrichments.statusCounts.some(
+          (statusCount) =>
+            (statusCount.status === EnrichmentStatus.Processing || statusCount.status === EnrichmentStatus.Pending) &&
+            statusCount.count > 0,
         ) || false
       return hasActiveEnrichments ? 2000 : false // Poll every 2 seconds if enrichments are active
     },

@@ -490,6 +490,7 @@ export default {
     placeholderName: 'Product catalog extended.',
     removeParticipant: 'Remove participant from list',
     removeParticipantConfirmation: 'You are about to remove {participantName} from this list. This cannot be undone.',
+    statistics: 'Statistics',
     title: 'List',
     updateError: 'Error updating list: {message}',
     updateParticipantsSuccess:

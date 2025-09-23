@@ -67,6 +67,47 @@ const EnrichmentQueueResult = builder
           })
         },
       }),
+      statusCounts: t.field({
+        type: [
+          builder
+            .objectRef<{
+              status: EnrichmentStatusType
+              count: number
+            }>('EnrichmentStatusCount')
+            .implement({
+              fields: (t) => ({
+                status: t.expose('status', { type: EnrichmentStatus, nullable: false }),
+                count: t.exposeInt('count', { nullable: false }),
+              }),
+            }),
+        ],
+        nullable: false,
+        resolve: async ({ userId, listId, fileId, fieldId }) => {
+          const listWhere = getCanAccessListWhere(userId)
+          const fileWhere = getCanAccessFileWhere(userId)
+
+          const counts = await prisma.aiEnrichmentTask.groupBy({
+            by: ['status'],
+            where: {
+              AND: [
+                listId ? { listId } : {},
+                fileId ? { fileId } : {},
+                fieldId ? { fieldId } : {},
+                { list: listWhere },
+                { file: fileWhere },
+              ],
+            },
+            _count: {
+              status: true,
+            },
+          })
+
+          return counts.map((c) => ({
+            status: c.status,
+            count: c._count.status,
+          }))
+        },
+      }),
     }),
   })
 

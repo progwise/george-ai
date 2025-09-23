@@ -3,20 +3,23 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { EnrichmentAccordionItem } from '../../../../components/lists/enrichment-accordion-item'
+import { getListQueryOptions } from '../../../../components/lists/queries'
 import { getEnrichmentsQueryOptions } from '../../../../components/lists/queries/get-enrichments'
 import { Pagination } from '../../../../components/table/pagination'
-import { EnrichmentStatus } from '../../../../gql/graphql'
+import { EnrichmentStatus, ListFieldSourceType } from '../../../../gql/graphql'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/enrichments')({
   component: RouteComponent,
   validateSearch: z.object({
     skip: z.coerce.number().default(0),
     take: z.coerce.number().default(20),
+    fieldId: z.string().optional(),
     status: z.nativeEnum(EnrichmentStatus).optional(),
   }),
-  loaderDeps: ({ search: { skip, take, status } }) => ({
+  loaderDeps: ({ search: { skip, take, fieldId, status } }) => ({
     skip,
     take,
+    fieldId,
     status,
   }),
   loader: async ({ context, params, deps }) => {
@@ -25,6 +28,7 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/enrichments'
         listId: params.listId,
         skip: deps.skip,
         take: deps.take,
+        fieldId: deps.fieldId,
         status: deps.status,
       }),
     )
@@ -33,8 +37,12 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/enrichments'
 
 function RouteComponent() {
   const { listId } = Route.useParams()
-  const { skip = 0, take = 20, status } = Route.useSearch()
+  const { skip = 0, take = 20, fieldId, status } = Route.useSearch()
   const navigate = Route.useNavigate()
+
+  const {
+    data: { aiList },
+  } = useSuspenseQuery(getListQueryOptions(listId))
 
   const {
     data: {
@@ -45,6 +53,7 @@ function RouteComponent() {
       listId,
       skip,
       take,
+      fieldId,
       status,
     }),
   )
@@ -53,9 +62,26 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h2 className="text-base-content/80 text-xl font-bold">Enrichments</h2>
         <div className="flex items-end gap-4">
-          <div>
+          <div className="flex items-center gap-2">
             <select
-              className="select select-sm select-bordered h-full"
+              className="select select-sm select-bordered h-full text-nowrap"
+              value={fieldId || ''}
+              onChange={(e) => {
+                const selectedFieldId = e.target.value === '*' ? undefined : e.target.value
+                navigate({ search: { skip: 0, take, fieldId: selectedFieldId, status } })
+              }}
+            >
+              <option value="*">All fields</option>
+              {aiList.fields
+                ?.filter((field) => field.sourceType === ListFieldSourceType.LlmComputed)
+                .map((field) => (
+                  <option key={field.id} value={field.id}>
+                    {field.name}
+                  </option>
+                ))}
+            </select>
+            <select
+              className="select select-sm select-bordered h-full text-nowrap"
               value={status || ''}
               onChange={(e) => {
                 const selectedStatus = e.target.value as EnrichmentStatus | ''

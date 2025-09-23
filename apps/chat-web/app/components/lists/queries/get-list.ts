@@ -13,6 +13,7 @@ const getList = createServerFn({ method: 'GET' })
         query getList($listId: String!) {
           aiList(id: $listId) {
             ...ListsBase
+            ...ListStatistics_AiList
             ...ListEditForm_List
             ...ListSourcesManager_List
             ...ListFieldsTable_List

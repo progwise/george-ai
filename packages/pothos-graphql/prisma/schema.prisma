@@ -7,8 +7,8 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
-  previewFeatures = []
-  output          = "../node_modules/@george-ai/prismaClient"
+  previewFeatures = ["typedSql"]
+  // output          = "../node_modules/@george-ai/prismaClient"
 }
 
 generator pothos {
@@ -380,6 +380,7 @@ model AiListField {
   prompt         String?
   contentQuery   String? // Query for vector store search when useVectorStore is true
   useVectorStore Boolean?
+  failureTerms   String? // Comma-separated list of terms that indicate failure in LLM response
 
   list            AiList               @relation(fields: [listId], references: [id], onDelete: Cascade)
   cachedValues    AiListItemCache[]

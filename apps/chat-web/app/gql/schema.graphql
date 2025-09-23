@@ -542,6 +542,7 @@ type AiList {
   ownerId: String!
   participants: [AiListParticipant!]!
   sources: [AiListSource!]!
+  statistics: [AiListFieldStatistics!]!
   updatedAt: DateTime
 }
 
@@ -588,6 +589,19 @@ input AiListFieldInput {
   """
   type: ListFieldType!
   useVectorStore: Boolean
+}
+
+type AiListFieldStatistics {
+  cacheCount: Int!
+  completedTasksCount: Int!
+  failedTasksCount: Int!
+  fieldId: String!
+  fieldName: String!
+  itemCount: Int!
+  listId: String!
+  pendingTasksCount: Int!
+  processingTasksCount: Int!
+  valuesCount: Int!
 }
 
 input AiListFilterInput {
@@ -773,6 +787,7 @@ type EnrichmentQueueResult {
   listId: String
   skip: Int
   status: EnrichmentStatus
+  statusCounts: [EnrichmentStatusCount!]!
   take: Int
   totalCount: Int!
 }
@@ -789,6 +804,11 @@ enum EnrichmentStatus {
   failed
   pending
   processing
+}
+
+type EnrichmentStatusCount {
+  count: Int!
+  status: EnrichmentStatus!
 }
 
 type EnrichmentTaskContextField {
@@ -1014,6 +1034,7 @@ type Mutation {
     Optional File ID to only create task for a specific file
     """
     fileId: String
+    filters: [AiListFilterInput!]
     listId: String!
     """
     Only create tasks for files that do not yet have a cached value for this field
