@@ -1,4 +1,3 @@
-import Prisma from '@george-ai/prismaClient'
-
-export type File = Prisma.AiLibraryFile
-export type ContentProcessingTask = Prisma.AiContentProcessingTask
+import { AiLibraryFile, AiContentProcessingTask } from '../../prisma/generated/client'
+export type File = AiLibraryFile
+export type ContentProcessingTask = AiContentProcessingTask

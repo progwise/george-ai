@@ -3,14 +3,14 @@ import {
   parseFileConverterOptions,
   serializeFileConverterOptions,
 } from '@george-ai/file-converter'
-import { Prisma } from '@george-ai/prismaClient'
+import {AiContentProcessingTaskInclude, AiContentProcessingTaskSelect} from '../../../prisma/generated/models'
 
 import { prisma } from '../../prisma'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 
 interface TaskQuery {
-  include?: Prisma.AiContentProcessingTaskInclude
-  select?: Prisma.AiContentProcessingTaskSelect
+  include?: AiContentProcessingTaskInclude
+  select?: AiContentProcessingTaskSelect
 }
 export interface CreateProcessingTaskOptions {
   fileId: string

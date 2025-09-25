@@ -1,5 +1,4 @@
-import { getListStatistics } from '@prisma/client/sql'
-
+import { getListStatistics } from '../../../prisma/generated/sql'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 

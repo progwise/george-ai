@@ -9,7 +9,7 @@ import tseslint from 'typescript-eslint'
 // TODO: clean up for better composability
 export default tseslint.config(
   {
-    ignores: ['dist', '.vinxi', '.wrangler', '.vercel', '.netlify', '.output', 'build/', 'app/gql'],
+    ignores: ['dist', '.wrangler', '.vercel', '.netlify', '.output', 'build/', 'src/gql'],
   },
   {
     files: ['**/*.{ts,tsx}'],

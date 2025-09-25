@@ -1,4 +1,4 @@
-import { Prisma } from '@george-ai/prismaClient'
+import { Prisma } from '../../../prisma/generated/client'
 
 import { ContentProcessingTask } from '../types'
 

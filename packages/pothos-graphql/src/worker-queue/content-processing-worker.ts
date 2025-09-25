@@ -19,7 +19,7 @@ import {
 } from '@george-ai/file-converter'
 import { getFileDir, getUploadFilePath, saveMarkdownContent } from '@george-ai/file-management'
 import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain-chat'
-import { Prisma } from '@george-ai/prismaClient'
+import { Prisma } from '../../prisma/generated/client'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
 
 import { prisma } from '../prisma'

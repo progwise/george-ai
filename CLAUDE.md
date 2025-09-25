@@ -223,7 +223,7 @@ import { getLanguage } from '../../i18n'
 import { getListFieldFormSchema } from './field-modal'
 
 export const addListField = createServerFn({ method: 'POST' })
-  .validator(async (formData: FormData) => {
+  .inputValidator(async (formData: FormData) => {
     const language = await getLanguage()
     const schema = getListFieldFormSchema('create', language)
     const { data, errors } = validateFormData(formData, schema)

@@ -1,5 +1,3 @@
-import PrismaClient from '@george-ai/prismaClient'
-
 import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
@@ -7,7 +5,10 @@ import { prisma } from '../../prisma'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
 
-const QueryMode = PrismaClient.Prisma.QueryMode
+import { Prisma } from '../../../prisma/generated/client'
+
+const QueryMode = Prisma.QueryMode
+
 
 const EnrichmentQueueTasksMutationResult = builder
   .objectRef<{

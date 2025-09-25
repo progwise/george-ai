@@ -24,6 +24,7 @@ builder.prismaObject('AiListField', {
     }),
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
+    failureTerms: t.exposeString('failureTerms'),
     contentQuery: t.exposeString('contentQuery'),
     languageModel: t.exposeString('languageModel'),
     useVectorStore: t.exposeBoolean('useVectorStore'),

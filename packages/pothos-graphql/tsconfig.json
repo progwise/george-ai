@@ -4,6 +4,6 @@
     "outDir": "./dist",
     "types": ["vitest/globals"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/generated/**/*"],
   "exclude": ["node_modules", "dist"]
 }

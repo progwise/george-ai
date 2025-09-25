@@ -1,0 +1,237 @@
+import { createServerFn } from '@tanstack/react-start'
+import { ReactElement, RefObject } from 'react'
+import { z } from 'zod'
+
+import { dateTimeString } from '@george-ai/web-utils'
+
+import { useAuth } from '../../auth/auth'
+import { graphql } from '../../gql'
+import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
+import { Language } from '../../i18n'
+import { getLanguage, translate } from '../../i18n/get-language'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { backendRequest } from '../../server-functions/backend'
+import { Input } from '../form/input'
+import { LoadingSpinner } from '../loading-spinner'
+
+graphql(`
+  fragment UserProfileForm_UserProfile on UserProfile {
+    id
+    userId
+    email
+    firstName
+    lastName
+    freeMessages
+    usedMessages
+    freeStorage
+    usedStorage
+    createdAt
+    updatedAt
+    confirmationDate
+    activationDate
+    expiresAt
+    business
+    position
+  }
+`)
+
+export const getFormSchema = (language: Language) =>
+  z.object({
+    profileId: z.string().min(1, translate('errors.requiredField', language)),
+    email: z
+      .string()
+      .email({ message: translate('errors.invalidEmail', language) })
+      .min(1, translate('errors.requiredField', language)),
+    firstName: z.string().min(1, translate('errors.requiredField', language)),
+    lastName: z.string().min(1, translate('errors.requiredField', language)),
+    business: z.string().min(1, translate('errors.requiredField', language)),
+    position: z.string().min(1, translate('errors.requiredField', language)),
+    freeMessages: z.coerce.number().optional(),
+    freeStorage: z.coerce.number().optional(),
+  })
+
+export const updateProfile = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: FormData ) => {
+    if (!(data instanceof FormData)) {
+      throw new Error('Invalid form data')
+    }
+
+    const formDataObject = Object.fromEntries(data)
+    const language = await getLanguage()
+    const schema = getFormSchema(language)
+
+    return { ...schema.parse(formDataObject) }
+  })
+  .handler(async (ctx) => {
+    const data = await ctx.data
+    return await backendRequest(
+      graphql(`
+        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(profileId: $profileId, input: $userProfileInput) {
+            id
+          }
+        }
+      `),
+      {
+        profileId: data.profileId,
+        userProfileInput: {
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          business: data.business,
+          position: data.position,
+          freeMessages: data.freeMessages,
+          freeStorage: data.freeStorage,
+        },
+      },
+    )
+  })
+
+interface UserProfileFormProps {
+  userProfile: UserProfileForm_UserProfileFragment
+  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
+  isAdmin?: boolean
+  saveButton?: ReactElement | null
+  formRef?: RefObject<HTMLFormElement | null>
+}
+
+export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveButton }: UserProfileFormProps) => {
+  const { t, language } = useTranslation()
+  const { logout } = useAuth()
+
+  if (!language) {
+    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
+  }
+
+  const formSchema = getFormSchema(language)
+
+  return (
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
+    >
+      <input type="hidden" name="profileId" value={userProfile.id} />
+
+      <Input
+        name="createdAt"
+        type="text"
+        label={t('labels.createdAt')}
+        value={dateTimeString(userProfile.createdAt, language)}
+        disabled
+      />
+      <Input
+        name="updatedAt"
+        type="text"
+        label={t('labels.updatedAt')}
+        value={dateTimeString(userProfile.updatedAt, language)}
+        disabled
+      />
+      <Input
+        name="confirmationDate"
+        type="text"
+        label={t('labels.confirmedAt')}
+        value={
+          userProfile.confirmationDate
+            ? dateTimeString(userProfile.confirmationDate, language)
+            : t('labels.awaitingConfirmation')
+        }
+        placeholder={!userProfile.confirmationDate ? t('labels.awaitingConfirmation') : undefined}
+        disabled
+      />
+      <Input
+        name="expiresAt"
+        type="text"
+        label={t('labels.expiresAt')}
+        value={dateTimeString(userProfile.expiresAt, language)}
+        valueNotSet={t('labels.never')}
+        disabled
+      />
+      <Input
+        name="activationDate"
+        type="text"
+        label={t('labels.activatedAt')}
+        value={
+          userProfile.activationDate
+            ? dateTimeString(userProfile.activationDate, language)
+            : t('labels.awaitingActivation')
+        }
+        placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
+        className="col-span-2"
+        disabled
+      />
+      <hr className="col-span-2 my-2" />
+      <Input schema={formSchema} name={'email'} label="Email*" value={userProfile.email} className="col-span-2" />
+      <Input schema={formSchema} name="firstName" label={t('labels.firstName')} value={userProfile.firstName} />
+      <Input schema={formSchema} name="lastName" label={t('labels.lastName')} value={userProfile.lastName} />
+      <hr className="col-span-2 my-2" />
+      <Input
+        schema={formSchema}
+        name="business"
+        label={t('labels.business')}
+        value={userProfile.business}
+        className="col-span-2"
+      />
+      <Input
+        schema={formSchema}
+        name="position"
+        label={t('labels.position')}
+        value={userProfile.position}
+        className="col-span-2"
+      />
+      <hr className="col-span-2 my-2" />
+      <Input
+        name="freeStorage"
+        label={t('labels.freeStorage')}
+        value={userProfile.freeStorage}
+        type="number"
+        disabled={!isAdmin}
+      />
+
+      <Input
+        name="freeMessages"
+        label={t('labels.freeMessages')}
+        value={userProfile.freeMessages}
+        type="number"
+        disabled={!isAdmin}
+      />
+      <Input
+        name="usedStorage"
+        label={t('labels.usedStorage')}
+        value={userProfile.usedStorage}
+        type="number"
+        disabled
+      />
+
+      <Input
+        name="usedMessages"
+        label={t('labels.usedMessages')}
+        value={userProfile.usedMessages}
+        type="number"
+        disabled
+      />
+      <div className="col-span-2 flex justify-end">
+        <a
+          className="btn btn-sm"
+          href={`mailto:info@george-ai.net?subject=Request higher limits for ${userProfile.email}`}
+        >
+          {t('actions.increaseLimits')}
+        </a>
+      </div>
+      <hr className="col-span-2 my-2" />
+      <div className="col-span-2 flex justify-between gap-2">
+        {saveButton && <div className="col-span-2 flex justify-end">{saveButton}</div>}
+
+        <button
+          type="button"
+          onClick={() => {
+            logout()
+          }}
+          className="btn btn-outline btn-secondary btn-sm"
+        >
+          {t('actions.signOut')}
+        </button>
+      </div>
+    </form>
+  )
+}

@@ -1,5 +1,4 @@
-import type { Prisma } from '@george-ai/prismaClient'
-import { DefaultArgs } from '@george-ai/prismaClient/runtime/library'
+import type { Prisma } from '../../../prisma/generated/client'
 
 import { prisma } from '../../prisma'
 
@@ -27,7 +26,7 @@ export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
 export const canAccessListOrThrow = async (
   listId: string,
   userId: string,
-  options?: { include: Prisma.AiListInclude<DefaultArgs> },
+  options?: { include: Prisma.AiListInclude },
 ) => {
   const list = await prisma.aiList.findFirstOrThrow({
     include: { participants: true, ...(options?.include || {}) },

@@ -1,6 +1,6 @@
 import { Message, ollamaChat } from '@george-ai/ai-service-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
-import { Prisma } from '@george-ai/prismaClient'
+import { Prisma } from '../../prisma/generated/client'
 
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { prisma } from '../prisma'

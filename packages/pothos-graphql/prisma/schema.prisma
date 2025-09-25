@@ -5,10 +5,10 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
   previewFeatures = ["typedSql"]
-  // output          = "../node_modules/@george-ai/prismaClient"
+  output          = "./generated"
 }
 
 generator pothos {

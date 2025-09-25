@@ -10,29 +10,29 @@ const config: CodegenConfig = {
       },
     },
   },
-  documents: ['app/**/*.tsx', 'app/**/*.ts', '!app/gql/**/*'],
+  documents: ['src/**/*.tsx', 'src/**/*.ts', '!src/gql/**/*'],
   generates: {
-    './app/gql/': {
+    './src/gql/': {
       preset: 'client',
       presetConfig: {
         fragmentMasking: false,
       },
     },
-    './app/gql/validation.ts': {
+    './src/gql/validation.ts': {
       config: {
         schema: 'zod',
         importFrom: './graphql',
       },
       plugins: ['typescript-validation-schema'],
     },
-    './app/gql/schema.graphql': {
+    './src/gql/schema.graphql': {
       plugins: ['schema-ast'],
       config: {
         includeDirectives: true,
       },
     },
   },
-  hooks: { afterOneFileWrite: ['prettier --write ./app/gql'] },
+  hooks: { afterOneFileWrite: ['prettier --write ./src/gql'] },
   config: {
     scalars: { Date: 'string', DateTime: 'string', Decimal: 'number' },
     dedupeFragments: true,

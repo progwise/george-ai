@@ -41,6 +41,6 @@ LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps
 WORKDIR /app
 
 COPY --from=builder /app/apps/georgeai-server/dist .
-COPY --from=builder /app/packages/pothos-graphql/node_modules/@george-ai/prismaClient/libquery_engine* ./node_modules/@george-ai/prismaClient/
+# COPY --from=builder /app/packages/pothos-graphql/node_modules/@george-ai/prisma/client/libquery_engine* ./node_modules/@george-ai/prisma/client/
 
 CMD [ "node","./server.cjs" ]

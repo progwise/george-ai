@@ -1,9 +1,7 @@
-import type { Prisma } from '@george-ai/prismaClient'
-import PrismaClient from '@george-ai/prismaClient'
-
+import { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 
-const QueryMode = PrismaClient.Prisma.QueryMode
+const QueryMode = Prisma.QueryMode
 
 export const AiListFilterTypeValues = [
   'equals',

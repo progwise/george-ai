@@ -1,4 +1,4 @@
-import type { Prisma } from '@george-ai/prismaClient'
+import type { Prisma } from '../../../prisma/generated/client'
 
 import { getFieldValue } from '../../domain'
 import {

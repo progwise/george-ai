@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Prisma } from '@george-ai/prismaClient'
+import { Prisma } from '../../../prisma/generated/client'
 
 import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES, getFieldValue } from '../list'
 

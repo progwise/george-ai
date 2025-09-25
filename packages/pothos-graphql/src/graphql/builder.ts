@@ -3,8 +3,7 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { Prisma, PrismaClient } from '@george-ai/prismaClient'
-
+import { Prisma, PrismaClient } from '../../prisma/generated/client'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
 import { Context, LoggedInContext } from './context'
