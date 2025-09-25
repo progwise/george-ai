@@ -13,7 +13,7 @@ export function getRouter() {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreload: 'intent',
-    defaultErrorComponent: ({error, reset, info}) => <div className="text-center">Ups, something went wrong! <code><pre>{JSON.stringify(error.stack, null, 2)}</pre></code></div>,
+    defaultErrorComponent: ({error}) => <div className="text-center">Ups, something went wrong! <code><pre>{JSON.stringify(error.stack, null, 2)}</pre></code></div>,
     defaultNotFoundComponent: () => <div className="text-center">Not found!</div>,
     defaultPendingComponent: () => <div className="text-center">Loading...</div>,
   })

@@ -10,7 +10,7 @@ const THEME_KEY = 'theme'
 const FALLBACK_THEME: Theme = 'system'
 
 export const getThemeFromCookie = createServerFn({ method: 'GET' }).handler(
-  () => getCookie(THEME_KEY) as Theme | undefined,
+  () => getCookie(THEME_KEY) as Theme || FALLBACK_THEME,
 )
 
 const setThemeCookie = (newTheme: Theme) => (document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`)

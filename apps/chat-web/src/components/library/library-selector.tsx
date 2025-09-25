@@ -9,32 +9,18 @@ interface LibrarySelectorProps {
 }
 export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
   const navigate = useNavigate({ from: '/libraries/$libraryId' })
-  const routerState = useRouterState()
+  const lastMatch = useRouterState().matches[0]
 
   const handleLibraryChange = async (libraryId: string) => {
     if (libraryId === selectedLibrary.id) {
       return
     }
-    const lastMatch = routerState.matches[routerState.matches.length - 1]
-
-    if (lastMatch.params['fileId']) {
-      await navigate({
-        to: '/libraries/$libraryId/files',
-        params: { libraryId },
-      })
-
-    } else if (lastMatch.params['crawlerId']) {
-      await navigate({
-        to: '/libraries/$libraryId/crawlers',
-        params: { libraryId },
-      })
-    } else {
-      await navigate({
-        to: lastMatch.fullPath,
+          
+    await navigate({
         params: { ...lastMatch.params, libraryId },
       })
     }
-  }
+  
   return (
     <Listbox
       items={libraries}
@@ -44,3 +30,4 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
     />
   )
 }
+
