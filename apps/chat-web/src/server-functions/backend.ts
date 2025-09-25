@@ -4,7 +4,7 @@ import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
-import { BACKEND_PUBLIC_URL, BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
+import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
 
 async function backendRequest<T, V extends Variables = Variables>(
@@ -150,8 +150,4 @@ export const getBackendGraphQLSchema = createServerFn({
   method: 'GET',
 }).handler(() => {
   return backendRequest(introspectionQueryDocument)
-})
-
-export const getBackendPublicUrl = createServerFn({ method: 'GET' }).handler(() => {
-  return BACKEND_PUBLIC_URL
 })

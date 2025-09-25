@@ -126,21 +126,11 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler(async (c
   return userProfileData.userProfile
 })
 
-export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
-  const userProfile = await getUserProfile()
-
-  if (!userProfile) {
-    throw new Error('User profile not found')
-  }
-
-  await activateUserProfile({
-    data: {
-      profileId: userProfile.id,
-    },
+export const getProfileQueryOptions = () =>
+  queryOptions({
+    queryKey: ['getProfile'],
+    queryFn: () => getUserProfile(),
   })
-
-  return { success: true }
-})
 
 export const updateUserProfile = createServerFn({ method: 'POST' })
   .inputValidator((data: { profileId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {

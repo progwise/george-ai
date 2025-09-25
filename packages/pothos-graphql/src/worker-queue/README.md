@@ -133,7 +133,6 @@ const embeddingStatus = getEmbeddingStatus(task)
 The GraphQL schema exposes computed status fields:
 
 - **AiFileContentExtractionTask**:
-
   - `processingStatus` - Overall task processing status
   - `extractionStatus` - Extraction phase status only
   - `embeddingStatus` - Embedding phase status only

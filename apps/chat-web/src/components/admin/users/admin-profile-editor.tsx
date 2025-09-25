@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
-import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { UserProfileForm_UserProfileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SaveIcon } from '../../../icons/save-icon'
-import { activateUserProfile } from '../../../server-functions/users'
+import { activateUserProfile, getProfileQueryOptions } from '../../../server-functions/users'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { UserProfileForm, updateProfile } from '../../user/user-profile-form'
@@ -32,9 +31,7 @@ export function AdminProfileEditor({
   const updateProfileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       return await updateProfile({
-        data: 
-          formData,
-        
+        data: formData,
       })
     },
     onSuccess: () => {

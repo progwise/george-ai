@@ -35,7 +35,6 @@ Use `env.example` files as the references.
 ### 4. Set Up Keycloak
 
 1. Open `http://localhost:8180` in your browser and log in using the credentials:
-
    - **Username:** `admin`
    - **Password:** `admin`
 
@@ -45,7 +44,6 @@ Use `env.example` files as the references.
    Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**.
 
    Add the following URLs to the fields below:
-
    - **Valid Redirect URIs:**
      `http://localhost:3001`,
      `http://localhost:3001/*`
@@ -60,7 +58,6 @@ Use `env.example` files as the references.
    Fill in the required fields, then click **Create** at the bottom of the form.
 
 5. After the user is created:
-
    - Go to the **Credentials** tab, set a password, and ensure **Temporary** is set to **Off**.
    - Go to the **Details** tab and provide:
      - **First Name**

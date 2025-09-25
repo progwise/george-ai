@@ -1,10 +1,7 @@
 pnpm-lock.yaml
 .output
-apps/chat-web/app/routeTree.gen.ts
 .uploads
-.vinxi
 .turbo
-.vinxi
 .posgres-data*
 .typesense-data
 .node_modules
@@ -12,3 +9,4 @@ apps/chat-web/app/routeTree.gen.ts
 .smb-mounts
 .smb-credentials
 .sharepoint-credentials
+packages/pothos-graphql/prisma/generated

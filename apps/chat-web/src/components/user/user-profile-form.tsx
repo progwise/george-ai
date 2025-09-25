@@ -51,7 +51,7 @@ export const getFormSchema = (language: Language) =>
   })
 
 export const updateProfile = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: FormData ) => {
+  .inputValidator(async (data: FormData) => {
     if (!(data instanceof FormData)) {
       throw new Error('Invalid form data')
     }

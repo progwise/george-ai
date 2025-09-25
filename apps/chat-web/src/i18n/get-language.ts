@@ -1,10 +1,10 @@
-import { getRequestHeaders } from '@tanstack/react-start/server'
 import { createServerOnlyFn } from '@tanstack/react-start'
+import { getRequestHeaders } from '@tanstack/react-start/server'
 
 import { Language } from './index'
 import { getTranslatedString } from './use-translation-hook'
 
-const getLanguage = createServerOnlyFn( () => {
+const getLanguage = createServerOnlyFn(() => {
   try {
     const headers = getRequestHeaders()
     const acceptLanguage = headers.get('accept-language')

@@ -3,8 +3,8 @@ import {
   parseFileConverterOptions,
   serializeFileConverterOptions,
 } from '@george-ai/file-converter'
-import {AiContentProcessingTaskInclude, AiContentProcessingTaskSelect} from '../../../prisma/generated/models'
 
+import { AiContentProcessingTaskInclude, AiContentProcessingTaskSelect } from '../../../prisma/generated/models'
 import { prisma } from '../../prisma'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 

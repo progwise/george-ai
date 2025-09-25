@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { sendMessage } from '../../server-functions/conversations'
+import { getProfileQueryOptions } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'

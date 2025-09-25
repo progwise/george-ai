@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
+import { GIT_COMMIT_SHA } from '../../constants'
 import { graphql } from '../../gql'
 import { backendRequest } from '../../server-functions/backend'
-import { GIT_COMMIT_SHA } from '../../constants'
 
 const getVersions = createServerFn({ method: 'GET' }).handler(async () => {
   const { version: serverVersion } = await backendRequest(

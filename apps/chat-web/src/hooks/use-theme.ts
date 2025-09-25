@@ -1,16 +1,16 @@
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
 import { useCallback, useEffect } from 'react'
 
 import { queryKeys } from '../query-keys'
-import { getCookie } from '@tanstack/react-start/server'
 
 type Theme = 'light' | 'dark' | 'system'
 const THEME_KEY = 'theme'
 const FALLBACK_THEME: Theme = 'system'
 
 export const getThemeFromCookie = createServerFn({ method: 'GET' }).handler(
-  () => getCookie(THEME_KEY) as Theme || FALLBACK_THEME,
+  () => (getCookie(THEME_KEY) as Theme) || FALLBACK_THEME,
 )
 
 const setThemeCookie = (newTheme: Theme) => (document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`)

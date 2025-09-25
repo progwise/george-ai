@@ -1,5 +1,7 @@
 import { QueryClient, useQuery } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Suspense } from 'react'
 
 import { AuthProvider } from '../auth/auth'
@@ -10,9 +12,6 @@ import TopNavigation from '../components/top-navigation'
 import { getThemeQueryOptions } from '../hooks/use-theme'
 import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
 import appCss from '../index.css?url'
-
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 interface RouterContext {
   queryClient: QueryClient

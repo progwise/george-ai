@@ -1,5 +1,4 @@
 import { Prisma } from '../../../prisma/generated/client'
-
 import { builder } from '../builder'
 
 console.log('Setting up: Decimal')

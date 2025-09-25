@@ -3,11 +3,10 @@ import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
 import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations'
-import { getUsersQueryOptions } from '../../../server-functions/users'
+import { getProfileQueryOptions, getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations')({
   component: RouteComponent,

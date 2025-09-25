@@ -1,5 +1,4 @@
 import type { Prisma } from '../../../prisma/generated/client'
-
 import { getFieldValue } from '../../domain'
 import {
   type AiListFilterType,

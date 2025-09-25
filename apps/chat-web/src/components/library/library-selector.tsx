@@ -15,12 +15,12 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
     if (libraryId === selectedLibrary.id) {
       return
     }
-          
+
     await navigate({
-        params: { ...lastMatch.params, libraryId },
-      })
-    }
-  
+      params: { ...lastMatch.params, libraryId },
+    })
+  }
+
   return (
     <Listbox
       items={libraries}
@@ -30,4 +30,3 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
     />
   )
 }
-

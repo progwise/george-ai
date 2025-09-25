@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 
+import BowlerHatIcon from '../../icons/bowler-hat-icon'
 import { Impress } from './impress'
 import { VersionIndicator } from './version-indicator'
-import BowlerHatIcon from '../../icons/bowler-hat-icon'
 
 export const AboutEn = () => {
   return (

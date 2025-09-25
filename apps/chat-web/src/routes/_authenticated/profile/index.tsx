@@ -65,9 +65,7 @@ function RouteComponent() {
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async (formData: FormData) => {
       await updateProfile({
-        data:
-          formData
-        ,
+        data: formData,
       })
 
       return await sendConfirmationMail({
@@ -99,9 +97,7 @@ function RouteComponent() {
     const { formData, errors } = validateForm(form, formSchema)
     if (!errors) {
       await updateProfile({
-        data: 
-          formData
-        ,
+        data: formData,
       })
       toastSuccess(t('texts.profileSaved'))
       refetchProfile()

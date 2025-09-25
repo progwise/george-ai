@@ -61,7 +61,13 @@ export const HomeChat = ({ user }: HomeChatProps) => {
     event.preventDefault()
     const { errors, formData } = validateForm(event.currentTarget, formSchema)
     if (errors) {
-      toastWarning(<ul>{errors?.map((error) => <li key={error}>{error.split(':').pop()}</li>)}</ul>)
+      toastWarning(
+        <ul>
+          {errors?.map((error) => (
+            <li key={error}>{error.split(':').pop()}</li>
+          ))}
+        </ul>,
+      )
       return
     }
     mutate(formData)

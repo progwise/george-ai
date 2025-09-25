@@ -5,7 +5,7 @@ import { graphql } from '../../gql'
 import { ConversationHistory_ConversationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
-import { getBackendPublicUrl } from '../../server-functions/backend'
+import { getBackendPublicUrl } from '../common'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
 
@@ -65,7 +65,7 @@ interface IncomingMessage {
 export const ConversationHistory = ({ conversation, userId }: ConversationHistoryProps) => {
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
-    queryFn: () => getBackendPublicUrl(),
+    queryFn: async () => await getBackendPublicUrl(),
     staleTime: Infinity,
   })
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])

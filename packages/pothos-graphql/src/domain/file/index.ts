@@ -2,8 +2,8 @@ import fs from 'fs'
 
 import { deleteFileDir, fileDirIsEmpty, getFileDir, getLibraryDir, getUploadFilePath } from '@george-ai/file-management'
 import { dropFileFromVectorstore, dropVectorStore, getFileChunkCount } from '@george-ai/langchain-chat'
-import type { AiLibraryFile, Prisma as PrismaType } from '../../../prisma/generated/client'
 
+import type { AiLibraryFile, Prisma as PrismaType } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 import { canAccessLibraryOrThrow } from '../library'
 

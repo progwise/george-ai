@@ -4,9 +4,8 @@ import pluginQuery from '@tanstack/eslint-plugin-query'
 import pluginRouter from '@tanstack/eslint-plugin-router'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import reactHooks from 'eslint-plugin-react-hooks'
+import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
-import { defineConfig } from "eslint/config";
-
 
 // TODO: clean up for better composability
 export default defineConfig(

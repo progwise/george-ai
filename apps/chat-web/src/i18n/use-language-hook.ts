@@ -11,7 +11,7 @@ const LANGUAGE_COOKIE_NAME = 'preferred-language'
 const FALLBACK_LANGUAGE: Language = 'en'
 
 const getLanguage = createServerFn({ method: 'GET' }).handler(
-  () => getCookie(LANGUAGE_COOKIE_NAME) as Language || FALLBACK_LANGUAGE,
+  () => (getCookie(LANGUAGE_COOKIE_NAME) as Language) || FALLBACK_LANGUAGE,
 )
 
 const setLanguageInCookie = (language: Language) =>

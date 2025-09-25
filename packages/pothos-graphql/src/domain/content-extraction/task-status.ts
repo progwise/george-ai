@@ -1,5 +1,4 @@
 import { Prisma } from '../../../prisma/generated/client'
-
 import { ContentProcessingTask } from '../types'
 
 export const PROCESSING_STATUS = [

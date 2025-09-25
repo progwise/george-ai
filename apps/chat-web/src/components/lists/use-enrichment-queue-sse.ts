@@ -5,7 +5,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
-import { getBackendPublicUrl } from '../../server-functions/backend'
+import { getBackendPublicUrl } from '../common'
 
 // EventSource polyfill that supports credentials
 class EventSourcePolyfill extends EventTarget {

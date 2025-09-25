@@ -1,5 +1,4 @@
 import type { Prisma } from '../../../prisma/generated/client'
-
 import { prisma } from '../../prisma'
 
 export * from './filter'
