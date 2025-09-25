@@ -65,6 +65,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          DATABASE_URL:
       - name: Build
         run: pnpm build
 
