@@ -10,3 +10,4 @@ pnpm-lock.yaml
 .smb-credentials
 .sharepoint-credentials
 packages/pothos-graphql/prisma/generated
+routeTree.gen.ts
