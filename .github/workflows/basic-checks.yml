@@ -19,7 +19,7 @@ jobs:
         name: Install pnpm
         with:
           version: 9.15.4
-          run_install: true
+          run_install: false
       - run: pnpm run lint
 
   prettier:
@@ -34,7 +34,7 @@ jobs:
         name: Install pnpm
         with:
           version: 9.15.4
-          run_install: true
+          run_install: false
       - run: pnpm run format:check
 
   typecheck:
