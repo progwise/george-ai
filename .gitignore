@@ -8,6 +8,7 @@ node_modules
 .cache
 gaidata
 build
+.pgadmin-data
 .pnp.*
 .typesense-data
 .postgres-data*

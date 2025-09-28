@@ -90,20 +90,15 @@ services:
     ports:
       - 8180:8080
 
-  gai-crawl4ai:
-    build:
-      context: ..
-      dockerfile: ./apps/crawler-server/Dockerfile
-    container_name: gai-crawl4ai
-    restart: unless-stopped
+  pgadmin:
+    image: 'docker.io/dpage/pgadmin4:latest'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'dev@progwise.net'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
     ports:
-      - '11245:11245'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck/']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - 15080:80
+    volumes:
+      - ../.pgadmin-data:/var/lib/pgadmin/
 
   gai-smb-test:
     build:
@@ -117,3 +112,18 @@ services:
       - '10137:137/udp' # NetBIOS name service
       - '10138:138/udp' # NetBIOS datagram service
     restart: unless-stopped
+
+  # gai-crawl4ai:
+  #   build:
+  #     context: ..
+  #     dockerfile: ./apps/crawler-server/Dockerfile
+  #   container_name: gai-crawl4ai
+  #   restart: unless-stopped
+  #   ports:
+  #     - '11245:11245'
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck/']
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s

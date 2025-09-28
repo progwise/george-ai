@@ -1,37 +1,62 @@
-import type { Prisma } from '@george-ai/prismaClient'
-
+import type { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 
-export const canAccessListOrThrow = async (listId: string, userId: string) => {
-  const list = await prisma.aiList.findFirstOrThrow({
-    select: { participants: true, ownerId: true },
-    where: { id: listId },
-  })
+export * from './filter'
 
-  if (list.ownerId === userId) {
-    return list
-  }
-  if (list.participants.some((participation) => participation.userId === userId)) {
-    return list
-  }
-  throw new Error(`User ${userId} can not access list`)
+export const LIST_FIELD_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean'] as const
+export type FieldType = (typeof LIST_FIELD_TYPES)[number]
+
+export const LIST_FIELD_SOURCE_TYPES = ['file_property', 'llm_computed'] as const
+export type FieldSourceType = (typeof LIST_FIELD_SOURCE_TYPES)[number]
+
+export const LIST_FIELD_FILE_PROPERTIES = [
+  'name',
+  'originUri',
+  'crawlerUrl',
+  'originModificationDate',
+  'size',
+  'mimeType',
+  'source',
+  'processedAt',
+  'lastUpdate',
+] as const
+export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
+
+export const canAccessListOrThrow = async (
+  listId: string,
+  userId: string,
+  options?: { include: Prisma.AiListInclude },
+) => {
+  const list = await prisma.aiList.findFirstOrThrow({
+    include: { participants: true, ...(options?.include || {}) },
+    where: { AND: [{ id: listId }, getCanAccessListWhere(userId)] },
+  })
+  return list
 }
 
-/**
- * Resolves the display value for a given field and file combination.
- * This utility handles both file property fields and computed fields with cached values.
- * Returns both the value and any enrichment error message.
- */
-export async function getFieldValue(
+export const getCanAccessListWhere = (userId: string): Prisma.AiListWhereInput => ({
+  OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
+})
+
+export function getFieldValue(
   file: Prisma.AiLibraryFileGetPayload<{
     include: {
-      crawledByCrawler: true
+      contentExtractionTasks: { select: { processingFinishedAt: true } }
+      crawledByCrawler: { select: { uri: true } }
+      library: { select: { name: true } }
       cache: true
     }
   }>,
-  field: Prisma.AiListFieldGetPayload<object>,
-  cache?: Prisma.AiListItemCacheGetPayload<object> | null,
-): Promise<{ value: string | null; errorMessage: string | null }> {
+  field: Prisma.AiListFieldGetPayload<{
+    select: {
+      id: true
+      name: true
+      sourceType: true
+      fileProperty: true
+      type: true
+    }
+  }>,
+): { value: string | null; errorMessage: string | null } {
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
     let value: string | null = null
@@ -43,16 +68,7 @@ export async function getFieldValue(
         value = file.originUri
         break
       case 'crawlerUrl': {
-        // Check if we have the crawler data already loaded
-        if (file.crawledByCrawler) {
-          value = file.crawledByCrawler.uri || null
-        } else if (file.crawledByCrawlerId) {
-          // Fallback: query the crawler if we have the ID
-          const crawler = await prisma.aiLibraryCrawler.findFirst({
-            where: { id: file.crawledByCrawlerId },
-          })
-          value = crawler?.uri || null
-        }
+        value = file.crawledByCrawler?.uri || null
         break
       }
       case 'originModificationDate':
@@ -64,36 +80,51 @@ export async function getFieldValue(
       case 'mimeType':
         value = file.mimeType
         break
+      case 'source':
+        value = file.library.name
+        break
+      case 'processedAt':
+        value = file.contentExtractionTasks?.[0]?.processingFinishedAt?.toISOString() || null
+        break
+      case 'lastUpdate':
+        value = file.updatedAt.toISOString()
+        break
       default:
         value = null
     }
     return { value, errorMessage: null }
   }
 
-  // Handle computed fields - use cached value if available
-  if (field.sourceType === 'llm_computed' && cache) {
-    let value: string | null = null
-    switch (field.type) {
-      case 'string':
-        value = cache.valueString
-        break
-      case 'number':
-        value = cache.valueNumber?.toString() || null
-        break
-      case 'boolean':
-        value = cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null
-        break
-      case 'date':
-      case 'datetime':
-        value = cache.valueDate?.toISOString() || null
-        break
-      default:
-        value = cache.valueString
-    }
-    return { value, errorMessage: cache.enrichmentErrorMessage || null }
+  const caches = file.cache.filter((cache) => cache.fieldId === field.id)
+
+  if (caches.length > 1) {
+    throw new Error(`Multiple cached values found for field ${field.id} and file ${file.id}. Check your query.`)
   }
 
-  return { value: null, errorMessage: null }
+  const cache = caches.length === 1 ? caches[0] : null
+
+  if (!cache) {
+    return { value: '-', errorMessage: null }
+  }
+  if (field.sourceType !== 'llm_computed') {
+    return { value: null, errorMessage: 'not an llm computed field' }
+  }
+
+  const errorMessage = cache.enrichmentErrorMessage || null
+  switch (field.type) {
+    case 'text':
+    case 'string':
+      return { value: cache.valueString, errorMessage }
+    case 'number':
+      return { value: cache.valueNumber?.toString() || null, errorMessage }
+    case 'boolean':
+      return { value: cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null, errorMessage }
+    case 'date':
+    case 'datetime':
+      return { value: cache.valueDate?.toISOString() || null, errorMessage }
+    default:
+      return { value: null, errorMessage: 'unknown field type' }
+  }
 }
 
 /**
@@ -107,5 +138,5 @@ export function findCacheValue(
   }>,
   fieldId: string,
 ): Prisma.AiListItemCacheGetPayload<object> | null {
-  return file.cache?.find((cache) => cache.fieldId === fieldId) || null
+  return file.cache.find((cache) => cache.fieldId === fieldId) || null
 }

@@ -2,12 +2,12 @@ import fs from 'fs'
 
 import { deleteFileDir, fileDirIsEmpty, getFileDir, getLibraryDir, getUploadFilePath } from '@george-ai/file-management'
 import { dropFileFromVectorstore, dropVectorStore, getFileChunkCount } from '@george-ai/langchain-chat'
-import Prisma from '@george-ai/prismaClient'
 
+import type { AiLibraryFile, Prisma as PrismaType } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 import { canAccessLibraryOrThrow } from '../library'
 
-export type File = Prisma.AiLibraryFile
+export type File = AiLibraryFile
 
 export const canAccessFileOrThrow = async (fileId: string, userId: string) => {
   const file = await prisma.aiLibraryFile.findUniqueOrThrow({
@@ -17,6 +17,10 @@ export const canAccessFileOrThrow = async (fileId: string, userId: string) => {
   await canAccessLibraryOrThrow(file.libraryId, userId)
   return file
 }
+
+export const getCanAccessFileWhere = (userId: string): PrismaType.AiLibraryFileWhereInput => ({
+  library: { OR: [{ ownerId: userId }, { participants: { some: { userId } } }] },
+})
 
 export const getFileInfo = async (fileId: string, userId: string) => {
   const fileInfo = await canAccessFileOrThrow(fileId, userId)

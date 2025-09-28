@@ -1,6 +1,8 @@
-import { getEnrichedValue } from '@george-ai/langchain-chat'
+import { Message, ollamaChat } from '@george-ai/ai-service-client'
+import { getSimilarChunks } from '@george-ai/langchain-chat'
 
-import { getFieldValue } from '../domain'
+import { Prisma } from '../../prisma/generated/client'
+import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { prisma } from '../prisma'
 import { callEnrichmentQueueUpdateSubscriptions } from '../subscriptions'
 
@@ -11,31 +13,21 @@ const WORKER_INTERVAL_MS = 2000 // Process queue every 2 seconds
 const BATCH_SIZE = 5 // Process up to 5 items at a time
 const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue calls
 
-// Track concurrent enrichment calls
-let currentEnrichmentCalls = 0
-
-// Throttled wrapper for getEnrichedValue
-async function throttledGetEnrichedValue(params: Parameters<typeof getEnrichedValue>[0]): Promise<string> {
-  currentEnrichmentCalls++
-  try {
-    return await getEnrichedValue(params)
-  } finally {
-    currentEnrichmentCalls--
-  }
-}
-
-async function processQueueItem(queueItem: {
-  id: string
-  listId: string
-  fieldId: string
-  fileId: string
-  status: string
+async function processQueueItem({
+  enrichmentTask,
+  metadata,
+}: {
+  enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>
+  metadata: EnrichmentMetadata
 }) {
   try {
+    if (!metadata.input) {
+      throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
+    }
     // Mark as processing - use upsert to handle the case where item was deleted
-    const updatedItem = await prisma.aiListEnrichmentQueue.updateMany({
+    await prisma.aiEnrichmentTask.update({
       where: {
-        id: queueItem.id,
+        id: enrichmentTask.id,
         status: 'pending', // Only update if still pending
       },
       data: {
@@ -44,150 +36,182 @@ async function processQueueItem(queueItem: {
       },
     })
 
-    // If no rows were updated, the item was likely deleted or already processed
-    if (updatedItem.count === 0) {
-      console.log(`⚠️ Enrichment queue item ${queueItem.id} no longer exists or is not pending, skipping`)
-      return
-    }
-
     // Send SSE update
     await callEnrichmentQueueUpdateSubscriptions({
-      listId: queueItem.listId,
+      listId: enrichmentTask.listId,
       update: {
-        queueItemId: queueItem.id,
-        listId: queueItem.listId,
-        fieldId: queueItem.fieldId,
-        fileId: queueItem.fileId,
+        queueItemId: enrichmentTask.id,
+        listId: enrichmentTask.listId,
+        fieldId: enrichmentTask.fieldId,
+        fileId: enrichmentTask.fileId,
         status: 'processing',
       },
     })
 
-    // Get field details
-    const field = await prisma.aiListField.findUnique({
-      include: { context: { include: { contextField: true } } },
-      where: { id: queueItem.fieldId },
-    })
-
-    if (!field) {
-      throw new Error('Field not found')
-    }
-
-    // Get file details
-    const file = await prisma.aiLibraryFile.findUnique({
-      where: { id: queueItem.fileId },
-      include: {
-        crawledByCrawler: true,
-        cache: true,
-        library: true,
-      },
-    })
-
-    if (!file) {
-      throw new Error('File not found')
-    }
-
-    // Get actual values for context fields
-    const contextWithValues = await Promise.all(
-      field.context.map(async (item) => {
-        // Get cached value if this is a computed field
-        let cachedValue = null
-        if (item.contextField.sourceType === 'llm_computed') {
-          cachedValue = await prisma.aiListItemCache.findUnique({
-            where: {
-              fileId_fieldId: {
-                fileId: queueItem.fileId,
-                fieldId: item.contextFieldId,
-              },
-            },
-          })
-        }
-
-        const { value } = await getFieldValue(file, item.contextField, cachedValue)
-        return {
-          name: item.contextField.name,
-          value: value || '',
-        }
-      }),
-    )
-
-    if (!file.library.embeddingModelName) {
-      throw new Error('Embedding Model for Library not set, enrichment is not possible')
-    }
-
     // Try to get enriched value, but handle errors gracefully
     let computedValue: string | null = null
     let enrichmentError: string | null = null
+    const messages: Array<Message> = []
+
+    const outputMetaData: EnrichmentMetadata['output'] = {
+      messages: [],
+      similarChunks: [],
+      issues: [],
+    }
+
+    messages.push({
+      role: 'user',
+      content: metadata.input.aiGenerationPrompt,
+    })
+
+    messages.push({
+      role: 'user',
+      content: `The data type you must return is: ${metadata.input.dataType}`,
+    })
+
+    messages.push({
+      role: 'user',
+      content: `Here comes the data you need to process:`,
+    })
 
     try {
-      computedValue = await throttledGetEnrichedValue({
-        file: { ...file, embeddingModelName: file.library.embeddingModelName },
-        languageModel: field.languageModel,
-        instruction: field.prompt,
-        context: contextWithValues,
-        options: {
-          useVectorStore: field.useVectorStore || false,
-          contentQuery: field.contentQuery,
-        },
+      messages.push(
+        ...metadata.input.contextFields.map((ctx) => ({
+          role: 'user' as const,
+          content: `Here is the context for ${ctx.fieldName}: \n${ctx.value}`,
+        })),
+      )
+
+      if (metadata.input.useVectorStore) {
+        if (!metadata.input.contentQuery || !metadata.input.libraryEmbeddingModel) {
+          throw new Error(
+            `Content query and library embedding model are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
+          )
+        }
+        const similarChunks = await getSimilarChunks({
+          embeddingsModelName: metadata.input.libraryEmbeddingModel,
+          term: metadata.input.contentQuery,
+          libraryId: metadata.input.libraryId,
+          fileId: metadata.input.fileId,
+          hits: 3,
+        })
+
+        outputMetaData.similarChunks = similarChunks.map((chunk) => ({
+          id: chunk.id,
+          fileName: chunk.fileName,
+          fileId: chunk.fileId,
+          text: chunk.text,
+          distance: chunk.distance,
+        }))
+
+        messages.push({
+          role: 'user',
+          content: `Here is the search result in the vector store:\n${similarChunks
+            .map((chunk) => chunk.text)
+            .join('\n\n')}`,
+        })
+      }
+
+      outputMetaData.messages = messages
+      const chatResponse = await ollamaChat({
+        messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
+        model: metadata.input.aiModel,
       })
+      computedValue = chatResponse.content.trim()
+
+      outputMetaData.aiInstance = chatResponse.metadata?.instanceUrl
+      outputMetaData.enrichedValue = computedValue
+      if (chatResponse.issues?.timeout) {
+        outputMetaData.issues.push('timeout')
+      }
+      if (chatResponse.issues?.partialResult) {
+        outputMetaData.issues.push('partialResult')
+      }
+      if (chatResponse.error) {
+        outputMetaData.issues.push(`error: ${chatResponse.error}`)
+      }
+
+      console.log(`✅ Enrichment succeeded for item ${enrichmentTask.id}`)
     } catch (error) {
       enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
-      console.warn(`⚠️ Enrichment failed for item ${queueItem.id}: ${enrichmentError}`)
+      console.warn(`⚠️ Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
     }
 
     // Store the computed value or error in cache
     const cachedValue = await prisma.aiListItemCache.upsert({
       where: {
         fileId_fieldId: {
-          fileId: queueItem.fileId,
-          fieldId: queueItem.fieldId,
+          fileId: enrichmentTask.fileId,
+          fieldId: enrichmentTask.fieldId,
         },
       },
       create: {
-        fileId: queueItem.fileId,
-        fieldId: queueItem.fieldId,
-        valueString: field.type === 'string' ? computedValue : null,
-        valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
+        fileId: enrichmentTask.fileId,
+        fieldId: enrichmentTask.fieldId,
+        valueString: computedValue,
+        valueNumber:
+          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+        valueBoolean:
+          metadata.input.dataType === 'boolean'
+            ? computedValue
+              ? computedValue.toLowerCase() === 'true'
+              : null
+            : null,
         valueDate:
-          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
+            ? computedValue
+              ? new Date(computedValue)
+              : null
+            : null,
         enrichmentErrorMessage: enrichmentError,
       },
       update: {
-        valueString: field.type === 'string' ? computedValue : null,
-        valueNumber: field.type === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean: field.type === 'boolean' ? (computedValue ? computedValue.toLowerCase() === 'true' : null) : null,
+        valueString: computedValue,
+        valueNumber:
+          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+        valueBoolean:
+          metadata.input.dataType === 'boolean'
+            ? computedValue
+              ? computedValue.toLowerCase() === 'true'
+              : null
+            : null,
         valueDate:
-          field.type === 'date' || field.type === 'datetime' ? (computedValue ? new Date(computedValue) : null) : null,
+          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
+            ? computedValue
+              ? new Date(computedValue)
+              : null
+            : null,
         enrichmentErrorMessage: enrichmentError,
       },
     })
 
     // Mark as completed - use updateMany to handle race conditions
-    const completedItem = await prisma.aiListEnrichmentQueue.updateMany({
+    const completedItem = await prisma.aiEnrichmentTask.updateMany({
       where: {
-        id: queueItem.id,
+        id: enrichmentTask.id,
         status: 'processing', // Only update if still processing
       },
       data: {
         status: 'completed',
         completedAt: new Date(),
+        metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
       },
     })
 
     // If no rows were updated, the item was likely deleted
     if (completedItem.count === 0) {
-      console.log(`⚠️ Queue item ${queueItem.id} no longer exists for completion, skipping`)
+      console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
       return
     }
 
     // Send SSE update with computed value
     await callEnrichmentQueueUpdateSubscriptions({
-      listId: queueItem.listId,
+      listId: enrichmentTask.listId,
       update: {
-        queueItemId: queueItem.id,
-        listId: queueItem.listId,
-        fieldId: queueItem.fieldId,
-        fileId: queueItem.fileId,
+        queueItemId: enrichmentTask.id,
+        listId: enrichmentTask.listId,
+        fieldId: enrichmentTask.fieldId,
+        fileId: enrichmentTask.fileId,
         status: 'completed',
         computedValue: {
           valueString: cachedValue.valueString,
@@ -199,14 +223,14 @@ async function processQueueItem(queueItem: {
       },
     })
 
-    console.log(`✅ Processed enrichment queue item ${queueItem.id}`)
+    console.log(`✅ Processed enrichment queue item ${enrichmentTask.id}`)
   } catch (error) {
-    console.error(`❌ Error processing queue item ${queueItem.id}:`, error)
+    console.error(`❌ Error processing queue item ${enrichmentTask.id}:`, error)
 
     // Mark as failed - use updateMany to handle race conditions
-    const failedItem = await prisma.aiListEnrichmentQueue.updateMany({
+    const failedItem = await prisma.aiEnrichmentTask.updateMany({
       where: {
-        id: queueItem.id,
+        id: enrichmentTask.id,
         status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
       },
       data: {
@@ -218,18 +242,18 @@ async function processQueueItem(queueItem: {
 
     // If no rows were updated, the item was likely deleted
     if (failedItem.count === 0) {
-      console.log(`⚠️ Queue item ${queueItem.id} no longer exists for failure update, skipping`)
+      console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
       return
     }
 
     // Send SSE update
     await callEnrichmentQueueUpdateSubscriptions({
-      listId: queueItem.listId,
+      listId: enrichmentTask.listId,
       update: {
-        queueItemId: queueItem.id,
-        listId: queueItem.listId,
-        fieldId: queueItem.fieldId,
-        fileId: queueItem.fileId,
+        queueItemId: enrichmentTask.id,
+        listId: enrichmentTask.listId,
+        fieldId: enrichmentTask.fieldId,
+        fileId: enrichmentTask.fileId,
         status: 'failed',
         error: error instanceof Error ? error.message : 'Unknown error',
       },
@@ -242,13 +266,13 @@ async function processQueue() {
 
   try {
     // Only get items if we have capacity
-    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS - currentEnrichmentCalls
+    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS
     if (availableCapacity <= 0) {
       return
     }
 
     // Get pending items from the queue, limited by available capacity
-    const queueItems = await prisma.aiListEnrichmentQueue.findMany({
+    const queueItems = await prisma.aiEnrichmentTask.findMany({
       where: {
         status: 'pending',
       },
@@ -263,16 +287,45 @@ async function processQueue() {
     console.log(`Processing ${queueItems.length} enrichment queue items... (capacity: ${availableCapacity})`)
 
     // Process items in parallel
-    await Promise.all(queueItems.map(processQueueItem))
+    await Promise.all(
+      queueItems.map((enrichmentTask) => {
+        const validationResult = validateEnrichmentTaskForProcessing(enrichmentTask)
+        if (!validationResult.success) {
+          console.error(`❌ Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
+          // Mark as failed due to validation error
+          return prisma.aiEnrichmentTask.update({
+            where: { id: enrichmentTask.id },
+            data: {
+              status: 'failed',
+              completedAt: new Date(),
+              error: validationResult.error
+                ? `Validation error: ${validationResult.error}`
+                : `no input data for processing for task ${enrichmentTask.id}`,
+            },
+          })
+        } else if (!validationResult.data.input) {
+          return prisma.aiEnrichmentTask.update({
+            where: { id: enrichmentTask.id },
+            data: {
+              status: 'failed',
+              completedAt: new Date(),
+              error: `no input data for processing for task ${enrichmentTask.id}`,
+            },
+          })
+        } else {
+          return processQueueItem({ enrichmentTask, metadata: validationResult.data })
+        }
+      }),
+    )
   } catch (error) {
-    console.error('Error in enrichment queue worker:', error)
+    console.error('❌ Error processing enrichment queue:', error)
   }
 }
 
 async function resetOrphanedProcessingItems() {
   try {
     // Reset any items that were stuck in "processing" status from previous server session
-    const resetResult = await prisma.aiListEnrichmentQueue.updateMany({
+    const resetResult = await prisma.aiEnrichmentTask.updateMany({
       where: {
         status: 'processing',
       },

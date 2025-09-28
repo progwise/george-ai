@@ -223,7 +223,7 @@ import { getLanguage } from '../../i18n'
 import { getListFieldFormSchema } from './field-modal'
 
 export const addListField = createServerFn({ method: 'POST' })
-  .validator(async (formData: FormData) => {
+  .inputValidator(async (formData: FormData) => {
     const language = await getLanguage()
     const schema = getListFieldFormSchema('create', language)
     const { data, errors } = validateFormData(formData, schema)
@@ -491,20 +491,17 @@ When adding new translation keys (especially for form validation), ensure both f
 ## Development Workflow
 
 1. **Feature Development**:
-
    - Create/modify GraphQL schema in `pothos-graphql`
    - Run `cd /workspaces/george-ai/apps/chat-web && pnpm codegen` to generate types
    - Implement resolvers and business logic
    - Update frontend components and queries
 
 2. **Database Changes**:
-
    - Modify Prisma schema in `packages/pothos-graphql/prisma/schema.prisma`
    - Create migration: `pnpm prisma migrate dev`
    - Update GraphQL schema if needed
 
 3. **Adding AI Features**:
-
    - Implement in `packages/langchain-chat`
    - Use existing document/embedding infrastructure
    - Test with different AI providers

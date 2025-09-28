@@ -4,12 +4,13 @@ import pluginQuery from '@tanstack/eslint-plugin-query'
 import pluginRouter from '@tanstack/eslint-plugin-router'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import reactHooks from 'eslint-plugin-react-hooks'
+import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
 // TODO: clean up for better composability
-export default tseslint.config(
+export default defineConfig(
   {
-    ignores: ['dist', '.vinxi', '.wrangler', '.vercel', '.netlify', '.output', 'build/', 'app/gql'],
+    ignores: ['dist', '.wrangler', '.vercel', '.netlify', '.output', 'build/', 'src/gql'],
   },
   {
     files: ['**/*.{ts,tsx}'],

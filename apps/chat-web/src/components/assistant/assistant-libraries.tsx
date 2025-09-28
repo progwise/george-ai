@@ -1,0 +1,188 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
+import { graphql } from '../../gql'
+import {
+  AiLibraryBaseFragment,
+  AssistantLibraries_AssistantFragment,
+  AssistantLibraries_LibraryUsageFragment,
+} from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { BookIcon } from '../../icons/book-icon'
+import { TrashIcon } from '../../icons/trash-icon'
+import { backendRequest } from '../../server-functions/backend'
+import { Dropdown } from '../dropdown'
+import { Input } from '../form/input'
+import { LoadingSpinner } from '../loading-spinner'
+import { getAssistantQueryOptions } from './get-assistant'
+
+graphql(`
+  fragment AssistantLibraries_Assistant on AiAssistant {
+    id
+    ownerId
+  }
+`)
+
+graphql(`
+  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {
+    id
+    assistantId
+    libraryId
+    usedFor
+    library {
+      id
+      name
+    }
+  }
+`)
+
+const addLibraryUsage = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: { assistantId: string; libraryId: string }) => ({
+    assistantId: z.string().nonempty().parse(data.assistantId),
+    libraryId: z.string().nonempty().parse(data.libraryId),
+  }))
+  .handler(async ({ data }) => {
+    return await backendRequest(
+      graphql(`
+        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {
+          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {
+            id
+          }
+        }
+      `),
+      await data,
+    )
+  })
+
+const removeLibraryUsage = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: { assistantId: string; libraryId: string }) => ({
+    assistantId: z.string().nonempty().parse(data.assistantId),
+    libraryId: z.string().nonempty().parse(data.libraryId),
+  }))
+  .handler(async ({ data }) => {
+    return await backendRequest(
+      graphql(`
+        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {
+          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {
+            id
+          }
+        }
+      `),
+      await data,
+    )
+  })
+
+const updateLibraryUsage = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: { id: string; usedFor: string }) => ({
+    id: z.string().nonempty().parse(data.id),
+    usedFor: z.string().nonempty().parse(data.usedFor),
+  }))
+  .handler(
+    async ({ data }) =>
+      await backendRequest(
+        graphql(`
+          mutation updateLibraryUsage($id: String!, $usedFor: String!) {
+            updateLibraryUsage(id: $id, usedFor: $usedFor) {
+              id
+            }
+          }
+        `),
+        await data,
+      ),
+  )
+
+export interface AssistantLibrariesProps {
+  assistant: AssistantLibraries_AssistantFragment
+  libraries: AiLibraryBaseFragment[]
+  usages: AssistantLibraries_LibraryUsageFragment[]
+}
+
+export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLibrariesProps) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+
+  const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
+    mutationFn: (data: { id: string; usedFor: string }) => updateLibraryUsage({ data }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+  })
+
+  const { mutate: addUsage, isPending: addUsageIsPending } = useMutation({
+    mutationFn: (data: { assistantId: string; libraryId: string }) => addLibraryUsage({ data }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+  })
+
+  const { mutate: removeUsage, isPending: removeUsageIsPending } = useMutation({
+    mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+  })
+  const librariesToAdd = libraries.filter((library) => !usages.some((usage) => usage.libraryId === library.id))
+
+  return (
+    <div className="flex flex-col gap-2">
+      <LoadingSpinner isLoading={addUsageIsPending || removeUsageIsPending || updateUsageIsPending} />
+      <div className="flex flex-row items-center justify-between">
+        {librariesToAdd.length > 0 ? (
+          <Dropdown
+            options={
+              librariesToAdd.map((library) => ({ id: library.id, title: library.name, icon: <BookIcon /> })) || []
+            }
+            title={t('assistants.libraryToAdd')}
+            action={(item) => {
+              const libraryId = item.id
+              addUsage({ assistantId: assistant.id, libraryId })
+            }}
+          />
+        ) : libraries?.length === 0 ? (
+          <Dropdown options={[]} title={t('libraries.noLibrariesFound')} disabled />
+        ) : (
+          <Dropdown options={[]} title={t('assistants.noLibrariesToAdd')} disabled />
+        )}
+      </div>
+      <LoadingSpinner isLoading={updateUsageIsPending} />
+
+      <div className="flex flex-col gap-2">
+        {usages?.map((usage) => (
+          <div className="card" key={usage.id}>
+            <label className="flex justify-between">
+              <div className="ml-1 flex items-center gap-2">
+                <BookIcon className="size-3" />
+                <Link
+                  to="/libraries/$libraryId"
+                  params={{ libraryId: usage.libraryId }}
+                  className="link link-hover text-sm"
+                >
+                  {usage.library.name}
+                </Link>
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom"
+                onClick={() => {
+                  const libraryId = usage.libraryId
+                  removeUsage({ assistantId: assistant.id, libraryId })
+                }}
+                data-tip={t('assistants.removeLibrary')}
+              >
+                <TrashIcon />
+              </button>
+            </label>
+            <Input
+              className="min-h-20"
+              type="textarea"
+              label={t('assistants.usageLabel')}
+              name="description"
+              value={usage.usedFor}
+              placeholder={t('assistants.usagePlaceholder')}
+              onBlur={(event) => {
+                const usedFor = event.currentTarget.value
+                updateUsage({ id: usage.id, usedFor })
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

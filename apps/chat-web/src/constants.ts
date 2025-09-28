@@ -1,0 +1,9 @@
+export const BACKEND_URL = import.meta.env.GAI_BACKEND_URL || ''
+export const BACKEND_PUBLIC_URL = import.meta.env.GAI_BACKEND_PUBLIC_URL || ''
+export const KEYCLOAK_REALM = import.meta.env.GAI_KEYCLOAK_REALM
+export const KEYCLOAK_CLIENT_ID = import.meta.env.GAI_KEYCLOAK_CLIENT_ID
+export const KEYCLOAK_URL = import.meta.env.GAI_KEYCLOAK_URL
+export const GRAPHQL_API_KEY = import.meta.env.GAI_GRAPHQL_API_KEY
+export const GIT_COMMIT_SHA = import.meta.env.GAI_GIT_COMMIT_SHA || 'local-dev-web'
+export const GOOGLE_DRIVE_CLIENT_ID = import.meta.env.GAI_GOOGLE_DRIVE_CLIENT_ID
+export const GOOGLE_DRIVE_CLIENT_SECRET = import.meta.env.GAI_GOOGLE_DRIVE_CLIENT_SECRET

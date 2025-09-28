@@ -5,10 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
-  previewFeatures = []
-  output          = "../node_modules/@george-ai/prismaClient"
+  provider        = "prisma-client"
+  previewFeatures = ["typedSql"]
+  output          = "./generated"
 }
 
 generator pothos {
@@ -176,7 +175,7 @@ model AiLibraryFile {
   archivedAt             DateTime?
   updates                AiLibraryUpdate[]
   cache                  AiListItemCache[]
-  enrichmentQueue        AiListEnrichmentQueue[]
+  enrichmentTasks        AiEnrichmentTask[]
   contentExtractionTasks AiContentProcessingTask[]
 
   @@unique([crawledByCrawlerId, originUri])
@@ -329,16 +328,16 @@ model AiLibraryParticipant {
 }
 
 model AiList {
-  id              String                  @id @default(cuid())
+  id              String              @id @default(cuid())
   ownerId         String
   name            String
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
-  owner           User                    @relation(fields: [ownerId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  owner           User                @relation(fields: [ownerId], references: [id])
   participants    AiListParticipant[]
   fields          AiListField[]
   sources         AiListSource[]
-  enrichmentQueue AiListEnrichmentQueue[]
+  enrichmentTasks AiEnrichmentTask[]
 }
 
 model AiListSource {
@@ -366,7 +365,7 @@ model AiListField {
   createdAt DateTime @default(now())
   listId    String
   name      String
-  type      String // 'string', 'number', 'date', 'datetime', 'boolean'
+  type      String // 'text', 'number', 'date', 'datetime', 'boolean'
   order     Int      @default(0) // Display order in table
 
   // Source configuration
@@ -380,12 +379,13 @@ model AiListField {
   prompt         String?
   contentQuery   String? // Query for vector store search when useVectorStore is true
   useVectorStore Boolean?
+  failureTerms   String? // Comma-separated list of terms that indicate failure in LLM response
 
-  list            AiList                  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list            AiList               @relation(fields: [listId], references: [id], onDelete: Cascade)
   cachedValues    AiListItemCache[]
-  enrichmentQueue AiListEnrichmentQueue[]
-  context         AiListFieldContext[]    @relation("fieldId")
-  usedAsContext   AiListFieldContext[]    @relation("contextFieldId")
+  enrichmentTasks AiEnrichmentTask[]
+  context         AiListFieldContext[] @relation("fieldId")
+  usedAsContext   AiListFieldContext[] @relation("contextFieldId")
 }
 
 model AiListFieldContext {
@@ -415,7 +415,7 @@ model AiListItemCache {
   @@unique([fileId, fieldId])
 }
 
-model AiListEnrichmentQueue {
+model AiEnrichmentTask {
   id          String        @id @default(cuid())
   listId      String
   fieldId     String
@@ -425,6 +425,7 @@ model AiListEnrichmentQueue {
   requestedAt DateTime      @default(now())
   startedAt   DateTime?
   completedAt DateTime?
+  metadata    String? // JSON blob for method-specific data
   error       String?
   list        AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
   field       AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)

@@ -4,7 +4,7 @@ import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
 import type { AIResponse, Message } from './types.js'
 
-interface ChatOptions {
+export interface ChatOptions {
   model: string
   messages: Message[]
   timeout?: number // in milliseconds

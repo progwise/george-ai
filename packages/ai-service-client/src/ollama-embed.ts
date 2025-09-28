@@ -1,5 +1,4 @@
-import { OllamaEmbeddings } from '@langchain/ollama'
-
+import { generateOllamaEmbeddings } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
 
 export const getOllamaEmbedding = async (embeddingModelName: string, question: string) => {
@@ -10,14 +9,8 @@ export const getOllamaEmbedding = async (embeddingModelName: string, question: s
   await semaphore.acquire()
 
   try {
-    const embeddings = new OllamaEmbeddings({
-      model: embeddingModelName,
-      baseUrl: instance.config.url,
-      headers: instance.config.apiKey ? { 'X-API-Key': instance.config.apiKey } : undefined,
-      keepAlive: '5m',
-    })
-
-    return await embeddings.embedQuery(question)
+    const vector = await generateOllamaEmbeddings(instance.config, embeddingModelName, question)
+    return vector
   } finally {
     // Always release semaphore
     semaphore.release()

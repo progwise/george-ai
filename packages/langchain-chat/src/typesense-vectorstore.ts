@@ -153,13 +153,21 @@ export const embedMarkdownFile = async (args: {
         console.warn('⚠️ Embedding process aborted due to timeout signal')
         break
       }
+      const embeddingResult = await getOllamaEmbedding(embeddingModelName, chunk.pageContent)
+
+      if (embeddingResult.embeddings.length === 0) {
+        console.error('❌ No embeddings returned from Ollama')
+        failedChunks.push({ chunk, errorMessage: 'No embeddings returned from model' })
+        continue
+      }
+      const vector = embeddingResult.embeddings[0]
       try {
         await vectorTypesenseClient
           .collections(typesenseVectorStoreConfig.schemaName)
           .documents()
           .create({
             ...chunk.metadata,
-            vec: sanitizeVector(await getOllamaEmbedding(embeddingModelName, chunk.pageContent)), // Do not use cache for file chunks
+            vec: sanitizeVector(vector), // Do not use cache for file chunks
             text: chunk.pageContent,
             points: 1,
             chunkIndex: chunk.metadata.chunkIndex,

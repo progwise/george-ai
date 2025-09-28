@@ -223,12 +223,10 @@ smbclient //gai-smb-test/engineering -p 445 -U testuser1%password123 -c "get cod
    ```
 
 2. **Authentication Failed**
-
    - Verify username/password combinations from the table above
    - Ensure you're using the correct port (10445)
 
 3. **Permission Denied**
-
    - Check if the user has access to the specific share
    - Verify user group membership in the configuration
 

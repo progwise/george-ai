@@ -1,3 +1,4 @@
+import { getListStatistics } from '../../../prisma/generated/sql'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -17,69 +18,6 @@ builder.prismaObject('AiListParticipant', {
   }),
 })
 
-builder.prismaObject('AiListField', {
-  name: 'AiListField',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    listId: t.exposeString('listId', { nullable: false }),
-    list: t.relation('list', { nullable: false }),
-    name: t.exposeString('name', { nullable: false }),
-    type: t.exposeString('type', { nullable: false }),
-    order: t.exposeInt('order', { nullable: false }),
-    sourceType: t.exposeString('sourceType', { nullable: false }),
-    fileProperty: t.exposeString('fileProperty'),
-    prompt: t.exposeString('prompt'),
-    contentQuery: t.exposeString('contentQuery'),
-    languageModel: t.exposeString('languageModel'),
-    useVectorStore: t.exposeBoolean('useVectorStore'),
-    context: t.relation('context', { nullable: false }),
-    pendingItemsCount: t.field({
-      type: 'Int',
-      nullable: false,
-      resolve: async (parent) => {
-        const count = await prisma.aiListEnrichmentQueue.count({
-          where: { listId: parent.listId, fieldId: parent.id, status: 'pending' },
-        })
-        return count
-      },
-    }),
-    processingItemsCount: t.field({
-      type: 'Int',
-      nullable: false,
-      resolve: async (parent) => {
-        const count = await prisma.aiListEnrichmentQueue.count({
-          where: { listId: parent.listId, fieldId: parent.id, status: 'processing' },
-        })
-        return count
-      },
-    }),
-  }),
-})
-
-builder.prismaObject('AiListFieldContext', {
-  name: 'AiListFieldContext',
-  fields: (t) => ({
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    fieldId: t.exposeString('fieldId', { nullable: false }),
-    field: t.relation('field', { nullable: false }),
-    contextFieldId: t.exposeString('contextFieldId', { nullable: false }),
-    contextField: t.relation('contextField', { nullable: false }),
-  }),
-})
-
-builder.prismaObject('AiListItemCache', {
-  name: 'AiListItemCache',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    fieldId: t.exposeString('fieldId', { nullable: false }),
-    valueString: t.exposeString('valueString'),
-    valueNumber: t.exposeFloat('valueNumber'),
-    valueDate: t.expose('valueDate', { type: 'DateTime' }),
-    valueBoolean: t.exposeBoolean('valueBoolean'),
-    enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage'),
-  }),
-})
-
 builder.prismaObject('AiListSource', {
   name: 'AiListSource',
   fields: (t) => ({
@@ -88,25 +26,6 @@ builder.prismaObject('AiListSource', {
     listId: t.exposeString('listId', { nullable: false }),
     libraryId: t.exposeString('libraryId'),
     library: t.relation('library', { nullable: true }),
-  }),
-})
-
-builder.prismaObject('AiListEnrichmentQueue', {
-  name: 'AiListEnrichmentQueue',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    listId: t.exposeString('listId', { nullable: false }),
-    fieldId: t.exposeString('fieldId', { nullable: false }),
-    fileId: t.exposeString('fileId', { nullable: false }),
-    status: t.exposeString('status', { nullable: false }),
-    priority: t.exposeInt('priority', { nullable: false }),
-    requestedAt: t.expose('requestedAt', { type: 'DateTime', nullable: false }),
-    startedAt: t.expose('startedAt', { type: 'DateTime' }),
-    completedAt: t.expose('completedAt', { type: 'DateTime' }),
-    error: t.exposeString('error'),
-    list: t.relation('list', { nullable: false }),
-    field: t.relation('field', { nullable: false }),
-    file: t.relation('file', { nullable: false }),
   }),
 })
 
@@ -120,8 +39,56 @@ builder.prismaObject('AiList', {
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     participants: t.relation('participants', { nullable: false }),
-    fields: t.relation('fields', { nullable: false }),
+    fields: t.relation('fields', { nullable: false, query: { orderBy: { order: 'asc' } } }),
     sources: t.relation('sources', { nullable: false }),
-    enrichmentQueue: t.relation('enrichmentQueue', { nullable: false }),
+    enrichmentTasks: t.relation('enrichmentTasks', { nullable: false }),
+    statistics: t.field({
+      type: [
+        builder
+          .objectRef<{
+            listId: string
+            fieldId: string
+            fieldName: string
+            itemCount: number
+            cacheCount: number
+            valuesCount: number
+            completedTasksCount: number
+            failedTasksCount: number
+            pendingTasksCount: number
+            processingTasksCount: number
+          }>('AiListFieldStatistics')
+          .implement({
+            fields: (t) => ({
+              listId: t.exposeString('listId', { nullable: false }),
+              fieldId: t.exposeString('fieldId', { nullable: false }),
+              fieldName: t.exposeString('fieldName', { nullable: false }),
+              itemCount: t.exposeInt('itemCount', { nullable: false }),
+              cacheCount: t.exposeInt('cacheCount', { nullable: false }),
+              valuesCount: t.exposeInt('valuesCount', { nullable: false }),
+              completedTasksCount: t.exposeInt('completedTasksCount', { nullable: false }),
+              failedTasksCount: t.exposeInt('failedTasksCount', { nullable: false }),
+              pendingTasksCount: t.exposeInt('pendingTasksCount', { nullable: false }),
+              processingTasksCount: t.exposeInt('processingTasksCount', { nullable: false }),
+            }),
+          }),
+      ],
+      nullable: false,
+      resolve: async (parent) => {
+        //TODO
+        const result = await prisma.$queryRawTyped(getListStatistics(parent.id))
+        return result.map((r) => ({
+          listId: r.listId,
+          fieldId: r.fieldId,
+          fieldName: r.fieldName,
+          itemCount: Number(r.itemCount),
+          cacheCount: Number(r.cacheCount),
+          valuesCount: Number(r.valuesCount),
+          completedTasksCount: Number(r.completedTasksCount),
+          failedTasksCount: Number(r.failedTasksCount),
+          pendingTasksCount: Number(r.pendingTasksCount),
+          processingTasksCount: Number(r.processingTasksCount),
+        }))
+      },
+    }),
   }),
 })
