@@ -3,6 +3,9 @@ name: Basic linting, formatting and building
 on:
   push:
 
+env:
+  DATABASE_URL: postgresql://chatweb:password@localhost:5432/chatweb?schema=public
+
 jobs:
   eslint:
     runs-on: ubuntu-22.04
@@ -65,8 +68,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          DATABASE_URL: postgresql://chatweb-test:password@localhost:5432/chatweb-test?schema=public
       - name: Build
         run: pnpm build
 
