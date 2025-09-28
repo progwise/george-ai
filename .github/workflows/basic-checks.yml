@@ -19,7 +19,7 @@ jobs:
         name: Install pnpm
         with:
           version: 9.15.4
-          run_install: false
+          run_install: true
       - run: pnpm run lint
 
   prettier:
@@ -34,53 +34,18 @@ jobs:
         name: Install pnpm
         with:
           version: 9.15.4
-          run_install: false
+          run_install: true
       - run: pnpm run format:check
 
   typecheck:
     runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 9.15.4
-          run_install: true
-      - run: pnpm run typecheck
-
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.4
-          run_install: false
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Build
-        run: pnpm build
-
-  test:
-    runs-on: ubuntu-22.04
     services:
-      postgres:
+      postgres: &postgres_service
         image: postgres:16
         env:
-          POSTGRES_DB: chatweb-test
-          POSTGRES_USER: chatweb-test
+          POSTGRES_DB: chatweb
+          POSTGRES_USER: chatweb
           POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -99,11 +64,55 @@ jobs:
         with:
           version: 9.15.4
           run_install: true
+      - name: Generate Prisma Client
+        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+      - run: pnpm run typecheck
+
+  build:
+    runs-on: ubuntu-22.04
+    services:
+      postgres: *postgres_service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+          run_install: false
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+      - name: Build
+        run: pnpm build
+
+  test:
+    runs-on: ubuntu-22.04
+    services:
+      postgres: *postgres_service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.15.4
+          run_install: true
+      - name: Generate Prisma Client
+        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
       - name: Run Tests
         run: pnpm run test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DATABASE_URL_TEST: ${{ 'postgresql://chatweb-test:password@localhost:5432/chatweb-test?schema=public' }}
+          DATABASE_URL_TEST: ${{ 'postgresql://chatweb:password@localhost:5432/chatweb?schema=public' }}
           OLLAMA_BASE_URL: http://ollama-api.george-ai.net:11434
           MODEL_NAME_CHAT: qwen3:latest
           MODEL_NAME_VL: gemma3:latest

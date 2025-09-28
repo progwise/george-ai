@@ -2,14 +2,13 @@ import SchemaBuilder from '@pothos/core'
 import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
+import { Decimal } from '@prisma/client/runtime/library'
 
-import { Prisma, PrismaClient } from '../../prisma/generated/client'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
+import { prisma } from '../prisma'
 import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
-
-const prisma = new PrismaClient({})
 
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
@@ -55,8 +54,8 @@ const builder = new SchemaBuilder<{
       Output: Date
     }
     Decimal: {
-      Input: Prisma.Decimal
-      Output: Prisma.Decimal
+      Input: Decimal
+      Output: Decimal
     }
     BigInt: {
       Input: bigint
