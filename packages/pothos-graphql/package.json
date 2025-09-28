@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate && prisma generate --sql",
+    "prisma:migrate": "prisma migrate deploy",
     "test": "vitest run"
   },
   "dependencies": {
