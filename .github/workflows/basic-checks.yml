@@ -64,6 +64,8 @@ jobs:
         with:
           version: 9.15.4
           run_install: true
+      - name: Run database migrations
+        run: pnpm --filter @george-ai/pothos-graphql prisma migrate deploy
       - name: Generate Prisma Client
         run: pnpm --filter @george-ai/pothos-graphql prisma:generate
       - run: pnpm run typecheck
@@ -86,6 +88,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Run database migrations
+        run: pnpm --filter @george-ai/pothos-graphql prisma migrate deploy
       - name: Generate Prisma Client
         run: pnpm --filter @george-ai/pothos-graphql prisma:generate
       - name: Build
@@ -106,6 +110,8 @@ jobs:
         with:
           version: 9.15.4
           run_install: true
+      - name: Run database migrations
+        run: pnpm --filter @george-ai/pothos-graphql prisma migrate deploy
       - name: Generate Prisma Client
         run: pnpm --filter @george-ai/pothos-graphql prisma:generate
       - name: Run Tests

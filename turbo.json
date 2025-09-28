@@ -31,6 +31,9 @@
     },
     "prisma:generate": {
       "dependsOn": []
+    },
+    "prisma:migrate": {
+      "dependsOn": []
     }
   }
 }
