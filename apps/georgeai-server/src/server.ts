@@ -1,4 +1,3 @@
-/// <reference types="vite/types/importMeta.d.ts" />
 import 'dotenv/config'
 
 import cookieParser from 'cookie-parser'
@@ -31,11 +30,11 @@ console.log(`
   `)
 
 // Start workers
-if (import.meta.env.VITE_AUTOSTART_ENRICHMENT_WORKER === 'true') {
+if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
   console.log('Auto-starting enrichment queue worker...')
   startEnrichmentQueueWorker().catch(console.error)
 }
-if (import.meta.env.VITE_AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
+if (process.env.AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
   console.log('Auto-starting content processing worker...')
   startContentProcessingWorker().catch(console.error)
 }
@@ -89,10 +88,6 @@ app.use('/graphql', (req, res, next) => {
 
 app.use('/graphql', yoga)
 
-if (!import.meta.env.DEV) {
-  app.listen(3003, () => {
-    console.log('Express graphql server on 3003')
-  })
-}
-
-export const viteNodeApp = app
+app.listen(3003, '0.0.0.0', () => {
+  console.log('Express graphql server on http://0.0.0.0:3003 or http://localhost:3003')
+})

@@ -98,6 +98,165 @@ However, `georgeai-server` is not stable and breaks on file changes in Vite dev 
 
 Enjoy.
 
+---
+
+## Docker Build & Run Instructions
+
+### Building Docker Images Locally
+
+The project includes Dockerfiles for both the frontend (chat-web) and backend (georgeai-server) applications. Both images must be built from the **root directory** to ensure all monorepo dependencies are included in the build context.
+
+#### Prerequisites
+
+- Docker installed on your machine
+- `.env` files configured (see section 2 above)
+
+#### Build Commands
+
+From the root directory of the project:
+
+```bash
+# Build the frontend (chat-web) image
+docker build -f apps/chat-web/Dockerfile -t george-ai-frontend:local .
+
+# Build the backend (georgeai-server) image
+docker build -f apps/georgeai-server/Dockerfile -t george-ai-backend:local .
+
+# Optional: Build with commit SHA for version tracking
+docker build -f apps/chat-web/Dockerfile \
+  --build-arg GIT_COMMIT_SHA=$(git rev-parse HEAD) \
+  -t george-ai-frontend:local .
+
+docker build -f apps/georgeai-server/Dockerfile \
+  --build-arg GIT_COMMIT_SHA=$(git rev-parse HEAD) \
+  -t george-ai-backend:local .
+```
+
+### Running Docker Containers Locally
+
+Before running the containers, ensure that:
+
+1. The required services (PostgreSQL, Keycloak, Typesense) are running (via DevContainer or docker-compose)
+2. Database migrations have been applied (see section 5 above)
+
+#### Run Frontend Container
+
+```bash
+docker run -d \
+  --name george-ai-frontend \
+  -p 3001:3000 \
+  --env-file .env \
+  --network host \
+  george-ai-frontend:local
+```
+
+#### Run Backend Container
+
+```bash
+docker run -d \
+  --name george-ai-backend \
+  -p 3003:3003 \
+  --env-file .env \
+  --network host \
+  george-ai-backend:local
+```
+
+**Note:** Using `--network host` allows containers to communicate with services running on localhost (useful for development). For production, use proper Docker networks.
+
+### Docker Compose Setup (Alternative)
+
+Create a `docker-compose.local.yml` file for easier local testing:
+
+```yaml
+version: '3.8'
+
+services:
+  frontend:
+    image: george-ai-frontend:local
+    ports:
+      - '3001:3000'
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+      - george-ai-network
+
+  backend:
+    image: george-ai-backend:local
+    ports:
+      - '3003:3003'
+    env_file:
+      - .env
+    networks:
+      - george-ai-network
+
+networks:
+  george-ai-network:
+    external: true # Assumes you have created this network for your services
+```
+
+Then run:
+
+```bash
+# Create the network (first time only)
+docker network create george-ai-network
+
+# Start both containers
+docker-compose -f docker-compose.local.yml up -d
+
+# View logs
+docker-compose -f docker-compose.local.yml logs -f
+
+# Stop containers
+docker-compose -f docker-compose.local.yml down
+```
+
+### Testing the Build
+
+To verify that the Docker build works correctly without running the containers:
+
+```bash
+# Test frontend build
+docker build -f apps/chat-web/Dockerfile -t test-frontend:latest . && \
+  echo "✅ Frontend build successful"
+
+# Test backend build
+docker build -f apps/georgeai-server/Dockerfile -t test-backend:latest . && \
+  echo "✅ Backend build successful"
+
+# Clean up test images
+docker rmi test-frontend:latest test-backend:latest
+```
+
+### CI/CD Integration
+
+The GitHub workflow at `.github/workflows/build-publish-dockers.yml` automatically builds and publishes Docker images to GitHub Container Registry (ghcr.io) on pushes to main. The same build context (root directory) is used in CI/CD as in local builds.
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Build fails with "package not found"**: Ensure you're building from the root directory, not from within the apps folders
+2. **Container can't connect to services**: Check that services are accessible and `.env` variables are correctly set
+3. **Permission errors**: The frontend runs as user `vinxi` (uid 1001), ensure mounted volumes have appropriate permissions
+4. **Out of memory during build**: Increase Docker's memory allocation in Docker Desktop settings
+
+**Debug Commands:**
+
+```bash
+# Check container logs
+docker logs george-ai-frontend
+docker logs george-ai-backend
+
+# Access container shell for debugging
+docker exec -it george-ai-frontend sh
+docker exec -it george-ai-backend sh
+
+# Check environment variables inside container
+docker exec george-ai-frontend printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE)"
+```
+
 # Architecture
 
 ```mermaid

@@ -6,14 +6,14 @@
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "target": "es2022",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "outDir": "dist",
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext"
+    "strict": true
   }
 }

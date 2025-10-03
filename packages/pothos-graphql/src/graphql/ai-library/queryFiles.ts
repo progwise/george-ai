@@ -81,7 +81,7 @@ builder.queryField('queryAiLibraryFiles', (t) =>
       take: t.arg.int({ required: true }),
       skip: t.arg.int({ required: true }),
     },
-    resolve: async (root, { libraryId, query, take, skip }, context) => {
+    resolve: async (_root, { libraryId, query, take, skip }, context) => {
       await canAccessLibraryOrThrow(libraryId, context.session.user.id)
       const searchResults = await queryVectorStore(libraryId, query, {
         page: !skip ? 1 : 1 + skip / take,

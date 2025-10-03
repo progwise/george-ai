@@ -30,10 +30,15 @@ export const getApologyPrompt = async ({
   assistantBaseInformation: BaseMessage[]
   question: string
   chatHistory: BaseMessage[]
-}) => {
-  return await apologyPrompt.invoke({
+}): Promise<string> => {
+  const result = await apologyPrompt.invoke({
     assistant_base_information: assistantBaseInformation,
     question: question,
     chat_history: chatHistory,
   })
+  // If result is an object with a 'content' property, return that, otherwise assume it's a string
+  if (typeof result === 'object' && result !== null && 'content' in result) {
+    return (result as { content: string }).content
+  }
+  return result as unknown as string
 }

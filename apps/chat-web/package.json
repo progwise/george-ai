@@ -17,6 +17,7 @@
     "@headlessui/react": "^2.2.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.13",
+    "@tanstack/nitro-v2-vite-plugin": "^1.132.31",
     "@tanstack/react-query": "5.66.9",
     "@tanstack/react-query-devtools": "5.66.9",
     "@tanstack/react-router": "1.132.6",
@@ -40,7 +41,7 @@
     "tailwindcss": "^4.1.13",
     "tailwindcss-animated": "^2.0.0",
     "unified": "^11.0.5",
-    "vite": "^6.0.10",
+    "vite": "^7.1.9",
     "zod": "^3.23.8"
   },
   "devDependencies": {

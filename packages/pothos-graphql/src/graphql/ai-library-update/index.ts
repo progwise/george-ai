@@ -1,4 +1,4 @@
-import { canAccessLibraryOrThrow } from '../../domain'
+import { canAccessLibraryOrThrow, getAccessLibraryWhere } from '../../domain'
 import { builder, prisma } from '../builder'
 
 builder.prismaObject('AiLibraryUpdate', {
@@ -32,8 +32,11 @@ const LibraryUpdateQueryResult = builder
         type: 'AiLibrary',
         nullable: false,
         resolve: async (query, root, _args, context) => {
-          const library = await prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
-          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
+          const libraryWhere = getAccessLibraryWhere(context.session.user.id)
+          const library = await prisma.aiLibrary.findUniqueOrThrow({
+            ...query,
+            where: { ...libraryWhere, id: root.libraryId },
+          })
           return library
         },
       }),

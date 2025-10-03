@@ -38,7 +38,7 @@ export const getConditionIsTrue = async (input: {
   baseCase: { condition?: string | null; instruction?: string | null }
   message: string
   history: BaseMessage[]
-}) => {
+}): Promise<{ caseApplies: boolean; instructionPrompt: unknown }> => {
   const instructionPrompt = await evaluateInstructionPrompt.invoke({
     instruction: input.baseCase.instruction || [],
     condition: input.baseCase.condition || [],
