@@ -136,13 +136,13 @@ docker compose -f docker-compose.verify.yml up --build -d gai-verify-frontend
 
 This will:
 
-1. Build the frontend and backend Docker images
-2. Connect backend to devcontainer services:
-   - PostgreSQL (port 5434)
-   - Typesense (port 8108)
-   - Keycloak (port 8180)
+1. Build the frontend and backend Docker images with runtime configuration support
+2. Connect backend to devcontainer services via Docker network:
+   - PostgreSQL (`gai-chatweb-db`)
+   - Typesense (`gai-typesense`)
+   - Keycloak (`gai-keycloak`)
 3. Start the backend server (with automatic database migrations)
-4. Start the frontend application
+4. Start the frontend application with runtime environment configuration
 
 #### Accessing the Services
 
@@ -215,9 +215,41 @@ docker build -f apps/chat-web/Dockerfile -t george-ai-frontend:local .
 docker build -f apps/georgeai-server/Dockerfile -t george-ai-backend:local .
 ```
 
+### Runtime Configuration for Multi-Tenant Deployments
+
+The Docker images are built with **runtime configuration** support, allowing a single image to be deployed to multiple customer environments with different configuration values.
+
+**How it works:**
+
+1. **Build Time**: Images are built without any environment-specific values baked in
+2. **Runtime**: Configuration is provided via environment variables when containers start
+3. **Server Function**: The frontend uses `getRuntimeConfig()` server function to fetch configuration at runtime
+
+**Key Environment Variables:**
+
+Frontend runtime configuration (via `getRuntimeConfig()`):
+
+- `BACKEND_URL` - Internal backend URL for server-side requests
+- `BACKEND_PUBLIC_URL` - Public backend URL for client-side requests
+- `KEYCLOAK_URL` - Keycloak server URL (must be external/public)
+- `KEYCLOAK_REALM` - Keycloak realm name
+- `KEYCLOAK_CLIENT_ID` - Keycloak client ID
+- `KEYCLOAK_REDIRECT_URL` - Frontend redirect URL
+- `PUBLIC_APP_URL` - Public frontend URL
+- `GIT_COMMIT_SHA` - Git commit hash for version tracking
+
+This approach enables:
+
+- ✅ Single Docker image for all customer environments
+- ✅ Different URLs/configuration per deployment
+- ✅ No rebuild needed for configuration changes
+- ✅ Simplified CI/CD pipeline
+
 ### CI/CD Integration
 
 The GitHub workflow at `.github/workflows/build-publish-dockers.yml` automatically builds and publishes Docker images to GitHub Container Registry (ghcr.io) on pushes to main. The same build context (root directory) is used in CI/CD as in local builds.
+
+Images are built once and can be deployed to multiple environments by providing different environment variables at deployment time.
 
 ### Troubleshooting
 
@@ -232,15 +264,15 @@ The GitHub workflow at `.github/workflows/build-publish-dockers.yml` automatical
 
 ```bash
 # Check container logs
-docker logs george-ai-frontend
-docker logs george-ai-backend
+docker logs gai-verify-frontend
+docker logs gai-verify-backend
 
 # Access container shell for debugging
-docker exec -it george-ai-frontend sh
-docker exec -it george-ai-backend sh
+docker exec -it gai-verify-frontend sh
+docker exec -it gai-verify-backend sh
 
 # Check environment variables inside container
-docker exec george-ai-frontend printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE)"
+docker exec gai-verify-frontend printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE)"
 ```
 
 # Architecture
