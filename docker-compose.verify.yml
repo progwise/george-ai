@@ -53,16 +53,18 @@ services:
       dockerfile: apps/chat-web/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
-        GAI_BACKEND_URL: http://gai-verify-backend:3003
-        GAI_BACKEND_PUBLIC_URL: http://localhost:3004
-        GAI_KEYCLOAK_REDIRECT_URL: http://localhost:3002
-        GAI_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
-        GAI_KEYCLOAK_URL: http://localhost:8180
-        GAI_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-web}
-        GAI_PUBLIC_APP_URL: http://localhost:3002
-        GAI_GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
     container_name: gai-verify-frontend
     restart: unless-stopped
+    environment:
+      # Runtime configuration (read by getRuntimeConfig server function)
+      BACKEND_URL: http://gai-verify-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3004
+      KEYCLOAK_REDIRECT_URL: http://localhost:3002
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
+      KEYCLOAK_URL: http://localhost:8180
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-web}
+      PUBLIC_APP_URL: http://localhost:3002
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
     networks:
       - default
       - george-ai_devcontainer_default
