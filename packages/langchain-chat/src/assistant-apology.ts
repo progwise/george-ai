@@ -31,14 +31,13 @@ export const getApologyPrompt = async ({
   question: string
   chatHistory: BaseMessage[]
 }): Promise<string> => {
-  const result = await apologyPrompt.invoke({
+  // Use format() instead of invoke() to get a string directly
+  // format() returns Promise<string> - the formatted prompt as a string
+  // invoke() returns Promise<ChatPromptValue> - array of messages
+  // See: https://v03.api.js.langchain.com/classes/_langchain_core.prompts.ChatPromptTemplate.html#format
+  return await apologyPrompt.format({
     assistant_base_information: assistantBaseInformation,
     question: question,
     chat_history: chatHistory,
   })
-  // If result is an object with a 'content' property, return that, otherwise assume it's a string
-  if (typeof result === 'object' && result !== null && 'content' in result) {
-    return (result as { content: string }).content
-  }
-  return result as unknown as string
 }

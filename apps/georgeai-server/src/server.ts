@@ -88,6 +88,19 @@ app.use('/graphql', (req, res, next) => {
 
 app.use('/graphql', yoga)
 
-app.listen(3003, '0.0.0.0', () => {
+const server = app.listen(3003, '0.0.0.0', () => {
   console.log('Express graphql server on http://0.0.0.0:3003 or http://localhost:3003')
+})
+
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error('❌ Error: Port 3003 is already in use')
+    console.error('Please stop the other process or change the PORT environment variable')
+  } else if (error.code === 'EACCES') {
+    console.error('❌ Error: Permission denied to bind to port 3003')
+    console.error('Try using a port number above 1024 or run with appropriate permissions')
+  } else {
+    console.error('❌ Server error:', error.message)
+  }
+  process.exit(1)
 })
