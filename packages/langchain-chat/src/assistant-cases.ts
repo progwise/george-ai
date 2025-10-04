@@ -38,8 +38,12 @@ export const getConditionIsTrue = async (input: {
   baseCase: { condition?: string | null; instruction?: string | null }
   message: string
   history: BaseMessage[]
-}): Promise<{ caseApplies: boolean; instructionPrompt: unknown }> => {
-  const instructionPrompt = await evaluateInstructionPrompt.invoke({
+}): Promise<{ caseApplies: boolean; instructionPrompt: string }> => {
+  // Use format() instead of invoke() to get a string directly
+  // format() returns Promise<string> - the formatted prompt as a string
+  // invoke() returns Promise<ChatPromptValue> - array of messages
+  // See: https://v03.api.js.langchain.com/classes/_langchain_core.prompts.ChatPromptTemplate.html#format
+  const instructionPrompt = await evaluateInstructionPrompt.format({
     instruction: input.baseCase.instruction || [],
     condition: input.baseCase.condition || [],
     chat_history: input.history || [],
@@ -50,7 +54,7 @@ export const getConditionIsTrue = async (input: {
 
   if (!input.baseCase.condition) return { caseApplies: true, instructionPrompt }
 
-  const conditionPrompt = await evaluateConditionPrompt.invoke({
+  const conditionPrompt = await evaluateConditionPrompt.format({
     condition: input.baseCase.condition,
     chat_history: input.history,
     question: input.message,
