@@ -135,6 +135,7 @@ docker compose -f docker-compose.verify.yml up --build -d gai-verify-frontend
 ```
 
 This will:
+
 1. Build the frontend and backend Docker images
 2. Connect backend to devcontainer services:
    - PostgreSQL (port 5434)
@@ -146,6 +147,7 @@ This will:
 #### Accessing the Services
 
 Once all services are running:
+
 - **Verify Frontend**: http://localhost:3002
 - **Verify Backend GraphQL**: http://localhost:3004/graphql
 - **Devcontainer Keycloak**: http://localhost:8180 (shared with devcontainer)
@@ -163,6 +165,7 @@ docker compose -f docker-compose.verify.yml build
 ```
 
 **Important Notes:**
+
 - The verify containers connect to the devcontainer Docker network (`george-ai_devcontainer_default`)
 - They communicate with devcontainer services using container names:
   - Database: `gai-chatweb-db`
