@@ -102,18 +102,107 @@ Enjoy.
 
 ## Docker Build & Run Instructions
 
-### Building Docker Images Locally
+### Building and Running with Docker Compose
 
-The project includes Dockerfiles for both the frontend (chat-web) and backend (georgeai-server) applications. Both images must be built from the **root directory** to ensure all monorepo dependencies are included in the build context.
+The project includes a `docker-compose.verify.yml` file to verify the Docker builds for both frontend and backend applications. This compose file builds only the frontend and backend containers and connects them to the existing **devcontainer services** (databases, Keycloak, Typesense).
 
 #### Prerequisites
 
-- Docker installed on your machine
-- `.env` files configured (see section 2 above)
+- Docker and Docker Compose installed on your machine
+- **Devcontainer must be running** (with all services: databases, Keycloak, Typesense)
+- Ensure ports 3002 and 3004 are available
 
-#### Build Commands
+#### Starting the Verify Services
 
 From the root directory of the project:
+
+```bash
+# Build and start both frontend and backend
+docker compose -f docker-compose.verify.yml up --build
+
+# Or run in detached mode
+docker compose -f docker-compose.verify.yml up --build -d
+
+# Start only the backend
+docker compose -f docker-compose.verify.yml up --build gai-verify-backend
+
+# Start only the frontend (requires backend to be running)
+docker compose -f docker-compose.verify.yml up --build gai-verify-frontend
+
+# Start services separately in detached mode
+docker compose -f docker-compose.verify.yml up --build -d gai-verify-backend
+docker compose -f docker-compose.verify.yml up --build -d gai-verify-frontend
+```
+
+This will:
+1. Build the frontend and backend Docker images
+2. Connect backend to devcontainer services:
+   - PostgreSQL (port 5434)
+   - Typesense (port 8108)
+   - Keycloak (port 8180)
+3. Start the backend server (with automatic database migrations)
+4. Start the frontend application
+
+#### Accessing the Services
+
+Once all services are running:
+- **Verify Frontend**: http://localhost:3002
+- **Verify Backend GraphQL**: http://localhost:3004/graphql
+- **Devcontainer Keycloak**: http://localhost:8180 (shared with devcontainer)
+
+#### Verifying the Build
+
+To verify that the Docker builds work correctly without running them:
+
+```bash
+# Build both images without starting containers
+docker compose -f docker-compose.verify.yml build
+
+# If successful, you'll see:
+# ✅ Successfully built frontend and backend images
+```
+
+**Important Notes:**
+- The verify containers connect to the devcontainer Docker network (`george-ai_devcontainer_default`)
+- They communicate with devcontainer services using container names:
+  - Database: `gai-chatweb-db`
+  - Typesense: `gai-typesense`
+  - Keycloak: `gai-keycloak`
+- Port mappings avoid conflicts with devcontainer:
+  - Verify frontend: 3002 (instead of 3001)
+  - Verify backend: 3004 (instead of 3003)
+- You can run both devcontainer apps and verify containers simultaneously for comparison
+
+#### Stopping and Cleaning Up
+
+```bash
+# Stop all services
+docker compose -f docker-compose.verify.yml down
+
+# Stop and remove all data volumes (clean slate)
+docker compose -f docker-compose.verify.yml down -v
+
+# Remove built images as well
+docker compose -f docker-compose.verify.yml down --rmi all -v
+```
+
+#### Viewing Logs
+
+```bash
+# View logs from all services
+docker compose -f docker-compose.verify.yml logs
+
+# View logs from specific service
+docker compose -f docker-compose.verify.yml logs gai-verify-frontend
+docker compose -f docker-compose.verify.yml logs gai-verify-backend
+
+# Follow logs in real-time
+docker compose -f docker-compose.verify.yml logs -f
+```
+
+### Building Individual Docker Images
+
+If you need to build images separately (e.g., for CI/CD), both images must be built from the **root directory** to ensure all monorepo dependencies are included:
 
 ```bash
 # Build the frontend (chat-web) image
@@ -121,112 +210,6 @@ docker build -f apps/chat-web/Dockerfile -t george-ai-frontend:local .
 
 # Build the backend (georgeai-server) image
 docker build -f apps/georgeai-server/Dockerfile -t george-ai-backend:local .
-
-# Optional: Build with commit SHA for version tracking
-docker build -f apps/chat-web/Dockerfile \
-  --build-arg GIT_COMMIT_SHA=$(git rev-parse HEAD) \
-  -t george-ai-frontend:local .
-
-docker build -f apps/georgeai-server/Dockerfile \
-  --build-arg GIT_COMMIT_SHA=$(git rev-parse HEAD) \
-  -t george-ai-backend:local .
-```
-
-### Running Docker Containers Locally
-
-Before running the containers, ensure that:
-
-1. The required services (PostgreSQL, Keycloak, Typesense) are running (via DevContainer or docker-compose)
-2. Database migrations have been applied (see section 5 above)
-
-#### Run Frontend Container
-
-```bash
-docker run -d \
-  --name george-ai-frontend \
-  -p 3001:3000 \
-  --env-file .env \
-  --network host \
-  george-ai-frontend:local
-```
-
-#### Run Backend Container
-
-```bash
-docker run -d \
-  --name george-ai-backend \
-  -p 3003:3003 \
-  --env-file .env \
-  --network host \
-  george-ai-backend:local
-```
-
-**Note:** Using `--network host` allows containers to communicate with services running on localhost (useful for development). For production, use proper Docker networks.
-
-### Docker Compose Setup (Alternative)
-
-Create a `docker-compose.local.yml` file for easier local testing:
-
-```yaml
-version: '3.8'
-
-services:
-  frontend:
-    image: george-ai-frontend:local
-    ports:
-      - '3001:3000'
-    env_file:
-      - .env
-    depends_on:
-      - backend
-    networks:
-      - george-ai-network
-
-  backend:
-    image: george-ai-backend:local
-    ports:
-      - '3003:3003'
-    env_file:
-      - .env
-    networks:
-      - george-ai-network
-
-networks:
-  george-ai-network:
-    external: true # Assumes you have created this network for your services
-```
-
-Then run:
-
-```bash
-# Create the network (first time only)
-docker network create george-ai-network
-
-# Start both containers
-docker-compose -f docker-compose.local.yml up -d
-
-# View logs
-docker-compose -f docker-compose.local.yml logs -f
-
-# Stop containers
-docker-compose -f docker-compose.local.yml down
-```
-
-### Testing the Build
-
-To verify that the Docker build works correctly without running the containers:
-
-```bash
-# Test frontend build
-docker build -f apps/chat-web/Dockerfile -t test-frontend:latest . && \
-  echo "✅ Frontend build successful"
-
-# Test backend build
-docker build -f apps/georgeai-server/Dockerfile -t test-backend:latest . && \
-  echo "✅ Backend build successful"
-
-# Clean up test images
-docker rmi test-frontend:latest test-backend:latest
 ```
 
 ### CI/CD Integration
