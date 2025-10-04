@@ -8,6 +8,11 @@
  * This allows deploying one Docker image to multiple environments with
  * different configuration via environment variables.
  */
+// Import dotenv to load .env file in development
+// This is needed because Vite's envPrefix only exposes vars to import.meta.env (client-side),
+// but we need process.env (server-side) for runtime configuration support.
+// In production (Docker), environment variables are provided by the container runtime.
+import 'dotenv/config'
 
 export const BACKEND_URL = process.env.BACKEND_URL || ''
 export const BACKEND_PUBLIC_URL = process.env.BACKEND_PUBLIC_URL || ''
