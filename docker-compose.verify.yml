@@ -14,6 +14,7 @@ services:
       - default
       - george-ai_devcontainer_default
     environment:
+      BACKEND_PUBLIC_URL: http://localhost:3004
       # Connect to devcontainer database (via container name, not port)
       DATABASE_URL: postgresql://chatweb:password@gai-chatweb-db:5432/chatweb?schema=public
       # Connect to devcontainer typesense (via container name)
