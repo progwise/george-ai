@@ -2,7 +2,7 @@
  * Server-side constants read from environment variables at runtime.
  * These are only available in server-side code (server functions, API routes, etc.)
  *
- * For client-side code, use getRuntimeConfig() from runtime-config.server.ts
+ * For client-side code, use server functions (e.g. getRuntimeConfig)
  * which fetches configuration from the server at runtime.
  *
  * This allows deploying one Docker image to multiple environments with

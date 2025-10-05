@@ -56,7 +56,7 @@ services:
     container_name: gai-verify-frontend
     restart: unless-stopped
     environment:
-      # Runtime configuration (read by getRuntimeConfig server function)
+      # Runtime configuration
       BACKEND_URL: http://gai-verify-backend:3003
       BACKEND_PUBLIC_URL: http://localhost:3004
       KEYCLOAK_REDIRECT_URL: http://localhost:3002

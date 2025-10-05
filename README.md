@@ -223,11 +223,11 @@ The Docker images are built with **runtime configuration** support, allowing a s
 
 1. **Build Time**: Images are built without any environment-specific values baked in
 2. **Runtime**: Configuration is provided via environment variables when containers start
-3. **Server Function**: The frontend uses `getRuntimeConfig()` server function to fetch configuration at runtime
+3. **Server Function**: The frontend could use use server function to fetch configuration at runtime
 
 **Key Environment Variables:**
 
-Frontend runtime configuration (via `getRuntimeConfig()`):
+Frontend runtime configuration should use server functions to get access to:
 
 - `BACKEND_URL` - Internal backend URL for server-side requests
 - `BACKEND_PUBLIC_URL` - Public backend URL for client-side requests
