@@ -104,3 +104,24 @@ server.on('error', (error: NodeJS.ErrnoException) => {
   }
   process.exit(1)
 })
+
+// Graceful shutdown handlers
+const shutdown = async (signal: string) => {
+  console.log(`${signal} received, shutting down gracefully`)
+
+  // Close server first to stop accepting new connections
+  server.close(() => {
+    console.log('Server closed successfully')
+    process.exit(0)
+  })
+
+  // Force close after 5 seconds
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout')
+    process.exit(1)
+  }, 5000)
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGHUP', () => shutdown('SIGHUP'))
