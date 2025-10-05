@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Backend server - connects to devcontainer services
+  gai-verify-backend:
+    build:
+      context: .
+      dockerfile: apps/georgeai-server/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+    container_name: gai-verify-backend
+    restart: unless-stopped
+    networks:
+      - default
+      - george-ai_devcontainer_default
+    environment:
+      BACKEND_PUBLIC_URL: http://localhost:3004
+      # Connect to devcontainer database (via container name, not port)
+      DATABASE_URL: postgresql://chatweb:password@gai-chatweb-db:5432/chatweb?schema=public
+      # Connect to devcontainer typesense (via container name)
+      TYPESENSE_API_HOST: gai-typesense
+      TYPESENSE_API_PORT: 8108
+      TYPESENSE_API_PROTOCOL: http
+      TYPESENSE_API_KEY: xyz
+      GRAPHQL_API_KEY: TestKey
+      UPLOADS_PATH: ./.uploads
+      # Connect to devcontainer keycloak (via container name)
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
+      KEYCLOAK_URL: http://localhost:8180
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-web}
+      GOOGLE_DRIVE_CLIENT_ID: ${GOOGLE_DRIVE_CLIENT_ID:-}
+      GOOGLE_DRIVE_CLIENT_SECRET: ${GOOGLE_DRIVE_CLIENT_SECRET:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      OLLAMA_VRAM_GB: ${OLLAMA_VRAM_GB:-16}
+      AUTOSTART_ENRICHMENT_WORKER: ${AUTOSTART_ENRICHMENT_WORKER:-false}
+      AUTOSTART_CONTENT_PROCESSING_WORKER: ${AUTOSTART_CONTENT_PROCESSING_WORKER:-false}
+    ports:
+      - '3004:3003'
+    volumes:
+      - ./apps/georgeai-server/.uploads:/app/.uploads
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f -s http://localhost:3003/graphql > /dev/null || exit 1']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  # Frontend web application - connects to verify backend and devcontainer keycloak
+  gai-verify-frontend:
+    build:
+      context: .
+      dockerfile: apps/chat-web/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+    container_name: gai-verify-frontend
+    restart: unless-stopped
+    environment:
+      # Runtime configuration
+      BACKEND_URL: http://gai-verify-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3004
+      KEYCLOAK_REDIRECT_URL: http://localhost:3002
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
+      KEYCLOAK_URL: http://localhost:8180
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-web}
+      PUBLIC_APP_URL: http://localhost:3002
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+    networks:
+      - default
+      - george-ai_devcontainer_default
+    ports:
+      - '3002:3000'
+    depends_on:
+      gai-verify-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f -s http://localhost:3000 > /dev/null || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  george-ai_devcontainer_default:
+    external: true

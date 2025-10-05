@@ -56,10 +56,6 @@ export async function* crawlHttp({
   maxPages,
   libraryId,
   crawlerId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  crawlerRunId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   // TODO: Implement HTTP crawler filtering logic
   // For now, HTTP crawler doesn't apply file filters (mainly used for SMB/file crawlers)

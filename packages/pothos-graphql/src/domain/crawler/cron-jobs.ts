@@ -8,12 +8,13 @@ import { runCrawler } from './crawler-run'
 const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 
 const restoreCronJobsFromDatabase = async () => {
-  console.log('Restore cron jobs from database')
+  console.log('Restoring cron jobs from database...')
   const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({ where: { active: true } })
 
   for (const cronJob of activeCronJobs) {
     await upsertCronJob(cronJob)
   }
+  console.log(`Restored ${activeCronJobs.length} active cron job(s)`)
 }
 
 /**
@@ -59,4 +60,7 @@ export const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
 }
 
 // After the server starts, restore all cron jobs from the database
-restoreCronJobsFromDatabase()
+// Run in background without blocking server startup
+restoreCronJobsFromDatabase().catch((error) => {
+  console.error('Failed to restore cron jobs:', error)
+})

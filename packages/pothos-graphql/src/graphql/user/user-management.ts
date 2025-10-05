@@ -236,7 +236,7 @@ builder.queryField('managedUsers', (t) =>
       filter: t.arg.string({ required: false }),
       statusFilter: t.arg.string({ required: false }),
     },
-    resolve: async (source, args, context) => {
+    resolve: async (_source, args, context) => {
       if (!context.session.user.isAdmin) {
         throw new Error('Unauthorized: Only admins can access managed users')
       }
@@ -280,7 +280,7 @@ builder.mutationField('ensureUserProfile', (t) =>
     args: {
       userId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { userId }, context) => {
+    resolve: async (_query, _source, { userId }, context) => {
       if (!context.session.user.isAdmin) {
         throw new Error('Unauthorized: Only admins can access managed users count')
       }

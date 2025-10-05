@@ -1,4 +1,3 @@
-/// <reference types="vite/types/importMeta.d.ts" />
 import 'dotenv/config'
 
 import cookieParser from 'cookie-parser'
@@ -31,11 +30,11 @@ console.log(`
   `)
 
 // Start workers
-if (import.meta.env.VITE_AUTOSTART_ENRICHMENT_WORKER === 'true') {
+if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
   console.log('Auto-starting enrichment queue worker...')
   startEnrichmentQueueWorker().catch(console.error)
 }
-if (import.meta.env.VITE_AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
+if (process.env.AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
   console.log('Auto-starting content processing worker...')
   startContentProcessingWorker().catch(console.error)
 }
@@ -89,10 +88,40 @@ app.use('/graphql', (req, res, next) => {
 
 app.use('/graphql', yoga)
 
-if (!import.meta.env.DEV) {
-  app.listen(3003, () => {
-    console.log('Express graphql server on 3003')
+const server = app.listen(3003, '0.0.0.0', () => {
+  console.log('Express graphql server on http://0.0.0.0:3003 or http://localhost:3003')
+})
+
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error('❌ Error: Port 3003 is already in use')
+    console.error('Please stop the other process or change the PORT environment variable')
+  } else if (error.code === 'EACCES') {
+    console.error('❌ Error: Permission denied to bind to port 3003')
+    console.error('Try using a port number above 1024 or run with appropriate permissions')
+  } else {
+    console.error('❌ Server error:', error.message)
+  }
+  process.exit(1)
+})
+
+// Graceful shutdown handlers
+const shutdown = async (signal: string) => {
+  console.log(`${signal} received, shutting down gracefully`)
+
+  // Close server first to stop accepting new connections
+  server.close(() => {
+    console.log('Server closed successfully')
+    process.exit(0)
   })
+
+  // Force close after 5 seconds
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout')
+    process.exit(1)
+  }, 5000)
 }
 
-export const viteNodeApp = app
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGHUP', () => shutdown('SIGHUP'))

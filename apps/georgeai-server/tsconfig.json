@@ -1,14 +1,15 @@
 {
-  "exclude": ["node_modules"],
-  "include": ["src"],
   "compilerOptions": {
+    "target": "es2022",
+    "module": "es2022",
     "moduleResolution": "bundler",
-    "module": "ESNext",
-    "target": "ESNext",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "skipLibCheck": true
-  }
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
