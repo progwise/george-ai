@@ -111,7 +111,7 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
             data-tip={t('libraries.newList')}
           >
             <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('libraries.newLibrary')}</span>
+            <span className="max-lg:hidden">{t('labels.new')}</span>
           </button>
         </li>
         <li>
@@ -120,11 +120,11 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
             className="btn btn-sm btn-ghost btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => deleteDialogRef.current?.showModal()}
             disabled={isPending}
-            title={t('lists.delete')}
-            data-tip={t('lists.delete')}
+            title={t('libraries.delete')}
+            data-tip={t('libraries.delete')}
           >
             <TrashIcon className="size-4" />
-            <span className="max-lg:hidden">{t('lists.delete')}</span>
+            <span className="max-lg:hidden">{t('labels.delete')}</span>
           </button>
         </li>
         <li>

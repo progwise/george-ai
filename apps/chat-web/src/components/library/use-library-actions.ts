@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -63,6 +64,7 @@ const removeLibraryParticipantFn = createServerFn({ method: 'POST' })
 export const useLibraryActions = (libraryId: string) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { mutate: removeParticipant, isPending: removeLibraryParticipantIsPending } = useMutation({
     mutationFn: (data: { participantId: string }) => removeLibraryParticipantFn({ data: { libraryId, ...data } }),
@@ -107,7 +109,11 @@ export const useLibraryActions = (libraryId: string) => {
       toastError(t('libraries.deleteError', { message: error.message }))
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibrariesQueryOptions())
+      await Promise.all([
+        queryClient.invalidateQueries(getLibrariesQueryOptions()),
+        queryClient.removeQueries(getLibraryQueryOptions(libraryId)),
+      ])
+      navigate({ to: '/libraries' })
     },
   })
 

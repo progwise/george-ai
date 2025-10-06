@@ -30,26 +30,6 @@ function RouteComponent() {
       <LibraryMenu library={aiLibrary} selectableLibraries={aiLibraries} />
       <div role="tablist" className="tabs tabs-lift justify-end">
         <Link
-          to="/libraries/$libraryId"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: true }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.details')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/postprocess"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.postprocess')}
-        </Link>
-        <Link
           to="/libraries/$libraryId/files"
           params={{ libraryId }}
           className="tab"
@@ -90,6 +70,16 @@ function RouteComponent() {
           {t('labels.processing')}
         </Link>
         <Link
+          to="/libraries/$libraryId/settings"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.settings')}
+        </Link>
+        <Link
           to="/libraries/$libraryId/updates"
           params={{ libraryId }}
           className="tab"
@@ -99,11 +89,22 @@ function RouteComponent() {
         >
           {t('labels.updates')}
         </Link>
-      </div>
-      <input type="radio" className="tab hidden" defaultChecked />
-      <div className="tab-content bg-base-100 border-base-300 border p-3">
-        <div className="max-w-dvw relative max-h-[100dvh] overflow-scroll">
-          <Outlet />
+        <Link
+          to="/libraries/$libraryId/postprocess"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.postprocess')}
+        </Link>
+
+        <input type="radio" className="tab hidden" defaultChecked />
+        <div className="tab-content bg-base-100 border-base-300 border p-3">
+          <div className="max-w-dvw relative max-h-[100dvh] overflow-scroll">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>
