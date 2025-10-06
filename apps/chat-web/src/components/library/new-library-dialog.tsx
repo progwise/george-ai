@@ -1,12 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef } from 'react'
+import React from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { PlusIcon } from '../../icons/plus-icon'
 import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
@@ -40,13 +39,12 @@ const createNewLibrary = createServerFn({ method: 'POST' })
     )
   })
 
-export const LibraryNewDialog = () => {
-  const dialogRef = useRef<HTMLDialogElement>(null)
+export const NewLibraryDialog = ({ ref }: { ref: React.RefObject<HTMLDialogElement | null> }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: createNewLibrary,
+    mutationFn: (data: FormData) => createNewLibrary({ data }),
     onSettled: (result) => {
       const newId = result?.createLibrary?.id
       if (!newId) {
@@ -56,44 +54,30 @@ export const LibraryNewDialog = () => {
     },
   })
 
-  const showDialog = () => {
-    dialogRef.current?.showModal()
-  }
-
-  const onSubmit = (data: FormData) => {
-    mutate({ data })
-  }
-
   return (
-    <>
-      <button type="button" className="btn btn-primary btn-ghost btn-sm" onClick={showDialog}>
-        <PlusIcon className="mr-2 h-4 w-4" />
-        {t('libraries.addNewButton')}
-      </button>
-      <DialogForm
-        ref={dialogRef}
-        title={t('libraries.addNew')}
-        description={t('libraries.addNewDescription')}
-        onSubmit={onSubmit}
-        disabledSubmit={isPending}
-      >
-        <div className="flex w-full flex-col gap-4">
-          <Input
-            name="name"
-            type="text"
-            label={t('labels.name')}
-            placeholder={t('libraries.placeholders.name')}
-            required
-          />
-          <Input
-            name="description"
-            type="textarea"
-            label={t('labels.description')}
-            placeholder={t('libraries.placeholders.description')}
-            className="min-h-32"
-          />
-        </div>
-      </DialogForm>
-    </>
+    <DialogForm
+      ref={ref}
+      title={t('libraries.addNew')}
+      description={t('libraries.addNewDescription')}
+      onSubmit={mutate}
+      disabledSubmit={isPending}
+    >
+      <div className="flex w-full flex-col gap-4">
+        <Input
+          name="name"
+          type="text"
+          label={t('labels.name')}
+          placeholder={t('libraries.placeholders.name')}
+          required
+        />
+        <Input
+          name="description"
+          type="textarea"
+          label={t('labels.description')}
+          placeholder={t('libraries.placeholders.description')}
+          className="min-h-32"
+        />
+      </div>
+    </DialogForm>
   )
 }

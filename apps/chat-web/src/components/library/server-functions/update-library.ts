@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { AiLibraryInputSchema } from '../../gql/validation'
-import { Language, getLanguage, translate } from '../../i18n'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { AiLibraryInputSchema } from '../../../gql/validation'
+import { Language, getLanguage, translate } from '../../../i18n'
+import { backendRequest } from '../../../server-functions/backend'
 
 const updateLibraryDocument = graphql(`
   mutation changeLibrary($id: String!, $data: AiLibraryInput!) {
@@ -28,7 +28,7 @@ export const getLibraryUpdateFormSchema = (language: Language) =>
       .nullish(),
   })
 
-export const updateLibrary = createServerFn({ method: 'POST' })
+export const updateLibraryFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
     const o = Object.fromEntries(data)
     const language = await getLanguage()

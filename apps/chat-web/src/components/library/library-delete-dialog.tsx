@@ -1,40 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { LibraryDeleteDialog_LibraryFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { getLibrariesQueryOptions } from './get-libraries'
-
-const deleteFilesDocument = graphql(`
-  mutation deleteLibraryFiles($libraryId: String!) {
-    deleteLibraryFiles(libraryId: $libraryId)
-  }
-`)
-
-const deleteLibraryDocument = graphql(`
-  mutation deleteLibrary($id: String!) {
-    deleteLibrary(id: $id)
-  }
-`)
-
-const deleteFiles = createServerFn({ method: 'POST' })
-  .inputValidator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(deleteFilesDocument, { libraryId: ctx.data })
-  })
-
-const deleteLibrary = createServerFn({ method: 'GET' })
-  .inputValidator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(deleteLibraryDocument, { id: ctx.data })
-  })
+import { deleteFilesFn } from './server-functions/delete-files'
+import { deleteLibraryFn } from './server-functions/delete-library'
 
 graphql(`
   fragment LibraryDeleteDialog_Library on AiLibrary {
@@ -55,8 +30,8 @@ export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {
-      await deleteFiles({ data: library.id })
-      await deleteLibrary({ data: library.id })
+      await deleteFilesFn({ data: library.id })
+      await deleteLibraryFn({ data: library.id })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
