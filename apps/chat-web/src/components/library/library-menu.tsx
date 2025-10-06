@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, useRouteContext } from '@tanstack/react-router'
+import { Link, useParams, useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
@@ -49,6 +49,7 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const librarySelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
   const entityParticipantsDialogRef = useRef<HTMLDialogElement | null>(null)
+  const params = useParams({ strict: false })
   const { t } = useTranslation()
   const { user } = useRouteContext({ strict: false })
 
@@ -90,7 +91,7 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
               {selectableLibraries.map((library) => (
                 <li key={library.id}>
                   <Link
-                    to={'.'}
+                    to={params.crawlerId || params.fileId ? '..' : '.'}
                     className="text-nowrap"
                     params={{ libraryId: library.id }}
                     activeProps={{ className: 'font-bold' }}

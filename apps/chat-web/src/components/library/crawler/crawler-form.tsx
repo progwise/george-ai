@@ -34,7 +34,6 @@ export const getCrawlerFormSchema = (
     id: editMode === 'update' ? z.string().min(2) : z.string().optional(),
     libraryId: z.string().optional(),
     uri: z.string().min(1).regex(URI_PATTERNS[uriType], translate('crawlers.errors.invalidUri', language)),
-    //uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
     uriType: z.nativeEnum(CrawlerUriType),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
