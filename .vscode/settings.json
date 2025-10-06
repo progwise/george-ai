@@ -14,13 +14,10 @@
     "**/.uploads/**": true,
     "**/.smb-credentials/**": true,
     "**/.smb-mounts/**": true,
-    "**/.sharepoint-credentials/**": true,
+    "**/.crawler-credentials/**": true,
     "**/node_modules/**": true
   },
   "files.exclude": {
-    "**/.uploads": true,
-    "**/.smb-credentials": true,
-    "**/.smb-mounts": true,
-    "**/.sharepoint-credentials": true
+    "**/.uploads/**": true
   }
 }

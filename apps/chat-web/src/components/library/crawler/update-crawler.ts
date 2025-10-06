@@ -4,14 +4,15 @@ import { z } from 'zod'
 import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
+import { CrawlerUriType } from '../../../gql/graphql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getCrawlerFormSchema } from './crawler-form'
 
-export const updateCrawler = createServerFn({ method: 'POST' })
+export const updateCrawlerFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
-    const language = await getLanguage()
-    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const language = getLanguage()
+    const uriType = z.nativeEnum(CrawlerUriType).parse(data.get('uriType'))
     const schema = getCrawlerFormSchema('update', uriType, language)
     const { data: validatedData, errors } = validateFormData(data, schema)
 
@@ -71,14 +72,6 @@ export const updateCrawler = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    // Log data but redact sensitive information
-    const safeData = {
-      ...data,
-      username: data.username ? '***' : undefined,
-      password: data.password ? '***' : undefined,
-      sharepointAuth: data.sharepointAuth ? '***' : undefined,
-    }
-    console.log('updatecrawler', safeData)
     const id = data.id
 
     return backendRequest(
@@ -118,7 +111,12 @@ export const updateCrawler = createServerFn({ method: 'POST' })
               ? {
                   sharepointAuth: data.sharepointAuth,
                 }
-              : undefined,
+              : data.uriType === 'box'
+                ? {
+                    boxCustomerId: data.boxCustomerId,
+                    boxToken: data.boxToken,
+                  }
+                : undefined,
       },
     )
   })

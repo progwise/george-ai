@@ -5,6 +5,7 @@ import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 import { Decimal } from '@prisma/client/runtime/library'
 
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
+import { CRAWLER_URI_TYPES } from '../domain/crawler/crawler-uri-types'
 import { LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
 import { prisma } from '../prisma'
 import { Context, LoggedInContext } from './context'
@@ -44,6 +45,10 @@ const builder = new SchemaBuilder<{
     EmbeddingStatus: {
       Input: (typeof EMBEDDING_STATUS)[number]
       Output: (typeof EMBEDDING_STATUS)[number]
+    }
+    CrawlerUriType: {
+      Input: (typeof CRAWLER_URI_TYPES)[number]
+      Output: (typeof CRAWLER_URI_TYPES)[number]
     }
     Date: {
       Input: Date

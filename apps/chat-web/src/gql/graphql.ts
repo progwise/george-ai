@@ -343,7 +343,7 @@ export type AiLibraryCrawler = {
   runs: Array<AiLibraryCrawlerRun>
   updatedAt: Scalars['DateTime']['output']
   uri: Scalars['String']['output']
-  uriType: AiLibraryCrawlerUriType
+  uriType: CrawlerUriType
 }
 
 export type AiLibraryCrawlerRunsArgs = {
@@ -352,6 +352,8 @@ export type AiLibraryCrawlerRunsArgs = {
 }
 
 export type AiLibraryCrawlerCredentialsInput = {
+  boxCustomerId?: InputMaybe<Scalars['String']['input']>
+  boxToken?: InputMaybe<Scalars['String']['input']>
   password?: InputMaybe<Scalars['String']['input']>
   sharepointAuth?: InputMaybe<Scalars['String']['input']>
   username?: InputMaybe<Scalars['String']['input']>
@@ -398,7 +400,7 @@ export type AiLibraryCrawlerInput = {
   maxPages: Scalars['Int']['input']
   minFileSize?: InputMaybe<Scalars['Int']['input']>
   uri: Scalars['String']['input']
-  uriType: AiLibraryCrawlerUriType
+  uriType: CrawlerUriType
 }
 
 export type AiLibraryCrawlerRun = {
@@ -426,12 +428,6 @@ export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
   updateTypeFilter?: InputMaybe<Array<Scalars['String']['input']>>
-}
-
-export enum AiLibraryCrawlerUriType {
-  Http = 'http',
-  Sharepoint = 'sharepoint',
-  Smb = 'smb',
 }
 
 export type AiLibraryFile = {
@@ -821,6 +817,13 @@ export type ConversationInvitationInput = {
   allowDifferentEmailAddress: Scalars['Boolean']['input']
   allowMultipleParticipants: Scalars['Boolean']['input']
   email: Scalars['String']['input']
+}
+
+export enum CrawlerUriType {
+  Box = 'box',
+  Http = 'http',
+  Sharepoint = 'sharepoint',
+  Smb = 'smb',
 }
 
 export enum EmbeddingStatus {
@@ -1762,7 +1765,7 @@ export type UserProfile = {
   position?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   usedMessages?: Maybe<Scalars['Int']['output']>
-  usedStorage?: Maybe<Scalars['Int']['output']>
+  usedStorage?: Maybe<Scalars['BigInt']['output']>
   userId: Scalars['ID']['output']
 }
 
@@ -2912,7 +2915,7 @@ export type CrawlerForm_CrawlerFragment = {
   id: string
   libraryId: string
   uri: string
-  uriType: AiLibraryCrawlerUriType
+  uriType: CrawlerUriType
   maxDepth: number
   maxPages: number
   includePatterns?: string | null
@@ -2940,7 +2943,7 @@ export type CrawlerTable_LibraryCrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
   id: string
   uri: string
-  uriType: AiLibraryCrawlerUriType
+  uriType: CrawlerUriType
   maxDepth: number
   maxPages: number
   filesCount: number
@@ -3043,7 +3046,7 @@ export type GetCrawlerQuery = {
     id: string
     libraryId: string
     uri: string
-    uriType: AiLibraryCrawlerUriType
+    uriType: CrawlerUriType
     isRunning: boolean
     filesCount: number
     runCount: number
@@ -3091,7 +3094,7 @@ export type CrawlerTableQuery = {
       __typename?: 'AiLibraryCrawler'
       id: string
       uri: string
-      uriType: AiLibraryCrawlerUriType
+      uriType: CrawlerUriType
       maxDepth: number
       maxPages: number
       filesCount: number
@@ -3242,7 +3245,7 @@ export type AiLibraryFileInfo_CaptionCardFragment = {
     chunksCount?: number | null
   } | null
   sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
-  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
+  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType } | null
 }
 
 export type AiContentProcessingTask_ListFragment = {
@@ -3276,7 +3279,7 @@ export type AiLibraryFile_InfoBoxFragment = {
   archivedAt?: string | null
   taskCount: number
   status: string
-  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
+  crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType } | null
   lastSuccessfulExtraction?: {
     __typename?: 'AiContentProcessingTask'
     id: string
@@ -3439,7 +3442,7 @@ export type GetFileInfoQuery = {
       chunksCount?: number | null
     } | null
     sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
-    crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType } | null
+    crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType } | null
   }
 }
 
@@ -3922,7 +3925,7 @@ export type LibraryUpdatesListQuery = {
         __typename?: 'AiLibraryCrawlerRun'
         id: string
         crawlerId: string
-        crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType }
+        crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType }
       } | null
       file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
     }>
@@ -3947,7 +3950,7 @@ export type AiLibraryUpdate_TableItemFragment = {
     __typename?: 'AiLibraryCrawlerRun'
     id: string
     crawlerId: string
-    crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType }
+    crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType }
   } | null
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
@@ -4800,7 +4803,7 @@ export type UserProfileForm_UserProfileFragment = {
   freeMessages: number
   usedMessages?: number | null
   freeStorage: number
-  usedStorage?: number | null
+  usedStorage?: any | null
   createdAt: string
   updatedAt?: string | null
   confirmationDate?: string | null
@@ -4853,7 +4856,7 @@ export type UserProfileQuery = {
     freeMessages: number
     usedMessages?: number | null
     freeStorage: number
-    usedStorage?: number | null
+    usedStorage?: any | null
     createdAt: string
     updatedAt?: string | null
     activationDate?: string | null
@@ -5760,7 +5763,7 @@ export type UserProfileFragment = {
   freeMessages: number
   usedMessages?: number | null
   freeStorage: number
-  usedStorage?: number | null
+  usedStorage?: any | null
   createdAt: string
   updatedAt?: string | null
   confirmationDate?: string | null
@@ -5784,7 +5787,7 @@ export type GetUserProfileQuery = {
     freeMessages: number
     usedMessages?: number | null
     freeStorage: number
-    usedStorage?: number | null
+    usedStorage?: any | null
     createdAt: string
     updatedAt?: string | null
     confirmationDate?: string | null
@@ -5841,7 +5844,7 @@ export type AdminUserByIdQuery = {
       freeMessages: number
       usedMessages?: number | null
       freeStorage: number
-      usedStorage?: number | null
+      usedStorage?: any | null
       createdAt: string
       updatedAt?: string | null
       expiresAt?: string | null

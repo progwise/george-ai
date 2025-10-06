@@ -2,6 +2,7 @@ import { canAccessLibraryOrThrow } from '..'
 import { prisma } from '../../prisma'
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { parseFilterConfig } from '../file/file-filter'
+import { crawlBox } from './crawl-box'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
@@ -112,7 +113,9 @@ const startCrawling = async (
         ? crawlSmb
         : crawler.uriType === 'sharepoint'
           ? crawlSharePoint
-          : null
+          : crawler.uriType === 'box'
+            ? crawlBox
+            : null
 
   if (!crawl) {
     throw new Error(`Crawler for type ${crawler.uriType} not implemented`)

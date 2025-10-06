@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
+import { CrawlerUriType } from '../../../gql/graphql'
 import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getCrawlerFormSchema } from './crawler-form'
@@ -11,7 +12,7 @@ import { getCrawlerFormSchema } from './crawler-form'
 export const addCrawler = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
     const language = await getLanguage()
-    const uriType = z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]).parse(data.get('uriType'))
+    const uriType = z.nativeEnum(CrawlerUriType).parse(data.get('uriType'))
     const schema = getCrawlerFormSchema('add', uriType, language)
     const { data: validatedData, errors } = validateFormData(data, schema)
 
@@ -108,7 +109,12 @@ export const addCrawler = createServerFn({ method: 'POST' })
               ? {
                   sharepointAuth: data.sharepointAuth,
                 }
-              : undefined,
+              : data.uriType === 'box'
+                ? {
+                    boxCustomerId: data.boxCustomerId,
+                    boxToken: data.boxToken,
+                  }
+                : undefined,
       },
     )
   })

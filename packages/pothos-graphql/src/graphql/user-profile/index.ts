@@ -35,7 +35,7 @@ builder.prismaObject('UserProfile', {
       },
     }),
     usedStorage: t.field({
-      type: 'Int',
+      type: 'BigInt',
       resolve: async (source) => {
         const fileSizeSum = await prisma.aiLibraryFile.aggregate({
           where: {
@@ -48,7 +48,7 @@ builder.prismaObject('UserProfile', {
           },
         })
 
-        return fileSizeSum._sum.size || 0
+        return fileSizeSum._sum.size ? BigInt(fileSizeSum._sum.size) : BigInt(0)
       },
     }),
   }),
