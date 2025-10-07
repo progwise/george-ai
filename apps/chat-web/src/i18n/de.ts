@@ -447,9 +447,11 @@ export default {
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
+    deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation:
       '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
+    deleteSuccess: 'Bibliothek {name} erfolgreich gelöscht',
     dropAllFilesDialog: 'Alle Dateien entfernen',
     dropFilesDialog: 'Dateien entfernen',
     dropFileError: 'Löschen der Datei fehlgeschlagen',

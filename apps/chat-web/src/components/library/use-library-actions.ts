@@ -102,8 +102,8 @@ export const useLibraryActions = (libraryId: string) => {
 
   const { mutate: deleteLibrary, isPending: deleteLibraryIsPending } = useMutation({
     mutationFn: () => deleteLibraryFn({ data: libraryId }),
-    onSuccess: async () => {
-      toastSuccess(t('libraries.deleteSuccess'))
+    onSuccess: async (response) => {
+      toastSuccess(t('libraries.deleteSuccess', { name: response.deleteLibrary.name }))
     },
     onError: (error) => {
       toastError(t('libraries.deleteError', { message: error.message }))

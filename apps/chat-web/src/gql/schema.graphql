@@ -1053,7 +1053,7 @@ type Mutation {
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteFile(fileId: String!): AiLibraryFile!
   deleteFiles(fileIds: [ID!]!): Int!
-  deleteLibrary(id: String!): Boolean
+  deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFiles(libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage

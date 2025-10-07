@@ -6,7 +6,11 @@ import { backendRequest } from '../../../server-functions/backend'
 
 const deleteLibraryDocument = graphql(`
   mutation deleteLibrary($id: String!) {
-    deleteLibrary(id: $id)
+    deleteLibrary(id: $id) {
+      id
+      name
+      filesCount
+    }
   }
 `)
 
