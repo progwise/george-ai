@@ -19,6 +19,7 @@ graphql(`
   fragment LibraryMenu_AiLibrary on AiLibrary {
     id
     name
+    filesCount
     ownerId
     owner {
       ...User_EntityParticipantsDialog
@@ -160,9 +161,19 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
         onUpdateParticipants={({ userIds }) => userIds && updateParticipants({ userIds })}
       />
       <NewLibraryDialog ref={newLibraryDialogRef} />
-      <DialogForm ref={deleteDialogRef} title={t('libraries.deleteDialogTitle')} onSubmit={() => deleteLibrary()}>
-        {t('libraries.deleteDialogConfirmation', { name: library.name })}
-      </DialogForm>
+      <DialogForm
+        ref={deleteDialogRef}
+        title={t('libraries.deleteLibrary', { libraryName: library.name })}
+        description={t('libraries.deleteLibraryConfirmation', {
+          libraryName: library.name,
+          fileCount: library.filesCount,
+        })}
+        onSubmit={() => {
+          deleteLibrary()
+        }}
+        submitButtonText={t('actions.delete')}
+        disabledSubmit={isPending}
+      />
     </div>
   )
 }

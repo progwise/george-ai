@@ -441,7 +441,7 @@ export default {
     addParticipantsConfirmation: 'You can add participants to this library.',
     addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
-    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s).',
+    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s). This cannot be undone.',
     dropAllFilesDialog: 'Drop all files',
     dropFilesDialog: 'Drop files',
     dropFileError: 'Failed to delete file',

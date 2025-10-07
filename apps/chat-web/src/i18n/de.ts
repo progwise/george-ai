@@ -448,7 +448,8 @@ export default {
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
-    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht.',
+    deleteLibraryConfirmation:
+      '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
     dropAllFilesDialog: 'Alle Dateien entfernen',
     dropFilesDialog: 'Dateien entfernen',
     dropFileError: 'Löschen der Datei fehlgeschlagen',

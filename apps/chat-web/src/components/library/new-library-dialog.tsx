@@ -1,50 +1,26 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
-import { z } from 'zod'
 
-import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
-
-const createNewLibrary = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: FormData) => {
-    return z
-      .object({
-        name: z.string().min(1),
-        description: z.string().optional(),
-      })
-      .parse(Object.fromEntries(data))
-  })
-  .handler(async (ctx) => {
-    const data = await ctx.data
-    return await backendRequest(
-      graphql(`
-        mutation createLibrary($data: AiLibraryInput!) {
-          createLibrary(data: $data) {
-            id
-            name
-          }
-        }
-      `),
-      {
-        data: {
-          name: data.name,
-          description: data.description,
-        },
-      },
-    )
-  })
+import { toastError, toastSuccess } from '../georgeToaster'
+import { createNewLibraryFn } from './server-functions/new-library'
 
 export const NewLibraryDialog = ({ ref }: { ref: React.RefObject<HTMLDialogElement | null> }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: FormData) => createNewLibrary({ data }),
+    mutationFn: (data: FormData) => createNewLibraryFn({ data }),
+    onSuccess: () => {
+      toastSuccess(t('libraries.toastCreateSuccess'))
+      ref.current?.close()
+    },
+    onError: (error: Error) => {
+      toastError(`${t('libraries.toastCreateError')}: ${error.message}`)
+    },
     onSettled: (result) => {
       const newId = result?.createLibrary?.id
       if (!newId) {

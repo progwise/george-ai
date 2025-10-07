@@ -3649,6 +3649,7 @@ export type LibraryMenu_AiLibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   name: string
+  filesCount: number
   ownerId: string
   owner: {
     __typename?: 'User'
@@ -3679,15 +3680,6 @@ export type LibraryMenu_AiLibraryFragment = {
 }
 
 export type LibraryMenu_AiLibrariesFragment = { __typename?: 'AiLibrary'; id: string; name: string }
-
-export type CreateLibraryMutationVariables = Exact<{
-  data: AiLibraryInput
-}>
-
-export type CreateLibraryMutation = {
-  __typename?: 'Mutation'
-  createLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
-}
 
 export type QueryLibraryFilesQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -3723,6 +3715,15 @@ export type DeleteLibraryMutationVariables = Exact<{
 }>
 
 export type DeleteLibraryMutation = { __typename?: 'Mutation'; deleteLibrary?: boolean | null }
+
+export type CreateLibraryMutationVariables = Exact<{
+  data: AiLibraryInput
+}>
+
+export type CreateLibraryMutation = {
+  __typename?: 'Mutation'
+  createLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
 
 export type ChangeLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -7918,6 +7919,7 @@ export const LibraryMenu_AiLibraryFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
@@ -13820,46 +13822,6 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
-export const CreateLibraryDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createLibrary' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateLibraryMutation, CreateLibraryMutationVariables>
 export const QueryLibraryFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -13992,6 +13954,46 @@ export const DeleteLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLibraryMutation, DeleteLibraryMutationVariables>
+export const CreateLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateLibraryMutation, CreateLibraryMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
