@@ -48,6 +48,12 @@ async function fetchBoxApi(endpoint: string, accessToken: string): Promise<Respo
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Box API authentication failed - token may be expired')
+    }
+    if (response.status === 429) {
+      throw new Error('Box API rate limit exceeded - please try again later')
+    }
     throw new Error(`Box API error: ${response.status} ${response.statusText}`)
   }
 
@@ -459,6 +465,34 @@ export async function* crawlBox({
   }
 }
 
+/**
+ * Discovers and streams Box files for processing using async generator pattern.
+ * Files are yielded immediately as they're discovered (not batched), enabling
+ * real-time processing and immediate user feedback.
+ *
+ * Algorithm:
+ * 1. Lists all items in current folder using Box API (with pagination)
+ * 2. Yields files immediately as they're encountered
+ * 3. Collects subfolders to process after all files in current folder
+ * 4. Recursively processes subfolders (breadth-first within folders, depth-first across folders)
+ *
+ * @param folderId - Box folder ID to start discovery from (e.g., "0" for root)
+ * @param currentPath - Current path for tracking folder hierarchy (e.g., "/Documents/2024")
+ * @param currentDepth - Current depth in folder tree (starts at 0)
+ * @param maxDepth - Maximum depth to traverse (prevents infinite recursion)
+ * @param accessToken - Box API Bearer token for authentication
+ * @param processedUris - Set to track already-processed folders (prevents duplicates)
+ *
+ * @yields {BoxFileToProcess} File metadata for each discovered file
+ *
+ * @example
+ * ```typescript
+ * for await (const file of discoverBoxFilesAndFoldersStreaming('0', '', 0, 3, token)) {
+ *   console.log(`Found: ${file.name} (${file.size} bytes)`)
+ *   // Process file immediately - no waiting for full discovery
+ * }
+ * ```
+ */
 async function* discoverBoxFilesAndFoldersStreaming(
   folderId: string,
   currentPath: string,
