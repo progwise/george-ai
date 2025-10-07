@@ -75,22 +75,26 @@ builder.mutationField('createLibrary', (t) =>
 )
 
 builder.mutationField('deleteLibrary', (t) =>
-  t.field({
-    type: 'Boolean',
+  t.prismaField({
+    type: 'AiLibrary',
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { id }) => {
-      await prisma.$transaction(
+    nullable: false,
+    resolve: async (query, _source, { id }) => {
+      const result = await prisma.$transaction(
         [
+          prisma.aiLibraryFile.deleteMany({ where: { libraryId: id } }),
           prisma.aiLibraryCrawler.deleteMany({ where: { libraryId: id } }),
+          prisma.aiLibraryParticipant.deleteMany({ where: { libraryId: id } }),
           prisma.aiLibrary.delete({
+            ...query,
             where: { id },
           }),
         ],
         {},
       )
-      return true
+      return result[3]
     },
   }),
 )

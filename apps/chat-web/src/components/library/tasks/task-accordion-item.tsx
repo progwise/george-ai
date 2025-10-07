@@ -132,7 +132,13 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                   {extractionMethods.length < 1 ? 'Unknown Method' : extractionMethods}
                 </span>
               ) : (
-                <span className="text-nowrap">{`${task.file.name}`}</span>
+                <Link
+                  className="z-20 text-nowrap font-semibold hover:underline"
+                  to="/libraries/$libraryId/files/$fileId"
+                  params={{ libraryId: task.file.libraryId, fileId: task.file.id }}
+                >
+                  <span className="text-nowrap">{`${task.file.name}`}</span>
+                </Link>
               )}
               <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
             </div>

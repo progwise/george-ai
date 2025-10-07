@@ -15,7 +15,7 @@ build
 .claude
 .smb-credentials
 .smb-mounts
-.sharepoint-credentials
+.crawler-credentials
 # Python virtual environments do not work accross computers
 .venv
 venv

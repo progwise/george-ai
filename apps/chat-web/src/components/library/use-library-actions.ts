@@ -1,70 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import { useNavigate } from '@tanstack/react-router'
 
-import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { backendRequest } from '../../server-functions/backend'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
-
-const updateLibraryParticipants = createServerFn({ method: 'POST' })
-  .inputValidator((data: { libraryId: string; userIds: string[] }) =>
-    z
-      .object({
-        libraryId: z.string(),
-        userIds: z.array(z.string()),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {
-          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {
-            totalParticipants
-            addedParticipants
-            removedParticipants
-          }
-        }
-      `),
-      {
-        libraryId: ctx.data.libraryId,
-        userIds: ctx.data.userIds,
-      },
-    ),
-  )
-
-const removeLibraryParticipant = createServerFn({ method: 'POST' })
-  .inputValidator((data: { libraryId: string; participantId: string }) =>
-    z
-      .object({
-        libraryId: z.string(),
-        participantId: z.string(),
-      })
-      .parse(data),
-  )
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {
-          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)
-        }
-      `),
-      {
-        libraryId: ctx.data.libraryId,
-        participantId: ctx.data.participantId,
-      },
-    ),
-  )
+import { deleteLibraryFn } from './server-functions/delete-library'
+import { removeLibraryParticipantFn, updateLibraryParticipantsFn } from './server-functions/participants'
 
 export const useLibraryActions = (libraryId: string) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { mutate: removeParticipant, isPending: removeLibraryParticipantIsPending } = useMutation({
-    mutationFn: (participantId: string) => removeLibraryParticipant({ data: { libraryId, participantId } }),
+    mutationFn: (data: { participantId: string }) => removeLibraryParticipantFn({ data: { libraryId, ...data } }),
     onError: (error) => {
       toastError(t('errors.removeParticipantFailed', { error: error.message }))
     },
@@ -81,7 +31,7 @@ export const useLibraryActions = (libraryId: string) => {
 
   const { mutate: updateParticipants, isPending: isUpdatingParticipants } = useMutation({
     mutationFn: async ({ userIds }: { userIds: string[] }) => {
-      return await updateLibraryParticipants({ data: { libraryId, userIds } })
+      return await updateLibraryParticipantsFn({ data: { libraryId, userIds } })
     },
     onError: (error) => {
       toastError(t('errors.updateParticipantsFailed', { error: error.message }))
@@ -97,9 +47,27 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
+  const { mutate: deleteLibrary, isPending: deleteLibraryIsPending } = useMutation({
+    mutationFn: () => deleteLibraryFn({ data: libraryId }),
+    onSuccess: async (response) => {
+      toastSuccess(t('libraries.deleteSuccess', { name: response.deleteLibrary.name }))
+    },
+    onError: (error) => {
+      toastError(t('libraries.deleteError', { message: error.message }))
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries(getLibrariesQueryOptions()),
+        queryClient.removeQueries(getLibraryQueryOptions(libraryId)),
+      ])
+      navigate({ to: '/libraries' })
+    },
+  })
+
   return {
-    updateParticipants,
-    removeParticipant,
-    isPending: isUpdatingParticipants || removeLibraryParticipantIsPending,
+    deleteLibrary,
+    updateParticipants: (data: { userIds: string[] }) => updateParticipants(data),
+    removeParticipant: (data: { participantId: string }) => removeParticipant(data),
+    isPending: isUpdatingParticipants || removeLibraryParticipantIsPending || deleteLibraryIsPending,
   }
 }

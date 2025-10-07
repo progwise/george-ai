@@ -2,16 +2,27 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN, jsonArrayToString } from '@george-ai/web-utils'
+import {
+  BOX_URI_PATTERN,
+  HTTP_URI_PATTERN,
+  SHAREPOINT_URI_PATTERN,
+  SMB_URI_PATTERN,
+  jsonArrayToString,
+} from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
+import { CrawlerForm_CrawlerFragment, CrawlerUriType } from '../../../gql/graphql'
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
-const URI_PATTERNS = { smb: SMB_URI_PATTERN, http: HTTP_URI_PATTERN, sharepoint: SHAREPOINT_URI_PATTERN }
+const URI_PATTERNS = {
+  smb: SMB_URI_PATTERN,
+  http: HTTP_URI_PATTERN,
+  sharepoint: SHAREPOINT_URI_PATTERN,
+  box: BOX_URI_PATTERN,
+}
 
 // Base schema for Input component validation
 export const getCrawlerFormSchema = (
@@ -23,7 +34,7 @@ export const getCrawlerFormSchema = (
     id: editMode === 'update' ? z.string().min(2) : z.string().optional(),
     libraryId: z.string().optional(),
     uri: z.string().min(1).regex(URI_PATTERNS[uriType], translate('crawlers.errors.invalidUri', language)),
-    uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
+    uriType: z.nativeEnum(CrawlerUriType),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
     // File filtering options
@@ -41,6 +52,14 @@ export const getCrawlerFormSchema = (
       uriType !== 'smb'
         ? z.string().optional()
         : z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
+    boxCustomerId:
+      uriType != 'box'
+        ? z.string().optional()
+        : z.string().min(10, translate('crawlers.validationBoxCustomerIdTooShort', language)),
+    boxToken:
+      uriType != 'box'
+        ? z.string().optional()
+        : z.string().min(20, translate('crawlers.validationBoxTokenTooShort', language)),
     sharepointAuth:
       uriType != 'sharepoint'
         ? z.string().optional()
@@ -113,7 +132,9 @@ interface CrawlerFormProps {
 export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint' | 'box'>(
+    crawler?.uriType || 'http',
+  )
   const [filtersActive, setFiltersActive] = useState(
     !!(
       crawler?.includePatterns ||
@@ -168,6 +189,17 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             onChange={() => setSelectedUriType('sharepoint')}
           />
           <span>{t('crawlers.uriTypeSharepoint')}</span>
+        </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="box"
+            className="radio radio-sm"
+            checked={selectedUriType === 'box'}
+            onChange={() => setSelectedUriType('box')}
+          />
+          <span>{t('crawlers.uriTypeBox')}</span>
         </label>
       </div>
       <Input
@@ -291,7 +323,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             required
           />
         </div>
-      ) : (
+      ) : selectedUriType === 'smb' ? (
         <div className="grid grid-cols-2 gap-2">
           <Input
             disabled={selectedUriType !== 'smb'}
@@ -311,7 +343,25 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             required
           />
         </div>
-      )}
+      ) : selectedUriType === 'box' ? (
+        <div className="grid grid-cols-2 gap-2">
+          <Input
+            name="boxCustomerId"
+            label={t('crawlers.credentialsBoxCustomerId')}
+            placeholder={t('crawlers.placeholders.boxCustomerId')}
+            schema={crawlerFormSchema}
+            required
+          />
+          <Input
+            name="boxToken"
+            type="password"
+            label={t('crawlers.credentialsBoxToken')}
+            placeholder={t('crawlers.placeholders.boxToken')}
+            schema={crawlerFormSchema}
+            required
+          />
+        </div>
+      ) : null}
       <div className="flex flex-col gap-2">
         <fieldset className="fieldset flex">
           <label className="label text-base-content mt-4 font-semibold">

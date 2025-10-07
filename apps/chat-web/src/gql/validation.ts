@@ -8,7 +8,6 @@ import {
   AiLibraryCrawlerCredentialsInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
-  AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
   AiListFieldInput,
@@ -19,6 +18,7 @@ import {
   AiListSortingInput,
   AiListSourceInput,
   ConversationInvitationInput,
+  CrawlerUriType,
   EmbeddingStatus,
   EnrichmentStatus,
   ExtractionStatus,
@@ -41,11 +41,11 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
-
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const AiListSortingDirectionSchema = z.nativeEnum(AiListSortingDirection)
+
+export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
@@ -99,6 +99,8 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
 
 export function AiLibraryCrawlerCredentialsInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCredentialsInput>> {
   return z.object({
+    boxCustomerId: z.string().nullish(),
+    boxToken: z.string().nullish(),
     password: z.string().nullish(),
     sharepointAuth: z.string().nullish(),
     username: z.string().nullish(),
@@ -131,7 +133,7 @@ export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryC
     maxPages: z.number(),
     minFileSize: z.number().nullish(),
     uri: z.string(),
-    uriType: AiLibraryCrawlerUriTypeSchema,
+    uriType: CrawlerUriTypeSchema,
   })
 }
 

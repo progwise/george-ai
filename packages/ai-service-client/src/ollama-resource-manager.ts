@@ -88,7 +88,7 @@ class OllamaResourceManager {
       }),
     )
 
-    return Array.from(new Set(allModelNames.flat()))
+    return Array.from(new Set(allModelNames.flat())).sort((a, b) => a.localeCompare(b))
   }
 
   public async getAllInstances(): Promise<OllamaInstance[]> {
@@ -299,8 +299,18 @@ ollamaResourceManager
   .catch((error) => {
     console.error('Failed to initialize OllamaResourceManager:', error)
   })
-  .then(() => {
+  .then(async () => {
     console.log('OllamaResourceManager initialized')
-    console.log('Available models:', ollamaResourceManager.getAvailableModelNames())
-    console.log('Instances:', ollamaResourceManager.getAllInstances())
+    console.log('Available models:', await ollamaResourceManager.getAvailableModelNames())
+    console.log(
+      'OLLAMA Instances:',
+      JSON.stringify(
+        (await ollamaResourceManager.getAllInstances()).map((instance) => ({
+          ...instance.config,
+          isOnline: instance.status?.isOnline,
+        })),
+        null,
+        2,
+      ),
+    )
   })

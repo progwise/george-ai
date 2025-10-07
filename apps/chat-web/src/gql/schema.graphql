@@ -316,10 +316,12 @@ type AiLibraryCrawler {
   runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
   uri: String!
-  uriType: AiLibraryCrawlerUriType!
+  uriType: CrawlerUriType!
 }
 
 input AiLibraryCrawlerCredentialsInput {
+  boxCustomerId: String
+  boxToken: String
   password: String
   sharepointAuth: String
   username: String
@@ -365,7 +367,7 @@ input AiLibraryCrawlerInput {
   maxPages: Int!
   minFileSize: Int
   uri: String!
-  uriType: AiLibraryCrawlerUriType!
+  uriType: CrawlerUriType!
 }
 
 type AiLibraryCrawlerRun {
@@ -382,12 +384,6 @@ type AiLibraryCrawlerRun {
   updateStats: [UpdateStats!]!
   updates(skip: Int! = 0, take: Int! = 10, updateTypeFilter: [String!]): [AiLibraryUpdate!]!
   updatesCount: Int!
-}
-
-enum AiLibraryCrawlerUriType {
-  http
-  sharepoint
-  smb
 }
 
 type AiLibraryFile {
@@ -760,6 +756,13 @@ input ConversationInvitationInput {
   email: String!
 }
 
+enum CrawlerUriType {
+  box
+  http
+  sharepoint
+  smb
+}
+
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -1050,7 +1053,7 @@ type Mutation {
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteFile(fileId: String!): AiLibraryFile!
   deleteFiles(fileIds: [ID!]!): Int!
-  deleteLibrary(id: String!): Boolean
+  deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFiles(libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
@@ -1295,7 +1298,7 @@ type UserProfile {
   position: String
   updatedAt: DateTime
   usedMessages: Int
-  usedStorage: Int
+  usedStorage: BigInt
   userId: ID!
 }
 

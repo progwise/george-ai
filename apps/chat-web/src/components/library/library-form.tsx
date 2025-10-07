@@ -14,7 +14,7 @@ import { LoadingSpinner } from '../loading-spinner'
 import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
-import { getLibraryUpdateFormSchema, updateLibrary } from './update-library'
+import { getLibraryUpdateFormSchema, updateLibraryFn } from './server-functions/update-library'
 
 graphql(`
   fragment AiLibraryForm_Library on AiLibrary {
@@ -50,7 +50,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   } = useSuspenseQuery(getChatModelsQueryOptions())
 
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
-    mutationFn: (data: FormData) => updateLibrary({ data }),
+    mutationFn: (data: FormData) => updateLibraryFn({ data }),
     onError: (error) => {
       toastError(t('toasts.saveError', { error: error.message }))
     },

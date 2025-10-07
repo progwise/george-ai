@@ -8,6 +8,8 @@ pnpm-lock.yaml
 .venv
 .smb-mounts
 .smb-credentials
-.sharepoint-credentials
+.crawler-credentials
 packages/pothos-graphql/prisma/generated
 routeTree.gen.ts
+.dockerignore
+.gitignore

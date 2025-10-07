@@ -9,9 +9,9 @@ import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
 import { calculateFileHash } from '../file/file-hash'
 import { CrawledFileInfo } from './crawled-file-info'
+import { getCrawlerCredentials } from './crawler-credentials-manager'
 import { CrawlOptions } from './crawler-options'
 import { parseSharePointUrl } from './sharepoint'
-import { getSharePointCredentials } from './sharepoint-credentials-manager'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
 
 interface SharePointListItem {
@@ -285,7 +285,7 @@ export async function* crawlSharePoint({
   let processedPages = 0
 
   // Get stored SharePoint authentication cookies
-  const authCookies = await getSharePointCredentials(crawlerId)
+  const { sharepointAuth: authCookies } = await getCrawlerCredentials(crawlerId)
   if (!authCookies) {
     throw new Error(`No SharePoint authentication found for crawler ${crawlerId}`)
   }

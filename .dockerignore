@@ -10,7 +10,7 @@ node_modules
 .typesense-data
 **/.smb-credentials
 **/.smb-mounts
-**/.sharepoint-credentials
+**/.crawler-credentials
 **/.uploads
 *.md
 .git

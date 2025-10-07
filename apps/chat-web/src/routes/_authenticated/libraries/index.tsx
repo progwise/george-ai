@@ -4,7 +4,6 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
-import { LibraryNewDialog } from '../../../components/library/library-new-dialog'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
@@ -31,9 +30,7 @@ function RouteComponent() {
           <h3 className="text-l font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
         </li>
         <li className="grow-1"></li>
-        <li className="flex items-center">
-          <LibraryNewDialog />
-        </li>
+        <li className="flex items-center"></li>
       </ul>
 
       {data.aiLibraries.length < 1 ? (
