@@ -76,4 +76,4 @@ COPY --from=builder --chown=server:nodejs /app/deploy .
 
 USER server
 
-CMD [ "sh", "-c", "cd /app/node_modules/@george-ai/pothos-graphql && pnpm prisma generate --sql && pnpm prisma migrate deploy && cd /app && pnpm start" ]
+CMD [ "sh", "-c", "cd /app/node_modules/@george-ai/pothos-graphql && pnpm prisma migrate deploy && pnpm prisma generate --sql && cd /app && pnpm start" ]
