@@ -546,6 +546,8 @@ export default {
       delete: 'Feld löschen',
       deleting: 'Löschen...',
       confirmDelete: 'Zum Bestätigen erneut klicken',
+      failureTerms: 'Ausdrücke, die definieren, ob das Enrichment ohne Ergebnis ist.',
+      failureTermsPlaceholder: 'z.B. Keine Daten gefunden, Nicht verfügbar, Unbekannt',
       filePropertyReadOnly: 'Dateieigenschaftenfelder können nicht geändert werden',
       contextFields: 'Kontext-Felder',
       fileProperty: 'Dateieigenschaft',

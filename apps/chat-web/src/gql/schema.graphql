@@ -582,7 +582,7 @@ input AiListFieldInput {
   """
   sourceType: ListFieldSourceType!
   """
-  Field type: string, number, date, datetime, boolean
+  Field type: string, text, number, date, datetime, boolean
   """
   type: ListFieldType!
   useVectorStore: Boolean

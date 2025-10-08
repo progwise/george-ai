@@ -635,7 +635,7 @@ export type AiListFieldInput = {
   prompt?: InputMaybe<Scalars['String']['input']>
   /** Source type: file_property or llm_computed */
   sourceType: ListFieldSourceType
-  /** Field type: string, number, date, datetime, boolean */
+  /** Field type: string, text, number, date, datetime, boolean */
   type: ListFieldType
   useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -4503,6 +4503,7 @@ export type AddListFieldMutation = {
     sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
+    failureTerms?: string | null
     contentQuery?: string | null
     languageModel?: string | null
   }
@@ -4729,6 +4730,7 @@ export type UpdateListFieldMutation = {
     sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
+    failureTerms?: string | null
     useVectorStore?: boolean | null
     contentQuery?: string | null
     languageModel?: string | null
@@ -15428,6 +15430,7 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],
@@ -16345,6 +16348,7 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },

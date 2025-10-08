@@ -542,6 +542,8 @@ export default {
       computed: 'Computed',
       contextFieldsHelp:
         'Select fields to provide additional context. If none selected, only the file content will be used.',
+      failureTerms: 'Failure Terms',
+      failureTermsPlaceholder: 'e.g., error, failed, not working',
       fieldName: 'Field Name *',
       fieldNamePlaceholder: 'e.g., Sentiment, Category, Priority',
       dataType: 'Data Type',

@@ -5,7 +5,7 @@ import { getLanguage } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getListFieldFormSchema } from '../field-modal'
 
-export const addListField = createServerFn({ method: 'POST' })
+export const addListFieldFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
     const language = await getLanguage()
     const entries = Object.fromEntries(data)
@@ -25,6 +25,7 @@ export const addListField = createServerFn({ method: 'POST' })
             sourceType
             fileProperty
             prompt
+            failureTerms
             contentQuery
             languageModel
           }
@@ -39,6 +40,7 @@ export const addListField = createServerFn({ method: 'POST' })
           languageModel: data.languageModel,
           prompt: data.prompt,
           contentQuery: data.contentQuery,
+          failureTerms: data.failureTerms,
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
           useVectorStore: data.useVectorStore,
