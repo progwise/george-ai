@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { createEmbeddingTasks, createProcessingTasks } from './change-files'
+import { createContentProcessingTasksFn, createEmbeddingTasksFn } from '../server-functions/processing'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
@@ -38,7 +38,7 @@ export const FilesActionsBar = ({
   const { t } = useTranslation()
 
   const { mutate: reEmbedFilesMutate, isPending: reEmbedFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => await createEmbeddingTasks({ data: fileIds }),
+    mutationFn: async (fileIds: string[]) => await createEmbeddingTasksFn({ data: { fileIds } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
@@ -54,7 +54,7 @@ export const FilesActionsBar = ({
   })
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => await createProcessingTasks({ data: fileIds }),
+    mutationFn: async (fileIds: string[]) => await createContentProcessingTasksFn({ data: { fileIds } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error

@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import {
   createContentProcessingTask,
   createEmbeddingOnlyTask,
@@ -20,20 +22,24 @@ builder.mutationField('createContentProcessingTask', (t) =>
       // Check permissions
       const file = await canAccessFileOrThrow(fileId, context.session.user.id)
 
-      // Create default extraction tasks for this file
-      const tasks = await createContentProcessingTask({
-        fileId,
-        query,
-        libraryId: file.libraryId,
-      })
+      try {
+        // Create default extraction tasks for this file
+        const tasks = await createContentProcessingTask({
+          fileId,
+          query,
+          libraryId: file.libraryId,
+        })
 
-      return tasks
+        return tasks
+      } catch (error) {
+        throw new GraphQLError(error instanceof Error ? error.message : String(error))
+      }
     },
   }),
 )
 
 // Create embedding-only task using existing markdown (replaces old synchronous embedFile)
-builder.mutationField('createEmbeddingOnlyProcessingTask', (t) =>
+builder.mutationField('createEmbeddingTask', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiContentProcessingTask',
     nullable: false,

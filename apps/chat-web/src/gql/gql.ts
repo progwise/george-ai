@@ -83,12 +83,6 @@ type Documents = {
   '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.RunCrawlerDocument
   '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.StopCrawlerDocument
   '\n        mutation updateAiLibraryCrawler(\n          $id: String!\n          $data: AiLibraryCrawlerInput!\n          $credentials: AiLibraryCrawlerCredentialsInput\n        ) {\n          updateAiLibraryCrawler(id: $id, data: $data, credentials: $credentials) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
-  '\n        mutation deleteLibraryFiles($libraryId: String!) {\n          deleteLibraryFiles(libraryId: $libraryId)\n        }\n      ': typeof types.DeleteLibraryFilesDocument
-  '\n        mutation deleteFile($fileId: String!) {\n          deleteFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteFileDocument
-  '\n        mutation deleteFiles($fileIds: [ID!]!) {\n          deleteFiles(fileIds: $fileIds)\n        }\n      ': typeof types.DeleteFilesDocument
-  '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingOnlyProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ': typeof types.CreateEmbeddingTasksDocument
-  '\n          mutation createExtractionTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ': typeof types.CreateExtractionTasksDocument
-  '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ': typeof types.DropOutdatedMarkdownFilesDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
   '\n  fragment AiLibraryFileInfo_CaptionCard on AiLibraryFile {\n    ...AiLibraryFile_FileStatusLabels\n    ...AiLibraryFileInfo_Files\n    ...AiLibraryFile_InfoBox\n    id\n    libraryId\n    name\n    originUri\n  }\n': typeof types.AiLibraryFileInfo_CaptionCardFragmentDoc
@@ -112,9 +106,16 @@ type Documents = {
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n': typeof types.LibraryMenu_AiLibrariesFragmentDoc
   '\n        query queryLibraryFiles($libraryId: String!, $query: String!, $skip: Int!, $take: Int!) {\n          queryAiLibraryFiles(libraryId: $libraryId, query: $query, skip: $skip, take: $take) {\n            libraryId\n            query\n            take\n            skip\n            hitCount\n            hits {\n              pageContent\n              docName\n              docId\n              id\n              docPath\n              originUri\n              highlights {\n                field\n                snippet\n              }\n            }\n          }\n        }\n      ': typeof types.QueryLibraryFilesDocument
-  '\n  mutation deleteLibraryFiles($libraryId: String!) {\n    deleteLibraryFiles(libraryId: $libraryId)\n  }\n': typeof types.DeleteLibraryFilesDocument
+  '\n        mutation dropAllLibraryFiles($libraryId: String!) {\n          dropAllLibraryFiles(libraryId: $libraryId)\n        }\n      ': typeof types.DropAllLibraryFilesDocument
+  '\n        mutation deleteLibraryFile($fileId: String!) {\n          deleteLibraryFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteLibraryFileDocument
+  '\n        mutation deleteLibraryFiles($fileIds: [ID!]!) {\n          deleteLibraryFiles(fileIds: $fileIds)\n        }\n      ': typeof types.DeleteLibraryFilesDocument
+  '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ': typeof types.DropOutdatedMarkdownFilesDocument
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id) {\n      id\n      name\n      filesCount\n    }\n  }\n': typeof types.DeleteLibraryDocument
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateLibraryDocument
+  '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ': typeof types.UpdateLibraryParticipantsDocument
+  '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ': typeof types.RemoveLibraryParticipantDocument
+  '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ': typeof types.CreateEmbeddingTasksDocument
+  '\n          mutation createContentProcessingTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ': typeof types.CreateContentProcessingTasksDocument
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ': typeof types.GetContentProcessingTasksDocument
   '\n  fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {\n    id\n    ...AiContentProcessingTask_Timeline\n    file {\n      id\n      name\n      libraryId\n      library {\n        fileConverterOptions\n      }\n    }\n    createdAt\n    timeoutMs\n    metadata\n    extractionOptions\n    extractionStatus\n    embeddingStatus\n    processingTimeMs\n    processingStatus\n    chunksCount\n    chunksSize\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_AccordionItemFragmentDoc
@@ -122,8 +123,6 @@ type Documents = {
   '\n        mutation cancelProcessingTask($taskId: String!, $fileId: String!) {\n          cancelProcessingTask(taskId: $taskId, fileId: $fileId) {\n            id\n          }\n        }\n      ': typeof types.CancelProcessingTaskDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
-  '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ': typeof types.UpdateLibraryParticipantsDocument
-  '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ': typeof types.RemoveLibraryParticipantDocument
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModel\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n        contentQuery\n        useVectorStore\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
@@ -330,18 +329,6 @@ const documents: Documents = {
     types.StopCrawlerDocument,
   '\n        mutation updateAiLibraryCrawler(\n          $id: String!\n          $data: AiLibraryCrawlerInput!\n          $credentials: AiLibraryCrawlerCredentialsInput\n        ) {\n          updateAiLibraryCrawler(id: $id, data: $data, credentials: $credentials) {\n            id\n          }\n        }\n      ':
     types.UpdateAiLibraryCrawlerDocument,
-  '\n        mutation deleteLibraryFiles($libraryId: String!) {\n          deleteLibraryFiles(libraryId: $libraryId)\n        }\n      ':
-    types.DeleteLibraryFilesDocument,
-  '\n        mutation deleteFile($fileId: String!) {\n          deleteFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ':
-    types.DeleteFileDocument,
-  '\n        mutation deleteFiles($fileIds: [ID!]!) {\n          deleteFiles(fileIds: $fileIds)\n        }\n      ':
-    types.DeleteFilesDocument,
-  '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingOnlyProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ':
-    types.CreateEmbeddingTasksDocument,
-  '\n          mutation createExtractionTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ':
-    types.CreateExtractionTasksDocument,
-  '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ':
-    types.DropOutdatedMarkdownFilesDocument,
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
     types.PrepareDesktopFileDocument,
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ':
@@ -387,12 +374,26 @@ const documents: Documents = {
     types.LibraryMenu_AiLibrariesFragmentDoc,
   '\n        query queryLibraryFiles($libraryId: String!, $query: String!, $skip: Int!, $take: Int!) {\n          queryAiLibraryFiles(libraryId: $libraryId, query: $query, skip: $skip, take: $take) {\n            libraryId\n            query\n            take\n            skip\n            hitCount\n            hits {\n              pageContent\n              docName\n              docId\n              id\n              docPath\n              originUri\n              highlights {\n                field\n                snippet\n              }\n            }\n          }\n        }\n      ':
     types.QueryLibraryFilesDocument,
-  '\n  mutation deleteLibraryFiles($libraryId: String!) {\n    deleteLibraryFiles(libraryId: $libraryId)\n  }\n':
+  '\n        mutation dropAllLibraryFiles($libraryId: String!) {\n          dropAllLibraryFiles(libraryId: $libraryId)\n        }\n      ':
+    types.DropAllLibraryFilesDocument,
+  '\n        mutation deleteLibraryFile($fileId: String!) {\n          deleteLibraryFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ':
+    types.DeleteLibraryFileDocument,
+  '\n        mutation deleteLibraryFiles($fileIds: [ID!]!) {\n          deleteLibraryFiles(fileIds: $fileIds)\n        }\n      ':
     types.DeleteLibraryFilesDocument,
+  '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ':
+    types.DropOutdatedMarkdownFilesDocument,
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id) {\n      id\n      name\n      filesCount\n    }\n  }\n':
     types.DeleteLibraryDocument,
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ':
     types.CreateLibraryDocument,
+  '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ':
+    types.UpdateLibraryParticipantsDocument,
+  '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ':
+    types.RemoveLibraryParticipantDocument,
+  '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ':
+    types.CreateEmbeddingTasksDocument,
+  '\n          mutation createContentProcessingTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ':
+    types.CreateContentProcessingTasksDocument,
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ':
@@ -407,10 +408,6 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
-  '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ':
-    types.UpdateLibraryParticipantsDocument,
-  '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ':
-    types.RemoveLibraryParticipantDocument,
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModel\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n        contentQuery\n        useVectorStore\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
@@ -973,42 +970,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation deleteLibraryFiles($libraryId: String!) {\n          deleteLibraryFiles(libraryId: $libraryId)\n        }\n      ',
-): (typeof documents)['\n        mutation deleteLibraryFiles($libraryId: String!) {\n          deleteLibraryFiles(libraryId: $libraryId)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation deleteFile($fileId: String!) {\n          deleteFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation deleteFile($fileId: String!) {\n          deleteFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation deleteFiles($fileIds: [ID!]!) {\n          deleteFiles(fileIds: $fileIds)\n        }\n      ',
-): (typeof documents)['\n        mutation deleteFiles($fileIds: [ID!]!) {\n          deleteFiles(fileIds: $fileIds)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingOnlyProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingOnlyProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n          mutation createExtractionTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation createExtractionTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ',
-): (typeof documents)['\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n',
 ): (typeof documents)['\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n']
 /**
@@ -1147,8 +1108,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation deleteLibraryFiles($libraryId: String!) {\n    deleteLibraryFiles(libraryId: $libraryId)\n  }\n',
-): (typeof documents)['\n  mutation deleteLibraryFiles($libraryId: String!) {\n    deleteLibraryFiles(libraryId: $libraryId)\n  }\n']
+  source: '\n        mutation dropAllLibraryFiles($libraryId: String!) {\n          dropAllLibraryFiles(libraryId: $libraryId)\n        }\n      ',
+): (typeof documents)['\n        mutation dropAllLibraryFiles($libraryId: String!) {\n          dropAllLibraryFiles(libraryId: $libraryId)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteLibraryFile($fileId: String!) {\n          deleteLibraryFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation deleteLibraryFile($fileId: String!) {\n          deleteLibraryFile(fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteLibraryFiles($fileIds: [ID!]!) {\n          deleteLibraryFiles(fileIds: $fileIds)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteLibraryFiles($fileIds: [ID!]!) {\n          deleteLibraryFiles(fileIds: $fileIds)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ',
+): (typeof documents)['\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1161,6 +1140,30 @@ export function graphql(
 export function graphql(
   source: '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ',
+): (typeof documents)['\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation createEmbeddingTasks($id: String!) {\n            createEmbeddingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation createContentProcessingTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation createContentProcessingTasks($id: String!) {\n            createContentProcessingTask(fileId: $id) {\n              id\n              file {\n                name\n              }\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1203,18 +1206,6 @@ export function graphql(
 export function graphql(
   source: '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n',
 ): (typeof documents)['\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ',
-): (typeof documents)['\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

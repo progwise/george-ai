@@ -5,7 +5,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { deleteFiles } from './change-files'
+import { deleteLibraryFilesFn } from '../server-functions/delete-files'
 
 interface DropFilesDialogProps {
   disabled: boolean
@@ -20,7 +20,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
 
   const { mutate: dropFilesMutate, isPending } = useMutation({
     mutationFn: async (fileIds: string[]) => {
-      await deleteFiles({ data: fileIds })
+      await deleteLibraryFilesFn({ data: { fileIds } })
     },
     onSuccess: () => {
       toastSuccess(t('actions.dropSuccess', { count: checkedFileIds.length }))

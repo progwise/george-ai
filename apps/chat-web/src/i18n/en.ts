@@ -252,6 +252,7 @@ export default {
     avatarUploadFailed: 'Avatar upload failed',
     businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
+    createExtractionTasks: 'Failed to create extraction tasks: {error}',
     deleteMessage: 'Failed to delete message',
     dropFile: 'An error occurred while dropping the file: {error}.',
     dropFiles: 'An error occurred while dropping {count} files. {error}.',

@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
+import { dropOutdatedMarkdownFilesFn } from '../server-functions/delete-files'
+import { createContentProcessingTasksFn, createEmbeddingTasksFn } from '../server-functions/processing'
 import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
-import { createEmbeddingTasks, createProcessingTasks, dropOutdatedMarkdownFiles } from './change-files'
 import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
 
@@ -24,7 +25,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
     ])
   }
   const { mutate: createEmbeddingTasksMutate, isPending: createEmbeddingTasksIsPending } = useMutation({
-    mutationFn: () => createEmbeddingTasks({ data: { fileIds: [params.fileId] } }),
+    mutationFn: () => createEmbeddingTasksFn({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
@@ -38,7 +39,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
     },
   })
   const { mutate: createExtractionTasksMutate, isPending: createExtractionsTasksIsPending } = useMutation({
-    mutationFn: () => createProcessingTasks({ data: { fileIds: [params.fileId] } }),
+    mutationFn: () => createContentProcessingTasksFn({ data: { fileIds: [params.fileId] } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error
@@ -55,7 +56,7 @@ export const useFileActions = (params: { libraryId: string; fileId: string }) =>
   })
 
   const { mutate: dropOutdatedMarkdownFilesMutate, isPending: createOutdatedMarkdownFilesPending } = useMutation({
-    mutationFn: () => dropOutdatedMarkdownFiles({ data: { fileId: params.fileId } }),
+    mutationFn: () => dropOutdatedMarkdownFilesFn({ data: { fileId: params.fileId } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error

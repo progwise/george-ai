@@ -257,6 +257,7 @@ export default {
     avatarUploadFailed: 'Avatar-Upload fehlgeschlagen',
     businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
     copyFailed: 'Kopieren fehlgeschlagen',
+    createExtractionTasks: 'Fehler beim Erstellen von Extraktions-Tasks: {error}',
     deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     dropFile: 'Fehler beim Löschen der Datei: {error}.',
     dropFiles: 'Fehler beim Entfernen von {count} Dateien: {error}.',

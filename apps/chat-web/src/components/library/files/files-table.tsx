@@ -11,7 +11,8 @@ import { ArchiveIcon } from '../../../icons/archive-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { createProcessingTasks, deleteFile } from './change-files'
+import { deleteLibraryFileFn } from '../server-functions/delete-files'
+import { createContentProcessingTasksFn } from '../server-functions/processing'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -61,16 +62,15 @@ export const FilesTable = ({
   const allSelected = pageFileIds.every((id) => selectedFileIds.includes(id))
 
   const { mutate: mutateDropFile, isPending: dropPending } = useMutation({
-    mutationFn: (fileId: string) => deleteFile({ data: fileId }),
+    mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { fileId } }),
     onError: (error: Error) => {
       const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
       console.error('Error dropping file:', { error: errorMessage })
       toastError(t('errors.dropFile', { error: errorMessage }))
     },
     onSuccess: (data) => {
-      const { deleteFile } = data
-      setSelectedFileIds((prev) => prev.filter((id) => id !== deleteFile.id))
-      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${deleteFile.name}`)
+      setSelectedFileIds((prev) => prev.filter((id) => id !== data.id))
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${data.name}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -78,7 +78,7 @@ export const FilesTable = ({
   })
 
   const { mutate: mutateReprocessFile, isPending: reprocessPending } = useMutation({
-    mutationFn: (fileId: string) => createProcessingTasks({ data: [fileId] }),
+    mutationFn: (fileId: string) => createContentProcessingTasksFn({ data: { fileIds: [fileId] } }),
     onError: (error: Error) => {
       toastError(t('errors.createExtractionTasks', { error: error.message }))
     },

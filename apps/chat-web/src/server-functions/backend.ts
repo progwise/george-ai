@@ -20,7 +20,21 @@ async function backendRequest<T, V extends Variables = Variables>(
     // Optionally include user JWT for user-specific requests
     headers['x-user-jwt'] = jwtToken
   }
-  return request(BACKEND_URL + '/graphql', document, variables, headers)
+
+  try {
+    return await request(BACKEND_URL + '/graphql', document, variables, headers)
+  } catch (error) {
+    // Extract clean GraphQL error messages from response.errors
+    if (error && typeof error === 'object' && 'response' in error) {
+      const response = error.response as { errors?: Array<{ message: string }> }
+      if (response.errors && response.errors.length > 0) {
+        const errorMessages = response.errors.map((e) => e.message).join('\n')
+        throw new Error(errorMessages)
+      }
+    }
+    // Re-throw original error if it's not a GraphQL error
+    throw error
+  }
 }
 
 async function backendUpload(content: Blob, fileId: string) {
