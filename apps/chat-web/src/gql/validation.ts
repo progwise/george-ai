@@ -162,6 +162,7 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
   return z.object({
     contentQuery: z.string().nullish(),
     context: z.array(z.string()).nullish(),
+    failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
     languageModel: z.string().nullish(),
     name: z.string(),

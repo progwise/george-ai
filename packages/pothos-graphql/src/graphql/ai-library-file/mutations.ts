@@ -1,5 +1,5 @@
-import { canAccessLibraryOrThrow, deleteFile, deleteLibraryFiles } from '../../domain'
-import { canAccessFileOrThrow } from '../../domain/file'
+import { canAccessLibraryOrThrow, deleteFile } from '../../domain'
+import { canAccessFileOrThrow, dropAllLibraryFiles } from '../../domain/file'
 import { dropOutdatedMarkdowns } from '../../domain/file/markdown'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -31,7 +31,7 @@ builder.mutationField('prepareFile', (t) =>
   }),
 )
 
-builder.mutationField('deleteFile', (t) =>
+builder.mutationField('deleteLibraryFile', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryFile',
     nullable: false,
@@ -44,7 +44,7 @@ builder.mutationField('deleteFile', (t) =>
   }),
 )
 
-builder.mutationField('deleteFiles', (t) =>
+builder.mutationField('deleteLibraryFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: 'Int',
     nullable: false,
@@ -58,7 +58,7 @@ builder.mutationField('deleteFiles', (t) =>
   }),
 )
 
-builder.mutationField('deleteLibraryFiles', (t) =>
+builder.mutationField('dropAllLibraryFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: 'Int',
     nullable: false,
@@ -66,8 +66,7 @@ builder.mutationField('deleteLibraryFiles', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (_source, { libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
-      return await deleteLibraryFiles(libraryId, context.session.user.id)
+      return await dropAllLibraryFiles(libraryId, context.session.user.id)
     },
   }),
 )

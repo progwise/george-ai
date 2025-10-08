@@ -18,7 +18,7 @@ import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getChatModelsQueryOptions } from '../model/get-models'
-import { addListField, updateListField } from './server-functions'
+import { addListFieldFn, updateListFieldFn } from './server-functions'
 
 export const getListFieldFormSchema = (
   editMode: 'update' | 'create',
@@ -141,7 +141,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const addFieldMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await addListField({ data: formData })
+      return await addListFieldFn({ data: formData })
     },
     onSuccess: (data) => {
       // Show success toast with field name
@@ -155,7 +155,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const updateFieldMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await updateListField({ data: formData })
+      return await updateListFieldFn({ data: formData })
     },
     onSuccess: ({ updateListField }) => {
       // Show success toast with field name
@@ -264,15 +264,11 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 label={t('lists.fields.failureTerms')}
                 type="text"
                 name="failureTerms"
-                placeholder={t('lists.fields.aiFailureTermsPlaceholder')}
+                placeholder={t('lists.fields.failureTermsPlaceholder')}
                 value={editField?.failureTerms || ''}
                 schema={schema}
                 required
-                className="h-44"
               />
-              <div className="mt-1">
-                <span className="text-base-content/60 text-xs">{t('lists.fields.aiFailureTermsHelp')}</span>
-              </div>
             </div>
 
             {/* Context Fields */}

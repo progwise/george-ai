@@ -27,7 +27,7 @@ export const getFileInfo = async (fileId: string, userId: string) => {
   return fileInfo
 }
 
-export const deleteLibraryFiles = async (libraryId: string, userId: string) => {
+export const dropAllLibraryFiles = async (libraryId: string, userId: string) => {
   await canAccessLibraryOrThrow(libraryId, userId)
 
   try {

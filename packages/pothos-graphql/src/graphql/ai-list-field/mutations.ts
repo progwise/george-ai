@@ -8,7 +8,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     name: t.string({ required: true }),
     type: t.field({
       required: true,
-      description: 'Field type: string, number, date, datetime, boolean',
+      description: 'Field type: string, text, number, date, datetime, boolean',
       type: 'ListFieldType',
     }),
     order: t.int({ required: false }),
@@ -19,6 +19,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     }),
     fileProperty: t.string({ required: false }),
     prompt: t.string({ required: false }),
+    failureTerms: t.string({ required: false }),
     contentQuery: t.string({ required: false }),
     languageModel: t.string({ required: false }),
     useVectorStore: t.boolean({ required: false }),
@@ -40,12 +41,6 @@ builder.mutationField('addListField', (t) =>
       })
       await canAccessListOrThrow(existingList.id, session.user.id)
 
-      // Validate field type
-      const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
-      if (!validTypes.includes(data.type)) {
-        throw new Error(`Invalid field type: ${data.type}. Must be one of: ${validTypes.join(', ')}`)
-      }
-
       const newField = await prisma.aiListField.create({
         ...query,
         data: {
@@ -56,6 +51,7 @@ builder.mutationField('addListField', (t) =>
           sourceType: data.sourceType,
           fileProperty: data.fileProperty,
           prompt: data.prompt,
+          failureTerms: data.failureTerms,
           contentQuery: data.contentQuery,
           languageModel: data.languageModel,
           useVectorStore: data.useVectorStore,
@@ -93,12 +89,6 @@ builder.mutationField('updateListField', (t) =>
       })
       await canAccessListOrThrow(existingField.listId, session.user.id)
 
-      // Validate field type if changed
-      const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
-      if (!validTypes.includes(data.type)) {
-        throw new Error(`Invalid field type: ${data.type}. Must be one of: ${validTypes.join(', ')}`)
-      }
-
       const updatedField = await prisma.aiListField.update({
         ...query,
         where: { id },
@@ -109,6 +99,7 @@ builder.mutationField('updateListField', (t) =>
           sourceType: data.sourceType,
           fileProperty: data.fileProperty,
           prompt: data.prompt,
+          failureTerms: data.failureTerms,
           contentQuery: data.contentQuery,
           languageModel: data.languageModel,
           useVectorStore: data.useVectorStore,

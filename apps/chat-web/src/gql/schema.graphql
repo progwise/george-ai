@@ -572,6 +572,7 @@ type AiListFieldContext {
 input AiListFieldInput {
   contentQuery: String
   context: [String!]
+  failureTerms: String
   fileProperty: String
   languageModel: String
   name: String!
@@ -582,7 +583,7 @@ input AiListFieldInput {
   """
   sourceType: ListFieldSourceType!
   """
-  Field type: string, number, date, datetime, boolean
+  Field type: string, text, number, date, datetime, boolean
   """
   type: ListFieldType!
   useVectorStore: Boolean
@@ -1028,7 +1029,7 @@ type Mutation {
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
-  createEmbeddingOnlyProcessingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
+  createEmbeddingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
   createEnrichmentTasks(
     """
     Field ID to enrich
@@ -1051,10 +1052,9 @@ type Mutation {
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
-  deleteFile(fileId: String!): AiLibraryFile!
-  deleteFiles(fileIds: [ID!]!): Int!
   deleteLibrary(id: String!): AiLibrary!
-  deleteLibraryFiles(libraryId: String!): Int!
+  deleteLibraryFile(fileId: String!): AiLibraryFile!
+  deleteLibraryFiles(fileIds: [ID!]!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
   deletePendingEnrichmentTasks(
@@ -1071,6 +1071,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
+  dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage

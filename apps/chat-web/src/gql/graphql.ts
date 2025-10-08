@@ -628,6 +628,7 @@ export type AiListFieldContext = {
 export type AiListFieldInput = {
   contentQuery?: InputMaybe<Scalars['String']['input']>
   context?: InputMaybe<Array<Scalars['String']['input']>>
+  failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
   languageModel?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
@@ -635,7 +636,7 @@ export type AiListFieldInput = {
   prompt?: InputMaybe<Scalars['String']['input']>
   /** Source type: file_property or llm_computed */
   sourceType: ListFieldSourceType
-  /** Field type: string, number, date, datetime, boolean */
+  /** Field type: string, text, number, date, datetime, boolean */
   type: ListFieldType
   useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -1073,7 +1074,7 @@ export type Mutation = {
   createContactRequest: Scalars['Boolean']['output']
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
-  createEmbeddingOnlyProcessingTask: AiContentProcessingTask
+  createEmbeddingTask: AiContentProcessingTask
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
@@ -1081,13 +1082,13 @@ export type Mutation = {
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
-  deleteFile: AiLibraryFile
-  deleteFiles: Scalars['Int']['output']
   deleteLibrary: AiLibrary
+  deleteLibraryFile: AiLibraryFile
   deleteLibraryFiles: Scalars['Int']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
@@ -1237,7 +1238,7 @@ export type MutationCreateConversationInvitationsArgs = {
   data: Array<ConversationInvitationInput>
 }
 
-export type MutationCreateEmbeddingOnlyProcessingTaskArgs = {
+export type MutationCreateEmbeddingTaskArgs = {
   existingTaskId?: InputMaybe<Scalars['String']['input']>
   fileId: Scalars['String']['input']
 }
@@ -1274,20 +1275,16 @@ export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
 }
 
-export type MutationDeleteFileArgs = {
-  fileId: Scalars['String']['input']
-}
-
-export type MutationDeleteFilesArgs = {
-  fileIds: Array<Scalars['ID']['input']>
-}
-
 export type MutationDeleteLibraryArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationDeleteLibraryFileArgs = {
+  fileId: Scalars['String']['input']
+}
+
 export type MutationDeleteLibraryFilesArgs = {
-  libraryId: Scalars['String']['input']
+  fileIds: Array<Scalars['ID']['input']>
 }
 
 export type MutationDeleteListArgs = {
@@ -1302,6 +1299,10 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
   fileId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
+}
+
+export type MutationDropAllLibraryFilesArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationDropOutdatedMarkdownsArgs = {
@@ -3141,59 +3142,6 @@ export type UpdateAiLibraryCrawlerMutation = {
   updateAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
-export type DeleteLibraryFilesMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type DeleteLibraryFilesMutation = { __typename?: 'Mutation'; deleteLibraryFiles: number }
-
-export type DeleteFileMutationVariables = Exact<{
-  fileId: Scalars['String']['input']
-}>
-
-export type DeleteFileMutation = {
-  __typename?: 'Mutation'
-  deleteFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
-}
-
-export type DeleteFilesMutationVariables = Exact<{
-  fileIds: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteFilesMutation = { __typename?: 'Mutation'; deleteFiles: number }
-
-export type CreateEmbeddingTasksMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type CreateEmbeddingTasksMutation = {
-  __typename?: 'Mutation'
-  createEmbeddingOnlyProcessingTask: {
-    __typename?: 'AiContentProcessingTask'
-    id: string
-    file: { __typename?: 'AiLibraryFile'; name: string }
-  }
-}
-
-export type CreateExtractionTasksMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type CreateExtractionTasksMutation = {
-  __typename?: 'Mutation'
-  createContentProcessingTask: {
-    __typename?: 'AiContentProcessingTask'
-    id: string
-    file: { __typename?: 'AiLibraryFile'; name: string }
-  }
-}
-
-export type DropOutdatedMarkdownFilesMutationVariables = Exact<{
-  fileId: Scalars['String']['input']
-}>
-
-export type DropOutdatedMarkdownFilesMutation = { __typename?: 'Mutation'; dropOutdatedMarkdowns: number }
-
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -3703,6 +3651,33 @@ export type QueryLibraryFilesQuery = {
   }
 }
 
+export type DropAllLibraryFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DropAllLibraryFilesMutation = { __typename?: 'Mutation'; dropAllLibraryFiles: number }
+
+export type DeleteLibraryFileMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type DeleteLibraryFileMutation = {
+  __typename?: 'Mutation'
+  deleteLibraryFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
+}
+
+export type DeleteLibraryFilesMutationVariables = Exact<{
+  fileIds: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteLibraryFilesMutation = { __typename?: 'Mutation'; deleteLibraryFiles: number }
+
+export type DropOutdatedMarkdownFilesMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type DropOutdatedMarkdownFilesMutation = { __typename?: 'Mutation'; dropOutdatedMarkdowns: number }
+
 export type DeleteLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -3719,6 +3694,54 @@ export type CreateLibraryMutationVariables = Exact<{
 export type CreateLibraryMutation = {
   __typename?: 'Mutation'
   createLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
+
+export type UpdateLibraryParticipantsMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+}>
+
+export type UpdateLibraryParticipantsMutation = {
+  __typename?: 'Mutation'
+  updateLibraryParticipants: {
+    __typename?: 'UpdateLibraryParticipantsResult'
+    totalParticipants: number
+    addedParticipants: number
+    removedParticipants: number
+  }
+}
+
+export type RemoveLibraryParticipantMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
+}>
+
+export type RemoveLibraryParticipantMutation = { __typename?: 'Mutation'; removeLibraryParticipant: boolean }
+
+export type CreateEmbeddingTasksMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type CreateEmbeddingTasksMutation = {
+  __typename?: 'Mutation'
+  createEmbeddingTask: {
+    __typename?: 'AiContentProcessingTask'
+    id: string
+    file: { __typename?: 'AiLibraryFile'; name: string }
+  }
+}
+
+export type CreateContentProcessingTasksMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type CreateContentProcessingTasksMutation = {
+  __typename?: 'Mutation'
+  createContentProcessingTask: {
+    __typename?: 'AiContentProcessingTask'
+    id: string
+    file: { __typename?: 'AiLibraryFile'; name: string }
+  }
 }
 
 export type ChangeLibraryMutationVariables = Exact<{
@@ -3951,28 +3974,6 @@ export type AiLibraryUpdate_TableItemFragment = {
   } | null
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
-
-export type UpdateLibraryParticipantsMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-  userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
-}>
-
-export type UpdateLibraryParticipantsMutation = {
-  __typename?: 'Mutation'
-  updateLibraryParticipants: {
-    __typename?: 'UpdateLibraryParticipantsResult'
-    totalParticipants: number
-    addedParticipants: number
-    removedParticipants: number
-  }
-}
-
-export type RemoveLibraryParticipantMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
-}>
-
-export type RemoveLibraryParticipantMutation = { __typename?: 'Mutation'; removeLibraryParticipant: boolean }
 
 export type ListEditForm_ListFragment = {
   __typename?: 'AiList'
@@ -4357,6 +4358,7 @@ export type GetListItemsQuery = {
   __typename?: 'Query'
   aiListItems: {
     __typename?: 'ListItemsQueryResult'
+    unfilteredCount: number
     count: number
     take: number
     skip: number
@@ -4503,6 +4505,7 @@ export type AddListFieldMutation = {
     sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
+    failureTerms?: string | null
     contentQuery?: string | null
     languageModel?: string | null
   }
@@ -4729,6 +4732,7 @@ export type UpdateListFieldMutation = {
     sourceType: ListFieldSourceType
     fileProperty?: string | null
     prompt?: string | null
+    failureTerms?: string | null
     useVectorStore?: boolean | null
     contentQuery?: string | null
     languageModel?: string | null
@@ -12652,245 +12656,6 @@ export const UpdateAiLibraryCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAiLibraryCrawlerMutation, UpdateAiLibraryCrawlerMutationVariables>
-export const DeleteLibraryFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteLibraryFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteLibraryFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteLibraryFilesMutation, DeleteLibraryFilesMutationVariables>
-export const DeleteFileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteFile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteFile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteFileMutation, DeleteFileMutationVariables>
-export const DeleteFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteFilesMutation, DeleteFilesMutationVariables>
-export const CreateEmbeddingTasksDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createEmbeddingTasks' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createEmbeddingOnlyProcessingTask' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'file' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateEmbeddingTasksMutation, CreateEmbeddingTasksMutationVariables>
-export const CreateExtractionTasksDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createExtractionTasks' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createContentProcessingTask' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'file' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateExtractionTasksMutation, CreateExtractionTasksMutationVariables>
-export const DropOutdatedMarkdownFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'dropOutdatedMarkdownFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'dropOutdatedMarkdowns' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DropOutdatedMarkdownFilesMutation, DropOutdatedMarkdownFilesMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -13885,6 +13650,151 @@ export const QueryLibraryFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
+export const DropAllLibraryFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropAllLibraryFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropAllLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropAllLibraryFilesMutation, DropAllLibraryFilesMutationVariables>
+export const DeleteLibraryFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteLibraryFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteLibraryFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteLibraryFileMutation, DeleteLibraryFileMutationVariables>
+export const DeleteLibraryFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteLibraryFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteLibraryFilesMutation, DeleteLibraryFilesMutationVariables>
+export const DropOutdatedMarkdownFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropOutdatedMarkdownFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropOutdatedMarkdowns' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropOutdatedMarkdownFilesMutation, DropOutdatedMarkdownFilesMutationVariables>
 export const DeleteLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -13966,6 +13876,200 @@ export const CreateLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLibraryMutation, CreateLibraryMutationVariables>
+export const UpdateLibraryParticipantsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateLibraryParticipants' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateLibraryParticipants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'addedParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'removedParticipants' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateLibraryParticipantsMutation, UpdateLibraryParticipantsMutationVariables>
+export const RemoveLibraryParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeLibraryParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeLibraryParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'participantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
+export const CreateEmbeddingTasksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createEmbeddingTasks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createEmbeddingTask' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'file' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateEmbeddingTasksMutation, CreateEmbeddingTasksMutationVariables>
+export const CreateContentProcessingTasksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createContentProcessingTasks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createContentProcessingTask' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'file' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateContentProcessingTasksMutation, CreateContentProcessingTasksMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -14415,106 +14519,6 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
-export const UpdateLibraryParticipantsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'updateLibraryParticipants' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateLibraryParticipants' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'totalParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'addedParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'removedParticipants' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpdateLibraryParticipantsMutation, UpdateLibraryParticipantsMutationVariables>
-export const RemoveLibraryParticipantDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeLibraryParticipant' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeLibraryParticipant' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'participantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
 export const GetContentQueriesDocument = {
   kind: 'Document',
   definitions: [
@@ -14929,6 +14933,7 @@ export const GetListItemsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'unfilteredCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
@@ -15428,6 +15433,7 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],
@@ -16345,6 +16351,7 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },

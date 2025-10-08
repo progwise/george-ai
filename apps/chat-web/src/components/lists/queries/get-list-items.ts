@@ -57,6 +57,7 @@ const getListItemsFn = createServerFn({ method: 'GET' })
             take: $take
             sorting: $sorting
           ) {
+            unfilteredCount
             count
             take
             skip

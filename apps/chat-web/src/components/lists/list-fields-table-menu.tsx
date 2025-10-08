@@ -25,6 +25,7 @@ graphql(`
 interface ListFieldsTableMenuProps {
   list: ListFieldsTableMenu_AiListFragment
   fields: ListFieldsTableMenu_FieldFragment[]
+  unfilteredCount?: number
 }
 
 export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
@@ -48,7 +49,14 @@ export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
 
   return (
     <ul className="menu menu-horizontal menu-sm rounded-box bg-base-200 z-48 items-center gap-2 p-2 text-sm">
-      <li className="menu-title pr-2">{list.name}</li>
+      <li className="menu-title pr-2">
+        {props.unfilteredCount !== undefined && (
+          <span className="text-base-content/50 text-sm">
+            {props.unfilteredCount}{' '}
+            {props.unfilteredCount === 1 ? t('lists.elementCount') : t('lists.elementsCount')}{' '}
+          </span>
+        )}
+      </li>
       <li>
         <details ref={detailsRef}>
           <summary className="btn btn-sm">

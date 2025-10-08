@@ -1,5 +1,6 @@
 import {
   type ExtractionMethodId,
+  isMethodAvailableForMimeType,
   parseFileConverterOptions,
   serializeFileConverterOptions,
 } from '@george-ai/file-converter'
@@ -34,6 +35,11 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     },
   })
 
+  const file = await prisma.aiLibraryFile.findUniqueOrThrow({
+    where: { id: fileId },
+    select: { id: true, mimeType: true },
+  })
+
   const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
@@ -53,6 +59,10 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
   }
 
   const timeoutMs = library.embeddingTimeoutMs
+
+  const appliedExtractionMethods = extractionMethods.filter((method) => {
+    return isMethodAvailableForMimeType(method, file.mimeType)
+  })
   // Serialize options if provided
   const task = await prisma.aiContentProcessingTask.create({
     ...query,
@@ -62,15 +72,12 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       extractionOptions,
       embeddingModelName: library.embeddingModelName,
       extractionSubTasks: {
-        create: extractionMethods.map((method) => ({ extractionMethod: method })),
+        create: appliedExtractionMethods.map((method) => ({ extractionMethod: method })),
       },
       timeoutMs: timeoutMs || 5 * 60 * 1000, // Default to 5 minutes
     },
   })
 
-  console.log(
-    `Created content extraction task ${task.id} for file ${fileId} with methods ${extractionMethods.join(', ')}`,
-  )
   return task
 }
 
