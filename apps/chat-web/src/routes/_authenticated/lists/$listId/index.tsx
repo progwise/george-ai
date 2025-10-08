@@ -73,7 +73,7 @@ function RouteComponent() {
         <div className="">
           <div className="grow-1 flex flex-row items-center gap-2">
             <div className="grow-1 flex items-center gap-2">
-              <ListFieldsTableMenu list={aiList} fields={aiList.fields} />
+              <ListFieldsTableMenu list={aiList} fields={aiList.fields} unfilteredCount={aiListItems.unfilteredCount} />
 
               {/* Summary */}
               <div className="text-base-content/70 text-sm">

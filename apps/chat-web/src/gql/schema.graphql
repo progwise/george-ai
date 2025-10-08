@@ -572,6 +572,7 @@ type AiListFieldContext {
 input AiListFieldInput {
   contentQuery: String
   context: [String!]
+  failureTerms: String
   fileProperty: String
   languageModel: String
   name: String!

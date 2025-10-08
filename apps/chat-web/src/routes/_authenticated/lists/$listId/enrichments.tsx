@@ -7,6 +7,7 @@ import { getListQueryOptions } from '../../../../components/lists/queries'
 import { getEnrichmentsQueryOptions } from '../../../../components/lists/queries/get-enrichments'
 import { Pagination } from '../../../../components/table/pagination'
 import { EnrichmentStatus, ListFieldSourceType } from '../../../../gql/graphql'
+import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/enrichments')({
   component: RouteComponent,
@@ -57,10 +58,16 @@ function RouteComponent() {
       status,
     }),
   )
+  const { t } = useTranslation()
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base-content/80 text-xl font-bold">Enrichments</h2>
+        <h2 className="text-base-content/80 text-xl font-bold">
+          {totalCount === 1
+            ? t('lists.enrichmentCount', { count: totalCount.toString() })
+            : t('lists.enrichmentsCount', { count: totalCount.toString() })}
+        </h2>
         <div className="flex items-end gap-4">
           <div className="flex items-center gap-2">
             <select

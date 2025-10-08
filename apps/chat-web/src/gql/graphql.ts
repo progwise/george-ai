@@ -628,6 +628,7 @@ export type AiListFieldContext = {
 export type AiListFieldInput = {
   contentQuery?: InputMaybe<Scalars['String']['input']>
   context?: InputMaybe<Array<Scalars['String']['input']>>
+  failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
   languageModel?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
@@ -4357,6 +4358,7 @@ export type GetListItemsQuery = {
   __typename?: 'Query'
   aiListItems: {
     __typename?: 'ListItemsQueryResult'
+    unfilteredCount: number
     count: number
     take: number
     skip: number
@@ -14931,6 +14933,7 @@ export const GetListItemsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'unfilteredCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },

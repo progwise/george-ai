@@ -81,7 +81,6 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         .filter((libraryId) => libraryId !== null) as string[]
 
       const filterConditions = await getListFiltersWhere(filters || [])
-      console.log('Applying filters to enrichment:', JSON.stringify(filterConditions, null, 2))
       const files = await prisma.aiLibraryFile.findMany({
         include: {
           crawledByCrawler: { select: { id: true, uri: true } },
