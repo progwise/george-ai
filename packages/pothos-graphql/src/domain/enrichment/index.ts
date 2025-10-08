@@ -41,6 +41,7 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
       ? z.string().min(1, 'Content query is required when using vector store')
       : z.string().nullable().optional(),
     useVectorStore: z.boolean(),
+    failureTerms: z.string().nullable(),
     listId: z.string(),
     context: z.array(ContextFieldSchema),
   })
@@ -52,6 +53,9 @@ export const EnrichmentMetadataSchema = z.object({
     .object({
       fileId: z.string(),
       fileName: z.string(),
+      fieldId: z.string(),
+      fieldName: z.string(),
+      failureTerms: z.string().nullable(),
       libraryId: z.string(),
       libraryName: z.string(),
       aiModel: z.string(),
@@ -131,6 +135,9 @@ export const getEnrichmentTaskInputMetadata = ({
     useVectorStore: !!validatedField.useVectorStore,
     fileId: file.id,
     fileName: file.name,
+    fieldId: validatedField.id,
+    fieldName: validatedField.name,
+    failureTerms: validatedField.failureTerms,
     libraryId: file.library.id,
     libraryName: file.library.name,
   }

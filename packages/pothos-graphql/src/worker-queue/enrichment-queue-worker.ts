@@ -137,6 +137,45 @@ async function processQueueItem({
       console.warn(`⚠️ Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
     }
 
+    let failedEnrichmentValue: string | null = null
+    if (!computedValue || computedValue === '' || computedValue.length === 0) {
+      failedEnrichmentValue = 'empty'
+    } else if (metadata.input.failureTerms) {
+      const failureTerms = metadata.input.failureTerms.split(',').map((term) => term.trim().toLowerCase())
+      if (failureTerms.includes(computedValue.toLowerCase())) {
+        failedEnrichmentValue = computedValue
+      }
+    }
+
+    const enrichedValues = failedEnrichmentValue
+      ? {
+          failedEnrichmentValue,
+          // Clear all value fields when storing failed enrichment
+          valueString: null,
+          valueNumber: null,
+          valueBoolean: null,
+          valueDate: null,
+        }
+      : {
+          // Clear failedEnrichmentValue when storing successful enrichment
+          failedEnrichmentValue: null,
+          valueString: computedValue,
+          valueNumber:
+            metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+          valueBoolean:
+            metadata.input.dataType === 'boolean'
+              ? computedValue
+                ? computedValue.toLowerCase() === 'true'
+                : null
+              : null,
+          valueDate:
+            metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
+              ? computedValue
+                ? new Date(computedValue)
+                : null
+              : null,
+        }
+
     // Store the computed value or error in cache
     const cachedValue = await prisma.aiListItemCache.upsert({
       where: {
@@ -148,39 +187,11 @@ async function processQueueItem({
       create: {
         fileId: enrichmentTask.fileId,
         fieldId: enrichmentTask.fieldId,
-        valueString: computedValue,
-        valueNumber:
-          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean:
-          metadata.input.dataType === 'boolean'
-            ? computedValue
-              ? computedValue.toLowerCase() === 'true'
-              : null
-            : null,
-        valueDate:
-          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
-            ? computedValue
-              ? new Date(computedValue)
-              : null
-            : null,
         enrichmentErrorMessage: enrichmentError,
+        ...enrichedValues,
       },
       update: {
-        valueString: computedValue,
-        valueNumber:
-          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean:
-          metadata.input.dataType === 'boolean'
-            ? computedValue
-              ? computedValue.toLowerCase() === 'true'
-              : null
-            : null,
-        valueDate:
-          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
-            ? computedValue
-              ? new Date(computedValue)
-              : null
-            : null,
+        ...enrichedValues,
         enrichmentErrorMessage: enrichmentError,
       },
     })
@@ -218,6 +229,7 @@ async function processQueueItem({
           valueNumber: cachedValue.valueNumber,
           valueDate: cachedValue.valueDate,
           valueBoolean: cachedValue.valueBoolean,
+          failedEnrichmentValue: cachedValue.failedEnrichmentValue,
           enrichmentErrorMessage: cachedValue.enrichmentErrorMessage,
         },
       },
