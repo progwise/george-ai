@@ -41,10 +41,5 @@ export { canAccessListOrThrow } from './domain/list'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentProcessingWorker } from './worker-queue/content-processing-worker'
-export {
-  subscribeConversationMessagesUpdate,
-  unsubscribeConversationMessagesUpdates,
-  subscribeEnrichmentQueueUpdates,
-  unsubscribeEnrichmentQueueUpdates,
-} from './subscriptions'
+export { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from './subscriptions'
 export type { Context } from './graphql/context'

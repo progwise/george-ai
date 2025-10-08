@@ -4,7 +4,6 @@ import { getSimilarChunks } from '@george-ai/langchain-chat'
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { prisma } from '../prisma'
-import { callEnrichmentQueueUpdateSubscriptions } from '../subscriptions'
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null
@@ -33,18 +32,6 @@ async function processQueueItem({
       data: {
         status: 'processing',
         startedAt: new Date(),
-      },
-    })
-
-    // Send SSE update
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'processing',
       },
     })
 
@@ -177,7 +164,7 @@ async function processQueueItem({
         }
 
     // Store the computed value or error in cache
-    const cachedValue = await prisma.aiListItemCache.upsert({
+    await prisma.aiListItemCache.upsert({
       where: {
         fileId_fieldId: {
           fileId: enrichmentTask.fileId,
@@ -203,7 +190,7 @@ async function processQueueItem({
         status: 'processing', // Only update if still processing
       },
       data: {
-        status: 'completed',
+        status: failedEnrichmentValue ? 'failed' : 'completed',
         completedAt: new Date(),
         metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
       },
@@ -214,26 +201,6 @@ async function processQueueItem({
       console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
       return
     }
-
-    // Send SSE update with computed value
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'completed',
-        computedValue: {
-          valueString: cachedValue.valueString,
-          valueNumber: cachedValue.valueNumber,
-          valueDate: cachedValue.valueDate,
-          valueBoolean: cachedValue.valueBoolean,
-          failedEnrichmentValue: cachedValue.failedEnrichmentValue,
-          enrichmentErrorMessage: cachedValue.enrichmentErrorMessage,
-        },
-      },
-    })
 
     console.log(`✅ Processed enrichment queue item ${enrichmentTask.id}`)
   } catch (error) {
@@ -246,7 +213,7 @@ async function processQueueItem({
         status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
       },
       data: {
-        status: 'failed',
+        status: 'error',
         completedAt: new Date(),
         error: error instanceof Error ? error.message : 'Unknown error',
       },
@@ -257,19 +224,6 @@ async function processQueueItem({
       console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
       return
     }
-
-    // Send SSE update
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-    })
   }
 }
 

@@ -592,7 +592,6 @@ export type AiList = {
   ownerId: Scalars['String']['output']
   participants: Array<AiListParticipant>
   sources: Array<AiListSource>
-  statistics: Array<AiListFieldStatistics>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -645,6 +644,7 @@ export type AiListFieldStatistics = {
   __typename?: 'AiListFieldStatistics'
   cacheCount: Scalars['Int']['output']
   completedTasksCount: Scalars['Int']['output']
+  errorTasksCount: Scalars['Int']['output']
   failedTasksCount: Scalars['Int']['output']
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
@@ -859,6 +859,7 @@ export type EnrichmentQueueTasksMutationResult = {
 export enum EnrichmentStatus {
   Canceled = 'canceled',
   Completed = 'completed',
+  Error = 'error',
   Failed = 'failed',
   Pending = 'pending',
   Processing = 'processing',
@@ -1525,6 +1526,7 @@ export type Query = {
   aiLibraryUsage: Array<AiLibraryUsage>
   aiList: AiList
   aiListEnrichments: EnrichmentQueueResult
+  aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiServiceStatus: AiServiceClusterStatus
@@ -1624,6 +1626,10 @@ export type QueryAiListEnrichmentsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>
   status?: InputMaybe<EnrichmentStatus>
   take?: InputMaybe<Scalars['Int']['input']>
+}
+
+export type QueryAiListEnrichmentsStatisticsArgs = {
+  listId: Scalars['String']['input']
 }
 
 export type QueryAiListItemsArgs = {
@@ -4263,6 +4269,27 @@ export type GetContentQueriesQuery = {
   }>
 }
 
+export type GetEnrichmentsStatisticsQueryVariables = Exact<{
+  listId: Scalars['String']['input']
+}>
+
+export type GetEnrichmentsStatisticsQuery = {
+  __typename?: 'Query'
+  aiListEnrichmentsStatistics: Array<{
+    __typename?: 'AiListFieldStatistics'
+    fieldId: string
+    fieldName: string
+    itemCount: number
+    cacheCount: number
+    valuesCount: number
+    completedTasksCount: number
+    errorTasksCount: number
+    failedTasksCount: number
+    pendingTasksCount: number
+    processingTasksCount: number
+  }>
+}
+
 export type GetEnrichmentsQueryVariables = Exact<{
   listId?: InputMaybe<Scalars['String']['input']>
   fileId?: InputMaybe<Scalars['String']['input']>
@@ -4417,18 +4444,6 @@ export type GetListQuery = {
       useVectorStore?: boolean | null
       order: number
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
-    }>
-    statistics: Array<{
-      __typename?: 'AiListFieldStatistics'
-      fieldId: string
-      fieldName: string
-      itemCount: number
-      cacheCount: number
-      valuesCount: number
-      completedTasksCount: number
-      failedTasksCount: number
-      pendingTasksCount: number
-      processingTasksCount: number
     }>
     sources: Array<{
       __typename?: 'AiListSource'
@@ -4642,22 +4657,6 @@ export type RemoveListParticipantMutationVariables = Exact<{
 
 export type RemoveListParticipantMutation = { __typename?: 'Mutation'; removeListParticipant: boolean }
 
-export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
-  listId: Scalars['String']['input']
-  fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
-}>
-
-export type RemoveFromEnrichmentQueueMutation = {
-  __typename?: 'Mutation'
-  deletePendingEnrichmentTasks: {
-    __typename?: 'EnrichmentQueueTasksMutationResult'
-    createdTasksCount?: number | null
-    cleanedUpTasksCount?: number | null
-    cleanedUpEnrichmentsCount?: number | null
-  }
-}
-
 export type RemoveListFieldMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -4686,6 +4685,22 @@ export type ReorderListFieldsMutation = {
   reorderListFields: Array<{ __typename?: 'AiListField'; id: string; name: string; order: number }>
 }
 
+export type StartSingleEnrichmentMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type StartSingleEnrichmentMutation = {
+  __typename?: 'Mutation'
+  createEnrichmentTasks: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
+  }
+}
+
 export type CreateListEnrichmentTasksMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
@@ -4704,15 +4719,15 @@ export type CreateListEnrichmentTasksMutation = {
   }
 }
 
-export type StartSingleEnrichmentMutationVariables = Exact<{
+export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
   fileId: Scalars['String']['input']
 }>
 
-export type StartSingleEnrichmentMutation = {
+export type RemoveFromEnrichmentQueueMutation = {
   __typename?: 'Mutation'
-  createEnrichmentTasks: {
+  deletePendingEnrichmentTasks: {
     __typename?: 'EnrichmentQueueTasksMutationResult'
     createdTasksCount?: number | null
     cleanedUpTasksCount?: number | null
@@ -4841,24 +4856,6 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
-}
-
-export type ListStatistics_AiListFragment = {
-  __typename?: 'AiList'
-  id: string
-  name: string
-  statistics: Array<{
-    __typename?: 'AiListFieldStatistics'
-    fieldId: string
-    fieldName: string
-    itemCount: number
-    cacheCount: number
-    valuesCount: number
-    completedTasksCount: number
-    failedTasksCount: number
-    pendingTasksCount: number
-    processingTasksCount: number
-  }>
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -9080,41 +9077,6 @@ export const UserProfileForm_UserProfileFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
-export const ListStatistics_AiListFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListStatistics_AiList' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'statistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListStatistics_AiListFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -14592,6 +14554,54 @@ export const GetContentQueriesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetContentQueriesQuery, GetContentQueriesQueryVariables>
+export const GetEnrichmentsStatisticsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getEnrichmentsStatistics' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiListEnrichmentsStatistics' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEnrichmentsStatisticsQuery, GetEnrichmentsStatisticsQueryVariables>
 export const GetEnrichmentsDocument = {
   kind: 'Document',
   definitions: [
@@ -15046,7 +15056,6 @@ export const GetListDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListStatistics_AiList' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_List' } },
@@ -15176,36 +15185,6 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListStatistics_AiList' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'statistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -16008,67 +15987,6 @@ export const RemoveListParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveListParticipantMutation, RemoveListParticipantMutationVariables>
-export const RemoveFromEnrichmentQueueDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deletePendingEnrichmentTasks' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'listId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fieldId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveFromEnrichmentQueueMutation, RemoveFromEnrichmentQueueMutationVariables>
 export const RemoveListFieldDocument = {
   kind: 'Document',
   definitions: [
@@ -16194,6 +16112,72 @@ export const ReorderListFieldsDocument = {
     },
   ],
 } as unknown as DocumentNode<ReorderListFieldsMutation, ReorderListFieldsMutationVariables>
+export const StartSingleEnrichmentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'startSingleEnrichment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createEnrichmentTasks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'onlyMissingValues' },
+                value: { kind: 'BooleanValue', value: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StartSingleEnrichmentMutation, StartSingleEnrichmentMutationVariables>
 export const CreateListEnrichmentTasksDocument = {
   kind: 'Document',
   definitions: [
@@ -16281,13 +16265,13 @@ export const CreateListEnrichmentTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateListEnrichmentTasksMutation, CreateListEnrichmentTasksMutationVariables>
-export const StartSingleEnrichmentDocument = {
+export const RemoveFromEnrichmentQueueDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'startSingleEnrichment' },
+      name: { kind: 'Name', value: 'removeFromEnrichmentQueue' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -16310,7 +16294,7 @@ export const StartSingleEnrichmentDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createEnrichmentTasks' },
+            name: { kind: 'Name', value: 'deletePendingEnrichmentTasks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -16327,11 +16311,6 @@ export const StartSingleEnrichmentDocument = {
                 name: { kind: 'Name', value: 'fileId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'onlyMissingValues' },
-                value: { kind: 'BooleanValue', value: false },
-              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
@@ -16346,7 +16325,7 @@ export const StartSingleEnrichmentDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<StartSingleEnrichmentMutation, StartSingleEnrichmentMutationVariables>
+} as unknown as DocumentNode<RemoveFromEnrichmentQueueMutation, RemoveFromEnrichmentQueueMutationVariables>
 export const StopListEnrichmentDocument = {
   kind: 'Document',
   definitions: [

@@ -538,7 +538,6 @@ type AiList {
   ownerId: String!
   participants: [AiListParticipant!]!
   sources: [AiListSource!]!
-  statistics: [AiListFieldStatistics!]!
   updatedAt: DateTime
 }
 
@@ -592,6 +591,7 @@ input AiListFieldInput {
 type AiListFieldStatistics {
   cacheCount: Int!
   completedTasksCount: Int!
+  errorTasksCount: Int!
   failedTasksCount: Int!
   fieldId: String!
   fieldName: String!
@@ -806,6 +806,7 @@ type EnrichmentQueueTasksMutationResult {
 enum EnrichmentStatus {
   canceled
   completed
+  error
   failed
   pending
   processing
@@ -1177,6 +1178,7 @@ type Query {
     status: EnrichmentStatus
     take: Int = 20
   ): EnrichmentQueueResult!
+  aiListEnrichmentsStatistics(listId: String!): [AiListFieldStatistics!]!
   aiListItems(
     fieldIds: [String!]!
     filters: [AiListFilterInput!]

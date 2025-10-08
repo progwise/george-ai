@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Prisma } from '../../../prisma/generated/client'
 import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES, getFieldValue } from '../list'
 
-export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'failed', 'canceled']
+export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'error', 'failed', 'canceled']
 
 export type EnrichmentStatusType = (typeof EnrichmentStatusValues)[number]
 
