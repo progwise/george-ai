@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getEnrichmentsQueryOptions, getListQueryOptions } from './queries'
-import { clearEnrichmentsFn, startEnrichmentFn, stopEnrichmentFn } from './server-functions'
+import { clearEnrichmentsFn, startEnrichmentsFn, stopEnrichmentsFn } from './server-functions'
 import { FieldFilter } from './use-list-settings'
 
 export const useEnrichmentActions = (listId: string) => {
@@ -17,7 +17,7 @@ export const useEnrichmentActions = (listId: string) => {
       onlyMissingValues?: boolean
       filters?: FieldFilter[]
     }) => {
-      return await startEnrichmentFn({
+      return await startEnrichmentsFn({
         data: {
           listId,
           fieldId: args.fieldId,
@@ -52,7 +52,7 @@ export const useEnrichmentActions = (listId: string) => {
   })
 
   const { mutate: stopEnrichments, isPending: stopEnrichmentsIsPending } = useMutation({
-    mutationFn: async (args: { fieldId: string }) => stopEnrichmentFn({ data: { listId, fieldId: args.fieldId } }),
+    mutationFn: async (args: { fieldId: string }) => stopEnrichmentsFn({ data: { listId, fieldId: args.fieldId } }),
     onSuccess: async (data) => {
       if (data.cleanedUpTasksCount !== undefined) {
         toastSuccess(t('lists.enrichment.stopped'))

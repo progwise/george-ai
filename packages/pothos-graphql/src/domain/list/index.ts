@@ -56,7 +56,7 @@ export function getFieldValue(
       type: true
     }
   }>,
-): { value: string | null; errorMessage: string | null } {
+): { value: string | null; errorMessage: string | null; failedEnrichmentValue: string | null } {
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
     let value: string | null = null
@@ -92,7 +92,7 @@ export function getFieldValue(
       default:
         value = null
     }
-    return { value, errorMessage: null }
+    return { value, errorMessage: null, failedEnrichmentValue: null }
   }
 
   const caches = file.cache.filter((cache) => cache.fieldId === field.id)
@@ -104,26 +104,32 @@ export function getFieldValue(
   const cache = caches.length === 1 ? caches[0] : null
 
   if (!cache) {
-    return { value: '-', errorMessage: null }
+    return { value: '-', errorMessage: null, failedEnrichmentValue: null }
   }
   if (field.sourceType !== 'llm_computed') {
-    return { value: null, errorMessage: 'not an llm computed field' }
+    return { value: null, errorMessage: 'not an llm computed field', failedEnrichmentValue: null }
   }
 
   const errorMessage = cache.enrichmentErrorMessage || null
+  const failedEnrichmentValue = cache.failedEnrichmentValue || null
+
   switch (field.type) {
     case 'text':
     case 'string':
-      return { value: cache.valueString, errorMessage }
+      return { value: cache.valueString, errorMessage, failedEnrichmentValue }
     case 'number':
-      return { value: cache.valueNumber?.toString() || null, errorMessage }
+      return { value: cache.valueNumber?.toString() || null, errorMessage, failedEnrichmentValue }
     case 'boolean':
-      return { value: cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null, errorMessage }
+      return {
+        value: cache.valueBoolean !== null ? (cache.valueBoolean ? 'Yes' : 'No') : null,
+        errorMessage,
+        failedEnrichmentValue,
+      }
     case 'date':
     case 'datetime':
-      return { value: cache.valueDate?.toISOString() || null, errorMessage }
+      return { value: cache.valueDate?.toISOString() || null, errorMessage, failedEnrichmentValue }
     default:
-      return { value: null, errorMessage: 'unknown field type' }
+      return { value: null, errorMessage: 'unknown field type', failedEnrichmentValue: null }
   }
 }
 

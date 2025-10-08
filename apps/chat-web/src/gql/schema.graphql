@@ -848,6 +848,7 @@ enum ExtractionStatus {
 type FieldValueResult {
   displayValue: String
   enrichmentErrorMessage: String
+  failedEnrichmentValue: String
   fieldId: String!
   fieldName: String!
   queueStatus: String

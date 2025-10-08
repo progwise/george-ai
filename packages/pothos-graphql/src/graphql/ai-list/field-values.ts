@@ -40,6 +40,7 @@ export const FieldValueResult = builder
     fieldName: string
     displayValue: string | null
     enrichmentErrorMessage: string | null
+    failedEnrichmentValue: string | null
     queueStatus: string | null
   }>('FieldValueResult')
   .implement({
@@ -48,6 +49,7 @@ export const FieldValueResult = builder
       fieldName: t.exposeString('fieldName', { nullable: false }),
       displayValue: t.exposeString('displayValue', { nullable: true }),
       enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
+      failedEnrichmentValue: t.exposeString('failedEnrichmentValue', { nullable: true }),
       queueStatus: t.exposeString('queueStatus', { nullable: true }),
     }),
   })
@@ -134,11 +136,13 @@ export const ListItemQueryResult = builder
             fieldId: field.id,
             fieldName: field.name,
             ...(() => {
-              const { value, errorMessage } = getFieldValue(file, field)
+              const { value, errorMessage, failedEnrichmentValue } = getFieldValue(file, field)
+              const fieldTask = file.enrichmentTasks.find((task) => task.fieldId === field.id)
               return {
                 displayValue: value ? value : errorMessage,
-                queueStatus: file.enrichmentTasks.length < 1 ? 'done' : file.enrichmentTasks[0].status,
+                queueStatus: fieldTask ? fieldTask.status : 'done',
                 enrichmentErrorMessage: errorMessage,
+                failedEnrichmentValue,
               }
             })(),
           }))

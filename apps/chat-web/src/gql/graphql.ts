@@ -906,6 +906,7 @@ export type FieldValueResult = {
   __typename?: 'FieldValueResult'
   displayValue?: Maybe<Scalars['String']['output']>
   enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
+  failedEnrichmentValue?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
   queueStatus?: Maybe<Scalars['String']['output']>
@@ -4145,6 +4146,7 @@ export type ListFilesTable_FilesQueryResultFragment = {
       fieldName: string
       displayValue?: string | null
       enrichmentErrorMessage?: string | null
+      failedEnrichmentValue?: string | null
       queueStatus?: string | null
     }>
   }>
@@ -4378,6 +4380,7 @@ export type GetListItemsQuery = {
         fieldName: string
         displayValue?: string | null
         enrichmentErrorMessage?: string | null
+        failedEnrichmentValue?: string | null
         queueStatus?: string | null
       }>
     }>
@@ -4528,6 +4531,22 @@ export type AddListSourceMutation = {
       name: string
       owner: { __typename?: 'User'; name?: string | null }
     } | null
+  }
+}
+
+export type ClearEnrichmentMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type ClearEnrichmentMutation = {
+  __typename?: 'Mutation'
+  clearListEnrichments: {
+    __typename?: 'EnrichmentQueueTasksMutationResult'
+    createdTasksCount?: number | null
+    cleanedUpTasksCount?: number | null
+    cleanedUpEnrichmentsCount?: number | null
   }
 }
 
@@ -8718,6 +8737,7 @@ export const ListFilesTable_FilesQueryResultFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'failedEnrichmentValue' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
                     ],
                   },
@@ -14935,42 +14955,55 @@ export const GetListItemsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'unfilteredCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_FilesQueryResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemsQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'items' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'origin' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'origin' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'values' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
-                          ],
-                        },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'values' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'failedEnrichmentValue' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
                     ],
                   },
                 },
@@ -15516,6 +15549,67 @@ export const AddListSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<AddListSourceMutation, AddListSourceMutationVariables>
+export const ClearEnrichmentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'clearEnrichment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'clearListEnrichments' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fieldId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'createdTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cleanedUpEnrichmentsCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ClearEnrichmentMutation, ClearEnrichmentMutationVariables>
 export const ClearEnrichmentsDocument = {
   kind: 'Document',
   definitions: [
