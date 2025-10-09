@@ -247,7 +247,7 @@ type AiEnrichmentTask {
   listId: String!
   metadata: String
   priority: Int!
-  processingData: AiEnrichmentTaskProcessingData!
+  processingData: AiEnrichmentTaskProcessingData
   requestedAt: DateTime!
   startedAt: DateTime
   status: EnrichmentStatus!

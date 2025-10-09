@@ -55,7 +55,7 @@ export const EnrichmentMetadataSchema = z.object({
       fileName: z.string(),
       fieldId: z.string(),
       fieldName: z.string(),
-      failureTerms: z.string().nullable(),
+      failureTerms: z.string().nullable().optional(),
       libraryId: z.string(),
       libraryName: z.string(),
       aiModel: z.string(),

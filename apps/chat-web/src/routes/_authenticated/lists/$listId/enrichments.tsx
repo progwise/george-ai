@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { EnrichmentAccordionItem } from '../../../../components/lists/enrichment-accordion-item'
@@ -47,7 +48,7 @@ function RouteComponent() {
 
   const {
     data: {
-      aiListEnrichments: { enrichments, totalCount },
+      aiListEnrichments: { enrichments, totalCount, statusCounts },
     },
   } = useSuspenseQuery(
     getEnrichmentsQueryOptions({
@@ -63,11 +64,31 @@ function RouteComponent() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base-content/80 text-xl font-bold">
-          {totalCount === 1
-            ? t('lists.enrichmentCount', { count: totalCount.toString() })
-            : t('lists.enrichmentsCount', { count: totalCount.toString() })}
-        </h2>
+        <div>
+          <h2 className="text-base-content/80 text-xl font-bold">
+            {totalCount === 1
+              ? t('lists.enrichmentCount', { count: totalCount.toString() })
+              : t('lists.enrichmentsCount', { count: totalCount.toString() })}
+          </h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {statusCounts.map(({ status, count }) => (
+              <div
+                key={status}
+                className={twMerge(
+                  'badge badge-sm px-2 py-1',
+                  status === EnrichmentStatus.Processing && 'badge-primary',
+                  status === EnrichmentStatus.Pending && 'badge-info',
+                  status === EnrichmentStatus.Completed && 'badge-success',
+                  status === EnrichmentStatus.Error && 'badge-error',
+                  status === EnrichmentStatus.Failed && 'badge-warning',
+                  status === EnrichmentStatus.Canceled && 'badge-secondary',
+                )}
+              >
+                {status}: {count}
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="flex items-end gap-4">
           <div className="flex items-center gap-2">
             <select
@@ -101,6 +122,7 @@ function RouteComponent() {
               <option value={EnrichmentStatus.Canceled}>Cancelled</option>
               <option value={EnrichmentStatus.Completed}>Completed</option>
               <option value={EnrichmentStatus.Failed}>Failed</option>
+              <option value={EnrichmentStatus.Error}>Error</option>
             </select>
           </div>
           <Pagination

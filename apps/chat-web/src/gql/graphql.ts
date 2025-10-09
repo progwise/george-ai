@@ -269,7 +269,7 @@ export type AiEnrichmentTask = {
   listId: Scalars['String']['output']
   metadata?: Maybe<Scalars['String']['output']>
   priority: Scalars['Int']['output']
-  processingData: AiEnrichmentTaskProcessingData
+  processingData?: Maybe<AiEnrichmentTaskProcessingData>
   requestedAt: Scalars['DateTime']['output']
   startedAt?: Maybe<Scalars['DateTime']['output']>
   status: EnrichmentStatus
@@ -4004,7 +4004,7 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
   completedAt?: string | null
   metadata?: string | null
   error?: string | null
-  processingData: {
+  processingData?: {
     __typename?: 'AiEnrichmentTaskProcessingData'
     input?: {
       __typename?: 'AiEnrichmentTaskProcessingDataInput'
@@ -4041,7 +4041,7 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
       }> | null
       messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
     } | null
-  }
+  } | null
   field: { __typename?: 'AiListField'; id: string; name: string }
   file: {
     __typename?: 'AiLibraryFile'
@@ -4324,7 +4324,7 @@ export type GetEnrichmentsQuery = {
       completedAt?: string | null
       metadata?: string | null
       error?: string | null
-      processingData: {
+      processingData?: {
         __typename?: 'AiEnrichmentTaskProcessingData'
         input?: {
           __typename?: 'AiEnrichmentTaskProcessingDataInput'
@@ -4361,7 +4361,7 @@ export type GetEnrichmentsQuery = {
           }> | null
           messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
         } | null
-      }
+      } | null
       field: { __typename?: 'AiListField'; id: string; name: string }
       file: {
         __typename?: 'AiLibraryFile'

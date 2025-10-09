@@ -30,10 +30,14 @@ builder.prismaObject('AiEnrichmentTask', {
     file: t.relation('file', { nullable: false }),
     processingData: t.field({
       type: AiEnrichmentTaskProcessingData,
-      nullable: false,
+      nullable: true,
       resolve: (parent) => {
         const metadata = JSON.parse(parent.metadata || '{}')
-        return EnrichmentMetadataSchema.parse(metadata)
+        const parseResult = EnrichmentMetadataSchema.safeParse(metadata)
+        if (parseResult.success) {
+          return parseResult.data || null
+        }
+        return null
       },
     }),
     metadata: t.exposeString('metadata'), // JSON string

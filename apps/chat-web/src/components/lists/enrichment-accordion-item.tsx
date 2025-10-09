@@ -90,6 +90,20 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
   const metadataModalRef = useRef<HTMLDialogElement>(null)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(enrichment.listId)
 
+  const processingData = enrichment.processingData ?? {
+    input: {
+      aiModel: 'unknown',
+    },
+    output: {
+      similarChunks: [],
+      messages: [],
+      aiInstance: '',
+      enrichedValue: '',
+      issues: [],
+    },
+    issues: [],
+    messages: [],
+  }
   return (
     <div className="collapse-arrow join-item border-base-300 collapse border">
       <input type="radio" name={`task-accordion`} defaultChecked={index === 0} className="peer" />
@@ -104,20 +118,26 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
             </div>
             <div className="flex items-center gap-4 text-xs">
               <span className="text-base-content/50">{dateTimeString(enrichment.requestedAt, language)}</span>
-              {enrichment.status === EnrichmentStatus.Completed && enrichment.processingData.output?.enrichedValue && (
+              {enrichment.status === EnrichmentStatus.Completed && processingData.output?.enrichedValue && (
                 <>
                   <span className="text-base-content/40">•</span>
-                  <span className="text-success max-w-md truncate">
-                    Value: {enrichment.processingData.output.enrichedValue}
-                  </span>
+                  <span className="text-success max-w-md truncate">Value: {processingData.output.enrichedValue}</span>
                 </>
               )}
-              {enrichment.status === EnrichmentStatus.Failed && enrichment.error && (
+              {enrichment.status === EnrichmentStatus.Error && enrichment.error && (
                 <>
                   <span className="text-base-content/40">•</span>
                   <span className="text-error flex items-center gap-1">
                     <ErrorIcon className="size-3" />
                     <span className="max-w-md truncate">{enrichment.error}</span>
+                  </span>
+                </>
+              )}
+              {enrichment.status === EnrichmentStatus.Failed && processingData.output?.enrichedValue && (
+                <>
+                  <span className="text-base-content/40">•</span>
+                  <span className="text-warning flex items-center gap-1">
+                    <span className="max-w-md truncate">Missing: {processingData.output.enrichedValue}</span>
                   </span>
                 </>
               )}
@@ -139,10 +159,11 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
             <span
               className={twMerge(
                 'badge badge-sm badge-outline',
-                enrichment.status === EnrichmentStatus.Pending ? 'badge-warning' : '',
-                enrichment.status === EnrichmentStatus.Processing ? 'badge-info' : '',
+                enrichment.status === EnrichmentStatus.Pending ? 'badge-info' : '',
+                enrichment.status === EnrichmentStatus.Processing ? 'badge-primary' : '',
                 enrichment.status === EnrichmentStatus.Completed ? 'badge-success' : '',
-                enrichment.status === EnrichmentStatus.Failed ? 'badge-error' : '',
+                enrichment.status === EnrichmentStatus.Error ? 'badge-error' : '',
+                enrichment.status === EnrichmentStatus.Failed ? 'badge-warning' : '',
                 enrichment.status === EnrichmentStatus.Canceled ? 'badge-secondary' : '',
               )}
             >
@@ -157,22 +178,47 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
       <div className="collapse-content bg-base-100 text-sm">
         <div className="space-y-4 pt-4">
           {/* Error Display */}
-          {enrichment.status === EnrichmentStatus.Failed && enrichment.error && (
+          {enrichment.status === EnrichmentStatus.Error && enrichment.error && (
             <div className="alert alert-error">
               <ErrorIcon className="size-5" />
               <div>
-                <h3 className="font-semibold">Enrichment Failed</h3>
+                <h3 className="font-semibold">Processing Error</h3>
                 <p className="text-sm">{enrichment.error}</p>
               </div>
             </div>
           )}
 
+          {/* Failed Enrichment (Failure Terms) Display */}
+          {enrichment.status === EnrichmentStatus.Failed && processingData.output?.enrichedValue && (
+            <div className="alert alert-warning">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-5 shrink-0 stroke-current"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <div>
+                <h3 className="font-semibold">Missing Value</h3>
+                <p className="text-sm">
+                  Enrichment returned a value that matched failure terms: "{processingData.output.enrichedValue}"
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Success Result Display */}
-          {enrichment.status === EnrichmentStatus.Completed && enrichment.processingData.output?.enrichedValue && (
+          {enrichment.status === EnrichmentStatus.Completed && processingData.output?.enrichedValue && (
             <div className="bg-base-200 rounded-lg p-3">
               <div className="flex items-start gap-2">
                 <span className="text-base-content/60 min-w-fit font-semibold">Enriched Value:</span>
-                <span className="text-base-content">{enrichment.processingData.output.enrichedValue}</span>
+                <span className="text-base-content">{processingData.output.enrichedValue}</span>
               </div>
             </div>
           )}
@@ -206,9 +252,10 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                   className={twMerge(
                     'font-medium',
                     enrichment.status === EnrichmentStatus.Completed && 'text-success',
-                    enrichment.status === EnrichmentStatus.Failed && 'text-error',
-                    enrichment.status === EnrichmentStatus.Processing && 'text-info',
-                    enrichment.status === EnrichmentStatus.Pending && 'text-warning',
+                    enrichment.status === EnrichmentStatus.Error && 'text-error',
+                    enrichment.status === EnrichmentStatus.Failed && 'text-warning',
+                    enrichment.status === EnrichmentStatus.Processing && 'text-primary',
+                    enrichment.status === EnrichmentStatus.Pending && 'text-info',
                   )}
                 >
                   {enrichment.status}
@@ -218,21 +265,21 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 <span className="text-base-content/60 min-w-[80px]">Duration:</span>
                 <span>{duration(enrichment.requestedAt, enrichment.completedAt)}</span>
               </div>
-              {enrichment.processingData.input?.aiModel && (
+              {processingData.input?.aiModel && (
                 <div className="flex gap-2">
                   <span className="text-base-content/60 min-w-[80px]">AI Model:</span>
-                  <span className="font-mono text-xs">{enrichment.processingData.input.aiModel}</span>
+                  <span className="font-mono text-xs">{processingData.input.aiModel}</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Processing Details */}
-          {enrichment.processingData.output?.issues && enrichment.processingData.output.issues.length > 0 && (
+          {processingData.output?.issues && processingData.output.issues.length > 0 && (
             <div className="bg-warning/10 rounded-lg p-3">
               <h4 className="text-warning mb-1 font-semibold">Issues:</h4>
               <ul className="list-inside list-disc text-sm">
-                {enrichment.processingData.output.issues.map((issue: string) => (
+                {processingData.output.issues.map((issue: string) => (
                   <li key={issue}>{issue}</li>
                 ))}
               </ul>
@@ -242,7 +289,10 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           {/* Action Buttons */}
           <div className="border-base-300 flex items-center justify-between border-t pt-2">
             <div className="flex gap-2">
-              {enrichment.processingData && (
+              {(!enrichment.processingData || !enrichment.metadata) && (
+                <div className="badge badge-sm badge-outline badge-warning">No Process Data</div>
+              )}
+              {enrichment.processingData && enrichment.metadata && (
                 <button
                   type="button"
                   className="btn btn-sm btn-ghost tooltip"
@@ -291,8 +341,10 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 </svg>
                 <span>Clear</span>
               </button>
-              {/* Retry button for completed or failed tasks */}
-              {(enrichment.completedAt || enrichment.status === EnrichmentStatus.Failed) && (
+              {/* Retry button for completed, failed, or error tasks */}
+              {(enrichment.completedAt ||
+                enrichment.status === EnrichmentStatus.Failed ||
+                enrichment.status === EnrichmentStatus.Error) && (
                 <button
                   type="button"
                   className="btn btn-sm btn-primary tooltip"
