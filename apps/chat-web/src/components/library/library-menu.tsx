@@ -92,7 +92,13 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
               {selectableLibraries.map((library) => (
                 <li key={library.id}>
                   <Link
-                    to={params.crawlerId || params.fileId ? '..' : '.'}
+                    to={
+                      params.crawlerId
+                        ? '/libraries/$libraryId/crawlers'
+                        : params.fileId
+                          ? '/libraries/$libraryId/files'
+                          : '.'
+                    }
                     className="text-nowrap"
                     params={{ libraryId: library.id }}
                     activeProps={{ className: 'font-bold' }}
