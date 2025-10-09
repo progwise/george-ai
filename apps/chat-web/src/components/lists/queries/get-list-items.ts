@@ -59,24 +59,7 @@ const getListItemsFn = createServerFn({ method: 'GET' })
           ) {
             unfilteredCount
             count
-            take
-            skip
-            items {
-              origin {
-                id
-                type
-                name
-                libraryId
-                libraryName
-              }
-              values {
-                fieldId
-                fieldName
-                displayValue
-                enrichmentErrorMessage
-                queueStatus
-              }
-            }
+            ...ListFilesTable_FilesQueryResult
           }
         }
       `),

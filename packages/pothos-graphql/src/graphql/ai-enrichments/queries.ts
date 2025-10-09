@@ -1,5 +1,6 @@
 import { EnrichmentStatus } from '.'
-import { getCanAccessFileWhere, getCanAccessListWhere } from '../../domain'
+import { getListStatistics } from '../../../prisma/generated/sql'
+import { canAccessListOrThrow, getCanAccessFileWhere, getCanAccessListWhere } from '../../domain'
 import { EnrichmentStatusType } from '../../domain/enrichment'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -133,6 +134,63 @@ builder.queryField('aiListEnrichments', (t) =>
         skip: skip!,
         status,
       }
+    },
+  }),
+)
+
+builder.queryField('aiListEnrichmentsStatistics', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: [
+      builder
+        .objectRef<{
+          listId: string
+          fieldId: string
+          fieldName: string
+          itemCount: number
+          cacheCount: number
+          valuesCount: number
+          completedTasksCount: number
+          errorTasksCount: number
+          failedTasksCount: number
+          pendingTasksCount: number
+          processingTasksCount: number
+        }>('AiListFieldStatistics')
+        .implement({
+          fields: (t) => ({
+            listId: t.exposeString('listId', { nullable: false }),
+            fieldId: t.exposeString('fieldId', { nullable: false }),
+            fieldName: t.exposeString('fieldName', { nullable: false }),
+            itemCount: t.exposeInt('itemCount', { nullable: false }),
+            cacheCount: t.exposeInt('cacheCount', { nullable: false }),
+            valuesCount: t.exposeInt('valuesCount', { nullable: false }),
+            completedTasksCount: t.exposeInt('completedTasksCount', { nullable: false }),
+            errorTasksCount: t.exposeInt('errorTasksCount', { nullable: false }),
+            failedTasksCount: t.exposeInt('failedTasksCount', { nullable: false }),
+            pendingTasksCount: t.exposeInt('pendingTasksCount', { nullable: false }),
+            processingTasksCount: t.exposeInt('processingTasksCount', { nullable: false }),
+          }),
+        }),
+    ],
+    nullable: { list: false, items: false },
+    args: {
+      listId: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, { listId }, context) => {
+      await canAccessListOrThrow(listId, context.session.user.id)
+      const result = await prisma.$queryRawTyped(getListStatistics(listId))
+      return result.map((r) => ({
+        listId: r.listId,
+        fieldId: r.fieldId,
+        fieldName: r.fieldName,
+        itemCount: Number(r.itemCount),
+        cacheCount: Number(r.cacheCount),
+        valuesCount: Number(r.valuesCount),
+        completedTasksCount: Number(r.completedTasksCount),
+        errorTasksCount: Number(r.errorTasksCount),
+        failedTasksCount: Number(r.failedTasksCount),
+        pendingTasksCount: Number(r.pendingTasksCount),
+        processingTasksCount: Number(r.processingTasksCount),
+      }))
     },
   }),
 )

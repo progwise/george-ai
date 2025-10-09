@@ -409,6 +409,7 @@ model AiListItemCache {
   valueDate              DateTime?
   valueBoolean           Boolean?
   enrichmentErrorMessage String? // Store enrichment errors
+  failedEnrichmentValue  String? // Store the value if it matched failureTerms (not stored in value* fields)
   file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
   field                  AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 

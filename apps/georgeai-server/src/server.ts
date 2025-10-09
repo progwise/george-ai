@@ -12,7 +12,6 @@ import { startContentProcessingWorker, startEnrichmentQueueWorker } from '@georg
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
-import { enrichmentQueueSSE } from './enrichment-queue-sse'
 import { getUserContext } from './getUserContext'
 import { libraryFiles } from './library-files'
 import { dataUploadMiddleware } from './upload'
@@ -58,8 +57,6 @@ app.use('/avatar', avatarMiddleware)
 app.use('/upload', dataUploadMiddleware)
 app.get('/library-files/:libraryId/:fileId', libraryFiles)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
-app.get('/enrichment-queue-sse', enrichmentQueueSSE)
-app.options('/enrichment-queue-sse', enrichmentQueueSSE)
 
 // Only check API key or user JWT for /graphql POST requests
 app.use('/graphql', (req, res, next) => {

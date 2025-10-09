@@ -4,7 +4,6 @@ import { getSimilarChunks } from '@george-ai/langchain-chat'
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { prisma } from '../prisma'
-import { callEnrichmentQueueUpdateSubscriptions } from '../subscriptions'
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null
@@ -33,18 +32,6 @@ async function processQueueItem({
       data: {
         status: 'processing',
         startedAt: new Date(),
-      },
-    })
-
-    // Send SSE update
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'processing',
       },
     })
 
@@ -137,8 +124,47 @@ async function processQueueItem({
       console.warn(`⚠️ Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
     }
 
+    let failedEnrichmentValue: string | null = null
+    if (!computedValue || computedValue === '' || computedValue.length === 0) {
+      failedEnrichmentValue = 'empty'
+    } else if (metadata.input.failureTerms) {
+      const failureTerms = metadata.input.failureTerms.split(',').map((term) => term.trim().toLowerCase())
+      if (failureTerms.includes(computedValue.toLowerCase())) {
+        failedEnrichmentValue = computedValue
+      }
+    }
+
+    const enrichedValues = failedEnrichmentValue
+      ? {
+          failedEnrichmentValue,
+          // Clear all value fields when storing failed enrichment
+          valueString: null,
+          valueNumber: null,
+          valueBoolean: null,
+          valueDate: null,
+        }
+      : {
+          // Clear failedEnrichmentValue when storing successful enrichment
+          failedEnrichmentValue: null,
+          valueString: computedValue,
+          valueNumber:
+            metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+          valueBoolean:
+            metadata.input.dataType === 'boolean'
+              ? computedValue
+                ? computedValue.toLowerCase() === 'true'
+                : null
+              : null,
+          valueDate:
+            metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
+              ? computedValue
+                ? new Date(computedValue)
+                : null
+              : null,
+        }
+
     // Store the computed value or error in cache
-    const cachedValue = await prisma.aiListItemCache.upsert({
+    await prisma.aiListItemCache.upsert({
       where: {
         fileId_fieldId: {
           fileId: enrichmentTask.fileId,
@@ -148,39 +174,11 @@ async function processQueueItem({
       create: {
         fileId: enrichmentTask.fileId,
         fieldId: enrichmentTask.fieldId,
-        valueString: computedValue,
-        valueNumber:
-          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean:
-          metadata.input.dataType === 'boolean'
-            ? computedValue
-              ? computedValue.toLowerCase() === 'true'
-              : null
-            : null,
-        valueDate:
-          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
-            ? computedValue
-              ? new Date(computedValue)
-              : null
-            : null,
         enrichmentErrorMessage: enrichmentError,
+        ...enrichedValues,
       },
       update: {
-        valueString: computedValue,
-        valueNumber:
-          metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-        valueBoolean:
-          metadata.input.dataType === 'boolean'
-            ? computedValue
-              ? computedValue.toLowerCase() === 'true'
-              : null
-            : null,
-        valueDate:
-          metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
-            ? computedValue
-              ? new Date(computedValue)
-              : null
-            : null,
+        ...enrichedValues,
         enrichmentErrorMessage: enrichmentError,
       },
     })
@@ -192,7 +190,7 @@ async function processQueueItem({
         status: 'processing', // Only update if still processing
       },
       data: {
-        status: 'completed',
+        status: failedEnrichmentValue ? 'failed' : 'completed',
         completedAt: new Date(),
         metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
       },
@@ -203,25 +201,6 @@ async function processQueueItem({
       console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
       return
     }
-
-    // Send SSE update with computed value
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'completed',
-        computedValue: {
-          valueString: cachedValue.valueString,
-          valueNumber: cachedValue.valueNumber,
-          valueDate: cachedValue.valueDate,
-          valueBoolean: cachedValue.valueBoolean,
-          enrichmentErrorMessage: cachedValue.enrichmentErrorMessage,
-        },
-      },
-    })
 
     console.log(`✅ Processed enrichment queue item ${enrichmentTask.id}`)
   } catch (error) {
@@ -234,7 +213,7 @@ async function processQueueItem({
         status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
       },
       data: {
-        status: 'failed',
+        status: 'error',
         completedAt: new Date(),
         error: error instanceof Error ? error.message : 'Unknown error',
       },
@@ -245,19 +224,6 @@ async function processQueueItem({
       console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
       return
     }
-
-    // Send SSE update
-    await callEnrichmentQueueUpdateSubscriptions({
-      listId: enrichmentTask.listId,
-      update: {
-        queueItemId: enrichmentTask.id,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-        fileId: enrichmentTask.fileId,
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-    })
   }
 }
 

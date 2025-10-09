@@ -1,12 +1,9 @@
-import { Prisma } from '../../../prisma/generated/client'
 import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
-
-const QueryMode = Prisma.QueryMode
 
 const EnrichmentQueueTasksMutationResult = builder
   .objectRef<{
@@ -106,33 +103,25 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                       none: { fieldId },
                     },
                   },
-                  // Files with cache entry but no valid value (all value fields are null or contain placeholder values)
+                  // Files with cache entry but no valid value (all value fields are null)
                   {
                     cache: {
                       some: {
                         AND: [
                           { fieldId },
-                          {
-                            OR: [
-                              // All value fields are null (no value computed yet)
-                              {
-                                AND: [
-                                  { valueString: null },
-                                  { valueBoolean: null },
-                                  { valueDate: null },
-                                  { valueNumber: null },
-                                ],
-                              },
-                              // Or contains placeholder values that indicate missing data (case-insensitive)
-                              { valueString: { equals: 'unknown', mode: QueryMode.insensitive } },
-                              { valueString: { equals: 'n/a', mode: QueryMode.insensitive } },
-                              { valueString: { equals: 'na', mode: QueryMode.insensitive } },
-                              { valueString: { equals: 'none', mode: QueryMode.insensitive } },
-                              { valueString: { equals: 'null', mode: QueryMode.insensitive } },
-                              { valueString: { equals: '', mode: QueryMode.insensitive } },
-                            ],
-                          },
+                          { valueString: null },
+                          { valueBoolean: null },
+                          { valueDate: null },
+                          { valueNumber: null },
                         ],
+                      },
+                    },
+                  },
+                  // Files where enrichment returned a failure term (stored in failedEnrichmentValue)
+                  {
+                    cache: {
+                      some: {
+                        AND: [{ fieldId }, { failedEnrichmentValue: { not: null } }],
                       },
                     },
                   },

@@ -38,6 +38,7 @@ graphql(`
         fieldName
         displayValue
         enrichmentErrorMessage
+        failedEnrichmentValue
         queueStatus
       }
     }
@@ -96,16 +97,25 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
-    (fileId: string, fieldId: string): { value: string | null; error: string | null; queueStatus: string | null } => {
-      if (!listItems) return { value: null, error: null, queueStatus: null }
+    (
+      fileId: string,
+      fieldId: string,
+    ): {
+      value: string | null
+      error: string | null
+      failedEnrichmentValue: string | null
+      queueStatus: string | null
+    } => {
+      if (!listItems) return { value: null, error: null, failedEnrichmentValue: null, queueStatus: null }
 
       const items = listItems.items.find((item) => item.origin.id === fileId)
-      if (!items) return { value: null, error: null, queueStatus: null }
+      if (!items) return { value: null, error: null, failedEnrichmentValue: null, queueStatus: null }
 
       const fieldValue = items.values.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
       return {
         value: fieldValue?.displayValue || null,
         error: fieldValue?.enrichmentErrorMessage || null,
+        failedEnrichmentValue: fieldValue?.failedEnrichmentValue || null,
         queueStatus: fieldValue?.queueStatus || null,
       }
     },
@@ -253,7 +263,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
               {listItems.items.map((item) =>
                 visibleFields
                   .map((field) => {
-                    const { value, error, queueStatus } = getFieldData(item.origin.id, field.id)
+                    const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.origin.id, field.id)
                     const displayValue = value?.toString() || '-'
 
                     return (
@@ -271,21 +281,39 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               id={`${item.origin.id}-${field.id}`}
                               className={twMerge(
                                 'flex-1 overflow-hidden text-nowrap',
-                                !value && error && 'text-error text-xs',
-                                !value && !error && queueStatus && 'text-info text-xs',
-                                !value && !error && !queueStatus && 'text-base-content/40 text-xs italic',
+                                queueStatus === 'processing' && 'text-info text-xs',
+                                queueStatus === 'pending' && 'text-info text-xs',
+                                queueStatus !== 'processing' &&
+                                  queueStatus !== 'pending' &&
+                                  !value &&
+                                  error &&
+                                  'text-error text-xs',
+                                queueStatus !== 'processing' &&
+                                  queueStatus !== 'pending' &&
+                                  !value &&
+                                  !error &&
+                                  failedEnrichmentValue &&
+                                  'text-warning text-xs',
+                                queueStatus !== 'processing' &&
+                                  queueStatus !== 'pending' &&
+                                  !value &&
+                                  !error &&
+                                  !failedEnrichmentValue &&
+                                  'text-base-content/40 text-xs italic',
                               )}
-                              title={error || queueStatus || displayValue}
+                              title={error || failedEnrichmentValue || queueStatus || displayValue}
                             >
-                              {error
-                                ? `❌ ${error}`
-                                : value
-                                  ? displayValue
-                                  : queueStatus
-                                    ? queueStatus === 'processing'
-                                      ? '⚙️ processing...'
-                                      : '⏳ pending...'
-                                    : t('lists.enrichment.notEnriched')}
+                              {queueStatus === 'processing'
+                                ? '⚙️ processing...'
+                                : queueStatus === 'pending'
+                                  ? '⏳ pending...'
+                                  : error
+                                    ? `❌ ${t('lists.enrichment.error')}`
+                                    : value
+                                      ? displayValue
+                                      : failedEnrichmentValue
+                                        ? `⚠️ ${t('lists.enrichment.failedTerm')}`
+                                        : t('lists.enrichment.notEnriched')}
                             </span>
                             <button
                               type="button"
@@ -307,6 +335,9 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               isOpen={itemDropdownOpen === `${item.origin.id}-${field.id}`}
                               onClose={() => setItemDropdownOpen(null)}
                               queueStatus={queueStatus}
+                              error={error}
+                              failedEnrichmentValue={failedEnrichmentValue}
+                              value={value}
                             />
                           </div>
                         ) : field.fileProperty === 'name' ? (
