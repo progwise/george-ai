@@ -58,7 +58,9 @@ jobs:
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
-          labels: ${{ steps.meta-chat-web.outputs.labels }}
+          labels: |
+            ${{ steps.meta-chat-web.outputs.labels }}
+            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
@@ -111,7 +113,9 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
+          labels: |
+            ${{ steps.meta-backend.outputs.labels }}
+            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
@@ -156,6 +160,8 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta-crawler.outputs.tags }}
-          labels: ${{ steps.meta-crawler.outputs.labels }}
+          labels: |
+            ${{ steps.meta-crawler.outputs.labels }}
+            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}

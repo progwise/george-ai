@@ -678,6 +678,7 @@ export default {
     systemMode: 'Theme: System',
     theme: 'Theme',
     language: 'Language',
+    changelog: 'Changelog',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

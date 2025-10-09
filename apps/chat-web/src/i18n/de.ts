@@ -687,6 +687,7 @@ export default {
     systemMode: 'Farbschema: System',
     theme: 'Farbschema',
     language: 'Sprache',
+    changelog: 'Changelog',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
