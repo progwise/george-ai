@@ -64,7 +64,7 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
 
   return (
     <>
-      <ul className="menu menu-horizontal bg-base-200 menu-sm rounded-box mb-4">
+      <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap items-end shadow-lg md:items-center">
         <li>
           <button
             type="button"

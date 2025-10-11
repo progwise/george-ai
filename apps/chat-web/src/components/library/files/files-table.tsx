@@ -11,12 +11,12 @@ import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
 import { CheckIcon } from '../../../icons/check-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
+import { EyeIcon } from '../../../icons/eye-icon'
 import { PlayIcon } from '../../../icons/play-icon'
 import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { DialogForm } from '../../dialog-form'
-import { LoadingSpinner } from '../../loading-spinner'
 import { useFileActions } from './use-file-actions'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
@@ -129,7 +129,6 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
   return (
     <>
-      <LoadingSpinner isLoading={fileActionPending} />
       {/* Mobile View */}
       <div className="block lg:hidden">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -240,85 +239,114 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden lg:block">
-        <table className="table-xs table">
-          <thead className="bg-base-200">
+      <div className="hidden h-full w-full overflow-auto lg:block">
+        <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
+          <thead>
             <tr>
               <th>
-                <ul className="menu menu-horizontal menu-sm bg-base-200 p-0">
-                  <li>
-                    <details ref={detailsRef}>
-                      <summary className="cursor-pointer select-none p-0">
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-xs"
-                          checked={allSelected}
-                          onChange={handleSelectAll}
-                        />
-                      </summary>
-                      {selectedFileIds.length > 0 && (
-                        <ul className="bg-base-200 rounded-box z-50 flex flex-col gap-1 p-2 shadow-lg">
-                          <li>
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-xs justify-start"
-                              onClick={() => dropDialogRef.current?.showModal()}
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                              {t('actions.dropSelected', { count: selectedFileIds.length })}
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-xs justify-start"
-                              onClick={() => processDialogRef.current?.showModal()}
-                            >
-                              <ReprocessIcon className="h-4 w-4" />
-                              {t('actions.processSelected', { count: selectedFileIds.length })}
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-xs justify-start"
-                              onClick={() => embedDialogRef.current?.showModal()}
-                            >
-                              <SparklesIcon className="h-4 w-4" />
-                              {t('actions.embedSelected', { count: selectedFileIds.length })}
-                            </button>
-                          </li>
-                        </ul>
-                      )}
-                    </details>
-                  </li>
-                </ul>
+                <div className="flex flex-row flex-nowrap justify-between text-sm">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-xs m-0 p-0 text-xs"
+                    checked={allSelected}
+                    onChange={handleSelectAll}
+                  />
+                  <span>{selectedFileIds.length}</span>
+
+                  <button
+                    type="button"
+                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    onClick={() => embedDialogRef.current?.showModal()}
+                    data-tip={t('actions.embedSelected', { count: selectedFileIds.length })}
+                    disabled={selectedFileIds.length === 0}
+                  >
+                    <SparklesIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    onClick={() => dropDialogRef.current?.showModal()}
+                    data-tip={t('actions.dropSelected', { count: selectedFileIds.length })}
+                    disabled={selectedFileIds.length === 0}
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    onClick={() => processDialogRef.current?.showModal()}
+                    data-tip={t('actions.processSelected', { count: selectedFileIds.length })}
+                    disabled={selectedFileIds.length === 0}
+                  >
+                    <ReprocessIcon className="h-4 w-4" />
+                  </button>
+                </div>
               </th>
-              <th></th>
-              <th>{t('labels.name')}</th>
-              <th>#{t('labels.size')}</th>
-              <th>
-                #{t('labels.conversions')}/#{t('labels.chunks')}
-              </th>
-              <th>{t('labels.processed')}</th>
-              <th>{t('labels.originModified')}</th>
-              <th>{t('labels.actions')}</th>
+              <td>{t('labels.name')}</td>
+              <td>#{t('labels.size')}</td>
+              <td>
+                #{t('labels.conversions')}/ #{t('labels.chunks')}
+              </td>
+              <td>{t('labels.processed')}</td>
+              <td>{t('labels.originModified')}</td>
             </tr>
           </thead>
           <tbody>
             {files.map((file, index) => (
-              <tr key={file.id} className="hover:bg-base-200">
-                <td>
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-xs"
-                    checked={selectedFileIds.includes(file.id)}
-                    onChange={() => handleSelectFile(file.id)}
-                  />
-                </td>
-                <td>{index + (firstItemNumber ?? 1)}</td>
+              <tr key={file.id} className="hover:bg-base-300">
+                <th>
+                  <div className="flex items-center justify-between">
+                    <div className="text-nowrap">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs"
+                        checked={selectedFileIds.includes(file.id)}
+                        onChange={() => handleSelectFile(file.id)}
+                      />
+                      <span className="ml-3">{index + (firstItemNumber ?? 1)}</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <Link
+                        to="/libraries/$libraryId/files/$fileId"
+                        params={{ libraryId: file.libraryId, fileId: file.id }}
+                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        data-tip={t('actions.view')}
+                      >
+                        <EyeIcon className="h-4 w-4" />
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={fileActionPending}
+                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        data-tip={t('actions.drop')}
+                        onClick={() => dropFile(file.id)}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        data-tip={t('actions.reprocess')}
+                        onClick={() => createExtractionTasks([file.id])}
+                      >
+                        <ReprocessIcon className="h-4 w-4" />
+                      </button>
+                      {file.processingStatus === ProcessingStatus.Failed && (
+                        <span className="tooltip tooltip-right" data-tip={file.processingStatus}>
+                          <ExclamationIcon className="h-4 w-4" />
+                        </span>
+                      )}
 
-                <td className="flex max-w-2xl flex-col truncate" title={file.name}>
+                      {file.dropError && (
+                        <span className="lg:tooltip tooltip-right" data-tip={t('libraries.dropFileError')}>
+                          <ExclamationIcon className="fill-warning h-4 w-4" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </th>
+
+                <td className="flex flex-col truncate" title={file.name}>
                   <div className="flex items-center gap-2">
                     <Link
                       to="/libraries/$libraryId/files/$fileId"
@@ -356,37 +384,6 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         {item}
                       </div>
                     ))}
-                </td>
-                <td className="flex items-center gap-2">
-                  <Link
-                    to="/libraries/$libraryId/files/$fileId"
-                    params={{ libraryId: file.libraryId, fileId: file.id }}
-                    className="btn btn-xs"
-                  >
-                    {t('actions.view')}
-                  </Link>
-                  <button
-                    type="button"
-                    disabled={fileActionPending}
-                    className="btn btn-xs"
-                    onClick={() => dropFile(file.id)}
-                  >
-                    {t('actions.drop')}
-                  </button>
-                  <button type="button" className="btn btn-xs" onClick={() => createExtractionTasks([file.id])}>
-                    {t('actions.reprocess')}
-                  </button>
-                  {file.processingStatus === ProcessingStatus.Failed && (
-                    <span className="tooltip" data-tip={file.processingStatus}>
-                      <ExclamationIcon />
-                    </span>
-                  )}
-
-                  {file.dropError && (
-                    <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
-                      <ExclamationIcon className="fill-warning" />
-                    </span>
-                  )}
                 </td>
               </tr>
             ))}

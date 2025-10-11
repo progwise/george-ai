@@ -45,32 +45,49 @@ function RouteComponent() {
   const archivedCount = aiLibraryFiles.archivedCount
 
   return (
-    <div>
-      <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {showArchived
-          ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
-          : t('files.activeFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })}
-        <Pagination
-          totalItems={aiLibraryFiles.count}
-          itemsPerPage={take}
-          currentPage={1 + aiLibraryFiles.skip / take}
-          onPageChange={(page) => {
-            // TODO: Add prefetching here
-            navigate({ search: { skip: (page - 1) * take, take, showArchived } })
-          }}
-          showPageSizeSelector={true}
-          onPageSizeChange={(newPageSize) => {
-            navigate({ search: { skip: 0, take: newPageSize, showArchived } })
-          }}
-        />
-      </h1>
-      <FilesActionsBar
-        libraryId={libraryId}
-        totalItems={aiLibraryFiles.count}
-        showArchived={showArchived}
-        archivedCount={archivedCount}
-      />
-      <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div>
+        <div className="text-primary text-nowrap align-text-top text-xs italic">
+          {showArchived
+            ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count })
+            : t('files.activeFilesForLibrary', {
+                count: aiLibraryFiles.count,
+              })}
+        </div>
+        <div className="relative flex justify-between align-top">
+          <div className="flex-start flex flex-col gap-1 overflow-y-auto">
+            <h3 className="text-base-content text-nowrap text-xl font-bold">{aiLibraryFiles.library.name}</h3>
+          </div>
+          <div className="z-49 absolute right-0 md:flex">
+            <FilesActionsBar
+              libraryId={libraryId}
+              totalItems={aiLibraryFiles.count}
+              showArchived={showArchived}
+              archivedCount={archivedCount}
+            />
+          </div>
+        </div>
+        <div className="mt-10 flex flex-col">
+          <div className="flex flex-col md:items-end">
+            <Pagination
+              totalItems={aiLibraryFiles.count}
+              itemsPerPage={take}
+              currentPage={1 + aiLibraryFiles.skip / take}
+              onPageChange={(page) => {
+                // TODO: Add prefetching here
+                navigate({ search: { skip: (page - 1) * take, take, showArchived } })
+              }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({ search: { skip: 0, take: newPageSize, showArchived } })
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="min-h-0 min-w-0">
+        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
+      </div>
     </div>
   )
 }
