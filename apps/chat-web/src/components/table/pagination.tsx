@@ -84,23 +84,6 @@ export const Pagination = ({
         </form>
       </dialog>
       <div className={twMerge('flex items-end gap-4', className)}>
-        {showPageSizeSelector && onPageSizeChange && (
-          <div className="flex flex-col gap-1">
-            <div className="text-xs">{t('lists.files.pageSize')}:</div>
-            <select
-              className="select select-sm select-bordered h-full"
-              value={itemsPerPage}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
         <div className="join">
           <button
             type="button"
@@ -154,6 +137,21 @@ export const Pagination = ({
             »
           </button>
         </div>
+        {showPageSizeSelector && onPageSizeChange && (
+          <div className="flex flex-col gap-1">
+            <select
+              className="select select-sm select-bordered h-full"
+              value={itemsPerPage}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            >
+              {pageSizeOptions.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </>
   )

@@ -12,15 +12,18 @@ const AiLibraryFileInput = builder.inputType('AiLibraryFileInput', {
     originUri: t.string({ required: true }),
     mimeType: t.string({ required: true }),
     libraryId: t.string({ required: true }),
+    size: t.int({ required: true }),
+    originModificationDate: t.field({ type: 'DateTime', required: true }),
   }),
 })
 
-builder.mutationField('prepareFile', (t) =>
+builder.mutationField('prepareFileUpload', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryFile',
     args: {
       data: t.arg({ type: AiLibraryFileInput, required: true }),
     },
+    nullable: false,
     resolve: async (query, _source, { data }, context) => {
       await canAccessLibraryOrThrow(data.libraryId, context.session.user.id)
       return await prisma.aiLibraryFile.create({

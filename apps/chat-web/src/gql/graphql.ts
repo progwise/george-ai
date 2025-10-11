@@ -475,7 +475,9 @@ export type AiLibraryFileInput = {
   libraryId: Scalars['String']['input']
   mimeType: Scalars['String']['input']
   name: Scalars['String']['input']
+  originModificationDate: Scalars['DateTime']['input']
   originUri: Scalars['String']['input']
+  size: Scalars['Int']['input']
 }
 
 /** Query result for AI library files */
@@ -1097,7 +1099,7 @@ export type Mutation = {
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
   login: User
-  prepareFile?: Maybe<AiLibraryFile>
+  prepareFileUpload: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: Scalars['Boolean']['output']
@@ -1331,7 +1333,7 @@ export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
 }
 
-export type MutationPrepareFileArgs = {
+export type MutationPrepareFileUploadArgs = {
   data: AiLibraryFileInput
 }
 
@@ -3149,21 +3151,6 @@ export type UpdateAiLibraryCrawlerMutation = {
   updateAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
-export type PrepareDesktopFileMutationVariables = Exact<{
-  file: AiLibraryFileInput
-}>
-
-export type PrepareDesktopFileMutation = {
-  __typename?: 'Mutation'
-  prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
-}
-
-export type CancelFileUploadMutationVariables = Exact<{
-  fileId: Scalars['String']['input']
-}>
-
-export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
-
 export type AiLibraryFileInfo_CaptionCardFragment = {
   __typename?: 'AiLibraryFile'
   id: string
@@ -3284,6 +3271,21 @@ export type AiLibraryFile_FileStatusLabelsFragment = {
     metadata?: string | null
   } | null
 }
+
+export type PrepareDesktopFileMutationVariables = Exact<{
+  file: AiLibraryFileInput
+}>
+
+export type PrepareDesktopFileMutation = {
+  __typename?: 'Mutation'
+  prepareFileUpload: { __typename?: 'AiLibraryFile'; id: string }
+}
+
+export type CancelFileUploadMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
 
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
@@ -3569,7 +3571,7 @@ export type PrepareFileMutationVariables = Exact<{
 
 export type PrepareFileMutation = {
   __typename?: 'Mutation'
-  prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+  prepareFileUpload: { __typename?: 'AiLibraryFile'; id: string }
 }
 
 export type ProcessFileMutationVariables = Exact<{
@@ -12660,7 +12662,7 @@ export const PrepareDesktopFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'prepareFile' },
+            name: { kind: 'Name', value: 'prepareFileUpload' },
             arguments: [
               {
                 kind: 'Argument',
@@ -13478,7 +13480,7 @@ export const PrepareFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'prepareFile' },
+            name: { kind: 'Name', value: 'prepareFileUpload' },
             arguments: [
               {
                 kind: 'Argument',

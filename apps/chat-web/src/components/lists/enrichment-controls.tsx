@@ -1,6 +1,6 @@
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlayIcon } from '../../icons/play-icon'
-import SparklesIcon from '../../icons/sparkles-icon'
+import { SparklesIcon } from '../../icons/sparkles-icon'
 import { StopIcon } from '../../icons/stop-icon'
 import { useEnrichmentActions } from './use-enrichment-actions'
 import { useListSettings } from './use-list-settings'

@@ -53,7 +53,7 @@ function RouteComponent() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base-content/80 text-xl font-bold">Content Extraction Tasks</h2>
+        <h2 className="text-base-content/80 text-xl font-bold">{count} Content Extraction Tasks</h2>
         <div className="flex items-end gap-4">
           <div>
             <select
@@ -64,7 +64,7 @@ function RouteComponent() {
                 navigate({ search: { skip: 0, take, status: selectedStatus || undefined } })
               }}
             >
-              <option value="">All Statuses</option>
+              <option value="">All</option>
               <option value={ProcessingStatus.Pending}>Pending</option>
               <option value={ProcessingStatus.Extracting}>Extracting</option>
               <option value={ProcessingStatus.Embedding}>Embedding</option>

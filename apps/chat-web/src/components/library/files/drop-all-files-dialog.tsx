@@ -1,57 +1,29 @@
-import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
 import { DialogForm } from '../../dialog-form'
-import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { dropAllLibraryFilesFn } from '../server-functions/delete-files'
+import { useFileActions } from './use-file-actions'
 
 interface DropAllFilesDialogProps {
   libraryId: string
   disabled: boolean
-  tableDataChanged: () => void
-  setCheckedFileIds: (fileIds: string[]) => void
   totalItems: number
 }
 
-export const DropAllFilesDialog = ({
-  libraryId,
-  setCheckedFileIds,
-  tableDataChanged,
-  totalItems,
-}: DropAllFilesDialogProps) => {
+export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { isPending, mutate } = useMutation({
-    mutationFn: async (libraryId: string) => {
-      dialogRef.current?.close()
-      await dropAllLibraryFilesFn({ data: { libraryId } })
-    },
-    onError: () => {
-      toastError(t('errors.dropAllFilesError'))
-    },
-    onSuccess: () => {
-      toastSuccess(t('actions.dropSuccess', { count: totalItems }))
-    },
-    onSettled: () => {
-      setCheckedFileIds([])
-      tableDataChanged()
-    },
-  })
+  const { dropAllFiles, fileActionPending: isPending } = useFileActions({ libraryId })
 
   const textOfDropButton = t('actions.dropAllFiles')
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-xs btn-primary tooltip tooltip-bottom"
-        data-tip={t('tooltips.dropAllDescription')}
-        onClick={() => dialogRef.current?.showModal()}
-        disabled={totalItems === 0}
-      >
+      <button type="button" onClick={() => dialogRef.current?.showModal()} disabled={totalItems === 0}>
+        <TrashIcon className="h-5 w-5" />
         {textOfDropButton}
       </button>
 
@@ -62,7 +34,7 @@ export const DropAllFilesDialog = ({
         title={t('libraries.dropAllFilesDialog')}
         description={t('texts.dropAllFilesDialogDescription')}
         onSubmit={() => {
-          mutate(libraryId)
+          dropAllFiles(libraryId)
         }}
         submitButtonText={textOfDropButton}
       >

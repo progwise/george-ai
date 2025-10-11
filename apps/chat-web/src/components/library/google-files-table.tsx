@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import { z } from 'zod'
+
+import { formatBytes } from '@george-ai/web-utils'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
@@ -11,28 +12,12 @@ import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 import { queryKeys } from '../../query-keys'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
+import { LibraryFile } from './files/file-schema'
 import { getHighResIconUrl, googleDriveResponseSchema } from './google-drive-files'
-
-export const LibraryFileSchema = z.object({
-  id: z.string(),
-  kind: z.string(),
-  name: z.string(),
-  size: z.number().optional(),
-  iconLink: z.string().optional(),
-})
-export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
 export interface GoogleFilesTableProps {
   selectedFiles: LibraryFile[]
   setSelectedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
-}
-
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const kilobytes = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const kilobyteExponent = Math.floor(Math.log(bytes) / Math.log(kilobytes))
-  return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
 export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFilesTableProps) => {

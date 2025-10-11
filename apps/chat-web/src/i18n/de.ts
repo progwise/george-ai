@@ -16,7 +16,9 @@ export default {
     details: 'Details',
     drop: 'Entfernen',
     dropAllFiles: 'Alle entfernen',
+    dropSelected: '{count} entfernen',
     dropSuccess: '{count} Datei(en) erfolgreich entfernt',
+    embedSelected: '{count} embedden',
     edit: 'Bearbeiten',
     embedSuccess: '{count} Datei(en) erfolgreich embedded ({chunks} Chunks)',
     ensureUserProfile: 'User Profil ggf. erzeugen',
@@ -30,6 +32,7 @@ export default {
     removeProfile: 'Benutzerprofil entfernen',
     reembed: 'Embed',
     reprocess: 'Extract',
+    processSelected: '{count} extrahieren',
     reprocessSuccess: 'Erfolgreich {count} Datei(en) verarbeitet: {files}',
     save: 'Speichern',
     saving: 'Speichern...',
@@ -455,6 +458,8 @@ export default {
     deleteSuccess: 'Bibliothek {name} erfolgreich gelöscht',
     dropAllFilesDialog: 'Alle Dateien entfernen',
     dropFilesDialog: 'Dateien entfernen',
+    processFilesDialog: 'Dateien verarbeiten',
+    embedFilesDialog: 'Dateien embedden',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
@@ -700,6 +705,10 @@ export default {
       'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
+    processFilesDialogDescription:
+      'Sie sind kurz davor, die ausgewählten Dateien zu verarbeiten. Bitte bestätigen Sie, um die Verarbeitung zu starten.',
+    embedFilesDialogDescription:
+      'Sie sind kurz davor, die ausgewählten Dateien zu embedden. Bitte bestätigen Sie, um das Embedding zu starten.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     enterNameAndPrompt: 'Geben Sie einen Namen und Prompt ein, um Ihr erstes Nachbearbeitungselement zu erstellen',
     failure: 'Fehler',

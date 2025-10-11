@@ -36,6 +36,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   })
 
   if (!context.session?.user) {
+    console.warn('Unauthorized upload attempt with token to upload file', uploadToken)
     httpResponse.status(401).end()
     return
   }
@@ -67,6 +68,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
 
   // Check if file is already being uploaded
   if (uploadLocks.has(lockKey)) {
+    console.error('Upload already in progress for file:', fileInfo.id)
     httpResponse.status(409).send('Bad Request: File upload already in progress')
     return
   }
@@ -74,13 +76,25 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   // Acquire lock
   uploadLocks.add(lockKey)
 
+  // Ensure lock is always released
+  let lockReleased = false
+  const releaseLock = () => {
+    if (!lockReleased) {
+      uploadLocks.delete(lockKey)
+      lockReleased = true
+    }
+  }
+
+  // Track if upload completed successfully
+  let uploadCompleted = false
+
   const filestream = fs.createWriteStream(uploadedFilePath, {
     flags: 'a',
   })
 
   filestream.on('error', (error) => {
     console.error(error)
-    uploadLocks.delete(lockKey)
+    releaseLock()
     httpResponse.statusCode = 400
     httpResponse.write(JSON.stringify({ status: 'error in filestream', description: error }))
     httpResponse.end()
@@ -89,6 +103,9 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.pipe(filestream)
 
   httpRequest.on('end', () => {
+    // Mark as completed immediately to prevent cleanup race condition
+    uploadCompleted = true
+
     filestream.close(async () => {
       try {
         await markUploadFinished({
@@ -96,11 +113,13 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
           libraryId: fileInfo.libraryId,
           userId: context.session!.user.id,
         })
-        uploadLocks.delete(lockKey)
+        releaseLock()
+        httpResponse.statusCode = 200
+        console.log('File upload and processing completed:', fileInfo.id, fileInfo.name)
         httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {
         console.error('Error during file processing:', error)
-        uploadLocks.delete(lockKey)
+        releaseLock()
         httpResponse.statusCode = 500
         httpResponse.write(JSON.stringify({ status: 'error', description: 'Error during file processing' }))
         httpResponse.end()
@@ -108,19 +127,29 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     })
   })
 
+  // Handle aborted requests - release lock immediately
+  httpRequest.on('aborted', () => {
+    releaseLock()
+  })
+
   // Cleanup aborted uploads
   httpRequest.on('close', async () => {
-    if (!httpRequest.complete) {
-      console.warn('Upload aborted, cleaning up...', fileInfo.id, fileInfo.name)
-      filestream.close()
-      uploadLocks.delete(lockKey)
-      const fileDir = getFileDir({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
-      try {
-        await fs.promises.rm(fileDir, { recursive: true, force: true })
-        console.log(`Cleanup successful for aborted upload: ${fileInfo.id}`)
-      } catch (error) {
-        console.error('Error during cleanup after upload abort:', error)
-      }
+    // Only clean up if upload was aborted (not completed successfully)
+    if (uploadCompleted) {
+      return
+    }
+
+    if (!httpRequest.destroyed) {
+      return
+    }
+
+    // Request was destroyed (aborted) - clean up files
+    filestream.close()
+    const fileDir = getFileDir({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+    try {
+      await fs.promises.rm(fileDir, { recursive: true, force: true })
+    } catch (error) {
+      console.error('Error during cleanup after upload abort:', error)
     }
   })
 }
