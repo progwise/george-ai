@@ -69,7 +69,9 @@
   // This can be used to network with other containers or with the host.
   "forwardPorts": [3000, 3001, 3003, 8090, 8108, 11245],
 
-  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; pnpm add  -g @anthropic-ai/claude-code;"
+  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i;",
+
+  "postStartCommand": "echo 'DevContainer started successfully'"
 
   // Configure tool-specific properties.
   // "customizations": {},

@@ -43,7 +43,7 @@ cd /workspaces/george-ai/apps/chat-web && pnpm codegen
 
 - **NO semicolons** at the end of statements
 - **Always include trailing commas** in arrays and objects
-- **Always run `pnpm format`** before committing code changes
+- **NEVER run `pnpm format`** - The user will run formatting before committing
 
 ### Database Management
 
