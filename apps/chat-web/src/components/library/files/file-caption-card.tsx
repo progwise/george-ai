@@ -37,7 +37,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
           <h3 className="text-base-content text-nowrap text-xl font-bold">{file.name}</h3>
           <FileStatusLabels file={file} />
         </div>
-        <div className="z-49 absolute right-10 md:flex">
+        <div className="z-30 md:flex">
           <FileMenu file={file} />
         </div>
       </div>

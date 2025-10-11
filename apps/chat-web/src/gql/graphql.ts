@@ -2956,9 +2956,8 @@ export type CrawlerTable_LibraryCrawlerFragment = {
   uriType: CrawlerUriType
   maxDepth: number
   maxPages: number
-  filesCount: number
-  libraryId: string
   isRunning: boolean
+  filesCount: number
   lastRun?: {
     __typename?: 'AiLibraryCrawlerRun'
     startedAt: string
@@ -3107,9 +3106,8 @@ export type CrawlerTableQuery = {
       uriType: CrawlerUriType
       maxDepth: number
       maxPages: number
-      filesCount: number
-      libraryId: string
       isRunning: boolean
+      filesCount: number
       lastRun?: {
         __typename?: 'AiLibraryCrawlerRun'
         startedAt: string
@@ -7371,24 +7369,6 @@ export const CrawlerForm_CrawlerFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<CrawlerForm_CrawlerFragment, unknown>
-export const RunCrawlerButton_CrawlerFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
 export const CrawlerTable_LibraryCrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -7404,6 +7384,7 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'lastRun' },
@@ -7425,10 +7406,14 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
         ],
       },
     },
+  ],
+} as unknown as DocumentNode<CrawlerTable_LibraryCrawlerFragment, unknown>
+export const RunCrawlerButton_CrawlerFragmentDoc = {
+  kind: 'Document',
+  definitions: [
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
@@ -7443,7 +7428,7 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<CrawlerTable_LibraryCrawlerFragment, unknown>
+} as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
 export const AiLibraryFile_FileStatusLabelsFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -12464,19 +12449,6 @@ export const CrawlerTableDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'CrawlerTable_LibraryCrawler' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
       selectionSet: {
@@ -12487,6 +12459,7 @@ export const CrawlerTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'lastRun' },
@@ -12508,7 +12481,6 @@ export const CrawlerTableDocument = {
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
         ],
       },
     },

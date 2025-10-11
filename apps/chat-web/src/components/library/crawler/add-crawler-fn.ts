@@ -9,9 +9,9 @@ import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getCrawlerFormSchema } from './crawler-form'
 
-export const addCrawler = createServerFn({ method: 'POST' })
+export const addCrawlerFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
-    const language = await getLanguage()
+    const language = getLanguage()
     const uriType = z.nativeEnum(CrawlerUriType).parse(data.get('uriType'))
     const schema = getCrawlerFormSchema('add', uriType, language)
     const { data: validatedData, errors } = validateFormData(data, schema)

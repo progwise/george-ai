@@ -84,7 +84,7 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
           <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('libraries.title')}</span>
         </li>
         <li>
-          <details ref={librarySelectorDetailsRef} className="z-50">
+          <details ref={librarySelectorDetailsRef} className="z-40">
             <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
               {library.name}
             </summary>

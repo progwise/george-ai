@@ -47,6 +47,18 @@
         "files.exclude": {
           "**/.uploads/**": true
         },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/.turbo": true,
+          "**/dist": true,
+          "**/.uploads": true,
+          "**/.smb-mounts": true,
+          "**/.typesense-data": true,
+          "**/.postgres-data-chatweb": true,
+          "**/.postgres-data-keycloak": true,
+          "**/.crawler-credentials": true,
+          "**/.smb-credentials": true
+        },
         "tailwindCSS.files.exclude": [
           "**/.git/**",
           "**/node_modules/**",
