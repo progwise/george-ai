@@ -12,7 +12,7 @@ RUN apt-get update \
     libgif-dev build-essential \
     g++ \
     python3-pip \
-    python3.11-venv \
+    python3-venv \
     smbclient \
     curl \
     gpg \
