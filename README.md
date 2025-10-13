@@ -39,6 +39,8 @@ Use `env.example` files as the references.
 
 ### 4. Set Up Keycloak
 
+- Before setting up Keycloak, ensure that host networking is enabled in your Docker settings, then follow these steps:
+
 1. Open `http://localhost:8180` in your browser and log in using the credentials:
    - **Username:** `admin`
    - **Password:** `admin`
@@ -60,15 +62,16 @@ Use `env.example` files as the references.
      `http://localhost:3001/*`
 
 4. Navigate to the **Users** section and click **Add User**.
-   Fill in the required fields, then click **Create** at the bottom of the form.
+   Fill in these fields:
+   - **Username**
+   - **First Name**
+   - **Last Name**
+   - **Email**
+
+   Enable **Email Verified** by toggling the switch, then click **Create** at the bottom of the form.
 
 5. After the user is created:
    - Go to the **Credentials** tab, set a password, and ensure **Temporary** is set to **Off**.
-   - Go to the **Details** tab and provide:
-     - **First Name**
-     - **Last Name**
-     - **Email**
-     - Enable **Email Verified** by toggling the switch.
 
 6. In the left sidebar, go to **Identity Providers**.
    Choose a provider (e.g., Google, GitHub, or OpenID Connect) and configure it using the required credentials (e.g., **Client ID** and **Client Secret**).
@@ -86,7 +89,7 @@ Docs for setting up an OAuth app in:
 Navigate to `packages/pothos-graphql` and run:
 
 ```bash
-pnpm prisma migrate dev
+pnpm prisma migrate dev && pnpm run prisma:generate
 ```
 
 ---
