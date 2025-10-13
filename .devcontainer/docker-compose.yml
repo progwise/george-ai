@@ -11,8 +11,20 @@ services:
     # Enable init process to reap zombie processes
     init: true
 
+    # Run in privileged mode for SMB mounting
+    # mount.cifs requires this to adjust capabilities at runtime
+    # privileged: true
+
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+
+    # Port mappings for host access (backend only - frontend uses Vite with dynamic HMR ports via VS Code forwarding)
+    ports:
+      - '3003:3003'
 
     # Runs app on the same network as the typesense container, allows "forwardPorts" in devcontainer.json function.
 
@@ -82,6 +94,7 @@ services:
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
 
+      KC_HTTP_ENABLED: true
       KC_LOG_LEVEL: info
       KC_METRICS_ENABLED: true
       KC_HEALTH_ENABLED: true

@@ -15,7 +15,6 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   const { t } = useTranslation()
   const { createEmbeddingTasks, createExtractionTasks, fileActionPending } = useFileActions({
     libraryId: file.libraryId,
-    fileId: file.id,
   })
 
   useEffect(() => {
@@ -45,7 +44,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   return (
     <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap items-end shadow-lg md:items-center">
       <li>
-        <button {...buttonProps} onClick={() => createEmbeddingTasks()}>
+        <button {...buttonProps} onClick={() => createEmbeddingTasks([file.id])}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -65,7 +64,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
         </button>
       </li>
       <li>
-        <button {...buttonProps} onClick={() => createExtractionTasks()}>
+        <button {...buttonProps} onClick={() => createExtractionTasks([file.id])}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

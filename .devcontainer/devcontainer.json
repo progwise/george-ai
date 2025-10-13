@@ -18,18 +18,46 @@
         "vitest.explorer"
       ],
       "settings": {
+        "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "never"
+        },
         "eslint.workingDirectories": [{ "mode": "auto" }],
         "remote.autoForwardPorts": true,
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
         "[prisma]": {
           "editor.defaultFormatter": "Prisma.prisma"
         },
         "files.watcherExclude": {
           "**/node_modules/**": true,
           "**/.uploads/**": true,
+          "**/.smb-credentials/**": true,
+          "**/.smb-mounts/**": true,
+          "**/.crawler-credentials/**": true,
           "**/.postgres-data-chatweb/**": true,
           "**/.postgres-data-keycloak/**": true,
           "**/.typesense-data/**": true
+        },
+        "files.exclude": {
+          "**/.uploads/**": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/.turbo": true,
+          "**/dist": true,
+          "**/.uploads": true,
+          "**/.smb-mounts": true,
+          "**/.typesense-data": true,
+          "**/.postgres-data-chatweb": true,
+          "**/.postgres-data-keycloak": true,
+          "**/.crawler-credentials": true,
+          "**/.smb-credentials": true
         },
         "tailwindCSS.files.exclude": [
           "**/.git/**",
@@ -47,15 +75,15 @@
   },
 
   // Features to add to the dev container. More info: https://containers.dev/features.
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
+  "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
   "forwardPorts": [3000, 3001, 3003, 8090, 8108, 11245],
 
-  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; pnpm add  -g @anthropic-ai/claude-code;"
+  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; pnpm i -g @anthropic-ai/claude-code",
+
+  "postStartCommand": "echo 'DevContainer started successfully'"
 
   // Configure tool-specific properties.
   // "customizations": {},

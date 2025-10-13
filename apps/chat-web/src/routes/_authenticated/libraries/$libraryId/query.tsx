@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getLibraryQueryOptions } from '../../../../components/library/get-library'
+import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { LibraryQueryInput } from '../../../../components/library/query/library-query-input'
 import { LibraryQueryResult } from '../../../../components/library/query/library-query-result'
 import { getQueryLibraryFilesQueryOptions } from '../../../../components/library/query/query-files'

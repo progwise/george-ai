@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { backendRequest } from '../../../server-functions/backend'
+import { graphql } from '../../../../gql'
+import { backendRequest } from '../../../../server-functions/backend'
 
 const getCrawlerRun = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>

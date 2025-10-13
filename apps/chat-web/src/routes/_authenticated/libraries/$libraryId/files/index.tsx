@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
 import { z } from 'zod'
 
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
@@ -8,7 +7,6 @@ import { FilesTable } from '../../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
 import { Pagination } from '../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../i18n/use-translation-hook'
-import { getProfileQueryOptions } from '../../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/')({
   component: RouteComponent,
@@ -24,7 +22,6 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   }),
   loader: async ({ context, params, deps }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getProfileQueryOptions()),
       context.queryClient.ensureQueryData(
         aiLibraryFilesQueryOptions({
           libraryId: params.libraryId,
@@ -41,64 +38,56 @@ function RouteComponent() {
   const { skip, take, showArchived } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { libraryId } = Route.useParams()
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
-  const { queryClient } = Route.useRouteContext()
   const { t } = useTranslation()
 
   const aiLibraryFilesQuery = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }))
   const aiLibraryFiles = aiLibraryFilesQuery.data.aiLibraryFiles
   const archivedCount = aiLibraryFiles.archivedCount
 
-  const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   return (
-    <div>
-      <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {showArchived
-          ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })
-          : t('files.activeFilesForLibrary', { count: aiLibraryFiles.count, libraryName: aiLibraryFiles.library.name })}
-        <Pagination
-          totalItems={aiLibraryFiles.count}
-          itemsPerPage={take}
-          currentPage={1 + aiLibraryFiles.skip / take}
-          onPageChange={(page) => {
-            // TODO: Add prefetching here
-            navigate({ search: { skip: (page - 1) * take, take, showArchived } })
-          }}
-          showPageSizeSelector={true}
-          onPageSizeChange={(newPageSize) => {
-            navigate({ search: { skip: 0, take: newPageSize, showArchived } })
-          }}
-        />
-      </h1>
-      <FilesActionsBar
-        libraryId={libraryId}
-        availableStorage={profile?.freeStorage || 0}
-        usedStorage={profile?.usedStorage || 0}
-        checkedFileIds={selectedFileIds}
-        setCheckedFileIds={setSelectedFileIds}
-        tableDataChanged={() => {
-          queryClient.invalidateQueries({
-            queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey,
-          })
-        }}
-        totalItems={aiLibraryFiles.count}
-        showArchived={showArchived}
-        onShowArchivedChange={(newShowArchived) => {
-          navigate({ search: { skip: 0, take, showArchived: newShowArchived } })
-        }}
-        archivedCount={archivedCount}
-      />
-      <FilesTable
-        firstItemNumber={skip + 1}
-        files={aiLibraryFiles.files}
-        selectedFileIds={selectedFileIds}
-        setSelectedFileIds={setSelectedFileIds}
-        tableDataChanged={() => {
-          queryClient.invalidateQueries({
-            queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }).queryKey,
-          })
-        }}
-      />
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div>
+        <div className="text-primary text-nowrap align-text-top text-xs italic">
+          {showArchived
+            ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count })
+            : t('files.activeFilesForLibrary', {
+                count: aiLibraryFiles.count,
+              })}
+        </div>
+        <div className="relative flex justify-between align-top">
+          <div className="flex-start flex flex-col gap-1 overflow-y-auto">
+            <h3 className="text-base-content text-nowrap text-xl font-bold">{aiLibraryFiles.library.name}</h3>
+          </div>
+          <div className="z-49 absolute right-0 md:flex">
+            <FilesActionsBar
+              libraryId={libraryId}
+              totalItems={aiLibraryFiles.count}
+              showArchived={showArchived}
+              archivedCount={archivedCount}
+            />
+          </div>
+        </div>
+        <div className="mt-10 flex flex-col">
+          <div className="flex flex-col md:items-end">
+            <Pagination
+              totalItems={aiLibraryFiles.count}
+              itemsPerPage={take}
+              currentPage={1 + aiLibraryFiles.skip / take}
+              onPageChange={(page) => {
+                // TODO: Add prefetching here
+                navigate({ search: { skip: (page - 1) * take, take, showArchived } })
+              }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({ search: { skip: 0, take: newPageSize, showArchived } })
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="min-h-0 min-w-0">
+        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
+      </div>
     </div>
   )
 }

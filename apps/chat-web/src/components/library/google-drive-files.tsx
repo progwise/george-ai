@@ -14,7 +14,8 @@ import { getProfileQueryOptions } from '../../server-functions/users'
 import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { GoogleFilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
+import { LibraryFile, LibraryFileSchema } from './files/file-schema'
+import { GoogleFilesTable } from './google-files-table'
 
 export interface GoogleDriveFilesProps {
   libraryId: string
@@ -90,10 +91,10 @@ const embedFiles = createServerFn({ method: 'GET' })
 
       const blob = await googleDownloadResponse.blob()
 
-      const preparedFile = await backendRequest(
+      const response = await backendRequest(
         graphql(`
           mutation prepareFile($file: AiLibraryFileInput!) {
-            prepareFile(data: $file) {
+            prepareFileUpload(data: $file) {
               id
             }
           }
@@ -108,11 +109,7 @@ const embedFiles = createServerFn({ method: 'GET' })
         },
       )
 
-      if (!preparedFile?.prepareFile?.id) {
-        throw new Error(`Failed to prepare file ${file.id}`)
-      }
-
-      const uploadResponse = await backendUpload(blob, preparedFile.prepareFile.id)
+      const uploadResponse = await backendUpload(blob, response.prepareFileUpload.id)
 
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload file')
@@ -127,7 +124,7 @@ const embedFiles = createServerFn({ method: 'GET' })
           }
         `),
         {
-          fileId: preparedFile.prepareFile.id,
+          fileId: response.prepareFileUpload.id,
         },
       )
     })

@@ -5,9 +5,5 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  return (
-    <div>
-      <Outlet />
-    </div>
-  )
+  return <Outlet />
 }

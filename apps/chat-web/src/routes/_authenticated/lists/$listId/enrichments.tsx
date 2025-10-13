@@ -116,7 +116,7 @@ function RouteComponent() {
                 navigate({ search: { skip: 0, take, status: selectedStatus || undefined } })
               }}
             >
-              <option value="">All Statuses</option>
+              <option value="">All</option>
               <option value={EnrichmentStatus.Pending}>Pending</option>
               <option value={EnrichmentStatus.Processing}>In progress</option>
               <option value={EnrichmentStatus.Canceled}>Cancelled</option>

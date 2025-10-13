@@ -12,8 +12,8 @@ import { Select } from '../form/select'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
-import { getLibrariesQueryOptions } from './get-libraries'
-import { getLibraryQueryOptions } from './get-library'
+import { getLibrariesQueryOptions } from './queries/get-libraries'
+import { getLibraryQueryOptions } from './queries/get-library'
 import { getLibraryUpdateFormSchema, updateLibraryFn } from './server-functions/update-library'
 
 graphql(`

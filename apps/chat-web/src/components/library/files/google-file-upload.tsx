@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
+import { FolderIcon } from '../../../icons/folder-icon'
 import { GoogleDriveFiles } from '../google-drive-files'
 
 interface GoogleFileUploadButtonProps {
@@ -36,8 +37,6 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
     <>
       <button
         type="button"
-        className="btn btn-primary btn-xs tooltip tooltip-bottom"
-        data-tip={t('tooltips.googleDriveUpload')}
         onClick={() => {
           if (googleDriveAccessToken) {
             dialogRef.current?.showModal()
@@ -46,6 +45,7 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
           }
         }}
       >
+        <FolderIcon className="h-5 w-5" />
         {t('libraries.googleDrive')}
       </button>
       <dialog ref={dialogRef} className="modal">

@@ -3,17 +3,17 @@ import { z } from 'zod'
 
 import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
-import { graphql } from '../../../gql'
-import { CrawlerUriType } from '../../../gql/graphql'
-import { getLanguage, translate } from '../../../i18n'
-import { backendRequest } from '../../../server-functions/backend'
-import { getCrawlerFormSchema } from './crawler-form'
+import { graphql } from '../../../../gql'
+import { CrawlerUriType } from '../../../../gql/graphql'
+import { getLanguage, translate } from '../../../../i18n'
+import { backendRequest } from '../../../../server-functions/backend'
+import { getCrawlerFormSchema } from '../crawler-form'
 
-export const updateCrawlerFn = createServerFn({ method: 'POST' })
+export const addCrawlerFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {
     const language = getLanguage()
     const uriType = z.nativeEnum(CrawlerUriType).parse(data.get('uriType'))
-    const schema = getCrawlerFormSchema('update', uriType, language)
+    const schema = getCrawlerFormSchema('add', uriType, language)
     const { data: validatedData, errors } = validateFormData(data, schema)
 
     if (errors) {
@@ -72,22 +72,21 @@ export const updateCrawlerFn = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    const id = data.id
 
     return backendRequest(
       graphql(`
-        mutation updateAiLibraryCrawler(
-          $id: String!
+        mutation createAiLibraryCrawler(
+          $libraryId: String!
           $data: AiLibraryCrawlerInput!
           $credentials: AiLibraryCrawlerCredentialsInput
         ) {
-          updateAiLibraryCrawler(id: $id, data: $data, credentials: $credentials) {
+          createAiLibraryCrawler(libraryId: $libraryId, data: $data, credentials: $credentials) {
             id
           }
         }
       `),
       {
-        id,
+        libraryId: data.libraryId,
         data: {
           uri: data.uri,
           uriType: data.uriType,
@@ -98,7 +97,6 @@ export const updateCrawlerFn = createServerFn({ method: 'POST' })
           maxFileSize: data.maxFileSize,
           minFileSize: data.minFileSize,
           allowedMimeTypes: parseCommaList(data.allowedMimeTypes),
-          // cronJobActive: data.cronJobActive,
           cronJob: data.cronJob,
         },
         credentials:

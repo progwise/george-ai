@@ -13,10 +13,10 @@ RUN apt-get update \
     g++ \
     python3-pip \
     python3.11-venv \
-    cifs-utils \
     smbclient \
     curl \
-    gpg
+    gpg \
+    cifs-utils
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \

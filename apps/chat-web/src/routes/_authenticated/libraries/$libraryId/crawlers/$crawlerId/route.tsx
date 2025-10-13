@@ -1,13 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { dateString, timeString } from '@george-ai/web-utils'
 
-import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
 import { RunCrawlerButton } from '../../../../../../components/library/crawler/run-crawler-button'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
-import WarnIcon from '../../../../../../icons/warn-icon'
+import { WarnIcon } from '../../../../../../icons/warn-icon'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/$crawlerId')({
   component: RouteComponent,
@@ -18,7 +18,6 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 
 function RouteComponent() {
   const { t, language } = useTranslation()
-  const params = Route.useParams()
   const navigate = Route.useNavigate()
 
   const { libraryId, crawlerId } = Route.useParams()
@@ -75,29 +74,6 @@ function RouteComponent() {
       </div>
       <div className="flex justify-end">
         <ul className="menu bg-base-200 menu-horizontal rounded-box items-center gap-2">
-          <li>
-            <Link
-              className="btn btn-ghost btn-sm"
-              activeProps={{ className: 'btn-active' }}
-              activeOptions={{ exact: true }}
-              to="/libraries/$libraryId/crawlers/$crawlerId"
-              params={params}
-            >
-              {t('crawlers.cronSchedule')}
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              className="btn btn-ghost btn-sm"
-              activeProps={{ className: 'btn-active' }}
-              activeOptions={{ exact: false }}
-              to="/libraries/$libraryId/crawlers/$crawlerId/runs"
-              params={params}
-            >
-              {t('crawlers.runs')}
-            </Link>
-          </li>
           <li>
             <RunCrawlerButton
               crawler={crawler}

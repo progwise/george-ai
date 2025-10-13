@@ -142,7 +142,9 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
     libraryId: z.string(),
     mimeType: z.string(),
     name: z.string(),
+    originModificationDate: z.string(),
     originUri: z.string(),
+    size: z.number(),
   })
 }
 

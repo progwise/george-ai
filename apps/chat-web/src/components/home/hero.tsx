@@ -5,7 +5,7 @@ import AcademicCapIcon from '../../icons/academic-cap-icon'
 import { ArrowRight } from '../../icons/arrow-right'
 import BotIcon from '../../icons/bot-icon'
 import LibraryIcon from '../../icons/library-icon'
-import SparklesIcon from '../../icons/sparkles-icon'
+import { SparklesIcon } from '../../icons/sparkles-icon'
 import { HeroBadge } from './hero-badge'
 import { HomeChat } from './home-chat'
 

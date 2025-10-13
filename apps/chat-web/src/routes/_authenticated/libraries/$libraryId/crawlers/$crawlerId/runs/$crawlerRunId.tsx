@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { dateTimeString, dateTimeStringArray, duration } from '@george-ai/web-utils'
 
-import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/get-crawler-run'
+import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler-run'
 import { UpdateStatusBadge } from '../../../../../../../components/library/crawler/update-status-badge'
 import { Pagination } from '../../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../../i18n/use-translation-hook'

@@ -3,9 +3,9 @@ import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
 
 const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {

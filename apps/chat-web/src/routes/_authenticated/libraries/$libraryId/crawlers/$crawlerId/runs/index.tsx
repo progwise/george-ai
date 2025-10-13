@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler'
 import { RunCrawlerButton } from '../../../../../../../components/library/crawler/run-crawler-button'
 import { useTranslation } from '../../../../../../../i18n/use-translation-hook'
 

@@ -25,7 +25,6 @@ export const MarkdownFileSelector = ({ file, onChange, selectedFileName }: Markd
   const confirmDropOutdatedFilesDialog = useRef<HTMLDialogElement>(null)
 
   const { dropOutdatedMarkdownFiles, fileActionPending } = useFileActions({
-    fileId: file.id,
     libraryId: file.libraryId,
   })
 
@@ -71,7 +70,7 @@ export const MarkdownFileSelector = ({ file, onChange, selectedFileName }: Markd
               type="button"
               className="btn btn-error btn-sm"
               onClick={() => {
-                dropOutdatedMarkdownFiles()
+                dropOutdatedMarkdownFiles(file.id)
                 confirmDropOutdatedFilesDialog.current?.close()
               }}
             >

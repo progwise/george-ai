@@ -1,8 +1,9 @@
+import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { backendRequest } from '../../../server-functions/backend'
+import { graphql } from '../../../../gql'
+import { backendRequest } from '../../../../server-functions/backend'
 
 const getCrawler = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
@@ -55,7 +56,12 @@ const getCrawler = createServerFn({ method: 'GET' })
     )
   })
 
-export const getCrawlerQueryOptions = ({ libraryId, crawlerId }: { libraryId: string; crawlerId: string }) => ({
-  queryKey: ['getCrawler', { libraryId, crawlerId }],
-  queryFn: () => getCrawler({ data: { libraryId, crawlerId } }),
-})
+export const getCrawlerQueryOptions = ({ libraryId, crawlerId }: { libraryId: string; crawlerId: string }) =>
+  queryOptions({
+    queryKey: ['getCrawler', { libraryId, crawlerId }],
+    queryFn: () => getCrawler({ data: { libraryId, crawlerId } }),
+    refetchInterval: (query) => {
+      const lastData = query.state.data
+      return lastData?.aiLibraryCrawler.isRunning ? 3000 : 0
+    },
+  })

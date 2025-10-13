@@ -1,5 +1,10 @@
 # George AI Project
 
+## Documentation
+
+- [Changelog](CHANGELOG.md) - See what's new in each release
+- Changelog is also available in deployed applications at `/CHANGELOG.md`
+
 ## Getting Started
 
 ### 1. Re-open the repository in a **DevContainer**.

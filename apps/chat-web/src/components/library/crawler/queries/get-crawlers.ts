@@ -2,8 +2,8 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { backendRequest } from '../../../server-functions/backend'
+import { graphql } from '../../../../gql'
+import { backendRequest } from '../../../../server-functions/backend'
 
 const getCrawlers = createServerFn({ method: 'GET' })
   .inputValidator((data: string) => z.string().nonempty().parse(data))
@@ -22,7 +22,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
     )
   })
 
-export const getCrawlersQueryOptions = (libraryId: string) =>
+export const getCrawlersQueryOptions = ({ libraryId }: { libraryId: string }) =>
   queryOptions({
     queryKey: ['getCrawlers', { libraryId }],
     queryFn: () => getCrawlers({ data: libraryId }),

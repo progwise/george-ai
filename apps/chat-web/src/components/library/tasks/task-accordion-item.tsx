@@ -142,22 +142,32 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
               )}
               <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
             </div>
-            <div className="flex gap-2">
-              <span className={twMerge('badge badge-sm badge-outline', getStatusBadgeClass(task.extractionStatus))}>
+            <div className="flex flex-wrap gap-2">
+              <div
+                className={twMerge(
+                  'badge badge-sm badge-outline text-nowrap',
+                  getStatusBadgeClass(task.extractionStatus),
+                )}
+              >
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
                 <span className="text-base-content/80">Extraction {task.extractionStatus}</span>
-              </span>
-              <span className={twMerge('badge badge-sm badge-outline', getStatusBadgeClass(task.embeddingStatus))}>
+              </div>
+              <div
+                className={twMerge(
+                  'badge badge-sm badge-outline text-nowrap',
+                  getStatusBadgeClass(task.embeddingStatus),
+                )}
+              >
                 <svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                 </svg>
                 <span className="text-base-content/80">Embedding {task.embeddingStatus}</span>
-              </span>
-              <span
+              </div>
+              <div
                 className={twMerge(
-                  'badge badge-sm badge-outline',
+                  'badge badge-sm badge-outline text-nowrap',
                   getProcessingStatusBadgeClass(task.processingStatus),
                 )}
               >
@@ -165,7 +175,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                   <circle cx="10" cy="10" r="8" />
                 </svg>
                 <span className="text-base-content/80">Processing {task.processingStatus}</span>
-              </span>
+              </div>
             </div>
           </div>
         </div>
