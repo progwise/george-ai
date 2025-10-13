@@ -8,7 +8,6 @@ import { graphql } from '../../../gql'
 import { CrawlerRuns_CrawlerRunsTableFragment } from '../../../gql/graphql'
 import { FilterIcon } from '../../../icons/filter-icon'
 import { LinkIcon } from '../../../icons/link-icon'
-import { PlayIcon } from '../../../icons/play-icon'
 
 graphql(`
   fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {
@@ -73,9 +72,16 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                         <span>{run.crawler.uriType}</span>
                         <FilterIcon className="size-3" />
                       </Link>
-                      <button type="button" className="btn btn-square btn-xs ml-2">
-                        <PlayIcon className="size-3" />
-                      </button>
+                      {!run.endedAt ? (
+                        <div className="badge badge-xs badge-neutral text-nowrap">Running</div>
+                      ) : !run.success ? (
+                        <div className="badge badge-xs badge-error text-nowrap">Failed</div>
+                      ) : (
+                        <div className="badge badge-xs badge-success text-nowrap">Success</div>
+                      )}
+                      {run.stoppedByUser && (
+                        <div className="badge badge-xs badge-warning text-nowrap">Stopped By User</div>
+                      )}
                     </div>
                     <div>
                       <Link

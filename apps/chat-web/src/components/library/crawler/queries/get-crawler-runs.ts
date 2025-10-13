@@ -1,3 +1,4 @@
+import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -57,7 +58,13 @@ export const getCrawlerRunsQueryOptions = ({
   crawlerId?: string
   skip: number
   take: number
-}) => ({
-  queryKey: ['getCrawlerRuns', { libraryId, crawlerId }, { skip, take }],
-  queryFn: () => getCrawlerRuns({ data: { libraryId, crawlerId, skip, take } }),
-})
+}) =>
+  queryOptions({
+    queryKey: ['getCrawlerRuns', { libraryId, crawlerId }, { skip, take }],
+    queryFn: () => getCrawlerRuns({ data: { libraryId, crawlerId, skip, take } }),
+    refetchInterval: (query) => {
+      const data = query.state.data
+      if (!data) return 0
+      return data.runs.some((run) => !run.endedAt) ? 3000 : 0
+    },
+  })

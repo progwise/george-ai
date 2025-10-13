@@ -5,9 +5,12 @@ import { graphql } from '../../../gql'
 import { Crawlers_CrawlersMenuFragment, SelectedCrawler_CrawlersMenuFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../icons/edit-icon'
+import { PlayIcon } from '../../../icons/play-icon'
 import { PlusIcon } from '../../../icons/plus-icon'
+import { StopIcon } from '../../../icons/stop-icon'
 import { CrawlerAddDialog } from './crawler-add-dialog'
 import { CrawlerUpdateDialog } from './crawler-update-dialog'
+import { useCrawlerActions } from './use-crawler-actions'
 
 graphql(`
   fragment SelectedCrawler_CrawlersMenu on AiLibraryCrawler {
@@ -40,6 +43,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
   const updateDialogRef = useRef<HTMLDialogElement>(null)
   const navigate = useNavigate({ from: '/libraries/$libraryId/crawlers/' })
   const { t } = useTranslation()
+  const { runCrawler, stopCrawler } = useCrawlerActions({ libraryId })
 
   useEffect(() => {
     if (detailsRef.current && selectedCrawler) {
@@ -63,10 +67,14 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
 
   return (
     <>
-      <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center shadow-lg">
+      <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center shadow-lg">
         <li>
-          <details ref={detailsRef}>
-            <summary>{selectedCrawler ? selectedCrawler.uri : 'All Crawlers'}</summary>
+          <details ref={detailsRef} className="w-90">
+            <summary className="text-sm font-semibold">
+              <span className="overflow-auto overflow-ellipsis text-nowrap">
+                {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'All Crawlers'}
+              </span>
+            </summary>
             <ul className="z-40">
               <li>
                 <Link to="." search={{ crawlerId: undefined }}>
@@ -75,15 +83,42 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
               </li>
               {crawlers.map((crawler) => (
                 <li key={crawler.id} className={crawler.id === selectedCrawler?.id ? 'active' : ''}>
-                  <Link to="." search={{ crawlerId: crawler.id }}>
-                    {crawler.uri}
+                  <Link to="." search={{ crawlerId: crawler.id }} className="flex flex-col items-start gap-1">
+                    <span className="text-base-content/70 italic">{crawler.uriType}:</span>
+                    <span className="ml-2">{crawler.uri}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </details>
         </li>
+        <li>
+          {selectedCrawler?.isRunning && (
+            <span className="badge badge-primary gap-1">
+              <span className="loading loading-spinner loading-xs"></span>
+              {t('crawlers.runs')}
+            </span>
+          )}
+        </li>
         <li className="grow-1 items-end">
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={!selectedCrawler}
+            onClick={() => {
+              if (!selectedCrawler) return
+              if (selectedCrawler.isRunning) {
+                stopCrawler(selectedCrawler.id)
+              } else {
+                runCrawler(selectedCrawler.id)
+              }
+            }}
+          >
+            {selectedCrawler?.isRunning ? <StopIcon /> : <PlayIcon />}
+            {selectedCrawler?.isRunning ? t('crawlers.stop') : t('crawlers.run')}
+          </button>
+        </li>
+        <li>
           <button
             type="button"
             className="btn btn-ghost"
@@ -107,8 +142,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
         ref={addDialogRef}
         onSuccess={(newCrawlerId) => navigate({ to: './$crawlerId', params: { crawlerId: newCrawlerId } })}
       />
-
-      <CrawlerUpdateDialog crawler={selectedCrawler!} updateDialogRef={updateDialogRef} />
+      {selectedCrawler && <CrawlerUpdateDialog crawler={selectedCrawler!} updateDialogRef={updateDialogRef} />}
     </>
   )
 }
