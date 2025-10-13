@@ -96,13 +96,12 @@ services:
       KC_PROXY: edge
 
       KC_HTTP_ENABLED: true
-      KC_HTTP_RELATIVE_PATH: /
       KC_LOG_LEVEL: info
       KC_METRICS_ENABLED: true
       KC_HEALTH_ENABLED: true
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    command: start-dev --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
+    command: start-dev
     depends_on:
       - gai-keycloak-db
     ports:
