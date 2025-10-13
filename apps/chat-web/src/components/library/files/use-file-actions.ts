@@ -148,7 +148,7 @@ export const useFileActions = (params: { libraryId: string }) => {
     },
   })
 
-  const { mutate: cancelFileUploadMutate, isPending: cancelFileUpoadPending } = useMutation({
+  const { mutate: cancelFileUploadMutate, isPending: cancelFileUploadPending } = useMutation({
     mutationFn: (fileId: string) => cancelFileUploadFn({ data: { fileId } }),
     onError: (error) => {
       const errorMessage =
@@ -179,7 +179,7 @@ export const useFileActions = (params: { libraryId: string }) => {
       dropFilePending ||
       dropAllFilesIsPending ||
       dropFilesIsPending ||
-      cancelFileUpoadPending ||
+      cancelFileUploadPending ||
       prepareDesktopFilesIsPending,
   }
 }

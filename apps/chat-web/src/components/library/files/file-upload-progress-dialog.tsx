@@ -253,8 +253,7 @@ export const FileUploadProgressDialog = ({
             const fileId = preparedFile.fileId
             const file = preparedFile.blob as File
             const progress = uploadProgress.get(fileId)
-            const fileSize =
-              file.size >= 1000000 ? (file.size / 1000000).toFixed(1) + ' MB' : (file.size / 1000).toFixed(1) + ' KB'
+            const fileSize = formatBytes(file.size)
 
             return (
               <li key={file.name} className="flex items-center justify-between gap-2">

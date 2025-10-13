@@ -6,7 +6,7 @@ import { ArchiveIcon } from '../../../icons/archive-icon'
 import { FileIcon } from '../../../icons/file-icon'
 import { toastError } from '../../georgeToaster'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
-import { FileUploadProgressDialog, PreparedUploadFile } from './file-upload-progess-dialog'
+import { FileUploadProgressDialog, PreparedUploadFile } from './file-upload-progress-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 import { useFileActions } from './use-file-actions'
 
