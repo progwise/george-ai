@@ -13,6 +13,7 @@ node_modules
 **/.crawler-credentials
 **/.uploads
 *.md
+!CHANGELOG.md
 .git
 .gitignore
 **/.DS_Store
