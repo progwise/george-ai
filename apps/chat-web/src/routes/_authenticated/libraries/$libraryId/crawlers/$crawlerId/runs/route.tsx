@@ -4,8 +4,8 @@ import { z } from 'zod'
 
 import { dateTimeString, duration } from '@george-ai/web-utils'
 
-import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/get-crawler'
-import { getCrawlerRunsQueryOptions } from '../../../../../../../components/library/crawler/get-crawler-runs'
+import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler'
+import { getCrawlerRunsQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler-runs'
 import { Pagination } from '../../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../../i18n/use-translation-hook'
 
@@ -33,9 +33,7 @@ function RouteComponent() {
   const params = Route.useParams()
   const search = Route.useSearch()
   const {
-    data: {
-      aiLibraryCrawler: { runs: crawlerRuns },
-    },
+    data: { runs: crawlerRuns },
   } = useSuspenseQuery(getCrawlerRunsQueryOptions({ ...params, ...{ skip: search.skipRuns, take: search.takeRuns } }))
   const {
     data: { aiLibraryCrawler: crawler },

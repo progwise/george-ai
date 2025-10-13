@@ -1,6 +1,6 @@
-import { useSuspenseQueries } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { NewListDialog } from '../../../components/lists/new-list-dialog'
 import { getListsQueryOptions } from '../../../components/lists/queries'
@@ -9,6 +9,9 @@ import { ListPlusIcon } from '../../../icons/list-plus-icon'
 
 export const Route = createFileRoute('/_authenticated/lists/')({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    return await context.queryClient.ensureQueryData(getListsQueryOptions())
+  },
 })
 
 function RouteComponent() {
@@ -17,19 +20,18 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const { t } = useTranslation()
 
-  const [listsQuery] = useSuspenseQueries({
-    queries: [getListsQueryOptions()],
-  })
-  const latestList = listsQuery.data.aiLists.at(0)
+  const {
+    data: { aiLists },
+  } = useSuspenseQuery(getListsQueryOptions())
+  const latestList = useMemo(() => aiLists.at(0), [aiLists])
 
-  useEffect(() => {
-    if (latestList) {
-      navigate({
-        to: '/lists/$listId',
-        params: { listId: latestList.id },
-      })
-    }
-  }, [latestList, navigate])
+  if (latestList) {
+    navigate({
+      to: '/lists/$listId',
+      params: { listId: latestList.id },
+    })
+    return null
+  }
 
   return (
     <div className="absolute flex h-screen w-full">

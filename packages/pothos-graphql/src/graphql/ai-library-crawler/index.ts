@@ -1,8 +1,8 @@
-import { canAccessLibraryOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import '../../domain/crawler/sharepoint'
+import './queries'
 import './mutations'
 
 import { CrawlerUriType } from '../../domain/crawler/crawler-uri-types'
@@ -29,6 +29,7 @@ builder.prismaObject('AiLibraryCrawlerRun', {
     errorMessage: t.exposeString('errorMessage', { nullable: true }),
     stoppedByUser: t.expose('stoppedByUser', { type: 'DateTime', nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
+    runBy: t.relation('runBy', { nullable: true }),
     updatesCount: t.relationCount('updates', { nullable: false }),
     filteredUpdatesCount: t.field({
       type: 'Int',
@@ -165,39 +166,3 @@ builder.prismaObject('AiLibraryCrawler', {
     }),
   }),
 })
-
-builder.queryField('aiLibraryCrawler', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawler',
-    nullable: false,
-    args: {
-      crawlerId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { crawlerId, libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
-      return prisma.aiLibraryCrawler.findFirstOrThrow({
-        ...query,
-        where: { id: crawlerId, libraryId },
-      })
-    },
-  }),
-)
-
-builder.queryField('aiLibraryCrawlerRun', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawlerRun',
-    nullable: false,
-    args: {
-      crawlerRunId: t.arg.string({ required: true }),
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { crawlerRunId, libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
-      return await prisma.aiLibraryCrawlerRun.findFirstOrThrow({
-        ...query,
-        where: { id: crawlerRunId, crawler: { libraryId } },
-      })
-    },
-  }),
-)

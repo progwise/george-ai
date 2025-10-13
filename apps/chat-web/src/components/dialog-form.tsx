@@ -47,8 +47,8 @@ export const DialogForm = ({
       <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
-        <form ref={formRef} method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
-          <div className="flex flex-1 flex-col gap-2">{children}</div>
+        <form ref={formRef} method="dialog" onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-auto">{children}</div>
           <div className="modal-action flex justify-end gap-2">
             {buttonOptions === 'onlyClose' ? (
               <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>

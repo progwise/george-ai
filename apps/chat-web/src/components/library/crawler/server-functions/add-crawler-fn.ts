@@ -3,11 +3,11 @@ import { z } from 'zod'
 
 import { parseCommaList, validateFormData } from '@george-ai/web-utils'
 
-import { graphql } from '../../../gql'
-import { CrawlerUriType } from '../../../gql/graphql'
-import { getLanguage, translate } from '../../../i18n'
-import { backendRequest } from '../../../server-functions/backend'
-import { getCrawlerFormSchema } from './crawler-form'
+import { graphql } from '../../../../gql'
+import { CrawlerUriType } from '../../../../gql/graphql'
+import { getLanguage, translate } from '../../../../i18n'
+import { backendRequest } from '../../../../server-functions/backend'
+import { getCrawlerFormSchema } from '../crawler-form'
 
 export const addCrawlerFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: FormData) => {

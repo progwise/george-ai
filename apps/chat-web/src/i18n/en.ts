@@ -250,7 +250,7 @@ export default {
     excludePatterns: 'Exclude Patterns (comma-separated regex)',
     minFileSize: 'Min File Size (MB)',
     maxFileSize: 'Max File Size (MB)',
-    allowedMimeTypes: 'Allowed MIME Types (comma-separated)',
+    allowedMimeTypes: 'Allowed MIME Types',
   },
   errors: {
     avatarDeleteFailed: 'Avatar deletion failed',

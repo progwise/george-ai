@@ -1,31 +1,38 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { backendRequest } from '../../../server-functions/backend'
+import { graphql } from '../../../../gql'
+import { backendRequest } from '../../../../server-functions/backend'
 
 const getCrawlerRuns = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
         libraryId: z.string().nonempty(),
-        crawlerId: z.string().nonempty(),
+        crawlerId: z.string().optional(),
         skip: z.number(),
         take: z.number(),
       })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
-        query GetCrawlerRuns($libraryId: String!, $crawlerId: String!, $skip: Int!, $take: Int!) {
-          aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {
-            id
-            runs(take: $take, skip: $skip) {
+        query GetCrawlerRuns($libraryId: String!, $crawlerId: String, $skip: Int!, $take: Int!) {
+          aiLibraryCrawlerRuns(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {
+            count
+            runs {
               id
+              crawlerId
+              crawler {
+                id
+                uri
+                uriType
+              }
               startedAt
               endedAt
               success
+              ...CrawlerRuns_CrawlerRunsTable
             }
           }
         }
@@ -37,6 +44,7 @@ const getCrawlerRuns = createServerFn({ method: 'GET' })
         take: ctx.data.take,
       },
     )
+    return result.aiLibraryCrawlerRuns
   })
 
 export const getCrawlerRunsQueryOptions = ({
@@ -46,7 +54,7 @@ export const getCrawlerRunsQueryOptions = ({
   take,
 }: {
   libraryId: string
-  crawlerId: string
+  crawlerId?: string
   skip: number
   take: number
 }) => ({

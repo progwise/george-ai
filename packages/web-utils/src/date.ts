@@ -56,7 +56,7 @@ export const timeString = (input: string | null | undefined, language: string) =
   })
 }
 
-export const duration = (start: string | null | undefined, end: string | null | undefined) => {
+export const duration = (start: string | Date | null | undefined, end: string | Date | null | undefined) => {
   if (!start) {
     return 'not started'
   }

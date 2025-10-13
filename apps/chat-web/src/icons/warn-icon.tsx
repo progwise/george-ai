@@ -2,7 +2,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { IconProps } from './icon-props'
 
-const WarnIcon = ({ className, tooltip }: IconProps) => {
+export const WarnIcon = ({ className, tooltip }: IconProps) => {
   return (
     <div className={twMerge('size-4', className, !!tooltip && 'tooltip')} data-tip={tooltip}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,5 +16,3 @@ const WarnIcon = ({ className, tooltip }: IconProps) => {
     </div>
   )
 }
-
-export default WarnIcon

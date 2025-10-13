@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { getLibraryQueryOptions } from '../../../../components/library/get-library'
+import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/')({
   loader: async ({ context, params }) => {

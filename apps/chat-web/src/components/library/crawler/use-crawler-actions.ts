@@ -2,11 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { addCrawlerFn } from './add-crawler-fn'
-import { deleteCrawlerFn } from './delete-crawler-fn'
-import { getCrawlersQueryOptions } from './get-crawlers'
-import { runCrawlerFn } from './run-crawler-fn'
-import { stopCrawlerFn } from './stop-crawler-fn'
+import { getCrawlerQueryOptions } from './queries/get-crawler'
+import { getCrawlersQueryOptions } from './queries/get-crawlers'
+import { addCrawlerFn } from './server-functions/add-crawler-fn'
+import { deleteCrawlerFn } from './server-functions/delete-crawler-fn'
+import { runCrawlerFn } from './server-functions/run-crawler-fn'
+import { stopCrawlerFn } from './server-functions/stop-crawler-fn'
+import { updateCrawlerFn } from './server-functions/update-crawler'
 
 interface UseCrawlerActionsProps {
   libraryId: string
@@ -57,14 +59,6 @@ export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
     },
   })
 
-  const handleRunStop = (crawlerId: string, isRunning: boolean) => {
-    if (!isRunning) {
-      runCrawlerMutation.mutate(crawlerId)
-    } else {
-      stopCrawlerMutation.mutate(crawlerId)
-    }
-  }
-
   const addCrawlerMutation = useMutation({
     mutationFn: addCrawlerFn,
     onError: (error) => {
@@ -72,7 +66,21 @@ export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
     },
     onSuccess: async () => {
       toastSuccess(t('crawlers.toastCreateSuccess'))
-      await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+      await queryClient.invalidateQueries(getCrawlersQueryOptions({ libraryId }))
+    },
+  })
+
+  const updateCrawlerMutation = useMutation({
+    mutationFn: updateCrawlerFn,
+    onError: (error) => {
+      toastError(`${t('crawlers.toastUpdateError')}: ${error.message}`)
+    },
+    onSuccess: async (data) => {
+      toastSuccess(t('crawlers.toastUpdateSuccess'))
+      await Promise.all([
+        queryClient.invalidateQueries(getCrawlerQueryOptions({ libraryId, crawlerId: data.updateAiLibraryCrawler.id })),
+        queryClient.invalidateQueries(getCrawlersQueryOptions({ libraryId })),
+      ])
     },
   })
 
@@ -83,19 +91,20 @@ export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
     },
     onSuccess: async () => {
       toastSuccess(t('crawlers.toastDeleteSuccess'))
-      await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+      await queryClient.invalidateQueries(getCrawlersQueryOptions({ libraryId }))
     },
   })
 
   return {
     runCrawler: runCrawlerMutation.mutate,
     stopCrawler: stopCrawlerMutation.mutate,
-    handleRunStop,
     isPending:
       runCrawlerMutation.isPending ||
       stopCrawlerMutation.isPending ||
       addCrawlerMutation.isPending ||
-      deleteCrawlerMutation.isPending,
+      deleteCrawlerMutation.isPending ||
+      updateCrawlerMutation.isPending,
+    updateCrawler: updateCrawlerMutation.mutate,
     addCrawler: addCrawlerMutation.mutate,
     deleteCrawler: deleteCrawlerMutation.mutate,
   }

@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries'
-import { getLibraryQueryOptions } from '../../../../components/library/get-library'
 import { LibraryMenu } from '../../../../components/library/library-menu'
+import { getLibrariesQueryOptions } from '../../../../components/library/queries/get-libraries'
+import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
@@ -42,16 +42,6 @@ function RouteComponent() {
           {t('labels.files')}
         </Link>
         <Link
-          to="/libraries/$libraryId/query"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.query')}
-        </Link>
-        <Link
           to="/libraries/$libraryId/crawlers"
           params={{ libraryId }}
           className="tab"
@@ -60,6 +50,16 @@ function RouteComponent() {
           role="tab"
         >
           {t('labels.crawlers')}
+        </Link>
+        <Link
+          to="/libraries/$libraryId/query"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.query')}
         </Link>
         <Link
           to="/libraries/$libraryId/processing"

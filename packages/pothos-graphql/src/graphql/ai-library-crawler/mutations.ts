@@ -39,6 +39,7 @@ const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
 builder.mutationField('createAiLibraryCrawler', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
+    nullable: false,
     args: {
       libraryId: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryCrawlerInput, required: true }),
@@ -101,6 +102,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 builder.mutationField('updateAiLibraryCrawler', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
+    nullable: false,
     args: {
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryCrawlerInput, required: true }),

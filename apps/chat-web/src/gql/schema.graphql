@@ -377,6 +377,7 @@ type AiLibraryCrawlerRun {
   errorMessage: String
   filteredUpdatesCount(updateTypeFilter: [String!]): Int!
   id: ID!
+  runBy: User
   runByUserId: ID
   startedAt: DateTime!
   stoppedByUser: DateTime
@@ -895,6 +896,11 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
+type LibraryCrawlerRunQueryResults {
+  count: Int!
+  runs: [AiLibraryCrawlerRun!]!
+}
+
 enum ListFieldFileProperty {
   crawlerUrl
   lastUpdate
@@ -1029,7 +1035,7 @@ type Mutation {
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
     libraryId: String!
-  ): AiLibraryCrawler
+  ): AiLibraryCrawler!
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
@@ -1108,7 +1114,7 @@ type Mutation {
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
     id: String!
-  ): AiLibraryCrawler
+  ): AiLibraryCrawler!
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
   updateLibraryParticipants(libraryId: String!, userIds: [String!]!): UpdateLibraryParticipantsResult!
@@ -1162,6 +1168,12 @@ type Query {
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
+  aiLibraryCrawlerRuns(
+    crawlerId: String
+    libraryId: String!
+    skip: Int = 0
+    take: Int = 20
+  ): LibraryCrawlerRunQueryResults!
   aiLibraryFile(fileId: String!): AiLibraryFile!
   aiLibraryFiles(
     libraryId: String!

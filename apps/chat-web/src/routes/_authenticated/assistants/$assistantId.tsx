@@ -9,7 +9,7 @@ import { AssistantParticipants } from '../../../components/assistant/assistant-p
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
 import { getAssistantQueryOptions } from '../../../components/assistant/get-assistant'
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
-import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
+import { getLibrariesQueryOptions } from '../../../components/library/queries/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 

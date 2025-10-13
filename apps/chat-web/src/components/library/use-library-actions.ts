@@ -3,8 +3,8 @@ import { useNavigate } from '@tanstack/react-router'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getLibrariesQueryOptions } from './get-libraries'
-import { getLibraryQueryOptions } from './get-library'
+import { getLibrariesQueryOptions } from './queries/get-libraries'
+import { getLibraryQueryOptions } from './queries/get-library'
 import { deleteLibraryFn } from './server-functions/delete-library'
 import { removeLibraryParticipantFn, updateLibraryParticipantsFn } from './server-functions/participants'
 

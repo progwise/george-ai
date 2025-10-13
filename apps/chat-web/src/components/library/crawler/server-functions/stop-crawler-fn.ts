@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../gql'
-import { backendRequest } from '../../../server-functions/backend'
+import { graphql } from '../../../../gql'
+import { backendRequest } from '../../../../server-functions/backend'
 
-export const runCrawlerFn = createServerFn({ method: 'POST' })
+export const stopCrawlerFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { crawlerId: string }) =>
     z
       .object({
@@ -15,11 +15,11 @@ export const runCrawlerFn = createServerFn({ method: 'POST' })
   .handler(async (ctx) => {
     const result = await backendRequest(
       graphql(`
-        mutation runCrawler($crawlerId: String!) {
-          runAiLibraryCrawler(crawlerId: $crawlerId)
+        mutation stopCrawler($crawlerId: String!) {
+          stopAiLibraryCrawler(crawlerId: $crawlerId)
         }
       `),
       { crawlerId: ctx.data.crawlerId },
     )
-    return result.runAiLibraryCrawler
+    return result.stopAiLibraryCrawler
   })

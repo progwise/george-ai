@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getCrawlersQueryOptions } from '../../../../components/library/crawler/get-crawlers'
+import { getCrawlersQueryOptions } from '../../../../components/library/crawler/queries/get-crawlers'
 import { UpdatesTable, getLibraryUpdateItemsQueryOptions } from '../../../../components/library/updates'
 import { Pagination } from '../../../../components/table/pagination'
 
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/updat
       context.queryClient.ensureQueryData(
         getLibraryUpdateItemsQueryOptions({ libraryId: params.libraryId, skip: deps.skip, take: deps.take }),
       ),
-      context.queryClient.ensureQueryData(getCrawlersQueryOptions(params.libraryId)),
+      context.queryClient.ensureQueryData(getCrawlersQueryOptions({ libraryId: params.libraryId })),
     ])
   },
 })

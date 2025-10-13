@@ -255,7 +255,7 @@ export default {
     excludePatterns: 'Ausschlussmuster (kommagetrennte Regex)',
     minFileSize: 'Min. Dateigröße (MB)',
     maxFileSize: 'Max. Dateigröße (MB)',
-    allowedMimeTypes: 'Erlaubte MIME-Typen (kommagetrennt)',
+    allowedMimeTypes: 'Erlaubte MIME-Typen',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',

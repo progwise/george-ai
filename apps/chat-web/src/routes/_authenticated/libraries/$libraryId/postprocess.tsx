@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 
-import { getLibraryQueryOptions } from '../../../../components/library/get-library'
+import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/postprocess')({
