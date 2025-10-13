@@ -82,7 +82,7 @@ services:
       - ../.postgres-data-keycloak:/var/lib/postgresql/data
 
   gai-keycloak:
-    image: quay.io/keycloak/keycloak:26.0.7
+    image: quay.io/keycloak/keycloak:26.4
     container_name: gai-keycloak
     environment:
       KC_DB: postgres
