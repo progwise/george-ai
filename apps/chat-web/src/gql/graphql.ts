@@ -489,6 +489,8 @@ export type AiLibraryFileQueryResult = {
   files: Array<AiLibraryFile>
   library: AiLibrary
   libraryId: Scalars['String']['output']
+  missingChunksCount: Scalars['Int']['output']
+  missingContentExtractionTasksCount: Scalars['Int']['output']
   showArchived?: Maybe<Scalars['Boolean']['output']>
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
@@ -804,6 +806,8 @@ export type ContentExtractionTaskQueryResult = {
   libraryId: Scalars['String']['output']
   skip: Scalars['Int']['output']
   status?: Maybe<ProcessingStatus>
+  /** Counts of tasks in each processing state */
+  statusCounts: Array<ProcessingTaskStateCount>
   take: Scalars['Int']['output']
   tasks: Array<AiContentProcessingTask>
 }
@@ -1089,6 +1093,7 @@ export type Mutation = {
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
+  createMissingContentExtractionTasks: Array<AiContentProcessingTask>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
@@ -1101,6 +1106,7 @@ export type Mutation = {
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
   dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
+  dropPendingTasks: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
@@ -1270,6 +1276,10 @@ export type MutationCreateListArgs = {
   data: AiListInput
 }
 
+export type MutationCreateMissingContentExtractionTasksArgs = {
+  libraryId: Scalars['String']['input']
+}
+
 export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -1318,6 +1328,10 @@ export type MutationDropAllLibraryFilesArgs = {
 
 export type MutationDropOutdatedMarkdownsArgs = {
   fileId: Scalars['String']['input']
+}
+
+export type MutationDropPendingTasksArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationEnsureUserProfileArgs = {
@@ -1510,6 +1524,12 @@ export enum ProcessingStatus {
   TimedOut = 'timedOut',
   Validating = 'validating',
   ValidationFailed = 'validationFailed',
+}
+
+export type ProcessingTaskStateCount = {
+  __typename?: 'ProcessingTaskStateCount'
+  count: Scalars['Int']['output']
+  status: ProcessingStatus
 }
 
 export type Query = {
@@ -2953,24 +2973,6 @@ export type CrawlerRuns_CrawlerRunsTableFragment = {
   runBy?: { __typename?: 'User'; id: string; name?: string | null; email: string } | null
 }
 
-export type CrawlerTable_LibraryCrawlerFragment = {
-  __typename?: 'AiLibraryCrawler'
-  id: string
-  uri: string
-  uriType: CrawlerUriType
-  maxDepth: number
-  maxPages: number
-  isRunning: boolean
-  filesCount: number
-  lastRun?: {
-    __typename?: 'AiLibraryCrawlerRun'
-    startedAt: string
-    success?: boolean | null
-    errorMessage?: string | null
-  } | null
-  cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
-}
-
 export type SelectedCrawler_CrawlerUpdateDialogFragment = {
   __typename?: 'AiLibraryCrawler'
   id: string
@@ -3174,17 +3176,7 @@ export type CrawlerTableQuery = {
       id: string
       uri: string
       uriType: CrawlerUriType
-      maxDepth: number
-      maxPages: number
       isRunning: boolean
-      filesCount: number
-      lastRun?: {
-        __typename?: 'AiLibraryCrawlerRun'
-        startedAt: string
-        success?: boolean | null
-        errorMessage?: string | null
-      } | null
-      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     }>
   }
 }
@@ -3547,6 +3539,8 @@ export type EmbeddingsTableQuery = {
     showArchived?: boolean | null
     count: number
     archivedCount: number
+    missingChunksCount: number
+    missingContentExtractionTasksCount: number
     library: { __typename?: 'AiLibrary'; name: string }
     files: Array<{
       __typename?: 'AiLibraryFile'
@@ -3856,6 +3850,31 @@ export type CreateContentProcessingTasksMutation = {
   }
 }
 
+export type CreateMissingContentExtractionTasksMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type CreateMissingContentExtractionTasksMutation = {
+  __typename?: 'Mutation'
+  createMissingContentExtractionTasks: Array<{ __typename?: 'AiContentProcessingTask'; id: string; fileId: string }>
+}
+
+export type CancelProcessingTaskMutationVariables = Exact<{
+  taskId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
+}>
+
+export type CancelProcessingTaskMutation = {
+  __typename?: 'Mutation'
+  cancelProcessingTask: { __typename?: 'AiContentProcessingTask'; id: string; fileId: string }
+}
+
+export type DropPendingTasksMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DropPendingTasksMutation = { __typename?: 'Mutation'; dropPendingTasks: number }
+
 export type ChangeLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
   data: AiLibraryInput
@@ -3889,6 +3908,7 @@ export type GetContentProcessingTasksQuery = {
   aiContentProcessingTasks: {
     __typename?: 'ContentExtractionTaskQueryResult'
     count: number
+    statusCounts: Array<{ __typename?: 'ProcessingTaskStateCount'; status: ProcessingStatus; count: number }>
     tasks: Array<{
       __typename?: 'AiContentProcessingTask'
       id: string
@@ -3983,6 +4003,13 @@ export type AiContentProcessingTask_AccordionItemFragment = {
   }>
 }
 
+export type TaskMenu_FilesQueryResultFragment = {
+  __typename?: 'AiLibraryFileQueryResult'
+  count: number
+  missingChunksCount: number
+  missingContentExtractionTasksCount: number
+}
+
 export type AiContentProcessingTask_TimelineFragment = {
   __typename?: 'AiContentProcessingTask'
   createdAt: string
@@ -4010,16 +4037,6 @@ export type AiContentProcessingTask_TimelineFragment = {
     finishedAt?: string | null
     failedAt?: string | null
   }>
-}
-
-export type CancelProcessingTaskMutationVariables = Exact<{
-  taskId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
-}>
-
-export type CancelProcessingTaskMutation = {
-  __typename?: 'Mutation'
-  cancelProcessingTask: { __typename?: 'AiContentProcessingTask'; id: string }
 }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
@@ -7487,48 +7504,6 @@ export const CrawlerRuns_CrawlerRunsTableFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<CrawlerRuns_CrawlerRunsTableFragment, unknown>
-export const CrawlerTable_LibraryCrawlerFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'CrawlerTable_LibraryCrawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'lastRun' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CrawlerTable_LibraryCrawlerFragment, unknown>
 export const CrawlerForm_CrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8441,6 +8416,24 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AiContentProcessingTask_AccordionItemFragment, unknown>
+export const TaskMenu_FilesQueryResultFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'TaskMenu_FilesQueryResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'missingChunksCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'missingContentExtractionTasksCount' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TaskMenu_FilesQueryResultFragment, unknown>
 export const AiLibraryUpdate_TableItemFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -12662,9 +12655,7 @@ export const CrawlerTableDocument = {
                   name: { kind: 'Name', value: 'crawlers' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'CrawlerTable_LibraryCrawler' } },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Crawlers_CrawlersMenu' } }],
                   },
                 },
               ],
@@ -12675,7 +12666,7 @@ export const CrawlerTableDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'CrawlerTable_LibraryCrawler' },
+      name: { kind: 'Name', value: 'Crawlers_CrawlersMenu' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -12683,30 +12674,7 @@ export const CrawlerTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'lastRun' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
         ],
       },
     },
@@ -13490,6 +13458,7 @@ export const EmbeddingsTableDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'TaskMenu_FilesQueryResult' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 {
                   kind: 'Field',
@@ -13504,6 +13473,7 @@ export const EmbeddingsTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'showArchived' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'archivedCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'missingChunksCount' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'files' },
@@ -13515,6 +13485,19 @@ export const EmbeddingsTableDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'TaskMenu_FilesQueryResult' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'missingChunksCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'missingContentExtractionTasksCount' } },
         ],
       },
     },
@@ -14400,6 +14383,132 @@ export const CreateContentProcessingTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateContentProcessingTasksMutation, CreateContentProcessingTasksMutationVariables>
+export const CreateMissingContentExtractionTasksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createMissingContentExtractionTasks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createMissingContentExtractionTasks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateMissingContentExtractionTasksMutation,
+  CreateMissingContentExtractionTasksMutationVariables
+>
+export const CancelProcessingTaskDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'cancelProcessingTask' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'taskId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cancelProcessingTask' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'taskId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'taskId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CancelProcessingTaskMutation, CancelProcessingTaskMutationVariables>
+export const DropPendingTasksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropPendingTasks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropPendingTasks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropPendingTasksMutation, DropPendingTasksMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -14538,6 +14647,17 @@ export const GetContentProcessingTasksDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'statusCounts' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'tasks' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -14655,53 +14775,6 @@ export const GetContentProcessingTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<GetContentProcessingTasksQuery, GetContentProcessingTasksQueryVariables>
-export const CancelProcessingTaskDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'cancelProcessingTask' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'taskId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cancelProcessingTask' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'taskId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'taskId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CancelProcessingTaskMutation, CancelProcessingTaskMutationVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [

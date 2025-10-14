@@ -441,6 +441,8 @@ type AiLibraryFileQueryResult {
   files: [AiLibraryFile!]!
   library: AiLibrary!
   libraryId: String!
+  missingChunksCount: Int!
+  missingContentExtractionTasksCount: Int!
   showArchived: Boolean
   skip: Int!
   take: Int!
@@ -742,6 +744,10 @@ type ContentExtractionTaskQueryResult {
   libraryId: String!
   skip: Int!
   status: ProcessingStatus
+  """
+  Counts of tasks in each processing state
+  """
+  statusCounts: [ProcessingTaskStateCount!]!
   take: Int!
   tasks: [AiContentProcessingTask!]!
 }
@@ -1058,6 +1064,7 @@ type Mutation {
   ): EnrichmentQueueTasksMutationResult!
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
+  createMissingContentExtractionTasks(libraryId: String!): [AiContentProcessingTask!]!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
@@ -1083,6 +1090,7 @@ type Mutation {
   ): EnrichmentQueueTasksMutationResult!
   dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
+  dropPendingTasks(libraryId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
@@ -1144,6 +1152,11 @@ enum ProcessingStatus {
   timedOut
   validating
   validationFailed
+}
+
+type ProcessingTaskStateCount {
+  count: Int!
+  status: ProcessingStatus!
 }
 
 type Query {

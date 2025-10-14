@@ -2,8 +2,10 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
+import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
 import { getProcessingTasksQueryOptions } from '../../../../components/library/tasks/get-tasks'
 import { TaskAccordionItem } from '../../../../components/library/tasks/task-accordion-item'
+import { TaskMenu } from '../../../../components/library/tasks/task-menu'
 import { Pagination } from '../../../../components/table/pagination'
 import { ProcessingStatus } from '../../../../gql/graphql'
 
@@ -20,14 +22,23 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/proce
     status,
   }),
   loader: async ({ context, params, deps }) => {
-    await context.queryClient.ensureQueryData(
-      getProcessingTasksQueryOptions({
-        libraryId: params.libraryId,
-        skip: deps.skip,
-        take: deps.take,
-        status: deps.status,
-      }),
-    )
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        getProcessingTasksQueryOptions({
+          libraryId: params.libraryId,
+          skip: deps.skip,
+          take: deps.take,
+          status: deps.status,
+        }),
+      ),
+      context.queryClient.ensureQueryData(
+        aiLibraryFilesQueryOptions({
+          libraryId: params.libraryId,
+          skip: 0,
+          take: 1,
+        }),
+      ),
+    ])
   },
 })
 
@@ -47,46 +58,42 @@ function RouteComponent() {
     }),
   )
 
+  const {
+    data: { aiLibraryFiles },
+  } = useSuspenseQuery(
+    aiLibraryFilesQueryOptions({
+      libraryId,
+      skip: 0,
+      take: 1,
+    }),
+  )
+
   const tasks = aiContentProcessingTasks.tasks
   const count = aiContentProcessingTasks.count
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base-content/80 text-xl font-bold">{count} Content Extraction Tasks</h2>
-        <div className="flex items-end gap-4">
-          <div>
-            <select
-              className="select select-sm select-bordered h-full"
-              value={status || ''}
-              onChange={(e) => {
-                const selectedStatus = e.target.value as ProcessingStatus | ''
-                navigate({ search: { skip: 0, take, status: selectedStatus || undefined } })
-              }}
-            >
-              <option value="">All</option>
-              <option value={ProcessingStatus.Pending}>Pending</option>
-              <option value={ProcessingStatus.Extracting}>Extracting</option>
-              <option value={ProcessingStatus.Embedding}>Embedding</option>
-              <option value={ProcessingStatus.Completed}>Completed</option>
-              <option value={ProcessingStatus.Failed}>Failed</option>
-            </select>
-          </div>
-          <Pagination
-            totalItems={count}
-            itemsPerPage={take}
-            currentPage={1 + skip / take}
-            onPageChange={(page) => {
-              navigate({ search: { skip: (page - 1) * take, take, status } })
-            }}
-            showPageSizeSelector={true}
-            onPageSizeChange={(newPageSize) => {
-              navigate({ search: { skip: 0, take: newPageSize, status } })
-            }}
-          />
-        </div>
-      </div>
+      <TaskMenu
+        libraryId={libraryId}
+        files={aiLibraryFiles}
+        statusCounts={aiContentProcessingTasks.statusCounts}
+        totalTasksCount={aiContentProcessingTasks.count}
+      />
 
+      <div className="flex flex-row justify-end">
+        <Pagination
+          totalItems={count}
+          itemsPerPage={take}
+          currentPage={1 + skip / take}
+          onPageChange={(page) => {
+            navigate({ search: { skip: (page - 1) * take, take, status } })
+          }}
+          showPageSizeSelector={true}
+          onPageSizeChange={(newPageSize) => {
+            navigate({ search: { skip: 0, take: newPageSize, status } })
+          }}
+        />
+      </div>
       {tasks.length === 0 ? (
         <div className="card bg-base-200">
           <div className="card-body text-center">

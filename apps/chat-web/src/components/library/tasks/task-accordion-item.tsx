@@ -64,7 +64,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
   const extractionOptionsModalRef = useRef<HTMLDialogElement>(null)
   const metadataModalRef = useRef<HTMLDialogElement>(null)
 
-  const { cancelProcessingTask } = useTaskActions({ libraryId: task.file.libraryId, fileId: task.file.id })
+  const { cancelProcessingTask } = useTaskActions({ libraryId: task.file.libraryId })
 
   const openExtractionOptionsModal = () => {
     extractionOptionsModalRef.current?.showModal()

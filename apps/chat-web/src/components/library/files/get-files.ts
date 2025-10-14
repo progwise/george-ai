@@ -21,6 +21,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
       graphql(`
         query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {
           aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {
+            ...TaskMenu_FilesQueryResult
             libraryId
             library {
               name
@@ -30,6 +31,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
             showArchived
             count
             archivedCount
+            missingChunksCount
             files {
               ...AiLibraryFile_TableItem
             }

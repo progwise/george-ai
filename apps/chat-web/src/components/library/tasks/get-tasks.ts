@@ -30,6 +30,10 @@ const getProcessingTasks = createServerFn({ method: 'GET' })
         ) {
           aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {
             count
+            statusCounts {
+              status
+              count
+            }
             tasks {
               ...AiContentProcessingTask_AccordionItem
             }

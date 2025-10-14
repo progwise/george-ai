@@ -45,6 +45,40 @@ const LibraryFileQueryResult = builder
           })
         },
       }),
+      missingChunksCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          return prisma.aiLibraryFile.count({
+            where: {
+              libraryId: root.libraryId,
+              contentExtractionTasks: {
+                none: {
+                  chunksCount: { gt: 0 },
+                  processingFinishedAt: { not: null },
+                },
+              },
+            },
+          })
+        },
+      }),
+      missingContentExtractionTasksCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          return prisma.aiLibraryFile.count({
+            where: {
+              libraryId: root.libraryId,
+              contentExtractionTasks: {
+                none: {
+                  OR: [{ chunksCount: { gt: 0 }, processingFinishedAt: { not: null } }, { processingStartedAt: null }],
+                },
+              },
+            },
+          })
+        },
+      }),
+      // List of files in this library
       files: t.prismaField({
         type: ['AiLibraryFile'],
         nullable: false,

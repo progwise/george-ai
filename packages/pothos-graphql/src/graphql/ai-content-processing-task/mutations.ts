@@ -1,5 +1,6 @@
 import { GraphQLError } from 'graphql'
 
+import { canAccessLibraryOrThrow } from '../../domain'
 import {
   createContentProcessingTask,
   createEmbeddingOnlyTask,
@@ -79,6 +80,63 @@ builder.mutationField('cancelProcessingTask', (t) =>
       })
 
       return task
+    },
+  }),
+)
+
+builder.mutationField('createMissingContentExtractionTasks', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['AiContentProcessingTask'],
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _parent, { libraryId }, context) => {
+      // Check permissions
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+
+      const files = await prisma.aiLibraryFile.findMany({
+        where: {
+          libraryId,
+          contentExtractionTasks: {
+            none: {
+              OR: [{ chunksCount: { gt: 0 }, processingFinishedAt: { not: null } }, { processingStartedAt: null }],
+            },
+          },
+        },
+      })
+
+      const createTaskPromises = files.map((file) =>
+        createContentProcessingTask({
+          fileId: file.id,
+          query,
+          libraryId: file.libraryId,
+        }),
+      )
+      const tasks = (await Promise.all(createTaskPromises)).flat()
+      return tasks
+    },
+  }),
+)
+
+builder.mutationField('dropPendingTasks', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'Int',
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, { libraryId }, context) => {
+      // Check permissions
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+
+      const result = await prisma.aiContentProcessingTask.deleteMany({
+        where: {
+          libraryId,
+          processingStartedAt: null,
+        },
+      })
+      return result.count
     },
   }),
 )
