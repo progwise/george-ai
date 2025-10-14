@@ -37,6 +37,70 @@ const ContentExtractionTaskQueryResult = builder
           })
         },
       }),
+      statusCounts: t.field({
+        type: [
+          builder.objectRef<{ status: ProcessingStatus; count: number }>('ProcessingTaskStateCount').implement({
+            fields: (t) => ({
+              status: t.expose('status', { type: 'ProcessingStatus', nullable: false }),
+              count: t.exposeInt('count', { nullable: false }),
+            }),
+          }),
+        ],
+        nullable: false,
+        description: 'Counts of tasks in each processing state',
+        resolve: async ({ libraryId, fileId }) => {
+          return [
+            {
+              status: 'pending' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('pending'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'validating' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('validating'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'extracting' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('extracting'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'embedding' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('embedding'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'completed' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('completed'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'failed' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('failed'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'cancelled' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('cancelled'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+            {
+              status: 'timedOut' as const,
+              count: await prisma.aiContentProcessingTask.count({
+                where: { libraryId, ...getTaskStatusWhereClause('timedOut'), ...(fileId ? { fileId } : {}) },
+              }),
+            },
+          ]
+        },
+      }),
       tasks: t.prismaField({
         type: ['AiContentProcessingTask'],
         nullable: { list: false, items: false },

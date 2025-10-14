@@ -150,6 +150,7 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
 
 export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
   return z.object({
+    autoProcessCrawledFiles: z.boolean().nullish(),
     description: z.string().nullish(),
     embeddingModelName: z.string().nullish(),
     embeddingTimeoutMs: z.number().nullish(),

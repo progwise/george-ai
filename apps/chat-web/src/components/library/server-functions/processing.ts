@@ -48,3 +48,50 @@ export const createContentProcessingTasksFn = createServerFn({ method: 'POST' })
     })
     return await Promise.all(createProcessingTasksPromises)
   })
+
+export const createMissingContentExtractionTasksFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { libraryId: string }) => z.object({ libraryId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) =>
+    backendRequest(
+      graphql(`
+        mutation createMissingContentExtractionTasks($libraryId: String!) {
+          createMissingContentExtractionTasks(libraryId: $libraryId) {
+            id
+            fileId
+          }
+        }
+      `),
+      data,
+    ),
+  )
+
+export const cancelProcessingTaskFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { taskId: string; fileId: string }) =>
+    z.object({ taskId: z.string().nonempty(), fileId: z.string().nonempty() }).parse(data),
+  )
+  .handler(async ({ data }) =>
+    backendRequest(
+      graphql(`
+        mutation cancelProcessingTask($taskId: String!, $fileId: String!) {
+          cancelProcessingTask(taskId: $taskId, fileId: $fileId) {
+            id
+            fileId
+          }
+        }
+      `),
+      data,
+    ),
+  )
+
+export const dropPendingTasksFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { libraryId: string }) => z.object({ libraryId: z.string().nonempty() }).parse(data))
+  .handler(async ({ data }) =>
+    backendRequest(
+      graphql(`
+        mutation dropPendingTasks($libraryId: String!) {
+          dropPendingTasks(libraryId: $libraryId)
+        }
+      `),
+      data,
+    ),
+  )

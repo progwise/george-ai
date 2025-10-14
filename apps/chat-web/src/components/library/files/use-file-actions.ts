@@ -16,7 +16,7 @@ import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
 import { aiLibraryFilesQueryOptions } from './get-files'
 
-export const useFileActions = (params: { libraryId: string }) => {
+export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   const { t } = useTranslation()
   const { skip, take, showArchived } = useSearch({ strict: false })
   const queryClient = useQueryClient()
@@ -37,11 +37,11 @@ export const useFileActions = (params: { libraryId: string }) => {
           )
         : []),
       queryClient.invalidateQueries({
-        queryKey: getProcessingTasksQueryOptions({ libraryId: params.libraryId }).queryKey,
+        queryKey: getProcessingTasksQueryOptions({ libraryId }).queryKey,
       }),
       queryClient.invalidateQueries({
         queryKey: aiLibraryFilesQueryOptions({
-          libraryId: params.libraryId,
+          libraryId,
           skip: skip || 0,
           take: take || 20,
           showArchived,
@@ -137,7 +137,7 @@ export const useFileActions = (params: { libraryId: string }) => {
 
   const { mutate: prepareDesktopFileUploadsMutate, isPending: prepareDesktopFilesIsPending } = useMutation({
     mutationFn: (files: { name: string; type: string; size: number; lastModified: Date }[]) =>
-      prepareDesktopFileUploadsFn({ data: { libraryId: params.libraryId, files } }),
+      prepareDesktopFileUploadsFn({ data: { libraryId, files } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.prepareFileUploads', { error: 'Unknown error' })

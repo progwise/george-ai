@@ -40,6 +40,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
       library: {
         select: {
           fileConverterOptions: true,
+          autoProcessCrawledFiles: true,
         },
       },
     },
@@ -91,7 +92,7 @@ const startCrawling = async (
     maxFileSize?: number | null
     minFileSize?: number | null
     allowedMimeTypes?: string | null
-    library: { fileConverterOptions: string | null }
+    library: { fileConverterOptions: string | null; autoProcessCrawledFiles: boolean }
   },
   newRun: { id: string; startedAt: Date },
   userId?: string,
@@ -186,6 +187,34 @@ const startCrawling = async (
             where: { id: crawledPage.id },
             data: { archivedAt: null },
           })
+
+          // Check if autoProcessCrawledFiles is enabled
+          if (crawler.library.autoProcessCrawledFiles) {
+            // Check if file needs a content extraction task
+            // Only create task if there's NO task that is:
+            // - Successful (with chunks AND finished) OR
+            // - Pending (not yet started)
+            const hasValidTask = await prisma.aiContentProcessingTask.findFirst({
+              where: {
+                fileId: crawledPage.id,
+                OR: [
+                  { chunksCount: { gt: 0 }, processingFinishedAt: { not: null } }, // Successful task
+                  { processingStartedAt: null }, // Pending task
+                ],
+              },
+            })
+
+            if (!hasValidTask) {
+              // No valid task exists, create one
+              await createContentProcessingTask({
+                fileId: crawledPage.id,
+                libraryId: crawler.libraryId,
+              })
+              console.log(
+                `Created content extraction task for hash-skipped file without valid task: ${crawledPage.name}`,
+              )
+            }
+          }
 
           // Include download URL if available for debugging
           const downloadInfo = crawledPage.downloadUrl ? ` | Download URL: ${crawledPage.downloadUrl}` : ''

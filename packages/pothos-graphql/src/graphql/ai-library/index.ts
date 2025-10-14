@@ -43,6 +43,7 @@ builder.prismaObject('AiLibrary', {
     embeddingModelName: t.exposeString('embeddingModelName'),
     embeddingTimeoutMs: t.exposeInt('embeddingTimeoutMs'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
+    autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),
     participants: t.relation('participants', { nullable: false }),
   }),
 })

@@ -13,7 +13,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
         query CrawlerTable($libraryId: String!) {
           aiLibrary(libraryId: $libraryId) {
             crawlers {
-              ...CrawlerTable_LibraryCrawler
+              ...Crawlers_CrawlersMenu
             }
           }
         }
