@@ -5,6 +5,7 @@ import { graphql } from '../../../gql'
 import { ProcessingStatus, TaskMenu_FilesQueryResultFragment } from '../../../gql/graphql'
 import { PlayIcon } from '../../../icons/play-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
+import { DialogForm } from '../../dialog-form'
 import { useTaskActions } from './use-task-actions'
 
 graphql(`
@@ -24,8 +25,9 @@ interface TaskMenuProps {
 
 export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: TaskMenuProps) => {
   const detailsRef = useRef<HTMLDetailsElement>(null)
+  const dropDialogRef = useRef<HTMLDialogElement>(null)
   const { status } = useSearch({ from: '/_authenticated/libraries/$libraryId/processing' })
-  const { createMissingContentExtractionTasks, dropPendingTasks } = useTaskActions({ libraryId })
+  const { createMissingContentExtractionTasks, dropPendingTasks, isPending } = useTaskActions({ libraryId })
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,13 +54,15 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
 
   const handleDropPendingTasks = () => {
     dropPendingTasks()
+    dropDialogRef.current?.close()
   }
 
   const currentStatusCount = statusCounts.find((s) => s.status === status)
   const pendingCount = statusCounts.find((s) => s.status === ProcessingStatus.Pending)?.count ?? 0
 
   return (
-    <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center gap-2 shadow-lg">
+    <>
+      <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center gap-2 shadow-lg">
       <li className="menu-title">Content Extraction Tasks</li>
       <li>
         <details ref={detailsRef}>
@@ -93,18 +97,46 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
             type="button"
             className="btn btn-sm"
             onClick={handleCreateMissingExtractionTasks}
-            disabled={files.missingContentExtractionTasksCount === 0}
+            disabled={files.missingContentExtractionTasksCount === 0 || isPending}
           >
-            <PlayIcon className="size-4" />
+            {isPending ? (
+              <span className="loading loading-spinner loading-xs" />
+            ) : (
+              <PlayIcon className="size-4" />
+            )}
             <span>Create {files.missingContentExtractionTasksCount} tasks</span>
           </button>
 
-          <button type="button" className="btn btn-sm" onClick={handleDropPendingTasks} disabled={pendingCount === 0}>
-            <TrashIcon className="size-4" />
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => dropDialogRef.current?.showModal()}
+            disabled={pendingCount === 0 || isPending}
+          >
+            {isPending ? (
+              <span className="loading loading-spinner loading-xs" />
+            ) : (
+              <TrashIcon className="size-4" />
+            )}
             <span>drop {pendingCount} pending tasks</span>
           </button>
         </div>
       </li>
-    </ul>
+      </ul>
+
+      <DialogForm
+        ref={dropDialogRef}
+        title="Drop Pending Tasks"
+        description={`Are you sure you want to drop ${pendingCount} pending task${pendingCount === 1 ? '' : 's'}? This cannot be undone.`}
+        onSubmit={handleDropPendingTasks}
+        submitButtonText="Drop Tasks"
+      >
+        <div className="py-2">
+          <p className="text-warning">
+            ⚠️ This will permanently delete all pending content extraction tasks that have not started processing yet.
+          </p>
+        </div>
+      </DialogForm>
+    </>
   )
 }

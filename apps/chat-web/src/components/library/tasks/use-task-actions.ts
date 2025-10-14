@@ -27,13 +27,13 @@ export const useTaskActions = ({ libraryId }: UseTaskActionsProps) => {
       console.error('Failed to cancel task:', error)
       toastError(`Failed to cancel task: ${error.message}`)
     },
-    onSettled: () => {},
   })
 
   const createMissingContentExtractionTasksMutation = useMutation({
     mutationFn: () => createMissingContentExtractionTasksFn({ data: { libraryId } }),
-    onSuccess: () => {
-      toastSuccess('Processing unprocessed files started')
+    onSuccess: (data) => {
+      const taskCount = data.createMissingContentExtractionTasks.length
+      toastSuccess(`Successfully created ${taskCount} extraction task${taskCount === 1 ? '' : 's'}`)
       queryClient.invalidateQueries(getProcessingTasksQueryOptions({ libraryId }))
       queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 1 }))
     },
@@ -41,13 +41,13 @@ export const useTaskActions = ({ libraryId }: UseTaskActionsProps) => {
       console.error('Failed to start processing unprocessed files:', error)
       toastError(`Failed to start processing unprocessed files: ${error.message}`)
     },
-    onSettled: () => {},
   })
 
   const dropPendingTasksMutation = useMutation({
-    mutationFn: () => dropPendingTasksFn({ data: { libraryId } }), // Placeholder, implement if needed
-    onSuccess: () => {
-      toastSuccess('Pending tasks dropped successfully')
+    mutationFn: () => dropPendingTasksFn({ data: { libraryId } }),
+    onSuccess: (data) => {
+      const droppedCount = data.dropPendingTasks
+      toastSuccess(`Successfully dropped ${droppedCount} pending task${droppedCount === 1 ? '' : 's'}`)
       queryClient.invalidateQueries(getProcessingTasksQueryOptions({ libraryId }))
       queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 1 }))
     },
@@ -55,7 +55,6 @@ export const useTaskActions = ({ libraryId }: UseTaskActionsProps) => {
       console.error('Failed to drop pending tasks:', error)
       toastError(`Failed to drop pending tasks: ${error.message}`)
     },
-    onSettled: () => {},
   })
 
   return {
