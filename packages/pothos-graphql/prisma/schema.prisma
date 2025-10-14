@@ -117,24 +117,25 @@ model AiAssistantParticipant {
 }
 
 model AiLibrary {
-  id                   String                 @id @default(cuid())
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  name                 String
-  description          String?
-  url                  String?
-  apiToken             String?
-  lastProcessed        DateTime?
-  owner                User                   @relation(fields: [ownerId], references: [id])
-  ownerId              String
-  isPublic             Boolean                @default(true)
-  embeddingModelName   String?
-  embeddingTimeoutMs   Int?                   @default(180000) // Default 3 minutes for embedding tasks
-  fileConverterOptions String?
-  usages               AiLibraryUsage[]
-  files                AiLibraryFile[]
-  crawlers             AiLibraryCrawler[]
-  participants         AiLibraryParticipant[]
+  id                      String                 @id @default(cuid())
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  name                    String
+  description             String?
+  url                     String?
+  apiToken                String?
+  lastProcessed           DateTime?
+  owner                   User                   @relation(fields: [ownerId], references: [id])
+  ownerId                 String
+  isPublic                Boolean                @default(true)
+  embeddingModelName      String?
+  embeddingTimeoutMs      Int?                   @default(180000) // Default 3 minutes for embedding tasks
+  fileConverterOptions    String?
+  autoProcessCrawledFiles Boolean                @default(true) // Auto-create extraction tasks for files skipped due to hash equality
+  usages                  AiLibraryUsage[]
+  files                   AiLibraryFile[]
+  crawlers                AiLibraryCrawler[]
+  participants            AiLibraryParticipant[]
 
   updates     AiLibraryUpdate[]
   listSources AiListSource[]

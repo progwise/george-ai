@@ -19,6 +19,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     embeddingModelName: t.string({ required: false }),
     fileConverterOptions: t.string({ required: false }),
     embeddingTimeoutMs: t.int({ required: false }),
+    autoProcessCrawledFiles: t.boolean({ required: false }),
   }),
 })
 
@@ -37,6 +38,7 @@ builder.mutationField('updateLibrary', (t) =>
       const validatedData = {
         ...data,
         fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+        autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
       }
 
       return prisma.aiLibrary.update({
@@ -61,6 +63,7 @@ builder.mutationField('createLibrary', (t) =>
       const validatedData = {
         ...data,
         fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+        autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
       }
 
       return prisma.aiLibrary.create({

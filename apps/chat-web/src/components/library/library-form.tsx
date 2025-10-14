@@ -26,6 +26,7 @@ graphql(`
     description
     embeddingModelName
     fileConverterOptions
+    autoProcessCrawledFiles
   }
 `)
 
@@ -231,6 +232,25 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
               placeholder={t('libraries.placeholders.embeddingTimeoutMs')}
               {...fieldProps}
             />
+          </div>
+
+          {/* Auto-process crawled files option */}
+          <div className="mt-4">
+            <label className="label cursor-pointer justify-start">
+              <input
+                name="autoProcessCrawledFiles"
+                type="checkbox"
+                className="checkbox checkbox-sm mr-3"
+                defaultChecked={library.autoProcessCrawledFiles}
+              />
+              <div>
+                <span className="text-sm font-medium">Auto-process crawled files</span>
+                <p className="mt-1 whitespace-normal break-words text-xs text-gray-600">
+                  Automatically create content extraction tasks for files skipped during crawling due to unchanged
+                  content (hash equality), but only if they have no successful processing task yet
+                </p>
+              </div>
+            </label>
           </div>
         </div>
       </div>

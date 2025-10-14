@@ -102,7 +102,7 @@ type Documents = {
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    id\n    libraryId\n    latestExtractionMarkdownFileNames\n    availableExtractionMarkdownFileNames\n  }\n': typeof types.AiLibraryFile_MarkdownFileSelectorFragmentDoc
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
   '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ': typeof types.ProcessFileDocument
-  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
+  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n': typeof types.LibraryMenu_AiLibrariesFragmentDoc
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
@@ -374,7 +374,7 @@ const documents: Documents = {
     types.PrepareFileDocument,
   '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ':
     types.ProcessFileDocument,
-  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n':
+  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n':
     types.AiLibraryForm_LibraryFragmentDoc,
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n':
     types.LibraryMenu_AiLibraryFragmentDoc,
@@ -1105,8 +1105,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n',
-): (typeof documents)['\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n  }\n']
+  source: '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n',
+): (typeof documents)['\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

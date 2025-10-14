@@ -26,6 +26,10 @@ export const getLibraryUpdateFormSchema = (language: Language) =>
       .min(30000, translate('errors.embeddingTimeoutMinimum', language))
       .max(1800000, translate('errors.embeddingTimeoutMaximum', language))
       .nullish(),
+    autoProcessCrawledFiles: z
+      .string()
+      .optional()
+      .transform((val) => val === 'on'),
   })
 
 export const updateLibraryFn = createServerFn({ method: 'POST' })
@@ -42,6 +46,7 @@ export const updateLibraryFn = createServerFn({ method: 'POST' })
         embeddingModelName: parsedData.embeddingModelName,
         fileConverterOptions: parsedData.fileConverterOptions,
         embeddingTimeoutMs: parsedData.embeddingTimeoutMs,
+        autoProcessCrawledFiles: parsedData.autoProcessCrawledFiles,
       }),
     }
   })

@@ -281,6 +281,7 @@ type AiEnrichmentTaskProcessingDataOutput {
 }
 
 type AiLibrary {
+  autoProcessCrawledFiles: Boolean!
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
@@ -449,6 +450,7 @@ type AiLibraryFileQueryResult {
 }
 
 input AiLibraryInput {
+  autoProcessCrawledFiles: Boolean
   description: String
   embeddingModelName: String
   embeddingTimeoutMs: Int

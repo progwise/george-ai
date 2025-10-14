@@ -307,6 +307,7 @@ export type AiEnrichmentTaskProcessingDataOutput = {
 
 export type AiLibrary = {
   __typename?: 'AiLibrary'
+  autoProcessCrawledFiles: Scalars['Boolean']['output']
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
@@ -497,6 +498,7 @@ export type AiLibraryFileQueryResult = {
 }
 
 export type AiLibraryInput = {
+  autoProcessCrawledFiles?: InputMaybe<Scalars['Boolean']['input']>
   description?: InputMaybe<Scalars['String']['input']>
   embeddingModelName?: InputMaybe<Scalars['String']['input']>
   embeddingTimeoutMs?: InputMaybe<Scalars['Int']['input']>
@@ -3620,6 +3622,7 @@ export type AiLibraryForm_LibraryFragment = {
   description?: string | null
   embeddingModelName?: string | null
   fileConverterOptions?: string | null
+  autoProcessCrawledFiles: boolean
 }
 
 export type LibraryMenu_AiLibraryFragment = {
@@ -3699,6 +3702,7 @@ export type AiLibraryDetailQuery = {
     description?: string | null
     embeddingModelName?: string | null
     fileConverterOptions?: string | null
+    autoProcessCrawledFiles: boolean
     owner: {
       __typename?: 'User'
       name?: string | null
@@ -3892,6 +3896,7 @@ export type ChangeLibraryMutation = {
     description?: string | null
     embeddingModelName?: string | null
     fileConverterOptions?: string | null
+    autoProcessCrawledFiles: boolean
   }
 }
 
@@ -8110,6 +8115,7 @@ export const AiLibraryForm_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
@@ -13859,6 +13865,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
@@ -14569,6 +14576,7 @@ export const ChangeLibraryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
