@@ -63,65 +63,59 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
   return (
     <>
       <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center gap-2 shadow-lg">
-      <li className="menu-title">Content Extraction Tasks</li>
-      <li>
-        <details ref={detailsRef}>
-          <summary className="text-sm font-medium">
-            {currentStatusCount ? `${currentStatusCount.count} ${currentStatusCount.status}` : `${totalTasksCount} all`}
-          </summary>
-          <ul className="z-40">
-            <li>
-              <Link to="." search={{ status: undefined }}>
-                {totalTasksCount} all
-              </Link>
-            </li>
-            {statusCounts.map(({ status, count }) => (
-              <li key={status}>
-                <Link to="." search={{ status }} className="text-nowrap">
-                  {count} {status}
+        <li className="menu-title">Content Extraction Tasks</li>
+        <li>
+          <details ref={detailsRef}>
+            <summary className="text-sm font-medium">
+              {currentStatusCount
+                ? `${currentStatusCount.count} ${currentStatusCount.status}`
+                : `${totalTasksCount} all`}
+            </summary>
+            <ul className="z-40">
+              <li>
+                <Link to="." search={{ status: undefined }}>
+                  {totalTasksCount} all
                 </Link>
               </li>
-            ))}
-          </ul>
-        </details>
-      </li>
-      <li>
-        <div className="flex">
-          <span className="badge badge-sm badge-neutral">Files: {files.count}</span>
-          <span className="badge badge-sm badge-accent">Without chunks: {files.missingChunksCount}</span>
-        </div>
-      </li>
-      <li className="grow-1 items-end">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={handleCreateMissingExtractionTasks}
-            disabled={files.missingContentExtractionTasksCount === 0 || isPending}
-          >
-            {isPending ? (
-              <span className="loading loading-spinner loading-xs" />
-            ) : (
-              <PlayIcon className="size-4" />
-            )}
-            <span>Create {files.missingContentExtractionTasksCount} tasks</span>
-          </button>
+              {statusCounts.map(({ status, count }) => (
+                <li key={status}>
+                  <Link to="." search={{ status }} className="text-nowrap">
+                    {count} {status}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </li>
+        <li>
+          <div className="flex">
+            <span className="badge badge-sm badge-neutral">Files: {files.count}</span>
+            <span className="badge badge-sm badge-accent">Without chunks: {files.missingChunksCount}</span>
+          </div>
+        </li>
+        <li className="grow-1 items-end">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleCreateMissingExtractionTasks}
+              disabled={files.missingContentExtractionTasksCount === 0 || isPending}
+            >
+              {isPending ? <span className="loading loading-spinner loading-xs" /> : <PlayIcon className="size-4" />}
+              <span>Create {files.missingContentExtractionTasksCount} tasks</span>
+            </button>
 
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={() => dropDialogRef.current?.showModal()}
-            disabled={pendingCount === 0 || isPending}
-          >
-            {isPending ? (
-              <span className="loading loading-spinner loading-xs" />
-            ) : (
-              <TrashIcon className="size-4" />
-            )}
-            <span>drop {pendingCount} pending tasks</span>
-          </button>
-        </div>
-      </li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => dropDialogRef.current?.showModal()}
+              disabled={pendingCount === 0 || isPending}
+            >
+              {isPending ? <span className="loading loading-spinner loading-xs" /> : <TrashIcon className="size-4" />}
+              <span>drop {pendingCount} pending tasks</span>
+            </button>
+          </div>
+        </li>
       </ul>
 
       <DialogForm
