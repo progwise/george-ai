@@ -102,7 +102,7 @@ const updateProcessingTask = async (args: {
       },
     },
     where: { id: args.task.id },
-    data: args.data,
+    data: { ...args.data },
   })
   if (args.timeoutSignal.aborted) {
     console.warn(`❌ Task ${args.task.id} aborted due to timeout`)
@@ -353,44 +353,43 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
 
     // clear vector store upfront
     await dropFileFromVectorstore(task.file.libraryId, task.file.id)
-    const embeddingPromises = markdownFileNames
-      .map(async (markdownFileName) => {
-        const embeddingResult = await processEmbeddingPhase({
-          taskId: task.id,
-          timeoutSignal,
-          fileId: task.fileId,
-          fileName: task.file.name!,
-          originUri: task.file.originUri,
-          mimeType: task.file.mimeType!,
-          libraryId: task.file.libraryId,
-          markdownFileName: markdownFileName,
-          embeddingModelName: validated.embeddingModelName,
-        })
-        return embeddingResult
+    const embeddingPromises = markdownFileNames.map(async (markdownFileName) => {
+      const embeddingResult = await processEmbeddingPhase({
+        taskId: task.id,
+        timeoutSignal,
+        fileId: task.fileId,
+        fileName: task.file.name!,
+        originUri: task.file.originUri,
+        mimeType: task.file.mimeType!,
+        libraryId: task.file.libraryId,
+        markdownFileName: markdownFileName,
+        embeddingModelName: validated.embeddingModelName,
       })
-      .map((p) =>
-        p.catch((e: unknown) => {
-          const failedResult: Awaited<ReturnType<typeof processEmbeddingPhase>> = {
-            success: false,
-            chunks: 0,
-            chunkErrors: [],
-            error: e instanceof Error ? e : new Error('Unknown error during embedding'),
-          }
-          return failedResult
-        }),
-      ) // Catch errors in individual embedding processes
+      return embeddingResult
+    })
 
-    const embeddingResults = await Promise.all(embeddingPromises)
+    const embeddingResultsSettled = await Promise.allSettled(embeddingPromises)
 
-    const allSuccessful = embeddingResults.every((res) => res.success)
-    if (!allSuccessful) {
+    const successFulEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'fulfilled')
+    const failedEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'rejected')
+
+    const metadata = mergeObjectToJsonString(task.metadata, { successFulEmbeddingResults, failedEmbeddingResults })
+    const hasFailures = failedEmbeddingResults.length > 0
+    const hasSuccess = successFulEmbeddingResults.length > 0
+
+    if (!hasSuccess) {
+      // total failure
       task = await updateProcessingTask({
         task,
         timeoutSignal,
         data: {
           embeddingFailedAt: new Date(),
           processingFailedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, { embeddingResults }),
+          embeddingTimeout: failedEmbeddingResults.some((result) => {
+            const errorMessage = result.reason instanceof Error ? result.reason.message : ''
+            return errorMessage.includes('timeout') || errorMessage.includes('timed out')
+          }),
+          metadata: metadata,
         },
       })
       console.error(`❌ Embedding phase failed for task ${task.id}`)
@@ -401,17 +400,22 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         timeoutSignal,
         data: {
           embeddingFinishedAt: new Date(),
-          embeddingTimeout:
-            embeddingResults.some((result) => {
-              const errorMessage = result.error instanceof Error ? result.error.message : ''
-              return errorMessage.includes('timeout')
-            }) || false,
+          embeddingTimeout: successFulEmbeddingResults.some((result) => result.value.timeout) || false,
           processingFinishedAt: new Date(),
-          metadata: mergeObjectToJsonString(task.metadata, { embeddingResults }), // TODO: Not loosing metadata from previous steps
-          chunksCount: embeddingResults.map((result) => result.chunks).reduce((sum, res) => sum + res, 0),
-          chunksSize: embeddingResults.reduce((sum, res) => sum + (res.size || 0), 0),
+          metadata: metadata,
+          chunksCount: successFulEmbeddingResults
+            .map((result) => result.value.chunks)
+            .reduce((sum, res) => sum + res, 0),
+          chunksSize: successFulEmbeddingResults.reduce((sum, res) => sum + (res.value.size || 0), 0),
         },
       })
+    }
+    if (hasFailures) {
+      console.warn(
+        `⚠️ Embedding phase completed with warnings for task ${task.id}: ${failedEmbeddingResults.length}/${embeddingResultsSettled.length} failed`,
+      )
+    } else {
+      console.log(`✅ Embedding phase completed successfully for task ${task.id}`)
     }
     console.log(`✅ Completed embedding phase for task ${task.id}`)
   } catch (error) {
@@ -492,37 +496,29 @@ const processEmbeddingPhase = async (args: {
   markdownFileName: string
   embeddingModelName: string
 }) => {
-  try {
-    console.log(`🔗 Starting embedding phase for task ${args.taskId}`)
+  console.log(`🔗 Starting embedding phase for task ${args.taskId}`)
 
-    // Get markdown file path
-    const markdownPath = path.join(
-      getFileDir({ fileId: args.fileId, libraryId: args.libraryId }),
-      args.markdownFileName,
-    )
+  // Get markdown file path
+  const markdownPath = path.join(getFileDir({ fileId: args.fileId, libraryId: args.libraryId }), args.markdownFileName)
 
-    // Use embedFile function (embeddingModelName validated in validation phase)
-    const embeddedFile = await embedMarkdownFile({
-      timeoutSignal: args.timeoutSignal,
-      libraryId: args.libraryId,
-      embeddingModelName: args.embeddingModelName,
-      fileId: args.fileId,
-      fileName: args.fileName,
-      originUri: args.originUri || '',
-      mimeType: args.mimeType,
-      markdownFilePath: markdownPath,
-    })
+  // Use embedFile function (embeddingModelName validated in validation phase)
+  const embeddedFile = await embedMarkdownFile({
+    timeoutSignal: args.timeoutSignal,
+    libraryId: args.libraryId,
+    embeddingModelName: args.embeddingModelName,
+    fileId: args.fileId,
+    fileName: args.fileName,
+    originUri: args.originUri || '',
+    mimeType: args.mimeType,
+    markdownFilePath: markdownPath,
+  })
 
-    return {
-      success: true, //TODO: Is it a success if there are chunkErrors?
-      timeout: embeddedFile.timeout || false,
-      chunks: embeddedFile.chunks,
-      chunkErrors: embeddedFile.chunkErrors,
-      size: embeddedFile.size,
-    }
-  } catch (error) {
-    console.error(`❌ Error in embedding phase for task ${args.taskId}:`, error)
-    return { success: false, chunks: 0, chunkErrors: [], error }
+  return {
+    success: true, //TODO: Is it a success if there are chunkErrors?
+    timeout: embeddedFile.timeout || false,
+    chunks: embeddedFile.chunks,
+    chunkErrors: embeddedFile.chunkErrors,
+    size: embeddedFile.size,
   }
 }
 

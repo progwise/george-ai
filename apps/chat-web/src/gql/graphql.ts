@@ -194,6 +194,7 @@ export type AiContentProcessingTask = {
   library: AiLibrary
   libraryId: Scalars['String']['output']
   metadata?: Maybe<Scalars['String']['output']>
+  processingCancelled: Scalars['Boolean']['output']
   processingFailedAt?: Maybe<Scalars['DateTime']['output']>
   processingFinishedAt?: Maybe<Scalars['DateTime']['output']>
   processingStartedAt?: Maybe<Scalars['DateTime']['output']>
@@ -3927,6 +3928,7 @@ export type GetContentProcessingTasksQuery = {
       processingStatus: ProcessingStatus
       chunksCount?: number | null
       chunksSize?: number | null
+      processingCancelled: boolean
       processingStartedAt?: string | null
       processingFinishedAt?: string | null
       processingFailedAt?: string | null
@@ -3975,6 +3977,7 @@ export type AiContentProcessingTask_AccordionItemFragment = {
   processingStatus: ProcessingStatus
   chunksCount?: number | null
   chunksSize?: number | null
+  processingCancelled: boolean
   processingStartedAt?: string | null
   processingFinishedAt?: string | null
   processingFailedAt?: string | null
@@ -4018,6 +4021,7 @@ export type TaskMenu_FilesQueryResultFragment = {
 export type AiContentProcessingTask_TimelineFragment = {
   __typename?: 'AiContentProcessingTask'
   createdAt: string
+  processingCancelled: boolean
   processingStartedAt?: string | null
   processingFinishedAt?: string | null
   processingFailedAt?: string | null
@@ -8284,6 +8288,7 @@ export const AiContentProcessingTask_TimelineFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingCancelled' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingStartedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFinishedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFailedAt' } },
@@ -8387,6 +8392,7 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingCancelled' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingStartedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFinishedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFailedAt' } },
@@ -14691,6 +14697,7 @@ export const GetContentProcessingTasksDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'processingCancelled' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingStartedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFinishedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingFailedAt' } },

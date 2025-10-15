@@ -183,7 +183,7 @@ export const FileUploadProgressDialog = ({
             })
             resolve()
           } else {
-            const errorMsg = `Failed to upload ${file.fileName}: ${xhr.status} ${xhr.statusText}`
+            const errorMsg = `Failed to upload ${file.fileName}: ${xhr.status} ${xhr.responseText}`
             toastError(errorMsg)
             reject(new Error(errorMsg))
           }

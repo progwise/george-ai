@@ -175,6 +175,7 @@ type AiContentProcessingTask {
   library: AiLibrary!
   libraryId: String!
   metadata: String
+  processingCancelled: Boolean!
   processingFailedAt: DateTime
   processingFinishedAt: DateTime
   processingStartedAt: DateTime

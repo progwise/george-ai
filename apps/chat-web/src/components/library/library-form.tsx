@@ -244,10 +244,11 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                 defaultChecked={library.autoProcessCrawledFiles}
               />
               <div>
-                <span className="text-sm font-medium">Auto-process crawled files</span>
+                <span className="text-sm font-medium">Auto-process hash-skipped crawled files</span>
                 <p className="mt-1 whitespace-normal break-words text-xs text-gray-600">
                   Automatically create content extraction tasks for files skipped during crawling due to unchanged
-                  content (hash equality), but only if they have no successful processing task yet
+                  content (hash equality), but only if they have no successful or pending processing task. Note:
+                  Uploaded files and new/updated crawled files always get tasks automatically.
                 </p>
               </div>
             </label>

@@ -5,6 +5,7 @@ import { dropFileFromVectorstore, dropVectorStore, getFileChunkCount } from '@ge
 
 import type { AiLibraryFile, Prisma as PrismaType } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
+import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { canAccessLibraryOrThrow } from '../library'
 
 export type File = AiLibraryFile
@@ -65,6 +66,14 @@ export const markUploadFinished = async ({
       uploadedAt: new Date(),
     },
   })
+
+  // Always create content extraction task for uploaded file
+  // Text extraction is always enabled by default
+  await createContentProcessingTask({
+    fileId,
+    libraryId,
+  })
+  console.log(`Created content extraction task for uploaded file: ${fileId}`)
 
   return updatedFile
 }

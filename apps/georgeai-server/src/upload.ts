@@ -120,8 +120,9 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
       } catch (error) {
         console.error('Error during file processing:', error)
         releaseLock()
+        const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
         httpResponse.statusCode = 500
-        httpResponse.write(JSON.stringify({ status: 'error', description: 'Error during file processing' }))
+        httpResponse.write(JSON.stringify({ status: 'error', description: errorMessage }))
         httpResponse.end()
       }
     })

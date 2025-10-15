@@ -44,16 +44,14 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
 
-  const extractionMethods: ExtractionMethodId[] = []
-  if (converterOptions.enableTextExtraction) {
-    extractionMethods.push('text-extraction')
-  }
+  // Always include text extraction as the default/basic method
+  const extractionMethods: ExtractionMethodId[] = ['text-extraction']
+
+  // Add additional methods if explicitly enabled
   if (converterOptions.enableImageProcessing) {
     extractionMethods.push('pdf-image-llm')
   }
-  if (extractionMethods.length === 0) {
-    throw new Error(`No extraction methods enabled in library ${libraryId} converter options`)
-  }
+
   if (!library.embeddingModelName) {
     throw new Error(`Library ${libraryId} has no configured embedding model`)
   }
