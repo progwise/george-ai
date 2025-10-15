@@ -89,7 +89,13 @@ Docs for setting up an OAuth app in:
 Navigate to `packages/pothos-graphql` and run:
 
 ```bash
-pnpm prisma migrate dev && pnpm run prisma:generate
+pnpm prisma migrate dev
+```
+
+Then navigate to **root** and run:
+
+```bash
+pnpm prisma:generate
 ```
 
 ---
