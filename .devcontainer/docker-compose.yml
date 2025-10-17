@@ -130,6 +130,25 @@ services:
       - '10138:138/udp' # NetBIOS datagram service
     restart: unless-stopped
 
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - 5678:5678
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_RUNNERS_ENABLED=true
+      - NODE_ENV=development
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=utc
+      - TZ=utc
+    volumes:
+      - ../.n8n_data:/home/node/.n8n
+      - .././n8n-local-files:/files
+
   # gai-crawl4ai:
   #   build:
   #     context: ..
