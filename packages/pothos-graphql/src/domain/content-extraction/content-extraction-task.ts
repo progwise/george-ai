@@ -44,12 +44,47 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
 
-  // Always include text extraction as the default/basic method
-  const extractionMethods: ExtractionMethodId[] = ['text-extraction']
+  // Determine extraction methods based on MIME type
+  const extractionMethods: ExtractionMethodId[] = []
 
-  // Add additional methods if explicitly enabled
-  if (converterOptions.enableImageProcessing) {
-    extractionMethods.push('pdf-image-llm')
+  // Map MIME types to their primary extraction methods
+  const mimeType = file.mimeType?.toLowerCase()
+  switch (mimeType) {
+    case 'message/rfc822':
+      extractionMethods.push('eml-extraction')
+      break
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      extractionMethods.push('docx-extraction')
+      break
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+    case 'application/vnd.ms-excel':
+      extractionMethods.push('excel-extraction')
+      break
+    case 'text/csv':
+    case 'application/csv':
+      extractionMethods.push('csv-extraction')
+      break
+    case 'text/html':
+    case 'application/xhtml+xml':
+      extractionMethods.push('html-extraction')
+      break
+    case 'application/pdf':
+      extractionMethods.push('text-extraction')
+      // Add image-based extraction if enabled
+      if (converterOptions.enableImageProcessing) {
+        extractionMethods.push('pdf-image-llm')
+      }
+      break
+    case 'text/plain':
+    case 'text/markdown':
+    case 'text/x-markdown':
+      extractionMethods.push('text-extraction')
+      break
+    default:
+      // Fallback to text extraction for unknown types
+      console.warn(`Unknown MIME type "${file.mimeType}" for file ${fileId}, falling back to text-extraction`)
+      extractionMethods.push('text-extraction')
+      break
   }
 
   if (!library.embeddingModelName) {
@@ -58,6 +93,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
 
   const timeoutMs = library.embeddingTimeoutMs
 
+  // Filter to ensure methods are valid for the MIME type (safety check)
   const appliedExtractionMethods = extractionMethods.filter((method) => {
     return isMethodAvailableForMimeType(method, file.mimeType)
   })
