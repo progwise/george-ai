@@ -14,10 +14,7 @@ export interface ApiKeyValidationResult {
  * @param libraryId - Optional library ID to validate against (if provided, key must match this library)
  * @returns User and library information if valid, null otherwise
  */
-export async function validateApiKey(
-  apiKey: string,
-  libraryId?: string,
-): Promise<ApiKeyValidationResult | null> {
+export async function validateApiKey(apiKey: string, libraryId?: string): Promise<ApiKeyValidationResult | null> {
   if (!apiKey || apiKey.length === 0) {
     return null
   }

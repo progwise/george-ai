@@ -780,6 +780,27 @@ export type AiServiceInstance = {
   version: Scalars['String']['output']
 }
 
+export type ApiKey = {
+  __typename?: 'ApiKey'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>
+  library: AiLibrary
+  libraryId: Scalars['String']['output']
+  name: Scalars['String']['output']
+  user: User
+  userId: Scalars['String']['output']
+}
+
+export type ApiKeyWithSecret = {
+  __typename?: 'ApiKeyWithSecret'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  key: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -1111,6 +1132,7 @@ export type Mutation = {
   dropOutdatedMarkdowns: Scalars['Int']['output']
   dropPendingTasks: Scalars['Int']['output']
   ensureUserProfile?: Maybe<UserProfile>
+  generateApiKey: ApiKeyWithSecret
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
@@ -1126,6 +1148,7 @@ export type Mutation = {
   reorderListFields: Array<AiListField>
   resetAssessmentAnswers: Scalars['DateTime']['output']
   retryFailedTasks: QueueOperationResult
+  revokeApiKey: Scalars['Boolean']['output']
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
@@ -1341,6 +1364,11 @@ export type MutationEnsureUserProfileArgs = {
   userId: Scalars['String']['input']
 }
 
+export type MutationGenerateApiKeyArgs = {
+  libraryId: Scalars['String']['input']
+  name: Scalars['String']['input']
+}
+
 export type MutationHideMessageArgs = {
   messageId: Scalars['String']['input']
 }
@@ -1405,6 +1433,10 @@ export type MutationResetAssessmentAnswersArgs = {
 export type MutationRetryFailedTasksArgs = {
   libraryId?: InputMaybe<Scalars['String']['input']>
   queueType: QueueType
+}
+
+export type MutationRevokeApiKeyArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationRunAiLibraryCrawlerArgs = {
@@ -1565,6 +1597,7 @@ export type Query = {
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
   aiVisionModels: Array<Scalars['String']['output']>
+  apiKeys: Array<ApiKey>
   /** Get all available OCR-capable vision models */
   availableOCRModels: Array<Scalars['String']['output']>
   managedUsers: ManagedUsersResponse
@@ -1686,6 +1719,10 @@ export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
   term?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryApiKeysArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryManagedUsersArgs = {
@@ -3662,6 +3699,22 @@ export type LibraryMenu_AiLibraryFragment = {
 
 export type LibraryMenu_AiLibrariesFragment = { __typename?: 'AiLibrary'; id: string; name: string }
 
+export type GetApiKeysQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetApiKeysQuery = {
+  __typename?: 'Query'
+  apiKeys: Array<{
+    __typename?: 'ApiKey'
+    id: string
+    name: string
+    createdAt: string
+    lastUsedAt?: string | null
+    libraryId: string
+  }>
+}
+
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -3798,6 +3851,23 @@ export type DeleteLibraryMutation = {
   deleteLibrary: { __typename?: 'AiLibrary'; id: string; name: string; filesCount: number }
 }
 
+export type GenerateApiKeyMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  name: Scalars['String']['input']
+}>
+
+export type GenerateApiKeyMutation = {
+  __typename?: 'Mutation'
+  generateApiKey: {
+    __typename?: 'ApiKeyWithSecret'
+    id: string
+    name: string
+    key: string
+    libraryId: string
+    createdAt: string
+  }
+}
+
 export type CreateLibraryMutationVariables = Exact<{
   data: AiLibraryInput
 }>
@@ -3879,6 +3949,12 @@ export type DropPendingTasksMutationVariables = Exact<{
 }>
 
 export type DropPendingTasksMutation = { __typename?: 'Mutation'; dropPendingTasks: number }
+
+export type RevokeApiKeyMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RevokeApiKeyMutation = { __typename?: 'Mutation'; revokeApiKey: boolean }
 
 export type ChangeLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -13692,6 +13768,49 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const GetApiKeysDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetApiKeys' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'apiKeys' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetApiKeysQuery, GetApiKeysQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -14162,6 +14281,59 @@ export const DeleteLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLibraryMutation, DeleteLibraryMutationVariables>
+export const GenerateApiKeyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'GenerateApiKey' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'generateApiKey' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GenerateApiKeyMutation, GenerateApiKeyMutationVariables>
 export const CreateLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -14522,6 +14694,39 @@ export const DropPendingTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<DropPendingTasksMutation, DropPendingTasksMutationVariables>
+export const RevokeApiKeyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RevokeApiKey' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'revokeApiKey' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
