@@ -10,6 +10,7 @@ import {
   parseFileConverterOptions,
   transformCsvToMarkdown,
   transformDocxToMarkdown,
+  transformEmlToMarkdown,
   transformExcelToMarkdown,
   transformHtmlToMarkdown,
   transformPdfToImageToMarkdown,
@@ -643,6 +644,10 @@ const performContentExtraction = async (args: {
 
       case 'html-extraction':
         result = await transformHtmlToMarkdown(args.uploadFilePath)
+        break
+
+      case 'eml-extraction':
+        result = await transformEmlToMarkdown(args.uploadFilePath)
         break
 
       case 'text-extraction': {

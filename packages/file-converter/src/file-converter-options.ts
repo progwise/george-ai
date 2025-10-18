@@ -212,6 +212,7 @@ export const AVAILABLE_MIME_TYPES = [
   'application/csv',
   'text/html',
   'application/xhtml+xml',
+  'message/rfc822', // Email files (.eml)
 ] as const
 
 export type MimeType = (typeof AVAILABLE_MIME_TYPES)[number]
@@ -227,6 +228,7 @@ export const AVAILABLE_EXTRACTION_METHOD_NAMES = [
   'excel-extraction',
   'csv-extraction',
   'html-extraction',
+  'eml-extraction',
   'embedding-only',
 ] as const
 
@@ -278,6 +280,12 @@ export const EXTRACTION_METHODS: Record<
     name: 'HTML Extraction',
     description: 'Extract content from HTML files',
     supportedMimeTypes: ['text/html', 'application/xhtml+xml'],
+    requiresOptions: [],
+  },
+  'eml-extraction': {
+    name: 'Email Extraction',
+    description: 'Extract content from email files (.eml)',
+    supportedMimeTypes: ['message/rfc822'],
     requiresOptions: [],
   },
   'embedding-only': {
