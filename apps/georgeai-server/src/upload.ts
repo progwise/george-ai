@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import * as fs from 'fs'
 
 import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
-import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
+import { getFileInfo, markUploadFinished, validateApiKey } from '@george-ai/pothos-graphql'
 
 import { getUserContext } from './getUserContext'
 
@@ -27,6 +27,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
+  // Try JWT authentication first
   const context = await getUserContext(() => {
     let token = httpRequest.headers['x-user-jwt'] ? httpRequest.headers['x-user-jwt'].toString() : null
     if (!token) {
@@ -35,13 +36,28 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return token
   })
 
-  if (!context.session?.user) {
+  let userId: string | undefined = context.session?.user?.id
+
+  // If no JWT session, try API key authentication
+  if (!userId) {
+    const authHeader = httpRequest.headers['authorization']
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const apiKey = authHeader.substring(7) // Remove 'Bearer ' prefix
+      const apiKeyResult = await validateApiKey(apiKey)
+
+      if (apiKeyResult) {
+        userId = apiKeyResult.userId
+      }
+    }
+  }
+
+  if (!userId) {
     console.warn('Unauthorized upload attempt with token to upload file', uploadToken)
     httpResponse.status(401).end()
     return
   }
 
-  const fileInfo = await getFileInfo(uploadToken as string, context.session.user.id)
+  const fileInfo = await getFileInfo(uploadToken as string, userId)
 
   if (!fileInfo) {
     httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
@@ -111,7 +127,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
         await markUploadFinished({
           fileId: fileInfo.id,
           libraryId: fileInfo.libraryId,
-          userId: context.session!.user.id,
+          userId: userId,
         })
         releaseLock()
         httpResponse.statusCode = 200
