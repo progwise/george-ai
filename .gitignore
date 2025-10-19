@@ -22,6 +22,7 @@ venv
 .test-cache
 .n8n_data
 .home-node
+.temp
 
 # Fine-tuning
 apps/fine-tuning/split_output

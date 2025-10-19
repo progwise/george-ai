@@ -134,3 +134,30 @@ builder.queryField('aiLibraryFiles', (t) =>
     },
   }),
 )
+
+builder.queryField('checkFileExistsByOriginUri', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: builder.objectRef<{ count: number; originUriPrefix: string }>('CheckFileExistsByOriginUriResult').implement({
+      description: 'Result of checking for files by origin URI prefix',
+      fields: (t) => ({
+        count: t.exposeInt('count', { nullable: false }),
+        originUriPrefix: t.exposeString('originUriPrefix', { nullable: false }),
+      }),
+    }),
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      originUriPrefix: t.arg.string({ required: true }),
+    },
+    resolve: async (_root, { libraryId, originUriPrefix }, context) => {
+      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      const count = await prisma.aiLibraryFile.count({
+        where: {
+          libraryId,
+          originUri: { startsWith: originUriPrefix },
+        },
+      })
+      return { count, originUriPrefix }
+    },
+  }),
+)

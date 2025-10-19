@@ -104,6 +104,10 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   // Track if upload completed successfully
   let uploadCompleted = false
 
+  // Check if content is base64 encoded
+  const contentEncoding = httpRequest.headers['content-encoding']
+  const isBase64 = contentEncoding === 'base64'
+
   const filestream = fs.createWriteStream(uploadedFilePath, {
     flags: 'a',
   })
@@ -116,33 +120,80 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     httpResponse.end()
   })
 
-  httpRequest.pipe(filestream)
+  if (isBase64) {
+    // Handle base64 encoded data
+    let base64Data = ''
 
-  httpRequest.on('end', () => {
-    // Mark as completed immediately to prevent cleanup race condition
-    uploadCompleted = true
+    httpRequest.on('data', (chunk) => {
+      base64Data += chunk.toString()
+    })
 
-    filestream.close(async () => {
+    httpRequest.on('end', () => {
+      // Mark as completed immediately to prevent cleanup race condition
+      uploadCompleted = true
+
       try {
-        await markUploadFinished({
-          fileId: fileInfo.id,
-          libraryId: fileInfo.libraryId,
-          userId: userId,
+        // Decode base64 and write to file
+        const buffer = Buffer.from(base64Data, 'base64')
+        filestream.write(buffer)
+        filestream.close(async () => {
+          try {
+            await markUploadFinished({
+              fileId: fileInfo.id,
+              libraryId: fileInfo.libraryId,
+              userId: userId,
+            })
+            releaseLock()
+            httpResponse.statusCode = 200
+            console.log('File upload and processing completed (base64):', fileInfo.id, fileInfo.name)
+            httpResponse.end(JSON.stringify({ status: 'success' }))
+          } catch (error) {
+            console.error('Error during file processing:', error)
+            releaseLock()
+            const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
+            httpResponse.statusCode = 500
+            httpResponse.write(JSON.stringify({ status: 'error', description: errorMessage }))
+            httpResponse.end()
+          }
         })
-        releaseLock()
-        httpResponse.statusCode = 200
-        console.log('File upload and processing completed:', fileInfo.id, fileInfo.name)
-        httpResponse.end(JSON.stringify({ status: 'success' }))
       } catch (error) {
-        console.error('Error during file processing:', error)
+        console.error('Error decoding base64:', error)
         releaseLock()
-        const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
-        httpResponse.statusCode = 500
-        httpResponse.write(JSON.stringify({ status: 'error', description: errorMessage }))
+        httpResponse.statusCode = 400
+        httpResponse.write(JSON.stringify({ status: 'error', description: 'Invalid base64 data' }))
         httpResponse.end()
       }
     })
-  })
+  } else {
+    // Handle binary data (original behavior)
+    httpRequest.pipe(filestream)
+
+    httpRequest.on('end', () => {
+      // Mark as completed immediately to prevent cleanup race condition
+      uploadCompleted = true
+
+      filestream.close(async () => {
+        try {
+          await markUploadFinished({
+            fileId: fileInfo.id,
+            libraryId: fileInfo.libraryId,
+            userId: userId,
+          })
+          releaseLock()
+          httpResponse.statusCode = 200
+          console.log('File upload and processing completed:', fileInfo.id, fileInfo.name)
+          httpResponse.end(JSON.stringify({ status: 'success' }))
+        } catch (error) {
+          console.error('Error during file processing:', error)
+          releaseLock()
+          const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
+          httpResponse.statusCode = 500
+          httpResponse.write(JSON.stringify({ status: 'error', description: errorMessage }))
+          httpResponse.end()
+        }
+      })
+    })
+  }
 
   // Handle aborted requests - release lock immediately
   httpRequest.on('aborted', () => {

@@ -754,6 +754,14 @@ type AssistantParticipant implements AiConversationParticipant {
 
 scalar BigInt
 
+"""
+Result of checking for files by origin URI prefix
+"""
+type CheckFileExistsByOriginUriResult {
+  count: Int!
+  originUriPrefix: String!
+}
+
 type ComputeFieldValueResult {
   error: String
   success: Boolean
@@ -1248,6 +1256,7 @@ type Query {
   Get all available OCR-capable vision models
   """
   availableOCRModels: [String!]!
+  checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   queueSystemStatus: QueueSystemStatus!

@@ -34,7 +34,7 @@ const schema = builder.toSchema()
 export { schema }
 
 export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
-export { checkUser, updateUserAvatarUrl, getUserByMail, getUserAvatarsPath } from './domain/user'
+export { checkUser, updateUserAvatarUrl, getUserByMail, getUserById, getUserAvatarsPath } from './domain/user'
 export { isProviderAvatar } from './domain/user/avatar-provider'
 export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
 export { canAccessLibraryOrThrow } from './domain/library'

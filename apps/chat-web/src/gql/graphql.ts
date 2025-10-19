@@ -816,6 +816,13 @@ export type AssistantParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+/** Result of checking for files by origin URI prefix */
+export type CheckFileExistsByOriginUriResult = {
+  __typename?: 'CheckFileExistsByOriginUriResult'
+  count: Scalars['Int']['output']
+  originUriPrefix: Scalars['String']['output']
+}
+
 export type ComputeFieldValueResult = {
   __typename?: 'ComputeFieldValueResult'
   error?: Maybe<Scalars['String']['output']>
@@ -1600,6 +1607,7 @@ export type Query = {
   apiKeys: Array<ApiKey>
   /** Get all available OCR-capable vision models */
   availableOCRModels: Array<Scalars['String']['output']>
+  checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   queueSystemStatus: QueueSystemStatus
@@ -1723,6 +1731,11 @@ export type QueryAiSimilarFileChunksArgs = {
 
 export type QueryApiKeysArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type QueryCheckFileExistsByOriginUriArgs = {
+  libraryId: Scalars['String']['input']
+  originUriPrefix: Scalars['String']['input']
 }
 
 export type QueryManagedUsersArgs = {
