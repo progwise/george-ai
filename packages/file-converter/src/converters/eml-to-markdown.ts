@@ -23,15 +23,27 @@ export async function transformEmlToMarkdown(emlPath: string): Promise<Converter
       return addr.text
     }
 
+    // Format date in human-readable format
+    const formatDate = (date: Date | undefined): string => {
+      if (!date) return '(Unknown)'
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+      })
+    }
+
     // Extract headers
     const headers = [
-      `# Email: ${parsed.subject || '(No Subject)'}`,
+      `# ${parsed.subject || '(No Subject)'}`,
       '',
-      `**From:** ${getAddressText(parsed.from)}`,
-      `**To:** ${getAddressText(parsed.to)}`,
-      parsed.cc ? `**CC:** ${getAddressText(parsed.cc)}` : null,
-      `**Date:** ${parsed.date?.toISOString() || '(Unknown)'}`,
-      parsed.messageId ? `**Message-ID:** ${parsed.messageId}` : null,
+      `**From:** ${getAddressText(parsed.from)}  `,
+      `**To:** ${getAddressText(parsed.to)}  `,
+      parsed.cc ? `**CC:** ${getAddressText(parsed.cc)}  ` : null,
+      `**Date:** ${formatDate(parsed.date)}`,
       '',
       '---',
       '',
@@ -39,14 +51,65 @@ export async function transformEmlToMarkdown(emlPath: string): Promise<Converter
       .filter(Boolean)
       .join('\n')
 
+    // Clean HTML before conversion
+    const cleanHtml = (html: string): string => {
+      let cleaned = html
+
+      // Remove tracking pixels and small images (1x1 pixels, etc.)
+      cleaned = cleaned.replace(/<img[^>]*(?:width|height)=["']1["'][^>]*>/gi, '')
+
+      // Remove style tags and their content
+      cleaned = cleaned.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+
+      // Remove script tags and their content
+      cleaned = cleaned.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+
+      // Clean up tracking parameters from URLs (common email tracking params)
+      cleaned = cleaned.replace(/(\?|&)(utm_[^&"'\s]+|source=[^&"'\s]+|medium=[^&"'\s]+|campaign=[^&"'\s]+)/g, '')
+
+      // Convert layout tables to divs (tables with role="presentation" are layout, not data)
+      cleaned = cleaned.replace(/<table[^>]*role=["']presentation["'][^>]*>/gi, '<div>')
+      cleaned = cleaned.replace(/<\/table>/gi, '</div>')
+      cleaned = cleaned.replace(/<tbody[^>]*>/gi, '<div>')
+      cleaned = cleaned.replace(/<\/tbody>/gi, '</div>')
+      cleaned = cleaned.replace(/<tr[^>]*>/gi, '<div>')
+      cleaned = cleaned.replace(/<\/tr>/gi, '</div>')
+      cleaned = cleaned.replace(/<td[^>]*>/gi, '<span>')
+      cleaned = cleaned.replace(/<\/td>/gi, '</span> ')
+
+      return cleaned
+    }
+
     // Extract body content
     let bodyMarkdown = ''
-    if (parsed.html) {
-      // Convert HTML to markdown
-      bodyMarkdown = NodeHtmlMarkdown.translate(parsed.html)
-    } else if (parsed.text) {
-      // Use plain text
+
+    // Prefer plain text if HTML is complex (table-based layout emails)
+    const isComplexHtml =
+      (typeof parsed.html === 'string' && parsed.html.includes('mj-')) ||
+      (typeof parsed.html === 'string' && parsed.html.includes('role="presentation"'))
+
+    if (parsed.text && (isComplexHtml || !parsed.html)) {
+      // Use plain text for complex emails or when no HTML
       bodyMarkdown = parsed.text
+    } else if (parsed.html) {
+      // Clean and convert HTML to markdown
+      const cleanedHtml = cleanHtml(parsed.html)
+
+      bodyMarkdown = NodeHtmlMarkdown.translate(cleanedHtml, {
+        // Ignore decorative elements
+        ignore: ['img[width="20"]', 'img[height="20"]', 'img[width="1"]', 'img[height="1"]', 'style', 'meta'],
+        // Use link reference definitions
+        useLinkReferenceDefinitions: false, // Inline links are clearer
+        // Limit newlines
+        maxConsecutiveNewlines: 2,
+      })
+
+      // Post-process: clean up
+      bodyMarkdown = bodyMarkdown
+        .replace(/\n{3,}/g, '\n\n') // Max 2 consecutive newlines
+        .replace(/\s{2,}/g, ' ') // Collapse multiple spaces
+        .replace(/^\s*\n/gm, '\n') // Remove whitespace-only lines
+        .trim()
     }
 
     const fullMarkdown = headers + bodyMarkdown

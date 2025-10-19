@@ -16,5 +16,11 @@ function RouteComponent() {
 
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
-  return <LibraryForm library={aiLibrary} />
+  return (
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div className="min-h-0 min-w-0">
+        <LibraryForm library={aiLibrary} />
+      </div>
+    </div>
+  )
 }

@@ -496,6 +496,7 @@ export default {
     lastUpdates: 'Last updates',
     leave: 'Leave library',
     leaveConfirmation: 'You are about to leave this library. It cannot be undone.',
+    manageParticipants: 'Manage participants',
     myLibraries: '{count} Libraries',
     noLibrariesFound: 'No libraries found',
     nameLibrary: 'Name',

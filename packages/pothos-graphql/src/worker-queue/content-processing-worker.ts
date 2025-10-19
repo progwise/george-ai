@@ -371,12 +371,12 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
 
     const embeddingResultsSettled = await Promise.allSettled(embeddingPromises)
 
-    const successFulEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'fulfilled')
+    const successfulEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'fulfilled')
     const failedEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'rejected')
 
-    const metadata = mergeObjectToJsonString(task.metadata, { successFulEmbeddingResults, failedEmbeddingResults })
+    const metadata = mergeObjectToJsonString(task.metadata, { successfulEmbeddingResults, failedEmbeddingResults })
     const hasFailures = failedEmbeddingResults.length > 0
-    const hasSuccess = successFulEmbeddingResults.length > 0
+    const hasSuccess = successfulEmbeddingResults.length > 0
 
     if (!hasSuccess) {
       // total failure
@@ -401,13 +401,13 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         timeoutSignal,
         data: {
           embeddingFinishedAt: new Date(),
-          embeddingTimeout: successFulEmbeddingResults.some((result) => result.value.timeout) || false,
+          embeddingTimeout: successfulEmbeddingResults.some((result) => result.value.timeout) || false,
           processingFinishedAt: new Date(),
           metadata: metadata,
-          chunksCount: successFulEmbeddingResults
+          chunksCount: successfulEmbeddingResults
             .map((result) => result.value.chunks)
             .reduce((sum, res) => sum + res, 0),
-          chunksSize: successFulEmbeddingResults.reduce((sum, res) => sum + (res.value.size || 0), 0),
+          chunksSize: successfulEmbeddingResults.reduce((sum, res) => sum + (res.value.size || 0), 0),
         },
       })
     }

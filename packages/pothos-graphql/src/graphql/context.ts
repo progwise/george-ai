@@ -13,8 +13,9 @@ interface ApiKeyAuth {
 }
 
 export interface Context {
-  session: { user: AuthUser; userProfile?: UserProfile; jwt: string } | null
+  session: { user: AuthUser; userProfile?: UserProfile } | null
   apiKey?: ApiKeyAuth
+  jwt?: string
 }
 
 export interface LoggedInContext extends Context {

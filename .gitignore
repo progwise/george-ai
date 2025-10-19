@@ -20,7 +20,6 @@ build
 .venv
 venv
 .test-cache
-.n8n_data
 .home-node
 .temp
 

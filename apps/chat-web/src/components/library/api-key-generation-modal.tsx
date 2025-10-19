@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
@@ -9,8 +8,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { Input } from '../form/input'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getApiKeysQueryOptions } from './queries/get-api-keys'
-import { generateApiKeyFn } from './server-functions/generate-api-key'
+import { useLibraryActions } from './use-library-actions'
 
 export interface ApiKeyGenerationModalProps {
   ref: RefObject<HTMLDialogElement | null>
@@ -27,24 +25,11 @@ const getApiKeyFormSchema = (language: Language) =>
 
 export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalProps) => {
   const { t, language } = useTranslation()
-  const queryClient = useQueryClient()
   const [generatedKey, setGeneratedKey] = useState<string | null>(null)
   const [keyName, setKeyName] = useState<string>('')
 
+  const { generateApiKey, isPending } = useLibraryActions(libraryId)
   const schema = getApiKeyFormSchema(language)
-
-  const generateMutation = useMutation({
-    mutationFn: (data: { libraryId: string; name: string }) => generateApiKeyFn({ data }),
-    onSuccess: (data) => {
-      setGeneratedKey(data.key)
-      setKeyName(data.name)
-      toastSuccess(t('apiKeys.generateSuccess'))
-      // Don't invalidate queries here - wait until modal closes to avoid re-render
-    },
-    onError: (error) => {
-      toastError(t('toasts.error', { error: error.message }))
-    },
-  })
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -54,7 +39,11 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
       return
     }
     const name = formData.get('name') as string
-    generateMutation.mutate({ libraryId, name })
+    generateApiKey(name, {
+      onSuccess: (data) => {
+        setGeneratedKey(data.key)
+      },
+    })
   }
 
   const handleCopy = async () => {
@@ -66,12 +55,9 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
 
   const handleClose = () => {
     // Only invalidate queries when closing the modal to refresh the list
-    if (generatedKey) {
-      queryClient.invalidateQueries(getApiKeysQueryOptions(libraryId))
-    }
+
     setGeneratedKey(null)
     setKeyName('')
-    generateMutation.reset()
     ref.current?.close()
   }
 
@@ -99,16 +85,11 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
             </div>
 
             <div className="modal-action">
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={handleClose}
-                disabled={generateMutation.isPending}
-              >
+              <button type="button" className="btn btn-ghost btn-sm" onClick={handleClose} disabled={isPending}>
                 {t('actions.cancel')}
               </button>
-              <button type="submit" className="btn btn-primary btn-sm" disabled={generateMutation.isPending}>
-                {generateMutation.isPending && <span className="loading loading-spinner loading-sm" />}
+              <button type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
+                {isPending && <span className="loading loading-spinner loading-sm" />}
                 {t('apiKeys.generate')}
               </button>
             </div>
@@ -151,14 +132,6 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
                 {t('actions.close')}
               </button>
             </div>
-          </div>
-        )}
-
-        {generateMutation.isError && !generatedKey && (
-          <div className="alert alert-error mt-4">
-            <span>
-              {generateMutation.error instanceof Error ? generateMutation.error.message : t('apiKeys.generateError')}
-            </span>
           </div>
         )}
       </div>

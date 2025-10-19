@@ -1,13 +1,12 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { toastError, toastSuccess } from '../georgeToaster'
 import { ApiKeyGenerationModal } from './api-key-generation-modal'
+import { ApiKeyRevokeModal } from './api-key-revoke-modal'
 import { getApiKeysQueryOptions } from './queries/get-api-keys'
-import { revokeApiKeyFn } from './server-functions/revoke-api-key'
 
 export interface ApiKeysCardProps {
   libraryId: string
@@ -15,27 +14,11 @@ export interface ApiKeysCardProps {
 
 export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [selectedApiKey, setSelectedApiKey] = useState<{ id: string; name: string } | null>(null)
+  const createDialogRef = useRef<HTMLDialogElement>(null)
+  const revokeApiKeyDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: apiKeys } = useSuspenseQuery(getApiKeysQueryOptions(libraryId))
-
-  const revokeMutation = useMutation({
-    mutationFn: (id: string) => revokeApiKeyFn({ data: { id } }),
-    onSuccess: () => {
-      toastSuccess(t('apiKeys.revokeSuccess'))
-      queryClient.invalidateQueries(getApiKeysQueryOptions(libraryId))
-    },
-    onError: (error) => {
-      toastError(t('toasts.error', { error: error.message }))
-    },
-  })
-
-  const handleRevoke = (id: string, name: string) => {
-    if (window.confirm(t('apiKeys.revokeConfirm', { name }))) {
-      revokeMutation.mutate(id)
-    }
-  }
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleString()
@@ -45,7 +28,7 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogRef.current?.showModal()}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => createDialogRef.current?.showModal()}>
             <PlusIcon className="h-4 w-4" />
             {t('apiKeys.generate')}
           </button>
@@ -78,8 +61,10 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
                       <button
                         type="button"
                         className="btn btn-error btn-ghost btn-sm"
-                        onClick={() => handleRevoke(key.id, key.name)}
-                        disabled={revokeMutation.isPending}
+                        onClick={() => {
+                          setSelectedApiKey({ id: key.id, name: key.name })
+                          revokeApiKeyDialogRef.current?.showModal()
+                        }}
                       >
                         <TrashIcon className="h-4 w-4" />
                         {t('apiKeys.revoke')}
@@ -93,7 +78,10 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
         )}
       </div>
 
-      <ApiKeyGenerationModal ref={dialogRef} libraryId={libraryId} />
+      <ApiKeyGenerationModal ref={createDialogRef} libraryId={libraryId} />
+      {selectedApiKey && (
+        <ApiKeyRevokeModal ref={revokeApiKeyDialogRef} libraryId={libraryId} apiKey={selectedApiKey} />
+      )}
     </>
   )
 }

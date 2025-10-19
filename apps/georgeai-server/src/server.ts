@@ -41,15 +41,19 @@ const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
   context: async ({ request }) =>
-    getUserContext({
-      getJwtToken: () => request.headers.get('x-user-jwt'),
-      getBearerToken: () => {
-        const authHeader = request.headers.get('authorization')
-        if (authHeader?.startsWith('Bearer ')) {
-          return authHeader.substring(7)
-        }
-        return null
-      },
+    getUserContext(() => {
+      const jwtTokenHeader = request.headers.get('x-user-jwt')
+      const keycloakToken = request.headers
+        .get('cookie')
+        ?.split(';')
+        .find((c) => c.trim().startsWith('keycloak-token='))
+        ?.split('=')[1]
+      const authHeader = request.headers.get('authorization')
+
+      return {
+        jwtToken: jwtTokenHeader || keycloakToken,
+        bearerToken: authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null,
+      }
     }),
 })
 

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import React, { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -9,13 +9,11 @@ import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
-import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
 import { ApiKeysCard } from './api-keys-card'
-import { getLibrariesQueryOptions } from './queries/get-libraries'
-import { getLibraryQueryOptions } from './queries/get-library'
-import { getLibraryUpdateFormSchema, updateLibraryFn } from './server-functions/update-library'
+import { getLibraryUpdateFormSchema } from './server-functions/update-library'
+import { useLibraryActions } from './use-library-actions'
 
 graphql(`
   fragment AiLibraryForm_Library on AiLibrary {
@@ -37,9 +35,10 @@ export interface LibraryEditFormProps {
 
 export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactElement => {
   const { t, language } = useTranslation()
-  const queryClient = useQueryClient()
   const formRef = React.useRef<HTMLFormElement>(null)
   const fileConverterOptionsRef = React.useRef<HTMLInputElement>(null)
+
+  const { updateLibrary, isPending } = useLibraryActions(library.id)
 
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
 
@@ -50,19 +49,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const {
     data: { aiChatModels },
   } = useSuspenseQuery(getChatModelsQueryOptions())
-
-  const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
-    mutationFn: (data: FormData) => updateLibraryFn({ data }),
-    onError: (error) => {
-      toastError(t('toasts.saveError', { error: error.message }))
-    },
-    onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries(getLibrariesQueryOptions()),
-        queryClient.invalidateQueries(getLibraryQueryOptions(library.id)),
-      ])
-    },
-  })
 
   const fieldProps = {
     schema,
@@ -109,7 +95,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     e.preventDefault()
 
     const formData = new FormData(e.currentTarget)
-    saveLibrary(formData)
+    updateLibrary(formData)
   }
 
   const handleReset = () => {
@@ -153,120 +139,120 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   }
 
   return (
-    <div className="flex flex-col space-y-6">
-      <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap self-end shadow-lg">
-        <li>
-          <button type="submit" form={library.id} disabled={saveIsPending}>
-            <SaveIcon className="h-5 w-5" />
-            {t('actions.save')}
-          </button>
-        </li>
-        <li>
-          <button type="button" onClick={handleReset}>
-            <ReprocessIcon className="h-5 w-5" />
-            {t('actions.cancel')}
-          </button>
-        </li>
-      </ul>
-      <form id={library.id} ref={formRef} className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
-        <LoadingSpinner isLoading={saveIsPending} />
-        <input type="hidden" name="id" value={library.id || ''} />
-        <input
-          ref={fileConverterOptionsRef}
-          type="hidden"
-          name="fileConverterOptions"
-          value={library.fileConverterOptions ?? ''}
-        />
+    <div className="grid h-full w-full grid-rows-[auto_1fr] gap-4">
+      <div className="flex justify-end">
+        <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap shadow-lg">
+          <li>
+            <button type="submit" form={library.id} disabled={isPending}>
+              <SaveIcon className="h-5 w-5" />
+              {t('actions.save')}
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={handleReset}>
+              <ReprocessIcon className="h-5 w-5" />
+              {t('actions.cancel')}
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div className="h-full w-full overflow-auto">
+        <form id={library.id} ref={formRef} onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-4">
+          <LoadingSpinner isLoading={isPending} />
+          <input type="hidden" name="id" value={library.id || ''} />
+          <input
+            ref={fileConverterOptionsRef}
+            type="hidden"
+            name="fileConverterOptions"
+            value={library.fileConverterOptions ?? ''}
+          />
 
-        {/* Basic Information Card */}
-        <div className="collapse-arrow bg-base-100 collapse shadow-md">
-          <input type="checkbox" defaultChecked />
-          <div className="collapse-title text-xl font-medium">{t('labels.basicInformation')}</div>
-          <div className="collapse-content">
-            <div className="space-y-4">
-              {/* Library Name */}
-              <Input
-                name="name"
-                type="text"
-                label={t('labels.name')}
-                value={library.name}
-                className="col-span-2"
-                required
-                {...fieldProps}
-              />
-
-              <Input
-                name="description"
-                type="textarea"
-                label={t('labels.description')}
-                value={library.description || ''}
-                className="col-span-2"
-                {...fieldProps}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Embedding Model Configuration Card */}
-        <div className="collapse-arrow bg-base-100 collapse shadow-md">
-          <input type="checkbox" />
-          <div className="collapse-title text-xl font-medium">{t('labels.libraryProcessingOptions')}</div>
-          <div className="collapse-content">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Select
-                  name="embeddingModelName"
-                  label={t('labels.embeddingModelName')}
-                  options={mappedEmbeddingModels}
-                  value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
-                  className="col-span-1"
-                  placeholder={t('libraries.placeholders.embeddingModelName')}
+          {/* Basic Information Card */}
+          <div className="collapse-arrow bg-base-100 collapse shadow-md">
+            <input type="checkbox" defaultChecked />
+            <div className="collapse-title text-xl font-medium">{t('labels.basicInformation')}</div>
+            <div className="collapse-content">
+              <div className="space-y-4">
+                {/* Library Name */}
+                <Input
+                  name="name"
+                  type="text"
+                  label={t('labels.name')}
+                  value={library.name}
+                  className="col-span-2"
+                  required
                   {...fieldProps}
                 />
 
                 <Input
-                  name="embeddingTimeoutMs"
-                  type="number"
-                  label={t('labels.embeddingTimeoutMs')}
-                  value={library.embeddingTimeoutMs?.toString() || '180000'}
-                  className="col-span-1"
-                  placeholder={t('libraries.placeholders.embeddingTimeoutMs')}
+                  name="description"
+                  type="textarea"
+                  label={t('labels.description')}
+                  value={library.description || ''}
+                  className="col-span-2"
                   {...fieldProps}
                 />
               </div>
+            </div>
+          </div>
 
-              {/* Auto-process crawled files option */}
-              <div className="mt-4">
-                <label className="label cursor-pointer justify-start">
-                  <input
-                    name="autoProcessCrawledFiles"
-                    type="checkbox"
-                    className="checkbox checkbox-sm mr-3"
-                    defaultChecked={library.autoProcessCrawledFiles}
+          {/* Embedding Model Configuration Card */}
+          <div className="collapse-arrow bg-base-100 collapse shadow-md">
+            <input type="checkbox" />
+            <div className="collapse-title text-xl font-medium">{t('labels.libraryProcessingOptions')}</div>
+            <div className="collapse-content">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Select
+                    name="embeddingModelName"
+                    label={t('labels.embeddingModelName')}
+                    options={mappedEmbeddingModels}
+                    value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
+                    className="col-span-1"
+                    placeholder={t('libraries.placeholders.embeddingModelName')}
+                    {...fieldProps}
                   />
-                  <div>
-                    <span className="text-sm font-medium">Auto-process hash-skipped crawled files</span>
-                    <p className="mt-1 whitespace-normal break-words text-xs text-gray-600">
-                      Automatically create content extraction tasks for files skipped during crawling due to unchanged
-                      content (hash equality), but only if they have no successful or pending processing task. Note:
-                      Uploaded files and new/updated crawled files always get tasks automatically.
-                    </p>
-                  </div>
-                </label>
+
+                  <Input
+                    name="embeddingTimeoutMs"
+                    type="number"
+                    label={t('labels.embeddingTimeoutMs')}
+                    value={library.embeddingTimeoutMs?.toString() || '180000'}
+                    className="col-span-1"
+                    placeholder={t('libraries.placeholders.embeddingTimeoutMs')}
+                    {...fieldProps}
+                  />
+                </div>
+
+                {/* Auto-process crawled files option */}
+                <div className="mt-4">
+                  <label className="label cursor-pointer justify-start">
+                    <input
+                      name="autoProcessCrawledFiles"
+                      type="checkbox"
+                      className="checkbox checkbox-sm mr-3"
+                      defaultChecked={library.autoProcessCrawledFiles}
+                    />
+                    <div>
+                      <span className="text-sm font-medium">Auto-process hash-skipped crawled files</span>
+                      <p className="mt-1 whitespace-normal break-words text-xs text-gray-600">
+                        Automatically create content extraction tasks for files skipped during crawling due to unchanged
+                        content (hash equality), but only if they have no successful or pending processing task. Note:
+                        Uploaded files and new/updated crawled files always get tasks automatically.
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* File Processing Options Card */}
-        <div className="collapse-arrow bg-base-100 collapse shadow-md">
-          <input type="checkbox" />
-          <div className="collapse-title text-xl font-medium">{t('labels.fileConverterOptions')}</div>
-          <div className="collapse-content">
-            <div className="space-y-6">
-              {/* PDF Processing Options */}
-              <fieldset className="fieldset bg-base-200 border-base-300 rounded-box border p-4">
-                <legend className="fieldset-legend">{t('labels.fileConverterOptions')}</legend>
-
+          {/* File Processing Options Card */}
+          <div className="collapse-arrow bg-base-100 collapse shadow-md">
+            <input type="checkbox" />
+            <div className="collapse-title text-xl font-medium">{t('labels.fileConverterOptions')}</div>
+            <div className="collapse-content">
+              <div className="space-y-6">
+                {/* PDF Processing Options */}
                 <div className="space-y-4">
                   {/* Enable Text Extraction */}
                   <label className="label cursor-pointer justify-start">
@@ -393,18 +379,16 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     </div>
                   </div>
                 </div>
-              </fieldset>
+              </div>
             </div>
           </div>
-        </div>
-      </form>
-
-      {/* API Keys Card */}
-      <div className="collapse-arrow bg-base-100 collapse shadow-md">
-        <input type="checkbox" />
-        <div className="collapse-title text-xl font-medium">{t('apiKeys.title')}</div>
-        <div className="collapse-content">
-          <ApiKeysCard libraryId={library.id} />
+        </form>
+        <div className="collapse-arrow bg-base-100 collapse mb-2 mt-4 shadow-md">
+          <input type="checkbox" />
+          <div className="collapse-title text-xl font-medium">{t('apiKeys.title')}</div>
+          <div className="collapse-content">
+            <ApiKeysCard libraryId={library.id} />
+          </div>
         </div>
       </div>
     </div>

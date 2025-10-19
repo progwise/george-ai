@@ -16,8 +16,7 @@ RUN apt-get update \
     smbclient \
     curl \
     gpg \
-    cifs-utils \
-    ripgrep
+    cifs-utils
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \

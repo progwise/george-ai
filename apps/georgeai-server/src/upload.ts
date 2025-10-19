@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import * as fs from 'fs'
 
 import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
-import { getFileInfo, markUploadFinished, validateApiKey } from '@george-ai/pothos-graphql'
+import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
 
 import { getUserContext } from './getUserContext'
 
@@ -27,29 +27,19 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
-  // Try JWT authentication first
+  // Try JWT or Bearer token authentication
   const context = await getUserContext(() => {
-    let token = httpRequest.headers['x-user-jwt'] ? httpRequest.headers['x-user-jwt'].toString() : null
-    if (!token) {
-      token = httpRequest.cookies['keycloak-token']
+    return {
+      jwtToken: httpRequest.headers['x-user-jwt']
+        ? httpRequest.headers['x-user-jwt'].toString()
+        : httpRequest.cookies['keycloak-token'] || null,
+      bearerToken: httpRequest.headers['authorization']?.toString().startsWith('Bearer ')
+        ? httpRequest.headers['authorization'].toString().substring(7)
+        : null,
     }
-    return token
   })
 
-  let userId: string | undefined = context.session?.user?.id
-
-  // If no JWT session, try API key authentication
-  if (!userId) {
-    const authHeader = httpRequest.headers['authorization']
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const apiKey = authHeader.substring(7) // Remove 'Bearer ' prefix
-      const apiKeyResult = await validateApiKey(apiKey)
-
-      if (apiKeyResult) {
-        userId = apiKeyResult.userId
-      }
-    }
-  }
+  const userId = context.session?.user?.id
 
   if (!userId) {
     console.warn('Unauthorized upload attempt with token to upload file', uploadToken)
