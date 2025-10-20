@@ -21,6 +21,7 @@ import './graphql/ai-library-update'
 import './graphql/ai-library-usage'
 import './graphql/ai-list'
 import './graphql/ai-list-field'
+import './graphql/api-key'
 import './graphql/contact-request'
 import './graphql/extraction-method'
 import './graphql/scalars'
@@ -33,11 +34,13 @@ const schema = builder.toSchema()
 export { schema }
 
 export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
-export { checkUser, updateUserAvatarUrl, getUserByMail, getUserAvatarsPath } from './domain/user'
+export { checkUser, updateUserAvatarUrl, getUserByMail, getUserById, getUserAvatarsPath } from './domain/user'
 export { isProviderAvatar } from './domain/user/avatar-provider'
 export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
 export { canAccessLibraryOrThrow } from './domain/library'
 export { canAccessListOrThrow } from './domain/list'
+export { validateApiKey } from './domain/api-key'
+export type { ApiKeyValidationResult } from './domain/api-key'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentProcessingWorker } from './worker-queue/content-processing-worker'

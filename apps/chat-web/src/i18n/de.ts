@@ -81,6 +81,43 @@ export default {
     summaryInitialAssessment: 'Zusammenfassung der Erstbewertung',
     systemProperties: 'Systemeigenschaften',
   },
+  apiKeys: {
+    actions: 'Aktionen',
+    copiedToClipboard: 'API-Schlüssel in die Zwischenablage kopiert',
+    copyWarningText:
+      'Stellen Sie sicher, dass Sie Ihren API-Schlüssel jetzt kopieren. Sie werden ihn nicht erneut sehen können. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich.',
+    copyWarningTitle: 'Wichtig: API-Schlüssel kopieren',
+    createdAt: 'Erstellt',
+    description:
+      'API-Schlüssel ermöglichen externen Anwendungen und Diensten den Zugriff auf diese Bibliothek. Bewahren Sie Ihre Schlüssel sicher auf und widerrufen Sie sie bei Kompromittierung.',
+    generate: 'API-Schlüssel generieren',
+    generateError: 'Fehler beim Generieren des API-Schlüssels',
+    generateSuccess: 'API-Schlüssel erfolgreich generiert',
+    generateTitle: 'Neuen API-Schlüssel generieren',
+    generatedSuccessText:
+      'Ihr API-Schlüssel wurde generiert und wird unten angezeigt. Dies ist das einzige Mal, dass Sie ihn sehen werden.',
+    generatedSuccessTitle: 'API-Schlüssel generiert: {name}',
+    lastUsedAt: 'Zuletzt verwendet',
+    name: 'Name',
+    nameLabel: 'API-Schlüssel-Name',
+    namePlaceholder: 'Geben Sie einen Namen für diesen API-Schlüssel ein',
+    never: 'Nie',
+    noKeys: 'Keine API-Schlüssel gefunden. Generieren Sie einen neuen Schlüssel, um zu beginnen.',
+    revoke: 'Widerrufen',
+    revokeConfirm:
+      'Sind Sie sicher, dass Sie den API-Schlüssel "{name}" widerrufen möchten? Diese Aktion kann nicht rückgängig gemacht werden.',
+    revokeDialogTitle: 'API-Schlüssel widerrufen',
+    revokeSuccess: 'API-Schlüssel erfolgreich widerrufen',
+    securityWarningText:
+      'API-Schlüssel gewähren Zugriff auf Ihre Bibliothek. Bewahren Sie sie sicher auf und übertragen Sie sie niemals in die Versionskontrolle oder teilen Sie sie öffentlich.',
+    securityWarningTitle: 'Sicherheitswarnung',
+    title: 'API-Schlüssel',
+    validation: {
+      nameTooLong: 'API-Schlüsselname darf maximal 100 Zeichen lang sein',
+      nameTooShort: 'API-Schlüsselname muss mindestens 2 Zeichen lang sein',
+    },
+    yourApiKey: 'Ihr API-Schlüssel',
+  },
   assistants: {
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
@@ -469,6 +506,7 @@ export default {
     lastUpdates: 'Letzte Aktualisierungen',
     leave: 'Bibliothek verlassen',
     leaveConfirmation: 'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden.',
+    manageParticipants: 'Teilnehmer verwalten',
     myLibraries: '{count} Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
     nameLibrary: 'Name',

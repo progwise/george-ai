@@ -175,6 +175,7 @@ type AiContentProcessingTask {
   library: AiLibrary!
   libraryId: String!
   metadata: String
+  processingCancelled: Boolean!
   processingFailedAt: DateTime
   processingFinishedAt: DateTime
   processingStartedAt: DateTime
@@ -718,6 +719,25 @@ type AiServiceInstance {
   version: String!
 }
 
+type ApiKey {
+  createdAt: DateTime!
+  id: ID!
+  lastUsedAt: DateTime
+  library: AiLibrary!
+  libraryId: String!
+  name: String!
+  user: User!
+  userId: String!
+}
+
+type ApiKeyWithSecret {
+  createdAt: DateTime!
+  id: ID!
+  key: String!
+  libraryId: String!
+  name: String!
+}
+
 type AssistantParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -733,6 +753,14 @@ type AssistantParticipant implements AiConversationParticipant {
 }
 
 scalar BigInt
+
+"""
+Result of checking for files by origin URI prefix
+"""
+type CheckFileExistsByOriginUriResult {
+  count: Int!
+  originUriPrefix: String!
+}
 
 type ComputeFieldValueResult {
   error: String
@@ -1094,6 +1122,7 @@ type Mutation {
   dropOutdatedMarkdowns(fileId: String!): Int!
   dropPendingTasks(libraryId: String!): Int!
   ensureUserProfile(userId: String!): UserProfile
+  generateApiKey(libraryId: String!, name: String!): ApiKeyWithSecret!
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
@@ -1109,6 +1138,7 @@ type Mutation {
   reorderListFields(fieldId: String!, newPlace: Int!): [AiListField!]!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
+  revokeApiKey(id: String!): Boolean!
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
@@ -1221,10 +1251,12 @@ type Query {
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   aiVisionModels: [String!]!
+  apiKeys(libraryId: String!): [ApiKey!]!
   """
   Get all available OCR-capable vision models
   """
   availableOCRModels: [String!]!
+  checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   queueSystemStatus: QueueSystemStatus!

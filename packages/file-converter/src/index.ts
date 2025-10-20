@@ -4,6 +4,7 @@ export { transformDocxToMarkdown } from './converters/docs-to-markdown'
 export { transformExcelToMarkdown } from './converters/excel-to-markdown'
 export { transformCsvToMarkdown } from './converters/csv-to-markdown'
 export { transformHtmlToMarkdown } from './converters/html-to-markdown'
+export { transformEmlToMarkdown } from './converters/eml-to-markdown'
 export { transformTextToMarkdown } from './converters/text-to-markdown'
 export * from './file-converter-options'
 

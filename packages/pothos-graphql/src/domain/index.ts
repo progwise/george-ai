@@ -7,3 +7,4 @@ export { canAccessListOrThrow, findCacheValue, getFieldValue, getCanAccessListWh
 export { createContentProcessingTask, createEmbeddingOnlyTask } from './content-extraction/content-extraction-task'
 export { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from './user/avatar-provider'
 export { EnrichmentStatusValues, type EnrichmentMetadata, EnrichmentMetadataSchema } from './enrichment'
+export { validateApiKey, type ApiKeyValidationResult } from './api-key'

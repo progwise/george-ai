@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../..:/workspaces:cached
+      - ../.home-node:/home/node:cached
 
     # Enable init process to reap zombie processes
     init: true
@@ -129,6 +130,25 @@ services:
       - '10137:137/udp' # NetBIOS name service
       - '10138:138/udp' # NetBIOS datagram service
     restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n
+    restart: unless-stopped
+    ports:
+      - 5678:5678
+    environment:
+      # Required for local testing of webhooks
+      - WEBHOOK_TUNNEL_URL=http://localhost:5678/
+      # Set timezone
+      - GENERIC_TIMEZONE=utc
+      - TZ=utc
+      # First-time setup - create owner account at http://localhost:5678
+      # Recommended: dev@george-ai.net / yourStrongPassword
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
 
   # gai-crawl4ai:
   #   build:

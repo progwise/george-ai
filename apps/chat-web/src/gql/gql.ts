@@ -105,6 +105,7 @@ type Documents = {
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n': typeof types.LibraryMenu_AiLibrariesFragmentDoc
+  '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n': typeof types.GetApiKeysDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': typeof types.AiLibrariesDocument
   '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      id\n      owner {\n        ...User_EntityParticipantsDialog\n      }\n      participants {\n        id\n        user {\n          ...User_EntityParticipantsDialog\n        }\n      }\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.AiLibraryDetailDocument
@@ -114,6 +115,7 @@ type Documents = {
   '\n        mutation deleteLibraryFiles($fileIds: [ID!]!) {\n          deleteLibraryFiles(fileIds: $fileIds)\n        }\n      ': typeof types.DeleteLibraryFilesDocument
   '\n        mutation dropOutdatedMarkdownFiles($fileId: String!) {\n          dropOutdatedMarkdowns(fileId: $fileId)\n        }\n      ': typeof types.DropOutdatedMarkdownFilesDocument
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id) {\n      id\n      name\n      filesCount\n    }\n  }\n': typeof types.DeleteLibraryDocument
+  '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n': typeof types.GenerateApiKeyDocument
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateLibraryDocument
   '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ': typeof types.UpdateLibraryParticipantsDocument
   '\n        mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {\n          removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId)\n        }\n      ': typeof types.RemoveLibraryParticipantDocument
@@ -122,11 +124,12 @@ type Documents = {
   '\n        mutation createMissingContentExtractionTasks($libraryId: String!) {\n          createMissingContentExtractionTasks(libraryId: $libraryId) {\n            id\n            fileId\n          }\n        }\n      ': typeof types.CreateMissingContentExtractionTasksDocument
   '\n        mutation cancelProcessingTask($taskId: String!, $fileId: String!) {\n          cancelProcessingTask(taskId: $taskId, fileId: $fileId) {\n            id\n            fileId\n          }\n        }\n      ': typeof types.CancelProcessingTaskDocument
   '\n        mutation dropPendingTasks($libraryId: String!) {\n          dropPendingTasks(libraryId: $libraryId)\n        }\n      ': typeof types.DropPendingTasksDocument
+  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ': typeof types.GetContentProcessingTasksDocument
   '\n  fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {\n    id\n    ...AiContentProcessingTask_Timeline\n    file {\n      id\n      name\n      libraryId\n      library {\n        fileConverterOptions\n      }\n    }\n    createdAt\n    timeoutMs\n    metadata\n    extractionOptions\n    extractionStatus\n    embeddingStatus\n    processingTimeMs\n    processingStatus\n    chunksCount\n    chunksSize\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_AccordionItemFragmentDoc
   '\n  fragment TaskMenu_FilesQueryResult on AiLibraryFileQueryResult {\n    count\n    missingChunksCount\n    missingContentExtractionTasksCount\n  }\n': typeof types.TaskMenu_FilesQueryResultFragmentDoc
-  '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_TimelineFragmentDoc
+  '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingCancelled\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_TimelineFragmentDoc
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
@@ -380,6 +383,8 @@ const documents: Documents = {
     types.LibraryMenu_AiLibraryFragmentDoc,
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n':
     types.LibraryMenu_AiLibrariesFragmentDoc,
+  '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n':
+    types.GetApiKeysDocument,
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n':
     types.AiLibraryBaseFragmentDoc,
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': types.AiLibrariesDocument,
@@ -397,6 +402,8 @@ const documents: Documents = {
     types.DropOutdatedMarkdownFilesDocument,
   '\n  mutation deleteLibrary($id: String!) {\n    deleteLibrary(id: $id) {\n      id\n      name\n      filesCount\n    }\n  }\n':
     types.DeleteLibraryDocument,
+  '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n':
+    types.GenerateApiKeyDocument,
   '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ':
     types.CreateLibraryDocument,
   '\n        mutation updateLibraryParticipants($libraryId: String!, $userIds: [String!]!) {\n          updateLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n            totalParticipants\n            addedParticipants\n            removedParticipants\n          }\n        }\n      ':
@@ -413,6 +420,7 @@ const documents: Documents = {
     types.CancelProcessingTaskDocument,
   '\n        mutation dropPendingTasks($libraryId: String!) {\n          dropPendingTasks(libraryId: $libraryId)\n        }\n      ':
     types.DropPendingTasksDocument,
+  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ':
@@ -421,7 +429,7 @@ const documents: Documents = {
     types.AiContentProcessingTask_AccordionItemFragmentDoc,
   '\n  fragment TaskMenu_FilesQueryResult on AiLibraryFileQueryResult {\n    count\n    missingChunksCount\n    missingContentExtractionTasksCount\n  }\n':
     types.TaskMenu_FilesQueryResultFragmentDoc,
-  '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n':
+  '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingCancelled\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n':
     types.AiContentProcessingTask_TimelineFragmentDoc,
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ':
     types.LibraryUpdatesListDocument,
@@ -1123,6 +1131,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n',
+): (typeof documents)['\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n',
 ): (typeof documents)['\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n']
 /**
@@ -1177,6 +1191,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n',
+): (typeof documents)['\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation createLibrary($data: AiLibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ']
 /**
@@ -1225,6 +1245,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n',
+): (typeof documents)['\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n',
 ): (typeof documents)['\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n']
 /**
@@ -1249,8 +1275,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n',
-): (typeof documents)['\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n']
+  source: '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingCancelled\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n',
+): (typeof documents)['\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingCancelled\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModelName\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

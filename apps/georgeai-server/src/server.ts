@@ -40,7 +40,21 @@ if (process.env.AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
-  context: async ({ request }) => getUserContext(() => request.headers.get('x-user-jwt')),
+  context: async ({ request }) =>
+    getUserContext(() => {
+      const jwtTokenHeader = request.headers.get('x-user-jwt')
+      const keycloakToken = request.headers
+        .get('cookie')
+        ?.split(';')
+        .find((c) => c.trim().startsWith('keycloak-token='))
+        ?.split('=')[1]
+      const authHeader = request.headers.get('authorization')
+
+      return {
+        jwtToken: jwtTokenHeader || keycloakToken,
+        bearerToken: authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null,
+      }
+    }),
 })
 
 const app = express()
@@ -67,15 +81,18 @@ app.use('/graphql', (req, res, next) => {
     const userJwt = req.headers['x-user-jwt']
     const devUser = req.headers['x-dev-user']
 
-    // API key is valid if it matches the configured value (Authorization header)
-    const apiKeyValid =
+    // Global API key is valid if it matches the configured value
+    const globalApiKeyValid =
       apiKey === process.env.GRAPHQL_API_KEY || authorization === `ApiKey ${process.env.GRAPHQL_API_KEY}`
+
+    // Library-scoped API key (Bearer token) - will be validated in getUserContext
+    const hasBearerToken = authorization?.startsWith('Bearer ')
 
     // In development, allow requests with x-dev-user header for testing
     const devUserAllowed = process.env.NODE_ENV !== 'production' && typeof devUser === 'string' && devUser.length > 0
 
-    // Allow if API key is valid, or user JWT is present, or dev user in dev mode
-    if (!apiKeyValid && !userJwt && !devUserAllowed) {
+    // Allow if global API key is valid, or user JWT is present, or Bearer token is present, or dev user in dev mode
+    if (!globalApiKeyValid && !userJwt && !hasBearerToken && !devUserAllowed) {
       res.status(401).send('Unauthorized')
       return
     }

@@ -12,13 +12,12 @@ export const libraryFiles = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
   const fileName = request.query['filename'] as string
 
-  const context = await getUserContext(() => {
-    let token = request.headers['x-user-jwt'] ? request.headers['x-user-jwt'].toString() : null
-    if (!token) {
-      token = request.cookies['keycloak-token']
-    }
-    return token
-  })
+  const context = await getUserContext(() => ({
+    jwtToken: request.headers['x-user-jwt']?.toString() || request.cookies['keycloak-token'] || null,
+    bearerToken: request.headers['authorization']?.toString().startsWith('Bearer ')
+      ? request.headers['authorization'].toString().substring(7)
+      : null,
+  }))
 
   if (!context.session?.user) {
     response.status(401).end()

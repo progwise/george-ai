@@ -34,6 +34,7 @@ builder.prismaObject('AiContentProcessingTask', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
 
     // Processing phase timestamps
+    processingCancelled: t.expose('processingCancelled', { type: 'Boolean', nullable: false }),
     processingStartedAt: t.expose('processingStartedAt', { type: 'DateTime', nullable: true }),
     processingFinishedAt: t.expose('processingFinishedAt', { type: 'DateTime', nullable: true }),
     processingFailedAt: t.expose('processingFailedAt', { type: 'DateTime', nullable: true }),

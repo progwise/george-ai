@@ -1,0 +1,437 @@
+{
+  "name": "Gmail to George AI Library",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "gmail-trigger",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GMAIL_CREDENTIALS_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config-graphql-url",
+              "name": "graphqlUrl",
+              "value": "http://app:3003/graphql",
+              "type": "string"
+            },
+            {
+              "id": "config-upload-url",
+              "name": "uploadUrl",
+              "value": "http://app:3003/upload",
+              "type": "string"
+            },
+            {
+              "id": "config-library-id",
+              "name": "libraryId",
+              "value": "YOUR_LIBRARY_ID_HERE",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "set-config",
+      "name": "Set Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300],
+      "notes": "Update libraryId, graphqlUrl, and uploadUrl here"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract mailbox and messageId from Gmail Trigger output\nconst inputItem = $input\nconst email = inputItem.item.json\nconst attachments = $input.item.binary\n\n// Get the mailbox (recipient email address)\nconst mailbox = email.to?.value?.[0]?.address || email.to?.text || 'unknown'\n\n// Get the message ID (unique identifier from email headers)\nconst messageId = email.messageId || email.id || 'unknown'\n\n// Clean the messageId (remove < and > if present)\nconst cleanMessageId = messageId && messageId !== 'unknown' ? messageId.replace(/^<|>$/g, '') : messageId\n\n// Pass through all email data\nreturn {\n  ...email,\n  mailbox,\n  messageId: cleanMessageId,\n  attachments\n}"
+      },
+      "id": "extract-email-metadata",
+      "name": "Extract Email Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.graphqlUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: 'query CheckDuplicate($libraryId: String!, $originUriPrefix: String!) { checkFileExistsByOriginUri(libraryId: $libraryId, originUriPrefix: $originUriPrefix) { count originUriPrefix } }', variables: { libraryId: $('Set Configuration').first().json.libraryId, originUriPrefix: 'email:' + $json.mailbox + '/' + $json.messageId + '/' } }) }}",
+        "options": {}
+      },
+      "id": "check-duplicate",
+      "name": "Check for Duplicate Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "is-new-email",
+              "leftValue": "={{ $('Check for Duplicate Email').item.json.data.checkFileExistsByOriginUri.count }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [1050, 300],
+      "id": "filter-new-emails",
+      "name": "Only new Emails"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare email body as .eml file from Gmail Trigger output\nconst inputItem = $('Extract Email Metadata').first()\n\nconst email = inputItem.json\nconst mailbox = email.mailbox || 'unknown'\nconst messageId = email.messageId || 'unknown'\n\n// Extract sender (from field)\nconst fromValue = email.from?.value?.[0] || {}\nconst fromName = fromValue.name || ''\nconst fromEmail = fromValue.address || email.from?.text || 'Unknown'\nconst from = fromName ? `${fromName} <${fromEmail}>` : fromEmail\n\n// Extract recipients (to field)\nconst toValue = email.to?.value || []\nconst to = toValue.map(t => t.name ? `${t.name} <${t.address}>` : t.address).join(', ') || 'Unknown'\n\n// Extract CC if present\nconst ccValue = email.cc?.value || []\nconst cc = ccValue.map(c => c.name ? `${c.name} <${c.address}>` : c.address).join(', ')\n\n// Subject and date\nconst subject = String(email.subject || '(No Subject)')\nconst date = email.date || new Date().toISOString()\n\n// Get email body content (Gmail provides text and textAsHtml)\nconst bodyContent = email.html || email.textAsHtml || email.text || ''\nconst hasHtml = !!(email.html || email.textAsHtml)\n\n// Create .eml file content with proper MIME headers\nlet emlContent = `From: ${from}\\r\\n`\nemlContent += `To: ${to}\\r\\n`\nif (cc) emlContent += `Cc: ${cc}\\r\\n`\nemlContent += `Subject: ${subject}\\r\\n`\nemlContent += `Date: ${date}\\r\\n`\nemlContent += `Message-ID: ${messageId}\\r\\n`\nemlContent += `MIME-Version: 1.0\\r\\n`\nif (hasHtml) {\n  emlContent += `Content-Type: text/html; charset=utf-8\\r\\n`\n} else {\n  emlContent += `Content-Type: text/plain; charset=utf-8\\r\\n`\n}\nemlContent += `\\r\\n`\nemlContent += String(bodyContent)\n\n// Calculate size in bytes\nconst emlSize = Buffer.byteLength(emlContent, 'utf8')\n\nreturn {\n  fileName: `${subject}.eml`,\n  mimeType: 'message/rfc822',\n  size: emlSize,\n  originUri: `email:${mailbox}/${messageId}/body.eml`,\n  originModificationDate: date,\n  name: subject,\n  emlContent,\n  mailbox,\n  messageId\n}"
+      },
+      "id": "prepare-email-body",
+      "name": "Prepare Email Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.graphqlUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: 'mutation PrepareFileUpload($data: AiLibraryFileInput!) { prepareFileUpload(data: $data) { id } }', variables: { data: { name: $json.name, libraryId: $('Set Configuration').first().json.libraryId, mimeType: $json.mimeType, size: $json.size, originUri: $json.originUri, originModificationDate: $json.originModificationDate } } }) }}",
+        "options": {}
+      },
+      "id": "register-email-body",
+      "name": "Register Email Body File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.uploadUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-upload-token",
+              "value": "={{ $json.data.prepareFileUpload.id }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "={{ $('Prepare Email Body').item.json.emlContent }}",
+        "options": {}
+      },
+      "id": "upload-email-body",
+      "name": "Upload Email Body",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const attachments = $('Extract Email Metadata').first().json.attachments\n\nreturn { attachments }"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 400],
+      "id": "prepare-attachments",
+      "name": "Prepare Attachments"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "attachments",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1450, 400],
+      "id": "split-attachments",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare attachment for upload from Gmail attachment data\nconst attachment = $json.attachments\n\nconst mailbox = $('Extract Email Metadata').first().json.mailbox\nconst messageId = $('Extract Email Metadata').first().json.messageId\nconst originDate = $('Extract Email Metadata').first().json.date\n\n// Get attachment details from Gmail attachment object\nconst fileName = attachment.fileName\nconst mimeType = attachment.mimeType\nconst originUri = `email:${mailbox}/${messageId}/attachment/${fileName}`\n\nconst fileSize = attachment.data.length\nconst fileData = attachment.data\nreturn {\n  fileName,\n  mimeType,\n  originUri,\n  originModificationDate: originDate,\n  fileSize,\n  fileData\n}"
+      },
+      "id": "prepare-attachment",
+      "name": "Prepare Attachment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.graphqlUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: 'mutation PrepareFileUpload($data: AiLibraryFileInput!) { prepareFileUpload(data: $data) { id } }', variables: { data: { name: $json.fileName, libraryId: $('Set Configuration').first().json.libraryId, mimeType: $json.mimeType, size: $json.size, originUri: $json.originUri, originModificationDate: $json.originModificationDate, size: $json.fileSize } } }) }}",
+        "options": {}
+      },
+      "id": "register-attachment",
+      "name": "Register Attachment File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.uploadUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-upload-token",
+              "value": "={{ $json.data.prepareFileUpload.id }}"
+            },
+            {
+              "name": "content-encoding",
+              "value": "base64"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "={{ $('Prepare Attachment').item.json.mimeType }}",
+        "body": "={{ $('Prepare Attachment').item.json.fileData }}",
+        "options": {}
+      },
+      "id": "upload-attachment",
+      "name": "Upload Attachment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2050, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Configuration": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Metadata": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicate Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicate Email": {
+      "main": [
+        [
+          {
+            "node": "Only new Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only new Emails": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Body",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Body": {
+      "main": [
+        [
+          {
+            "node": "Register Email Body File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register Email Body File": {
+      "main": [
+        [
+          {
+            "node": "Upload Email Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Email Body": {
+      "main": [[]]
+    },
+    "Prepare Attachments": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Prepare Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Attachment": {
+      "main": [
+        [
+          {
+            "node": "Register Attachment File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register Attachment File": {
+      "main": [
+        [
+          {
+            "node": "Upload Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Attachment": {
+      "main": [[]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-18T00:00:00.000Z",
+  "versionId": "1"
+}

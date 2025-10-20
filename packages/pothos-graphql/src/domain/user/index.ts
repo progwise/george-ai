@@ -17,6 +17,14 @@ export const getUserByMail = async (email: string) => {
   return user
 }
 
+export const getUserById = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    include: { profile: true },
+    where: { id: userId },
+  })
+  return user
+}
+
 export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: string; avatarUrl: string | null }) => {
   const user = await prisma?.user.update({
     where: { id: userId },

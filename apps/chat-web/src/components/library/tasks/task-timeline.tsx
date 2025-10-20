@@ -10,6 +10,7 @@ import { StopWatch } from './stop-watch'
 graphql(`
   fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {
     createdAt
+    processingCancelled
     processingStartedAt
     processingFinishedAt
     processingFailedAt
@@ -73,7 +74,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
       start: task.processingStartedAt,
       time: task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt,
       status:
-        task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt
+        task.extractionStartedAt || task.embeddingStartedAt || task.processingFailedAt || task.processingFinishedAt
           ? ('done' as const)
           : task.processingStartedAt
             ? ('doing' as const)
@@ -131,16 +132,19 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
           : undefined,
     },
     {
-      labels: { done: 'Finished', doing: 'Finishing', todo: 'Finish', skipped: 'no Finish' },
+      labels: { done: 'Finished', doing: 'Finishing', todo: 'Finish', skipped: 'cancelled', timeout: 'timed out' },
       start: task.processingStartedAt,
       time: task.processingFinishedAt || task.processingFailedAt,
-      status:
-        task.processingFinishedAt || task.processingFailedAt
-          ? 'done'
-          : task.embeddingFinishedAt || task.embeddingFailedAt
-            ? ('doing' as const)
-            : ('todo' as const),
-      success: !(task.processingFinishedAt || task.processingFailedAt) ? undefined : !!task.processingFinishedAt,
+      status: task.processingCancelled
+        ? ('skipped' as const)
+        : task.processingTimeout
+          ? ('timeout' as const)
+          : task.processingFinishedAt || task.processingFailedAt
+            ? 'done'
+            : task.embeddingFinishedAt || task.embeddingFailedAt
+              ? ('doing' as const)
+              : ('todo' as const),
+      success: task.processingFailedAt ? false : !task.processingFinishedAt ? null : true,
       elapsedTime: task.processingStartedAt
         ? task.processingFinishedAt || task.processingFailedAt
           ? new Date((task.processingFinishedAt || task.processingFailedAt)!).getTime() -
