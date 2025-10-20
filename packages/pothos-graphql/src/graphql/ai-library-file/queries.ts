@@ -5,8 +5,20 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile Queries')
 
+const SORT_ORDERS = ['createdAtAsc', 'createdAtDesc', 'fileNameAsc', 'fileNameDesc'] as const
+type SortOrder = (typeof SORT_ORDERS)[number]
+const LibraryFilesSortOrder = builder.enumType('AiLibraryFileSortOrder', {
+  values: SORT_ORDERS,
+})
+
 const LibraryFileQueryResult = builder
-  .objectRef<{ libraryId: string; take: number; skip: number; showArchived?: boolean }>('AiLibraryFileQueryResult')
+  .objectRef<{
+    libraryId: string
+    take: number
+    skip: number
+    showArchived?: boolean
+    orderBy: SortOrder
+  }>('AiLibraryFileQueryResult')
   .implement({
     description: 'Query result for AI library files',
     fields: (t) => ({
@@ -89,7 +101,14 @@ const LibraryFileQueryResult = builder
               libraryId: root.libraryId,
               ...(root.showArchived ? {} : { archivedAt: null }),
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy:
+              root.orderBy === 'createdAtAsc'
+                ? { createdAt: 'asc' }
+                : root.orderBy === 'createdAtDesc'
+                  ? { createdAt: 'desc' }
+                  : root.orderBy === 'fileNameAsc'
+                    ? { name: 'asc' }
+                    : { name: 'desc' },
             take: root.take ?? 10,
             skip: root.skip ?? 0,
           })
@@ -122,6 +141,11 @@ builder.queryField('aiLibraryFiles', (t) =>
       skip: t.arg.int({ required: true, defaultValue: 0 }),
       take: t.arg.int({ required: true, defaultValue: 20 }),
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
+      orderBy: t.arg({
+        type: LibraryFilesSortOrder,
+        required: false,
+        defaultValue: 'createdAtDesc',
+      }),
     },
     resolve: async (_root, args, context) => {
       await canAccessLibraryOrThrow(args.libraryId, context.session.user.id) // Verify user has access to the library
@@ -130,6 +154,7 @@ builder.queryField('aiLibraryFiles', (t) =>
         take: args.take ?? 10,
         skip: args.skip ?? 0,
         showArchived: args.showArchived ?? false,
+        orderBy: args.orderBy ?? 'createdAtDesc',
       }
     },
   }),

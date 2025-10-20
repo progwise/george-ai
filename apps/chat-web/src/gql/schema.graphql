@@ -450,6 +450,13 @@ type AiLibraryFileQueryResult {
   take: Int!
 }
 
+enum AiLibraryFileSortOrder {
+  createdAtAsc
+  createdAtDesc
+  fileNameAsc
+  fileNameDesc
+}
+
 input AiLibraryInput {
   autoProcessCrawledFiles: Boolean
   description: String
@@ -1222,6 +1229,7 @@ type Query {
   aiLibraryFile(fileId: String!): AiLibraryFile!
   aiLibraryFiles(
     libraryId: String!
+    orderBy: AiLibraryFileSortOrder = createdAtDesc
     showArchived: Boolean = false
     skip: Int! = 0
     take: Int! = 20

@@ -1,0 +1,255 @@
+{
+  "name": "RAG Chatbot Experiment - AI Agent with George AI Tools",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config-graphql-url",
+              "name": "graphqlUrl",
+              "value": "http://app:3003/graphql",
+              "type": "string"
+            },
+            {
+              "id": "config-ollama-url",
+              "name": "ollamaUrl",
+              "value": "http://gai-ollama:11434",
+              "type": "string"
+            },
+            {
+              "id": "config-library-id",
+              "name": "libraryId",
+              "value": "YOUR_LIBRARY_ID_HERE",
+              "type": "string"
+            },
+            {
+              "id": "config-model",
+              "name": "chatModel",
+              "value": "llama3.1:8b",
+              "type": "string"
+            },
+            {
+              "id": "config-chunk-count",
+              "name": "chunkCount",
+              "value": 5,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "set-configuration",
+      "name": "Set Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300],
+      "notes": "Configure libraryId, graphqlUrl, ollamaUrl, model, and chunk count here"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [250, 300],
+      "id": "chat-trigger",
+      "name": "When chat message received",
+      "webhookId": "rag-chat-webhook"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful AI assistant with access to George AI library data. You can search for relevant content and list files. When users ask about specific topics, use the similarity search. When users want to browse or see recent files, use the file listing tool."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [850, 300],
+      "id": "ai-agent",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "={{ $('Set Configuration').first().json.chatModel }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [650, 500],
+      "id": "ollama-model",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OLLAMA_CREDENTIALS_ID",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [850, 500],
+      "id": "memory-buffer",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "waitUserReply": false,
+        "options": {
+          "memoryConnection": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "id": "respond-to-chat",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Search George AI library for relevant content using semantic/full-text search. Use this when the user asks questions about specific topics, keywords, or concepts. Returns relevant document chunks with highlights. Example queries: 'invoices', 'meeting notes from last week', 'budget information'.",
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.graphqlUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: 'query QueryLibraryFiles($libraryId: String!, $query: String!, $take: Int!, $skip: Int!) { queryAiLibraryFiles(libraryId: $libraryId, query: $query, take: $take, skip: $skip) { hitCount hits { id docId docName pageContent docPath originUri highlights { field snippet } } } }', variables: { libraryId: $('Set Configuration').first().json.libraryId, query: $fromAi('query', ''), take: Number($fromAi('take', String($('Set Configuration').first().json.chunkCount))) || 5, skip: Number($fromAi('skip', '0')) || 0 } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [650, 650],
+      "id": "similarity-search-tool",
+      "name": "Library Similarity Search",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "List and browse files in the George AI library. Use this when users want to see available files, recent additions, or browse the library. Supports sorting by creation date (newest/oldest first) or filename (A-Z). Returns file metadata including name, type, size, creation date, and origin URI.\n\nSort options:\n- createdAtDesc: Newest files first (default)\n- createdAtAsc: Oldest files first\n- fileNameAsc: A to Z\n- fileNameDesc: Z to A\n\nAI can specify: skip (pagination offset), take (number of files, default 20), orderBy (sort order)",
+        "method": "POST",
+        "url": "={{ $('Set Configuration').first().json.graphqlUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: 'query AiLibraryFiles($libraryId: String!, $skip: Int!, $take: Int!, $orderBy: AiLibraryFileSortOrder, $showArchived: Boolean) { aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, orderBy: $orderBy, showArchived: $showArchived) { libraryId take skip showArchived count archivedCount files { id name mimeType size createdAt updatedAt archivedAt originUri docPath } } }', variables: { libraryId: $('Set Configuration').first().json.libraryId, skip: Number($fromAi('skip', '0')) || 0, take: Number($fromAi('take', '20')) || 20, orderBy: $fromAi('orderBy', 'createdAtDesc') || 'createdAtDesc', showArchived: false } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [650, 800],
+      "id": "list-files-tool",
+      "name": "Query Library Files",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEORGE_AI_API_KEY_CREDENTIAL_ID",
+          "name": "George AI API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Set Configuration": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Respond to Chat",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Library Similarity Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Library Files": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-20T00:00:00.000Z",
+  "versionId": "2"
+}
