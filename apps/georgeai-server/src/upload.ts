@@ -131,7 +131,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
             await markUploadFinished({
               fileId: fileInfo.id,
               libraryId: fileInfo.libraryId,
-              userId: userId,
+              userId,
             })
             releaseLock()
             httpResponse.statusCode = 200
@@ -167,7 +167,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
           await markUploadFinished({
             fileId: fileInfo.id,
             libraryId: fileInfo.libraryId,
-            userId: userId,
+            userId,
           })
           releaseLock()
           httpResponse.statusCode = 200

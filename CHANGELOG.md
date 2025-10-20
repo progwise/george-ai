@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2025-10-20]
+
+### Added
+
+- Email ingestion via n8n workflows - automatically ingest emails from Gmail, IMAP, or Exchange into libraries
+- API key authentication for libraries - generate secure keys for external integrations without sharing user credentials
+- Email file converter (.eml) - converts email messages to searchable markdown with full metadata preservation
+- Automatic duplicate detection for emails - prevents re-processing of emails already in the library
+- Support for email attachments - each attachment is stored as a separate file alongside the email body
+- n8n workflow template for Gmail integration with complete setup documentation
+
+## [2025-10-14]
+
+### Added
+
+- Bulk task management for content extraction - create missing tasks or drop pending tasks in one action
+- Status filtering for extraction tasks - filter by pending, extracting, embedding, completed, or failed
+- Auto-process crawled files setting - automatically create extraction tasks for previously skipped files
+- Task statistics in the UI - real-time counts showing files without chunks and task status breakdown
+- Individual task cancellation - cancel specific processing tasks that are stuck or no longer needed
+
+### Changed
+
+- Destructive actions now show confirmation dialogs to prevent accidental deletions
+- Operation buttons show loading spinners and disable during processing
+- Library settings now include option to control automatic processing of crawled files
+
 ## [2025-10-13]
 
 ### Added
