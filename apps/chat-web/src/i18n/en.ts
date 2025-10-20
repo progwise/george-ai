@@ -103,6 +103,7 @@ export default {
     noKeys: 'No API keys found. Generate a new key to get started.',
     revoke: 'Revoke',
     revokeConfirm: 'Are you sure you want to revoke the API key "{name}"? This action cannot be undone.',
+    revokeDialogTitle: 'Revoke API Key',
     revokeSuccess: 'API key revoked successfully',
     securityWarningText:
       'API keys grant access to your library. Keep them secure and never commit them to version control or share them publicly.',

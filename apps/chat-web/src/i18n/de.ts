@@ -106,6 +106,7 @@ export default {
     revoke: 'Widerrufen',
     revokeConfirm:
       'Sind Sie sicher, dass Sie den API-Schlüssel "{name}" widerrufen möchten? Diese Aktion kann nicht rückgängig gemacht werden.',
+    revokeDialogTitle: 'API-Schlüssel widerrufen',
     revokeSuccess: 'API-Schlüssel erfolgreich widerrufen',
     securityWarningText:
       'API-Schlüssel gewähren Zugriff auf Ihre Bibliothek. Bewahren Sie sie sicher auf und übertragen Sie sie niemals in die Versionskontrolle oder teilen Sie sie öffentlich.',
