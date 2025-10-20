@@ -131,7 +131,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Prepare email body as .eml file from Gmail Trigger output\nconst inputItem = $('Extract Email Metadata').first()\n\nconst email = inputItem.json\nconst mailbox = email.mailbox || 'unknown'\nconst messageId = email.messageId || 'unknown'\n\n// Extract sender (from field)\nconst fromValue = email.from?.value?.[0] || {}\nconst fromName = fromValue.name || ''\nconst fromEmail = fromValue.address || email.from?.text || 'Unknown'\nconst from = fromName ? `${fromName} <${fromEmail}>` : fromEmail\n\n// Extract recipients (to field)\nconst toValue = email.to?.value || []\nconst to = toValue.map(t => t.name ? `${t.name} <${t.address}>` : t.address).join(', ') || 'Unknown'\n\n// Extract CC if present\nconst ccValue = email.cc?.value || []\nconst cc = ccValue.map(c => c.name ? `${c.name} <${c.address}>` : c.address).join(', ')\n\n// Subject and date\nconst subject = String(email.subject || '(No Subject)')\nconst date = email.date || new Date().toISOString()\n\n// Get email body content (Gmail provides text and textAsHtml)\nconst bodyContent = email.html || email.textAsHtml || email.text || ''\nconst hasHtml = !!(email.html || email.textAsHtml)\n\n// Create .eml file content with proper MIME headers\nlet emlContent = `From: ${from}\\r\\n`\nemlContent += `To: ${to}\\r\\n`\nif (cc) emlContent += `Cc: ${cc}\\r\\n`\nemlContent += `Subject: ${subject}\\r\\n`\nemlContent += `Date: ${date}\\r\\n`\nemlContent += `Message-ID: ${messageId}\\r\\n`\nemlContent += `MIME-Version: 1.0\\r\\n`\nif (hasHtml) {\n  emlContent += `Content-Type: text/html; charset=utf-8\\r\\n`\n} else {\n  emlContent += `Content-Type: text/plain; charset=utf-8\\r\\n`\n}\nemlContent += `\\r\\n`\nemlContent += String(bodyContent)\n\n// Calculate size in bytes\nconst emlSize = Buffer.byteLength(emlContent, 'utf8')\n\nreturn {\n  fileName: `${subject}.eml`,\n  mimeType: 'message/rfc822',\n  size: emlSize,\n  originUri: `email:${mailbox}/${messageId}/body.eml`,\n  originModificationDate: date,\n  name: subject,\n  emlContent,\n  mailbox,\n  messageId\n}"
+        "jsCode": "// Prepare email body as .eml file from Gmail Trigger output\nconst inputItem = $('Extract Email Metadata').item\n\nconst email = inputItem.json\nconst mailbox = email.mailbox || 'unknown'\nconst messageId = email.messageId || 'unknown'\n\n// Extract sender (from field)\nconst fromValue = email.from?.value?.[0] || {}\nconst fromName = fromValue.name || ''\nconst fromEmail = fromValue.address || email.from?.text || 'Unknown'\nconst from = fromName ? `${fromName} <${fromEmail}>` : fromEmail\n\n// Extract recipients (to field)\nconst toValue = email.to?.value || []\nconst to = toValue.map(t => t.name ? `${t.name} <${t.address}>` : t.address).join(', ') || 'Unknown'\n\n// Extract CC if present\nconst ccValue = email.cc?.value || []\nconst cc = ccValue.map(c => c.name ? `${c.name} <${c.address}>` : c.address).join(', ')\n\n// Subject and date\nconst subject = String(email.subject || '(No Subject)')\nconst date = email.date || new Date().toISOString()\n\n// Get email body content (Gmail provides text and textAsHtml)\nconst bodyContent = email.html || email.textAsHtml || email.text || ''\nconst hasHtml = !!(email.html || email.textAsHtml)\n\n// Create .eml file content with proper MIME headers\nlet emlContent = `From: ${from}\\r\\n`\nemlContent += `To: ${to}\\r\\n`\nif (cc) emlContent += `Cc: ${cc}\\r\\n`\nemlContent += `Subject: ${subject}\\r\\n`\nemlContent += `Date: ${date}\\r\\n`\nemlContent += `Message-ID: ${messageId}\\r\\n`\nemlContent += `MIME-Version: 1.0\\r\\n`\nif (hasHtml) {\n  emlContent += `Content-Type: text/html; charset=utf-8\\r\\n`\n} else {\n  emlContent += `Content-Type: text/plain; charset=utf-8\\r\\n`\n}\nemlContent += `\\r\\n`\nemlContent += String(bodyContent)\n\n// Calculate size in bytes\nconst emlSize = Buffer.byteLength(emlContent, 'utf8')\n\nreturn {\n  fileName: `${subject}.eml`,\n  mimeType: 'message/rfc822',\n  size: emlSize,\n  originUri: `email:${mailbox}/${messageId}/body.eml`,\n  originModificationDate: date,\n  name: subject,\n  emlContent,\n  mailbox,\n  messageId\n}"
       },
       "id": "prepare-email-body",
       "name": "Prepare Email Body",
@@ -201,7 +201,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const attachments = $('Extract Email Metadata').first().json.attachments\n\nreturn { attachments }"
+        "jsCode": "const attachments = $('Extract Email Metadata').item.json.attachments\n\nreturn { attachments }"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -224,7 +224,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Prepare attachment for upload from Gmail attachment data\nconst attachment = $json.attachments\n\nconst mailbox = $('Extract Email Metadata').first().json.mailbox\nconst messageId = $('Extract Email Metadata').first().json.messageId\nconst originDate = $('Extract Email Metadata').first().json.date\n\n// Get attachment details from Gmail attachment object\nconst fileName = attachment.fileName\nconst mimeType = attachment.mimeType\nconst originUri = `email:${mailbox}/${messageId}/attachment/${fileName}`\n\nconst fileSize = attachment.data.length\nconst fileData = attachment.data\nreturn {\n  fileName,\n  mimeType,\n  originUri,\n  originModificationDate: originDate,\n  fileSize,\n  fileData\n}"
+        "jsCode": "// Prepare attachment for upload from Gmail attachment data\nconst attachment = $json.attachments\n\nconst mailbox = $('Extract Email Metadata').item.json.mailbox\nconst messageId = $('Extract Email Metadata').item.json.messageId\nconst originDate = $('Extract Email Metadata').item.json.date\n\n// Get attachment details from Gmail attachment object\nconst fileName = attachment.fileName\nconst mimeType = attachment.mimeType\nconst originUri = `email:${mailbox}/${messageId}/attachment/${fileName}`\n\nconst fileSize = attachment.data.length\nconst fileData = attachment.data\nreturn {\n  fileName,\n  mimeType,\n  originUri,\n  originModificationDate: originDate,\n  fileSize,\n  fileData\n}"
       },
       "id": "prepare-attachment",
       "name": "Prepare Attachment",
@@ -291,6 +291,37 @@
           "name": "George AI API Key"
         }
       }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [250, 500],
+      "id": "get-many-messages",
+      "name": "Get many messages",
+      "webhookId": "bulk-import-webhook",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GMAIL_CREDENTIALS_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [50, 500],
+      "id": "manual-trigger",
+      "name": "When clicking 'Execute workflow'"
     }
   ],
   "connections": {
@@ -425,13 +456,35 @@
     },
     "Upload Attachment": {
       "main": [[]]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1"
   },
   "tags": [],
-  "triggerCount": 1,
-  "updatedAt": "2025-10-18T00:00:00.000Z",
-  "versionId": "1"
+  "triggerCount": 2,
+  "updatedAt": "2025-10-20T00:00:00.000Z",
+  "versionId": "2"
 }

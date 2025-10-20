@@ -9,6 +9,7 @@ import {
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
   AiLibraryFileInput,
+  AiLibraryFileSortOrder,
   AiLibraryInput,
   AiListFieldInput,
   AiListFilterInput,
@@ -40,6 +41,8 @@ type definedNonNullAny = {}
 export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
+
+export const AiLibraryFileSortOrderSchema = z.nativeEnum(AiLibraryFileSortOrder)
 
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 

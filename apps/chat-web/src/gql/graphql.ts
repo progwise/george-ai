@@ -498,6 +498,13 @@ export type AiLibraryFileQueryResult = {
   take: Scalars['Int']['output']
 }
 
+export enum AiLibraryFileSortOrder {
+  CreatedAtAsc = 'createdAtAsc',
+  CreatedAtDesc = 'createdAtDesc',
+  FileNameAsc = 'fileNameAsc',
+  FileNameDesc = 'fileNameDesc',
+}
+
 export type AiLibraryInput = {
   autoProcessCrawledFiles?: InputMaybe<Scalars['Boolean']['input']>
   description?: InputMaybe<Scalars['String']['input']>
@@ -1679,6 +1686,7 @@ export type QueryAiLibraryFileArgs = {
 
 export type QueryAiLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
+  orderBy?: InputMaybe<AiLibraryFileSortOrder>
   showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']

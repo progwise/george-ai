@@ -1,102 +1,51 @@
-# Gmail to George AI - n8n Workflow
+# n8n Workflows for George AI
+
+This folder contains n8n workflow templates for integrating with George AI.
+
+## Available Workflows
+
+### 1. Gmail to George AI
+
+**File:** `gmail-to-george-ai.json`
+**Documentation:** [gmail-to-george-ai.md](./gmail-to-george-ai.md)
 
 Automatically ingest Gmail emails and attachments into George AI libraries.
 
-## Quick Setup
+**Features:**
 
-### 1. Prerequisites
+- Automatic polling mode (checks every minute)
+- Manual bulk import mode (up to 10 emails at once)
+- Duplicate detection
+- Full email metadata and attachments
 
-- George AI running: `pnpm dev`
-- n8n running: `http://localhost:5678`
-- Library with API key generated
+### 2. RAG Chatbot Experiment
 
-### 2. Configure Credentials in n8n
+**File:** `rag-chatbot-experiment.json`
+**Documentation:** [rag-chatbot-experiment.md](./rag-chatbot-experiment.md)
 
-**George AI API Key (Header Auth):**
+AI Agent powered chatbot for prototyping RAG patterns before implementing them in George AI.
 
-```
-Name: Authorization
-Value: Bearer YOUR_API_KEY
-```
+**Features:**
 
-**Gmail OAuth2:** Connect your Google account
+- Two AI tools: Similarity Search + File Listing
+- Agent decides which tool to use automatically
+- Conversation memory
+- Experiment with different LLM models
 
-### 3. Import & Configure
+## Quick Start
 
-1. Import `gmail-to-george-ai.json`
-2. Edit **"Set Configuration"** node:
-   - `libraryId`: Your library ID
-   - `graphqlUrl`: `http://app:3003/graphql`
-   - `uploadUrl`: `http://app:3003/upload`
-3. Assign credentials to HTTP Request nodes
-4. Activate workflow
+1. Install and run n8n: `http://localhost:5678`
+2. Import a workflow JSON file
+3. Configure credentials and library ID
+4. Test and activate
 
-## Features
+## Prerequisites
 
-- Polls Gmail every minute
-- Automatic duplicate detection
-- Email body as RFC822 .eml with MIME headers
-- Attachments uploaded with base64 encoding
-- Files grouped by URI: `email:{mailbox}/{messageId}/`
+- George AI running (`pnpm dev`)
+- n8n installed and running
+- Library created with API key generated
+- For RAG workflow: Ollama with a model installed
 
-## Workflow
+## Documentation
 
-```
-Gmail Trigger → Set Config → Extract Metadata → Check Duplicate
-  → Filter New → [Email Body + Attachments] → Register → Upload
-```
-
-## Important: Docker Networking
-
-n8n runs in Docker and **must use service names**, not `localhost`:
-
-- ✅ `http://app:3003/graphql`
-- ❌ `http://localhost:3003/graphql`
-
-Your browser uses `localhost`, workflows use service names.
-
-## Troubleshooting
-
-**401 Unauthorized**
-
-- Check `Bearer ` prefix in API key (with space)
-- Use `http://app:3003/*` not `localhost`
-
-**Gmail not fetching**
-
-- Re-authenticate Gmail OAuth
-- Enable Gmail API in Google Cloud Console
-
-**Files not appearing**
-
-- Verify `pnpm dev` is running
-- Check backend logs for errors
-
-**Empty email body**
-
-- Ensure MIME headers in .eml file
-- Verify `message/rfc822` converter installed
-
-## Customization
-
-**Polling interval:** Edit Gmail Trigger → Poll Times
-
-**Email filters:**
-
-```javascript
-filters: {
-  q: 'is:unread'
-} // Only unread
-filters: {
-  q: 'from:sender@example.com'
-} // Specific sender
-```
-
-**Multiple mailboxes:** Duplicate workflow with different Gmail credentials
-
-## Security
-
-- Generate separate API keys per workflow
-- Never commit API keys
-- Use HTTPS in production
-- Revoke unused keys immediately
+See the individual workflow documentation files for detailed setup instructions, configuration options, and troubleshooting guides.

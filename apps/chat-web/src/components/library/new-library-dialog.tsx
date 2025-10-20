@@ -26,7 +26,7 @@ export const NewLibraryDialog = ({ ref }: { ref: React.RefObject<HTMLDialogEleme
       if (!newId) {
         throw new Error('Failed to create library')
       }
-      navigate({ to: `/libraries/${newId}` })
+      navigate({ to: `/libraries/${newId}/settings` })
     },
   })
 
