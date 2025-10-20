@@ -54,12 +54,14 @@ Value: Bearer YOUR_API_KEY
 ## Workflow
 
 **Automatic Mode:**
+
 ```
 Gmail Trigger (every minute) → Set Config → Extract Metadata → Check Duplicate
   → Filter New → [Email Body + Attachments] → Register → Upload
 ```
 
 **Manual Mode (for testing/bulk import):**
+
 ```
 Manual Trigger → Get many messages (up to 10) → Set Config → ...same as above
 ```
@@ -117,12 +119,14 @@ filters: {
 ## Usage Tips
 
 **For Initial Import:**
+
 1. Use the Manual Trigger to bulk import recent emails
 2. Increase the "limit" in "Get many messages" node (e.g., 50)
 3. Click "Execute workflow" to run once
 4. After initial import, activate the workflow for automatic polling
 
 **For Testing:**
+
 - Use Manual Trigger instead of waiting for Gmail polling
 - Check execution log to debug issues
 - Verify duplicate detection is working correctly
