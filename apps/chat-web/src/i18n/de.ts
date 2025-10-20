@@ -486,12 +486,13 @@ export default {
   libraries: {
     addMultipleFiles: 'Füge {count} Dateien hinzu',
     addNew: 'Neue Bibliothek erstellen',
-    addNewButton: 'Bibliothek erstellen',
+    addNewButton: 'Neue Bibliothek',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryButton: 'Bibliothek löschen',
     deleteLibraryConfirmation:
       '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
     deleteSuccess: 'Bibliothek {name} erfolgreich gelöscht',

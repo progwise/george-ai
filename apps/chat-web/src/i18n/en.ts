@@ -197,7 +197,7 @@ export default {
     tokenLimitExceeded: 'Token limit exceeded',
   },
   crawlers: {
-    addNew: 'Create new crawler',
+    addNew: 'Add new crawler',
     crawlSettings: 'Crawl Settings',
     credentialsDialogTitle: 'Credentials',
     credentialsBoxCustomerId: 'Box Customer ID',
@@ -483,6 +483,7 @@ export default {
     addParticipantsConfirmation: 'You can add participants to this library.',
     addSingleFile: 'Add 1 File',
     deleteError: 'Error deleting library: {message}',
+    deleteLibraryButton: 'Delete library',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s). This cannot be undone.',
     deleteSuccess: 'Library {name} deleted successfully',
