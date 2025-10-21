@@ -196,6 +196,35 @@ export default {
     setLLM: 'Language model not set on assistant',
     tokenLimitExceeded: 'Token limit exceeded',
   },
+  dashboard: {
+    title: 'Overview',
+    subtitle: 'Your workspace and system status',
+    tabs: {
+      libraries: 'Libraries',
+      lists: 'Lists',
+      conversations: 'Conversations',
+      assistants: 'Assistants',
+    },
+    emptyStates: {
+      noLibraries: 'No libraries yet',
+      noLists: 'No lists yet',
+      noConversations: 'No conversations yet',
+      noAssistants: 'No assistants yet',
+    },
+    status: {
+      online: 'Online',
+      offline: 'Offline',
+      owned: 'Owned',
+      shared: 'Shared',
+    },
+    labels: {
+      files: '{count} files',
+      models: '{count} models',
+      processing: 'proc.',
+      failed: 'failed',
+      conversationWith: 'Conversation with {name}',
+    },
+  },
   crawlers: {
     addNew: 'Add new crawler',
     crawlSettings: 'Crawl Settings',
@@ -358,6 +387,10 @@ export default {
   home: {
     altImage: 'George AI',
     btnText: 'Start Training Your AI',
+  },
+  welcome: {
+    message: 'Welcome to George-AI',
+    signIn: 'Sign In',
   },
   invitations: {
     alreadyParticipant: 'You are already a participant in this conversation.',

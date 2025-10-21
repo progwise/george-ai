@@ -3,6 +3,10 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiConversation')
 
+const ConversationSortOrder = builder.enumType('ConversationSortOrder', {
+  values: ['createdAtAsc', 'createdAtDesc', 'updatedAtAsc', 'updatedAtDesc'] as const,
+})
+
 builder.prismaObject('AiConversation', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -116,11 +120,24 @@ builder.queryField('aiConversations', (t) =>
       list: false,
       items: false,
     },
-    resolve: (query, _source, _args, context) => {
+    args: {
+      orderBy: t.arg({ type: ConversationSortOrder, required: false }),
+    },
+    resolve: (query, _source, args, context) => {
+      const orderBy = args.orderBy || 'updatedAtDesc'
+      const orderByClause =
+        orderBy === 'createdAtAsc'
+          ? { createdAt: 'asc' as const }
+          : orderBy === 'createdAtDesc'
+            ? { createdAt: 'desc' as const }
+            : orderBy === 'updatedAtAsc'
+              ? { updatedAt: 'asc' as const }
+              : { updatedAt: 'desc' as const }
+
       return prisma.aiConversation.findMany({
         ...query,
         where: { participants: { some: { userId: context.session.user.id } } },
-        orderBy: { createdAt: 'desc' },
+        orderBy: orderByClause,
       })
     },
   }),

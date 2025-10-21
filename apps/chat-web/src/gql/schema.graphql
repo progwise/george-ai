@@ -803,6 +803,13 @@ input ConversationInvitationInput {
   email: String!
 }
 
+enum ConversationSortOrder {
+  createdAtAsc
+  createdAtDesc
+  updatedAtAsc
+  updatedAtDesc
+}
+
 enum CrawlerUriType {
   box
   http
@@ -942,6 +949,15 @@ type HumanParticipant implements AiConversationParticipant {
 type LibraryCrawlerRunQueryResults {
   count: Int!
   runs: [AiLibraryCrawlerRun!]!
+}
+
+enum LibrarySortOrder {
+  createdAtAsc
+  createdAtDesc
+  nameAsc
+  nameDesc
+  updatedAtAsc
+  updatedAtDesc
 }
 
 enum ListFieldFileProperty {
@@ -1213,10 +1229,10 @@ type Query {
   aiContentQueries(libraryId: String, listId: String): [ContentQueryResult!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
-  aiConversations: [AiConversation!]!
+  aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
   aiEmbeddingModels: [String!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
-  aiLibraries: [AiLibrary!]!
+  aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!

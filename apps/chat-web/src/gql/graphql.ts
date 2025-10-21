@@ -865,6 +865,13 @@ export type ConversationInvitationInput = {
   email: Scalars['String']['input']
 }
 
+export enum ConversationSortOrder {
+  CreatedAtAsc = 'createdAtAsc',
+  CreatedAtDesc = 'createdAtDesc',
+  UpdatedAtAsc = 'updatedAtAsc',
+  UpdatedAtDesc = 'updatedAtDesc',
+}
+
 export enum CrawlerUriType {
   Box = 'box',
   Http = 'http',
@@ -1003,6 +1010,15 @@ export type LibraryCrawlerRunQueryResults = {
   __typename?: 'LibraryCrawlerRunQueryResults'
   count: Scalars['Int']['output']
   runs: Array<AiLibraryCrawlerRun>
+}
+
+export enum LibrarySortOrder {
+  CreatedAtAsc = 'createdAtAsc',
+  CreatedAtDesc = 'createdAtDesc',
+  NameAsc = 'nameAsc',
+  NameDesc = 'nameDesc',
+  UpdatedAtAsc = 'updatedAtAsc',
+  UpdatedAtDesc = 'updatedAtDesc',
 }
 
 export enum ListFieldFileProperty {
@@ -1653,10 +1669,18 @@ export type QueryAiConversationMessagesArgs = {
   conversationId: Scalars['String']['input']
 }
 
+export type QueryAiConversationsArgs = {
+  orderBy?: InputMaybe<ConversationSortOrder>
+}
+
 export type QueryAiFileChunksArgs = {
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryAiLibrariesArgs = {
+  orderBy?: InputMaybe<LibrarySortOrder>
 }
 
 export type QueryAiLibraryArgs = {
@@ -2978,17 +3002,49 @@ export type GetUserConversationsQuery = {
   }>
 }
 
-export type CreateContactRequestMutationVariables = Exact<{
-  name: Scalars['String']['input']
-  emailOrPhone: Scalars['String']['input']
-  message: Scalars['String']['input']
-}>
+export type GetDashboardDataQueryVariables = Exact<{ [key: string]: never }>
 
-export type CreateContactRequestMutation = { __typename?: 'Mutation'; createContactRequest: boolean }
-
-export type VersionQueryVariables = Exact<{ [key: string]: never }>
-
-export type VersionQuery = { __typename?: 'Query'; version?: string | null }
+export type GetDashboardDataQuery = {
+  __typename?: 'Query'
+  aiConversations: Array<{
+    __typename?: 'AiConversation'
+    id: string
+    createdAt: string
+    updatedAt?: string | null
+    owner: { __typename?: 'User'; id: string; name?: string | null }
+  }>
+  aiAssistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
+  aiLists: Array<{ __typename?: 'AiList'; id: string; name: string; owner: { __typename?: 'User'; id: string } }>
+  aiLibraries: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    filesCount: number
+    updatedAt: string
+    owner: { __typename?: 'User'; id: string }
+  }>
+  aiServiceStatus: {
+    __typename?: 'AiServiceClusterStatus'
+    instances: Array<{
+      __typename?: 'AiServiceInstance'
+      name: string
+      isOnline: boolean
+      type: string
+      availableModels?: Array<{ __typename?: 'AiModelInfo'; name: string }> | null
+    }>
+  }
+  queueSystemStatus: {
+    __typename?: 'QueueSystemStatus'
+    queues: Array<{
+      __typename?: 'QueueStatus'
+      queueType: QueueType
+      isRunning: boolean
+      pendingTasks: number
+      processingTasks: number
+      failedTasks: number
+    }>
+  }
+}
 
 export type CrawlerForm_CrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
@@ -12237,70 +12293,161 @@ export const GetUserConversationsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserConversationsQuery, GetUserConversationsQueryVariables>
-export const CreateContactRequestDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createContactRequest' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createContactRequest' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'name' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'emailOrPhone' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'message' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateContactRequestMutation, CreateContactRequestMutationVariables>
-export const VersionDocument = {
+export const GetDashboardDataDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'version' },
-      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }] },
+      name: { kind: 'Name', value: 'GetDashboardData' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiConversations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderBy' },
+                value: { kind: 'EnumValue', value: 'updatedAtDesc' },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiAssistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLists' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderBy' },
+                value: { kind: 'EnumValue', value: 'updatedAtDesc' },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiServiceStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'instances' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isOnline' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'availableModels' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'queueSystemStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'queues' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
     },
   ],
-} as unknown as DocumentNode<VersionQuery, VersionQueryVariables>
+} as unknown as DocumentNode<GetDashboardDataQuery, GetDashboardDataQueryVariables>
 export const GetCrawlerRunDocument = {
   kind: 'Document',
   definitions: [

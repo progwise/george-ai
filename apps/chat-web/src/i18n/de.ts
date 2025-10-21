@@ -199,6 +199,35 @@ export default {
     setLLM: 'Assistent hat kein Sprachmodell',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
+  dashboard: {
+    title: 'Übersicht',
+    subtitle: 'Ihr Arbeitsbereich und Systemstatus',
+    tabs: {
+      libraries: 'Bibliotheken',
+      lists: 'Listen',
+      conversations: 'Konversationen',
+      assistants: 'Assistenten',
+    },
+    emptyStates: {
+      noLibraries: 'Noch keine Bibliotheken',
+      noLists: 'Noch keine Listen',
+      noConversations: 'Noch keine Konversationen',
+      noAssistants: 'Noch keine Assistenten',
+    },
+    status: {
+      online: 'Online',
+      offline: 'Offline',
+      owned: 'Eigene',
+      shared: 'Geteilt',
+    },
+    labels: {
+      files: '{count} Dateien',
+      models: '{count} Modelle',
+      processing: 'verarb.',
+      failed: 'fehlgeschl.',
+      conversationWith: 'Konversation mit {name}',
+    },
+  },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
     crawlSettings: 'Crawl-Einstellungen',
@@ -364,6 +393,10 @@ export default {
   home: {
     altImage: 'George KI',
     btnText: 'KI-Training starten',
+  },
+  welcome: {
+    message: 'Willkommen bei George-AI',
+    signIn: 'Anmelden',
   },
   invitations: {
     alreadyParticipant: 'Sie sind bereits Teilnehmer dieser Konversation.',
