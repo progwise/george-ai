@@ -3,6 +3,7 @@ import '../styles/global.css'
 import BowlerLogo from '../components/BowlerLogo.astro'
 import CloudIcon from '../components/CloudIcon.astro'
 import { cn } from '../utils/cn'
+import { getAppUrl } from '../utils/config'
 
 interface Props {
   title: string
@@ -20,7 +21,7 @@ const {
 const currentPath = Astro.url.pathname
 const canonicalURL = new URL(currentPath, Astro.site).href
 const fullOgImageURL = new URL(ogImage, Astro.site).href
-const appUrl = import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.george-ai.net'
+const appUrl = getAppUrl()
 ---
 
 <!doctype html>

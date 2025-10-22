@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import { getAppUrl } from '../utils/config'
 
-const appUrl = import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.george-ai.net'
+const appUrl = getAppUrl()
 ---
 
 <Layout title="George-AI - Self-hosted AI knowledge platform">
@@ -90,7 +91,7 @@ const appUrl = import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.geor
         <a href={`${appUrl}/login`} class="btn btn-secondary btn-lg">
           Launch Application
         </a>
-        <a href="/about" class="btn btn-ghost btn-lg">
+        <a href="/features" class="btn btn-ghost btn-lg">
           Learn More
         </a>
       </div>

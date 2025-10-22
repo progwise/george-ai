@@ -8,6 +8,7 @@
     "type": "git",
     "url": "https://github.com/progwise/george-ai"
   },
+  "private": true,
   "scripts": {
     "dev": "astro dev --host",
     "build": "astro build",
