@@ -349,3 +349,29 @@ flowchart TD
   - one Frontend App with two routes: Chatbot and Travel Planner
 - **Chatbot** 🤖
   - bot to chat about the PDFs
+
+---
+
+## License
+
+George-AI is licensed under the [Business Source License 1.1](LICENSE).
+
+**Key Points:**
+
+- ✅ Source code is publicly available
+- ✅ Free for internal and non-commercial use
+- ✅ Self-hosting permitted for non-commercial purposes
+- ❌ Cannot be used to offer competing commercial SaaS services
+- 🔄 Automatically converts to Apache 2.0 on 2029-01-01
+
+**Proprietary Content:**
+
+- Enterprise modules (SSO, Multi-Tenant, Audit Logs, SLA components)
+- Marketing materials (apps/marketing-web)
+
+For commercial licensing or questions, please contact: info@george-ai.net
+
+**More Information:**
+
+- Full license text: [LICENSE](LICENSE)
+- BSL 1.1 FAQ: https://mariadb.com/bsl-faq-mariadb/
