@@ -122,6 +122,7 @@ export default defineConfig({
 ### Environment-Aware App URLs
 
 Pages dynamically adjust the app URL based on the environment:
+
 - **Development**: `http://localhost:3001`
 - **Production**: `https://app.george-ai.net`
 
@@ -130,6 +131,7 @@ This is handled via `import.meta.env.DEV` in page components.
 ## Styling
 
 The project uses:
+
 - **Tailwind CSS v4** with the `@tailwindcss/vite` plugin
 - **DaisyUI** for pre-built components (cards, buttons, badges, etc.)
 - **tailwind-merge** for conditional class merging
