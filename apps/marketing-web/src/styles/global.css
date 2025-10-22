@@ -15,3 +15,9 @@
   --depth: 0;
   --color-primary: var(--color-blue-500);
 }
+
+/* Active menu item styling */
+.menu li.active > a {
+  background-color: var(--color-primary);
+  color: white;
+}

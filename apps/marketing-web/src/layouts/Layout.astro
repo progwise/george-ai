@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css'
+import BowlerLogo from '../components/BowlerLogo.astro'
+import CloudIcon from '../components/CloudIcon.astro'
+import { cn } from '../utils/cn'
 
 interface Props {
   title: string
@@ -7,6 +10,7 @@ interface Props {
 }
 
 const { title, description = 'George-AI - Self-hosted RAG platform' } = Astro.props
+const currentPath = Astro.url.pathname
 ---
 
 <!doctype html>
@@ -22,26 +26,27 @@ const { title, description = 'George-AI - Self-hosted RAG platform' } = Astro.pr
   <body class="m-0 p-0 font-sans">
     <div class="navbar bg-base-300">
       <div class="navbar-start">
-        <a href="/" class="btn btn-ghost btn-circle avatar">
-          <div class="w-10 rounded-full bg-white p-1">
-            <img src="/bowler-logo.svg" alt="George-AI Logo" />
-          </div>
-        </a>
+          <a href="/" class={cn("btn btn-ghost")}>
+            <BowlerLogo class={cn("size-10", currentPath === '/' && 'text-primary')} />
+          </a>
       </div>
       <div class="navbar-center hidden md:flex">
         <ul class="menu menu-horizontal px-1">
-          <li><a href="/features">Features</a></li>
-          <li><a href="/use-cases">Use Cases</a></li>
-          <li><a href="/pricing">Pricing</a></li>
-          <li><a href="/contact">Contact</a></li>
+          <li class={cn(currentPath === '/features' && 'active')}><a href="/features">Features</a></li>
+          <li class={cn(currentPath === '/use-cases' && 'active')}><a href="/use-cases">Use Cases</a></li>
+          <li class={cn(currentPath === '/pricing' && 'active')}><a href="/pricing">Pricing</a></li>
+          <li class={cn(currentPath === '/contact' && 'active')}><a href="/contact">Contact</a></li>
         </ul>
       </div>
       <div class="navbar-end">
-        <a href="https://app.george-ai.net/login" class="btn btn-primary">Get Started</a>
+        <a href="https://app.george-ai.net/login" class="btn btn-outline">
+          <CloudIcon class="size-5" />
+          George-Cloud
+        </a>
       </div>
     </div>
 
-    <main class="max-w-screen-xl mx-auto px-8 py-8 min-h-[calc(100vh-200px)]">
+    <main class="max-w-7xl mx-auto px-8 py-8 min-h-[calc(100vh-200px)]">
       <slot />
     </main>
 
