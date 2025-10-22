@@ -14,3 +14,4 @@ routeTree.gen.ts
 .dockerignore
 .gitignore
 .astro
+.nitro
