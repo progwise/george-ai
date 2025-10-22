@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
+
+const appUrl = import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.george-ai.net'
 ---
 
 <Layout title="Use Cases - George-AI" description="Real-world applications of George-AI across industries">
@@ -361,7 +363,7 @@ import Layout from '../layouts/Layout.astro'
             Join leading organizations across pharmaceutical, healthcare, and financial services industries
           </p>
           <div class="flex gap-4 justify-center">
-            <a href="https://app.george-ai.net/login" class="btn btn-lg bg-white text-primary hover:bg-base-100">
+            <a href={`${appUrl}/login`} class="btn btn-lg bg-white text-primary hover:bg-base-100">
               Get Started
             </a>
             <a href="/contact" class="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary">

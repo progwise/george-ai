@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
+
+const appUrl = import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.george-ai.net'
 ---
 
 <Layout title="George-AI - Self-hosted AI knowledge platform">
@@ -14,7 +16,7 @@ import Layout from '../layouts/Layout.astro'
           Perfect for organizations that need powerful AI capabilities without compromising security.
         </p>
         <div class="flex gap-4 justify-center">
-          <a href="https://app.george-ai.net/login" class="btn btn-primary btn-lg">
+          <a href={`${appUrl}/login`} class="btn btn-primary btn-lg">
             Get Started
           </a>
           <a href="https://github.com/progwise/george-ai" class="btn btn-outline btn-lg">
@@ -85,7 +87,7 @@ import Layout from '../layouts/Layout.astro'
       <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
       <p class="mb-6">Deploy George-AI in your organization today and unlock the power of AI with your enterprise data.</p>
       <div class="card-actions">
-        <a href="https://app.george-ai.net/login" class="btn btn-secondary btn-lg">
+        <a href={`${appUrl}/login`} class="btn btn-secondary btn-lg">
           Launch Application
         </a>
         <a href="/about" class="btn btn-ghost btn-lg">
