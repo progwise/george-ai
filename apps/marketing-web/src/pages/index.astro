@@ -3,15 +3,95 @@ import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout title="George-AI - Self-hosted RAG Platform">
-  <h1 class="text-5xl font-bold mb-4">George-AI</h1>
-  <p class="text-xl text-gray-700 mb-8">Self-hosted RAG platform for your enterprise data.</p>
+  <!-- Hero Section -->
+  <div class="hero bg-base-200 rounded-lg mb-12">
+    <div class="hero-content text-center py-16">
+      <div class="max-w-2xl">
+        <h1 class="text-5xl font-bold mb-4">George-AI</h1>
+        <p class="text-xl mb-8">Self-hosted RAG platform for your enterprise data</p>
+        <p class="mb-8">
+          Leverage AI with your own data while maintaining full control and data sovereignty.
+          Perfect for organizations that need powerful AI capabilities without compromising security.
+        </p>
+        <div class="flex gap-4 justify-center">
+          <a href="https://app.george-ai.net/login" class="btn btn-primary btn-lg">
+            Get Started
+          </a>
+          <a href="https://github.com/progwise/george-ai" class="btn btn-outline btn-lg">
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="flex gap-4 mt-8">
-    <a href="https://app.george-ai.net/login" class="px-6 py-3 bg-blue-600 text-white rounded-lg no-underline font-semibold hover:bg-blue-700 transition">
-      Get Started
-    </a>
-    <a href="https://github.com/progwise/george-ai" class="px-6 py-3 bg-gray-100 text-gray-800 rounded-lg no-underline font-semibold border border-gray-300 hover:bg-gray-200 transition">
-      View on GitHub
-    </a>
+  <!-- Features Section -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold text-center mb-8">Key Features</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Feature 1 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Multi-Source Data Ingestion</h3>
+          <p>Connect to email, web, files, SharePoint, SMB, and more. Bring all your enterprise data into one unified platform.</p>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">AI-Powered Processing</h3>
+          <p>Advanced embeddings and vector search capabilities for intelligent document retrieval and analysis.</p>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Enterprise Integration</h3>
+          <p>Seamless n8n workflow integration for automating your AI-powered business processes.</p>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Self-Hosted Deployment</h3>
+          <p>Complete control over your data with self-hosted deployment and multi-tenant support.</p>
+        </div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">EU AI Act Compliance</h3>
+          <p>Built-in compliance features to meet EU AI Act requirements for responsible AI usage.</p>
+        </div>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Data Sovereignty</h3>
+          <p>Keep your sensitive enterprise data on your own infrastructure with full privacy control.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="card bg-primary text-primary-content shadow-lg">
+    <div class="card-body items-center text-center">
+      <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
+      <p class="mb-6">Deploy George-AI in your organization today and unlock the power of AI with your enterprise data.</p>
+      <div class="card-actions">
+        <a href="https://app.george-ai.net/login" class="btn btn-secondary btn-lg">
+          Launch Application
+        </a>
+        <a href="/about" class="btn btn-ghost btn-lg">
+          Learn More
+        </a>
+      </div>
+    </div>
   </div>
 </Layout>

@@ -262,6 +262,9 @@ importers:
       astro:
         specifier: ^5.14.7
         version: 5.14.7(@types/node@22.18.6)(db0@0.3.4)(ioredis@5.8.0)(jiti@2.6.0)(lightningcss@1.30.2)(rollup@4.52.2)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      daisyui:
+        specifier: ^5.1.10
+        version: 5.1.14
       tailwindcss:
         specifier: ^4.1.15
         version: 4.1.15
@@ -14547,7 +14550,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.12.2)
+      retry-axios: 2.6.0(axios@1.12.2(debug@4.4.3))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -16411,7 +16414,7 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  retry-axios@2.6.0(axios@1.12.2):
+  retry-axios@2.6.0(axios@1.12.2(debug@4.4.3)):
     dependencies:
       axios: 1.12.2(debug@4.4.3)
 

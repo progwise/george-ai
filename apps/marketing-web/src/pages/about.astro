@@ -3,23 +3,124 @@ import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout title="About George-AI" description="Learn about George-AI and our mission">
-  <h1 class="text-4xl font-bold mb-8">About George-AI</h1>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8 text-center">About George-AI</h1>
 
-  <article class="max-w-3xl prose prose-lg">
-    <h2 class="text-3xl font-semibold mt-8 mb-4">What is George-AI?</h2>
-    <p class="text-gray-700 leading-relaxed">
-      George-AI is a self-hosted RAG (Retrieval-Augmented Generation) platform
-      that helps organizations leverage AI with their own data while maintaining
-      full control and data sovereignty.
-    </p>
+    <!-- What is George-AI -->
+    <div class="card bg-base-200 shadow-lg mb-8">
+      <div class="card-body">
+        <h2 class="card-title text-3xl mb-4">What is George-AI?</h2>
+        <p class="text-lg leading-relaxed">
+          George-AI is a self-hosted RAG (Retrieval-Augmented Generation) platform
+          that helps organizations leverage AI with their own data while maintaining
+          full control and data sovereignty.
+        </p>
+        <p class="leading-relaxed mt-4">
+          Built for enterprises that need powerful AI capabilities without compromising
+          on security or data privacy, George-AI brings together advanced AI processing
+          with the flexibility and control of self-hosted deployment.
+        </p>
+      </div>
+    </div>
 
-    <h2 class="text-3xl font-semibold mt-8 mb-4">Key Features</h2>
-    <ul class="space-y-2 text-gray-700 leading-relaxed">
-      <li>Multi-source data ingestion (email, web, files, SharePoint, SMB)</li>
-      <li>AI-powered processing with embeddings and vector search</li>
-      <li>Enterprise integration with n8n workflows</li>
-      <li>Self-hosted deployment with multi-tenant support</li>
-      <li>EU AI Act compliance features</li>
-    </ul>
-  </article>
+    <!-- Core Capabilities -->
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold mb-6">Core Capabilities</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-primary mb-2">Data Sources</div>
+            <h3 class="font-bold mb-2">Multi-Source Data Ingestion</h3>
+            <p class="text-sm">Connect to email, web, files, SharePoint, SMB, and more to unify your enterprise data.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-secondary mb-2">AI Processing</div>
+            <h3 class="font-bold mb-2">Embeddings & Vector Search</h3>
+            <p class="text-sm">Advanced AI-powered processing with embeddings and intelligent vector search capabilities.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-accent mb-2">Integration</div>
+            <h3 class="font-bold mb-2">Enterprise Workflows</h3>
+            <p class="text-sm">Seamless integration with n8n for automating AI-powered business processes.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-info mb-2">Deployment</div>
+            <h3 class="font-bold mb-2">Self-Hosted & Multi-Tenant</h3>
+            <p class="text-sm">Complete control with self-hosted deployment and support for multiple tenants.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-success mb-2">Compliance</div>
+            <h3 class="font-bold mb-2">EU AI Act Ready</h3>
+            <p class="text-sm">Built-in compliance features to meet EU AI Act requirements for responsible AI usage.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+          <div class="card-body">
+            <div class="badge badge-warning mb-2">Privacy</div>
+            <h3 class="font-bold mb-2">Data Sovereignty</h3>
+            <p class="text-sm">Keep your sensitive data on your infrastructure with complete privacy control.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="card bg-base-100 shadow-lg mb-8">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">Use Cases</h2>
+        <div class="space-y-4">
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="radio" name="use-cases" checked />
+            <div class="collapse-title font-medium">Enterprise Knowledge Management</div>
+            <div class="collapse-content">
+              <p>Centralize and make searchable all your organization's documentation, emails, and files with AI-powered search and retrieval.</p>
+            </div>
+          </div>
+
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="radio" name="use-cases" />
+            <div class="collapse-title font-medium">Intelligent Document Processing</div>
+            <div class="collapse-content">
+              <p>Automatically process, analyze, and extract insights from large volumes of documents using advanced AI capabilities.</p>
+            </div>
+          </div>
+
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="radio" name="use-cases" />
+            <div class="collapse-title font-medium">Customer Support Enhancement</div>
+            <div class="collapse-content">
+              <p>Empower support teams with AI-assisted responses based on your organization's knowledge base and historical data.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="alert alert-info shadow-lg">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Open Source</h3>
+          <div class="text-xs">George-AI is open source and available on GitHub. Contribute, customize, or deploy it in your organization.</div>
+        </div>
+      </div>
+      <div class="flex-none">
+        <a href="https://github.com/progwise/george-ai" class="btn btn-sm btn-ghost">View on GitHub</a>
+      </div>
+    </div>
+  </div>
 </Layout>

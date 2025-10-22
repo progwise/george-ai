@@ -20,18 +20,34 @@ const { title, description = 'George-AI - Self-hosted RAG platform' } = Astro.pr
     <title>{title}</title>
   </head>
   <body class="m-0 p-0 font-sans">
-    <nav class="bg-gray-900 px-8 py-4 flex gap-8">
-      <a href="/" class="text-white no-underline hover:underline">Home</a>
-      <a href="/about" class="text-white no-underline hover:underline">About</a>
-      <a href="/contact" class="text-white no-underline hover:underline">Contact</a>
-    </nav>
+    <div class="navbar bg-base-300">
+      <div class="navbar-start">
+        <a href="/" class="btn btn-ghost btn-circle avatar">
+          <div class="w-10 rounded-full bg-white p-1">
+            <img src="/bowler-logo.svg" alt="George-AI Logo" />
+          </div>
+        </a>
+      </div>
+      <div class="navbar-center hidden md:flex">
+        <ul class="menu menu-horizontal px-1">
+          <li><a href="/about">About</a></li>
+          <li><a href="/pricing">Pricing</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="navbar-end">
+        <a href="https://app.george-ai.net/login" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
 
     <main class="max-w-screen-xl mx-auto px-8 py-8 min-h-[calc(100vh-200px)]">
       <slot />
     </main>
 
-    <footer class="bg-gray-100 px-8 py-8 text-center mt-16">
-      <p>&copy; {new Date().getFullYear()} George-AI. All rights reserved.</p>
+    <footer class="footer footer-center bg-base-200 p-8 text-base-content mt-16">
+      <aside>
+        <p>&copy; {new Date().getFullYear()} George-AI. All rights reserved.</p>
+      </aside>
     </footer>
   </body>
 </html>
