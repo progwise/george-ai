@@ -1,0 +1,10 @@
+# George-AI Chat Application - Robots.txt
+# app.george-ai.net
+
+# Disallow all crawling - this is an authenticated application
+User-agent: *
+Disallow: /
+
+# Explanation:
+# This application requires authentication and contains private user data.
+# Search engines should not index any pages from this application.
