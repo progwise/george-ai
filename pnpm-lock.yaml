@@ -253,9 +253,6 @@ importers:
 
   apps/marketing-web:
     dependencies:
-      '@astrojs/check':
-        specifier: ^0.9.5
-        version: 0.9.5(prettier@3.6.2)(typescript@5.9.3)
       '@astrojs/sitemap':
         specifier: ^3.6.0
         version: 3.6.0
@@ -275,6 +272,9 @@ importers:
         specifier: ^4.1.15
         version: 4.1.15
     devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.5
+        version: 0.9.5(prettier@3.6.2)(typescript@5.9.3)
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.36.0
@@ -14593,7 +14593,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.12.2(debug@4.4.3))
+      retry-axios: 2.6.0(axios@1.12.2)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -16457,7 +16457,7 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  retry-axios@2.6.0(axios@1.12.2(debug@4.4.3)):
+  retry-axios@2.6.0(axios@1.12.2):
     dependencies:
       axios: 1.12.2(debug@4.4.3)
 
