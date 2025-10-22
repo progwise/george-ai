@@ -757,6 +757,7 @@ export default {
     theme: 'Theme',
     language: 'Language',
     changelog: 'Changelog',
+    documentation: 'Documentation',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

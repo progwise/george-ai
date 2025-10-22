@@ -767,6 +767,7 @@ export default {
     theme: 'Farbschema',
     language: 'Sprache',
     changelog: 'Changelog',
+    documentation: 'Dokumentation',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

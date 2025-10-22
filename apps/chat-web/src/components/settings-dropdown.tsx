@@ -195,6 +195,18 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
           </a>
         </li>
 
+        {/* Documentation */}
+        <li>
+          <a
+            href={`${import.meta.env.DEV ? 'http://localhost:4321' : 'https://george-ai.net'}/docs`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm"
+          >
+            {t('settings.documentation')}
+          </a>
+        </li>
+
         {/* Sign-Out */}
         {isReady && user && (
           <>
