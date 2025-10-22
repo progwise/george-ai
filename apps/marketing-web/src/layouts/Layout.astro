@@ -92,9 +92,9 @@ const fullOgImageURL = new URL(ogImage, Astro.site).href
   <body class="m-0 p-0 font-sans">
     <div class="navbar bg-base-300">
       <div class="navbar-start">
-          <a href="/" class={cn("btn btn-ghost")}>
-            <BowlerLogo class={cn("size-10", currentPath === '/' && 'text-primary')} />
-          </a>
+        <a href="/" class={cn("btn btn-ghost")}>
+          <BowlerLogo class={cn("size-10", currentPath === '/' && 'text-primary')} />
+        </a>
       </div>
       <div class="navbar-center hidden md:flex">
         <ul class="menu menu-horizontal px-1">
@@ -106,7 +106,23 @@ const fullOgImageURL = new URL(ogImage, Astro.site).href
         </ul>
       </div>
       <div class="navbar-end">
-        <a href="https://app.george-ai.net/login" class="btn btn-outline">
+        {/* Mobile hamburger menu */}
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost md:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+            <li><a href="/features">Features</a></li>
+            <li><a href="/use-cases">Use Cases</a></li>
+            <li><a href="/docs">Documentation</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+        {/* Desktop George-Cloud button */}
+        <a href="https://app.george-ai.net/login" class="btn btn-outline hidden md:flex">
           <CloudIcon class="size-5" />
           George-Cloud
         </a>
@@ -116,6 +132,18 @@ const fullOgImageURL = new URL(ogImage, Astro.site).href
     <main class="max-w-7xl mx-auto px-8 py-8 min-h-[calc(100vh-200px)]">
       <slot />
     </main>
+
+    {/* Mobile bottom navigation - George-Cloud button */}
+    <div class="md:hidden">
+      <div class="fixed bottom-0 left-0 right-0 bg-base-300 border-t border-base-content/10 p-4 z-40">
+        <a href="https://app.george-ai.net/login" class="btn btn-primary btn-block">
+          <CloudIcon class="size-5" />
+          George-Cloud
+        </a>
+      </div>
+      {/* Spacer to prevent content overlap */}
+      <div class="h-20" />
+    </div>
 
     <footer class="footer footer-center bg-base-200 p-8 text-base-content mt-16">
       <aside>
