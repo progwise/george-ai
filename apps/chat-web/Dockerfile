@@ -33,7 +33,7 @@ RUN pnpm i --frozen-lockfile
 # Copy source files afterwards to allow Docker layer caching
 COPY packages/web-utils ./packages/web-utils
 COPY apps/chat-web ./apps/chat-web
-COPY CHANGELOG.md ./
+COPY CHANGELOG.md LICENSE ./
 
 # Build the application
 RUN pnpm --filter @george-ai/chat-web run build

@@ -44,6 +44,9 @@ COPY apps/georgeai-server/package.json ./apps/georgeai-server/
 
 RUN pnpm i --frozen-lockfile
 
+# Copy LICENSE file for legal compliance
+COPY LICENSE ./
+
 # Copy only the source files for packages that backend depends on
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
