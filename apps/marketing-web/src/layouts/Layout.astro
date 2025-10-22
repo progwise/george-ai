@@ -7,10 +7,19 @@ import { cn } from '../utils/cn'
 interface Props {
   title: string
   description?: string
+  ogImage?: string
+  ogType?: string
 }
 
-const { title, description = 'George-AI - Self-hosted RAG platform' } = Astro.props
+const {
+  title,
+  description = 'George-AI - Self-hosted RAG platform',
+  ogImage = '/bowler-logo.svg',
+  ogType = 'website',
+} = Astro.props
 const currentPath = Astro.url.pathname
+const canonicalURL = new URL(currentPath, Astro.site).href
+const fullOgImageURL = new URL(ogImage, Astro.site).href
 ---
 
 <!doctype html>
@@ -20,8 +29,25 @@ const currentPath = Astro.url.pathname
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullOgImageURL} />
+    <meta property="og:site_name" content="George-AI" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullOgImageURL} />
   </head>
   <body class="m-0 p-0 font-sans">
     <div class="navbar bg-base-300">
