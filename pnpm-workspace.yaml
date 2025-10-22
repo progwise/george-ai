@@ -1,4 +1,5 @@
 packages:
+  - 'apps/marketing-web'
   - 'apps/chat-web'
   - 'apps/georgeai-server'
   - 'packages/*'

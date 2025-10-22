@@ -13,3 +13,5 @@ packages/pothos-graphql/prisma/generated
 routeTree.gen.ts
 .dockerignore
 .gitignore
+.astro
+.nitro

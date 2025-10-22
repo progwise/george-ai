@@ -1,0 +1,61 @@
+Business Source License 1.1
+
+Licensor: Michael H. Vogt Software Development - Greifswald - Germany
+Licensed Work: George-AI Platform
+Additional Use Grant: You may use, modify, and self-host this software for internal, non-commercial purposes.
+Commercial hosting, resale, or use in a commercial SaaS offering requires a separate commercial license from the Licensor.
+Change Date: 2029-01-01
+Change License: Apache License 2.0
+Additional Terms: Enterprise modules (e.g. SSO, Multi-Tenant, Audit Logs, SLA components) and marketing materials (including website copy, branding assets, and promotional content in apps/marketing-web) are not covered by this license and remain proprietary.
+Contact: info@george-ai.net
+
+---
+
+BUSINESS SOURCE LICENSE 1.1
+Copyright (C) 2017-2023 MariaDB Corporation Ab
+All rights reserved.
+
+Terms
+The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute,
+and make non-production use of the Licensed Work. The Licensor may make an Additional Use Grant,
+above, permitting limited production use.
+
+Effective on the Change Date, or the fourth anniversary of the first publicly available version
+of the Licensed Work, whichever comes first, the Change License described above will apply
+to the Licensed Work.
+
+Before the Change Date, any production use of the Licensed Work by you or your affiliates,
+other than as allowed by the Additional Use Grant, requires the written permission of the Licensor.
+
+For clarity, “production use” means use of the Licensed Work in the ordinary course of business,
+in a commercial service, or for monetary or other consideration.
+
+You may make and use copies of the Licensed Work for development, testing, and internal evaluation.
+You must retain all copyright notices and license notices in all copies.
+
+You may not alter or remove any trademark, logo, or other proprietary notices of the Licensor.
+
+Any redistribution of the Licensed Work or derivative works must include this license text and
+the above License Header with all fields completed as provided by the Licensor.
+
+Disclaimer
+THE LICENSED WORK IS PROVIDED “AS IS.” THE LICENSOR HEREBY DISCLAIMS ALL WARRANTIES, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. TO THE EXTENT PERMITTED BY APPLICABLE LAW,
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY DAMAGES OF ANY KIND, WHETHER DIRECT OR INDIRECT,
+INCLUDING BUT NOT LIMITED TO LOSS OF GOODWILL, WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION,
+OR ANY AND ALL OTHER COMMERCIAL DAMAGES OR LOSSES, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
+
+---
+
+Plain-Language Summary (Non-binding)
+
+George-AI is released under the Business Source License 1.1 (BSL 1.1).
+
+- Free for internal and non-commercial use.
+- Commercial use requires a license agreement with Michael H. Vogt Software Development.
+- Enterprise modules and marketing materials remain proprietary and are not licensed.
+- Converts to Apache 2.0 on 2029-01-01.
+  See https://mariadb.com/bsl11/ for the authoritative license text.
+
+---

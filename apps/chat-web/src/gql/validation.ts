@@ -19,10 +19,12 @@ import {
   AiListSortingInput,
   AiListSourceInput,
   ConversationInvitationInput,
+  ConversationSortOrder,
   CrawlerUriType,
   EmbeddingStatus,
   EnrichmentStatus,
   ExtractionStatus,
+  LibrarySortOrder,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
@@ -48,6 +50,8 @@ export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const AiListSortingDirectionSchema = z.nativeEnum(AiListSortingDirection)
 
+export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
+
 export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
@@ -55,6 +59,8 @@ export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
+
+export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
 
 export const ListFieldFilePropertySchema = z.nativeEnum(ListFieldFileProperty)
 

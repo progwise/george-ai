@@ -199,6 +199,35 @@ export default {
     setLLM: 'Assistent hat kein Sprachmodell',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
+  dashboard: {
+    title: 'Übersicht',
+    subtitle: 'Ihr Arbeitsbereich und Systemstatus',
+    tabs: {
+      libraries: 'Bibliotheken',
+      lists: 'Listen',
+      conversations: 'Konversationen',
+      assistants: 'Assistenten',
+    },
+    emptyStates: {
+      noLibraries: 'Noch keine Bibliotheken',
+      noLists: 'Noch keine Listen',
+      noConversations: 'Noch keine Konversationen',
+      noAssistants: 'Noch keine Assistenten',
+    },
+    status: {
+      online: 'Online',
+      offline: 'Offline',
+      owned: 'Eigene',
+      shared: 'Geteilt',
+    },
+    labels: {
+      files: '{count} Dateien',
+      models: '{count} Modelle',
+      processing: 'verarb.',
+      failed: 'fehlgeschl.',
+      conversationWith: 'Konversation mit {name}',
+    },
+  },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
     crawlSettings: 'Crawl-Einstellungen',
@@ -365,6 +394,10 @@ export default {
     altImage: 'George KI',
     btnText: 'KI-Training starten',
   },
+  welcome: {
+    message: 'Willkommen bei George-AI',
+    signIn: 'Anmelden',
+  },
   invitations: {
     alreadyParticipant: 'Sie sind bereits Teilnehmer dieser Konversation.',
     confirmDescription:
@@ -486,12 +519,13 @@ export default {
   libraries: {
     addMultipleFiles: 'Füge {count} Dateien hinzu',
     addNew: 'Neue Bibliothek erstellen',
-    addNewButton: 'Bibliothek erstellen',
+    addNewButton: 'Neue Bibliothek',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryButton: 'Bibliothek löschen',
     deleteLibraryConfirmation:
       '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
     deleteSuccess: 'Bibliothek {name} erfolgreich gelöscht',
@@ -733,6 +767,7 @@ export default {
     theme: 'Farbschema',
     language: 'Sprache',
     changelog: 'Changelog',
+    documentation: 'Dokumentation',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

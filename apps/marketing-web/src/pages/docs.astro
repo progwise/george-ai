@@ -1,0 +1,218 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="Documentation - George-AI">
+  <!-- Header -->
+  <div class="mb-12">
+    <h1 class="text-4xl font-bold mb-4">Documentation</h1>
+    <p class="text-xl text-base-content/70">
+      Everything you need to get started with George-AI
+    </p>
+  </div>
+
+  <!-- Quick Start -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Quick Start</h2>
+    <div class="card bg-base-200 shadow-lg">
+      <div class="card-body">
+        <h3 class="card-title text-2xl mb-4">Get Started in Minutes</h3>
+        <div class="space-y-4">
+          <div class="flex items-start gap-4">
+            <div class="badge badge-primary badge-lg">1</div>
+            <div>
+              <h4 class="font-bold mb-1">Clone the Repository</h4>
+              <code class="bg-base-300 px-3 py-1 rounded">git clone https://github.com/progwise/george-ai.git</code>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="badge badge-primary badge-lg">2</div>
+            <div>
+              <h4 class="font-bold mb-1">Install Dependencies</h4>
+              <code class="bg-base-300 px-3 py-1 rounded">pnpm install</code>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="badge badge-primary badge-lg">3</div>
+            <div>
+              <h4 class="font-bold mb-1">Start Development</h4>
+              <code class="bg-base-300 px-3 py-1 rounded">pnpm dev</code>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions justify-end mt-6">
+          <a href="https://github.com/progwise/george-ai#readme" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            View Full Setup Guide
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resources -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Resources</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- GitHub Repository -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">GitHub Repository</h3>
+          <p>Access the source code, contribute, and stay updated with the latest changes.</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              View Repository →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- README -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">README</h3>
+          <p>Comprehensive overview of George-AI, installation instructions, and basic usage.</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai#readme" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              Read Documentation →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues & Support -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">Issues & Support</h3>
+          <p>Report bugs, request features, or get help from the community.</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai/issues" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              Open Issues →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discussions -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">Discussions</h3>
+          <p>Join the community, ask questions, and share your experiences.</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai/discussions" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              Join Discussions →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changelog -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">Changelog</h3>
+          <p>Track all changes, updates, and improvements to George-AI.</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              View Changelog →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- License -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h3 class="card-title">License</h3>
+          <p>George-AI is licensed under the Business Source License 1.1 (BSL 1.1).</p>
+          <div class="card-actions justify-end">
+            <a href="https://github.com/progwise/george-ai/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              View License →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Stack -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Technical Stack</h2>
+    <div class="card bg-base-200 shadow-lg">
+      <div class="card-body">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="font-bold text-lg mb-3">Frontend</h3>
+            <ul class="space-y-2">
+              <li>• React 19</li>
+              <li>• TanStack Router</li>
+              <li>• Vite</li>
+              <li>• Tailwind CSS + DaisyUI</li>
+              <li>• GraphQL (graphql-request)</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-3">Backend</h3>
+            <ul class="space-y-2">
+              <li>• Node.js + Express</li>
+              <li>• GraphQL Yoga</li>
+              <li>• Pothos (code-first schema)</li>
+              <li>• Prisma ORM</li>
+              <li>• PostgreSQL</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-3">AI & Search</h3>
+            <ul class="space-y-2">
+              <li>• LangChain</li>
+              <li>• Ollama support</li>
+              <li>• Typesense (vector search)</li>
+              <li>• Custom embeddings</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-3">Infrastructure</h3>
+            <ul class="space-y-2">
+              <li>• Docker Compose</li>
+              <li>• Keycloak (authentication)</li>
+              <li>• Turborepo (monorepo)</li>
+              <li>• pnpm workspaces</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Getting Help -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Getting Help</h2>
+    <div class="card bg-primary text-primary-content shadow-lg">
+      <div class="card-body">
+        <h3 class="card-title text-2xl">Need Assistance?</h3>
+        <p class="mb-4">
+          We're here to help! Whether you're just getting started or need advanced support,
+          here's how to reach us:
+        </p>
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="font-bold">Community Support:</span>
+            <a href="https://github.com/progwise/george-ai/discussions" target="_blank" rel="noopener noreferrer" class="link">
+              GitHub Discussions
+            </a>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold">Bug Reports:</span>
+            <a href="https://github.com/progwise/george-ai/issues" target="_blank" rel="noopener noreferrer" class="link">
+              GitHub Issues
+            </a>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold">Enterprise Support:</span>
+            <a href="/contact" class="link">
+              Contact Us
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

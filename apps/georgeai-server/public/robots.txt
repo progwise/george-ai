@@ -1,0 +1,9 @@
+# George-AI GraphQL Server - Robots.txt
+
+# Disallow all crawling - this is a GraphQL API backend
+User-agent: *
+Disallow: /
+
+# Explanation:
+# This is a GraphQL API server with no user-facing content.
+# Search engines should not index API endpoints.

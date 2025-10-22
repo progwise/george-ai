@@ -4,13 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [unreleased]
+
+## [2025-10-22]
 
 ### Added
 
+- New dashboard at home page with overview of your workspace - see libraries, lists, conversations, and assistants at a glance
+- System status cards showing task queue progress and AI service health
+- Tabbed dashboard interface for quick access to all your items
+- Documentation link in settings dropdown - access setup guides and technical documentation
+- Library and conversation sorting - items now sorted by most recently updated first
 - Library file sorting - sort files by creation date or name (ascending/descending) in API and UI
 - n8n AI Agent workflow template - prototype RAG patterns with George AI tools before implementing in chat
 - Manual bulk import mode for Gmail n8n workflow - import up to 10 recent emails at once for testing
+
+### Changed
+
+- Login page now shows welcome screen for unauthenticated users
+- Marketing content moved to dedicated marketing website (george-ai.net)
+- Streamlined interface focused on core productivity features
 
 ### Fixed
 

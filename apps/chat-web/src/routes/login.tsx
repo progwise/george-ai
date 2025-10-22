@@ -1,11 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { useEffect } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../auth/auth'
-import { LoadingSpinner } from '../components/loading-spinner'
 import { useTranslation } from '../i18n/use-translation-hook'
+import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 
 const loginSearchSchema = z.object({
   redirect: z.string().optional(),
@@ -28,12 +27,30 @@ function RouteComponent() {
   const { login, isReady } = useAuth()
   const { t } = useTranslation()
 
-  // Automatically trigger login when the component mounts and auth is ready
-  useEffect(() => {
+  const handleLogin = () => {
     if (isReady) {
       login()
     }
-  }, [isReady, login])
+  }
 
-  return <LoadingSpinner isLoading={true} message={t('actions.signInToContinue')} />
+  return (
+    <div className="bg-base-100 flex min-h-screen items-start justify-center pt-32">
+      <div className="max-w-md space-y-8 p-8 text-center">
+        <div className="mx-auto flex flex-col items-center">
+          <BowlerLogoIcon className="size-32" gradientColors={['#1d4ed8', '#d946ef']} />
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-base-content text-5xl font-bold">George-AI</h1>
+        </div>
+        <button
+          type="button"
+          onClick={handleLogin}
+          disabled={!isReady}
+          className="btn btn-lg btn-wide from-primary to-secondary hover:from-primary-focus hover:to-secondary-focus border-0 bg-gradient-to-r text-white"
+        >
+          {t('welcome.signIn')}
+        </button>
+      </div>
+    </div>
+  )
 }

@@ -115,11 +115,11 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
             type="button"
             onClick={() => newLibraryDialogRef.current?.showModal()}
             className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('libraries.newList')}
-            data-tip={t('libraries.newList')}
+            title={t('libraries.addNewButton')}
+            data-tip={t('libraries.addNew')}
           >
             <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('labels.new')}</span>
+            <span className="max-lg:hidden">{t('libraries.addNewButton')}</span>
           </button>
         </li>
         <li>
@@ -128,11 +128,11 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
             className="btn btn-sm btn-ghost btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => deleteDialogRef.current?.showModal()}
             disabled={isPending}
-            title={t('libraries.delete')}
-            data-tip={t('libraries.delete')}
+            title={t('libraries.deleteLibraryButton')}
+            data-tip={t('libraries.deleteLibrary', { name: library.name })}
           >
             <TrashIcon className="size-4" />
-            <span className="max-lg:hidden">{t('labels.delete')}</span>
+            <span className="max-lg:hidden">{t('libraries.deleteLibraryButton')}</span>
           </button>
         </li>
         <li>

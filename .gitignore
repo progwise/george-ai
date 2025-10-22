@@ -22,6 +22,7 @@ venv
 .test-cache
 .home-node
 .temp
+.astro
 
 # Fine-tuning
 apps/fine-tuning/split_output

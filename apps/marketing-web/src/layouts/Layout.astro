@@ -1,0 +1,156 @@
+---
+import '../styles/global.css'
+import BowlerLogo from '../components/BowlerLogo.astro'
+import CloudIcon from '../components/CloudIcon.astro'
+import { cn } from '../utils/cn'
+import { getAppUrl } from '../utils/config'
+
+interface Props {
+  title: string
+  description?: string
+  ogImage?: string
+  ogType?: string
+}
+
+const {
+  title,
+  description = 'Self-hosted AI knowledge platform for your enterprise data',
+  ogImage = '/bowler-logo.svg',
+  ogType = 'website',
+} = Astro.props
+const currentPath = Astro.url.pathname
+const canonicalURL = new URL(currentPath, Astro.site).href
+const fullOgImageURL = new URL(ogImage, Astro.site).href
+const appUrl = getAppUrl()
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullOgImageURL} />
+    <meta property="og:site_name" content="George-AI" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullOgImageURL} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "George-AI",
+        "description": "Self-hosted AI knowledge platform for enterprise data. Leverage AI with your own data while maintaining full control and data sovereignty.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": ["Linux", "Windows", "macOS"],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "description": "Free self-hosted community edition"
+        },
+        "url": "https://george-ai.net",
+        "downloadUrl": "https://github.com/progwise/george-ai",
+        "installUrl": "https://github.com/progwise/george-ai#readme",
+        "codeRepository": "https://github.com/progwise/george-ai",
+        "license": "https://github.com/progwise/george-ai/blob/main/LICENSE",
+        "softwareHelp": "https://george-ai.net/docs",
+        "screenshot": "https://george-ai.net/bowler-logo.svg",
+        "featureList": [
+          "Multi-source data ingestion (Email, Web, SharePoint, SMB, Box.com)",
+          "AI-powered document processing and embeddings",
+          "Vector search with Typesense",
+          "Self-hosted deployment",
+          "Multi-tenant support",
+          "EU AI Act compliance features",
+          "GraphQL API",
+          "n8n workflow integration"
+        ],
+        "author": {
+          "@type": "Organization",
+          "name": "progwise",
+          "url": "https://github.com/progwise"
+        }
+      }
+    </script>
+  </head>
+  <body class="m-0 p-0 font-sans">
+    <div class="navbar bg-base-300">
+      <div class="navbar-start">
+        <a href="/" class={cn("btn btn-ghost")}>
+          <BowlerLogo class={cn("size-10", currentPath === '/' && 'text-primary')} />
+        </a>
+      </div>
+      <div class="navbar-center hidden md:flex">
+        <ul class="menu menu-horizontal px-1">
+          <li class={cn(currentPath === '/features' && 'active')}><a href="/features">Features</a></li>
+          <li class={cn(currentPath === '/use-cases' && 'active')}><a href="/use-cases">Use Cases</a></li>
+          <li class={cn(currentPath === '/docs' && 'active')}><a href="/docs">Documentation</a></li>
+          <li class={cn(currentPath === '/pricing' && 'active')}><a href="/pricing">Pricing</a></li>
+          <li class={cn(currentPath === '/contact' && 'active')}><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="navbar-end">
+        {/* Mobile hamburger menu */}
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost md:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+            <li><a href="/features">Features</a></li>
+            <li><a href="/use-cases">Use Cases</a></li>
+            <li><a href="/docs">Documentation</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+        {/* Desktop George-Cloud button */}
+        <a href={`${appUrl}/login`} class="btn btn-outline hidden md:flex">
+          <CloudIcon class="size-5" />
+          George-Cloud
+        </a>
+      </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-8 py-8 min-h-[calc(100vh-200px)]">
+      <slot />
+    </main>
+
+    {/* Mobile bottom navigation - George-Cloud button */}
+    <div class="md:hidden">
+      <div class="fixed bottom-0 left-0 right-0 bg-base-300 border-t border-base-content/10 p-4 z-40">
+        <a href={`${appUrl}/login`} class="btn btn-primary btn-block">
+          <CloudIcon class="size-5" />
+          George-Cloud
+        </a>
+      </div>
+      {/* Spacer to prevent content overlap */}
+      <div class="h-20" />
+    </div>
+
+    <footer class="footer footer-center bg-base-200 p-8 text-base-content mt-16">
+      <aside>
+        <p>&copy; {new Date().getFullYear()} George-AI. All rights reserved.</p>
+      </aside>
+    </footer>
+  </body>
+</html>

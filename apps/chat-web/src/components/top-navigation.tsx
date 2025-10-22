@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
-import BowlerLogoIcon from '../icons/bowler-logo-icon'
+import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ScrollObserver } from './scroll-observer'
 import { SettingsDropdown } from './settings-dropdown'

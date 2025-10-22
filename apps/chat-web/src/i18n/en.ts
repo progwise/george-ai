@@ -196,8 +196,37 @@ export default {
     setLLM: 'Language model not set on assistant',
     tokenLimitExceeded: 'Token limit exceeded',
   },
+  dashboard: {
+    title: 'Overview',
+    subtitle: 'Your workspace and system status',
+    tabs: {
+      libraries: 'Libraries',
+      lists: 'Lists',
+      conversations: 'Conversations',
+      assistants: 'Assistants',
+    },
+    emptyStates: {
+      noLibraries: 'No libraries yet',
+      noLists: 'No lists yet',
+      noConversations: 'No conversations yet',
+      noAssistants: 'No assistants yet',
+    },
+    status: {
+      online: 'Online',
+      offline: 'Offline',
+      owned: 'Owned',
+      shared: 'Shared',
+    },
+    labels: {
+      files: '{count} files',
+      models: '{count} models',
+      processing: 'proc.',
+      failed: 'failed',
+      conversationWith: 'Conversation with {name}',
+    },
+  },
   crawlers: {
-    addNew: 'Create new crawler',
+    addNew: 'Add new crawler',
     crawlSettings: 'Crawl Settings',
     credentialsDialogTitle: 'Credentials',
     credentialsBoxCustomerId: 'Box Customer ID',
@@ -359,6 +388,10 @@ export default {
     altImage: 'George AI',
     btnText: 'Start Training Your AI',
   },
+  welcome: {
+    message: 'Welcome to George-AI',
+    signIn: 'Sign In',
+  },
   invitations: {
     alreadyParticipant: 'You are already a participant in this conversation.',
     confirmDescription: 'Please confirm the conversation invitation. You can leave the conversation anytime.',
@@ -483,6 +516,7 @@ export default {
     addParticipantsConfirmation: 'You can add participants to this library.',
     addSingleFile: 'Add 1 File',
     deleteError: 'Error deleting library: {message}',
+    deleteLibraryButton: 'Delete library',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s). This cannot be undone.',
     deleteSuccess: 'Library {name} deleted successfully',
@@ -723,6 +757,7 @@ export default {
     theme: 'Theme',
     language: 'Language',
     changelog: 'Changelog',
+    documentation: 'Documentation',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
