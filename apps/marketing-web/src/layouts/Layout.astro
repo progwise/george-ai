@@ -101,7 +101,7 @@ const appUrl = getAppUrl()
       <div class="navbar-center hidden md:flex">
         <ul class="menu menu-horizontal px-1">
           <li class={cn(currentPath === '/use-cases' && 'active')}><a href="/use-cases">Use Cases</a></li>
-          <li class={cn(currentPath === '/docs' && 'active')}><a href="/docs">Documentation</a></li>
+          <li class={cn(currentPath.startsWith('/docs') && 'active')}><a href="/docs">Documentation</a></li>
           <li class={cn(currentPath === '/pricing' && 'active')}><a href="/pricing">Pricing</a></li>
           <li class={cn(currentPath === '/contact' && 'active')}><a href="/contact">Contact</a></li>
         </ul>

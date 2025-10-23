@@ -1,0 +1,941 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="GraphQL API - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>GraphQL API</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-linear-to-br from-primary/10 to-primary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">GraphQL API</h1>
+          <p class="text-xl">
+            Programmatic access to George AI for building integrations, automation tools, and custom applications
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          George AI provides a comprehensive GraphQL API that allows you to programmatically interact with all platform features. This is ideal for building custom integrations, automation workflows (like n8n), or external applications.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+              </svg>
+              Secure Access
+            </h3>
+            <p class="text-sm">Multiple authentication methods including API keys, JWT tokens, and library-scoped Bearer tokens</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+              </svg>
+              Type-Safe Schema
+            </h3>
+            <p class="text-sm">Strongly-typed GraphQL schema with introspection support for code generation and IDE autocomplete</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3" />
+              </svg>
+              Comprehensive API
+            </h3>
+            <p class="text-sm">Access to all platform features: conversations, libraries, files, crawlers, processing, and more</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+              </svg>
+              Automation Ready
+            </h3>
+            <p class="text-sm">Perfect for n8n workflows, Zapier integrations, custom dashboards, and automated data pipelines</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- API Endpoint -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">API Endpoint</h2>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <div class="mockup-code">
+            <pre data-prefix="Endpoint:"><code>POST http://localhost:3003/graphql</code></pre>
+            <pre data-prefix="Content-Type:"><code>application/json</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="text-sm">Replace <code>localhost:3003</code> with your George AI server URL in production environments.</span>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Authentication -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Authentication</h2>
+
+      <p class="mb-6">George AI supports multiple authentication methods for different use cases:</p>
+
+      <div class="space-y-6">
+        <!-- Global API Key -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">1. Global API Key (Recommended for Automation)</h3>
+            <p class="text-sm mb-4">Full access to all resources. Best for server-to-server integrations, automation tools, and administrative operations.</p>
+
+            <div class="tabs tabs-boxed mb-4">
+              <a class="tab tab-active">x-api-key Header</a>
+              <a class="tab">Authorization Header</a>
+            </div>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix="Method 1:"><code>x-api-key: your-api-key-here</code></pre>
+              <pre data-prefix=" "><code></code></pre>
+              <pre data-prefix="Method 2:"><code>Authorization: ApiKey your-api-key-here</code></pre>
+            </div>
+
+            <div class="collapse collapse-arrow bg-base-200 mt-4">
+              <input type="checkbox" />
+              <div class="collapse-title text-sm font-medium">
+                How to get your Global API Key
+              </div>
+              <div class="collapse-content text-xs">
+                <p class="mb-2">The Global API Key is configured via environment variable on the server:</p>
+                <div class="mockup-code">
+                  <pre data-prefix="$"><code>GRAPHQL_API_KEY=your-secret-key-here</code></pre>
+                </div>
+                <p class="mt-2">Set this in your <code>.env</code> file or environment configuration. Default example value is <code>TestKey</code> (change this in production!).</p>
+              </div>
+            </div>
+
+            <div class="badge badge-primary badge-outline mt-4">Full Access</div>
+            <div class="badge badge-secondary badge-outline mt-4">Server-to-Server</div>
+          </div>
+        </div>
+
+        <!-- Library API Key -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">2. Library API Key (Scoped Access)</h3>
+            <p class="text-sm mb-4">Scoped access to a specific library and its resources. Ideal for third-party integrations with limited permissions.</p>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix="Header:"><code>Authorization: Bearer library-specific-token-here</code></pre>
+            </div>
+
+            <div class="collapse collapse-arrow bg-base-200 mt-4">
+              <input type="checkbox" />
+              <div class="collapse-title text-sm font-medium">
+                How to generate a Library API Key
+              </div>
+              <div class="collapse-content text-xs">
+                <p class="mb-2">Use the GraphQL mutation to create a library-scoped API key:</p>
+                <div class="mockup-code">
+                  <pre is:raw><code>mutation {
+  generateApiKey(
+    libraryId: "library-id-here"
+    name: "n8n Integration"
+  ) {
+    id
+    name
+    apiKey
+    createdAt
+  }
+}</code></pre>
+                </div>
+                <p class="mt-2">The <code>apiKey</code> field contains your Bearer token. Store it securely - it won't be shown again!</p>
+              </div>
+            </div>
+
+            <div class="badge badge-accent badge-outline mt-4">Scoped Access</div>
+            <div class="badge badge-secondary badge-outline mt-4">Third-Party Integrations</div>
+          </div>
+        </div>
+
+        <!-- User JWT Token -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">3. User JWT Token (User Context)</h3>
+            <p class="text-sm mb-4">User-specific access based on Keycloak authentication. Used by the George AI web application.</p>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix="Header:"><code>x-user-jwt: user-jwt-token-from-keycloak</code></pre>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <span class="text-xs">This method requires Keycloak integration and is primarily used by the frontend application.</span>
+            </div>
+
+            <div class="badge badge-info badge-outline mt-4">User Context</div>
+            <div class="badge badge-secondary badge-outline mt-4">Web Application</div>
+          </div>
+        </div>
+
+        <!-- Dev User Header -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">4. Dev User Header (Development Only)</h3>
+            <p class="text-sm mb-4">Bypass authentication in development environments for testing purposes.</p>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix="Header:"><code>x-dev-user: test-user-id</code></pre>
+            </div>
+
+            <div class="alert alert-error mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span class="text-xs font-bold">Only works when NODE_ENV is NOT production. Never use this in production!</span>
+            </div>
+
+            <div class="badge badge-warning badge-outline mt-4">Development Only</div>
+            <div class="badge badge-secondary badge-outline mt-4">Testing</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Making Requests -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Making Requests</h2>
+
+      <div class="space-y-8">
+        <!-- cURL Example -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Using cURL</h3>
+          <div class="mockup-code text-xs">
+            <pre data-prefix="$" is:raw><code>curl -X POST http://localhost:3003/graphql \</code></pre>
+            <pre data-prefix=" " is:raw><code>  -H "Content-Type: application/json" \</code></pre>
+            <pre data-prefix=" " is:raw><code>  -H "x-api-key: your-api-key-here" \</code></pre>
+            <pre data-prefix=" " is:raw><code>  -d '{
+    "query": "query { aiServiceStatus { status } }"
+  }'</code></pre>
+          </div>
+        </div>
+
+        <!-- JavaScript Example -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Using JavaScript / Node.js</h3>
+          <div class="mockup-code text-xs">
+            <pre is:raw><code>const response = await fetch('http://localhost:3003/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': 'your-api-key-here',
+  },
+  body: JSON.stringify({
+    query: `
+      query {
+        aiLibraries {
+          id
+          name
+          description
+        }
+      }
+    `,
+  })
+})</code></pre>
+            <pre is:raw><code>const data = await response.json()</code></pre>
+            <pre is:raw><code>console.log(data.data.aiLibraries)</code></pre>
+          </div>
+        </div>
+
+        <!-- Python Example -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Using Python</h3>
+          <div class="mockup-code text-xs">
+            <pre is:raw><code>import requests</code></pre>
+            <pre is:raw><code></code></pre>
+            <pre is:raw><code>url = "http://localhost:3003/graphql"</code></pre>
+            <pre is:raw><code>headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "your-api-key-here"
+}</code></pre>
+            <pre is:raw><code></code></pre>
+            <pre is:raw><code>query = """
+query {
+  aiLibraries {
+    id
+    name
+    description
+  }
+}
+"""</code></pre>
+            <pre is:raw><code></code></pre>
+            <pre is:raw><code>response = requests.post(
+    url,
+    json={ "query": query },
+    headers=headers
+)</code></pre>
+            <pre is:raw><code></code></pre>
+            <pre is:raw><code>data = response.json()
+print(data["data"]["aiLibraries"])</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Schema Introspection -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Schema Introspection</h2>
+
+      <p class="mb-6">Explore the GraphQL schema to discover all available queries, mutations, and types:</p>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+            </svg>
+            Interactive GraphQL Yoga UI
+          </h3>
+          <p class="text-sm mb-4">George AI uses <strong>GraphQL Yoga</strong>, which provides a modern, interactive GraphiQL interface built right into the server.</p>
+
+          <div class="mockup-browser bg-base-300 border mt-4">
+            <div class="mockup-browser-toolbar">
+              <div class="input">http://localhost:3003/graphql</div>
+            </div>
+            <div class="bg-base-200 flex justify-center px-4 py-8">
+              <div class="text-center">
+                <p class="text-sm">Open this URL in your browser to access the interactive GraphQL IDE</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <h4 class="font-bold text-sm mb-3">Features of the Yoga GraphiQL UI:</h4>
+            <ul class="text-xs space-y-2">
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>Auto-completion:</strong> IntelliSense for queries, mutations, and types</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>Documentation Explorer:</strong> Browse the complete schema with inline docs</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>Query History:</strong> Access previously executed queries</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>Variables Panel:</strong> Test queries with different input variables</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>Headers Configuration:</strong> Set authentication headers for testing</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="alert alert-info mt-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="text-xs">
+              <p class="font-bold">Authentication Required:</p>
+              <p>Click on "Headers" in the Yoga UI and add your authentication header:</p>
+              <div class="mockup-code mt-2 text-xs">
+                <pre is:raw><code>{
+  "x-api-key": "your-api-key-here"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title text-base">Download Schema as SDL</h3>
+          <p class="text-sm mb-4">The complete GraphQL schema is available as a file in the codebase:</p>
+
+          <div class="mockup-code text-xs">
+            <pre data-prefix="Path:"><code>apps/chat-web/src/gql/schema.graphql</code></pre>
+          </div>
+
+          <p class="text-sm mt-4">This file is auto-generated by the codegen process and contains all types, queries, mutations, inputs, and enums.</p>
+        </div>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-100 shadow-lg mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">
+          Introspection Query Example
+        </div>
+        <div class="collapse-content">
+          <p class="text-sm mb-4">Use this query to fetch the entire schema programmatically:</p>
+          <div class="mockup-code text-xs">
+            <pre is:raw><code>query IntrospectionQuery {
+  __schema {
+    queryType { name }
+    mutationType { name }
+    types {
+      name
+      kind
+      description
+      fields {
+        name
+        description
+        type {
+          name
+          kind
+        }
+      }
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Common Operations -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Operations</h2>
+
+      <div class="space-y-6">
+        <!-- List Libraries -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">List All Libraries</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>query {
+  aiLibraries {
+    id
+    name
+    description
+    filesCount
+    createdAt
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Get Library Details -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Get Library Details</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>query {
+  aiLibrary(libraryId: "library-id") {
+    id
+    name
+    description
+    filesCount
+    crawlers {
+      id
+      name
+      type
+      status
+    }
+    files(take: 10, skip: 0) {
+      items {
+        id
+        title
+        originUri
+        processingStatus
+      }
+      total
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Library -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Create a New Library</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>mutation {
+  createLibrary(data: {
+    name: "My Knowledge Base"
+    description: "Company documentation"
+  }) {
+    id
+    name
+    description
+    createdAt
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Crawler -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Run a Crawler</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>mutation {
+  runAiLibraryCrawler(crawlerId: "crawler-id")
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Query Processing Status -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Check Processing Queue Status</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>query {
+  queueSystemStatus {
+    totalPendingTasks
+    totalProcessingTasks
+    totalFailedTasks
+    allWorkersRunning
+    queues {
+      queueType
+      pendingTasks
+      processingTasks
+      failedTasks
+      isRunning
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Send Message -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Send Message to AI Assistant</h3>
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>mutation {
+  sendMessage(data: {
+    conversationId: "conversation-id"
+    content: "What is our refund policy?"
+  }) {
+    id
+    content
+    role
+    createdAt
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-success mt-8">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="text-xs">
+          <p class="font-bold">Tip: Use Schema Introspection</p>
+          <p>These are just examples. Explore the full schema at <code>apps/chat-web/src/gql/schema.graphql</code> to discover all available operations.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Using with n8n -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Integration with n8n</h2>
+
+      <p class="mb-6">George AI's GraphQL API is perfect for building n8n workflows. Here's how to use it:</p>
+
+      <div class="space-y-6">
+        <!-- Step 1 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">1</div>
+              <div class="flex-1">
+                <h3 class="text-lg font-bold mb-2">Add HTTP Request Node</h3>
+                <p class="text-sm mb-3">In your n8n workflow, add an HTTP Request node</p>
+
+                <div class="overflow-x-auto">
+                  <table class="table table-sm text-xs">
+                    <tbody>
+                      <tr>
+                        <td class="font-bold">Method</td>
+                        <td>POST</td>
+                      </tr>
+                      <tr>
+                        <td class="font-bold">URL</td>
+                        <td>http://localhost:3003/graphql</td>
+                      </tr>
+                      <tr>
+                        <td class="font-bold">Body Content Type</td>
+                        <td>JSON</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">2</div>
+              <div class="flex-1">
+                <h3 class="text-lg font-bold mb-2">Configure Authentication</h3>
+                <p class="text-sm mb-3">Add authentication header in the "Headers" section</p>
+
+                <div class="mockup-code text-xs">
+                  <pre data-prefix="Name:"><code>x-api-key</code></pre>
+                  <pre data-prefix="Value:"><code>your-api-key-here</code></pre>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span class="text-xs">For library-scoped access, use <code>Authorization</code> header with <code>Bearer &lcub;token&rcub;</code> instead.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">3</div>
+              <div class="flex-1">
+                <h3 class="text-lg font-bold mb-2">Set Request Body</h3>
+                <p class="text-sm mb-3">Configure the JSON body with your GraphQL query or mutation</p>
+
+                <div class="mockup-code text-xs">
+                  <pre is:raw><code>{
+  "query": "query { aiLibraries { id name } }"
+}</code></pre>
+                </div>
+
+                <p class="text-sm mt-4">For mutations with variables:</p>
+
+                <div class="mockup-code text-xs">
+                  <pre is:raw><code>{
+  "query": "mutation($name: String!) { createLibrary(data: { name: $name }) { id name } }",
+  "variables": {
+    "name": "My Library"
+  }
+}</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">4</div>
+              <div class="flex-1">
+                <h3 class="text-lg font-bold mb-2">Process Response</h3>
+                <p class="text-sm mb-3">Access the response data in subsequent nodes</p>
+
+                <div class="mockup-code text-xs">
+                  <pre data-prefix="Success:" is:raw><code>{{$json.data.aiLibraries}}</code></pre>
+                  <pre data-prefix="Error:" is:raw><code>{{$json.errors}}</code></pre>
+                </div>
+
+                <p class="text-sm mt-4">GraphQL responses always return a <code>data</code> field for successful queries and an <code>errors</code> array for any errors.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-200 mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title text-base font-medium">
+          Example n8n Workflow: Monitor Processing Queue
+        </div>
+        <div class="collapse-content text-xs">
+          <p class="mb-4">This workflow checks the processing queue every 5 minutes and sends a notification if there are failed tasks:</p>
+
+          <ol class="list-decimal list-inside space-y-2">
+            <li><strong>Cron Node:</strong> Trigger every 5 minutes</li>
+            <li><strong>HTTP Request Node:</strong> Query queue status using GraphQL</li>
+            <li><strong>IF Node:</strong> Check if <code>totalFailedTasks &gt; 0</code></li>
+            <li><strong>Email Node:</strong> Send alert notification</li>
+          </ol>
+
+          <div class="mockup-code mt-4">
+            <pre is:raw><code>// HTTP Request Body
+{
+  "query": "query { queueSystemStatus { totalFailedTasks queues { queueType failedTasks } } }"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Error Handling -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Error Handling</h2>
+
+      <div class="space-y-6">
+        <!-- GraphQL Errors -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">GraphQL Errors</h3>
+            <p class="text-sm mb-3">When a GraphQL query has errors, the response includes an <code>errors</code> array:</p>
+
+            <div class="mockup-code text-xs">
+              <pre is:raw><code>{
+  "errors": [
+    {
+      "message": "Library not found",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["aiLibrary"]
+    }
+  ],
+  "data": {
+    "aiLibrary": null
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authentication Errors -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Authentication Errors</h3>
+            <p class="text-sm mb-3">When authentication fails, the server returns a 401 status:</p>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix="HTTP/1.1"><code>401 Unauthorized</code></pre>
+              <pre data-prefix="Body:"><code>Unauthorized</code></pre>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <span class="text-xs">Always verify your API key is correct and that you're using the right authentication header format.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network Errors -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-lg font-bold mb-2">Network Errors</h3>
+            <p class="text-sm mb-3">Connection issues will result in HTTP-level errors:</p>
+
+            <ul class="text-xs space-y-2">
+              <li><strong>ECONNREFUSED:</strong> Server is not running or wrong port</li>
+              <li><strong>ETIMEDOUT:</strong> Request timed out (check firewall/network)</li>
+              <li><strong>500 Internal Server Error:</strong> Server-side issue (check logs)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-200 mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title text-base font-medium">
+          Best Practices for Error Handling
+        </div>
+        <div class="collapse-content text-xs">
+          <ul class="list-disc list-inside space-y-2">
+            <li>Always check for the <code>errors</code> field in GraphQL responses</li>
+            <li>Implement retry logic for network errors</li>
+            <li>Log authentication failures for security monitoring</li>
+            <li>Handle partial data scenarios (when <code>data</code> and <code>errors</code> both exist)</li>
+            <li>Use appropriate timeouts for long-running operations</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+              Security
+            </h3>
+            <ul class="text-xs space-y-1">
+              <li>• Never commit API keys to version control</li>
+              <li>• Use library-scoped keys for third-party integrations</li>
+              <li>• Rotate keys regularly</li>
+              <li>• Use environment variables for credentials</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+              Performance
+            </h3>
+            <ul class="text-xs space-y-1">
+              <li>• Request only the fields you need</li>
+              <li>• Use pagination for large datasets</li>
+              <li>• Implement caching where appropriate</li>
+              <li>• Batch related operations when possible</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+              </svg>
+              Code Quality
+            </h3>
+            <ul class="text-xs space-y-1">
+              <li>• Use GraphQL code generators for type safety</li>
+              <li>• Define fragments for reusable field sets</li>
+              <li>• Validate queries during development</li>
+              <li>• Keep queries focused and single-purpose</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+              Error Handling
+            </h3>
+            <ul class="text-xs space-y-1">
+              <li>• Always check for errors in responses</li>
+              <li>• Implement proper logging and monitoring</li>
+              <li>• Handle partial failures gracefully</li>
+              <li>• Provide meaningful error messages</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Next Steps</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <a href="/docs/libraries" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+              Libraries Documentation
+            </h3>
+            <p class="text-sm">Learn about organizing and managing your document libraries via API</p>
+          </div>
+        </a>
+
+        <a href="/docs/crawlers" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              Crawler Configuration
+            </h3>
+            <p class="text-sm">Automate document collection from SharePoint, SMB, HTTP sources, and more</p>
+          </div>
+        </a>
+
+        <a href="/docs/processing" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+              Processing Pipeline
+            </h3>
+            <p class="text-sm">Understand how documents are extracted and embedded for AI search</p>
+          </div>
+        </a>
+
+        <a href="/docs/conversations" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+              </svg>
+              Conversations & Assistants
+            </h3>
+            <p class="text-sm">Build conversational AI experiences with custom assistants</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</Layout>

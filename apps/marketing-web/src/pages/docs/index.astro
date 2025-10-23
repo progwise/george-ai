@@ -1,0 +1,192 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Documentation - George-AI" description="User documentation for George-AI knowledge management platform">
+  <!-- Header -->
+  <div class="mb-12 text-center">
+    <h1 class="text-5xl font-bold mb-4">Documentation</h1>
+    <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+      Learn how to organize, enrich, and search your enterprise data with George AI
+    </p>
+  </div>
+
+  <!-- Core Concepts -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-8">Core Concepts</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Libraries -->
+      <a href="/docs/libraries" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-primary mb-2">Start Here</div>
+          <h3 class="card-title">Libraries</h3>
+          <p class="text-sm">Organize your data into logical collections with access control and permissions</p>
+        </div>
+      </a>
+
+      <!-- Crawlers -->
+      <a href="/docs/crawlers" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Crawlers</h3>
+          <p class="text-sm">Automatically collect data from SharePoint, file shares, emails, and more</p>
+        </div>
+      </a>
+
+      <!-- Files -->
+      <a href="/docs/files" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Files</h3>
+          <p class="text-sm">Manage documents, track changes, and understand file lifecycle</p>
+        </div>
+      </a>
+
+      <!-- Processing -->
+      <a href="/docs/processing" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Processing</h3>
+          <p class="text-sm">How documents are converted, analyzed, and prepared for search</p>
+        </div>
+      </a>
+
+      <!-- Embeddings -->
+      <a href="/docs/embeddings" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Embeddings</h3>
+          <p class="text-sm">Enable AI-powered semantic search with vector embeddings</p>
+        </div>
+      </a>
+
+      <!-- Lists -->
+      <a href="/docs/lists" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Lists</h3>
+          <p class="text-sm">Create custom views and organize files by business case or project</p>
+        </div>
+      </a>
+
+      <!-- Enrichments -->
+      <a href="/docs/enrichments" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-success mb-2">No-Code</div>
+          <h3 class="card-title">Enrichments</h3>
+          <p class="text-sm">Extract custom data from documents without writing code</p>
+        </div>
+      </a>
+
+      <!-- Assistants -->
+      <a href="/docs/assistants" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Assistants</h3>
+          <p class="text-sm">Create AI assistants to answer questions about your data</p>
+        </div>
+      </a>
+
+      <!-- Conversations -->
+      <a href="/docs/conversations" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Conversations</h3>
+          <p class="text-sm">Interact with AI assistants and get insights from your knowledge base</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- APIs & Integration -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-8">APIs & Integration</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <!-- GraphQL API -->
+      <a href="/docs/graphql-api" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">GraphQL API</h3>
+          <p class="text-sm">Query and manipulate data programmatically with our GraphQL API</p>
+          <div class="badge badge-info mt-2">For Developers</div>
+        </div>
+      </a>
+
+      <!-- Upload API -->
+      <a href="/docs/upload-api" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Upload API</h3>
+          <p class="text-sm">Upload files and trigger processing via REST API</p>
+          <div class="badge badge-info mt-2">For Developers</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Administration -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-8">Administration</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Users -->
+      <a href="/docs/admin/users" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">User Management</h3>
+          <p class="text-sm">Manage users, roles, and permissions</p>
+        </div>
+      </a>
+
+      <!-- Processing Queue -->
+      <a href="/docs/admin/processing-queue" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Processing Queue</h3>
+          <p class="text-sm">Monitor and manage document processing jobs</p>
+        </div>
+      </a>
+
+      <!-- Enrichment Queue -->
+      <a href="/docs/admin/enrichment-queue" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">Enrichment Queue</h3>
+          <p class="text-sm">Track enrichment processing and troubleshoot issues</p>
+        </div>
+      </a>
+
+      <!-- AI Services -->
+      <a href="/docs/admin/ai-services" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-warning mb-2">Advanced</div>
+          <h3 class="card-title">AI Service Clustering</h3>
+          <p class="text-sm">Configure Ollama servers and load balancing</p>
+        </div>
+      </a>
+
+      <!-- N8N Integration -->
+      <a href="/docs/admin/n8n-integration" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <h3 class="card-title">n8n Integration</h3>
+          <p class="text-sm">Build workflows with George AI GraphQL API</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Getting Help -->
+  <div class="card bg-primary text-primary-content shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title text-3xl mb-4">Need Help?</h2>
+      <p class="mb-4">
+        Can't find what you're looking for? We're here to help!
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="https://github.com/progwise/george-ai/discussions" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          Community Discussions
+        </a>
+        <a href="https://github.com/progwise/george-ai/issues" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+          Report an Issue
+        </a>
+        <a href="/contact" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+          Enterprise Support
+        </a>
+      </div>
+    </div>
+  </div>
+
+</Layout>

@@ -1,0 +1,418 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Libraries - George-AI Documentation">
+  <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="breadcrumbs text-sm mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Libraries</li>
+      </ul>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="hero bg-base-200 rounded-lg mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-primary badge-lg mb-4">Core Concept</div>
+          <h1 class="text-5xl font-bold mb-4">Libraries</h1>
+          <p class="text-xl">
+            Organize your data into isolated collections with independent processing settings and access control
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- What are Libraries -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">What are Libraries?</h2>
+      <div class="text-lg space-y-4">
+        <p>
+          A Library in George AI is an isolated workspace that contains files, crawlers, and processing configurations. Each Library has its own:
+        </p>
+        <ul class="list-disc list-inside space-y-2">
+          <li>Files and documents (from crawlers or manual uploads)</li>
+          <li>Embedding model configuration for AI-powered search</li>
+          <li>File processing settings (text extraction, OCR)</li>
+          <li>Access control (owner and participants)</li>
+          <li>API keys for programmatic access</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Creating a Library -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Creating a Library</h2>
+
+      <ul class="steps steps-vertical lg:steps-horizontal w-full mb-8">
+        <li class="step step-primary">Navigate to Libraries</li>
+        <li class="step step-primary">Create New Library</li>
+        <li class="step step-primary">Configure Settings</li>
+        <li class="step step-primary">Add Crawlers or Upload Files</li>
+      </ul>
+
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Minimal Setup Required</h3>
+          <p class="text-sm">You only need to provide a Library name to get started. All other settings have sensible defaults and can be configured later.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Library Settings -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Library Settings</h2>
+
+      <div class="join join-vertical w-full">
+
+        <!-- Basic Information -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="library-settings" checked />
+          <div class="collapse-title text-xl font-medium">
+            Basic Information
+          </div>
+          <div class="collapse-content">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="w-1/4">Name</th>
+                    <td>
+                      <div class="badge badge-error">Required</div>
+                      <p class="mt-2">A descriptive name for your Library (e.g., "Pharmaceutical Packaging", "Customer Support Emails")</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Description</th>
+                    <td>
+                      <div class="badge badge-ghost">Optional</div>
+                      <p class="mt-2">Detailed description of what this Library contains and its purpose</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Processing Options -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="library-settings" />
+          <div class="collapse-title text-xl font-medium">
+            Library Processing Options
+          </div>
+          <div class="collapse-content">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="w-1/4">Embedding Model</th>
+                    <td>
+                      <div class="badge badge-info">AI Feature</div>
+                      <p class="mt-2">Which AI model to use for creating vector embeddings of your documents. This enables semantic search.</p>
+                      <p class="text-sm text-base-content/70 mt-1">Available models depend on your AI service configuration</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Embedding Timeout</th>
+                    <td>
+                      <div class="badge badge-ghost">Default: 180000ms (3 min)</div>
+                      <p class="mt-2">Maximum time to wait for embedding generation per document before timing out</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Auto-process Hash-skipped Files</th>
+                    <td>
+                      <div class="badge badge-warning">Advanced</div>
+                      <p class="mt-2">Automatically create processing tasks for files that were skipped during crawling because their content hash hasn't changed</p>
+                      <div class="text-sm text-base-content/70 mt-2 space-y-1">
+                        <p><strong>When enabled:</strong> Files with unchanged content will still be reprocessed if they have no successful or pending processing task</p>
+                        <p><strong>Note:</strong> Uploaded files and new/updated crawled files always get processed automatically regardless of this setting</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Converter Options -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="library-settings" />
+          <div class="collapse-title text-xl font-medium">
+            File Processing Options
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-6">
+              <div class="alert alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <h3 class="font-bold">Per-Library Configuration</h3>
+                  <p class="text-sm">Each Library can have different processing settings. For example, one Library might use OCR for scanned documents while another uses only text extraction.</p>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Option</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>Enable Text Extraction</th>
+                      <td>
+                        <p>Extract text directly from PDFs and documents that contain selectable text</p>
+                        <p class="text-sm text-base-content/70 mt-1">Fast and accurate for digital documents</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Enable Image OCR Processing</th>
+                      <td>
+                        <p>Use AI vision models to extract text from images and scanned documents</p>
+                        <p class="text-sm text-base-content/70 mt-1">Enables processing of screenshots, photos, and scanned PDFs</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- OCR Settings -->
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h3 class="card-title">OCR Settings <div class="badge badge-info ml-2">When Image OCR is enabled</div></h3>
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                      <tbody>
+                        <tr>
+                          <th class="w-1/3">OCR Prompt</th>
+                          <td>
+                            <p class="text-sm">Instructions for the AI vision model on how to extract content from images</p>
+                            <div class="mockup-code mt-2 text-xs">
+                              <pre><code>Default: "Please give me the content of this image as</code></pre>
+                              <pre><code>markdown structured as follows:</code></pre>
+                              <pre><code>Short summary what you see in the image</code></pre>
+                              <pre><code>List all visual blocks with a headline and its content</code></pre>
+                              <pre><code>Return plain and well structured Markdown."</code></pre>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>OCR Model</th>
+                          <td>
+                            <p class="text-sm">AI vision model to use for OCR</p>
+                            <p class="text-xs text-base-content/70 mt-1">Default: <code>qwen2.5vl:latest</code></p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>OCR Timeout</th>
+                          <td>
+                            <p class="text-sm">Maximum time in seconds to wait for OCR processing per image</p>
+                            <p class="text-xs text-base-content/70 mt-1">Default: 120 seconds</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>OCR Image Scale</th>
+                          <td>
+                            <p class="text-sm">Scale factor for images before OCR processing (higher = more detail, slower)</p>
+                            <p class="text-xs text-base-content/70 mt-1">Default: 1.5</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Max Consecutive Repeats</th>
+                          <td>
+                            <p class="text-sm">Stop OCR if the same line repeats this many times (prevents hallucination)</p>
+                            <p class="text-xs text-base-content/70 mt-1">Default: 5</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Access Control -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="library-settings" />
+          <div class="collapse-title text-xl font-medium">
+            Access Control
+          </div>
+          <div class="collapse-content">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="w-1/4">Owner</th>
+                    <td>
+                      <p>The user who created the Library. Owners have full control over Library settings and can delete it.</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Participants</th>
+                    <td>
+                      <p>Users who have access to view and use files in this Library</p>
+                      <p class="text-sm text-base-content/70 mt-1">Participants can search files, use assistants, but cannot modify Library settings</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Access -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="library-settings" />
+          <div class="collapse-title text-xl font-medium">
+            API Keys <div class="badge badge-info ml-2">For Developers</div>
+          </div>
+          <div class="collapse-content">
+            <p class="mb-4">Generate API keys to access this Library programmatically via GraphQL or REST APIs</p>
+            <div class="alert alert-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <div>
+                <h3 class="font-bold">Keep API Keys Secret</h3>
+                <p class="text-sm">API keys provide full access to this Library. Store them securely and never commit them to version control.</p>
+              </div>
+            </div>
+            <p class="text-sm text-base-content/70 mt-4">Use API keys in n8n workflows, custom scripts, or integrations to upload files, trigger processing, or query data.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Real-World Examples -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Real-World Library Configurations</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Example 1: Pharmaceutical -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Pharmaceutical Packaging PDFs</h3>
+            <div class="space-y-2 text-sm">
+              <p><strong>Files:</strong> 30,000+ packaging specification PDFs</p>
+              <p><strong>Text Extraction:</strong> ✓ Enabled</p>
+              <p><strong>Image OCR:</strong> ✓ Enabled (for diagrams and technical drawings)</p>
+              <p><strong>Embedding Model:</strong> nomic-embed-text</p>
+              <p><strong>Why:</strong> PDFs contain mix of text and visual specifications that need both extraction methods</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Example 2: Email -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Email Project Tracking</h3>
+            <div class="space-y-2 text-sm">
+              <p><strong>Files:</strong> Emails from shared mailboxes</p>
+              <p><strong>Text Extraction:</strong> ✓ Enabled</p>
+              <p><strong>Image OCR:</strong> ✗ Disabled (plain text emails)</p>
+              <p><strong>Auto-process Hash-skipped:</strong> ✓ Enabled (re-analyze if metadata missing)</p>
+              <p><strong>Why:</strong> Emails are text-only, no need for OCR. Auto-processing ensures enrichment runs.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Example 3: Scanned Documents -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Historical Scanned Documents</h3>
+            <div class="space-y-2 text-sm">
+              <p><strong>Files:</strong> Scanned archives (images only)</p>
+              <p><strong>Text Extraction:</strong> ✗ Disabled (no selectable text)</p>
+              <p><strong>Image OCR:</strong> ✓ Enabled</p>
+              <p><strong>OCR Timeout:</strong> 180s (complex documents)</p>
+              <p><strong>Why:</strong> Old scanned documents require only OCR, no need for text extraction</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Example 4: Web Crawler -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Hospital Intranet Knowledge Base</h3>
+            <div class="space-y-2 text-sm">
+              <p><strong>Files:</strong> Crawled HTML pages from intranet</p>
+              <p><strong>Text Extraction:</strong> ✓ Enabled</p>
+              <p><strong>Image OCR:</strong> ✓ Enabled (for embedded images/charts)</p>
+              <p><strong>Embedding Timeout:</strong> 300000ms (large documents)</p>
+              <p><strong>Why:</strong> Web pages have text and images that both need processing</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-info shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Separate by Processing Needs</h3>
+            <p class="text-sm">Create different Libraries for different document types. For example, keep scanned PDFs (needing OCR) separate from digital documents (text extraction only) to optimize processing.</p>
+          </div>
+        </div>
+        <div class="alert alert-success shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Start with Defaults</h3>
+            <p class="text-sm">The default processing settings work well for most use cases. Only adjust OCR settings if you have specific requirements or quality issues.</p>
+          </div>
+        </div>
+        <div class="alert alert-warning shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Monitor Processing Performance</h3>
+            <p class="text-sm">If processing is slow or timing out, check the Processing Queue to identify bottlenecks. You may need to adjust timeouts or disable unnecessary features.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content shadow-lg">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Next Steps</h2>
+          <p>Now that you understand Library configuration, learn how to populate them with data:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/crawlers" class="btn btn-secondary">
+              Set Up Crawlers →
+            </a>
+            <a href="/docs/files" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Manage Files
+            </a>
+            <a href="/docs/processing" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Learn About Processing
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

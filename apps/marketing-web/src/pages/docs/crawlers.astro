@@ -1,0 +1,602 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Crawlers - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Crawlers</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-accent/10 to-accent/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Crawlers</h1>
+          <p class="text-xl">
+            Automatically collect files from external sources into your Libraries
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Crawlers -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Crawlers?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Crawlers are automated collectors that continuously gather files from external sources like SharePoint, file shares, websites, and cloud storage, bringing them into your George AI Libraries.
+        </p>
+        <p>
+          Instead of manually uploading files, you configure a crawler once, and it automatically discovers and imports files—keeping your Library synchronized with the source.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">One-Time Setup</h3>
+            <p class="text-sm">Configure crawler once with source URL and credentials</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Automatic Updates</h3>
+            <p class="text-sm">Schedule crawlers to run daily, weekly, or manually trigger runs</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Supported Sources -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Supported Sources</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- SharePoint -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.5 2C6.25 2 2 6.25 2 11.5S6.25 21 11.5 21c.75 0 1.5-.1 2.2-.25 1.25 1.3 3 2.15 5 2.15.4 0 .8-.05 1.2-.15-.05-.4-.1-.8-.1-1.2 0-2 .85-3.75 2.15-5-.15-.7-.25-1.45-.25-2.2C21.95 8.1 17.7 3.85 12.45 3.85z"/>
+              </svg>
+              SharePoint Online
+            </h3>
+            <p class="text-sm mb-3">Crawl SharePoint document libraries and OneDrive folders</p>
+            <div class="text-xs space-y-1">
+              <p><strong>URI Format:</strong> <code>https://yourcompany.sharepoint.com/sites/SiteName</code></p>
+              <p><strong>Authentication:</strong> Browser cookies (FedAuth, rtFa)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMB / Windows File Share -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 8h7V6H3v2m0 3h7V9H3v2m11 0h7V9h-7v2m0-3h7V6h-7v2M3 14h7v-2H3v2m11 0h7v-2h-7v2M3 17h7v-2H3v2m11 0h7v-2h-7v2z"/>
+              </svg>
+              SMB / Windows File Share
+            </h3>
+            <p class="text-sm mb-3">Access network file shares and Windows servers</p>
+            <div class="text-xs space-y-1">
+              <p><strong>URI Format:</strong> <code>smb://server/share/folder</code></p>
+              <p><strong>Authentication:</strong> Username + Password</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTTP/HTTPS Websites -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2m-5.15 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56M14.34 14H9.66c-.1-.66-.16-1.32-.16-2 0-.68.06-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2M12 19.96c-.83-1.2-1.5-2.53-1.91-3.96h3.82c-.41 1.43-1.08 2.76-1.91 3.96M8 8H5.08A7.923 7.923 0 0 1 9.4 4.44C8.8 5.55 8.35 6.75 8 8m-2.92 8H8c.35 1.25.8 2.45 1.4 3.56A8.008 8.008 0 0 1 5.08 16m-.82-2C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2M12 4.03c.83 1.2 1.5 2.54 1.91 3.97h-3.82c.41-1.43 1.08-2.77 1.91-3.97M18.92 8h-2.95a15.65 15.65 0 0 0-1.38-3.56c1.84.63 3.37 1.9 4.33 3.56M12 2C6.47 2 2 6.5 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/>
+              </svg>
+              HTTP/HTTPS Websites
+            </h3>
+            <p class="text-sm mb-3">Crawl public or internal websites and download files</p>
+            <div class="text-xs space-y-1">
+              <p><strong>URI Format:</strong> <code>https://docs.example.com/files</code></p>
+              <p><strong>Authentication:</strong> None (public sites only)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Box.com -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+              </svg>
+              Box.com
+            </h3>
+            <p class="text-sm mb-3">Access Box.com enterprise cloud storage folders</p>
+            <div class="text-xs space-y-1">
+              <p><strong>URI Format:</strong> <code>https://app.box.com/folder/123456789</code></p>
+              <p><strong>Authentication:</strong> Customer ID + Developer Token</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Creating a Crawler -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Creating a Crawler</h2>
+
+      <ul class="steps steps-vertical w-full mb-8">
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Select Source Type</div>
+            <div class="text-xs">SharePoint, SMB, HTTP, or Box</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Configure URI & Limits</div>
+            <div class="text-xs">URL, depth, max pages</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Set File Filters</div>
+            <div class="text-xs">Optional: patterns, size, MIME types</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Add Credentials</div>
+            <div class="text-xs">Authentication details</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Schedule Runs</div>
+            <div class="text-xs">Optional: daily/weekly automation</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="join join-vertical w-full">
+        <!-- Basic Configuration -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="crawler-config" checked />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">1</div>
+            Basic Configuration
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th class="w-1/3">URI</th>
+                      <td>
+                        <p class="mb-1"><strong>Required</strong></p>
+                        <p class="text-sm text-base-content/70">The source location to crawl (URL, network path, etc.)</p>
+                        <div class="mockup-code mt-2 text-xs">
+                          <pre data-prefix="SharePoint:"><code>https://company.sharepoint.com/sites/Docs</code></pre>
+                          <pre data-prefix="SMB:"><code>smb://fileserver/shared/documents</code></pre>
+                          <pre data-prefix="HTTP:"><code>https://docs.example.com/files</code></pre>
+                          <pre data-prefix="Box:"><code>https://app.box.com/folder/123456789</code></pre>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Max Depth</th>
+                      <td>
+                        <p class="mb-1"><strong>Required</strong> • Default: 2</p>
+                        <p class="text-sm text-base-content/70">How many folder levels deep to crawl (0 = only root folder)</p>
+                        <p class="text-sm text-base-content/70 mt-2">Example: Depth 2 crawls <code>/docs</code> → <code>/docs/2024</code> → <code>/docs/2024/Q1</code></p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Max Pages</th>
+                      <td>
+                        <p class="mb-1"><strong>Required</strong> • Default: 10</p>
+                        <p class="text-sm text-base-content/70">Maximum number of files to collect per crawler run</p>
+                        <p class="text-sm text-base-content/70 mt-2">Prevents overwhelming the system with too many files at once</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Filters -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="crawler-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">2</div>
+            File Filters (Optional)
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th class="w-1/3">Include Patterns</th>
+                      <td>
+                        <p class="text-sm text-base-content/70">Regex patterns to include specific files</p>
+                        <div class="mockup-code mt-2 text-xs">
+                          <pre data-prefix=">"><code>\.pdf$, \.docx?$, \.txt$</code></pre>
+                          <pre data-prefix=" "><code>Only collect PDF, DOC, DOCX, and TXT files</code></pre>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Exclude Patterns</th>
+                      <td>
+                        <p class="text-sm text-base-content/70">Regex patterns to exclude files/folders</p>
+                        <div class="mockup-code mt-2 text-xs">
+                          <pre data-prefix=">"><code>archive, _old, backup, temp, \.tmp$</code></pre>
+                          <pre data-prefix=" "><code>Skip folders named "archive", "_old", etc.</code></pre>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Min File Size</th>
+                      <td>
+                        <p class="text-sm text-base-content/70">Minimum file size in MB (e.g., 0.1 = 100 KB)</p>
+                        <p class="text-sm text-base-content/70 mt-2">Use to skip tiny files that likely contain no useful content</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Max File Size</th>
+                      <td>
+                        <p class="text-sm text-base-content/70">Maximum file size in MB (e.g., 50 = 50 MB)</p>
+                        <p class="text-sm text-base-content/70 mt-2">Use to skip extremely large files that may timeout during processing</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Allowed MIME Types</th>
+                      <td>
+                        <p class="text-sm text-base-content/70">Comma-separated list of allowed file types</p>
+                        <div class="mockup-code mt-2 text-xs">
+                          <pre data-prefix=">"><code>application/pdf, text/plain, application/msword</code></pre>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="crawler-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">3</div>
+            Authentication
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <div class="space-y-6">
+                <!-- SharePoint -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">SharePoint Online</h4>
+                    <p class="text-sm mb-3">Requires browser authentication cookies:</p>
+                    <ol class="list-decimal list-inside text-sm space-y-1">
+                      <li>Open your SharePoint site in a browser and log in</li>
+                      <li>Open Developer Tools (F12) → Network tab</li>
+                      <li>Refresh the page or navigate to a document library</li>
+                      <li>Find any request to your SharePoint site</li>
+                      <li>Copy the complete "Cookie" header value (must include FedAuth and rtFa cookies)</li>
+                      <li>Paste into the "SharePoint Authentication Cookies" field</li>
+                    </ol>
+                    <div class="alert alert-warning mt-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                      <span class="text-xs">Cookies are session-based and expire. You may need to refresh them periodically if crawler runs start failing.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SMB -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">SMB / Windows File Share</h4>
+                    <p class="text-sm mb-3">Requires network credentials:</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                      <li><strong>Username:</strong> Domain username (e.g., DOMAIN\username or username@domain.com)</li>
+                      <li><strong>Password:</strong> User's password</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Box -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">Box.com</h4>
+                    <p class="text-sm mb-3">Requires Box API credentials:</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                      <li><strong>Customer ID:</strong> Your Box enterprise customer ID (10+ characters)</li>
+                      <li><strong>Developer Token:</strong> Box API developer token (20+ characters)</li>
+                    </ul>
+                    <p class="text-sm mt-3">Contact your Box administrator to obtain these credentials.</p>
+                  </div>
+                </div>
+
+                <!-- HTTP -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">HTTP/HTTPS Websites</h4>
+                    <p class="text-sm">No authentication required. Only public websites are supported.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scheduling -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="crawler-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">4</div>
+            Scheduling (Optional)
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-4">Schedule crawlers to run automatically on a recurring basis:</p>
+
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Cron Schedule Configuration</h4>
+                  <ul class="text-sm space-y-2">
+                    <li><strong>Active:</strong> Enable/disable scheduled runs</li>
+                    <li><strong>Time:</strong> Hour (0-23) and Minute (0-59) in 24-hour format</li>
+                    <li><strong>Days:</strong> Select which days of the week to run (Monday - Sunday)</li>
+                  </ul>
+
+                  <div class="mockup-code text-xs mt-4">
+                    <pre data-prefix="Example 1:"><code>Every weekday at 3:00 AM</code></pre>
+                    <pre data-prefix=" "><code>Hour: 3, Minute: 0, Days: Mon-Fri</code></pre>
+                    <pre data-prefix="Example 2:"><code>Sundays at 11:30 PM</code></pre>
+                    <pre data-prefix=" "><code>Hour: 23, Minute: 30, Days: Sunday</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Manual Runs</p>
+                  <p class="text-sm">You can always trigger a crawler run manually from the Library crawler list, regardless of schedule settings.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Crawler Runs -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Crawler Runs & Monitoring</h2>
+
+      <p class="mb-4">Each time a crawler executes, it creates a "crawler run" with detailed statistics:</p>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Run Information</h3>
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <h4 class="font-semibold text-sm mb-2">Run Metadata:</h4>
+              <ul class="text-xs space-y-1">
+                <li>• Start time and end time</li>
+                <li>• Duration</li>
+                <li>• Triggered by user (manual) or scheduler</li>
+                <li>• Success or failure status</li>
+                <li>• Error message (if failed)</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-sm mb-2">Discovered Updates:</h4>
+              <ul class="text-xs space-y-1">
+                <li>• New files found</li>
+                <li>• Modified files detected</li>
+                <li>• Deleted files identified</li>
+                <li>• Skipped files (hash unchanged)</li>
+                <li>• Error files (couldn't access)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mt-6">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Running Status</div>
+          <div class="stat-value text-info text-2xl">Crawler is running...</div>
+          <div class="stat-desc">Started 5 minutes ago</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Last Run</div>
+          <div class="stat-value text-success text-2xl">Completed</div>
+          <div class="stat-desc">127 files discovered</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Total Runs</div>
+          <div class="stat-value text-2xl">48</div>
+          <div class="stat-desc">Since creation</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How Crawling Works -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How Crawling Works</h2>
+
+      <div class="space-y-4">
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">1. Discovery</h3>
+            <p class="text-sm">Crawler navigates the source (folders, links, etc.) up to the configured max depth, discovering files that match filters</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">2. Change Detection</h3>
+            <p class="text-sm">For each discovered file, crawler checks if it already exists in the Library by comparing content hash and modification date</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">3. File Import</h3>
+            <p class="text-sm">New or modified files are downloaded and added to the Library. Unchanged files are skipped to save processing time.</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">4. Automatic Processing</h3>
+            <p class="text-sm">If "Auto-process crawled files" is enabled in Library settings, new files are automatically queued for extraction and embedding</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Start with Small Max Pages</h3>
+            <p class="text-sm">Begin with maxPages=10 or 50 to test your crawler configuration. Once confirmed working, increase to larger numbers.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Use File Filters Wisely</h3>
+            <p class="text-sm">Exclude unnecessary folders (archive, temp, backup) and limit file types to what you actually need. This speeds up crawling and reduces noise.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Schedule During Off-Hours</h3>
+            <p class="text-sm">Run scheduled crawlers during low-traffic times (e.g., 3 AM) to avoid impacting system performance during business hours.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Monitor SharePoint Cookie Expiration</h3>
+            <p class="text-sm">SharePoint authentication cookies typically expire after a few hours or days. If crawler runs start failing, refresh the cookies.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Troubleshooting</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Issue</th>
+              <th>Possible Cause</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Crawler run fails immediately</td>
+              <td>Invalid credentials or expired cookies</td>
+              <td>Verify credentials and refresh SharePoint cookies if applicable</td>
+            </tr>
+            <tr>
+              <td>No files discovered</td>
+              <td>Filters too restrictive or maxDepth too low</td>
+              <td>Review include/exclude patterns and increase maxDepth</td>
+            </tr>
+            <tr>
+              <td>Crawler times out</td>
+              <td>Too many files or very slow network</td>
+              <td>Reduce maxPages or increase timeout in crawler configuration</td>
+            </tr>
+            <tr>
+              <td>Files not processing after crawl</td>
+              <td>"Auto-process crawled files" disabled</td>
+              <td>Enable in Library settings or manually trigger processing</td>
+            </tr>
+            <tr>
+              <td>Scheduled runs not executing</td>
+              <td>Cron job inactive or system scheduler stopped</td>
+              <td>Verify cronJob.active is true and check system status</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Learn more about file management and processing:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/files" class="btn btn-secondary">
+              Files →
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+            <a href="/docs/processing" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Processing
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

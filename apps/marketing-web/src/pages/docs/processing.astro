@@ -1,0 +1,514 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Document Processing - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Processing</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-linear-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Document Processing</h1>
+          <p class="text-xl">
+            How George AI converts documents into searchable, AI-ready content
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What is Processing -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What is Document Processing?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Document processing is the automated pipeline that transforms raw files (PDFs, Word docs, images) into text content and vector embeddings that can be searched semantically and used by AI assistants.
+        </p>
+        <p>
+          Every file uploaded or crawled into a Library goes through this processing pipeline automatically, managed by a background queue system.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Extraction</h3>
+            <p class="text-sm">Converts documents to markdown text using format-specific parsers and OCR for images</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Embedding</h3>
+            <p class="text-sm">Splits text into chunks and generates vector embeddings for semantic search</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Processing Pipeline -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Processing Pipeline</h2>
+
+      <p class="mb-6">When a file is uploaded or crawled, a processing task is automatically created and queued:</p>
+
+      <div class="space-y-8">
+        <!-- Task Creation -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">1</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Task Creation</h3>
+                <p class="text-sm mb-3">A content processing task is created and added to the queue with status <strong>pending</strong></p>
+                <div class="mockup-code text-xs">
+                  <pre data-prefix="$"><code>Status: pending</code></pre>
+                  <pre data-prefix=" "><code>Processing started: (waiting)</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extraction Phase -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">2</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Extraction Phase</h3>
+                <p class="text-sm mb-3">Text and images are extracted from the document based on its format</p>
+
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <h4 class="font-semibold text-sm mb-2">Extraction Methods:</h4>
+                    <ul class="text-xs space-y-1">
+                      <li>• <strong>PDF:</strong> Text extraction + OCR for images</li>
+                      <li>• <strong>Office (Word, Excel, PPT):</strong> Native parsers</li>
+                      <li>• <strong>Images:</strong> Vision model OCR</li>
+                      <li>• <strong>Archives:</strong> Extract and process contents</li>
+                      <li>• <strong>HTML/Markdown:</strong> Direct conversion</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 class="font-semibold text-sm mb-2">Configuration Options:</h4>
+                    <ul class="text-xs space-y-1">
+                      <li>• Enable/disable text extraction</li>
+                      <li>• Enable/disable image processing</li>
+                      <li>• OCR model selection</li>
+                      <li>• OCR prompt customization</li>
+                      <li>• OCR image scale</li>
+                      <li>• OCR timeout</li>
+                    </ul>
+                    <p class="text-xs mt-2 italic">Settings configured at Library level</p>
+                  </div>
+                </div>
+
+                <div class="mockup-code text-xs mt-4">
+                  <pre data-prefix="$"><code>Status: extracting</code></pre>
+                  <pre data-prefix=" "><code>Extraction started: 2025-01-15 10:30:15</code></pre>
+                  <pre data-prefix=" "><code>Output: document.md (extracted markdown)</code></pre>
+                </div>
+
+                <div class="alert alert-warning mt-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  <span class="text-xs">Extraction can timeout if the file is very large or complex. Default timeout is configurable per Library.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embedding Phase -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">3</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Embedding Phase</h3>
+                <p class="text-sm mb-3">Extracted text is chunked and converted to vector embeddings for semantic search</p>
+
+                <div class="overflow-x-auto mt-4">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Step</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>1. Chunking</strong></td>
+                        <td>Text is split into smaller chunks (paragraphs or sections) for efficient processing</td>
+                      </tr>
+                      <tr>
+                        <td><strong>2. Embedding</strong></td>
+                        <td>Each chunk is converted to a vector embedding using the configured AI model</td>
+                      </tr>
+                      <tr>
+                        <td><strong>3. Storage</strong></td>
+                        <td>Embeddings are stored in Typesense vector database for fast semantic search</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mockup-code text-xs mt-4">
+                  <pre data-prefix="$"><code>Status: embedding</code></pre>
+                  <pre data-prefix=" "><code>Embedding started: 2025-01-15 10:30:45</code></pre>
+                  <pre data-prefix=" "><code>Chunks created: 127</code></pre>
+                  <pre data-prefix=" "><code>Embedding model: nomic-embed-text</code></pre>
+                </div>
+
+                <div class="card bg-base-200 mt-4">
+                  <div class="card-body">
+                    <h4 class="font-semibold text-sm mb-2">Embedding Configuration (Library-level):</h4>
+                    <ul class="text-xs space-y-1">
+                      <li>• <strong>Embedding Model:</strong> Which AI model to use (e.g., nomic-embed-text, mxbai-embed-large)</li>
+                      <li>• <strong>Embedding Timeout:</strong> Maximum time allowed for embedding generation</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completion -->
+        <div class="card bg-success text-success-content">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg">4</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Processing Complete</h3>
+                <p class="text-sm mb-3">Task is marked as <strong>completed</strong>. File is now searchable and available for AI assistants.</p>
+
+                <div class="mockup-code text-xs bg-success-content/10">
+                  <pre data-prefix="$" class="text-success-content"><code>Status: completed</code></pre>
+                  <pre data-prefix=" " class="text-success-content"><code>Processing finished: 2025-01-15 10:31:02</code></pre>
+                  <pre data-prefix=" " class="text-success-content"><code>Total processing time: 47,000 ms</code></pre>
+                  <pre data-prefix=" " class="text-success-content"><code>File is now searchable!</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Processing Queue System -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Processing Queue System</h2>
+
+      <p class="mb-4">George AI uses a background queue system to manage processing tasks efficiently:</p>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Content Processing Queue</h3>
+            <p class="text-sm">Handles text extraction and embedding generation for all files</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Enrichment Queue</h3>
+            <p class="text-sm">Handles AI-powered data extraction for List enrichment fields</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg mt-6">
+        <div class="card-body">
+          <h3 class="card-title">Queue Worker Behavior</h3>
+          <div class="space-y-3 mt-4">
+            <div class="flex items-start gap-3">
+              <div class="badge badge-success">Running</div>
+              <p class="text-sm flex-1">Worker continuously picks up pending tasks and processes them</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="badge badge-error">Stopped</div>
+              <p class="text-sm flex-1">Worker is paused. No new tasks are processed, but tasks already in progress continue</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <p class="font-bold">Automatic Processing</p>
+          <p class="text-sm">Files are processed automatically when added to a Library. This behavior can be configured in Library settings using the "Auto-process crawled files" option.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Task States -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Processing Task States</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Description</th>
+              <th>Next Step</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="badge">none</div></td>
+              <td>No processing has been initiated</td>
+              <td>Wait for task creation or trigger manually</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-warning">pending</div></td>
+              <td>Task is queued and waiting for a worker</td>
+              <td>Worker will pick it up automatically</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-info">validating</div></td>
+              <td>File format and integrity are being checked</td>
+              <td>Moves to extracting or validationFailed</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-info">extracting</div></td>
+              <td>Text and images are being extracted</td>
+              <td>Moves to embedding or extractionFailed</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-info">embedding</div></td>
+              <td>Vector embeddings are being generated</td>
+              <td>Moves to completed or embeddingFailed</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-success">completed</div></td>
+              <td>Processing finished successfully</td>
+              <td>File is searchable and ready</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-error">failed</div></td>
+              <td>Processing failed at some stage</td>
+              <td>Retry via file menu or queue management</td>
+            </tr>
+            <tr>
+              <td><div class="badge badge-error">timedOut</div></td>
+              <td>Processing exceeded configured timeout</td>
+              <td>Retry with adjusted timeout or check file</td>
+            </tr>
+            <tr>
+              <td><div class="badge">cancelled</div></td>
+              <td>Task was manually cancelled</td>
+              <td>Create new task if needed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Monitoring and Management -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Monitoring Processing</h2>
+
+      <p class="mb-4">You can monitor and manage processing tasks through the Admin Panel:</p>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Processing Queue Dashboard</h3>
+          <p class="text-sm mb-4">Admin Panel → Processing Queue</p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="font-semibold text-sm mb-2">View Task Statistics:</h4>
+              <ul class="text-xs space-y-1">
+                <li>• Pending tasks count</li>
+                <li>• Currently processing tasks</li>
+                <li>• Failed tasks</li>
+                <li>• Completed tasks</li>
+                <li>• Last processed timestamp</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-sm mb-2">Management Actions:</h4>
+              <ul class="text-xs space-y-1">
+                <li>• Start/Stop queue workers</li>
+                <li>• Retry failed tasks</li>
+                <li>• Clear failed tasks</li>
+                <li>• Clear pending tasks</li>
+                <li>• Cancel specific tasks</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <a href="/docs/admin/processing-queue" class="btn btn-outline btn-primary">
+          Learn about Processing Queue Management →
+        </a>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Troubleshooting Processing Issues</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- Issue 1 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting" checked />
+          <div class="collapse-title text-lg font-medium">
+            Files stuck in "pending" state
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-2"><strong>Possible Causes:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                <li>Queue worker is stopped</li>
+                <li>Too many tasks overwhelming the queue</li>
+                <li>System resources exhausted</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Check Admin Panel → Processing Queue to verify worker is running</li>
+                <li>Start the worker if stopped</li>
+                <li>Monitor system CPU/memory usage</li>
+                <li>Consider adding more AI Service servers for parallel processing</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue 2 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting" />
+          <div class="collapse-title text-lg font-medium">
+            Extraction fails or times out
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-2"><strong>Possible Causes:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                <li>File is corrupted or unsupported format</li>
+                <li>File is extremely large (100+ pages)</li>
+                <li>OCR timeout too low for complex images</li>
+                <li>AI model not available</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Verify file can be opened in its native application</li>
+                <li>Increase extraction timeout in Library settings</li>
+                <li>Increase OCR timeout for image-heavy documents</li>
+                <li>Check AI Services status</li>
+                <li>Try re-processing the file via file menu</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue 3 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting" />
+          <div class="collapse-title text-lg font-medium">
+            Embedding fails or times out
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-2"><strong>Possible Causes:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                <li>Embedding model not loaded on AI Services</li>
+                <li>Document extracted to extremely large text</li>
+                <li>Embedding timeout too low</li>
+                <li>Typesense vector database connectivity issues</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Verify embedding model is available (check Library settings)</li>
+                <li>Increase embedding timeout in Library settings</li>
+                <li>Check Typesense service status</li>
+                <li>Verify AI Services can connect to Typesense</li>
+                <li>Retry embedding via file menu</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue 4 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting" />
+          <div class="collapse-title text-lg font-medium">
+            Poor OCR quality for images/scans
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-2"><strong>Possible Causes:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                <li>Low-resolution images</li>
+                <li>Poor scan quality</li>
+                <li>OCR prompt not optimized for document type</li>
+                <li>OCR image scale too low</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Increase OCR image scale in Library settings (try 1.5 or 2.0)</li>
+                <li>Customize OCR prompt to describe document structure</li>
+                <li>Use higher-resolution source images if possible</li>
+                <li>Try a different OCR model (e.g., qwen2.5vl:latest)</li>
+                <li>Re-process file after adjusting settings</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Learn more about related features:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/embeddings" class="btn btn-secondary">
+              Embeddings →
+            </a>
+            <a href="/docs/files" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Files
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+            <a href="/docs/admin/processing-queue" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Processing Queue
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

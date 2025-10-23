@@ -1,0 +1,460 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Lists - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Lists</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-linear-to-br from-primary/10 to-primary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Lists</h1>
+          <p class="text-xl">
+            Organize files into custom tables with enriched data fields
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Lists -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Lists?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Lists are custom, structured views of your Library files. Think of them as smart spreadsheets where each row is a document and each column is either file metadata or AI-extracted data.
+        </p>
+        <p>
+          Lists pull files from one or more Libraries, allowing you to combine data from different sources, add custom enrichment fields, filter and sort, and export to CSV.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Multi-Library Sources</h3>
+            <p class="text-sm">Pull files from multiple Libraries into one unified view</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Custom Fields</h3>
+            <p class="text-sm">Add enrichment fields to extract custom data from documents</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Export Data</h3>
+            <p class="text-sm">Export your organized data to CSV for use in other systems</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Use Cases -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Use Cases</h2>
+
+      <div class="space-y-4">
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="use-cases" checked />
+          <div class="collapse-title text-xl font-medium">
+            Product Documentation Management
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="mb-3 text-sm">Create a List that pulls product spec sheets from multiple Libraries (Design, Engineering, Marketing)</p>
+              <p class="mb-2 text-sm font-semibold">Enrichment Fields:</p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Product ID (extracted from documents)</li>
+                <li>Dimensions (width × height × depth)</li>
+                <li>Manufacturing Location</li>
+                <li>Compliance Status (CE, UL, etc.)</li>
+                <li>Target Market</li>
+              </ul>
+              <p class="mt-3 text-sm"><strong>Result:</strong> Unified product catalog exported to SAP or ERP system</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="use-cases" />
+          <div class="collapse-title text-xl font-medium">
+            Invoice Processing
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="mb-3 text-sm">Create a List of all invoices from the Accounting Library</p>
+              <p class="mb-2 text-sm font-semibold">Enrichment Fields:</p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Invoice Number</li>
+                <li>Vendor Name</li>
+                <li>Invoice Date</li>
+                <li>Total Amount</li>
+                <li>Currency</li>
+                <li>Due Date</li>
+              </ul>
+              <p class="mt-3 text-sm"><strong>Result:</strong> CSV export for accounting software integration</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="use-cases" />
+          <div class="collapse-title text-xl font-medium">
+            Contract Analysis
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="mb-3 text-sm">Create a List of contracts from Legal and Sales Libraries</p>
+              <p class="mb-2 text-sm font-semibold">Enrichment Fields:</p>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Contract Type</li>
+                <li>Contract Party</li>
+                <li>Start Date</li>
+                <li>End Date</li>
+                <li>Renewal Terms</li>
+                <li>Termination Clause</li>
+              </ul>
+              <p class="mt-3 text-sm"><strong>Result:</strong> Organized contract database with expiration tracking</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Creating a List -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Creating a List</h2>
+
+      <ul class="steps steps-vertical w-full mb-8">
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Create List</div>
+            <div class="text-xs">Give it a name</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Add Sources</div>
+            <div class="text-xs">Select Libraries</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Add Fields</div>
+            <div class="text-xs">Create enrichments</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Process & Export</div>
+            <div class="text-xs">Extract data + CSV</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="join join-vertical w-full">
+        <!-- Step 1 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="create-list" checked />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">1</div>
+            Create a New List
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-3">Navigate to <strong>Lists</strong> → <strong>Create New List</strong></p>
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <p class="text-sm"><strong>List Name:</strong> Give your List a descriptive name (e.g., "Product Specifications", "Q4 Invoices", "Active Contracts")</p>
+                </div>
+              </div>
+              <p class="mt-3 text-sm">After creation, you'll be taken to the List edit page where you can configure sources and fields.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="create-list" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">2</div>
+            Add Library Sources
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-3">Select which Libraries to pull files from:</p>
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <p class="text-sm mb-2"><strong>Single Library:</strong> All files from one Library</p>
+                  <p class="text-sm"><strong>Multiple Libraries:</strong> Combine files from different Libraries (e.g., Engineering + Marketing docs)</p>
+                </div>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Source Management</p>
+                  <p class="text-sm">You can add or remove Library sources at any time. When you add a source, all its files immediately appear in the List.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="create-list" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">3</div>
+            Add Enrichment Fields
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-3">Add custom fields to extract data from your documents:</p>
+
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="card-title text-sm">File Property Fields</h4>
+                    <p class="text-xs">Extract metadata from files (name, size, modified date, source)</p>
+                    <p class="text-xs mt-2 text-base-content/70">These fields are automatically populated from file metadata—no AI processing needed.</p>
+                  </div>
+                </div>
+
+                <div class="card bg-success text-success-content">
+                  <div class="card-body">
+                    <h4 class="card-title text-sm">AI-Computed Fields</h4>
+                    <p class="text-xs">Use AI to extract custom data (product IDs, amounts, dates)</p>
+                    <p class="text-xs mt-2">These are enrichment fields that you configure with AI prompts.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <a href="/docs/enrichments" class="btn btn-sm btn-outline btn-primary">
+                  Learn about Enrichments →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="create-list" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">4</div>
+            Process and Export Data
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Processing</h4>
+                  <p class="text-sm mb-3">After adding enrichment fields, start processing to extract data from all documents. You can monitor progress in the field headers.</p>
+
+                  <h4 class="font-bold mb-2 mt-4">Export to CSV</h4>
+                  <p class="text-sm">Click <strong>Export</strong> to download your List as a CSV file:</p>
+                  <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+                    <li>Select which fields to include</li>
+                    <li>Set maximum row limit (1-10,000)</li>
+                    <li>Get CSV file: <code>ListName-export.csv</code></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="alert alert-success mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-sm">CSV exports use proper escaping for commas, quotes, and newlines—ready to import into Excel, SAP, or other systems.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Working with Lists -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Working with Lists</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Description</th>
+              <th>How To</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Filter Files</strong></td>
+              <td>Show only files matching specific criteria</td>
+              <td>Use filter controls above the table. Filters apply to enrichment processing too.</td>
+            </tr>
+            <tr>
+              <td><strong>Sort by Field</strong></td>
+              <td>Order files by any field value</td>
+              <td>Click the sorting icon in field headers. Toggle ascending/descending.</td>
+            </tr>
+            <tr>
+              <td><strong>Reorder Fields</strong></td>
+              <td>Change column order in the table</td>
+              <td>Drag and drop field headers to reorder columns.</td>
+            </tr>
+            <tr>
+              <td><strong>Resize Columns</strong></td>
+              <td>Adjust column widths</td>
+              <td>Drag the resize handle between column headers.</td>
+            </tr>
+            <tr>
+              <td><strong>Hide/Show Fields</strong></td>
+              <td>Control which columns are visible</td>
+              <td>Use field visibility controls in the List settings.</td>
+            </tr>
+            <tr>
+              <td><strong>Edit Field</strong></td>
+              <td>Update enrichment field configuration</td>
+              <td>Click field header → Edit (only for AI-computed fields).</td>
+            </tr>
+            <tr>
+              <td><strong>Delete Field</strong></td>
+              <td>Remove an enrichment field</td>
+              <td>Click field header → Delete → Confirm (only for AI-computed fields).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Sharing Lists -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Sharing Lists</h2>
+
+      <div class="prose max-w-none">
+        <p>Lists can be shared with other users via <strong>Participants</strong>:</p>
+      </div>
+
+      <div class="card bg-base-200 mt-4">
+        <div class="card-body">
+          <h3 class="card-title">Access Control</h3>
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <h4 class="font-bold mb-2 text-sm">Owner</h4>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Full control over the List</li>
+                <li>Can add/remove sources</li>
+                <li>Can add/edit/delete fields</li>
+                <li>Can manage participants</li>
+                <li>Can delete the List</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2 text-sm">Participants</h4>
+              <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Can view the List and its data</li>
+                <li>Can filter and sort</li>
+                <li>Can export to CSV</li>
+                <li>Cannot modify List configuration</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <p class="font-bold">Library Access Required</p>
+          <p class="text-sm">Participants must have read access to the source Libraries to view files in the List. If they don't have access to a Library, those files won't be visible to them.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Start Simple</h3>
+            <p class="text-sm">Create a List with just one Library source and 2-3 enrichment fields. Once you're satisfied with the results, add more sources and fields.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Test Fields on Small Subsets</h3>
+            <p class="text-sm">Use filters to show only 5-10 representative documents, then test your enrichment fields before processing the entire List.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Name Lists Clearly</h3>
+            <p class="text-sm">Use descriptive names that indicate purpose, time period, or scope (e.g., "Q1 2025 Invoices", "Active Product Specs", "Legal Contracts 2024").</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Leverage Context Fields</h3>
+            <p class="text-sm">When creating enrichment fields, use context fields to provide additional information to the AI. For example, when extracting "Unit Price", include "Currency" as context.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Explore related features and concepts:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/enrichments" class="btn btn-secondary">
+              Enrichments →
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+            <a href="/docs/files" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Files
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

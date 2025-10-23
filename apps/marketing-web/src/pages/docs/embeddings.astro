@@ -1,0 +1,635 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Embeddings - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Embeddings</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-accent/10 to-accent/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Embeddings & Vector Search</h1>
+          <p class="text-xl">
+            Transform documents into searchable vector embeddings for semantic similarity and AI-powered search
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Embeddings -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Embeddings?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Embeddings are numerical vector representations of text that capture semantic meaning. Unlike traditional keyword search, embeddings enable <strong>similarity-based search</strong> where documents with similar meanings are found even if they use different words.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+              </svg>
+              Semantic Search
+            </h3>
+            <p class="text-sm">Find documents by meaning, not just keywords</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+              </svg>
+              Distance Metrics
+            </h3>
+            <p class="text-sm">Measure semantic similarity with vector distance</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+              </svg>
+              Fast Retrieval
+            </h3>
+            <p class="text-sm">Lightning-fast vector search powered by Typesense</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Embedding Pipeline -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">The Embedding Pipeline</h2>
+
+      <p class="mb-6">George AI converts your documents into searchable vectors through a multi-stage pipeline:</p>
+
+      <div class="space-y-8">
+        <!-- Stage 1: Processing -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">1</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Document Processing</h3>
+                <p class="text-sm mb-4">Documents are converted to a common intermediate format</p>
+
+                <div class="alert alert-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <div class="text-xs">
+                    <p class="font-bold">Common Markdown Format</p>
+                    <p>All documents (PDFs, Word, Excel, images, HTML) are extracted to <strong>Markdown (.md)</strong> format. This standardized format ensures consistent processing regardless of the original file type.</p>
+                  </div>
+                </div>
+
+                <div class="mt-4">
+                  <h4 class="font-semibold text-sm mb-2">Supported Input Formats:</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <div class="badge badge-sm">PDF</div>
+                    <div class="badge badge-sm">Word (.docx)</div>
+                    <div class="badge badge-sm">Excel (.xlsx)</div>
+                    <div class="badge badge-sm">PowerPoint (.pptx)</div>
+                    <div class="badge badge-sm">Images (OCR)</div>
+                    <div class="badge badge-sm">HTML</div>
+                    <div class="badge badge-sm">Markdown</div>
+                    <div class="badge badge-sm">Plain Text</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Chunking -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">2</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Text Chunking</h3>
+                <p class="text-sm mb-4">Markdown content is split into manageable chunks for embedding</p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 class="font-semibold text-sm mb-2">Chunking Strategy:</h4>
+                    <ul class="text-xs space-y-1">
+                      <li>• Preserves document structure (headings, sections)</li>
+                      <li>• Creates overlapping chunks for context</li>
+                      <li>• Maintains semantic coherence</li>
+                      <li>• Tracks heading paths for navigation</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 class="font-semibold text-sm mb-2">Chunk Metadata:</h4>
+                    <ul class="text-xs space-y-1">
+                      <li>• <code>chunkIndex</code> - Position in file</li>
+                      <li>• <code>subChunkIndex</code> - Sub-section index</li>
+                      <li>• <code>headingPath</code> - Hierarchical location</li>
+                      <li>• <code>section</code> - Content text</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Vectorization -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">3</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Vector Embedding</h3>
+                <p class="text-sm mb-4">Each chunk is converted to a high-dimensional vector using an embedding model</p>
+
+                <div class="mockup-code text-xs mb-4">
+                  <pre is:raw><code>Chunk Text: "George AI enables semantic search..."
+                    ↓
+Embedding Model (configured per Library)
+                    ↓
+Vector: [0.123, -0.456, 0.789, ..., 0.234]
+         (typically 384-1536 dimensions)</code></pre>
+                </div>
+
+                <div class="alert alert-warning">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  <div class="text-xs">
+                    <p class="font-bold">Library-Specific Configuration</p>
+                    <p>Each Library has its own <code>embeddingModel</code> setting. All files in that Library use the same model for consistent vector space.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Storage -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">4</div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">Typesense Storage</h3>
+                <p class="text-sm mb-4">Vectors are indexed in Typesense for fast similarity search</p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="card bg-base-200">
+                    <div class="card-body">
+                      <h4 class="font-semibold text-sm mb-2">Storage Structure</h4>
+                      <ul class="text-xs space-y-1">
+                        <li>• One collection per <strong>Library</strong></li>
+                        <li>• Documents grouped by <strong>File ID</strong></li>
+                        <li>• Each chunk stored with metadata</li>
+                        <li>• Vectors indexed for fast retrieval</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="card bg-base-200">
+                    <div class="card-body">
+                      <h4 class="font-semibold text-sm mb-2">Indexed Fields</h4>
+                      <ul class="text-xs space-y-1">
+                        <li>• <code>libraryId</code> - Library identifier</li>
+                        <li>• <code>fileId</code> - Source file ID</li>
+                        <li>• <code>fileName</code> - Original filename</li>
+                        <li>• <code>originUri</code> - Source location</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Similarity Search -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Similarity Search & Distance Metrics</h2>
+
+      <p class="mb-6">One of the most powerful features of embeddings is the ability to find similar content using <strong>distance metrics</strong>:</p>
+
+      <div class="card bg-base-100 shadow-lg mb-6">
+        <div class="card-body">
+          <h3 class="text-xl font-bold mb-4">How Distance Works</h3>
+
+          <p class="text-sm mb-4">Vectors are points in high-dimensional space. The <strong>distance</strong> between two vectors indicates how similar their semantic meanings are:</p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="font-semibold text-sm mb-3">Distance Interpretation</h4>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <div class="badge badge-success badge-sm">0.0 - 0.3</div>
+                  <span class="text-xs">Very Similar</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="badge badge-info badge-sm">0.3 - 0.6</div>
+                  <span class="text-xs">Moderately Similar</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="badge badge-warning badge-sm">0.6 - 0.9</div>
+                  <span class="text-xs">Somewhat Related</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="badge badge-error badge-sm">0.9 - 1.0+</div>
+                  <span class="text-xs">Not Related</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-sm mb-3">Finding Distance Gaps</h4>
+              <p class="text-xs mb-3">Large distance gaps can reveal topic boundaries or missing information:</p>
+              <div class="mockup-code text-xs">
+                <pre is:raw><code>Chunk 1: distance 0.15 ← very similar
+Chunk 2: distance 0.18 ← very similar
+Chunk 3: distance 0.21 ← very similar
+Chunk 4: distance 0.87 ← GAP! Topic change
+Chunk 5: distance 0.91 ← new topic</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="text-xl font-bold mb-4">Similarity Search Query</h3>
+          <p class="text-sm mb-4">Find chunks similar to a specific file or search term:</p>
+
+          <div class="mockup-code text-xs">
+            <pre is:raw><code>query {
+  aiSimilarFileChunks(
+    fileId: "file-id-here"
+    term: "optional search term"
+    hits: 20
+  ) {
+    id
+    text
+    distance        # ← Similarity score
+    chunkIndex
+    headingPath
+    fileName
+    fileId
+  }
+}</code></pre>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="text-xs">
+              <p class="font-bold">Use Case: Content Recommendations</p>
+              <p>Use <code>distance</code> values to recommend related documents or identify content clusters. Large gaps help detect topic changes or missing documentation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Browsing Chunks -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Browsing File Chunks</h2>
+
+      <p class="mb-6">You can retrieve and examine all chunks for a specific file:</p>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="text-xl font-bold mb-4">Query File Chunks</h3>
+
+          <div class="mockup-code text-xs">
+            <pre is:raw><code>query {
+  aiFileChunks(
+    fileId: "file-id-here"
+    skip: 0
+    take: 20
+  ) {
+    fileId
+    fileName
+    libraryId
+    count          # Total chunks
+    chunks {
+      id
+      chunkIndex
+      subChunkIndex
+      section      # Chunk text content
+      headingPath  # Document structure
+      text         # Full chunk text
+    }
+  }
+}</code></pre>
+          </div>
+
+          <div class="mt-6">
+            <h4 class="font-semibold text-sm mb-3">Understanding Chunk Structure</h4>
+            <div class="overflow-x-auto">
+              <table class="table table-sm text-xs">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>chunkIndex</code></td>
+                    <td>Sequential chunk number</td>
+                    <td>0, 1, 2, ...</td>
+                  </tr>
+                  <tr>
+                    <td><code>subChunkIndex</code></td>
+                    <td>Sub-section within chunk</td>
+                    <td>0, 1, 2, ...</td>
+                  </tr>
+                  <tr>
+                    <td><code>headingPath</code></td>
+                    <td>Hierarchical document path</td>
+                    <td>"Introduction &gt; Setup"</td>
+                  </tr>
+                  <tr>
+                    <td><code>section</code></td>
+                    <td>Main content text</td>
+                    <td>"George AI provides..."</td>
+                  </tr>
+                  <tr>
+                    <td><code>distance</code></td>
+                    <td>Similarity score (in search)</td>
+                    <td>0.234</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Library Configuration -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Library Embedding Configuration</h2>
+
+      <p class="mb-6">Each Library has its own embedding configuration that applies to all files within it:</p>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="text-xl font-bold mb-4">Key Settings</h3>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card bg-base-200">
+              <div class="card-body">
+                <h4 class="font-semibold text-sm mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  </svg>
+                  Embedding Model
+                </h4>
+                <p class="text-xs mb-2"><code>libraryEmbeddingModel</code></p>
+                <p class="text-xs">The AI model used to generate vector embeddings. All files in the Library share the same model for consistent vector space.</p>
+              </div>
+            </div>
+
+            <div class="card bg-base-200">
+              <div class="card-body">
+                <h4 class="font-semibold text-sm mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                  </svg>
+                  Vector Store
+                </h4>
+                <p class="text-xs mb-2"><code>useVectorStore</code></p>
+                <p class="text-xs">Enable/disable vector storage in Typesense. When enabled, chunks are embedded and indexed for similarity search.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="text-xs">
+              <p class="font-bold">Important: Model Consistency</p>
+              <p>Changing the embedding model after files are processed requires re-embedding all files. Different models produce incompatible vector spaces.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Use Cases -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Practical Use Cases</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              Semantic Search
+            </h3>
+            <p class="text-sm">Users can search by concept instead of exact keywords. "How do I reset my password?" finds relevant docs even if they use "credential recovery".</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+              </svg>
+              AI Question Answering
+            </h3>
+            <p class="text-sm">Retrieve the most relevant chunks for a user's question, providing context to LLMs for accurate, grounded answers.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+              Content Recommendations
+            </h3>
+            <p class="text-sm">Suggest related documents based on similarity scores. "Users viewing this document also found these helpful."</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+              </svg>
+              Gap Analysis
+            </h3>
+            <p class="text-sm">Use distance gaps to identify missing documentation, detect topic boundaries, or find duplicate content.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Processing Status -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Monitoring Embedding Status</h2>
+
+      <p class="mb-6">Track the embedding status of files in your library:</p>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="text-xl font-bold mb-4">Embedding Status Values</h3>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm text-xs">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Description</th>
+                  <th>Next Step</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="badge badge-sm badge-ghost">none</div></td>
+                  <td>File has not been processed yet</td>
+                  <td>Trigger processing task</td>
+                </tr>
+                <tr>
+                  <td><div class="badge badge-sm badge-warning">pending</div></td>
+                  <td>Queued for embedding</td>
+                  <td>Wait for worker to process</td>
+                </tr>
+                <tr>
+                  <td><div class="badge badge-sm badge-info">running</div></td>
+                  <td>Currently being embedded</td>
+                  <td>Processing in progress</td>
+                </tr>
+                <tr>
+                  <td><div class="badge badge-sm badge-success">completed</div></td>
+                  <td>Successfully embedded and indexed</td>
+                  <td>Ready for search</td>
+                </tr>
+                <tr>
+                  <td><div class="badge badge-sm badge-error">failed</div></td>
+                  <td>Embedding failed (timeout, error)</td>
+                  <td>Retry or check logs</td>
+                </tr>
+                <tr>
+                  <td><div class="badge badge-sm">skipped</div></td>
+                  <td>Intentionally skipped (vector store disabled)</td>
+                  <td>Enable vector store if needed</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mockup-code text-xs mt-6">
+            <pre is:raw><code>query {
+  aiLibraryFile(fileId: "file-id") {
+    id
+    title
+    embeddingStatus
+    lastEmbedding {
+      embeddingStatus
+      embeddingModelName
+      chunksCount
+      embeddingTimeMs
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Next Steps</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <a href="/docs/processing" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+              Document Processing
+            </h3>
+            <p class="text-sm">Learn how documents are extracted to Markdown before embedding</p>
+          </div>
+        </a>
+
+        <a href="/docs/libraries" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+              Library Configuration
+            </h3>
+            <p class="text-sm">Configure embedding models and vector store settings for your libraries</p>
+          </div>
+        </a>
+
+        <a href="/docs/graphql-api" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+              </svg>
+              GraphQL API
+            </h3>
+            <p class="text-sm">Query chunks and similarity search programmatically via the API</p>
+          </div>
+        </a>
+
+        <a href="/docs/assistants" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+              </svg>
+              AI Assistants
+            </h3>
+            <p class="text-sm">Use embeddings with AI assistants for context-aware responses</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</Layout>

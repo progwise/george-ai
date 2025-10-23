@@ -1,0 +1,475 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Files - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Files</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-info/10 to-info/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Files</h1>
+          <p class="text-xl">
+            Understanding the file lifecycle from upload to searchable content
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Files -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Files?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Files are the core content in George AI. Each file belongs to a Library and goes through automated processing to extract text, generate embeddings, and make content searchable.
+        </p>
+        <p>
+          Files can be added manually via upload or automatically through Crawlers that collect documents from external sources like SharePoint, file shares, or email.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Manual Upload</h3>
+            <p class="text-sm">Upload files directly through the web interface into a Library</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Automated Crawling</h3>
+            <p class="text-sm">Configure Crawlers to automatically collect files from external systems</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- File Lifecycle -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">File Lifecycle</h2>
+
+      <p class="mb-6">Every file in George AI goes through a processing pipeline to make it searchable and usable for AI assistants:</p>
+
+      <ul class="timeline timeline-vertical timeline-snap-icon max-md:timeline-compact">
+        <li>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <time class="font-mono italic">Step 1</time>
+            <div class="text-lg font-black">Upload or Crawl</div>
+            <p class="text-sm">File is added to the Library (manually uploaded or collected by a Crawler)</p>
+          </div>
+          <hr class="bg-primary"/>
+        </li>
+        <li>
+          <hr class="bg-primary"/>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end mb-10">
+            <time class="font-mono italic">Step 2</time>
+            <div class="text-lg font-black">Validation</div>
+            <p class="text-sm">File format and integrity are checked</p>
+          </div>
+          <hr class="bg-primary"/>
+        </li>
+        <li>
+          <hr class="bg-primary"/>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <time class="font-mono italic">Step 3</time>
+            <div class="text-lg font-black">Extraction</div>
+            <p class="text-sm">Text and images are extracted from the document (supports PDF, Office docs, images with OCR, etc.)</p>
+          </div>
+          <hr class="bg-primary"/>
+        </li>
+        <li>
+          <hr class="bg-primary"/>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end mb-10">
+            <time class="font-mono italic">Step 4</time>
+            <div class="text-lg font-black">Embedding</div>
+            <p class="text-sm">Text is split into chunks and converted to vector embeddings for semantic search</p>
+          </div>
+          <hr class="bg-primary"/>
+        </li>
+        <li>
+          <hr class="bg-primary"/>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-success">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <time class="font-mono italic">Step 5</time>
+            <div class="text-lg font-black">Completed</div>
+            <p class="text-sm">File is now searchable and available for AI assistants</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="alert alert-warning mt-8">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <p class="font-bold">Processing Can Fail</p>
+          <p class="text-sm">Files can fail at Validation (unsupported format), Extraction (corrupted file), or Embedding (timeout). You can retry processing via the file menu.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- File Processing Status -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">File Processing Status</h2>
+
+      <p class="mb-4">Files have three status indicators that track their progress:</p>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Status Type</th>
+              <th>Values</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Processing Status</strong></td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  <div class="badge badge-sm">none</div>
+                  <div class="badge badge-sm">pending</div>
+                  <div class="badge badge-sm">validating</div>
+                  <div class="badge badge-sm">extracting</div>
+                  <div class="badge badge-sm">embedding</div>
+                  <div class="badge badge-sm">completed</div>
+                  <div class="badge badge-sm">failed</div>
+                </div>
+              </td>
+              <td class="text-sm">Overall processing state through the entire pipeline</td>
+            </tr>
+            <tr>
+              <td><strong>Extraction Status</strong></td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  <div class="badge badge-sm">none</div>
+                  <div class="badge badge-sm">pending</div>
+                  <div class="badge badge-sm">running</div>
+                  <div class="badge badge-sm">completed</div>
+                  <div class="badge badge-sm">failed</div>
+                </div>
+              </td>
+              <td class="text-sm">Text and image extraction stage</td>
+            </tr>
+            <tr>
+              <td><strong>Embedding Status</strong></td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  <div class="badge badge-sm">none</div>
+                  <div class="badge badge-sm">pending</div>
+                  <div class="badge badge-sm">running</div>
+                  <div class="badge badge-sm">completed</div>
+                  <div class="badge badge-sm">failed</div>
+                </div>
+              </td>
+              <td class="text-sm">Vector embedding generation stage</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title text-base">Status Badges in the UI</h3>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <div class="badge badge-success gap-1">
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              Extraction 2025-01-15
+            </div>
+            <div class="badge badge-warning gap-1">
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+              </svg>
+              Embedding 2025-01-15
+            </div>
+            <div class="badge badge-error gap-1">
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
+              </svg>
+              Unsupported Format
+            </div>
+            <div class="badge badge-info gap-1">
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              Legacy File
+            </div>
+          </div>
+          <p class="text-sm mt-4">These badges appear in the file list and indicate processing completion times or errors.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- File Metadata -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">File Metadata</h2>
+
+      <p class="mb-4">Each file stores metadata that can be used for filtering, sorting, and enrichment:</p>
+
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Description</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>name</code></td>
+              <td>File name with extension</td>
+              <td>From upload or crawler</td>
+            </tr>
+            <tr>
+              <td><code>mimeType</code></td>
+              <td>File type (e.g., application/pdf, image/png)</td>
+              <td>Detected automatically</td>
+            </tr>
+            <tr>
+              <td><code>size</code></td>
+              <td>File size in bytes</td>
+              <td>Actual file size</td>
+            </tr>
+            <tr>
+              <td><code>originUri</code></td>
+              <td>Original location (file path, SharePoint URL, etc.)</td>
+              <td>From upload or crawler</td>
+            </tr>
+            <tr>
+              <td><code>originModificationDate</code></td>
+              <td>When the file was last modified at its source</td>
+              <td>From file system or crawler</td>
+            </tr>
+            <tr>
+              <td><code>uploadedAt</code></td>
+              <td>When the file was added to George AI</td>
+              <td>Set at creation time</td>
+            </tr>
+            <tr>
+              <td><code>createdAt</code></td>
+              <td>When the file record was created in the database</td>
+              <td>Set at creation time</td>
+            </tr>
+            <tr>
+              <td><code>archivedAt</code></td>
+              <td>When the file was archived (if applicable)</td>
+              <td>Set when file is archived</td>
+            </tr>
+            <tr>
+              <td><code>taskCount</code></td>
+              <td>Number of processing tasks associated with this file</td>
+              <td>Counted from processing queue</td>
+            </tr>
+            <tr>
+              <td><code>chunksCount</code></td>
+              <td>Number of vector embedding chunks generated</td>
+              <td>From embedding process</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <p class="font-bold">Using Metadata in Lists</p>
+          <p class="text-sm">You can create List fields with <code>sourceType: file_property</code> to display file metadata (name, size, modified date, source) without AI processing.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- File Actions -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">File Actions</h2>
+
+      <p class="mb-4">You can perform several actions on files through the file menu:</p>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Reprocess (Re-extract)</h3>
+            <p class="text-sm mb-3">Triggers a new extraction task to re-extract text and images from the file</p>
+            <p class="text-sm"><strong>Use when:</strong></p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Extraction failed or timed out</li>
+              <li>Library extraction settings changed (e.g., updated OCR prompt)</li>
+              <li>File content was updated at the source</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Re-embed</h3>
+            <p class="text-sm mb-3">Triggers a new embedding task to regenerate vector embeddings</p>
+            <p class="text-sm"><strong>Use when:</strong></p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Embedding failed or timed out</li>
+              <li>Library embedding model changed</li>
+              <li>Extraction was re-run with new content</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">View Info</h3>
+            <p class="text-sm mb-3">Shows detailed file metadata and processing information</p>
+            <p class="text-sm"><strong>Displays:</strong></p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>File size and format</li>
+              <li>Processing status</li>
+              <li>Number of chunks generated</li>
+              <li>Number of processing tasks</li>
+              <li>Crawler source (if applicable)</li>
+              <li>Origin modification date</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">View Extraction</h3>
+            <p class="text-sm mb-3">Shows the extracted markdown content from the file</p>
+            <p class="text-sm"><strong>Use for:</strong></p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Verifying extraction quality</li>
+              <li>Debugging enrichment issues</li>
+              <li>Understanding what content AI assistants see</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Supported File Types -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Supported File Types</h2>
+
+      <p class="mb-4">George AI supports a wide range of file formats for automatic text extraction:</p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card bg-success text-success-content">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Documents</h3>
+            <ul class="text-xs space-y-1">
+              <li>• PDF (.pdf)</li>
+              <li>• Word (.docx, .doc)</li>
+              <li>• PowerPoint (.pptx, .ppt)</li>
+              <li>• Excel (.xlsx, .xls)</li>
+              <li>• Text (.txt, .md, .csv)</li>
+              <li>• HTML (.html, .htm)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-success text-success-content">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Images (with OCR)</h3>
+            <ul class="text-xs space-y-1">
+              <li>• JPEG (.jpg, .jpeg)</li>
+              <li>• PNG (.png)</li>
+              <li>• TIFF (.tiff, .tif)</li>
+              <li>• BMP (.bmp)</li>
+              <li>• GIF (.gif)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-success text-success-content">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Archives</h3>
+            <ul class="text-xs space-y-1">
+              <li>• ZIP (.zip)</li>
+              <li>• 7-Zip (.7z)</li>
+              <li>• TAR (.tar, .tar.gz)</li>
+            </ul>
+            <p class="text-xs mt-2">Archives are extracted and files inside are processed individually</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <p class="font-bold">Unsupported Formats</p>
+          <p class="text-sm">If a file format is not supported, it will be marked with "Unsupported Format" badge and no extraction will be performed. The file metadata is still stored and searchable.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Learn more about how files are processed and used:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/processing" class="btn btn-secondary">
+              Document Processing →
+            </a>
+            <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Embeddings
+            </a>
+            <a href="/docs/crawlers" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Crawlers
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

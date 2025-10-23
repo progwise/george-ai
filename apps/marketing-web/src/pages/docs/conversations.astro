@@ -1,0 +1,431 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Conversations - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Conversations</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Conversations</h1>
+          <p class="text-xl">
+            Interactive chat sessions with AI assistants to find information and get answers
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Conversations -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Conversations?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Conversations are chat sessions where users interact with AI assistants to ask questions, find information, and get insights from your organization's knowledge base.
+        </p>
+        <p>
+          Each conversation maintains context across multiple messages, allowing natural back-and-forth dialogue where the assistant remembers previous questions and can provide follow-up answers.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Multi-Turn Dialogue</h3>
+            <p class="text-sm">Ask follow-up questions that build on previous answers</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Source Citations</h3>
+            <p class="text-sm">See which documents were used to generate each answer</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Collaborative Chats</h3>
+            <p class="text-sm">Invite multiple users and assistants to a single conversation</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Starting a Conversation -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Starting a Conversation</h2>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">How to Start</h3>
+          <ol class="list-decimal list-inside space-y-3 mt-4">
+            <li class="text-sm">
+              <strong>Navigate to Conversations</strong>
+              <p class="ml-5 mt-1 text-base-content/70">Click "Conversations" in the main navigation</p>
+            </li>
+            <li class="text-sm">
+              <strong>Create New Conversation</strong>
+              <p class="ml-5 mt-1 text-base-content/70">Click "New Conversation" button</p>
+            </li>
+            <li class="text-sm">
+              <strong>Select Assistant(s)</strong>
+              <p class="ml-5 mt-1 text-base-content/70">Choose which assistant(s) to include in the conversation. You can add multiple assistants for different expertise areas.</p>
+            </li>
+            <li class="text-sm">
+              <strong>Invite Participants (Optional)</strong>
+              <p class="ml-5 mt-1 text-base-content/70">Add other team members to collaborate in this conversation</p>
+            </li>
+            <li class="text-sm">
+              <strong>Start Chatting</strong>
+              <p class="ml-5 mt-1 text-base-content/70">Type your question and press Send</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <p class="font-bold">Assistant Access Required</p>
+          <p class="text-sm">You can only select assistants you have access to (either as owner or participant). Contact the assistant owner to request access.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Conversation Flow -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How Conversations Work</h2>
+
+      <div class="space-y-4">
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">1. You Ask a Question</h3>
+            <p class="text-sm">Type your question in natural language. Be as specific or general as you need—the assistant understands context.</p>
+            <div class="mockup-code mt-2 text-xs">
+              <pre data-prefix="User:"><code>What is our refund policy for digital products?</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">2. Assistant Searches Knowledge Base</h3>
+            <p class="text-sm">The assistant searches all linked Libraries using semantic search to find relevant document chunks related to your question.</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">3. Answer with Sources</h3>
+            <p class="text-sm">The assistant generates an answer based on found documents and conversation history, including references to source files.</p>
+            <div class="mockup-code mt-2 text-xs">
+              <pre data-prefix="Assistant:"><code>According to our policy documentation, digital</code></pre>
+              <pre data-prefix=" "><code>products can be refunded within 14 days if they</code></pre>
+              <pre data-prefix=" "><code>are unused or defective.</code></pre>
+              <pre data-prefix=" "><code></code></pre>
+              <pre data-prefix="Sources:"><code>📄 Refund_Policy_2024.pdf (page 3)</code></pre>
+              <pre data-prefix=" "><code>📄 Customer_Service_Guidelines.docx</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">4. Follow-Up Questions</h3>
+            <p class="text-sm">Ask clarifying questions or dive deeper. The assistant remembers the conversation context.</p>
+            <div class="mockup-code mt-2 text-xs">
+              <pre data-prefix="User:"><code>What about physical products?</code></pre>
+              <pre data-prefix="Assistant:"><code>Physical products have a 30-day return window...</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Conversation Features -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Conversation Features</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Context Awareness -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Context Awareness</h3>
+            <p class="text-sm mb-3">The assistant remembers the entire conversation history, so you can:</p>
+            <ul class="text-xs space-y-1">
+              <li>• Ask follow-up questions without repeating context</li>
+              <li>• Use pronouns ("it", "that", "this") and be understood</li>
+              <li>• Build on previous answers progressively</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Source Citations -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Source Citations</h3>
+            <p class="text-sm mb-3">Every answer includes references to source documents:</p>
+            <ul class="text-xs space-y-1">
+              <li>• See which files were used to generate the answer</li>
+              <li>• Click source links to view the original document</li>
+              <li>• Verify information accuracy</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Multiple Assistants -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Multiple Assistants</h3>
+            <p class="text-sm mb-3">Add multiple assistants to one conversation:</p>
+            <ul class="text-xs space-y-1">
+              <li>• Get expertise from different knowledge domains</li>
+              <li>• Each assistant searches its own linked Libraries</li>
+              <li>• Answers are consolidated from all assistants</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Collaborative -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Collaborative Conversations</h3>
+            <p class="text-sm mb-3">Invite team members to participate:</p>
+            <ul class="text-xs space-y-1">
+              <li>• Multiple users can ask questions in the same conversation</li>
+              <li>• All participants see the complete conversation history</li>
+              <li>• Great for team research or collaborative problem-solving</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Edit Messages -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Edit & Refine</h3>
+            <p class="text-sm mb-3">Refine your questions and responses:</p>
+            <ul class="text-xs space-y-1">
+              <li>• Edit your messages after sending</li>
+              <li>• Rephrase questions for better results</li>
+              <li>• Conversation updates when you edit</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Conversation History -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Persistent History</h3>
+            <p class="text-sm mb-3">All conversations are saved:</p>
+            <ul class="text-xs space-y-1">
+              <li>• Access past conversations anytime</li>
+              <li>• Continue conversations days or weeks later</li>
+              <li>• Search through conversation history</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Tips for Effective Conversations -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Tips for Effective Conversations</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Be Specific</h3>
+            <p class="text-sm">Instead of "Tell me about pricing", ask "What is the pricing structure for our Enterprise plan including volume discounts?"</p>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Ask Follow-Up Questions</h3>
+            <p class="text-sm">Don't hesitate to ask for clarification, examples, or more details. The assistant understands you're building on the previous exchange.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Check Source Documents</h3>
+            <p class="text-sm">Always review the cited sources to verify information and get more context. Click source links to view the full documents.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Rephrase if Needed</h3>
+            <p class="text-sm">If the answer isn't what you expected, try rephrasing your question or providing more context about what you're looking for.</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Use Multiple Assistants Wisely</h3>
+            <p class="text-sm">If your question spans multiple domains (e.g., both technical and sales information), add multiple specialized assistants to get comprehensive coverage.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Understanding Limitations -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Understanding Limitations</h2>
+
+      <div class="prose max-w-none">
+        <p class="mb-4">While assistants are powerful, it's important to understand their limitations:</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>What Assistants Can Do</th>
+              <th>What Assistants Cannot Do</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Answer questions based on documents in linked Libraries</td>
+              <td>Access information not in the knowledge base</td>
+            </tr>
+            <tr>
+              <td>Understand context from conversation history</td>
+              <td>Remember information from other conversations</td>
+            </tr>
+            <tr>
+              <td>Cite sources for their answers</td>
+              <td>Browse the internet or access external data</td>
+            </tr>
+            <tr>
+              <td>Follow behavior instructions from base cases</td>
+              <td>Perform actions outside of answering questions</td>
+            </tr>
+            <tr>
+              <td>Search across multiple Libraries simultaneously</td>
+              <td>Modify or create documents</td>
+            </tr>
+            <tr>
+              <td>Provide answers in real-time</td>
+              <td>Guarantee 100% accuracy (always verify important info)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <p class="font-bold">Verify Critical Information</p>
+          <p class="text-sm">AI assistants can occasionally misinterpret or misrepresent information. Always verify critical facts by checking the source documents, especially for important decisions.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Use Cases -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Use Cases</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Onboarding New Employees</h3>
+            <p class="text-sm">New hires can ask questions about company policies, procedures, tools, and culture—getting instant answers from HR documentation and handbooks.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Technical Troubleshooting</h3>
+            <p class="text-sm">Engineers search API documentation, troubleshooting guides, and architecture decisions to solve problems quickly without asking teammates.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Customer Support</h3>
+            <p class="text-sm">Support agents get instant answers from product documentation, FAQs, and troubleshooting guides while chatting with customers.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Sales Enablement</h3>
+            <p class="text-sm">Sales reps quickly find product details, pricing information, competitive analysis, and customer case studies during calls with prospects.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Research & Analysis</h3>
+            <p class="text-sm">Teams collaborate in conversations to research topics across multiple document sources, building on each other's questions.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Compliance & Policy Questions</h3>
+            <p class="text-sm">Employees get quick answers about company policies, compliance requirements, and legal guidelines from policy documentation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Learn more about building your knowledge base:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/assistants" class="btn btn-secondary">
+              Assistants →
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+            <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Embeddings
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

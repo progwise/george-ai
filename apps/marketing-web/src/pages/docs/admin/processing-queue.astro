@@ -1,0 +1,406 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Processing Queue - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li><a href="/docs">Administration</a></li>
+        <li>Processing Queue</li>
+      </ul>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="badge badge-warning mb-4">Admin</div>
+      <h1 class="text-5xl font-bold mb-4">Processing Queue Management</h1>
+      <p class="text-xl text-base-content/70">
+        Monitor and manage document processing tasks across all Libraries
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          The Processing Queue dashboard provides centralized monitoring and management of all document extraction and embedding tasks across your entire George AI instance.
+        </p>
+        <p>
+          Access: <strong>Admin Panel → Processing Queue</strong>
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Queue Status -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Queue Status Overview</h2>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Pending Tasks</div>
+          <div class="stat-value text-warning">127</div>
+          <div class="stat-desc">Waiting for processing</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Processing Tasks</div>
+          <div class="stat-value text-info">4</div>
+          <div class="stat-desc">Currently being processed</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Failed Tasks</div>
+          <div class="stat-value text-error">12</div>
+          <div class="stat-desc">Need attention</div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title">Worker Status</h3>
+          <div class="flex items-center gap-4 mt-2">
+            <div class="badge badge-success badge-lg">Running</div>
+            <p class="text-sm">Queue worker is actively processing tasks</p>
+          </div>
+          <p class="text-sm text-base-content/70 mt-2">Last processed: 5 seconds ago</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Management Actions -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Management Actions</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Worker Control -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Worker Control</h3>
+            <p class="text-sm mb-4">Start or stop the queue worker that processes tasks</p>
+
+            <div class="space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="badge badge-success">Start Worker</div>
+                <p class="text-xs flex-1">Resume processing pending tasks. Use when queue was stopped for maintenance.</p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="badge badge-error">Stop Worker</div>
+                <p class="text-xs flex-1">Pause new task processing. Tasks already running will continue to completion.</p>
+              </div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <span class="text-xs">Stopping the worker does NOT cancel already-running tasks</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failed Task Management -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Failed Task Management</h3>
+            <p class="text-sm mb-4">Handle tasks that encountered errors</p>
+
+            <div class="space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="badge badge-warning">Retry Failed</div>
+                <p class="text-xs flex-1">Re-queue all failed tasks for another attempt. Useful after fixing configuration issues.</p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="badge badge-error">Clear Failed</div>
+                <p class="text-xs flex-1">Permanently remove failed tasks from the queue. Use for tasks that cannot be fixed.</p>
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span class="text-xs">Actions can be filtered by Library ID if specified</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Task Management -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Pending Task Management</h3>
+            <p class="text-sm mb-4">Manage tasks waiting to be processed</p>
+
+            <div class="space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="badge badge-error">Clear Pending</div>
+                <p class="text-xs flex-1">Remove all pending tasks from the queue without processing them.</p>
+              </div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <span class="text-xs">Use with caution: cleared tasks will NOT be processed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Cancellation -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">Task Cancellation</h3>
+            <p class="text-sm mb-4">Cancel specific processing tasks</p>
+
+            <div class="space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="badge badge-error">Cancel Tasks</div>
+                <p class="text-xs flex-1">Cancel processing tasks for specific files or Libraries. Applies to both pending and actively processing tasks.</p>
+              </div>
+            </div>
+
+            <p class="text-xs mt-4 text-base-content/70">Useful when you need to stop processing for specific files that are problematic or no longer needed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Viewing Task Details -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Viewing Task Details</h2>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Task Information</h3>
+          <p class="text-sm mb-4">Each processing task shows detailed information:</p>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>File Name</strong></td>
+                  <td>The document being processed</td>
+                </tr>
+                <tr>
+                  <td><strong>Library</strong></td>
+                  <td>Which Library this file belongs to</td>
+                </tr>
+                <tr>
+                  <td><strong>Status</strong></td>
+                  <td>Current processing state (pending, extracting, embedding, completed, failed)</td>
+                </tr>
+                <tr>
+                  <td><strong>Created At</strong></td>
+                  <td>When the task was created</td>
+                </tr>
+                <tr>
+                  <td><strong>Started At</strong></td>
+                  <td>When processing began</td>
+                </tr>
+                <tr>
+                  <td><strong>Finished At</strong></td>
+                  <td>When processing completed (or failed)</td>
+                </tr>
+                <tr>
+                  <td><strong>Processing Time</strong></td>
+                  <td>Total time spent processing (in milliseconds)</td>
+                </tr>
+                <tr>
+                  <td><strong>Error Message</strong></td>
+                  <td>Error details if task failed</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <p class="font-bold">Filter by Status</p>
+          <p class="text-sm">Use the status filter dropdown to view only tasks in a specific state (pending, processing, failed, completed, etc.)</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Common Scenarios -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Management Scenarios</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- Scenario 1 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="scenarios" checked />
+          <div class="collapse-title text-lg font-medium">
+            Queue Backed Up with Many Pending Tasks
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-3"><strong>Symptoms:</strong> Thousands of pending tasks, very slow processing</p>
+              <p class="text-sm mb-3"><strong>Causes:</strong></p>
+              <ul class="text-sm list-disc list-inside space-y-1 mb-3">
+                <li>Too many files added at once (large crawler run)</li>
+                <li>AI Services overwhelmed or slow</li>
+                <li>Not enough AI Service servers</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="text-sm list-disc list-inside space-y-1">
+                <li>Add more AI Service servers for parallel processing</li>
+                <li>Reduce crawler maxPages settings</li>
+                <li>Process in batches: stop worker, clear some pending, restart</li>
+                <li>Check AI Services health and restart if needed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenario 2 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="scenarios" />
+          <div class="collapse-title text-lg font-medium">
+            Many Failed Tasks After Configuration Change
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-3"><strong>Symptoms:</strong> Spike in failed tasks after changing Library settings</p>
+              <p class="text-sm mb-3"><strong>Common Causes:</strong></p>
+              <ul class="text-sm list-disc list-inside space-y-1 mb-3">
+                <li>Changed embedding model to one that's not available</li>
+                <li>Changed OCR timeout to value that's too low</li>
+                <li>AI Services temporarily unavailable</li>
+              </ul>
+              <p class="text-sm mb-2"><strong>Solutions:</strong></p>
+              <ul class="text-sm list-disc list-inside space-y-1">
+                <li>Revert Library configuration changes</li>
+                <li>Verify AI Services are running and responsive</li>
+                <li>Use "Retry Failed" to reprocess with corrected settings</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenario 3 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="scenarios" />
+          <div class="collapse-title text-lg font-medium">
+            Emergency Maintenance Required
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-3"><strong>Scenario:</strong> Need to perform urgent system maintenance</p>
+              <p class="text-sm mb-2"><strong>Steps:</strong></p>
+              <ol class="text-sm list-decimal list-inside space-y-1">
+                <li>Stop the queue worker</li>
+                <li>Wait for currently processing tasks to complete (monitor "Processing Tasks" count)</li>
+                <li>Perform maintenance</li>
+                <li>Restart queue worker</li>
+              </ol>
+              <div class="alert alert-info mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs">Pending tasks remain in queue and will resume when worker restarts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenario 4 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="scenarios" />
+          <div class="collapse-title text-lg font-medium">
+            Specific Files Causing Problems
+          </div>
+          <div class="collapse-content">
+            <div class="ml-4">
+              <p class="text-sm mb-3"><strong>Scenario:</strong> Certain files repeatedly fail or timeout</p>
+              <p class="text-sm mb-2"><strong>Steps:</strong></p>
+              <ol class="text-sm list-decimal list-inside space-y-1 mb-3">
+                <li>Identify problematic file(s) from failed task list</li>
+                <li>Use "Cancel Tasks" to stop processing those specific files</li>
+                <li>Review files - are they corrupted, too large, unsupported format?</li>
+                <li>Either fix files and reprocess, or exclude them permanently</li>
+              </ol>
+              <p class="text-sm">For permanently problematic files, consider adding crawler exclude patterns to prevent re-ingestion.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Monitor Regularly</h3>
+            <p class="text-sm">Check the Processing Queue dashboard daily to catch issues early. Set up alerts if failed task count exceeds a threshold.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Investigate Failed Tasks</h3>
+            <p class="text-sm">Don't just clear failed tasks—review error messages to identify root causes and prevent future failures.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Be Cautious with Bulk Actions</h3>
+            <p class="text-sm">Actions like "Clear Pending" or "Clear Failed" affect many tasks at once. Consider using Library filtering to limit scope.</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Scale AI Services as Needed</h3>
+            <p class="text-sm">If pending task count consistently grows, you need more processing capacity. Add AI Service servers or increase concurrent limits.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/processing" class="btn btn-secondary">
+              Document Processing →
+            </a>
+            <a href="/docs/admin/ai-services" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              AI Service Clustering
+            </a>
+            <a href="/docs/admin/enrichment-queue" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Enrichment Queue
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

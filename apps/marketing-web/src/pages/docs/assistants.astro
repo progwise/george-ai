@@ -1,0 +1,506 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Assistants - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Assistants</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-primary/10 to-primary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-5xl font-bold mb-4">Assistants</h1>
+          <p class="text-xl">
+            AI-powered chat assistants that answer questions using your knowledge base
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Assistants -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Assistants?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Assistants are AI chat agents that answer questions based on documents in your Libraries. Each assistant is configured with specific behavior instructions and connected to relevant Libraries, allowing users to have natural language conversations about your data.
+        </p>
+        <p>
+          Think of assistants as specialized team members—each one knows about specific topics and can help users find information, answer questions, and provide insights based on your organization's documents.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Knowledge-Grounded</h3>
+            <p class="text-sm">Answers based on your actual documents, not generic AI knowledge</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Customizable Behavior</h3>
+            <p class="text-sm">Configure how the assistant responds with instruction base cases</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">Multi-Library Access</h3>
+            <p class="text-sm">Connect to multiple Libraries for comprehensive knowledge</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Creating an Assistant -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Creating an Assistant</h2>
+
+      <ul class="steps steps-vertical w-full mb-8">
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Basic Info</div>
+            <div class="text-xs">Name, description, icon</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Select AI Model</div>
+            <div class="text-xs">Choose language model</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Link Libraries</div>
+            <div class="text-xs">Connect knowledge sources</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Configure Behavior</div>
+            <div class="text-xs">Add instruction base cases</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Add Participants</div>
+            <div class="text-xs">Grant user access</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="join join-vertical w-full">
+        <!-- Basic Configuration -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="assistant-config" checked />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">1</div>
+            Basic Configuration
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th class="w-1/3">Name</th>
+                      <td>
+                        <p class="mb-1"><strong>Required</strong></p>
+                        <p class="text-sm text-base-content/70">A descriptive name for your assistant (e.g., "Product Documentation Expert", "HR Policy Helper", "Technical Support Bot")</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Description</th>
+                      <td>
+                        <p class="mb-1"><strong>Optional</strong></p>
+                        <p class="text-sm text-base-content/70">Brief description of what this assistant helps with. Visible to users when selecting an assistant.</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Icon</th>
+                      <td>
+                        <p class="mb-1"><strong>Optional</strong></p>
+                        <p class="text-sm text-base-content/70">Upload a custom icon image (PNG, JPG) to visually identify this assistant</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Language Model</th>
+                      <td>
+                        <p class="mb-1"><strong>Optional</strong> • Defaults to system default</p>
+                        <p class="text-sm text-base-content/70">Select which AI model powers this assistant. Available models depend on your AI Services configuration.</p>
+                        <p class="text-sm text-base-content/70 mt-2">Different models have different capabilities—larger models are more capable but slower.</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Linking Libraries -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="assistant-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">2</div>
+            Linking Libraries
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-4">Assistants need access to Libraries to answer questions. Each linked Library becomes part of the assistant's knowledge base.</p>
+
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">How Library Linking Works</h4>
+                  <ol class="list-decimal list-inside text-sm space-y-2">
+                    <li>Select which Libraries this assistant can search</li>
+                    <li>For each Library, describe <strong>"Used For"</strong> — what topics/information this Library provides</li>
+                    <li>When a user asks a question, the assistant searches linked Libraries for relevant content</li>
+                    <li>The assistant uses found documents as context to generate accurate answers</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div class="mockup-code mt-6 text-xs">
+                <pre data-prefix="Example:"><code>Assistant: "Technical Documentation Helper"</code></pre>
+                <pre data-prefix=" "><code></code></pre>
+                <pre data-prefix="Library 1:"><code>"Engineering Docs"</code></pre>
+                <pre data-prefix="Used For:"><code>"API references, architecture diagrams"</code></pre>
+                <pre data-prefix=" "><code></code></pre>
+                <pre data-prefix="Library 2:"><code>"Release Notes"</code></pre>
+                <pre data-prefix="Used For:"><code>"Version history, changelog, upgrade guides"</code></pre>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Library Access Required</p>
+                  <p class="text-sm">Users must have read access to the linked Libraries to use the assistant. If a user doesn't have access to a Library, that Library's content won't be included in search results for them.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavior Configuration (Base Cases) -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="assistant-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">3</div>
+            Behavior Configuration (Base Cases)
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-4">Base cases are instruction rules that control how the assistant behaves and responds to different types of questions.</p>
+
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">What are Base Cases?</h4>
+                  <p class="text-sm mb-3">Each base case is a conditional instruction that tells the assistant how to respond when certain conditions are met.</p>
+
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Field</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><strong>Condition</strong></td>
+                          <td class="text-xs">When to apply this instruction (e.g., "user asks about pricing", "question is in German")</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Instruction</strong></td>
+                          <td class="text-xs">What the assistant should do (e.g., "Provide pricing details and include a link to the pricing page")</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Sequence</strong></td>
+                          <td class="text-xs">Order of priority (lower numbers = higher priority). First matching base case is applied.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <h4 class="font-semibold mb-3">Example Base Cases:</h4>
+
+                <div class="space-y-3">
+                  <div class="card bg-base-100 shadow">
+                    <div class="card-body p-4">
+                      <div class="flex items-start gap-2">
+                        <div class="badge badge-primary">1</div>
+                        <div class="flex-1">
+                          <p class="text-sm font-semibold">Condition: <span class="font-normal">"User asks about API authentication"</span></p>
+                          <p class="text-sm mt-1">Instruction: <span class="italic">"Explain OAuth 2.0 flow and provide code examples from the API documentation. Always include links to relevant sections."</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card bg-base-100 shadow">
+                    <div class="card-body p-4">
+                      <div class="flex items-start gap-2">
+                        <div class="badge badge-primary">2</div>
+                        <div class="flex-1">
+                          <p class="text-sm font-semibold">Condition: <span class="font-normal">"User needs troubleshooting help"</span></p>
+                          <p class="text-sm mt-1">Instruction: <span class="italic">"Ask clarifying questions about their environment (OS, version, error message) before providing solutions. Reference troubleshooting guides."</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card bg-base-100 shadow">
+                    <div class="card-body p-4">
+                      <div class="flex items-start gap-2">
+                        <div class="badge badge-primary">3</div>
+                        <div class="flex-1">
+                          <p class="text-sm font-semibold">Condition: <span class="font-normal">"Question is outside documentation scope"</span></p>
+                          <p class="text-sm mt-1">Instruction: <span class="italic">"Politely explain that you can only answer questions about documented topics. Suggest contacting support for other inquiries."</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-warning mt-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div>
+                  <p class="font-bold">All Fields Optional</p>
+                  <p class="text-sm">Base cases are optional. Without base cases, the assistant uses default behavior: answer questions directly using content from linked Libraries.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Participants -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="assistant-config" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">4</div>
+            Participants & Access Control
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10">
+              <p class="mb-4">Control who can use this assistant by managing participants:</p>
+
+              <div class="card bg-base-200">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Access Roles</h4>
+                  <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <h5 class="font-semibold text-sm mb-2">Owner:</h5>
+                      <ul class="text-xs space-y-1">
+                        <li>• Full control over the assistant</li>
+                        <li>• Can edit all settings</li>
+                        <li>• Can manage participants</li>
+                        <li>• Can link/unlink Libraries</li>
+                        <li>• Can delete the assistant</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h5 class="font-semibold text-sm mb-2">Participants:</h5>
+                      <ul class="text-xs space-y-1">
+                        <li>• Can start conversations with the assistant</li>
+                        <li>• Can ask questions and receive answers</li>
+                        <li>• Cannot modify assistant configuration</li>
+                        <li>• Cannot see other users' conversations</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Add Participants</p>
+                  <p class="text-sm">Navigate to Assistant Settings → Participants → Add Users to grant access to additional team members.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How Assistants Work -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How Assistants Work</h2>
+
+      <p class="mb-6">When a user asks a question in a conversation:</p>
+
+      <div class="space-y-4">
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">1. Semantic Search</h3>
+            <p class="text-sm">The assistant searches all linked Libraries using vector similarity search to find relevant document chunks</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">2. Context Assembly</h3>
+            <p class="text-sm">Retrieved document chunks are assembled as context, along with conversation history and any applicable base case instructions</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">3. Answer Generation</h3>
+            <p class="text-sm">The AI model generates an answer based on the retrieved documents and instructions, citing sources from your Libraries</p>
+          </div>
+        </div>
+
+        <div class="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">4. Response with Sources</h3>
+            <p class="text-sm">The answer is shown to the user along with references to source documents, allowing verification and further reading</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Use Cases -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Use Cases</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Customer Support Bot</h3>
+            <p class="text-sm mb-3">Answers customer questions based on product documentation, FAQs, and troubleshooting guides</p>
+            <div class="text-xs space-y-1">
+              <p><strong>Libraries:</strong> Product Docs, FAQs, Troubleshooting</p>
+              <p><strong>Base Case:</strong> "Always be polite and ask follow-up questions to clarify issues"</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Internal HR Assistant</h3>
+            <p class="text-sm mb-3">Helps employees find HR policies, benefits information, and answers to common HR questions</p>
+            <div class="text-xs space-y-1">
+              <p><strong>Libraries:</strong> HR Policies, Benefits Handbook, Onboarding</p>
+              <p><strong>Base Case:</strong> "For sensitive topics (salary, performance), direct to HR contact"</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Engineering Knowledge Base</h3>
+            <p class="text-sm mb-3">Provides API documentation, architecture decisions, and coding standards to developers</p>
+            <div class="text-xs space-y-1">
+              <p><strong>Libraries:</strong> API Docs, Architecture Diagrams, Code Standards</p>
+              <p><strong>Base Case:</strong> "Always include code examples and link to detailed documentation"</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Sales Enablement</h3>
+            <p class="text-sm mb-3">Assists sales team with product information, competitive analysis, and customer case studies</p>
+            <div class="text-xs space-y-1">
+              <p><strong>Libraries:</strong> Product Specs, Case Studies, Competitor Analysis</p>
+              <p><strong>Base Case:</strong> "Emphasize unique selling points and customer success stories"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="space-y-4">
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Create Focused Assistants</h3>
+            <p class="text-sm">Instead of one general assistant, create multiple specialized assistants for different topics (HR, Engineering, Sales). This improves answer quality and allows targeted behavior customization.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Write Clear "Used For" Descriptions</h3>
+            <p class="text-sm">When linking Libraries, clearly describe what information each Library contains. This helps the AI understand when to search each Library.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Test Base Cases Thoroughly</h3>
+            <p class="text-sm">After adding base case instructions, test them with real questions to ensure the assistant behaves as expected. Refine instructions based on actual usage.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Keep Libraries Up-to-Date</h3>
+            <p class="text-sm">Assistants are only as good as their linked Libraries. Use Crawlers to keep documentation synchronized and regularly review Library content for accuracy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <p>Learn more about using assistants:</p>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/conversations" class="btn btn-secondary">
+              Conversations →
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Libraries
+            </a>
+            <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Embeddings
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>
