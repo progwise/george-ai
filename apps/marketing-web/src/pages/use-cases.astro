@@ -98,7 +98,78 @@ const appUrl = getAppUrl()
               </ul>
             </div>
           </div>
+
+          <!-- Implementation Screenshots -->
+          <div class="mt-8 border-t border-base-300 pt-8">
+            <h3 class="font-bold text-xl mb-6 text-center">Real Implementation</h3>
+            <p class="text-sm text-center text-base-content/70 mb-6">Click images to enlarge</p>
+            <div class="grid md:grid-cols-2 gap-6">
+
+              <!-- Screenshot 1 -->
+              <div class="space-y-3">
+                <label for="modal-pharma-enrichment-field" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/pharma-packaging-enrichment-field.png"
+                    alt="Data Enrichment Configuration"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">No-Code Enrichment Configuration</p>
+                <p class="text-xs text-center text-base-content/70">Business users configure custom enrichment fields without developer help</p>
+              </div>
+
+              <!-- Screenshot 2 -->
+              <div class="space-y-3">
+                <label for="modal-pharma-enrichment-stats" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/pharma-packaging-enrichment-statistics.png"
+                    alt="Enrichment Processing Statistics"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">Enrichment Processing Statistics</p>
+                <p class="text-xs text-center text-base-content/70">Real-time monitoring of document processing and data extraction</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Modals for Use Case 1 Screenshots -->
+      <!-- Modal 1: Enrichment Field -->
+      <input type="checkbox" id="modal-pharma-enrichment-field" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">No-Code Enrichment Configuration</h3>
+          <img
+            src="/images/use-cases/pharma-packaging-enrichment-field.png"
+            alt="Data Enrichment Configuration"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">Business users can configure custom enrichment fields to extract specific data from packaging documents without requiring developer assistance.</p>
+          <div class="modal-action">
+            <label for="modal-pharma-enrichment-field" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-pharma-enrichment-field">Close</label>
+      </div>
+
+      <!-- Modal 2: Enrichment Statistics -->
+      <input type="checkbox" id="modal-pharma-enrichment-stats" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">Enrichment Processing Statistics</h3>
+          <img
+            src="/images/use-cases/pharma-packaging-enrichment-statistics.png"
+            alt="Enrichment Processing Statistics"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">Real-time statistics show the progress of document processing, enrichment success rates, and data extraction quality across the 30,000+ packaging documents.</p>
+          <div class="modal-action">
+            <label for="modal-pharma-enrichment-stats" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-pharma-enrichment-stats">Close</label>
       </div>
 
       <!-- Use Case 2: Email-to-Structure for Project Teams -->
@@ -135,6 +206,10 @@ const appUrl = getAppUrl()
                 The Solution
               </h3>
               <ul class="space-y-2 text-sm">
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  Custom n8n workflows for email ingestion and AI agent processing
+                </li>
                 <li class="flex items-start gap-2">
                   <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   AI-powered email analysis and entity extraction
@@ -182,7 +257,78 @@ const appUrl = getAppUrl()
               </ul>
             </div>
           </div>
+
+          <!-- Implementation Screenshots -->
+          <div class="mt-8 border-t border-base-300 pt-8">
+            <h3 class="font-bold text-xl mb-6 text-center">Real Implementation</h3>
+            <p class="text-sm text-center text-base-content/70 mb-6">Click images to enlarge</p>
+            <div class="grid md:grid-cols-2 gap-6">
+
+              <!-- Screenshot 1 -->
+              <div class="space-y-3">
+                <label for="modal-ai-agent" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/n8n-ai-agent-with-george-ai-tools.png"
+                    alt="AI Agent Workflow in n8n"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">AI Agent Workflow in n8n</p>
+                <p class="text-xs text-center text-base-content/70">Automatically extracts deadlines, budgets, and approvals from email threads</p>
+              </div>
+
+              <!-- Screenshot 2 -->
+              <div class="space-y-3">
+                <label for="modal-email-ingestion" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/n8n-email-ingestion-example.png"
+                    alt="Email Ingestion Workflow in n8n"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">Email Ingestion Workflow</p>
+                <p class="text-xs text-center text-base-content/70">Processes shared mailbox and routes to George AI Libraries</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Modals for Use Case 2 Screenshots -->
+      <!-- Modal 1: AI Agent -->
+      <input type="checkbox" id="modal-ai-agent" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">AI Agent Workflow in n8n</h3>
+          <img
+            src="/images/use-cases/n8n-ai-agent-with-george-ai-tools.png"
+            alt="AI Agent Workflow in n8n"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">This n8n workflow uses George AI tools to automatically extract deadlines, budgets, and approvals from email threads.</p>
+          <div class="modal-action">
+            <label for="modal-ai-agent" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-ai-agent">Close</label>
+      </div>
+
+      <!-- Modal 2: Email Ingestion -->
+      <input type="checkbox" id="modal-email-ingestion" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">Email Ingestion Workflow</h3>
+          <img
+            src="/images/use-cases/n8n-email-ingestion-example.png"
+            alt="Email Ingestion Workflow in n8n"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">This workflow processes the shared mailbox and automatically routes emails to the appropriate George AI Libraries.</p>
+          <div class="modal-action">
+            <label for="modal-email-ingestion" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-email-ingestion">Close</label>
       </div>
 
       <!-- Use Case 3: Hospital Intranet Modernization -->

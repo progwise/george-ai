@@ -1,8 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getAppUrl } from '../utils/config'
-
-const appUrl = getAppUrl()
 ---
 
 <Layout title="George-AI - Self-hosted AI knowledge platform">
@@ -11,17 +8,21 @@ const appUrl = getAppUrl()
     <div class="hero-content text-center py-16">
       <div class="max-w-2xl">
         <h1 class="text-5xl font-bold mb-4">George-AI</h1>
-        <p class="text-xl mb-8">Self-hosted AI knowledge platform for your enterprise data</p>
+        <p class="text-xl mb-8">Turn scattered data into organized, searchable knowledge</p>
         <p class="mb-8">
-          Leverage AI with your own data while maintaining full control and data sovereignty.
-          Perfect for organizations that need powerful AI capabilities without compromising security.
+          Collect data from SharePoint, emails, file shares, and databases.
+          Organize it by business case—not by source. Find and group everything in no time 
+          and on your own infrastructure.
+        </p>
+        <p class="mb-8 font-semibold">
+          Managed by business users and not technicians. Self-hosted and secure. Built for enterprises.
         </p>
         <div class="flex gap-4 justify-center">
-          <a href={`${appUrl}/login`} class="btn btn-primary btn-lg">
-            Get Started
-          </a>
-          <a href="https://github.com/progwise/george-ai" class="btn btn-outline btn-lg">
+          <a href="https://github.com/progwise/george-ai" class="btn btn-primary btn-lg">
             View on GitHub
+          </a>
+          <a href="/docs" class="btn btn-outline btn-lg">
+            Read Documentation
           </a>
         </div>
       </div>
@@ -35,48 +36,56 @@ const appUrl = getAppUrl()
       <!-- Feature 1 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Multi-Source Data Ingestion</h3>
-          <p>Connect to email, web, files, SharePoint, SMB, and more. Bring all your enterprise data into one unified platform.</p>
+          <h3 class="card-title">Multi-Source Data Collection</h3>
+          <p>Automatic crawlers for SharePoint, Box.com, SMB file shares, and intranet pages. Add data via webhooks, n8n workflows, manual uploads, or database connections.</p>
         </div>
       </div>
 
       <!-- Feature 2 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">AI-Powered Processing</h3>
-          <p>Advanced embeddings and vector search capabilities for intelligent document retrieval and analysis.</p>
+          <h3 class="card-title">Organize by Business Case, Not Source</h3>
+          <p>Group emails, Slack messages, and Office documents together by project or topic—regardless of where they came from. No more hunting across different systems.</p>
         </div>
       </div>
 
       <!-- Feature 3 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Enterprise Integration</h3>
-          <p>Seamless n8n workflow integration for automating your AI-powered business processes.</p>
+          <h3 class="card-title">Lightning-Fast Search</h3>
+          <p>Traditional indexing plus AI-powered Vectors. Find what you need in milliseconds, whether you search by keyword or meaning.</p>
         </div>
       </div>
 
       <!-- Feature 4 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Self-Hosted Deployment</h3>
-          <p>Complete control over your data with self-hosted deployment and multi-tenant support.</p>
+          <h3 class="card-title">No-Code Data Enrichment</h3>
+          <p>Business users can enrich and organize data without developer help. Add metadata, tags, and custom fields—all through a simple interface.</p>
         </div>
       </div>
 
       <!-- Feature 5 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">EU AI Act Compliance</h3>
-          <p>Built-in compliance features to meet EU AI Act requirements for responsible AI usage.</p>
+          <h3 class="card-title">Built for Integration</h3>
+          <p>Complete API access for building custom tools. Create AI agents with n8n, embed search components in your intranet, or integrate with existing business applications.</p>
         </div>
       </div>
 
       <!-- Feature 6 -->
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Data Sovereignty</h3>
-          <p>Keep your sensitive enterprise data on your own infrastructure with full privacy control.</p>
+          <h3 class="card-title">Smart Data Management</h3>
+          <p>Automatic cleanup of outdated data, full audit logging, and access control through Libraries. Vectorization prepares your data for AI agents automatically.</p>
+        </div>
+      </div>
+
+      <!-- Feature 7 -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">AI-Services Clustering & Load Balancing</h3>
+          <p>Use all your available Ollama servers with automatic load balancing. Respects GPU speed, memory size, and available models on each server for reliable, high-performance AI processing.</p>
         </div>
       </div>
     </div>
@@ -85,14 +94,20 @@ const appUrl = getAppUrl()
   <!-- CTA Section -->
   <div class="card bg-primary text-primary-content shadow-lg">
     <div class="card-body items-center text-center">
-      <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
-      <p class="mb-6">Deploy George-AI in your organization today and unlock the power of AI with your enterprise data.</p>
+      <h2 class="card-title text-3xl mb-4">Ready to organize your data?</h2>
+      <p class="mb-6">
+        Whether you're managing 300,000 supplier documents, searching hospital knowledge bases,
+        or tracking projects in email—George AI saves thousands of man-hours every day.
+      </p>
+      <p class="mb-6 font-semibold">
+        Self-hosted. Simple to use. Built for business users and developers alike.
+      </p>
       <div class="card-actions">
-        <a href={`${appUrl}/login`} class="btn btn-secondary btn-lg">
-          Launch Application
+        <a href="https://github.com/progwise/george-ai" class="btn btn-secondary btn-lg">
+          View on GitHub
         </a>
-        <a href="/features" class="btn btn-ghost btn-lg">
-          Learn More
+        <a href="/use-cases" class="btn btn-ghost btn-lg">
+          See Use Cases
         </a>
       </div>
     </div>
