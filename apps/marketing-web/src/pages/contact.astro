@@ -4,63 +4,92 @@ import ContactFormModal from '../components/ContactFormModal.astro'
 ---
 
 <Layout title="Contact - George-AI" description="Get in touch with the George-AI team">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-4xl font-bold mb-8 text-center">Get in Touch</h1>
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4 text-center">Get in Touch</h1>
+    <p class="text-center text-lg mb-12 text-base-content/70">Choose the best way to reach us</p>
 
-    <!-- Direct Contact Info -->
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <!-- Contact Details Card -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl mb-4">Contact Information</h2>
-          <div class="space-y-3">
-            <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 mt-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              <div>
-                <p class="font-semibold">Email</p>
-                <a href="mailto:info@george-ai.net" class="link link-hover">info@george-ai.net</a>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 mt-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-              </svg>
-              <div>
-                <p class="font-semibold">Phone</p>
-                <a href="tel:+4915176995546" class="link link-hover">+49 (0) 151 76995546</a>
-                <p class="text-sm text-base-content/70">Mo-Fr 9:00-18:00 CET</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 mt-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-              <div>
-                <p class="font-semibold">Address</p>
-                <p class="text-sm">Fischstr. 21a</p>
-                <p class="text-sm">D-17489 Greifswald</p>
-                <p class="text-sm">Germany</p>
-              </div>
-            </div>
+    <!-- Primary CTAs - Hero Style -->
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      <!-- Schedule a Meeting CTA -->
+      <div class="card bg-primary text-primary-content shadow-2xl">
+        <div class="card-body text-center">
+          <div class="mx-auto bg-primary-content/20 p-4 rounded-full w-fit mb-4">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
           </div>
-          <div class="divider"></div>
-          <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">
-            Schedule a Meeting
-          </a>
+          <h2 class="card-title text-3xl justify-center mb-2">Schedule a Meeting</h2>
+          <p class="text-lg mb-6 opacity-90">Book a 30-minute call to discuss your project and requirements</p>
+          <div class="card-actions justify-center">
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-lg bg-primary-content text-primary hover:bg-primary-content/90">
+              Schedule Now
+            </a>
+          </div>
         </div>
       </div>
 
-      <!-- Quick Contact Card -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl mb-4">Send us a Message</h2>
-          <p class="mb-6">
-            Have a question or want to discuss your use case? Fill out our contact form and we'll get back to you as soon as possible.
-          </p>
-          <ContactFormModal buttonText="Open Contact Form" buttonClass="btn btn-primary btn-block" />
+      <!-- Contact Form CTA -->
+      <div class="card bg-secondary text-secondary-content shadow-2xl">
+        <div class="card-body text-center">
+          <div class="mx-auto bg-secondary-content/20 p-4 rounded-full w-fit mb-4">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h2 class="card-title text-3xl justify-center mb-2">Send a Message</h2>
+          <p class="text-lg mb-6 opacity-90">Fill out our contact form and we'll respond within 24 hours</p>
+          <div class="card-actions justify-center">
+            <label for="contact-form-modal" class="btn btn-lg bg-secondary-content text-secondary hover:bg-secondary-content/90">
+              Open Contact Form
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form Modal (outside of card to avoid inheriting styles) -->
+    <ContactFormModal />
+
+    <!-- Contact Information -->
+    <div class="card bg-base-200 shadow-lg mb-12">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-6">Contact Information</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="flex items-start gap-3">
+            <div class="bg-primary/10 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold mb-1">Email</p>
+              <a href="mailto:info@george-ai.net" class="link link-primary">info@george-ai.net</a>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="bg-primary/10 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold mb-1">Phone</p>
+              <a href="tel:+4915176995546" class="link link-primary">+49 (0) 151 76995546</a>
+              <p class="text-sm text-base-content/70">Mo-Fr 9:00-18:00 CET</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="bg-primary/10 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold mb-1">Office</p>
+              <p class="text-sm">Berlin</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -79,7 +108,7 @@ import ContactFormModal from '../components/ContactFormModal.astro'
             </svg>
             Discord Community
           </h2>
-          <p>Ask questions, share ideas, and get support from the community</p>
+          <p>Join our Discord server for quick help, troubleshooting, and real-time discussions with the community. Perfect for asking questions and sharing experiences with George-AI.</p>
           <div class="card-actions justify-end mt-4">
             <a href="https://discord.gg/5XP8f2Qe" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
               Join Discord
@@ -97,7 +126,7 @@ import ContactFormModal from '../components/ContactFormModal.astro'
             </svg>
             Documentation
           </h2>
-          <p>Find guides, API references, and setup instructions</p>
+          <p>User guides and tutorials for working with George-AI. Learn how to use features, manage your data, and get the most out of the platform.</p>
           <div class="card-actions justify-end mt-4">
             <a href="/docs" class="btn btn-secondary btn-sm">
               View Docs
@@ -115,7 +144,7 @@ import ContactFormModal from '../components/ContactFormModal.astro'
             </svg>
             GitHub
           </h2>
-          <p>Browse the source code and contribute to the project</p>
+          <p>Browse source code, access installation and setup instructions, contribute to development, and view technical documentation for developers and self-hosters.</p>
           <div class="card-actions justify-end mt-4">
             <a href="https://github.com/progwise/george-ai" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm">
               Visit Repository
@@ -133,48 +162,11 @@ import ContactFormModal from '../components/ContactFormModal.astro'
             </svg>
             Report Issues
           </h2>
-          <p>Found a bug or have a feature request? Let us know</p>
+          <p>Found a bug or have a feature request? Create a GitHub issue with detailed information about your problem or idea. Help us improve George-AI.</p>
           <div class="card-actions justify-end mt-4">
             <a href="https://github.com/progwise/george-ai/issues" target="_blank" rel="noopener noreferrer" class="btn btn-info btn-sm">
               Open Issue
             </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Support Information -->
-    <div class="card bg-base-200 shadow-lg">
-      <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">Need Help?</h2>
-        <div class="space-y-3">
-          <div class="flex items-start gap-3">
-            <div class="badge badge-primary">1</div>
-            <div>
-              <h3 class="font-bold">Join Discord for Quick Help</h3>
-              <p class="text-sm">Get answers to questions, share ideas, and connect with the community.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="badge badge-primary">2</div>
-            <div>
-              <h3 class="font-bold">Check the Documentation</h3>
-              <p class="text-sm">Find comprehensive guides, API references, and setup instructions.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="badge badge-primary">3</div>
-            <div>
-              <h3 class="font-bold">Report a Bug or Feature Request</h3>
-              <p class="text-sm">Create a GitHub issue with detailed information about your problem or idea.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="badge badge-primary">4</div>
-            <div>
-              <h3 class="font-bold">Talk to Sales</h3>
-              <p class="text-sm">Schedule a demo or email us to discuss your enterprise needs and custom requirements.</p>
-            </div>
           </div>
         </div>
       </div>

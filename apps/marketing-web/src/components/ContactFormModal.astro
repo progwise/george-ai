@@ -1,17 +1,6 @@
 ---
-interface Props {
-  buttonText?: string
-  buttonClass?: string
-}
-
-const { buttonText = "Contact Us", buttonClass = "btn btn-primary" } = Astro.props
 const modalId = "contact-form-modal"
 ---
-
-<!-- Modal Trigger Button -->
-<label for={modalId} class={buttonClass}>
-  {buttonText}
-</label>
 
 <!-- Modal -->
 <input type="checkbox" id={modalId} class="modal-toggle" />
@@ -53,48 +42,38 @@ const modalId = "contact-form-modal"
       <form id="contact-form" class="space-y-5">
         <!-- Name and Email Row -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Name *</span>
-            </label>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Name *</legend>
             <input type="text" name="name" required class="input input-bordered w-full" placeholder="John Doe" />
-          </div>
+          </fieldset>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Email *</span>
-            </label>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Email *</legend>
             <input type="email" name="email" required class="input input-bordered w-full" placeholder="john@company.com" />
-          </div>
+          </fieldset>
         </div>
 
         <!-- Phone and Company Row -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Phone</span>
-              <span class="label-text-alt text-xs">Optional</span>
-            </label>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Phone</legend>
             <input type="tel" name="phone" class="input input-bordered w-full" placeholder="+49 151 12345678" />
-          </div>
+            <p class="label">Optional</p>
+          </fieldset>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">Company</span>
-              <span class="label-text-alt text-xs">Optional</span>
-            </label>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Company</legend>
             <input type="text" name="company" class="input input-bordered w-full" placeholder="Your company name" />
-          </div>
+            <p class="label">Optional</p>
+          </fieldset>
         </div>
 
         <!-- Message -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">Message *</span>
-            <span class="label-text-alt text-xs">Tell us how we can help</span>
-          </label>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">Message *</legend>
           <textarea name="message" required class="textarea textarea-bordered w-full h-32 resize-none" placeholder="I'm interested in..."></textarea>
-        </div>
+          <p class="label">Tell us how we can help</p>
+        </fieldset>
 
         <!-- Actions -->
         <div class="flex gap-3 justify-end pt-4">
