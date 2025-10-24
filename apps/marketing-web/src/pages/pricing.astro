@@ -1,8 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getAppUrl } from '../utils/config'
-
-const appUrl = getAppUrl()
 ---
 
 <Layout title="Pricing - George-AI" description="Transparent pricing for George-AI - Self-hosted AI knowledge platform">
@@ -147,8 +144,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href={`${appUrl}/login`} class="btn btn-secondary btn-block">
-              Start 14-Day Free Trial
+            <a href="/contact" class="btn btn-secondary btn-block">
+              Contact Sales
             </a>
           </div>
         </div>
@@ -679,11 +676,11 @@ const appUrl = getAppUrl()
         <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
         <p class="mb-6 max-w-2xl">Join organizations using George-AI to unlock the power of their enterprise data with complete cost transparency and control.</p>
         <div class="card-actions">
-          <a href={`${appUrl}/login`} class="btn btn-lg btn-neutral">
-            Start Free Trial
+          <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-lg bg-white text-primary hover:bg-base-100">
+            Get a Quote
           </a>
-          <a href="/contact" class="btn btn-lg btn-ghost">
-            Talk to Sales
+          <a href="/contact" class="btn btn-lg btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+            Contact Sales
           </a>
         </div>
       </div>

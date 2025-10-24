@@ -1,5 +1,14 @@
 # George AI Project
 
+## Community & Support
+
+- 💬 **Questions & Discussions**: Join our [Discord server](https://discord.gg/5XP8f2Qe) - ask questions, share ideas, get support
+- 🐛 **Bug Reports**: Create a [GitHub Issue](https://github.com/progwise/george-ai/issues/new)
+- ✨ **Feature Requests**: Create a [GitHub Issue](https://github.com/progwise/george-ai/issues/new)
+- 📖 **User Documentation**: Visit [george-ai.net/docs](https://george-ai.net/docs)
+
+**Please use GitHub Issues only for actionable bugs and feature requests. For general questions, ideas, and discussions, join our Discord community!**
+
 ## Documentation
 
 - [Changelog](CHANGELOG.md) - See what's new in each release

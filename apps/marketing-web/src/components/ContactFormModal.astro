@@ -1,0 +1,160 @@
+---
+interface Props {
+  buttonText?: string
+  buttonClass?: string
+}
+
+const { buttonText = "Contact Us", buttonClass = "btn btn-primary" } = Astro.props
+const modalId = "contact-form-modal"
+---
+
+<!-- Modal Trigger Button -->
+<label for={modalId} class={buttonClass}>
+  {buttonText}
+</label>
+
+<!-- Modal -->
+<input type="checkbox" id={modalId} class="modal-toggle" />
+<div class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-w-3xl p-0">
+    <!-- Header -->
+    <div class="bg-primary text-primary-content p-6">
+      <div class="flex items-center gap-3">
+        <div class="bg-primary-content/20 p-3 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-2xl">Get in Touch</h3>
+          <p class="text-sm opacity-90 mt-1">We'll respond within 24 hours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <div id="contact-form-success" class="alert alert-success mb-6 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div>
+          <h4 class="font-bold">Message Sent!</h4>
+          <p class="text-sm">Thank you for reaching out. We'll get back to you soon.</p>
+        </div>
+      </div>
+
+      <div id="contact-form-error" class="alert alert-error mb-6 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div>
+          <h4 class="font-bold">Error</h4>
+          <p class="text-sm" id="contact-form-error-message">Something went wrong. Please try again.</p>
+        </div>
+      </div>
+
+      <form id="contact-form" class="space-y-5">
+        <!-- Name and Email Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Name *</span>
+            </label>
+            <input type="text" name="name" required class="input input-bordered w-full" placeholder="John Doe" />
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Email *</span>
+            </label>
+            <input type="email" name="email" required class="input input-bordered w-full" placeholder="john@company.com" />
+          </div>
+        </div>
+
+        <!-- Phone and Company Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Phone</span>
+              <span class="label-text-alt text-xs">Optional</span>
+            </label>
+            <input type="tel" name="phone" class="input input-bordered w-full" placeholder="+49 151 12345678" />
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Company</span>
+              <span class="label-text-alt text-xs">Optional</span>
+            </label>
+            <input type="text" name="company" class="input input-bordered w-full" placeholder="Your company name" />
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Message *</span>
+            <span class="label-text-alt text-xs">Tell us how we can help</span>
+          </label>
+          <textarea name="message" required class="textarea textarea-bordered w-full h-32 resize-none" placeholder="I'm interested in..."></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 justify-end pt-4">
+          <label for={modalId} class="btn btn-ghost">Cancel</label>
+          <button type="submit" class="btn btn-primary gap-2" id="submit-button">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            <span id="submit-text">Send Message</span>
+            <span id="submit-loading" class="loading loading-spinner loading-sm hidden"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <label class="modal-backdrop" for={modalId}>Close</label>
+</div>
+
+<script>
+  import { actions } from 'astro:actions'
+
+  const form = document.getElementById('contact-form') as HTMLFormElement
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement
+  const submitText = document.getElementById('submit-text') as HTMLSpanElement
+  const submitLoading = document.getElementById('submit-loading') as HTMLSpanElement
+  const successAlert = document.getElementById('contact-form-success') as HTMLDivElement
+  const errorAlert = document.getElementById('contact-form-error') as HTMLDivElement
+  const errorMessage = document.getElementById('contact-form-error-message') as HTMLParagraphElement
+  const modalToggle = document.getElementById('contact-form-modal') as HTMLInputElement
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    // Show loading state
+    submitButton.disabled = true
+    submitText.classList.add('hidden')
+    submitLoading.classList.remove('hidden')
+    successAlert.classList.add('hidden')
+    errorAlert.classList.add('hidden')
+
+    const formData = new FormData(form)
+    const { error } = await actions.submitContactForm(formData)
+
+    // Reset loading state
+    submitButton.disabled = false
+    submitText.classList.remove('hidden')
+    submitLoading.classList.add('hidden')
+
+    if (error) {
+      errorMessage.textContent = error.message
+      errorAlert.classList.remove('hidden')
+      return
+    }
+
+    successAlert.classList.remove('hidden')
+    form.reset()
+
+    setTimeout(() => {
+      modalToggle.checked = false
+      setTimeout(() => successAlert.classList.add('hidden'), 300)
+    }, 2000)
+  })
+</script>

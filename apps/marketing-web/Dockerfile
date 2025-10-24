@@ -22,42 +22,41 @@ COPY apps/marketing-web ./apps/marketing-web
 # Copy LICENSE file for legal compliance
 COPY LICENSE ./
 
-# Build the static site
+# Build with Node adapter
 RUN pnpm --filter marketing-web build
 
-# Stage 2: Serve with nginx
-FROM nginx:alpine
+# Stage 2: Run with Node.js
+FROM node:22-slim
 
-# Create non-root user for running nginx
-RUN addgroup -g 1001 -S nginx-user && \
-    adduser -u 1001 -S nginx-user -G nginx-user
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd -g 1001 -r nodejs && \
+    useradd -u 1001 -r -g nodejs nodejs
 
 # Copy LICENSE file for legal compliance
-COPY LICENSE /usr/share/nginx/html/
+COPY LICENSE ./
 
-# Copy built static files from builder stage
-COPY --from=builder /app/apps/marketing-web/dist /usr/share/nginx/html
+# Copy node_modules from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/apps/marketing-web/node_modules ./apps/marketing-web/node_modules
 
-# Copy custom nginx configuration
-COPY apps/marketing-web/nginx.conf /etc/nginx/conf.d/default.conf
-
-# Change ownership of nginx files to non-root user
-RUN chown -R nginx-user:nginx-user /usr/share/nginx/html && \
-    chown -R nginx-user:nginx-user /var/cache/nginx && \
-    chown -R nginx-user:nginx-user /var/log/nginx && \
-    chown -R nginx-user:nginx-user /etc/nginx/conf.d && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx-user:nginx-user /var/run/nginx.pid
+# Copy built files and server entry from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/apps/marketing-web/dist ./apps/marketing-web/dist
 
 # Switch to non-root user
-USER nginx-user
+USER nodejs
 
-# Expose port 8080 (non-privileged port)
-EXPOSE 8080
+# Expose port 4321 (Astro default)
+EXPOSE 4321
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:8080/ || exit 1
+  CMD node -e "require('http').get('http://localhost:4321/', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Set environment variables
+ENV HOST=0.0.0.0
+ENV PORT=4321
+
+# Start the Node server
+CMD ["node", "./apps/marketing-web/dist/server/entry.mjs"]
