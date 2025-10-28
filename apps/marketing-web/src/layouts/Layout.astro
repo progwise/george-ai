@@ -14,7 +14,7 @@ interface Props {
 
 const {
   title,
-  description = 'Self-hosted AI knowledge platform for your enterprise data',
+  description = 'Self-hosted AI data platform. Centralized vector store for business users and AI applications. Ensure your vectors actually work.',
   ogImage = '/bowler-logo.svg',
   ogType = 'website',
 } = Astro.props
@@ -60,7 +60,7 @@ const appUrl = getAppUrl()
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "George-AI",
-        "description": "Self-hosted AI knowledge platform for enterprise data. Leverage AI with your own data while maintaining full control and data sovereignty.",
+        "description": "Self-hosted AI data platform. Centralized vector store for business users and AI applications with data quality verification.",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": ["Linux", "Windows", "macOS"],
         "offers": {
@@ -77,7 +77,7 @@ const appUrl = getAppUrl()
         "softwareHelp": "https://george-ai.net/docs",
         "screenshot": "https://george-ai.net/bowler-logo.svg",
         "featureList": [
-          "Multi-source data ingestion (Email, Web, SharePoint, SMB, Box.com)",
+          "Multi-source data collection and ingestion (Email, Web, SharePoint, SMB, Box.com, webhooks, n8n)",
           "AI-powered document processing and embeddings",
           "Vector search with Typesense",
           "Self-hosted deployment",
