@@ -40,6 +40,15 @@ const modalId = "contact-form-modal"
       </div>
 
       <form id="contact-form" class="space-y-5">
+        <!-- Honeypot field (hidden from users, bots will fill it) -->
+        <div class="absolute opacity-0 pointer-events-none" aria-hidden="true">
+          <label for="website">Website (do not fill)</label>
+          <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <!-- Timestamp for time-based validation -->
+        <input type="hidden" name="formTimestamp" id="formTimestamp" />
+
         <!-- Name and Email Row -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <fieldset class="fieldset">
@@ -103,6 +112,15 @@ const modalId = "contact-form-modal"
   const errorAlert = document.getElementById('contact-form-error') as HTMLDivElement
   const errorMessage = document.getElementById('contact-form-error-message') as HTMLParagraphElement
   const modalToggle = document.getElementById('contact-form-modal') as HTMLInputElement
+  const formTimestampInput = document.getElementById('formTimestamp') as HTMLInputElement
+
+  // Set form timestamp when modal opens
+  const modalCheckbox = document.getElementById('contact-form-modal') as HTMLInputElement
+  modalCheckbox?.addEventListener('change', () => {
+    if (modalCheckbox.checked) {
+      formTimestampInput.value = Date.now().toString()
+    }
+  })
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
