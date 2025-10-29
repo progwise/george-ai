@@ -7,13 +7,13 @@ import Layout from '../layouts/Layout.astro'
   <div class="hero bg-base-200 rounded-lg mb-12">
     <div class="hero-content text-center py-16">
       <div class="max-w-2xl">
-        <h1 class="text-5xl font-bold mb-4">George-AI</h1>
-        <p class="text-xl mb-8">Centralized vector platform for business users and AI applications</p>
+        <h1 class="text-5xl font-bold mb-4">George AI</h1>
+        <p class="text-xl mb-8">Self-hosted AI data platform managed by business users</p>
         <p class="mb-8">
-          Stop managing separate vector stores for each use case. Collect data from any source like SharePoint, emails, file shares, and databases into one place. Business users search and organize data directly through a modern interface, while n8n workflows, AI agents, and custom applications query the same vector store via API.
+          Transform any data into markdown, AI vectors and enriched Lists (smart spreadsheets with AI-extracted fields). Use it directly with built-in crawlers, enrichment, and search—or integrate as GraphQL tools in n8n, Make.com workflows. No coding required.
         </p>
         <p class="mb-8 font-semibold">
-          Data quality for AI - ensure your vectors actually work. Managed by business users. Self-hosted and secure.
+          Built around Markdown—one unified format for PDFs, Excel, Word, HTML • Self-hosted and secure • <a href="/pricing" class="link link-hover">You choose: DIY or managed</a>
         </p>
         <div class="flex gap-4 justify-center">
           <a href="https://github.com/progwise/george-ai" class="btn btn-primary btn-lg gap-2">
@@ -30,63 +30,198 @@ import Layout from '../layouts/Layout.astro'
     </div>
   </div>
 
-  <!-- Features Section -->
-  <div class="mb-12">
-    <h2 class="text-3xl font-bold text-center mb-8">Key Features</h2>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Feature 1 -->
-      <div class="card bg-base-100 shadow-lg">
+  <!-- Problem/Solution Section -->
+  <div class="mb-16">
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Use Case 1: Direct Usage -->
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Multi-Source Data Collection & Ingestion</h3>
-          <p>Automatic crawlers collect data from SharePoint, Box.com, SMB file shares, and intranet pages. Ingest data from n8n workflows, webhooks, manual uploads, or database connections.</p>
+          <h3 class="text-2xl font-semibold mb-4">Do I really need to develop my 100th workflow or AI Agent?</h3>
+          <p class="text-lg opacity-75 mb-6">
+            Use George AI out-of-the-box: configure crawlers, enrich data into Lists, search, filter, and export. Built-in AI chat assistants answer questions from your documents. No n8n, Make.com, or custom development needed—business users manage everything.
+          </p>
+          <div class="text-center">
+            <div class="text-4xl mb-2">📊</div>
+            <div class="font-semibold">Out-of-the-Box Platform</div>
+          </div>
         </div>
       </div>
 
-      <!-- Feature 2 -->
-      <div class="card bg-base-100 shadow-lg">
+      <!-- Use Case 2: Integration -->
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Organize by Business Case, Not Source</h3>
-          <p>Group emails, Slack messages, and Office documents together by project or topic—regardless of where they came from. No more hunting across different systems.</p>
+          <h3 class="text-2xl font-semibold mb-4">Simplify your existing workflows and agents</h3>
+          <p class="text-lg opacity-75 mb-6">
+            Use George AI as your data layer: ingest from n8n, Make.com, or custom tools. Access via GraphQL (pre-built n8n nodes available): search, vector distance with gap detection, query documents. Your workflows stay—they just become simpler. One platform handles embeddings, deduplication, and keeping data current for all your projects.
+          </p>
+          <div class="text-center">
+            <div class="text-4xl mb-2">🔧</div>
+            <div class="font-semibold">Infrastructure for Builders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mt-12">
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-3">How George AI Works</h3>
+        <div class="inline-flex items-center gap-3 px-6 py-3 bg-base-200 rounded-full border-2 border-base-300">
+          <span class="font-bold text-lg">Collect</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-lg">Process</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-lg">Enrich</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-lg">Consume</span>
         </div>
       </div>
 
-      <!-- Feature 3 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Lightning-Fast Search</h3>
-          <p>Traditional indexing plus AI-powered Vectors. Find what you need in milliseconds, whether you search by keyword or meaning.</p>
+      <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Inputs -->
+        <div class="bg-gradient-to-br from-success/10 to-success/5 p-6 rounded-xl border-2 border-success/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-success-content">📥 Data Collection (Inputs)</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🕷️</div>
+                <div class="text-sm font-medium text-center">Crawlers</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">SharePoint sites, Box folders, SMB shares</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">⚙️</div>
+                <div class="text-sm font-medium text-center">Custom Workflows</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">n8n nodes, Make.com scenarios</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🔗</div>
+                <div class="text-sm font-medium text-center">Webhooks</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">POST endpoints, event triggers</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📤</div>
+                <div class="text-sm font-medium text-center">Manual Upload</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Drag & drop, Google Drive, OneDrive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outputs -->
+        <div class="bg-gradient-to-br from-info/10 to-info/5 p-6 rounded-xl border-2 border-info/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-info-content">📤 Data Consumption (Outputs)</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">💬</div>
+                <div class="text-sm font-medium text-center">George-AI UI</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Search, chat, Lists view</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🎨</div>
+                <div class="text-sm font-medium text-center">Custom UI</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">React app, Vue dashboard</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🤖</div>
+                <div class="text-sm font-medium text-center">Agents (e.g. n8n)</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">GraphQL search, vector queries</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📱</div>
+                <div class="text-sm font-medium text-center">Apps</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Mobile app, Slack bot</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Feature 4 -->
-      <div class="card bg-base-100 shadow-lg">
+    <!-- What Makes Us Different -->
+    <div class="mt-16 mb-16">
+      <div class="card bg-gradient-to-r from-secondary/20 to-accent/20 shadow-xl border-2 border-secondary">
         <div class="card-body">
-          <h3 class="card-title">No-Code Data Enrichment</h3>
-          <p>Business users can enrich and organize data without developer help. Add metadata, tags, and custom fields—all through a simple interface.</p>
-        </div>
-      </div>
+          <h3 class="text-center text-2xl font-bold mb-8">What Makes George AI Different</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Differentiator 1 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🎯</div>
+              <h4 class="font-bold text-lg mb-2">Organize by Business Case, Not Source</h4>
+              <p class="text-sm opacity-75">
+                Organize by project, customer, or topic—not by SharePoint, email, or Slack. Stop hunting across systems.
+              </p>
+            </div>
 
-      <!-- Feature 5 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Built for Integration</h3>
-          <p>Complete API access for building custom tools. Create AI agents with n8n, embed search components in your intranet, or integrate with existing business applications.</p>
-        </div>
-      </div>
+            <!-- Differentiator 2 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🔄</div>
+              <h4 class="font-bold text-lg mb-2">Automatic Data Freshness</h4>
+              <p class="text-sm opacity-75">
+                Stop building deduplication workflows. George AI tracks when documents were last seen and removes stale data automatically.
+              </p>
+            </div>
 
-      <!-- Feature 6 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Smart Data Management</h3>
-          <p>Automatic cleanup of outdated data, full audit logging, and access control through Libraries. Vectorization prepares your data for AI agents automatically.</p>
-        </div>
-      </div>
+            <!-- Differentiator 3 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">📊</div>
+              <h4 class="font-bold text-lg mb-2">Analyse Enriched Data</h4>
+              <p class="text-sm opacity-75">
+                AI enrichment extracts structured data into Lists. Not just search—understand patterns, generate reports, take action.
+              </p>
+            </div>
 
-      <!-- Feature 7 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">AI-Services Clustering & Load Balancing</h3>
-          <p>Use all your available Ollama servers with automatic load balancing. Respects GPU speed, memory size, and available models on each server for reliable, high-performance AI processing.</p>
+            <!-- Differentiator 4 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🧠</div>
+              <h4 class="font-bold text-lg mb-2">Better Context for RAG</h4>
+              <p class="text-sm opacity-75">
+                Enriched fields add structured data upfront—whether a PDF or video describes "Product Dimensions", it's already extracted. Your AI agents get consistent, pre-processed context instead of parsing varying formats.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
