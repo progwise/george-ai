@@ -53,12 +53,12 @@ const modalId = "contact-form-modal"
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Name *</legend>
-            <input type="text" name="name" required class="input input-bordered w-full" placeholder="John Doe" />
+            <input type="text" name="name" required class="input input-bordered w-full placeholder:opacity-50" placeholder="John Doe" />
           </fieldset>
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Email *</legend>
-            <input type="email" name="email" required class="input input-bordered w-full" placeholder="john@company.com" />
+            <input type="email" name="email" required class="input input-bordered w-full placeholder:opacity-50" placeholder="john@company.com" />
           </fieldset>
         </div>
 
@@ -66,13 +66,13 @@ const modalId = "contact-form-modal"
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Phone</legend>
-            <input type="tel" name="phone" class="input input-bordered w-full" placeholder="+49 151 12345678" />
+            <input type="tel" name="phone" class="input input-bordered w-full placeholder:opacity-50" placeholder="+49 151 12345678" />
             <p class="label">Optional</p>
           </fieldset>
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Company</legend>
-            <input type="text" name="company" class="input input-bordered w-full" placeholder="Your company name" />
+            <input type="text" name="company" class="input input-bordered w-full placeholder:opacity-50" placeholder="Your company name" />
             <p class="label">Optional</p>
           </fieldset>
         </div>
@@ -80,7 +80,7 @@ const modalId = "contact-form-modal"
         <!-- Message -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Message *</legend>
-          <textarea name="message" required class="textarea textarea-bordered w-full h-32 resize-none" placeholder="I'm interested in..."></textarea>
+          <textarea name="message" required class="textarea textarea-bordered w-full h-32 resize-none placeholder:opacity-50" placeholder="I'm interested in..."></textarea>
           <p class="label">Tell us how we can help</p>
         </fieldset>
 
