@@ -38,16 +38,16 @@ Use the `env.example` files in each directory as references.
 
 The following ports are used in the development environment:
 
-| Service | Port | Description |
-|---------|------|-------------|
-| Frontend (chat-web) | 3001 | React frontend with Vite HMR |
-| Backend (georgeai-server) | 3003 | GraphQL API server |
-| PostgreSQL | 5432 | Main database |
-| Keycloak | 8180 | Authentication service |
-| Keycloak DB | 5433 | Keycloak's PostgreSQL database |
-| Typesense | 8108 | Vector search engine |
-| Crawl4AI | 11235 | Web crawler service |
-| Ollama | 11434 | Local LLM service (optional) |
+| Service                   | Port  | Description                    |
+| ------------------------- | ----- | ------------------------------ |
+| Frontend (chat-web)       | 3001  | React frontend with Vite HMR   |
+| Backend (georgeai-server) | 3003  | GraphQL API server             |
+| PostgreSQL                | 5432  | Main database                  |
+| Keycloak                  | 8180  | Authentication service         |
+| Keycloak DB               | 5433  | Keycloak's PostgreSQL database |
+| Typesense                 | 8108  | Vector search engine           |
+| Crawl4AI                  | 11235 | Web crawler service            |
+| Ollama                    | 11434 | Local LLM service (optional)   |
 
 **Vite HMR:**
 Vite provides Hot Module Replacement (HMR) by establishing a WebSocket connection between the browser and the dev server. The Vite dev server automatically starts an HTTP server and creates a WebSocket server on the same host with a dynamically assigned port. We enhance this with a custom Vite plugin that extracts the HMR WebSocket port and writes it to `app.config.ts`, plus automatic port opening based on VS Code settings.
@@ -101,6 +101,7 @@ Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
 3. Configure with required credentials (Client ID and Client Secret)
 
 **OAuth App Setup Documentation:**
+
 - [Google OAuth](https://support.google.com/cloud/answer/6158849?hl=en)
 - [GitHub OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
 - [LinkedIn OAuth](https://techdocs.akamai.com/identity-cloud/docs/the-linkedin-oauth-20-social-login-configuration-guide)
@@ -174,11 +175,13 @@ docker compose -f docker-compose.verify.yml up --build gai-verify-frontend
 #### Network Configuration
 
 The verify containers connect to the devcontainer Docker network (`george-ai_devcontainer_default`) and communicate with services using container names:
+
 - Database: `gai-chatweb-db`
 - Typesense: `gai-typesense`
 - Keycloak: `gai-keycloak`
 
 Port mappings avoid conflicts:
+
 - Verify frontend: 3002 (instead of 3001)
 - Verify backend: 3004 (instead of 3003)
 
@@ -230,6 +233,7 @@ Docker images support **runtime configuration** for multi-tenant deployments:
 - `GIT_COMMIT_SHA` - Git commit hash for version tracking
 
 **Benefits:**
+
 - ✅ Single Docker image for all customer environments
 - ✅ Different URLs/configuration per deployment
 - ✅ No rebuild needed for configuration changes

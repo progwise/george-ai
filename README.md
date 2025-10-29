@@ -5,6 +5,7 @@
 George AI transforms documents from any source into searchable vectors and structured data. Business users configure crawlers, enrichments, and search - no coding required. Developers access everything via GraphQL API.
 
 **What makes it different:**
+
 - **Markdown-first**: All documents (PDFs, Excel, HTML) → unified Markdown → consistent processing
 - **Dual output**: Searchable vectors (semantic search) + structured data (AI enrichments)
 - **Business user managed**: Configure data collection, processing, and enrichment without developers

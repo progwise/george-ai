@@ -16,9 +16,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - '${DB_PORT:-5432}:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-george}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-george}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,7 +34,7 @@ services:
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      test: ['CMD-SHELL', 'pg_isready -U keycloak']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,12 +54,16 @@ services:
       KC_HOSTNAME_STRICT: 'false'
       KC_HTTP_ENABLED: 'true'
     ports:
-      - "${KEYCLOAK_PORT:-8180}:8080"
+      - '${KEYCLOAK_PORT:-8180}:8080'
     depends_on:
       keycloak-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      test:
+        [
+          'CMD-SHELL',
+          "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -75,9 +79,9 @@ services:
     volumes:
       - typesense_data:/data
     ports:
-      - "${TYPESENSE_PORT:-8108}:8108"
+      - '${TYPESENSE_PORT:-8108}:8108'
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8108/health || exit 1"]
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:8108/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,7 +93,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - '${OLLAMA_PORT:-11434}:11434'
     # Uncomment for GPU support:
     # deploy:
     #   resources:
@@ -131,7 +135,7 @@ services:
     volumes:
       - backend_storage:/app/storage
     ports:
-      - "${BACKEND_PORT:-3003}:3003"
+      - '${BACKEND_PORT:-3003}:3003'
     depends_on:
       postgres:
         condition: service_healthy
@@ -164,7 +168,7 @@ services:
       NODE_ENV: production
 
     ports:
-      - "${FRONTEND_PORT:-3001}:3001"
+      - '${FRONTEND_PORT:-3001}:3001'
     depends_on:
       - backend
     restart: unless-stopped

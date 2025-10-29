@@ -52,6 +52,7 @@ flowchart TD
 ```
 
 **Key Insights**:
+
 - **Markdown-First**: All content is converted to Markdown for consistent, high-quality vector generation
 - **Dual Output**: Documents become both searchable vectors AND structured data (Lists) via enrichments
 - **Single Source of Truth**: One unified platform for unstructured (vectors) and structured (Lists) data
@@ -59,6 +60,7 @@ flowchart TD
 ## Applications
 
 ### chat-web (Frontend)
+
 - **Framework**: React 19 with TanStack Router and TanStack Server
 - **Build System**: Vite
 - **GraphQL Client**: graphql-request with code-generated types
@@ -68,6 +70,7 @@ flowchart TD
 - **Port**: 3001 (development)
 
 ### georgeai-server (Backend API)
+
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Express server with GraphQL Yoga
 - **Build System**: TypeScript compiler (tsc)
@@ -77,6 +80,7 @@ flowchart TD
 - **Port**: 3003 (development)
 
 ### marketing-web (Public Website)
+
 - **Framework**: Astro with server-side rendering
 - **Styling**: Tailwind CSS with DaisyUI components
 - **Features**: Landing page, use cases, documentation, contact form
@@ -84,6 +88,7 @@ flowchart TD
 - **Port**: 4321 (development)
 
 ### crawler-server (Web Crawler)
+
 - **Framework**: Python FastAPI
 - **Crawler**: Crawl4AI with Playwright for JavaScript rendering
 - **Features**: Web page crawling, content extraction, cleaning
@@ -93,21 +98,25 @@ flowchart TD
 ## Core Packages
 
 ### pothos-graphql
+
 - GraphQL schema definitions using Pothos
 - Prisma database layer with migrations
 - Background workers for content processing and enrichment queues
 
 ### langchain-chat
+
 - Document processing and embeddings generation
 - Conversation chains and retrieval
 - Typesense vector store integration
 
 ### ai-service-client
+
 - Ollama resource manager with intelligent load balancing
 - Multi-instance support (up to 10 instances) with GPU-aware routing
 - **Key Differentiator**: Enables horizontal scaling of AI services
 
 ### file-converter
+
 - Markdown conversion from PDFs, DOCX, Excel, HTML
 - OCR processing with vision models
 - Configurable via Library UI
@@ -115,18 +124,22 @@ flowchart TD
 ## External Services
 
 ### PostgreSQL
+
 - Metadata storage: users, libraries, files, conversations, enrichments, lists
 - Managed via Prisma ORM with TypedSQL for complex queries
 
 ### Typesense
+
 - Vector search engine storing document embeddings and markdown chunks
 - Provides fast semantic and hybrid search (keyword + vector)
 
 ### Keycloak
+
 - Authentication and authorization (OAuth2/OIDC)
 - Multi-tenant user management with social login support
 
 ### Ollama (Optional)
+
 - Local LLM inference server for embeddings and text generation
 - Supports open-source models (Llama, Qwen, Mistral, etc.)
 - Multi-instance support via ai-service-client load balancer
@@ -134,18 +147,22 @@ flowchart TD
 ## Key Design Principles
 
 ### 1. Centralized Vector Store
+
 George AI acts as a single source of truth for vector embeddings across all use cases. This eliminates the need for separate vector stores per application or workflow.
 
 ### 2. Dual-Purpose Platform
+
 - **Business Users**: First-class UI for searching, organizing, and enriching data
 - **AI Applications**: Full GraphQL API for n8n workflows, AI agents, and custom integrations
 
 ### 3. Data Quality Focus
+
 - Vector quality testing and analysis
 - Enrichment validation and statistics
 - Real-time monitoring of data processing quality
 
 ### 4. Self-Hosted First
+
 - All data stays on user infrastructure
 - Local AI processing with Ollama
 - No dependency on external AI services
