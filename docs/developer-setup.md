@@ -22,17 +22,23 @@ Re-open the repository in a **DevContainer** using VS Code:
 
 ### 2. Configure Environment Variables
 
+Copy the example environment file to create your local configuration:
+
+```bash
+cp .env.example .env
+```
+
 You need `.env` files in the directory you start the app from:
 
-- **Running from root**: Setup `.env` in the **root** directory. Running `pnpm dev` will start:
+- **Running from root** (recommended): `.env` in the **root** directory. Running `pnpm dev` will start:
   - `georgeai-server` on port `3003`
   - `chat-web` on port `3001`
 
-- **Running apps separately**: Setup `.env` files in `apps/georgeai-server` and `apps/chat-web`
+- **Running apps separately**: `.env` files in `apps/georgeai-server` and `apps/chat-web`
 
-- **Running Prisma scripts**: Setup `.env` in `packages/pothos-graphql` (e.g., for `pnpm prisma generate`)
+- **Running Prisma scripts**: `.env` in `packages/pothos-graphql` (e.g., for `pnpm prisma generate`)
 
-Use the `env.example` files in each directory as references.
+**Note:** The root `.env.example` is configured for development with devcontainer. For production deployments, see `docs/examples/.env.example` instead.
 
 ### 3. Ports Overview
 
@@ -54,57 +60,16 @@ Vite provides Hot Module Replacement (HMR) by establishing a WebSocket connectio
 
 ### 4. Set Up Keycloak
 
-Keycloak handles authentication for George AI. Follow these steps to configure it:
+For complete Keycloak configuration instructions, see **[Keycloak Configuration Guide](./keycloak.md)**.
 
-#### 4.1. Access Keycloak Admin Console
+**Quick start:**
 
-1. Open `http://localhost:8180` in your browser
-2. Log in with default credentials:
-   - **Username:** `admin`
-   - **Password:** `admin`
+1. Open `http://localhost:8180` (admin/admin)
+2. Import realm: `docs/examples/keycloak-george-ai-realm.json`
+3. Update client redirect URIs to `http://localhost:3001/*`
+4. Create a user account
 
-#### 4.2. Create Realm
-
-Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
-
-#### 4.3. Create Client
-
-1. In the left sidebar, click **Clients** → **Create Client**
-2. Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**
-3. Add the following URLs:
-   - **Valid Redirect URIs:**
-     - `http://localhost:3001`
-     - `http://localhost:3001/*`
-   - **Valid Post Logout Redirect URIs:**
-     - `http://localhost:3001`
-     - `http://localhost:3001/*`
-   - **Web Origins:**
-     - `http://localhost:3001`
-     - `http://localhost:3001/*`
-
-#### 4.4. Create User
-
-1. Navigate to **Users** → **Add User**
-2. Fill in required fields and click **Create**
-3. After creation:
-   - **Credentials tab**: Set a password with **Temporary** set to **Off**
-   - **Details tab**: Provide:
-     - First Name
-     - Last Name
-     - Email
-     - Enable **Email Verified** toggle
-
-#### 4.5. Configure Identity Provider (Optional)
-
-1. Go to **Identity Providers** in the left sidebar
-2. Choose a provider (Google, GitHub, or OpenID Connect)
-3. Configure with required credentials (Client ID and Client Secret)
-
-**OAuth App Setup Documentation:**
-
-- [Google OAuth](https://support.google.com/cloud/answer/6158849?hl=en)
-- [GitHub OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
-- [LinkedIn OAuth](https://techdocs.akamai.com/identity-cloud/docs/the-linkedin-oauth-20-social-login-configuration-guide)
+For detailed steps including OAuth providers (Google, GitHub, LinkedIn) and avatar configuration, refer to the full [Keycloak guide](./keycloak.md)
 
 ### 5. Database Migration
 
@@ -123,7 +88,7 @@ You can run both apps from root:
 pnpm dev
 ```
 
-**Known Issue:** `georgeai-server` is not stable and may break on file changes in Vite dev mode. As a temporary workaround:
+If you need to start **chat-web** and **georgeai-server** separatly you can also use:
 
 1. Open two separate terminal windows
 2. Navigate to `apps/georgeai-server` in one and `apps/chat-web` in the other

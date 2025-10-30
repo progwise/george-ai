@@ -54,8 +54,6 @@ jobs:
           context: .
           push: true
           secrets: |
-            TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
           labels: |

@@ -2,6 +2,21 @@
 
 George AI is built as a monorepo using pnpm workspaces, with a modern stack focused on type safety and developer experience.
 
+## Table of Contents
+
+- [High-Level Architecture](#high-level-architecture)
+- [Applications](#applications)
+- [Core Packages](#core-packages)
+- [External Services](#external-services)
+- [Document Processing Flow](#document-processing-flow)
+- [GraphQL Schema Generation](#graphql-schema-generation)
+- [Authentication Flow](#authentication-flow)
+- [Development Workflows](#development-workflows)
+- [Key Design Principles](#key-design-principles)
+- [Scalability](#scalability)
+
+---
+
 ## High-Level Architecture
 
 The core concept of George AI: Collect data from any source, convert everything to Markdown, then chunk and embed for semantic search.
@@ -57,6 +72,8 @@ flowchart TD
 - **Dual Output**: Documents become both searchable vectors AND structured data (Lists) via enrichments
 - **Single Source of Truth**: One unified platform for unstructured (vectors) and structured (Lists) data
 
+---
+
 ## Applications
 
 ### chat-web (Frontend)
@@ -66,7 +83,7 @@ flowchart TD
 - **GraphQL Client**: graphql-request with code-generated types
 - **Authentication**: Keycloak integration
 - **Styling**: Tailwind CSS with twMerge for conditional classNames
-- **Routing**: File-based routing at `src/routes/`
+- **Routing**: File-based routing at `app/routes/`
 - **Port**: 3001 (development)
 
 ### georgeai-server (Backend API)
@@ -81,25 +98,25 @@ flowchart TD
 
 ### marketing-web (Public Website)
 
-- **Framework**: Astro with server-side rendering
-- **Styling**: Tailwind CSS with DaisyUI components
-- **Features**: Landing page, use cases, documentation, contact form
-- **Docker**: Node.js adapter for dynamic functionality
-- **Port**: 4321 (development)
+- **Framework**: Astro with Tailwind CSS
+- **Build**: Static site generation (SSG) with Node adapter for dynamic features
+- **Purpose**: Marketing pages, documentation, contact forms
+- **Deployment**: Serves as public-facing website at george-ai.net
 
 ### crawler-server (Web Crawler)
 
-- **Framework**: Python FastAPI
-- **Crawler**: Crawl4AI with Playwright for JavaScript rendering
-- **Features**: Web page crawling, content extraction, cleaning
-- **Port**: 11235 (production), 8000 (development)
-- **⚠️ Status**: Subject to change - may be replaced with TypeScript implementation
+- **Runtime**: Python with FastAPI
+- **Purpose**: Web page crawling and content extraction
+- **Status**: Will be replaced with integrated solution
+
+---
 
 ## Core Packages
 
 ### pothos-graphql
 
-- GraphQL schema definitions using Pothos
+- GraphQL schema definitions using Pothos (code-first)
+- Resolvers for all GraphQL operations
 - Prisma database layer with migrations
 - Background workers for content processing and enrichment queues
 
@@ -108,71 +125,268 @@ flowchart TD
 - Document processing and embeddings generation
 - Conversation chains and retrieval
 - Typesense vector store integration
+- Integration with ai-service-client for LLM access
 
 ### ai-service-client
 
 - Ollama resource manager with intelligent load balancing
 - Multi-instance support (up to 10 instances) with GPU-aware routing
+- Model availability checking and automatic failover
 - **Key Differentiator**: Enables horizontal scaling of AI services
 
 ### file-converter
 
 - Markdown conversion from PDFs, DOCX, Excel, HTML
 - OCR processing with vision models
-- Configurable via Library UI
+- Unified markdown output for all document types
+
+### file-management
+
+- File upload and storage management
+- Metadata extraction
+- File access control
+
+### web-utils
+
+- Shared utilities for validation, formatting
+- Common TypeScript types
+- Form validation helpers
+
+---
 
 ## External Services
 
 ### PostgreSQL
 
-- Metadata storage: users, libraries, files, conversations, enrichments, lists
-- Managed via Prisma ORM with TypedSQL for complex queries
+- **Purpose**: Primary database for metadata, users, libraries, files, lists
+- **Version**: 16
+- **Port**: 5432 (main), 5433 (Keycloak)
+- **Managed via**: Prisma ORM with migrations
 
 ### Typesense
 
-- Vector search engine storing document embeddings and markdown chunks
-- Provides fast semantic and hybrid search (keyword + vector)
+- **Purpose**: Vector search engine for semantic search
+- **Version**: 27.1
+- **Port**: 8108
+- **Features**: Stores embeddings, enables hybrid search (text + vectors)
 
 ### Keycloak
 
-- Authentication and authorization (OAuth2/OIDC)
-- Multi-tenant user management with social login support
+- **Purpose**: Authentication and user management
+- **Version**: 26.4
+- **Port**: 8180
+- **Features**: OAuth/OIDC, SSO, identity providers (Google, GitHub)
 
 ### Ollama (Optional)
 
-- Local LLM inference server for embeddings and text generation
-- Supports open-source models (Llama, Qwen, Mistral, etc.)
-- Multi-instance support via ai-service-client load balancer
+- **Purpose**: Local LLM inference
+- **Port**: 11434
+- **Features**: Supports multiple models, GPU acceleration, multi-instance support
+
+### Docker Networking
+
+All services communicate via Docker network (`george-ai-network`):
+
+- Services reference each other by container name
+- Frontend → Backend: `http://backend:3003`
+- Backend → Database: `postgresql://postgres:5432`
+- Backend → Typesense: `http://typesense:8108`
+
+---
+
+## Document Processing Flow
+
+### Markdown Processing Pipeline
+
+1. **User uploads documents** (PDF, Excel, Word, HTML) via GraphQL mutation or crawlers
+2. **Backend stores files** and creates database records in PostgreSQL
+3. **file-converter converts to Markdown** - All document types → unified Markdown format
+4. **langchain-chat chunks Markdown** into semantic chunks
+5. **ai-service-client generates embeddings** via Ollama load balancer
+6. **Embeddings + Markdown stored in Typesense** for semantic search
+7. **Metadata stored in PostgreSQL** for filtering and organization
+
+### Enrichment Processing
+
+1. **Business users configure enrichments** via Lists UI (no-code)
+2. **Enrichment worker processes documents** in background using LLM
+3. **Structured data extracted** and stored in PostgreSQL Lists
+4. **Validation and statistics** tracked for quality monitoring
+
+---
+
+## GraphQL Schema Generation
+
+- Schema defined in `packages/pothos-graphql/src/graphql/`
+- Use **Pothos builder pattern** for type-safe schema definition
+- Run codegen after schema changes:
+  ```bash
+  cd /workspaces/george-ai/apps/chat-web && pnpm codegen
+  ```
+
+**Important:** Always define a GraphQL Fragment for components and rely on codegen instead of defining your own interfaces for entities. See [Code Patterns](./patterns.md) for details.
+
+---
+
+## Authentication Flow
+
+1. **Keycloak** handles user authentication (OAuth/OIDC)
+2. **JWT tokens** issued by Keycloak and sent with requests
+3. **Backend validates JWT** on every GraphQL request
+4. **User context** available in GraphQL resolvers via `ctx.user`
+5. **Frontend** uses Keycloak React adapter for auth state
+
+**Supported Identity Providers:**
+
+- Google OAuth
+- GitHub OAuth
+- LinkedIn OAuth
+- Username/Password
+
+---
+
+## Development Workflows
+
+### 1. Feature Development
+
+1. Create/modify GraphQL schema in `packages/pothos-graphql/src/graphql/`
+2. Run `cd /workspaces/george-ai/apps/chat-web && pnpm codegen` to generate types
+3. Implement resolvers and business logic in backend
+4. Update frontend components and queries
+5. Test with `pnpm typecheck` and `pnpm lint`
+
+### 2. Database Changes
+
+1. Modify Prisma schema in `packages/pothos-graphql/prisma/schema.prisma`
+2. Create migration:
+   ```bash
+   cd packages/pothos-graphql
+   pnpm prisma migrate dev --name your_migration_name
+   ```
+3. **CRITICAL**: Regenerate typedSql types:
+   ```bash
+   pnpm prisma generate --sql
+   ```
+4. Update GraphQL schema if needed
+5. Run codegen to update frontend types
+
+### 3. Adding AI Features
+
+1. Implement in `packages/langchain-chat`
+2. Use existing document/embedding infrastructure
+3. Test with different AI providers (Ollama, OpenAI)
+4. Update ai-service-client if needed for load balancing
+
+### 4. Frontend Routes
+
+1. Add new route file in `apps/chat-web/app/routes/`
+2. Use TanStack Router file-based routing conventions
+3. Leverage existing authentication and GraphQL hooks
+4. Follow patterns in existing routes for consistency
+
+### 5. Adding Crawlers
+
+1. Implement crawler in `packages/crawlers/`
+2. Use existing crawler interfaces
+3. Test with different data sources
+4. Integrate with file-converter for markdown conversion
+
+---
 
 ## Key Design Principles
 
 ### 1. Centralized Vector Store
 
-George AI acts as a single source of truth for vector embeddings across all use cases. This eliminates the need for separate vector stores per application or workflow.
+George AI maintains a centralized vector store in Typesense, ensuring:
+
+- **Single source of truth** for all embedded documents
+- **Consistent search quality** across all libraries
+- **Efficient updates** when embeddings models change
 
 ### 2. Dual-Purpose Platform
 
-- **Business Users**: First-class UI for searching, organizing, and enriching data
-- **AI Applications**: Full GraphQL API for n8n workflows, AI agents, and custom integrations
+George AI serves two primary use cases:
+
+- **Business users** directly search and organize data through the UI
+- **AI applications and workflows** query the same data via GraphQL API
+- This dual approach ensures data quality is maintained by business experts
 
 ### 3. Data Quality Focus
 
-- Vector quality testing and analysis
-- Enrichment validation and statistics
-- Real-time monitoring of data processing quality
+Rather than competing on inference speed or model capabilities, George AI focuses on:
+
+- **Input data quality**: Markdown normalization, semantic chunking
+- **Metadata enrichment**: Business users add context and structure
+- **Quality validation**: Statistics and validation for enrichments
 
 ### 4. Self-Hosted First
 
-- All data stays on user infrastructure
-- Local AI processing with Ollama
-- No dependency on external AI services
-- Multi-tenant support for service providers
+- All core functionality works without external APIs
+- Optional integrations with OpenAI, Tavily, etc.
+- Data remains on customer infrastructure
+- Business Source License (BSL 1.1) until 2029, then Apache 2.0
+
+---
 
 ## Scalability
 
-George AI is designed to scale horizontally:
+### Horizontal Scaling
 
-- **Ollama Load Balancing**: ai-service-client supports up to 10 Ollama instances with GPU-aware routing and automatic failover - enabling cost-effective AI scaling without cloud dependencies
-- **Backend**: Stateless servers can run multiple instances behind load balancer
-- **Database**: PostgreSQL replication support for read-heavy workloads
-- **Search**: Typesense clustering for high availability
+- **Frontend**: Multiple instances behind load balancer
+- **Backend**: Stateless design allows multiple instances
+- **Ollama**: Multi-instance support with GPU-aware load balancing (ai-service-client)
+- **Workers**: Separate processes for content processing and enrichment queues
+
+### Vertical Scaling
+
+- **PostgreSQL**: Increase resources, enable read replicas
+- **Typesense**: Cluster mode for high availability
+- **Docker resources**: Adjust memory/CPU limits per service
+
+### Performance Optimization
+
+- **Caching**: Redis cache layer (optional)
+- **CDN**: Static assets served via CDN
+- **Database indexing**: Optimized queries with proper indexes
+- **Background processing**: Queue-based workers for heavy operations
+
+---
+
+## Environment Configuration
+
+### Required `.env` Files
+
+- Root directory (for running both apps with `pnpm dev`)
+- `apps/georgeai-server/.env` (if running separately)
+- `apps/chat-web/.env` (if running separately)
+- `packages/pothos-graphql/.env` (for Prisma commands)
+
+### Key Environment Variables
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`: Authentication
+- `TYPESENSE_API_KEY`, `TYPESENSE_HOST`: Vector search
+- `BACKEND_URL`, `BACKEND_PUBLIC_URL`: GraphQL endpoint
+- `OLLAMA_BASE_URL`: AI inference (optional)
+
+See `.env.example` files for complete reference.
+
+---
+
+## Translation System
+
+Translation files are located in:
+
+- **English**: `apps/chat-web/app/i18n/en.ts`
+- **German**: `apps/chat-web/app/i18n/de.ts`
+
+When adding new translation keys (especially for form validation), ensure both files are updated.
+
+---
+
+## Additional Resources
+
+- **Code Patterns**: [patterns.md](./patterns.md)
+- **Developer Setup**: [developer-setup.md](./developer-setup.md)
+- **Self-Hosting Guide**: [self-hosting.md](./self-hosting.md)
+- **Contributing**: [../.github/CONTRIBUTING.md](../.github/CONTRIBUTING.md)
