@@ -88,7 +88,7 @@ You can run both apps from root:
 pnpm dev
 ```
 
-If you need to start **chat-web** and **georgeai-server** separatly you can also use:
+If you need to start **chat-web** and **georgeai-server** separately you can also use:
 
 1. Open two separate terminal windows
 2. Navigate to `apps/georgeai-server` in one and `apps/chat-web` in the other
