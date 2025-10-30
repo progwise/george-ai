@@ -1,11 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getAppUrl } from '../utils/config'
-
-const appUrl = getAppUrl()
 ---
 
-<Layout title="Pricing - George-AI" description="Transparent pricing for George-AI - Self-hosted AI knowledge platform">
+<Layout title="Pricing - George-AI" description="Transparent pricing for George-AI - Self-hosted AI data platform">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-12">
       <h1 class="text-5xl font-bold mb-4">Simple, Transparent Pricing</h1>
@@ -103,10 +100,10 @@ const appUrl = getAppUrl()
         <div class="card-body">
           <span class="badge badge-secondary mb-2">Recommended</span>
           <h2 class="text-3xl font-bold">Cloud</h2>
-          <span class="text-sm opacity-70">Fully Managed</span>
+          <span class="text-sm opacity-90">Fully Managed</span>
           <div class="text-4xl font-bold my-4">
             €149
-            <span class="text-base font-normal opacity-70">/month</span>
+            <span class="text-base font-normal opacity-90">/month</span>
           </div>
 
           <div class="divider"></div>
@@ -147,8 +144,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href={`${appUrl}/login`} class="btn btn-secondary btn-block">
-              Start 14-Day Free Trial
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -215,8 +212,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-accent btn-block">
-              Contact Sales
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -271,8 +268,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-accent btn-block">
-              Contact Sales
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -347,8 +344,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-info btn-block">
-              Request Quote
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-info btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -419,8 +416,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-secondary btn-block">
-              Request Quote
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -479,8 +476,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-warning btn-block">
-              Get Priority Support
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-block">
+              Schedule a Call
             </a>
           </div>
         </div>
@@ -530,8 +527,8 @@ const appUrl = getAppUrl()
           </ul>
 
           <div class="card-actions">
-            <a href="/contact" class="btn btn-warning btn-block">
-              Get a Quote
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-block">
+              Schedule Consultation
             </a>
           </div>
         </div>
@@ -560,7 +557,7 @@ const appUrl = getAppUrl()
 
       <div class="space-y-4">
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" checked />
+          <input type="radio" name="faq" aria-label="Do I need to pay for AI separately?" checked />
           <div class="collapse-title text-xl font-medium">
             Do I need to pay for AI separately?
           </div>
@@ -570,7 +567,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="What does 100 GB ingested data mean?" />
           <div class="collapse-title text-xl font-medium">
             What does "100 GB ingested data" mean?
           </div>
@@ -580,7 +577,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="How does the Ollama Server work?" />
           <div class="collapse-title text-xl font-medium">
             How does the Ollama Server work?
           </div>
@@ -595,7 +592,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="Can I use free/open-source AI models?" />
           <div class="collapse-title text-xl font-medium">
             Can I use free/open-source AI models?
           </div>
@@ -605,7 +602,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="Why is self-hosted free with unlimited usage?" />
           <div class="collapse-title text-xl font-medium">
             Why is self-hosted free with unlimited usage?
           </div>
@@ -615,7 +612,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="What happens if I exceed my cloud storage limit?" />
           <div class="collapse-title text-xl font-medium">
             What happens if I exceed my cloud storage limit?
           </div>
@@ -625,7 +622,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="Can I switch from self-hosted to cloud (or vice versa)?" />
           <div class="collapse-title text-xl font-medium">
             Can I switch from self-hosted to cloud (or vice versa)?
           </div>
@@ -635,7 +632,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="Where is my data hosted?" />
           <div class="collapse-title text-xl font-medium">
             Where is my data hosted?
           </div>
@@ -645,7 +642,7 @@ const appUrl = getAppUrl()
         </div>
 
         <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" />
+          <input type="radio" name="faq" aria-label="Can I keep my current pricing if you change plans in the future?" />
           <div class="collapse-title text-xl font-medium">
             Can I keep my current pricing if you change plans in the future?
           </div>
@@ -664,10 +661,11 @@ const appUrl = getAppUrl()
           <h3 class="font-bold">Need help choosing?</h3>
           <div class="text-sm">
             <strong>Start free:</strong> Self-hosted Community - you manage infrastructure<br/>
-            <strong>Go turnkey:</strong> Cloud (€99/mo) - we manage infrastructure<br/>
-            <strong>Own your GPU:</strong> Ollama Server (€10k setup + €5k/year) - we provide hardware<br/>
+            <strong>Go turnkey:</strong> Cloud (€149/mo) - we manage infrastructure<br/>
+            <strong>Own your GPU:</strong> Ollama Server (€5k setup + €5k/year) - we provide hardware<br/>
             <strong>Enterprise features:</strong> Compliance, workspaces, analytics (€12k/year or custom)<br/>
-            <strong>AI Providers:</strong> OpenAI, Anthropic, Azure OpenAI, Google Gemini, AWS Bedrock, Mistral, Groq, Cohere, Hugging Face, Ollama, and more
+            <strong>AI Providers:</strong> OpenAI, Anthropic, Azure OpenAI, Google Gemini, AWS Bedrock, Mistral, Groq, Cohere, Hugging Face, Ollama, and more<br/>
+            <strong>Get in touch:</strong> <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="link link-hover">Schedule a call</a> or <a href="/contact" class="link link-hover">contact us</a>
           </div>
         </div>
       </div>
@@ -678,12 +676,12 @@ const appUrl = getAppUrl()
       <div class="card-body items-center text-center">
         <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
         <p class="mb-6 max-w-2xl">Join organizations using George-AI to unlock the power of their enterprise data with complete cost transparency and control.</p>
-        <div class="card-actions">
-          <a href={`${appUrl}/login`} class="btn btn-lg btn-neutral">
-            Start Free Trial
+        <div class="card-actions flex-col sm:flex-row w-full sm:w-auto">
+          <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-lg bg-white text-primary hover:bg-base-100 w-full sm:w-auto">
+            Schedule a Call
           </a>
-          <a href="/contact" class="btn btn-lg btn-ghost">
-            Talk to Sales
+          <a href="/contact" class="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary w-full sm:w-auto">
+            Contact Us
           </a>
         </div>
       </div>

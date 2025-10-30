@@ -1,82 +1,227 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getAppUrl } from '../utils/config'
-
-const appUrl = getAppUrl()
 ---
 
-<Layout title="George-AI - Self-hosted AI knowledge platform">
+<Layout title="George-AI - Self-hosted AI data platform">
   <!-- Hero Section -->
   <div class="hero bg-base-200 rounded-lg mb-12">
-    <div class="hero-content text-center py-16">
+    <div class="hero-content text-center py-8 sm:py-12 md:py-16">
       <div class="max-w-2xl">
-        <h1 class="text-5xl font-bold mb-4">George-AI</h1>
-        <p class="text-xl mb-8">Self-hosted AI knowledge platform for your enterprise data</p>
+        <h1 class="text-5xl font-bold mb-4">George AI</h1>
+        <p class="text-xl mb-8">Self-hosted AI data platform managed by business users</p>
         <p class="mb-8">
-          Leverage AI with your own data while maintaining full control and data sovereignty.
-          Perfect for organizations that need powerful AI capabilities without compromising security.
+          Transform any data into markdown, AI vectors and enriched Lists (smart spreadsheets with AI-extracted fields). Use it directly with built-in crawlers, enrichment, and search—or integrate as GraphQL tools in n8n, Make.com workflows. No coding required.
         </p>
-        <div class="flex gap-4 justify-center">
-          <a href={`${appUrl}/login`} class="btn btn-primary btn-lg">
-            Get Started
-          </a>
-          <a href="https://github.com/progwise/george-ai" class="btn btn-outline btn-lg">
+        <p class="mb-8 font-semibold">
+          Built around Markdown—one unified format for PDFs, Office documents, videos, emails, any records • Self-hosted and secure • <a href="/pricing" class="link link-hover">You choose: DIY or managed</a>
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="https://github.com/progwise/george-ai" class="btn btn-primary btn-lg gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
             View on GitHub
+          </a>
+          <a href="/docs" class="btn btn-outline btn-lg">
+            Read Documentation
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Features Section -->
-  <div class="mb-12">
-    <h2 class="text-3xl font-bold text-center mb-8">Key Features</h2>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Feature 1 -->
-      <div class="card bg-base-100 shadow-lg">
+  <!-- Problem/Solution Section -->
+  <div class="mb-16">
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Use Case 1: Direct Usage -->
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">Multi-Source Data Ingestion</h3>
-          <p>Connect to email, web, files, SharePoint, SMB, and more. Bring all your enterprise data into one unified platform.</p>
+          <h3 class="text-2xl font-semibold mb-4">Do I really need to develop my 100th workflow or AI Agent?</h3>
+          <p class="text-lg opacity-75 mb-6">
+            Use George AI out-of-the-box: configure crawlers, enrich data into Lists, search, filter, and export. Built-in AI chat assistants answer questions from your documents. No n8n, Make.com, or custom development needed—business users manage everything.
+          </p>
+          <div class="text-center">
+            <div class="text-4xl mb-2">📊</div>
+            <div class="font-semibold">Out-of-the-Box Platform</div>
+          </div>
         </div>
       </div>
 
-      <!-- Feature 2 -->
-      <div class="card bg-base-100 shadow-lg">
+      <!-- Use Case 2: Integration -->
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title">AI-Powered Processing</h3>
-          <p>Advanced embeddings and vector search capabilities for intelligent document retrieval and analysis.</p>
+          <h3 class="text-2xl font-semibold mb-4">Simplify your existing workflows and agents</h3>
+          <p class="text-lg opacity-75 mb-6">
+            Use George AI as your data layer: ingest from n8n, Make.com, or custom tools. Access via GraphQL (pre-built n8n nodes available): search, vector distance with gap detection, query documents. Your workflows stay—they just become simpler. One platform handles embeddings, deduplication, and keeping data current for all your projects.
+          </p>
+          <div class="text-center">
+            <div class="text-4xl mb-2">🔧</div>
+            <div class="font-semibold">Infrastructure for Builders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mt-12">
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-3">How George AI Works</h3>
+        <div class="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-base-200 rounded-full border-2 border-base-300">
+          <span class="font-bold text-base sm:text-lg">Collect</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-base sm:text-lg">Process</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-base sm:text-lg">Enrich</span>
+          <span class="text-base-content/50">→</span>
+          <span class="font-bold text-base sm:text-lg">Consume</span>
         </div>
       </div>
 
-      <!-- Feature 3 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Enterprise Integration</h3>
-          <p>Seamless n8n workflow integration for automating your AI-powered business processes.</p>
+      <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Inputs -->
+        <div class="bg-linear-to-br from-success/10 to-success/5 p-6 rounded-xl border-2 border-success/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-success">📥 Data Collection (Inputs)</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🕷️</div>
+                <div class="text-sm font-medium text-center">Crawlers</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">SharePoint sites, Box folders, SMB shares</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">⚙️</div>
+                <div class="text-sm font-medium text-center">Custom Workflows</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">n8n nodes, Make.com scenarios</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🔗</div>
+                <div class="text-sm font-medium text-center">Webhooks</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">POST endpoints, event triggers</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📤</div>
+                <div class="text-sm font-medium text-center">Manual Upload</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Drag & drop, Google Drive, OneDrive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outputs -->
+        <div class="bg-linear-to-br from-info/10 to-info/5 p-6 rounded-xl border-2 border-info/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-info">📤 Data Consumption (Outputs)</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">💬</div>
+                <div class="text-sm font-medium text-center">George-AI UI</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Search, chat, Lists view</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🎨</div>
+                <div class="text-sm font-medium text-center">Custom UI</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">React app, Vue dashboard</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🤖</div>
+                <div class="text-sm font-medium text-center">Agents (e.g. n8n)</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">GraphQL search, vector queries</div>
+              </div>
+            </div>
+
+            <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
+              <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📱</div>
+                <div class="text-sm font-medium text-center">Apps</div>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-primary text-primary-content p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <div class="text-xs font-semibold mb-1">Examples:</div>
+                <div class="text-xs opacity-90">Mobile app, Slack bot</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Feature 4 -->
-      <div class="card bg-base-100 shadow-lg">
+    <!-- What Makes Us Different -->
+    <div class="mt-16 mb-16">
+      <div class="card bg-linear-to-r from-secondary/20 to-accent/20 shadow-xl border-2 border-secondary">
         <div class="card-body">
-          <h3 class="card-title">Self-Hosted Deployment</h3>
-          <p>Complete control over your data with self-hosted deployment and multi-tenant support.</p>
-        </div>
-      </div>
+          <h3 class="text-center text-2xl font-bold mb-8">What Makes George AI Different</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Differentiator 1 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🎯</div>
+              <h4 class="font-bold text-lg mb-2">Organize by Business Case, Not Source</h4>
+              <p class="text-sm opacity-75">
+                Organize by project, customer, or topic—not by SharePoint, email, or Slack. Stop hunting across systems.
+              </p>
+            </div>
 
-      <!-- Feature 5 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">EU AI Act Compliance</h3>
-          <p>Built-in compliance features to meet EU AI Act requirements for responsible AI usage.</p>
-        </div>
-      </div>
+            <!-- Differentiator 2 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🔄</div>
+              <h4 class="font-bold text-lg mb-2">Automatic Data Freshness</h4>
+              <p class="text-sm opacity-75">
+                Stop building deduplication workflows. George AI tracks when documents were last seen and removes stale data automatically.
+              </p>
+            </div>
 
-      <!-- Feature 6 -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Data Sovereignty</h3>
-          <p>Keep your sensitive enterprise data on your own infrastructure with full privacy control.</p>
+            <!-- Differentiator 3 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">📊</div>
+              <h4 class="font-bold text-lg mb-2">Analyse Enriched Data</h4>
+              <p class="text-sm opacity-75">
+                AI enrichment extracts structured data into Lists. Not just search—understand patterns, generate reports, take action.
+              </p>
+            </div>
+
+            <!-- Differentiator 4 -->
+            <div class="text-center">
+              <div class="text-5xl mb-4">🧠</div>
+              <h4 class="font-bold text-lg mb-2">Better Context for RAG</h4>
+              <p class="text-sm opacity-75">
+                Enriched fields add structured data upfront—whether a PDF or video describes "Product Dimensions", it's already extracted. Your AI agents get consistent, pre-processed context instead of parsing varying formats.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -85,14 +230,21 @@ const appUrl = getAppUrl()
   <!-- CTA Section -->
   <div class="card bg-primary text-primary-content shadow-lg">
     <div class="card-body items-center text-center">
-      <h2 class="card-title text-3xl mb-4">Ready to get started?</h2>
-      <p class="mb-6">Deploy George-AI in your organization today and unlock the power of AI with your enterprise data.</p>
-      <div class="card-actions">
-        <a href={`${appUrl}/login`} class="btn btn-secondary btn-lg">
-          Launch Application
+      <h2 class="card-title text-3xl mb-4">Want to see George AI in action?</h2>
+      <p class="mb-6">
+        Whether you're managing 300,000 supplier documents, searching hospital knowledge bases,
+        or tracking projects in email—George AI saves thousands of man-hours every day.
+      </p>
+      <p class="mb-6 font-semibold">
+        Talk to us about your use case and see how George AI can help your organization.
+      </p>
+      <div class="card-actions flex-col sm:flex-row w-full sm:w-auto">
+        <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg w-full sm:w-auto">
+          <span class="hidden sm:inline">Schedule a 30-Minute Demo</span>
+          <span class="sm:hidden">Schedule Demo</span>
         </a>
-        <a href="/features" class="btn btn-ghost btn-lg">
-          Learn More
+        <a href="/use-cases" class="btn btn-outline btn-lg w-full sm:w-auto">
+          Explore Use Cases
         </a>
       </div>
     </div>

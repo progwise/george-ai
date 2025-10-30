@@ -1,0 +1,185 @@
+# George AI - Production Docker Compose
+# This is a simple setup to get George AI running quickly.
+# For production deployments, see https://george-ai.net/docs/self-hosting
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16
+    container_name: george-ai-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-george}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: ${DB_NAME:-georgeai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-george}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Keycloak Database
+  keycloak-db:
+    image: postgres:16-alpine
+    container_name: george-ai-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-changeme}
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U keycloak']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Keycloak Authentication
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: george-ai-keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-changeme}
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HTTP_ENABLED: 'true'
+    ports:
+      - '${KEYCLOAK_PORT:-8180}:8080'
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Typesense Vector Search
+  typesense:
+    image: typesense/typesense:27.1
+    container_name: george-ai-typesense
+    environment:
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-changeme}
+      TYPESENSE_DATA_DIR: /data
+    volumes:
+      - typesense_data:/data
+    ports:
+      - '${TYPESENSE_PORT:-8108}:8108'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:8108/health || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Ollama (Optional - for local AI)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: george-ai-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - '${OLLAMA_PORT:-11434}:11434'
+    # Uncomment for GPU support:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # George AI Backend
+  backend:
+    image: ghcr.io/progwise/george-ai-backend:latest
+    container_name: george-ai-backend
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${DB_USER:-george}:${DB_PASSWORD:-changeme}@postgres:5432/${DB_NAME:-georgeai}?schema=public
+
+      # Keycloak
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8180}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-client}
+
+      # Typesense
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-changeme}
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: 8108
+      TYPESENSE_PROTOCOL: http
+
+      # Ollama (Optional)
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+
+      # File Storage
+      FILE_STORAGE_PATH: /app/storage
+
+      # Server Configuration
+      PORT: 3003
+      NODE_ENV: production
+
+    volumes:
+      - backend_storage:/app/storage
+    ports:
+      - '${BACKEND_PORT:-3003}:3003'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      typesense:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # George AI Frontend
+  frontend:
+    image: ghcr.io/progwise/george-ai-frontend:latest
+    container_name: george-ai-frontend
+    environment:
+      # Backend URLs
+      BACKEND_URL: http://backend:3003
+      BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL:-http://localhost:3003}
+
+      # Keycloak
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8180}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-client}
+      KEYCLOAK_REDIRECT_URL: ${KEYCLOAK_REDIRECT_URL:-http://localhost:3001}
+
+      # Public URLs
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:3001}
+
+      # Server Configuration
+      PORT: 3001
+      NODE_ENV: production
+
+    ports:
+      - '${FRONTEND_PORT:-3001}:3001'
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  keycloak_db_data:
+  typesense_data:
+  ollama_data:
+  backend_storage:
+
+networks:
+  default:
+    name: george-ai-network

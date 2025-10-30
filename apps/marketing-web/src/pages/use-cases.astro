@@ -1,8 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getAppUrl } from '../utils/config'
-
-const appUrl = getAppUrl()
 ---
 
 <Layout title="Use Cases - George-AI" description="Real-world applications of George-AI across industries">
@@ -10,7 +7,7 @@ const appUrl = getAppUrl()
     <div class="text-center mb-12">
       <h1 class="text-5xl font-bold mb-4">Real-World Use Cases</h1>
       <p class="text-xl text-base-content/70">
-        See how organizations across industries leverage George-AI to solve complex data challenges
+        See how organizations collect, enrich, and use data from any source—managed by business users
       </p>
     </div>
 
@@ -20,9 +17,9 @@ const appUrl = getAppUrl()
       <!-- Use Case 1: Pharmaceutical Packaging Intelligence -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-start sm:justify-between gap-3 mb-4">
+            <span class="badge badge-primary badge-lg order-first"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Pharmaceutical Industry</span>
             <h2 class="card-title text-3xl">Pharmaceutical Packaging Intelligence</h2>
-            <span class="badge badge-primary badge-lg"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Pharmaceutical Industry</span>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
@@ -98,15 +95,86 @@ const appUrl = getAppUrl()
               </ul>
             </div>
           </div>
+
+          <!-- Implementation Screenshots -->
+          <div class="mt-8 border-t border-base-300 pt-8">
+            <h3 class="font-bold text-xl mb-6 text-center">Real Implementation</h3>
+            <p class="text-sm text-center text-base-content/70 mb-6">Click images to enlarge</p>
+            <div class="grid md:grid-cols-2 gap-6">
+
+              <!-- Screenshot 1 -->
+              <div class="space-y-3">
+                <label for="modal-pharma-enrichment-field" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/pharma-packaging-enrichment-field.png"
+                    alt="Data Enrichment Configuration"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">No-Code Enrichment Configuration</p>
+                <p class="text-xs text-center text-base-content/70">Business users configure custom enrichment fields without developer help</p>
+              </div>
+
+              <!-- Screenshot 2 -->
+              <div class="space-y-3">
+                <label for="modal-pharma-enrichment-stats" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/pharma-packaging-enrichment-statistics.png"
+                    alt="Enrichment Processing Statistics"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">Enrichment Processing Statistics</p>
+                <p class="text-xs text-center text-base-content/70">Real-time monitoring of document processing and data extraction</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Modals for Use Case 1 Screenshots -->
+      <!-- Modal 1: Enrichment Field -->
+      <input type="checkbox" id="modal-pharma-enrichment-field" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">No-Code Enrichment Configuration</h3>
+          <img
+            src="/images/use-cases/pharma-packaging-enrichment-field.png"
+            alt="Data Enrichment Configuration"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">Business users can configure custom enrichment fields to extract specific data from packaging documents without requiring developer assistance.</p>
+          <div class="modal-action">
+            <label for="modal-pharma-enrichment-field" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-pharma-enrichment-field">Close</label>
+      </div>
+
+      <!-- Modal 2: Enrichment Statistics -->
+      <input type="checkbox" id="modal-pharma-enrichment-stats" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">Enrichment Processing Statistics</h3>
+          <img
+            src="/images/use-cases/pharma-packaging-enrichment-statistics.png"
+            alt="Enrichment Processing Statistics"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">Real-time statistics show the progress of document processing, enrichment success rates, and data extraction quality across the 30,000+ packaging documents.</p>
+          <div class="modal-action">
+            <label for="modal-pharma-enrichment-stats" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-pharma-enrichment-stats">Close</label>
       </div>
 
       <!-- Use Case 2: Email-to-Structure for Project Teams -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-start sm:justify-between gap-3 mb-4">
+            <span class="badge badge-secondary badge-lg order-first"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇨🇭</span>Wholesale</span>
             <h2 class="card-title text-3xl">Email-Driven Project Management</h2>
-            <span class="badge badge-secondary badge-lg"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇨🇭</span>Wholesale</span>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
@@ -135,6 +203,10 @@ const appUrl = getAppUrl()
                 The Solution
               </h3>
               <ul class="space-y-2 text-sm">
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  Custom n8n workflows for email ingestion and AI agent processing
+                </li>
                 <li class="flex items-start gap-2">
                   <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   AI-powered email analysis and entity extraction
@@ -182,15 +254,86 @@ const appUrl = getAppUrl()
               </ul>
             </div>
           </div>
+
+          <!-- Implementation Screenshots -->
+          <div class="mt-8 border-t border-base-300 pt-8">
+            <h3 class="font-bold text-xl mb-6 text-center">Real Implementation</h3>
+            <p class="text-sm text-center text-base-content/70 mb-6">Click images to enlarge</p>
+            <div class="grid md:grid-cols-2 gap-6">
+
+              <!-- Screenshot 1 -->
+              <div class="space-y-3">
+                <label for="modal-ai-agent" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/n8n-ai-agent-with-george-ai-tools.png"
+                    alt="AI Agent Workflow in n8n"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">AI Agent Workflow in n8n</p>
+                <p class="text-xs text-center text-base-content/70">Automatically extracts deadlines, budgets, and approvals from email threads</p>
+              </div>
+
+              <!-- Screenshot 2 -->
+              <div class="space-y-3">
+                <label for="modal-email-ingestion" class="cursor-pointer">
+                  <img
+                    src="/images/use-cases/n8n-email-ingestion-example.png"
+                    alt="Email Ingestion Workflow in n8n"
+                    class="rounded-lg shadow-xl w-full h-64 object-cover border border-base-300 hover:opacity-90 transition-opacity"
+                  />
+                </label>
+                <p class="text-sm text-center font-semibold">Email Ingestion Workflow</p>
+                <p class="text-xs text-center text-base-content/70">Processes shared mailbox and routes to George AI Libraries</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Modals for Use Case 2 Screenshots -->
+      <!-- Modal 1: AI Agent -->
+      <input type="checkbox" id="modal-ai-agent" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">AI Agent Workflow in n8n</h3>
+          <img
+            src="/images/use-cases/n8n-ai-agent-with-george-ai-tools.png"
+            alt="AI Agent Workflow in n8n"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">This n8n workflow uses George AI tools to automatically extract deadlines, budgets, and approvals from email threads.</p>
+          <div class="modal-action">
+            <label for="modal-ai-agent" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-ai-agent">Close</label>
+      </div>
+
+      <!-- Modal 2: Email Ingestion -->
+      <input type="checkbox" id="modal-email-ingestion" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box max-w-5xl">
+          <h3 class="font-bold text-lg mb-4">Email Ingestion Workflow</h3>
+          <img
+            src="/images/use-cases/n8n-email-ingestion-example.png"
+            alt="Email Ingestion Workflow in n8n"
+            class="w-full rounded-lg"
+          />
+          <p class="py-4 text-sm">This workflow processes the shared mailbox and automatically routes emails to the appropriate George AI Libraries.</p>
+          <div class="modal-action">
+            <label for="modal-email-ingestion" class="btn">Close</label>
+          </div>
+        </div>
+        <label class="modal-backdrop" for="modal-email-ingestion">Close</label>
       </div>
 
       <!-- Use Case 3: Hospital Intranet Modernization -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-start sm:justify-between gap-3 mb-4">
+            <span class="badge badge-accent badge-lg order-first"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Healthcare</span>
             <h2 class="card-title text-3xl">Healthcare Knowledge Modernization</h2>
-            <span class="badge badge-accent badge-lg"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Healthcare</span>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
@@ -272,9 +415,9 @@ const appUrl = getAppUrl()
       <!-- Use Case 4: Banking Multi-Source Unification -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-start sm:justify-between gap-3 mb-4">
+            <span class="badge badge-info badge-lg order-first"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Banking & Finance</span>
             <h2 class="card-title text-3xl">Financial Services Multi-Source Integration</h2>
-            <span class="badge badge-info badge-lg"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white mr-2">🇩🇪</span>Banking & Finance</span>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
@@ -359,16 +502,20 @@ const appUrl = getAppUrl()
     <div class="text-center mt-16">
       <div class="card bg-linear-to-r from-primary to-secondary text-primary-content shadow-2xl">
         <div class="card-body">
-          <h2 class="card-title text-3xl justify-center mb-4">Ready to Transform Your Data Operations?</h2>
+          <h2 class="card-title text-3xl justify-center mb-4">Ready to discuss your use case?</h2>
           <p class="text-lg mb-6">
             Join leading organizations across pharmaceutical, healthcare, and financial services industries
           </p>
-          <div class="flex gap-4 justify-center">
-            <a href={`${appUrl}/login`} class="btn btn-lg bg-white text-primary hover:bg-base-100">
-              Get Started
+          <div class="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
+            <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-lg bg-white text-primary hover:bg-base-100 w-full sm:w-auto">
+              <span class="hidden sm:inline">Schedule a 30-Minute Demo</span>
+              <span class="sm:hidden">Schedule Demo</span>
             </a>
-            <a href="/contact" class="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary">
-              Contact Sales
+            <a href="https://github.com/progwise/george-ai" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary gap-2 w-full sm:w-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              View on GitHub
             </a>
           </div>
         </div>

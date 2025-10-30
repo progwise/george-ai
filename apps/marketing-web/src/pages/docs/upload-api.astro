@@ -1,0 +1,812 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Upload API - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Upload API</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Upload API</h1>
+          <p class="text-lg sm:text-xl">
+            Two-step file upload process for browser uploads, n8n workflows, crawlers, and integrations
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          George AI uses a <strong>two-step upload process</strong> that provides flexibility for different upload scenarios while maintaining security and consistency. This same process is used across all upload methods: browser file uploads, n8n automation workflows, crawlers, and Google Drive integrations.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+              </svg>
+              Secure
+            </h3>
+            <p class="text-sm">Authenticated uploads with time-limited tokens and validation</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5 10.5 6.75m0 0L7.5 3.75m3 3 10.5 3M3.75 19.5l6.75-6.75m0 0 2.25 2.25m-2.25-2.25 3.75-3.75m4.5 7.5-6.75 6.75m0 0-3-3m3 3 3-3m6.75-13.5-6.75 6.75m0 0 2.25 2.25m-2.25-2.25L21 4.5" />
+              </svg>
+              Flexible
+            </h3>
+            <p class="text-sm">Supports binary and base64 encoding for different use cases</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+              </svg>
+              Universal
+            </h3>
+            <p class="text-sm">Used by browser, n8n, crawlers, and Google Drive integrations</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Two-Step Process -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">The Two-Step Upload Process</h2>
+
+      <div class="space-y-8">
+        <!-- Step 1 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">Step 1</div>
+              <div class="flex-1 overflow-x-auto">
+                <h3 class="text-xl font-bold mb-2">Prepare Upload (GraphQL Mutation)</h3>
+                <p class="text-sm mb-4">Register the file metadata and receive a unique upload token (File ID)</p>
+
+                <div class="mockup-code text-xs mb-4 overflow-x-auto">
+                  <pre is:raw><code>mutation {
+  prepareFileUpload(data: {
+    libraryId: "library-id-here"
+    name: "document.pdf"
+    mimeType: "application/pdf"
+    size: 1048576
+    originUri: "desktop"
+    originModificationDate: "2025-01-15T10:30:00Z"
+  }) {
+    id  # ← This is your upload token!
+  }
+}</code></pre>
+                </div>
+
+                <div class="alert alert-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <div class="text-xs">
+                    <p class="font-bold">What happens in Step 1:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                      <li>File record created in database</li>
+                      <li>Unique file ID generated</li>
+                      <li>Metadata validated and stored</li>
+                      <li>Upload directory prepared</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="overflow-x-auto mt-4">
+                  <table class="table table-sm text-xs">
+                    <thead>
+                      <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Required</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>libraryId</code></td>
+                        <td>String</td>
+                        <td>Target library ID</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><code>name</code></td>
+                        <td>String</td>
+                        <td>Original filename</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><code>mimeType</code></td>
+                        <td>String</td>
+                        <td>File MIME type</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><code>size</code></td>
+                        <td>Int</td>
+                        <td>File size in bytes</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><code>originUri</code></td>
+                        <td>String</td>
+                        <td>Source (desktop, url, crawler name)</td>
+                        <td>Yes</td>
+                      </tr>
+                      <tr>
+                        <td><code>originModificationDate</code></td>
+                        <td>DateTime</td>
+                        <td>Original file modification time</td>
+                        <td>Yes</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-lg badge-primary">Step 2</div>
+              <div class="flex-1 overflow-x-auto">
+                <h3 class="text-xl font-bold mb-2">Upload File Content (HTTP POST)</h3>
+                <p class="text-sm mb-4">Send the actual file data to the upload endpoint using the token from Step 1</p>
+
+                <div class="mockup-code text-xs mb-4 overflow-x-auto">
+                  <pre is:raw><code>POST http://localhost:3003/upload
+Content-Type: application/octet-stream
+x-upload-token: {fileId from Step 1}
+x-user-jwt: {your JWT token}
+Authorization: ApiKey {your-api-key}
+
+{binary file content}</code></pre>
+                </div>
+
+                <div class="alert alert-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <div class="text-xs">
+                    <p class="font-bold">What happens in Step 2:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                      <li>Upload token validated (5-minute expiry)</li>
+                      <li>File written to disk at correct location</li>
+                      <li>Upload marked as finished</li>
+                      <li>Processing task automatically created</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <h4 class="font-semibold text-sm mt-6 mb-3">Required Headers</h4>
+                <div class="overflow-x-auto">
+                  <table class="table table-sm text-xs">
+                    <thead>
+                      <tr>
+                        <th>Header</th>
+                        <th>Value</th>
+                        <th>Purpose</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>x-upload-token</code></td>
+                        <td>File ID from Step 1</td>
+                        <td>Identifies which file this upload is for</td>
+                      </tr>
+                      <tr>
+                        <td><code>x-user-jwt</code></td>
+                        <td>User JWT token</td>
+                        <td>Authentication (user context)</td>
+                      </tr>
+                      <tr>
+                        <td><code>Authorization</code></td>
+                        <td>ApiKey &lt;your-key&gt; or Bearer &lt;your-token&gt;</td>
+                        <td>API authentication</td>
+                      </tr>
+                      <tr>
+                        <td><code>Content-Encoding</code></td>
+                        <td>base64 (optional)</td>
+                        <td>If sending base64-encoded data</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="alert alert-warning mt-4 overflow-x-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  <div class="text-xs">
+                    <p class="font-bold">Important Notes:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                      <li>Upload token expires after <strong>5 minutes</strong></li>
+                      <li>Token can only be used <strong>once</strong></li>
+                      <li>DO NOT use <code>multipart/form-data</code> - raw binary or base64 only</li>
+                      <li>Upload is locked during processing to prevent race conditions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Upload Methods -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Upload Methods & Use Cases</h2>
+
+      <div class="space-y-6">
+        <!-- Browser Upload -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+              </svg>
+              Browser File Upload
+            </h3>
+            <p class="text-sm mb-4">The standard file upload used in the George AI web interface</p>
+
+            <div class="mockup-code text-xs overflow-x-auto">
+              <pre is:raw><code>// Step 1: Prepare (TanStack Server Function)
+const uploadInfo = await prepareDesktopFileUploadsFn({
+  data: {
+    libraryId: 'library-id',
+    files: [{
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: new Date(file.lastModified)
+    }]
+  }
+})
+
+// Step 2: Upload with fetch
+const response = await fetch(uploadInfo[0].uploadUrl, {
+  method: 'POST',
+  headers: {
+    'x-upload-token': uploadInfo[0].fileId,
+    'x-user-jwt': userToken,
+    'Authorization': `ApiKey ${apiKey}`
+  },
+  body: file  // Raw File object
+})</code></pre>
+            </div>
+
+            <div class="badge badge-primary badge-sm mt-4">Browser</div>
+            <div class="badge badge-secondary badge-sm mt-4">TanStack Server Function</div>
+          </div>
+        </div>
+
+        <!-- n8n Gmail Workflow -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+              n8n Gmail Attachment Workflow
+            </h3>
+            <p class="text-sm mb-4">Automatically upload email attachments from Gmail to George AI</p>
+
+            <div class="collapse collapse-arrow bg-base-200">
+              <input type="checkbox" />
+              <div class="collapse-title text-sm font-medium">
+                Example n8n Workflow Configuration
+              </div>
+              <div class="collapse-content text-xs">
+                <h4 class="font-bold mb-2">Workflow Nodes:</h4>
+                <ol class="list-decimal list-inside space-y-2 mb-4">
+                  <li><strong>Gmail Trigger:</strong> Watch for new emails with attachments</li>
+                  <li><strong>Extract Attachments:</strong> Get attachment metadata and content</li>
+                  <li><strong>GraphQL Request (Step 1):</strong> Call prepareFileUpload mutation</li>
+                  <li><strong>HTTP Request (Step 2):</strong> Upload attachment to /upload endpoint</li>
+                </ol>
+
+                <div class="mockup-code overflow-x-auto">
+                  <pre is:raw><code>// Node 3: GraphQL Request (Prepare Upload)
+POST http://localhost:3003/graphql
+Headers:
+  x-api-key: your-api-key
+Body:
+{
+  "query": "mutation($file: AiLibraryFileInput!) { prepareFileUpload(data: $file) { id } }",
+  "variables": {
+    "file": {
+      "libraryId": "{{$json.libraryId}}",
+      "name": "{{$json.attachment.filename}}",
+      "mimeType": "{{$json.attachment.mimeType}}",
+      "size": {{$json.attachment.size}},
+      "originUri": "gmail:{{$json.email.id}}",
+      "originModificationDate": "{{$json.email.date}}"
+    }
+  }
+}
+
+// Node 4: HTTP Request (Upload File)
+POST http://localhost:3003/upload
+Headers:
+  x-upload-token: {{$node["GraphQL Request"].json.data.prepareFileUpload.id}}
+  x-api-key: your-api-key
+  Content-Encoding: base64
+Body:
+{{$json.attachment.data}}  # Base64 from Gmail</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div class="text-xs">
+                <p class="font-bold">Gmail Attachments are Base64</p>
+                <p>Gmail API returns attachments as base64-encoded strings. Set <code>Content-Encoding: base64</code> header and send the data directly.</p>
+              </div>
+            </div>
+
+            <div class="badge badge-accent badge-sm mt-4">n8n</div>
+            <div class="badge badge-secondary badge-sm mt-4">Base64</div>
+            <div class="badge badge-info badge-sm mt-4">Automation</div>
+          </div>
+        </div>
+
+        <!-- Crawlers -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              Crawler Uploads
+            </h3>
+            <p class="text-sm mb-4">SharePoint, SMB, HTTP, and Box crawlers use the same 2-step process</p>
+
+            <p class="text-sm mb-2"><strong>How Crawlers Upload:</strong></p>
+            <ul class="text-xs space-y-2 mb-4">
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Crawler discovers file on remote source</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Step 1: prepareFileUpload with file metadata</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Download file from remote source (buffer in memory)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Step 2: POST buffer to /upload endpoint</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-success">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>All server-side, no browser involved</span>
+              </li>
+            </ul>
+
+            <div class="badge badge-warning badge-sm">Server-Side</div>
+            <div class="badge badge-secondary badge-sm">Binary</div>
+          </div>
+        </div>
+
+        <!-- Google Drive -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 inline">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+              </svg>
+              Google Drive Upload
+            </h3>
+            <p class="text-sm mb-4">Similar to crawlers but triggered by user action in browser</p>
+
+            <p class="text-sm mb-2"><strong>How Google Drive Upload Works:</strong></p>
+            <ul class="text-xs space-y-2 mb-4">
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-info">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>User selects files from Google Drive picker (browser UI)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-info">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span><strong>TanStack Server Function</strong> handles download server-side</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-info">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Step 1: prepareFileUpload (server-side)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-info">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Download from Google Drive API (server-side)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mt-0.5 text-info">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <span>Step 2: POST to /upload (server-side)</span>
+              </li>
+            </ul>
+
+            <div class="alert alert-success">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div class="text-xs">
+                <p class="font-bold">No Browser Upload</p>
+                <p>Even though the user selects files in the browser, the actual download and upload happens server-side via TanStack Server Functions. This avoids browser CORS issues and bandwidth limitations.</p>
+              </div>
+            </div>
+
+            <div class="badge badge-info badge-sm mt-4">TanStack Server</div>
+            <div class="badge badge-secondary badge-sm mt-4">Server-Side</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Error Handling -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Error Handling</h2>
+
+      <div class="space-y-6">
+        <!-- Common Errors -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">Common Upload Errors</h3>
+
+            <div class="overflow-x-auto">
+              <table class="table table-sm text-xs">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Error</th>
+                    <th>Cause</th>
+                    <th>Solution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">400</div></td>
+                    <td>x-upload-token header is required</td>
+                    <td>Missing upload token</td>
+                    <td>Include <code>x-upload-token</code> header</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">400</div></td>
+                    <td>x-upload-token outdated</td>
+                    <td>Token already used</td>
+                    <td>Start over with new prepareFileUpload</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">400</div></td>
+                    <td>x-upload-token expired</td>
+                    <td>More than 5 minutes passed</td>
+                    <td>Prepare new upload token</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">400</div></td>
+                    <td>Multipart form data not supported</td>
+                    <td>Wrong content type</td>
+                    <td>Send raw binary or base64</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">401</div></td>
+                    <td>Unauthorized</td>
+                    <td>Missing/invalid auth</td>
+                    <td>Check JWT token and API key</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">405</div></td>
+                    <td>Method Not Allowed</td>
+                    <td>Not using POST</td>
+                    <td>Use POST method</td>
+                  </tr>
+                  <tr>
+                    <td><div class="badge badge-sm badge-error">409</div></td>
+                    <td>File upload already in progress</td>
+                    <td>Duplicate upload attempt</td>
+                    <td>Wait for current upload to finish</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canceling Uploads -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="text-xl font-bold mb-4">Canceling an Upload</h3>
+            <p class="text-sm mb-4">If you need to cancel an upload before Step 2 or if Step 2 fails:</p>
+
+            <div class="mockup-code text-xs overflow-x-auto">
+              <pre is:raw><code>mutation {
+  cancelFileUpload(fileId: "file-id-from-step-1")
+}</code></pre>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div class="text-xs">
+                <p>This removes the file record and cleans up any partial upload data.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Complete Examples -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Complete Examples</h2>
+
+      <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">
+          Example: cURL Upload (Binary)
+        </div>
+        <div class="collapse-content">
+          <div class="mockup-code text-xs overflow-x-auto">
+            <pre is:raw><code># Step 1: Prepare Upload
+curl -X POST http://localhost:3003/graphql \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "query": "mutation($file: AiLibraryFileInput!) { prepareFileUpload(data: $file) { id } }",
+    "variables": {
+      "file": {
+        "libraryId": "lib123",
+        "name": "document.pdf",
+        "mimeType": "application/pdf",
+        "size": 1048576,
+        "originUri": "desktop",
+        "originModificationDate": "2025-01-15T10:30:00Z"
+      }
+    }
+  }'
+
+# Response: {"data": {"prepareFileUpload": {"id": "file-abc123"}}}
+
+# Step 2: Upload File
+curl -X POST http://localhost:3003/upload \
+  -H "x-upload-token: file-abc123" \
+  -H "x-user-jwt: your-jwt-token" \
+  -H "Authorization: ApiKey your-api-key" \
+  --data-binary @document.pdf
+
+# Response: {"status": "success"}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-100 shadow-lg mt-4">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">
+          Example: Python Upload (Base64)
+        </div>
+        <div class="collapse-content">
+          <div class="mockup-code text-xs overflow-x-auto">
+            <pre is:raw><code>import requests
+import base64
+from datetime import datetime
+
+# Read file and encode to base64
+with open('document.pdf', 'rb') as f:
+    file_content = f.read()
+    base64_content = base64.b64encode(file_content).decode('utf-8')
+
+# Step 1: Prepare Upload
+prepare_response = requests.post(
+    'http://localhost:3003/graphql',
+    headers={'x-api-key': 'your-api-key'},
+    json={
+        'query': '''
+            mutation($file: AiLibraryFileInput!) {
+                prepareFileUpload(data: $file) { id }
+            }
+        ''',
+        'variables': {
+            'file': {
+                'libraryId': 'lib123',
+                'name': 'document.pdf',
+                'mimeType': 'application/pdf',
+                'size': len(file_content),
+                'originUri': 'python-script',
+                'originModificationDate': datetime.now().isoformat()
+            }
+        }
+    }
+)
+
+file_id = prepare_response.json()['data']['prepareFileUpload']['id']
+
+# Step 2: Upload File (Base64)
+upload_response = requests.post(
+    'http://localhost:3003/upload',
+    headers={
+        'x-upload-token': file_id,
+        'x-api-key': 'your-api-key',
+        'Content-Encoding': 'base64'
+    },
+    data=base64_content
+)
+
+print(upload_response.json())</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-100 shadow-lg mt-4">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">
+          Example: JavaScript/Node.js Upload
+        </div>
+        <div class="collapse-content">
+          <div class="mockup-code text-xs overflow-x-auto">
+            <pre is:raw><code>import fs from 'fs'
+import fetch from 'node-fetch'
+
+const apiKey = 'your-api-key'
+const userJwt = 'your-jwt-token'
+const libraryId = 'lib123'
+const filePath = './document.pdf'
+
+// Read file
+const fileBuffer = fs.readFileSync(filePath)
+const fileStats = fs.statSync(filePath)
+
+// Step 1: Prepare Upload
+const prepareResponse = await fetch('http://localhost:3003/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey
+  },
+  body: JSON.stringify({
+    query: `
+      mutation($file: AiLibraryFileInput!) {
+        prepareFileUpload(data: $file) { id }
+      }
+    `,
+    variables: {
+      file: {
+        libraryId,
+        name: 'document.pdf',
+        mimeType: 'application/pdf',
+        size: fileStats.size,
+        originUri: 'nodejs-script',
+        originModificationDate: fileStats.mtime.toISOString()
+      }
+    }
+  })
+})
+
+const { data } = await prepareResponse.json()
+const fileId = data.prepareFileUpload.id
+
+// Step 2: Upload File
+const uploadResponse = await fetch('http://localhost:3003/upload', {
+  method: 'POST',
+  headers: {
+    'x-upload-token': fileId,
+    'x-user-jwt': userJwt,
+    'Authorization': `ApiKey ${apiKey}`
+  },
+  body: fileBuffer
+})
+
+const result = await uploadResponse.json()
+console.log(result)  // { status: 'success' }</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Next Steps -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Next Steps</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <a href="/docs/processing" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+              Document Processing
+            </h3>
+            <p class="text-sm">Learn what happens after files are uploaded</p>
+          </div>
+        </a>
+
+        <a href="/docs/graphql-api" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+              </svg>
+              GraphQL API
+            </h3>
+            <p class="text-sm">Full API reference including prepareFileUpload mutation</p>
+          </div>
+        </a>
+
+        <a href="/docs/crawlers" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              Crawler Configuration
+            </h3>
+            <p class="text-sm">How crawlers use the upload API automatically</p>
+          </div>
+        </a>
+
+        <a href="/docs/libraries" class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+              Library Management
+            </h3>
+            <p class="text-sm">Managing libraries where files are uploaded</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</Layout>

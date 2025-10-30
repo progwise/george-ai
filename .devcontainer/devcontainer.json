@@ -19,6 +19,7 @@
         "astro-build.astro-vscode"
       ],
       "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
@@ -82,7 +83,7 @@
   // This can be used to network with other containers or with the host.
   "forwardPorts": [3000, 3001, 3003, 4321, 8090, 8108, 11245],
 
-  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; pnpm i -g @anthropic-ai/claude-code",
+  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; curl -fsSL https://claude.ai/install.sh | bash",
 
   "postStartCommand": "echo 'DevContainer started successfully'"
 

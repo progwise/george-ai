@@ -43,8 +43,6 @@ jobs:
             echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY}}" >./gai-typesense.env
             echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY}}" >./gai-backend.env
             echo "DATABASE_URL=postgresql://chatweb:${{ secrets.GAI_DB_PASSWORD}}@gai-db:5432/chatweb?schema=public" >>./gai-backend.env
-            echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY}}" >>./gai-backend.env
-            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY}}" >>./gai-backend.env
             echo "GRAPHQL_API_KEY=${{ secrets.GRAPHQL_API_KEY}}" >>./gai-backend.env
             echo "SMTP_USER=${{ secrets.SMTP_USER}}" >>./gai-backend.env
             echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD}}" >>./gai-backend.env

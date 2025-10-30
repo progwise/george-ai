@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [unreleased]
 
+### Changed
+
+- Marketing website: Mobile responsiveness and accessibility improvements across all pages
+- Documentation: Updated file naming conventions and corrected inconsistencies
+
 ## [2025-10-22]
 
 ### Added

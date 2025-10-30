@@ -253,6 +253,9 @@ importers:
 
   apps/marketing-web:
     dependencies:
+      '@astrojs/node':
+        specifier: ^9.5.0
+        version: 9.5.0(astro@5.14.7(@types/node@22.18.6)(db0@0.3.4)(ioredis@5.8.0)(jiti@2.6.0)(lightningcss@1.30.2)(rollup@4.52.2)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))
       '@astrojs/sitemap':
         specifier: ^3.6.0
         version: 3.6.0
@@ -265,6 +268,9 @@ importers:
       daisyui:
         specifier: ^5.1.10
         version: 5.1.14
+      nodemailer:
+        specifier: ^6.9.16
+        version: 6.10.1
       tailwind-merge:
         specifier: ^3.2.0
         version: 3.3.1
@@ -278,6 +284,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.36.0
+      '@types/nodemailer':
+        specifier: ^6.4.16
+        version: 6.4.19
       eslint:
         specifier: ^9.17.0
         version: 9.36.0(jiti@2.6.0)
@@ -661,6 +670,11 @@ packages:
 
   '@astrojs/markdown-remark@6.3.8':
     resolution: {integrity: sha512-uFNyFWadnULWK2cOw4n0hLKeu+xaVWeuECdP10cQ3K2fkybtTlhb7J7TcScdjmS8Yps7oje9S/ehYMfZrhrgCg==}
+
+  '@astrojs/node@9.5.0':
+    resolution: {integrity: sha512-x1whLIatmCefaqJA8FjfI+P6FStF+bqmmrib0OUGM1M3cZhAXKLgPx6UF2AzQ3JgpXgCWYM24MHtraPvZhhyLQ==}
+    peerDependencies:
+      astro: ^5.14.3
 
   '@astrojs/prism@3.3.0':
     resolution: {integrity: sha512-q8VwfU/fDZNoDOf+r7jUnMC2//H2l0TuQ6FkGJL8vD8nw/q5KiL3DS1KKBI3QhI9UQhpJ5dc7AtqfbXWuOgLCQ==}
@@ -7281,6 +7295,9 @@ packages:
     resolution: {integrity: sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==}
     engines: {node: '>= 18'}
 
+  server-destroy@1.0.1:
+    resolution: {integrity: sha512-rb+9B5YBIEzYcD6x2VKidaa+cqYBJQKnU4oe4E3ANwRRN56yk/ua1YCJT1n21NTS8w6CcOclAKNP3PhdCXKYtQ==}
+
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
@@ -8574,6 +8591,15 @@ snapshots:
       unist-util-visit: 5.0.0
       unist-util-visit-parents: 6.0.1
       vfile: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@astrojs/node@9.5.0(astro@5.14.7(@types/node@22.18.6)(db0@0.3.4)(ioredis@5.8.0)(jiti@2.6.0)(lightningcss@1.30.2)(rollup@4.52.2)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))':
+    dependencies:
+      '@astrojs/internal-helpers': 0.7.4
+      astro: 5.14.7(@types/node@22.18.6)(db0@0.3.4)(ioredis@5.8.0)(jiti@2.6.0)(lightningcss@1.30.2)(rollup@4.52.2)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      send: 1.2.0
+      server-destroy: 1.0.1
     transitivePeerDependencies:
       - supports-color
 
@@ -16609,6 +16635,8 @@ snapshots:
       send: 1.2.0
     transitivePeerDependencies:
       - supports-color
+
+  server-destroy@1.0.1: {}
 
   set-blocking@2.0.0: {}
 

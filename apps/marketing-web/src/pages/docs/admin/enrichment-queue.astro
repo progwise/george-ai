@@ -1,0 +1,657 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Enrichment Queue Management" description="Monitor and manage the enrichment queue for AI-powered data extraction">
+  <div class="breadcrumbs text-sm mb-6">
+    <ul>
+      <li><a href="/docs">Documentation</a></li>
+      <li><a href="/docs#admin">Admin</a></li>
+      <li>Enrichment Queue</li>
+    </ul>
+  </div>
+
+  <div class="hero bg-linear-to-br from-purple-500/10 to-pink-500/10 rounded-2xl mb-12">
+    <div class="hero-content text-center py-8 sm:py-12">
+      <div class="max-w-2xl">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-4 bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          Enrichment Queue Management
+        </h1>
+        <p class="text-lg sm:text-xl opacity-80">
+          Monitor and control the enrichment queue that powers AI-driven data extraction from your documents
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-16">
+    <!-- Overview -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">What is the Enrichment Queue?</h2>
+      <div class="prose prose-lg max-w-none">
+        <p>
+          The Enrichment Queue processes tasks that extract structured data from documents using AI. When you create
+          a <a href="/docs/lists" class="link link-primary">List</a> with fields, George AI automatically enriches
+          your files by extracting relevant information based on your field definitions.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+              </svg>
+              AI-Powered Extraction
+            </h3>
+            <p class="text-sm">
+              Uses language models to extract specific information from documents based on your prompts
+            </p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-pink-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              Vector Search
+            </h3>
+            <p class="text-sm">
+              Optionally uses semantic search to find relevant content chunks before extraction
+            </p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+              </svg>
+              Structured Data
+            </h3>
+            <p class="text-sm">
+              Extracts structured information like text, numbers, dates, or boolean values
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Task Status Overview -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">Understanding Task Status</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Color</th>
+              <th>Description</th>
+              <th>Next Steps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-info badge-sm">Pending</span></td>
+              <td>Blue</td>
+              <td>Task is waiting in queue to be processed</td>
+              <td>Will be picked up automatically by the worker</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-primary badge-sm">Processing</span></td>
+              <td>Purple</td>
+              <td>Task is currently being processed by AI</td>
+              <td>Wait for completion or stop if needed</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-success badge-sm">Completed</span></td>
+              <td>Green</td>
+              <td>Successfully extracted a value</td>
+              <td>Value is now stored in the list field</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning badge-sm">Failed</span></td>
+              <td>Yellow</td>
+              <td>Extracted value matched failure terms</td>
+              <td>Review failure terms or retry with different settings</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-error badge-sm">Error</span></td>
+              <td>Red</td>
+              <td>Processing encountered an error</td>
+              <td>Check error message and retry or fix configuration</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-secondary badge-sm">Canceled</span></td>
+              <td>Gray</td>
+              <td>Task was manually stopped</td>
+              <td>Start new enrichment if needed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Queue Management Actions -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">Available Actions</h2>
+
+      <div class="space-y-6">
+        <!-- Start Enrichment -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-success">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+              </svg>
+              Start Enrichment
+            </h3>
+            <div class="prose">
+              <p><strong>Purpose:</strong> Create new enrichment tasks for files in a list</p>
+              <p><strong>When to use:</strong></p>
+              <ul>
+                <li>New files have been added to a library linked to the list</li>
+                <li>You've updated field configuration (prompt, context, etc.)</li>
+                <li>You want to re-enrich files with updated settings</li>
+              </ul>
+              <p><strong>Options:</strong></p>
+              <ul>
+                <li><code>onlyMissingValues</code> (default: true) - Only process files without existing values</li>
+                <li><code>filters</code> - Apply field filters to limit which files are enriched</li>
+                <li><code>fileId</code> - Process only a specific file</li>
+              </ul>
+            </div>
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>By default, only files with missing values are enriched to avoid unnecessary reprocessing</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop Enrichment -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
+              </svg>
+              Stop Enrichment
+            </h3>
+            <div class="prose">
+              <p><strong>Purpose:</strong> Cancel all pending enrichment tasks for a field</p>
+              <p><strong>When to use:</strong></p>
+              <ul>
+                <li>You started enrichment with wrong settings</li>
+                <li>You need to update field configuration before continuing</li>
+                <li>You want to pause enrichment temporarily</li>
+              </ul>
+              <p><strong>What it does:</strong></p>
+              <ul>
+                <li>Cancels all pending tasks (not yet started)</li>
+                <li>Does NOT stop currently processing tasks</li>
+                <li>Marks canceled tasks with "canceled" status</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clear Enrichments -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-error">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-7.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+              Clear Enrichments
+            </h3>
+            <div class="prose">
+              <p><strong>Purpose:</strong> Delete completed enrichment tasks and optionally their extracted values</p>
+              <p><strong>When to use:</strong></p>
+              <ul>
+                <li>Clean up old enrichment history</li>
+                <li>Remove failed enrichments before retrying</li>
+                <li>Clear specific file enrichments</li>
+                <li>Reset all enrichments for a field</li>
+              </ul>
+              <p><strong>Scope options:</strong></p>
+              <ul>
+                <li><strong>By field:</strong> Clear all enrichments for specific field</li>
+                <li><strong>By file:</strong> Clear enrichments for specific file only</li>
+                <li><strong>By field + file:</strong> Clear single enrichment</li>
+                <li><strong>Entire list:</strong> Clear all enrichments from all fields</li>
+              </ul>
+            </div>
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Clearing enrichments removes the extracted values from your list items</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Retry Individual Task -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Retry Enrichment
+            </h3>
+            <div class="prose">
+              <p><strong>Purpose:</strong> Re-run enrichment for a specific file and field</p>
+              <p><strong>When to use:</strong></p>
+              <ul>
+                <li>Enrichment failed due to temporary error</li>
+                <li>Enrichment matched failure terms but shouldn't have</li>
+                <li>You've updated the field configuration and want to test on one file</li>
+                <li>Document has been updated and needs re-enrichment</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How Enrichment Works -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">How Enrichment Works</h2>
+
+      <ul class="timeline timeline-vertical timeline-snap-icon">
+        <li>
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <div class="text-lg font-black">Step 1: Task Creation</div>
+            <div class="text-base-content/70">
+              System creates enrichment tasks for files in the list based on field configuration
+            </div>
+          </div>
+          <hr class="bg-primary" />
+        </li>
+
+        <li>
+          <hr class="bg-primary" />
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end mb-10">
+            <div class="text-lg font-black">Step 2: Content Search (Optional)</div>
+            <div class="text-base-content/70">
+              If <code>useVectorStore</code> is enabled, performs semantic search using <code>contentQuery</code> to find relevant chunks
+            </div>
+          </div>
+          <hr class="bg-primary" />
+        </li>
+
+        <li>
+          <hr class="bg-primary" />
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <div class="text-lg font-black">Step 3: Context Assembly</div>
+            <div class="text-base-content/70">
+              Gathers context from related fields and similar chunks to provide to the AI model
+            </div>
+          </div>
+          <hr class="bg-primary" />
+        </li>
+
+        <li>
+          <hr class="bg-primary" />
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end mb-10">
+            <div class="text-lg font-black">Step 4: AI Generation</div>
+            <div class="text-base-content/70">
+              Sends prompt with context to the configured language model to extract the value
+            </div>
+          </div>
+          <hr class="bg-primary" />
+        </li>
+
+        <li>
+          <hr class="bg-primary" />
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-primary">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-start md:text-end mb-10">
+            <div class="text-lg font-black">Step 5: Validation</div>
+            <div class="text-base-content/70">
+              Checks if extracted value matches <code>failureTerms</code> (e.g., "N/A", "Unknown", "Not found")
+            </div>
+          </div>
+          <hr class="bg-primary" />
+        </li>
+
+        <li>
+          <hr class="bg-primary" />
+          <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-success">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end">
+            <div class="text-lg font-black">Step 6: Storage</div>
+            <div class="text-base-content/70">
+              Stores extracted value in the list item and marks task as completed or failed
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Common Scenarios -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">Common Management Scenarios</h2>
+
+      <div class="space-y-4">
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="radio" name="scenario-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Many enrichments are failing with "Failed" status
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-3">
+              <p><strong>Cause:</strong> AI is returning values that match your failure terms</p>
+              <p><strong>Solution:</strong></p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Review the extracted values in failed tasks</li>
+                <li>Check if failure terms are too broad (e.g., "N/A", "None", "Unknown")</li>
+                <li>Update failure terms in field configuration to be more specific</li>
+                <li>Clear failed enrichments</li>
+                <li>Retry enrichment with updated settings</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="radio" name="scenario-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Enrichments are stuck in "Pending" status
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-3">
+              <p><strong>Cause:</strong> Worker may be stopped or overloaded</p>
+              <p><strong>Solution:</strong></p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Check the <a href="/docs/admin/processing-queue" class="link link-primary">Processing Queue</a> worker status</li>
+                <li>Ensure the worker is running</li>
+                <li>Check if there are many pending tasks in the processing queue</li>
+                <li>Wait for current tasks to complete or start the worker</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="radio" name="scenario-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Need to re-enrich all files after changing field prompt
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-3">
+              <p><strong>Solution:</strong></p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Clear all enrichments for the field to remove old values</li>
+                <li>Update field configuration with new prompt</li>
+                <li>Start enrichment (it will process all files since values were cleared)</li>
+                <li>Monitor progress in the enrichment queue</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="radio" name="scenario-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Tasks show "Error" status with error messages
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-3">
+              <p><strong>Cause:</strong> Processing error (API error, model error, etc.)</p>
+              <p><strong>Solution:</strong></p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Click on the task to view detailed error message</li>
+                <li>Common errors:
+                  <ul class="list-disc list-inside ml-4 mt-1">
+                    <li>API rate limits - wait and retry later</li>
+                    <li>Model unavailable - check AI service configuration</li>
+                    <li>Invalid prompt - review and fix field prompt</li>
+                    <li>Missing content - ensure file has been processed first</li>
+                  </ul>
+                </li>
+                <li>Fix the underlying issue</li>
+                <li>Retry the specific enrichment task</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="radio" name="scenario-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Want to enrich only files matching specific criteria
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-3">
+              <p><strong>Solution:</strong></p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Set up field filters before starting enrichment</li>
+                <li>Filters can match on other field values</li>
+                <li>Start enrichment with filters applied</li>
+                <li>Only files matching filter criteria will be enriched</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-success/10 border border-success/20">
+          <div class="card-body">
+            <h3 class="card-title text-success">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Do
+            </h3>
+            <ul class="space-y-2 text-sm">
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Test field configuration on a single file first using retry</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Use specific, clear prompts to get better extraction results</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Configure failure terms to catch common non-answers</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Use context fields to provide related information to the AI</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Enable vector search for fields that need semantic understanding</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Monitor failed/error tasks regularly</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-success">✓</span>
+                <span>Clear old enrichment history periodically to reduce clutter</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-error/10 border border-error/20">
+          <div class="card-body">
+            <h3 class="card-title text-error">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Don't
+            </h3>
+            <ul class="space-y-2 text-sm">
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Start enrichment on thousands of files without testing first</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Use vague prompts like "extract information"</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Ignore failed tasks - they indicate configuration issues</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Re-enrich all files unnecessarily (wastes API credits)</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Clear enrichments without backing up important extracted data</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Enable vector search for simple file property extractions</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-error">✗</span>
+                <span>Use expensive models for simple extraction tasks</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Task Details -->
+    <section>
+      <h2 class="text-3xl font-bold mb-6">Understanding Task Details</h2>
+
+      <div class="prose prose-lg max-w-none mb-6">
+        <p>
+          Each enrichment task contains detailed information about the processing pipeline. Click on any task
+          to view its full details including input configuration, processing steps, and output results.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-primary">Input Data</h3>
+            <ul class="text-sm space-y-1">
+              <li><strong>File:</strong> Source document being enriched</li>
+              <li><strong>Field:</strong> Target field for extraction</li>
+              <li><strong>Library:</strong> Library containing the file</li>
+              <li><strong>AI Model:</strong> Language model used (e.g., gpt-4, claude-3)</li>
+              <li><strong>Prompt:</strong> Instructions sent to the AI</li>
+              <li><strong>Context Fields:</strong> Related field values provided as context</li>
+              <li><strong>Content Query:</strong> Search query for vector store (if enabled)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-success">Output Data</h3>
+            <ul class="text-sm space-y-1">
+              <li><strong>Enriched Value:</strong> The extracted result</li>
+              <li><strong>Similar Chunks:</strong> Relevant document sections found (if using vector search)</li>
+              <li><strong>Messages:</strong> Full conversation with AI model</li>
+              <li><strong>AI Instance:</strong> Specific model instance used</li>
+              <li><strong>Issues:</strong> Warnings or non-critical problems</li>
+              <li><strong>Error:</strong> Error message if processing failed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mockup-code mt-6">
+        <pre data-prefix="$"><code>Example enriched value</code></pre>
+        <pre data-prefix=">" class="text-success"><code>"Company acquired in 2021 for $50M"</code></pre>
+        <pre data-prefix=" "></pre>
+        <pre data-prefix="$"><code>Example similar chunks (vector search)</code></pre>
+        <pre data-prefix=">" class="text-info"><code>Chunk 1 (distance: 0.23): "...acquisition announced June 2021..."</code></pre>
+        <pre data-prefix=">" class="text-info"><code>Chunk 2 (distance: 0.31): "...purchase price of fifty million USD..."</code></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Resources -->
+    <section>
+      <div class="card bg-linear-to-br from-primary/10 to-secondary/10">
+        <div class="card-body">
+          <h2 class="card-title text-2xl mb-4">Next Steps</h2>
+          <div class="grid md:grid-cols-3 gap-4">
+            <a href="/docs/lists" class="btn btn-outline btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+              </svg>
+              Learn About Lists
+            </a>
+            <a href="/docs/admin/processing-queue" class="btn btn-outline btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+              </svg>
+              Processing Queue
+            </a>
+            <a href="/docs" class="btn btn-outline btn-accent">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+              All Documentation
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>

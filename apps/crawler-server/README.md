@@ -1,4 +1,8 @@
-# Dependencies
+# Crawler Server
+
+> **⚠️ Note**: This crawler server implementation is subject to change. We are evaluating alternatives to replace or enhance this component in future versions. The architecture and dependencies described here may be replaced with a TypeScript-based solution.
+
+## Dependencies
 
 1. pip install "git+ssh://git@github.com/progwise/crawl4ai.git@fix/streaming-error-handling"
 2. pip install fastApi

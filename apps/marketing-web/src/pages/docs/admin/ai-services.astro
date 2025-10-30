@@ -1,0 +1,272 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="AI Service Clustering - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li><a href="/docs">Administration</a></li>
+        <li>AI Service Clustering</li>
+      </ul>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="badge badge-warning mb-4">Advanced</div>
+      <h1 class="text-5xl font-bold mb-4">AI Service Clustering</h1>
+      <p class="text-xl text-base-content/70">
+        Configure and manage Ollama servers with automatic load balancing
+      </p>
+    </div>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          George AI can distribute AI processing across multiple Ollama servers, automatically balancing load based on each server's capabilities.
+        </p>
+        <p>
+          This ensures reliable, high-performance AI processing even under heavy workload by using all available GPU resources intelligently.
+        </p>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How It Works</h2>
+      <div class="grid gap-6">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Intelligent Routing</h3>
+            <p class="text-sm">George AI monitors each Ollama server and routes requests based on:</p>
+            <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+              <li>Available GPU memory</li>
+              <li>Current load (requests in progress)</li>
+              <li>GPU processing speed</li>
+              <li>Which models are loaded on each server</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Automatic Failover</h3>
+            <p class="text-sm">If a server goes offline or becomes unresponsive, requests are automatically routed to available servers</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">Model-Aware Distribution</h3>
+            <p class="text-sm">Each server can run different models. George AI only sends requests to servers that have the required model loaded</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Adding an Ollama Server -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Adding an Ollama Server</h2>
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">1</div>
+              <div>
+                <h4 class="font-bold mb-1">Navigate to AI Services</h4>
+                <p class="text-sm text-base-content/70">Admin Panel → AI Services → Add Server</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">2</div>
+              <div>
+                <h4 class="font-bold mb-1">Enter Server Details</h4>
+                <div class="text-sm text-base-content/70 space-y-1 mt-2">
+                  <p><strong>Name:</strong> Descriptive name (e.g., "GPU Server 1 - NVIDIA A100")</p>
+                  <p><strong>URL:</strong> Server address (e.g., "http://ollama-server-1:11434")</p>
+                  <p><strong>API Key:</strong> If authentication is enabled</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">3</div>
+              <div>
+                <h4 class="font-bold mb-1">Configure Capabilities</h4>
+                <div class="text-sm text-base-content/70 space-y-1 mt-2">
+                  <p><strong>GPU Memory:</strong> Total GPU VRAM (e.g., "80GB")</p>
+                  <p><strong>Relative Speed:</strong> Performance multiplier (1.0 = baseline, 2.0 = twice as fast)</p>
+                  <p><strong>Max Concurrent:</strong> Maximum simultaneous requests (default: 4)</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">4</div>
+              <div>
+                <h4 class="font-bold mb-1">Test Connection</h4>
+                <p class="text-sm text-base-content/70">George AI will verify connectivity and detect available models</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Monitoring -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Monitoring Server Health</h2>
+      <div class="prose max-w-none">
+        <p>The AI Services dashboard shows real-time status:</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Server Status</div>
+          <div class="stat-value text-success text-3xl">Online</div>
+          <div class="stat-desc">Last heartbeat: 2 seconds ago</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Current Load</div>
+          <div class="stat-value text-3xl">3/4</div>
+          <div class="stat-desc">Concurrent requests</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">GPU Memory</div>
+          <div class="stat-value text-warning text-3xl">65%</div>
+          <div class="stat-desc">52GB / 80GB used</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Requests Today</div>
+          <div class="stat-value text-3xl">1,247</div>
+          <div class="stat-desc">Average: 95ms response</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Load Balancing Strategies -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Load Balancing Strategies</h2>
+      <div class="space-y-4">
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="load-balance" checked />
+          <div class="collapse-title text-xl font-medium">
+            Round Robin (Default)
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Distributes requests evenly across all available servers</p>
+            <p class="text-sm text-base-content/70">Best for: Balanced workloads with similar server capabilities</p>
+          </div>
+        </div>
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="load-balance" />
+          <div class="collapse-title text-xl font-medium">
+            Least Loaded
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Sends requests to the server with the lowest current load</p>
+            <p class="text-sm text-base-content/70">Best for: Mixed workloads with varying request complexity</p>
+          </div>
+        </div>
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="load-balance" />
+          <div class="collapse-title text-xl font-medium">
+            Weighted by Speed
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Faster servers receive proportionally more requests based on their speed rating</p>
+            <p class="text-sm text-base-content/70">Best for: Clusters with different GPU generations (e.g., mixing A100 and V100)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+      <div class="space-y-4">
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Start Small, Scale Up</h3>
+            <p class="text-sm">Begin with 2-3 servers and add more as needed based on usage patterns</p>
+          </div>
+        </div>
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Keep Models Consistent</h3>
+            <p class="text-sm">Load the same models on all servers for best distribution. Different models = fewer routing options</p>
+          </div>
+        </div>
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Monitor GPU Memory</h3>
+            <p class="text-sm">If servers frequently hit 100% GPU memory, reduce max_concurrent or add more servers</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Troubleshooting</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Issue</th>
+              <th>Possible Cause</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Server shows "Offline"</td>
+              <td>Network connectivity or Ollama not running</td>
+              <td>Check server URL, verify Ollama service is running</td>
+            </tr>
+            <tr>
+              <td>Slow processing</td>
+              <td>All servers at max capacity</td>
+              <td>Add more servers or increase max_concurrent carefully</td>
+            </tr>
+            <tr>
+              <td>Requests failing</td>
+              <td>Model not available on any server</td>
+              <td>Pull required model on at least one server</td>
+            </tr>
+            <tr>
+              <td>Uneven distribution</td>
+              <td>Server speed ratings incorrect</td>
+              <td>Adjust speed multipliers based on actual performance</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/processing" class="btn btn-secondary">
+              Document Processing →
+            </a>
+            <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Embeddings
+            </a>
+            <a href="/docs/admin/processing-queue" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Processing Queue
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>
