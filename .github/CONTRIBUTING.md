@@ -180,10 +180,12 @@ console.log('Setting up: MyModule')
 
 ### File Naming
 
-- **React Components**: PascalCase with `.tsx` extension
-  - `UserProfile.tsx`, `FileUploadModal.tsx`
-- **Utilities/Functions**: kebab-case with `.ts` extension
-  - `format-date.ts`, `get-user-data.ts`
+- **React Components** (chat-web): kebab-case with `.tsx` extension
+  - `user-avatar.tsx`, `assistant-card.tsx`
+- **Astro Components** (marketing-web): PascalCase with `.astro` extension
+  - `BowlerLogo.astro`, `ContactFormModal.astro`
+- **TypeScript Files**: kebab-case with `.ts` extension
+  - `format-date.ts`, `get-user-data.ts`, `enrichment-queue-worker.ts`
 - **Directories**: kebab-case
   - `user-profile/`, `file-upload/`
 
