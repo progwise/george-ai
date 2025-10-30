@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-gradient-to-br from-accent/10 to-accent/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Embeddings & Vector Search</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Embeddings & Vector Search</h1>
+          <p class="text-lg sm:text-xl">
             Transform documents into searchable vector embeddings for semantic similarity and AI-powered search
           </p>
         </div>
@@ -88,7 +88,7 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">1</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Document Processing</h3>
                 <p class="text-sm mb-4">Documents are converted to a common intermediate format</p>
 
@@ -123,7 +123,7 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">2</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Text Chunking</h3>
                 <p class="text-sm mb-4">Markdown content is split into manageable chunks for embedding</p>
 
@@ -158,11 +158,11 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">3</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Vector Embedding</h3>
                 <p class="text-sm mb-4">Each chunk is converted to a high-dimensional vector using an embedding model</p>
 
-                <div class="mockup-code text-xs mb-4">
+                <div class="mockup-code text-xs mb-4 overflow-x-auto">
                   <pre is:raw><code>Chunk Text: "George AI enables semantic search..."
                     ↓
 Embedding Model (configured per Library)
@@ -188,7 +188,7 @@ Vector: [0.123, -0.456, 0.789, ..., 0.234]
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">4</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Typesense Storage</h3>
                 <p class="text-sm mb-4">Vectors are indexed in Typesense for fast similarity search</p>
 
@@ -264,7 +264,7 @@ Vector: [0.123, -0.456, 0.789, ..., 0.234]
             <div>
               <h4 class="font-semibold text-sm mb-3">Finding Distance Gaps</h4>
               <p class="text-xs mb-3">Large distance gaps can reveal topic boundaries or missing information:</p>
-              <div class="mockup-code text-xs">
+              <div class="mockup-code text-xs overflow-x-auto">
                 <pre is:raw><code>Chunk 1: distance 0.15 ← very similar
 Chunk 2: distance 0.18 ← very similar
 Chunk 3: distance 0.21 ← very similar
@@ -281,7 +281,7 @@ Chunk 5: distance 0.91 ← new topic</code></pre>
           <h3 class="text-xl font-bold mb-4">Similarity Search Query</h3>
           <p class="text-sm mb-4">Find chunks similar to a specific file or search term:</p>
 
-          <div class="mockup-code text-xs">
+          <div class="mockup-code text-xs overflow-x-auto">
             <pre is:raw><code>query {
   aiSimilarFileChunks(
     fileId: "file-id-here"
@@ -322,7 +322,7 @@ Chunk 5: distance 0.91 ← new topic</code></pre>
         <div class="card-body">
           <h3 class="text-xl font-bold mb-4">Query File Chunks</h3>
 
-          <div class="mockup-code text-xs">
+          <div class="mockup-code text-xs overflow-x-auto">
             <pre is:raw><code>query {
   aiFileChunks(
     fileId: "file-id-here"
@@ -431,7 +431,7 @@ Chunk 5: distance 0.91 ← new topic</code></pre>
             </div>
           </div>
 
-          <div class="alert alert-info mt-6">
+          <div class="alert alert-info mt-6 overflow-x-auto">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div class="text-xs">
               <p class="font-bold">Important: Model Consistency</p>
@@ -555,7 +555,7 @@ Chunk 5: distance 0.91 ← new topic</code></pre>
             </table>
           </div>
 
-          <div class="mockup-code text-xs mt-6">
+          <div class="mockup-code text-xs mt-6 overflow-x-auto">
             <pre is:raw><code>query {
   aiLibraryFile(fileId: "file-id") {
     id

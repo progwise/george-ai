@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-gradient-to-br from-primary/10 to-primary/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Assistants</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Assistants</h1>
+          <p class="text-lg sm:text-xl">
             AI-powered chat assistants that answer questions using your knowledge base
           </p>
         </div>
@@ -173,7 +173,7 @@ import Layout from '../../layouts/Layout.astro'
                 </div>
               </div>
 
-              <div class="mockup-code mt-6 text-xs">
+              <div class="mockup-code mt-6 text-xs overflow-x-auto">
                 <pre data-prefix="Example:"><code>Assistant: "Technical Documentation Helper"</code></pre>
                 <pre data-prefix=" "><code></code></pre>
                 <pre data-prefix="Library 1:"><code>"Engineering Docs"</code></pre>
@@ -245,7 +245,7 @@ import Layout from '../../layouts/Layout.astro'
                     <div class="card-body p-4">
                       <div class="flex items-start gap-2">
                         <div class="badge badge-primary">1</div>
-                        <div class="flex-1">
+                        <div class="flex-1 overflow-x-auto">
                           <p class="text-sm font-semibold">Condition: <span class="font-normal">"User asks about API authentication"</span></p>
                           <p class="text-sm mt-1">Instruction: <span class="italic">"Explain OAuth 2.0 flow and provide code examples from the API documentation. Always include links to relevant sections."</span></p>
                         </div>
@@ -257,7 +257,7 @@ import Layout from '../../layouts/Layout.astro'
                     <div class="card-body p-4">
                       <div class="flex items-start gap-2">
                         <div class="badge badge-primary">2</div>
-                        <div class="flex-1">
+                        <div class="flex-1 overflow-x-auto">
                           <p class="text-sm font-semibold">Condition: <span class="font-normal">"User needs troubleshooting help"</span></p>
                           <p class="text-sm mt-1">Instruction: <span class="italic">"Ask clarifying questions about their environment (OS, version, error message) before providing solutions. Reference troubleshooting guides."</span></p>
                         </div>
@@ -269,7 +269,7 @@ import Layout from '../../layouts/Layout.astro'
                     <div class="card-body p-4">
                       <div class="flex items-start gap-2">
                         <div class="badge badge-primary">3</div>
-                        <div class="flex-1">
+                        <div class="flex-1 overflow-x-auto">
                           <p class="text-sm font-semibold">Condition: <span class="font-normal">"Question is outside documentation scope"</span></p>
                           <p class="text-sm mt-1">Instruction: <span class="italic">"Politely explain that you can only answer questions about documented topics. Suggest contacting support for other inquiries."</span></p>
                         </div>

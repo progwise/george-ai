@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-gradient-to-br from-info/10 to-info/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Files</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Files</h1>
+          <p class="text-lg sm:text-xl">
             Understanding the file lifecycle from upload to searchable content
           </p>
         </div>
@@ -312,7 +312,7 @@ import Layout from '../../layouts/Layout.astro'
         </table>
       </div>
 
-      <div class="alert alert-info mt-6">
+      <div class="alert alert-info mt-6 overflow-x-auto">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <div>
           <p class="font-bold">Using Metadata in Lists</p>
@@ -395,7 +395,7 @@ import Layout from '../../layouts/Layout.astro'
 
       <p class="mb-4">George AI supports a wide range of file formats for automatic text extraction:</p>
 
-      <div class="grid md:grid-cols-3 gap-4">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="card bg-success text-success-content">
           <div class="card-body">
             <h3 class="card-title text-sm">Documents</h3>
@@ -425,6 +425,20 @@ import Layout from '../../layouts/Layout.astro'
 
         <div class="card bg-success text-success-content">
           <div class="card-body">
+            <h3 class="card-title text-sm">Videos</h3>
+            <ul class="text-xs space-y-1">
+              <li>• MP4 (.mp4)</li>
+              <li>• WebM (.webm)</li>
+              <li>• AVI (.avi)</li>
+              <li>• MOV (.mov)</li>
+              <li>• MKV (.mkv)</li>
+            </ul>
+            <p class="text-xs mt-2">Audio transcription and visual content extraction</p>
+          </div>
+        </div>
+
+        <div class="card bg-success text-success-content">
+          <div class="card-body">
             <h3 class="card-title text-sm">Archives</h3>
             <ul class="text-xs space-y-1">
               <li>• ZIP (.zip)</li>
@@ -436,11 +450,19 @@ import Layout from '../../layouts/Layout.astro'
         </div>
       </div>
 
-      <div class="alert alert-warning mt-6">
+      <div class="alert alert-warning mt-6 overflow-x-auto">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         <div>
           <p class="font-bold">Unsupported Formats</p>
           <p class="text-sm">If a file format is not supported, it will be marked with "Unsupported Format" badge and no extraction will be performed. The file metadata is still stored and searchable.</p>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6 overflow-x-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <p class="font-bold">Need Additional Format Support?</p>
+          <p class="text-sm">We can add support for any file format for paying customers. Alternatively, you can build automation workflows to transform files with your own automation and ingest them into George AI. <a href="/contact" class="link link-hover font-semibold">Contact us</a> to discuss your specific requirements.</p>
         </div>
       </div>
     </section>

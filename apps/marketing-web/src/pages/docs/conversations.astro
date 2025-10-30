@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Conversations</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Conversations</h1>
+          <p class="text-lg sm:text-xl">
             Interactive chat sessions with AI assistants to find information and get answers
           </p>
         </div>
@@ -96,7 +96,7 @@ import Layout from '../../layouts/Layout.astro'
         </div>
       </div>
 
-      <div class="alert alert-info mt-6">
+      <div class="alert alert-info mt-6 overflow-x-auto">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <div>
           <p class="font-bold">Assistant Access Required</p>
@@ -117,7 +117,7 @@ import Layout from '../../layouts/Layout.astro'
           <div>
             <h3 class="font-bold">1. You Ask a Question</h3>
             <p class="text-sm">Type your question in natural language. Be as specific or general as you need—the assistant understands context.</p>
-            <div class="mockup-code mt-2 text-xs">
+            <div class="mockup-code mt-2 text-xs overflow-x-auto">
               <pre data-prefix="User:"><code>What is our refund policy for digital products?</code></pre>
             </div>
           </div>
@@ -136,7 +136,7 @@ import Layout from '../../layouts/Layout.astro'
           <div>
             <h3 class="font-bold">3. Answer with Sources</h3>
             <p class="text-sm">The assistant generates an answer based on found documents and conversation history, including references to source files.</p>
-            <div class="mockup-code mt-2 text-xs">
+            <div class="mockup-code mt-2 text-xs overflow-x-auto">
               <pre data-prefix="Assistant:"><code>According to our policy documentation, digital</code></pre>
               <pre data-prefix=" "><code>products can be refunded within 14 days if they</code></pre>
               <pre data-prefix=" "><code>are unused or defective.</code></pre>
@@ -152,7 +152,7 @@ import Layout from '../../layouts/Layout.astro'
           <div>
             <h3 class="font-bold">4. Follow-Up Questions</h3>
             <p class="text-sm">Ask clarifying questions or dive deeper. The assistant remembers the conversation context.</p>
-            <div class="mockup-code mt-2 text-xs">
+            <div class="mockup-code mt-2 text-xs overflow-x-auto">
               <pre data-prefix="User:"><code>What about physical products?</code></pre>
               <pre data-prefix="Assistant:"><code>Physical products have a 30-day return window...</code></pre>
             </div>

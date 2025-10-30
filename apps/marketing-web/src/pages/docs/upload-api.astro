@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Upload API</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Upload API</h1>
+          <p class="text-lg sm:text-xl">
             Two-step file upload process for browser uploads, n8n workflows, crawlers, and integrations
           </p>
         </div>
@@ -86,11 +86,11 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">Step 1</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Prepare Upload (GraphQL Mutation)</h3>
                 <p class="text-sm mb-4">Register the file metadata and receive a unique upload token (File ID)</p>
 
-                <div class="mockup-code text-xs mb-4">
+                <div class="mockup-code text-xs mb-4 overflow-x-auto">
                   <pre is:raw><code>mutation {
   prepareFileUpload(data: {
     libraryId: "library-id-here"
@@ -178,11 +178,11 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">Step 2</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Upload File Content (HTTP POST)</h3>
                 <p class="text-sm mb-4">Send the actual file data to the upload endpoint using the token from Step 1</p>
 
-                <div class="mockup-code text-xs mb-4">
+                <div class="mockup-code text-xs mb-4 overflow-x-auto">
                   <pre is:raw><code>POST http://localhost:3003/upload
 Content-Type: application/octet-stream
 x-upload-token: {fileId from Step 1}
@@ -240,7 +240,7 @@ Authorization: ApiKey {your-api-key}
                   </table>
                 </div>
 
-                <div class="alert alert-warning mt-4">
+                <div class="alert alert-warning mt-4 overflow-x-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                   <div class="text-xs">
                     <p class="font-bold">Important Notes:</p>
@@ -277,7 +277,7 @@ Authorization: ApiKey {your-api-key}
             </h3>
             <p class="text-sm mb-4">The standard file upload used in the George AI web interface</p>
 
-            <div class="mockup-code text-xs">
+            <div class="mockup-code text-xs overflow-x-auto">
               <pre is:raw><code>// Step 1: Prepare (TanStack Server Function)
 const uploadInfo = await prepareDesktopFileUploadsFn({
   data: {
@@ -333,7 +333,7 @@ const response = await fetch(uploadInfo[0].uploadUrl, {
                   <li><strong>HTTP Request (Step 2):</strong> Upload attachment to /upload endpoint</li>
                 </ol>
 
-                <div class="mockup-code">
+                <div class="mockup-code overflow-x-auto">
                   <pre is:raw><code>// Node 3: GraphQL Request (Prepare Upload)
 POST http://localhost:3003/graphql
 Headers:
@@ -566,7 +566,7 @@ Body:
             <h3 class="text-xl font-bold mb-4">Canceling an Upload</h3>
             <p class="text-sm mb-4">If you need to cancel an upload before Step 2 or if Step 2 fails:</p>
 
-            <div class="mockup-code text-xs">
+            <div class="mockup-code text-xs overflow-x-auto">
               <pre is:raw><code>mutation {
   cancelFileUpload(fileId: "file-id-from-step-1")
 }</code></pre>
@@ -595,7 +595,7 @@ Body:
           Example: cURL Upload (Binary)
         </div>
         <div class="collapse-content">
-          <div class="mockup-code text-xs">
+          <div class="mockup-code text-xs overflow-x-auto">
             <pre is:raw><code># Step 1: Prepare Upload
 curl -X POST http://localhost:3003/graphql \
   -H "Content-Type: application/json" \
@@ -634,7 +634,7 @@ curl -X POST http://localhost:3003/upload \
           Example: Python Upload (Base64)
         </div>
         <div class="collapse-content">
-          <div class="mockup-code text-xs">
+          <div class="mockup-code text-xs overflow-x-auto">
             <pre is:raw><code>import requests
 import base64
 from datetime import datetime
@@ -691,7 +691,7 @@ print(upload_response.json())</code></pre>
           Example: JavaScript/Node.js Upload
         </div>
         <div class="collapse-content">
-          <div class="mockup-code text-xs">
+          <div class="mockup-code text-xs overflow-x-auto">
             <pre is:raw><code>import fs from 'fs'
 import fetch from 'node-fetch'
 

@@ -25,6 +25,16 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/'
 const canonicalURL = new URL(currentPath, Astro.site).href
 const fullOgImageURL = new URL(ogImage, Astro.site).href
 const appUrl = getAppUrl()
+
+// Get current page name for mobile display
+const getCurrentPageName = () => {
+  if (currentPath === '/use-cases') return 'Use Cases'
+  if (currentPath.startsWith('/docs')) return 'Documentation'
+  if (currentPath === '/pricing') return 'Pricing'
+  if (currentPath === '/contact') return 'Contact'
+  return 'George AI'
+}
+const currentPageName = getCurrentPageName()
 ---
 
 <!doctype html>
@@ -101,8 +111,11 @@ const appUrl = getAppUrl()
           <BowlerLogo class={cn("size-10", currentPath === '/' && 'text-primary')} />
         </a>
       </div>
-      <div class="navbar-center hidden md:flex">
-        <ul class="menu menu-horizontal px-1">
+      <div class="navbar-center">
+        {/* Mobile - Show current page name */}
+        <span class="md:hidden font-semibold text-base">{currentPageName}</span>
+        {/* Desktop - Show menu */}
+        <ul class="menu menu-horizontal px-1 hidden md:flex">
           <li class={cn(currentPath === '/use-cases' && 'active')}><a href="/use-cases">Use Cases</a></li>
           <li class={cn(currentPath.startsWith('/docs') && 'active')}><a href="/docs">Documentation</a></li>
           <li class={cn(currentPath === '/pricing' && 'active')}><a href="/pricing">Pricing</a></li>
@@ -117,11 +130,31 @@ const appUrl = getAppUrl()
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </div>
-          <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-            <li><a href="/use-cases">Use Cases</a></li>
-            <li><a href="/docs">Documentation</a></li>
-            <li><a href="/pricing">Pricing</a></li>
-            <li><a href="/contact">Contact</a></li>
+          <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-64 p-4 shadow-xl border border-base-300">
+            <li><a href="/use-cases" class="text-base py-3 hover:bg-primary hover:text-primary-content rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Use Cases
+            </a></li>
+            <li><a href="/docs" class="text-base py-3 hover:bg-primary hover:text-primary-content rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Documentation
+            </a></li>
+            <li><a href="/pricing" class="text-base py-3 hover:bg-primary hover:text-primary-content rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Pricing
+            </a></li>
+            <li><a href="/contact" class="text-base py-3 hover:bg-primary hover:text-primary-content rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Contact
+            </a></li>
           </ul>
         </div>
         {/* Desktop George-Cloud button */}
@@ -144,16 +177,14 @@ const appUrl = getAppUrl()
           George-Cloud
         </a>
       </div>
-      {/* Spacer to prevent content overlap */}
-      <div class="h-20" />
     </div>
 
-    <footer class="footer footer-center bg-base-200 p-8 text-base-content mt-16">
-      <nav class="flex gap-4 mb-2">
+    <footer class="footer footer-center bg-base-200 px-4 py-3 pb-20 md:p-8 text-base-content mt-16">
+      <nav class="flex gap-4">
         <a href="/impressum" class="link link-hover text-sm">Impressum</a>
       </nav>
       <aside>
-        <p>&copy; {new Date().getFullYear()} George-AI. All rights reserved.</p>
+        <p class="text-sm">&copy; {new Date().getFullYear()} George-AI</p>
       </aside>
     </footer>
   </body>

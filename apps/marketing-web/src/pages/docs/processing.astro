@@ -14,10 +14,10 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Hero Section -->
     <div class="hero bg-linear-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
-      <div class="hero-content text-center py-12">
+      <div class="hero-content text-center py-8 sm:py-12">
         <div class="max-w-2xl">
-          <h1 class="text-5xl font-bold mb-4">Document Processing</h1>
-          <p class="text-xl">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Document Processing</h1>
+          <p class="text-lg sm:text-xl">
             How George AI converts documents into searchable, AI-ready content
           </p>
         </div>
@@ -69,10 +69,10 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">1</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Task Creation</h3>
                 <p class="text-sm mb-3">A content processing task is created and added to the queue with status <strong>pending</strong></p>
-                <div class="mockup-code text-xs">
+                <div class="mockup-code text-xs overflow-x-auto">
                   <pre data-prefix="$"><code>Status: pending</code></pre>
                   <pre data-prefix=" "><code>Processing started: (waiting)</code></pre>
                 </div>
@@ -86,7 +86,7 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">2</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Extraction Phase</h3>
                 <p class="text-sm mb-3">Text and images are extracted from the document based on its format</p>
 
@@ -116,13 +116,13 @@ import Layout from '../../layouts/Layout.astro'
                   </div>
                 </div>
 
-                <div class="mockup-code text-xs mt-4">
+                <div class="mockup-code text-xs mt-4 overflow-x-auto">
                   <pre data-prefix="$"><code>Status: extracting</code></pre>
                   <pre data-prefix=" "><code>Extraction started: 2025-01-15 10:30:15</code></pre>
                   <pre data-prefix=" "><code>Output: document.md (extracted markdown)</code></pre>
                 </div>
 
-                <div class="alert alert-warning mt-4">
+                <div class="alert alert-warning mt-4 overflow-x-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                   <span class="text-xs">Extraction can timeout if the file is very large or complex. Default timeout is configurable per Library.</span>
                 </div>
@@ -136,7 +136,7 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg badge-primary">3</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Embedding Phase</h3>
                 <p class="text-sm mb-3">Extracted text is chunked and converted to vector embeddings for semantic search</p>
 
@@ -165,7 +165,7 @@ import Layout from '../../layouts/Layout.astro'
                   </table>
                 </div>
 
-                <div class="mockup-code text-xs mt-4">
+                <div class="mockup-code text-xs mt-4 overflow-x-auto">
                   <pre data-prefix="$"><code>Status: embedding</code></pre>
                   <pre data-prefix=" "><code>Embedding started: 2025-01-15 10:30:45</code></pre>
                   <pre data-prefix=" "><code>Chunks created: 127</code></pre>
@@ -191,11 +191,11 @@ import Layout from '../../layouts/Layout.astro'
           <div class="card-body">
             <div class="flex items-start gap-4">
               <div class="badge badge-lg">4</div>
-              <div class="flex-1">
+              <div class="flex-1 overflow-x-auto">
                 <h3 class="text-xl font-bold mb-2">Processing Complete</h3>
                 <p class="text-sm mb-3">Task is marked as <strong>completed</strong>. File is now searchable and available for AI assistants.</p>
 
-                <div class="mockup-code text-xs bg-success-content/10">
+                <div class="mockup-code text-xs bg-success-content/10 overflow-x-auto">
                   <pre data-prefix="$" class="text-success-content"><code>Status: completed</code></pre>
                   <pre data-prefix=" " class="text-success-content"><code>Processing finished: 2025-01-15 10:31:02</code></pre>
                   <pre data-prefix=" " class="text-success-content"><code>Total processing time: 47,000 ms</code></pre>
@@ -248,7 +248,7 @@ import Layout from '../../layouts/Layout.astro'
         </div>
       </div>
 
-      <div class="alert alert-info mt-6">
+      <div class="alert alert-info mt-6 overflow-x-auto">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <div>
           <p class="font-bold">Automatic Processing</p>

@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro'
 <Layout title="George-AI - Self-hosted AI data platform">
   <!-- Hero Section -->
   <div class="hero bg-base-200 rounded-lg mb-12">
-    <div class="hero-content text-center py-16">
+    <div class="hero-content text-center py-8 sm:py-12 md:py-16">
       <div class="max-w-2xl">
         <h1 class="text-5xl font-bold mb-4">George AI</h1>
         <p class="text-xl mb-8">Self-hosted AI data platform managed by business users</p>
@@ -15,7 +15,7 @@ import Layout from '../layouts/Layout.astro'
         <p class="mb-8 font-semibold">
           Built around Markdown—one unified format for PDFs, Office documents, videos, emails, any records • Self-hosted and secure • <a href="/pricing" class="link link-hover">You choose: DIY or managed</a>
         </p>
-        <div class="flex gap-4 justify-center">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="https://github.com/progwise/george-ai" class="btn btn-primary btn-lg gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
@@ -66,21 +66,21 @@ import Layout from '../layouts/Layout.astro'
     <div class="mt-12">
       <div class="text-center mb-8">
         <h3 class="text-2xl font-bold mb-3">How George AI Works</h3>
-        <div class="inline-flex items-center gap-3 px-6 py-3 bg-base-200 rounded-full border-2 border-base-300">
-          <span class="font-bold text-lg">Collect</span>
+        <div class="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-base-200 rounded-full border-2 border-base-300">
+          <span class="font-bold text-base sm:text-lg">Collect</span>
           <span class="text-base-content/50">→</span>
-          <span class="font-bold text-lg">Process</span>
+          <span class="font-bold text-base sm:text-lg">Process</span>
           <span class="text-base-content/50">→</span>
-          <span class="font-bold text-lg">Enrich</span>
+          <span class="font-bold text-base sm:text-lg">Enrich</span>
           <span class="text-base-content/50">→</span>
-          <span class="font-bold text-lg">Consume</span>
+          <span class="font-bold text-base sm:text-lg">Consume</span>
         </div>
       </div>
 
       <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <!-- Inputs -->
-        <div class="bg-gradient-to-br from-success/10 to-success/5 p-6 rounded-xl border-2 border-success/30">
-          <h4 class="text-center font-bold text-lg mb-6 text-success-content">📥 Data Collection (Inputs)</h4>
+        <div class="bg-linear-to-br from-success/10 to-success/5 p-6 rounded-xl border-2 border-success/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-success">📥 Data Collection (Inputs)</h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
               <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
@@ -129,8 +129,8 @@ import Layout from '../layouts/Layout.astro'
         </div>
 
         <!-- Outputs -->
-        <div class="bg-gradient-to-br from-info/10 to-info/5 p-6 rounded-xl border-2 border-info/30">
-          <h4 class="text-center font-bold text-lg mb-6 text-info-content">📤 Data Consumption (Outputs)</h4>
+        <div class="bg-linear-to-br from-info/10 to-info/5 p-6 rounded-xl border-2 border-info/30">
+          <h4 class="text-center font-bold text-lg mb-6 text-info">📤 Data Consumption (Outputs)</h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
               <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
@@ -182,7 +182,7 @@ import Layout from '../layouts/Layout.astro'
 
     <!-- What Makes Us Different -->
     <div class="mt-16 mb-16">
-      <div class="card bg-gradient-to-r from-secondary/20 to-accent/20 shadow-xl border-2 border-secondary">
+      <div class="card bg-linear-to-r from-secondary/20 to-accent/20 shadow-xl border-2 border-secondary">
         <div class="card-body">
           <h3 class="text-center text-2xl font-bold mb-8">What Makes George AI Different</h3>
           <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -238,11 +238,12 @@ import Layout from '../layouts/Layout.astro'
       <p class="mb-6 font-semibold">
         Talk to us about your use case and see how George AI can help your organization.
       </p>
-      <div class="card-actions">
-        <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
-          Schedule a 30-Minute Demo
+      <div class="card-actions flex-col sm:flex-row w-full sm:w-auto">
+        <a href="https://calendly.com/michael-vogt-progwise/30min" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg w-full sm:w-auto">
+          <span class="hidden sm:inline">Schedule a 30-Minute Demo</span>
+          <span class="sm:hidden">Schedule Demo</span>
         </a>
-        <a href="/use-cases" class="btn btn-ghost btn-lg">
+        <a href="/use-cases" class="btn btn-outline btn-lg w-full sm:w-auto">
           Explore Use Cases
         </a>
       </div>
