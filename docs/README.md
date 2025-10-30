@@ -135,7 +135,7 @@ Visit the **[User Documentation](https://george-ai.net/docs)** on the George AI 
 ## 🤝 Getting Help
 
 - **Questions?** Join our [Discord community](https://discord.gg/5XP8f2Qe)
-- **Bug reports?** Open an [issue on GitHub](https://github.com/progwise/george-ai/issues)
+- **Bug reports?** [Report a bug](https://github.com/progwise/george-ai/issues/new?template=bug_report.yml) or [request a feature](https://github.com/progwise/george-ai/issues/new?template=feature_request.yml)
 - **Security concerns?** See our [Security Policy](../.github/SECURITY.md)
 
 ## 📝 Contributing to Documentation

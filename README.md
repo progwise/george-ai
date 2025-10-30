@@ -56,8 +56,8 @@ code george-ai
 ## Community & Support
 
 - 💬 **Questions & Discussions**: Join our [Discord server](https://discord.gg/5XP8f2Qe)
-- 🐛 **Bug Reports**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new)
-- ✨ **Feature Requests**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new)
+- 🐛 **Bug Reports**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new?template=bug_report.yml)
+- ✨ **Feature Requests**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new?template=feature_request.yml)
 
 **Please use GitHub Issues only for actionable bugs and feature requests. For general questions, ideas, and discussions, join our Discord community!**
 
