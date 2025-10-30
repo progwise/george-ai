@@ -539,10 +539,12 @@ grafana:
   volumes:
     - grafana_data:/var/lib/grafana
   ports:
-    - '3000:3000'
+    - '3000:3000'  # Note: Grafana uses port 3000 (separate from George AI frontend on 3001)
   environment:
     - GF_SECURITY_ADMIN_PASSWORD=admin
 ```
+
+**Access Grafana**: http://localhost:3000 (default credentials: admin/admin)
 
 **Key Metrics to Monitor:**
 

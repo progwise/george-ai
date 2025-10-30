@@ -169,7 +169,6 @@ import { builder } from '../builder'
 
 import './mutations'
 import './queries'
-import './mutations'
 
 console.log('Setting up: MyModule')
 

@@ -5,7 +5,7 @@ Guide for building and running George AI Docker images for the apps in this mono
 - **chat-web** - the main app frontend
 - **georgeai-server** - the backend for graphql, upload and more
 - **marketing-web** - the george-ai.net marketing web
-- **crawler-server** - the crawl4ai service for web crawling
+- **crawler-server** - the Crawl4AI service for web crawling
 - **smb-test-server** - used to allow testing Windows File Shares
 
 ## Building Docker Images

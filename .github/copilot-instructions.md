@@ -55,7 +55,7 @@
 ## References
 
 - See root `README.md` for setup, ports, and environment details
-- See `CLAUDE.md` for additional agent guidance
+- See `.claude/CLAUDE.md` for additional agent guidance
 - See each app/package `README.md` for specifics
 
 ---
