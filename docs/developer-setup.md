@@ -219,7 +219,7 @@ Images are built once and can be deployed to multiple environments by providing 
 
 1. **Build fails with "package not found"**: Build from root directory, not from apps folders
 2. **Container can't connect to services**: Check that services are accessible and `.env` variables are correct
-3. **Permission errors**: Frontend runs as user `vinxi` (uid 1001), ensure mounted volumes have appropriate permissions
+3. **Permission errors**: Frontend runs as user `nodejs` (uid 1001), ensure mounted volumes have appropriate permissions
 4. **Out of memory during build**: Increase Docker's memory allocation in Docker Desktop settings
 
 **Debug Commands:**

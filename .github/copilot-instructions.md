@@ -11,7 +11,6 @@
   - `packages/`: Shared libraries (GraphQL schema, file management, utils, etc.)
 - **Data flow:** Frontend ↔ GraphQL API (georgeai-backend) ↔ PostgreSQL (via Prisma)
 - **Authentication:** Keycloak (OIDC) for user/session management
-- **Crawling/Enrichment:** `crawler-server` and enrichment queues for ingesting external data/files
 
 ## Developer Workflows
 
@@ -38,7 +37,6 @@
 - **Shared code** lives in `packages/`
 - **Frontend routing**: TanStack Router, see `apps/georgeai-webapp/src/router.tsx`
 - **Backend API**: Pothos GraphQL, see `apps/georgeai-backend/src/server.ts`
-- **Crawling/Enrichment**: Python FastAPI, see `apps/crawler-server/src/main.py`
 
 ## Integration Points
 

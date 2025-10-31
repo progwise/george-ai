@@ -138,7 +138,7 @@ docker compose up -d
 
 **Port conflicts**: Use `docker-compose.verify.yml` (ports 3002, 3004)
 
-**Permission errors**: Frontend runs as user `vinxi` (uid 1001), ensure mounted volumes have correct permissions
+**Permission errors**: Frontend runs as user `nodejs` (uid 1001), ensure mounted volumes have correct permissions
 
 ---
 

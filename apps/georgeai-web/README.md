@@ -116,12 +116,14 @@ cp .env.example .env
 ```
 
 Required environment variables:
+
 - `SMTP_HOSTNAME` - SMTP server hostname (e.g., smtp.mailjet.com)
 - `SMTP_PORT` - SMTP server port (usually 587 for TLS)
 - `SMTP_USER` - SMTP username/API key
 - `SMTP_PASSWORD` - SMTP password/secret key
 
 **Recommended SMTP Providers:**
+
 - [Mailjet](https://app.mailjet.com/account/setup) - Free tier available
 - [SendGrid](https://app.sendgrid.com/settings/api_keys) - Free tier available
 - [AWS SES](https://console.aws.amazon.com/ses/) - Pay as you go
