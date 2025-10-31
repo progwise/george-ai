@@ -1,0 +1,56 @@
+name: Branch Name Check
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Checking branch name: $BRANCH_NAME"
+
+          # Define allowed prefixes (as per CONTRIBUTING.md)
+          ALLOWED_PREFIXES=(
+            "feature/"
+            "fix/"
+            "refactor/"
+            "docs/"
+            "chore/"
+          )
+
+          # Check if branch name matches any allowed prefix
+          VALID=false
+          for prefix in "${ALLOWED_PREFIXES[@]}"; do
+            if [[ "$BRANCH_NAME" == $prefix* ]]; then
+              VALID=true
+              break
+            fi
+          done
+
+          if [[ "$VALID" == false ]]; then
+            echo "❌ Error: Branch name '$BRANCH_NAME' does not follow the naming convention."
+            echo ""
+            echo "Branch names must start with one of the following prefixes:"
+            echo "  - feature/    (new features)"
+            echo "  - fix/        (bug fixes)"
+            echo "  - refactor/   (code refactoring)"
+            echo "  - docs/       (documentation updates)"
+            echo "  - chore/      (maintenance tasks)"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ feature/add-user-profile"
+            echo "  ✅ fix/resolve-login-issue"
+            echo "  ✅ chore/update-dependencies"
+            echo "  ❌ add-user-profile"
+            echo "  ❌ bugfix-login"
+            echo ""
+            echo "Please rename your branch and update your pull request."
+            echo "See CONTRIBUTING.md for more details."
+            exit 1
+          fi
+
+          echo "✅ Branch name is valid: $BRANCH_NAME"
