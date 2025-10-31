@@ -6,8 +6,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-IMAGE_NAME="george-ai-marketing:test"
-CONTAINER_NAME="marketing-test"
+IMAGE_NAME="george-ai-web:test"
+CONTAINER_NAME="george-ai-web-test"
 PORT=8080
 
 # Find repository root (where .git directory is)
@@ -21,7 +21,7 @@ if [ ! -f "$REPO_ROOT/turbo.json" ]; then
     exit 1
 fi
 
-echo -e "${YELLOW}=== Testing marketing-web Docker build ===${NC}"
+echo -e "${YELLOW}=== Testing georgeai-web Docker build ===${NC}"
 echo -e "Repository root: ${REPO_ROOT}\n"
 
 # Change to repository root for Docker build
@@ -35,7 +35,7 @@ docker rmi $IMAGE_NAME 2>/dev/null
 
 # Step 1: Build the image
 echo -e "\n${YELLOW}Step 1: Building Docker image...${NC}"
-if docker build -f apps/marketing-web/Dockerfile -t $IMAGE_NAME . ; then
+if docker build -f apps/georgeai-web/Dockerfile -t $IMAGE_NAME . ; then
     echo -e "${GREEN}✓ Build successful${NC}"
 else
     echo -e "${RED}✗ Build failed${NC}"

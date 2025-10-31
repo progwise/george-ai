@@ -3,26 +3,26 @@
 ## Architecture Overview
 
 - **Monorepo** managed with `pnpm` workspaces. Major app directories:
-  - `apps/chat-web`: React frontend (TanStack Router, Vite, GraphQL)
-  - `apps/georgeai-server`: Node.js GraphQL backend (Pothos, Prisma)
-  - `apps/crawler-server`: Python FastAPI microservice for crawling
+  - `apps/georgeai-web`: Astro frontend (Tailwindcss, Astro actions)
+  - `apps/georgeai-webapp`: React frontend (TanStack Router, Vite, GraphQL)
+  - `apps/georgeai-backend`: Node.js GraphQL backend (Pothos, Prisma)
+  - `apps/webcrawler`: Python FastAPI microservice for crawling
   - `apps/smb-test-server`: Docker-based SMB test server for file share integration
   - `packages/`: Shared libraries (GraphQL schema, file management, utils, etc.)
-- **Data flow:** Frontend ↔ GraphQL API (georgeai-server) ↔ PostgreSQL (via Prisma)
+- **Data flow:** Frontend ↔ GraphQL API (georgeai-backend) ↔ PostgreSQL (via Prisma)
 - **Authentication:** Keycloak (OIDC) for user/session management
-- **Crawling/Enrichment:** `crawler-server` and enrichment queues for ingesting external data/files
 
 ## Developer Workflows
 
 - **Install dependencies:** `pnpm install` (from root)
 - **Start all services:** `pnpm dev` (from root; starts backend and frontend)
 - **Start individually:**
-  - Backend: `cd apps/georgeai-server && pnpm dev`
-  - Frontend: `cd apps/chat-web && pnpm dev`
+  - Backend: `cd apps/georgeai-backend && pnpm dev`
+  - Frontend: `cd apps/georgeai-webapp && pnpm dev`
 - **Prisma (DB):**
   - Migrate: `cd packages/pothos-graphql && pnpm prisma migrate dev`
   - Generate client: `pnpm prisma generate`
-- **Codegen (GraphQL):** `cd apps/chat-web && pnpm codegen`
+- **Codegen (GraphQL):** `cd apps/georgeai-webapp && pnpm codegen`
 - **Lint/Format:** `pnpm lint`, `pnpm format` (run before commit)
 - **Testing:**
   - E2E: `cd e2e-tests && pnpm test`
@@ -35,9 +35,8 @@
 - **.env files** required in each app/package for local dev; use `.env.example` as template
 - **GraphQL schema** is defined in `packages/pothos-graphql`
 - **Shared code** lives in `packages/`
-- **Frontend routing**: TanStack Router, see `apps/chat-web/app/router.tsx`
-- **Backend API**: Pothos GraphQL, see `apps/georgeai-server/src/server.ts`
-- **Crawling/Enrichment**: Python FastAPI, see `apps/crawler-server/src/main.py`
+- **Frontend routing**: TanStack Router, see `apps/georgeai-webapp/src/router.tsx`
+- **Backend API**: Pothos GraphQL, see `apps/georgeai-backend/src/server.ts`
 
 ## Integration Points
 
@@ -49,8 +48,8 @@
 ## Examples
 
 - To add a new GraphQL type: edit `packages/pothos-graphql/src/` and regenerate types
-- To add a new frontend route: edit `apps/chat-web/app/routes/`
-- To add a new backend API: edit `apps/georgeai-server/src/`
+- To add a new frontend route: edit `apps/georgeai-webapp/app/routes/`
+- To add a new backend API: edit `apps/georgeai-backend/src/`
 
 ## References
 

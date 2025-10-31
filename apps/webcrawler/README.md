@@ -9,7 +9,7 @@
 
 # Create Virtual Environment
 
-Execute inside the apps/crawler-server folder execute.
+Execute inside the apps/webcrawler folder.
 
 This crawler server uses crawl4ai. GitHub https://github.com/unclecode/crawl4ai, Docs: https://docs.crawl4ai.com/
 
@@ -25,7 +25,7 @@ The server builds and starts automatically on port 11245 when starting the dev c
 
 In the development environment the server listenes to port 8000. So you can leave the dev-container running while you develop on port 8000.
 
-The following script prepares everything for developers and starts the crawler-server on port 8000 (default fastApi)
+The following script prepares everything for developers and starts the webcrawler on port 8000 (default fastApi)
 
 1. it creates an virtual environment in .venv
 2. it activates it
@@ -44,13 +44,13 @@ We recommend to stay in the virtual environment during work on the server.
 There is a docker image you can build with
 
 ```bash
-docker build -t crawler-server .
+docker build -t webcrawler .
 ```
 
 ## You can run the image locally with
 
 ```bash
-docker run -d crawler-server
+docker run -d webcrawler
 ```
 
 The crawler server then runs on port 11245. You can reach the docs on
@@ -75,11 +75,11 @@ curl -X 'GET' \
 ## You can stop the container using
 
 ```bash
-docker stop $(docker ps -q --filter ancestor=crawler-server )
+docker stop $(docker ps -q --filter ancestor=webcrawler )
 ```
 
 ## You can view the logs
 
 ```bash
-docker logs $(docker ps -q --filter ancestor=crawler-server )
+docker logs $(docker ps -q --filter ancestor=webcrawler )
 ```

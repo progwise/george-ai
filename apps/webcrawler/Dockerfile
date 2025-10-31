@@ -4,11 +4,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl git openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/webcrawler
+
 WORKDIR /home/george
 
-COPY /apps/crawler-server/requirements.txt .
-COPY /apps/crawler-server/src ./src
-COPY /apps/crawler-server/start-prod.sh .
+COPY /apps/webcrawler/requirements.txt .
+COPY /apps/webcrawler/src ./src
+COPY /apps/webcrawler/start-prod.sh .
 
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \

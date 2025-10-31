@@ -8,6 +8,6 @@
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderSideEffects": false,
-  "tailwindStylesheet": "./apps/chat-web/src/index.css",
+  "tailwindStylesheet": "./apps/georgeai-webapp/src/index.css",
   "importOrderParserPlugins": ["typescript", "tsx", "jsx", "xml", "html", "md", "decorators-legacy"]
 }

@@ -5,7 +5,7 @@ services:
   gai-verify-backend:
     build:
       context: .
-      dockerfile: apps/georgeai-server/Dockerfile
+      dockerfile: apps/georgeai-backend/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
     container_name: gai-verify-backend
@@ -38,19 +38,13 @@ services:
     ports:
       - '3004:3003'
     volumes:
-      - ./apps/georgeai-server/.uploads:/app/.uploads
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f -s http://localhost:3003/graphql > /dev/null || exit 1']
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 90s
+      - ./apps/georgeai-backend/.uploads:/app/.uploads
 
   # Frontend web application - connects to verify backend and devcontainer keycloak
-  gai-verify-frontend:
+  gai-verify-webapp:
     build:
       context: .
-      dockerfile: apps/chat-web/Dockerfile
+      dockerfile: apps/georgeai-webapp/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
     container_name: gai-verify-frontend
@@ -73,12 +67,29 @@ services:
     depends_on:
       gai-verify-backend:
         condition: service_healthy
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f -s http://localhost:3000 > /dev/null || exit 1']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+
+  # Marketing website - public website at george-ai.net
+  gai-verify-web:
+    build:
+      context: .
+      dockerfile: apps/georgeai-web/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+    container_name: gai-verify-web
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4321
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+      # SMTP for contact form (optional) - source .env to use these values
+      SMTP_HOSTNAME: ${SMTP_HOSTNAME:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    networks:
+      - default
+    ports:
+      - '3005:4321'
 
 networks:
   george-ai_devcontainer_default:

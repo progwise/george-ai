@@ -1,5 +1,5 @@
 {
-  "name": "@george-ai/server",
+  "name": "@george-ai/backend",
   "packageManager": "pnpm@9.15.4",
   "license": "SEE LICENSE IN LICENSE",
   "author": "Michael Vogt <info@george-ai.net>",

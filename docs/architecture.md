@@ -25,7 +25,7 @@ The core concept of George AI: Collect data from any source, convert everything 
 flowchart TD
     Sources["📊 Data Sources<br/>Crawlers, External Ingestion, Manual Upload"]
 
-    UI["👤 Business Users<br/>(chat-web UI)"]
+    UI["👤 Business Users<br/>(Web Application)"]
 
     subgraph George["🎳 George AI - Markdown Processing"]
         direction TB
@@ -76,7 +76,7 @@ flowchart TD
 
 ## Applications
 
-### chat-web (Frontend)
+### georgeai-webapp (Frontend)
 
 - **Framework**: React 19 with TanStack Router and TanStack Server
 - **Build System**: Vite
@@ -86,7 +86,7 @@ flowchart TD
 - **Routing**: File-based routing at `app/routes/`
 - **Port**: 3001 (development)
 
-### georgeai-server (Backend API)
+### georgeai-backend (Backend API)
 
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Express server with GraphQL Yoga
@@ -96,14 +96,14 @@ flowchart TD
 - **Workers**: Content processing and enrichment queue workers
 - **Port**: 3003 (development)
 
-### marketing-web (Public Website)
+### georgeai-web (Public Website)
 
 - **Framework**: Astro with Tailwind CSS
 - **Build**: Static site generation (SSG) with Node adapter for dynamic features
 - **Purpose**: Marketing pages, documentation, contact forms
 - **Deployment**: Serves as public-facing website at george-ai.net
 
-### crawler-server (Web Crawler)
+### webcrawler (Web Crawler)
 
 - **Runtime**: Python with FastAPI
 - **Purpose**: Web page crawling and content extraction
@@ -221,7 +221,7 @@ All services communicate via Docker network (`george-ai-network`):
 - Use **Pothos builder pattern** for type-safe schema definition
 - Run codegen after schema changes:
   ```bash
-  cd /workspaces/george-ai/apps/chat-web && pnpm codegen
+  cd /workspaces/george-ai/apps/georgeai-webapp && pnpm codegen
   ```
 
 **Important:** Always define a GraphQL Fragment for components and rely on codegen instead of defining your own interfaces for entities. See [Code Patterns](./patterns.md) for details.
@@ -250,7 +250,7 @@ All services communicate via Docker network (`george-ai-network`):
 ### 1. Feature Development
 
 1. Create/modify GraphQL schema in `packages/pothos-graphql/src/graphql/`
-2. Run `cd /workspaces/george-ai/apps/chat-web && pnpm codegen` to generate types
+2. Run `cd /workspaces/george-ai/apps/georgeai-webapp && pnpm codegen` to generate types
 3. Implement resolvers and business logic in backend
 4. Update frontend components and queries
 5. Test with `pnpm typecheck` and `pnpm lint`
@@ -279,7 +279,7 @@ All services communicate via Docker network (`george-ai-network`):
 
 ### 4. Frontend Routes
 
-1. Add new route file in `apps/chat-web/app/routes/`
+1. Add new route file in `apps/georgeai-webapp/app/routes/`
 2. Use TanStack Router file-based routing conventions
 3. Leverage existing authentication and GraphQL hooks
 4. Follow patterns in existing routes for consistency
@@ -357,8 +357,8 @@ Rather than competing on inference speed or model capabilities, George AI focuse
 ### Required `.env` Files
 
 - Root directory (for running both apps with `pnpm dev`)
-- `apps/georgeai-server/.env` (if running separately)
-- `apps/chat-web/.env` (if running separately)
+- `apps/georgeai-backend/.env` (if running separately)
+- `apps/georgeai-webapp/.env` (if running separately)
 - `packages/pothos-graphql/.env` (for Prisma commands)
 
 ### Key Environment Variables
@@ -377,8 +377,8 @@ See `.env.example` files for complete reference.
 
 Translation files are located in:
 
-- **English**: `apps/chat-web/app/i18n/en.ts`
-- **German**: `apps/chat-web/app/i18n/de.ts`
+- **English**: `apps/georgeai-webapp/app/i18n/en.ts`
+- **German**: `apps/georgeai-webapp/app/i18n/de.ts`
 
 When adding new translation keys (especially for form validation), ensure both files are updated.
 

@@ -78,7 +78,7 @@ George-AI is licensed under the [Business Source License 1.1](LICENSE).
 **Proprietary Content:**
 
 - Enterprise modules (SSO, Multi-Tenant, Audit Logs, SLA components)
-- Marketing materials (apps/marketing-web)
+- Marketing materials (apps/web)
 
 For commercial licensing or questions, please contact: info@george-ai.net
 
