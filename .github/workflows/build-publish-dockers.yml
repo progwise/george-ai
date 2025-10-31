@@ -13,7 +13,7 @@ env:
   REGISTRY_PATH: ghcr.io/progwise/george-ai
 
 jobs:
-  george-ai-frontend:
+  georgeai-webapp:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -32,11 +32,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for chat-web
-        id: meta-chat-web
+      - name: Extract metadata (tags, labels) for webapp
+        id: meta-webapp
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_PATH }}/chat-web
+          images: ${{ env.REGISTRY_PATH }}/webapp
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -46,31 +46,21 @@ jobs:
             type=raw,value=latest
 
       # https://github.com/docker/build-push-action#usage
-      - name: Build and push chat-web
-        id: push-chat-web
+      - name: Build and push webapp
+        id: push-webapp
         uses: docker/build-push-action@v6
         with:
-          file: ./apps/chat-web/Dockerfile
+          file: ./apps/georgeai-webapp/Dockerfile
           context: .
           push: true
-          secrets: |
-            TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}
-          tags: ${{ steps.meta-chat-web.outputs.tags }}
+          tags: ${{ steps.meta-webapp.outputs.tags }}
           labels: |
-            ${{ steps.meta-chat-web.outputs.labels }}
+            ${{ steps.meta-webapp.outputs.labels }}
             org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
-      # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      # - name: Generate artifact attestation for chat-web
-      #   uses: actions/attest-build-provenance@v2
-      #   with:
-      #     subject-name: ${{ env.REGISTRY_PATH }}/chat-web
-      #     subject-digest: ${{ steps.push-chat-web.outputs.digest }}
-      #     push-to-registry: true
-  george-ai-backend:
+  georgeai-backend:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -107,7 +97,7 @@ jobs:
         id: push-backend
         uses: docker/build-push-action@v6
         with:
-          file: ./apps/georgeai-server/Dockerfile
+          file: ./apps/georgeai-backend/Dockerfile
           context: .
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
@@ -117,7 +107,7 @@ jobs:
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
-  george-ai-crawler:
+  georgeai-webcrawler:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -137,10 +127,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for crawler
-        id: meta-crawler
+        id: meta-webcrawler
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_PATH }}/crawler
+          images: ${{ env.REGISTRY_PATH }}/webcrawler
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -150,21 +140,21 @@ jobs:
             type=raw,value=latest
 
       # https://github.com/docker/build-push-action#usage
-      - name: Build and push crawler
-        id: push-crawler
+      - name: Build and push webcrawler
+        id: push-webcrawler
         uses: docker/build-push-action@v6
         with:
-          file: ./apps/crawler-server/Dockerfile
+          file: ./apps/webcrawler/Dockerfile
           context: .
           push: true
-          tags: ${{ steps.meta-crawler.outputs.tags }}
+          tags: ${{ steps.meta-webcrawler.outputs.tags }}
           labels: |
-            ${{ steps.meta-crawler.outputs.labels }}
+            ${{ steps.meta-webcrawler.outputs.labels }}
             org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
-  george-ai-marketing:
+  georgeai-web:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -183,11 +173,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for marketing-web
-        id: meta-marketing
+      - name: Extract metadata (tags, labels) for web
+        id: meta-web
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_PATH }}/marketing-web
+          images: ${{ env.REGISTRY_PATH }}/web
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -197,14 +187,14 @@ jobs:
             type=raw,value=latest
 
       # https://github.com/docker/build-push-action#usage
-      - name: Build and push marketing-web
-        id: push-marketing
+      - name: Build and push web
+        id: push-web
         uses: docker/build-push-action@v6
         with:
-          file: ./apps/marketing-web/Dockerfile
+          file: ./apps/georgeai-web/Dockerfile
           context: .
           push: true
-          tags: ${{ steps.meta-marketing.outputs.tags }}
+          tags: ${{ steps.meta-web.outputs.tags }}
           labels: |
-            ${{ steps.meta-marketing.outputs.labels }}
+            ${{ steps.meta-web.outputs.labels }}
             org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md

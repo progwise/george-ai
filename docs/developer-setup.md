@@ -31,10 +31,10 @@ cp .env.example .env
 You need `.env` files in the directory you start the app from:
 
 - **Running from root** (recommended): `.env` in the **root** directory. Running `pnpm dev` will start:
-  - `georgeai-server` on port `3003`
-  - `chat-web` on port `3001`
+  - `georgeai-backend` on port `3003`
+  - `georgeai-webapp` on port `3001`
 
-- **Running apps separately**: `.env` files in `apps/georgeai-server` and `apps/chat-web`
+- **Running apps separately**: `.env` files in `apps/georgeai-backend` and `apps/georgeai-webapp`
 
 - **Running Prisma scripts**: `.env` in `packages/pothos-graphql` (e.g., for `pnpm prisma generate`)
 
@@ -44,16 +44,16 @@ You need `.env` files in the directory you start the app from:
 
 The following ports are used in the development environment:
 
-| Service                   | Port  | Description                    |
-| ------------------------- | ----- | ------------------------------ |
-| Frontend (chat-web)       | 3001  | React frontend with Vite HMR   |
-| Backend (georgeai-server) | 3003  | GraphQL API server             |
-| PostgreSQL                | 5432  | Main database                  |
-| Keycloak                  | 8180  | Authentication service         |
-| Keycloak DB               | 5433  | Keycloak's PostgreSQL database |
-| Typesense                 | 8108  | Vector search engine           |
-| Crawl4AI                  | 11235 | Web crawler service            |
-| Ollama                    | 11434 | Local LLM service (optional)   |
+| Service                    | Port  | Description                    |
+| -------------------------- | ----- | ------------------------------ |
+| Frontend (georgeai-webapp) | 3001  | React frontend with Vite HMR   |
+| Backend (georgeai-backend) | 3003  | GraphQL API server             |
+| PostgreSQL                 | 5432  | Main database                  |
+| Keycloak                   | 8180  | Authentication service         |
+| Keycloak DB                | 5433  | Keycloak's PostgreSQL database |
+| Typesense                  | 8108  | Vector search engine           |
+| Crawl4AI                   | 11235 | Web crawler service            |
+| Ollama                     | 11434 | Local LLM service (optional)   |
 
 **Vite HMR:**
 Vite provides Hot Module Replacement (HMR) by establishing a WebSocket connection between the browser and the dev server. The Vite dev server automatically starts an HTTP server and creates a WebSocket server on the same host with a dynamically assigned port. We enhance this with a custom Vite plugin that extracts the HMR WebSocket port and writes it to `app.config.ts`, plus automatic port opening based on VS Code settings.
@@ -88,10 +88,10 @@ You can run both apps from root:
 pnpm dev
 ```
 
-If you need to start **chat-web** and **georgeai-server** separately you can also use:
+If you need to start **georgeai-webapp** and **georgeai-backend** separately you can also use:
 
 1. Open two separate terminal windows
-2. Navigate to `apps/georgeai-server` in one and `apps/chat-web` in the other
+2. Navigate to `apps/georgeai-backend` in one and `apps/georgeai-webapp` in the other
 3. Run `pnpm dev` in each terminal separately
 
 This allows you to restart the backend independently when needed.
@@ -118,6 +118,9 @@ The project includes `docker-compose.verify.yml` to verify Docker builds work co
 #### Build and Run
 
 ```bash
+# Build only
+docker compose -f docker-compose.verify.yml build
+
 # Build and start both frontend and backend
 docker compose -f docker-compose.verify.yml up --build
 
@@ -172,10 +175,10 @@ Both images must be built from the **root directory** to include all monorepo de
 
 ```bash
 # Build frontend image
-docker build -f apps/chat-web/Dockerfile -t george-ai-frontend:local .
+docker build -f apps/georgeai-webapp/Dockerfile -t george-ai-frontend:local .
 
 # Build backend image
-docker build -f apps/georgeai-server/Dockerfile -t george-ai-backend:local .
+docker build -f apps/georgeai-backend/Dockerfile -t george-ai-backend:local .
 ```
 
 ### Runtime Configuration

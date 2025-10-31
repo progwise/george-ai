@@ -6,7 +6,7 @@ Additional Use Grant: You may use, modify, and self-host this software for inter
 Commercial hosting, resale, or use in a commercial SaaS offering requires a separate commercial license from the Licensor.
 Change Date: 2029-01-01
 Change License: Apache License 2.0
-Additional Terms: Enterprise modules (e.g. SSO, Multi-Tenant, Audit Logs, SLA components) and marketing materials (including website copy, branding assets, and promotional content in apps/marketing-web) are not covered by this license and remain proprietary.
+Additional Terms: Enterprise modules (e.g. SSO, Multi-Tenant, Audit Logs, SLA components) and marketing materials (including website copy, branding assets, and promotional content in apps/web) are not covered by this license and remain proprietary.
 Contact: info@george-ai.net
 
 ---

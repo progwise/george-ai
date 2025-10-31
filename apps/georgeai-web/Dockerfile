@@ -11,22 +11,24 @@ RUN npm install -g corepack@0.31.0 && \
 # Copy package.json files for dependency installation (better layer caching)
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/marketing-web/package.json ./apps/marketing-web/
+COPY apps/georgeai-web/package.json ./apps/georgeai-web/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile --filter marketing-web...
+RUN pnpm install --frozen-lockfile --filter @george-ai/web
 
 # Copy source files
-COPY apps/marketing-web ./apps/marketing-web
+COPY apps/georgeai-web ./apps/georgeai-web
 
 # Copy LICENSE file for legal compliance
 COPY LICENSE ./
 
 # Build with Node adapter
-RUN pnpm --filter marketing-web build
+RUN pnpm --filter @george-ai/web build
 
 # Stage 2: Run with Node.js
 FROM node:22-slim
+
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/web
 
 WORKDIR /app
 
@@ -39,10 +41,10 @@ COPY LICENSE ./
 
 # Copy node_modules from builder stage
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/apps/marketing-web/node_modules ./apps/marketing-web/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/apps/georgeai-web/node_modules ./apps/georgeai-web/node_modules
 
 # Copy built files and server entry from builder stage
-COPY --from=builder --chown=nodejs:nodejs /app/apps/marketing-web/dist ./apps/marketing-web/dist
+COPY --from=builder --chown=nodejs:nodejs /app/apps/georgeai-web/dist ./apps/georgeai-web/dist
 
 # Switch to non-root user
 USER nodejs
@@ -59,4 +61,4 @@ ENV HOST=0.0.0.0
 ENV PORT=4321
 
 # Start the Node server
-CMD ["node", "./apps/marketing-web/dist/server/entry.mjs"]
+CMD ["node", "./apps/georgeai-web/dist/server/entry.mjs"]

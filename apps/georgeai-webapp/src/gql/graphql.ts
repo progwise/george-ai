@@ -1140,7 +1140,6 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibraryCrawler: AiLibraryCrawler
-  createContactRequest: Scalars['Boolean']['output']
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
   createEmbeddingTask: AiContentProcessingTask
@@ -1294,12 +1293,6 @@ export type MutationCreateAiLibraryCrawlerArgs = {
   credentials?: InputMaybe<AiLibraryCrawlerCredentialsInput>
   data: AiLibraryCrawlerInput
   libraryId: Scalars['String']['input']
-}
-
-export type MutationCreateContactRequestArgs = {
-  emailOrPhone: Scalars['String']['input']
-  message: Scalars['String']['input']
-  name: Scalars['String']['input']
 }
 
 export type MutationCreateContentProcessingTaskArgs = {

@@ -1095,7 +1095,6 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler!
-  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   createEmbeddingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!

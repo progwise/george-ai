@@ -40,7 +40,7 @@ COPY packages/langchain-chat/package.json ./packages/langchain-chat/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/web-utils/package.json ./packages/web-utils/
-COPY apps/georgeai-server/package.json ./apps/georgeai-server/
+COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
 RUN pnpm i --frozen-lockfile
 
@@ -56,17 +56,17 @@ COPY packages/langchain-chat ./packages/langchain-chat
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/web-utils ./packages/web-utils
-COPY apps/georgeai-server ./apps/georgeai-server
+COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # Generate Prisma client only (doesn't need DB connection)
 RUN pnpm --filter @george-ai/pothos-graphql run prisma:generate:client
 
 # Deploy creates a clean directory with resolved dependencies
-RUN pnpm --filter @george-ai/server deploy --prod /app/deploy
+RUN pnpm --filter @george-ai/backend deploy --prod /app/deploy
 
 FROM base AS runner
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/georgeai-server
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/backend
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs \
@@ -78,5 +78,8 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder --chown=server:nodejs /app/deploy .
 
 USER server
+
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=90s \
+  CMD curl -f -s http://localhost:3003/graphql > /dev/null || exit 1
 
 CMD [ "sh", "-c", "cd /app/node_modules/@george-ai/pothos-graphql && pnpm prisma migrate deploy && pnpm prisma generate --sql && cd /app && pnpm start" ]

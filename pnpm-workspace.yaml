@@ -1,6 +1,6 @@
 packages:
-  - 'apps/marketing-web'
-  - 'apps/chat-web'
-  - 'apps/georgeai-server'
+  - 'apps/georgeai-web'
+  - 'apps/georgeai-webapp'
+  - 'apps/georgeai-backend'
   - 'packages/*'
   - '!packages/ai-models'

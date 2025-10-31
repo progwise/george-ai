@@ -223,7 +223,7 @@ const [isOpen, setIsOpen] = useState(false)
 
 ### Toast Notifications
 
-Use the George toast system (`apps/chat-web/app/components/georgeToaster.tsx`):
+Use the George toast system (`apps/georgeai-webapp/app/components/georgeToaster.tsx`):
 
 ```typescript
 import { toastError, toastSuccess, toastWarning } from '../georgeToaster'
@@ -253,7 +253,7 @@ const className = twMerge('base-class', condition && 'conditional-class')
 
 ### Icon Components
 
-Use icon components from `apps/chat-web/app/icons/` instead of inline SVG:
+Use icon components from `apps/georgeai-webapp/app/icons/` instead of inline SVG:
 
 ```typescript
 import { PlusIcon } from '../../icons/plus-icon'

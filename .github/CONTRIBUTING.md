@@ -179,9 +179,9 @@ console.log('Setting up: MyModule')
 
 ### File Naming
 
-- **React Components** (chat-web): kebab-case with `.tsx` extension
+- **React Components** (georgeai-webapp): kebab-case with `.tsx` extension
   - `user-avatar.tsx`, `assistant-card.tsx`
-- **Astro Components** (marketing-web): PascalCase with `.astro` extension
+- **Astro Components** (georgeai-web): PascalCase with `.astro` extension
   - `BowlerLogo.astro`, `ContactFormModal.astro`
 - **TypeScript Files**: kebab-case with `.ts` extension
   - `format-date.ts`, `get-user-data.ts`, `enrichment-queue-worker.ts`
@@ -193,7 +193,7 @@ console.log('Setting up: MyModule')
 #### Frontend Structure
 
 ```
-apps/chat-web/app/
+apps/georgeai-webapp/src/
 ├── components/
 │   ├── library/                    # Feature modules
 │   │   ├── queries/                # GET operations (read data)
@@ -384,9 +384,9 @@ The scope should be the affected module or feature:
 ```
 george-ai/
 ├── apps/
-│   ├── chat-web/              # Frontend (React, Vite, TanStack)
-│   ├── georgeai-server/       # Backend (Express, GraphQL Yoga)
-│   └── marketing-web/         # Marketing website (Astro)
+│   ├── georgeai-webapp/       # Frontend (React, Vite, TanStack)
+│   ├── georgeai-backend/      # Backend (Express, GraphQL Yoga)
+│   └── georgeai-web/          # Marketing website (Astro)
 ├── packages/
 │   ├── pothos-graphql/        # GraphQL schema + Prisma
 │   ├── langchain-chat/        # AI integration

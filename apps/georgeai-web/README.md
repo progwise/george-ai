@@ -34,7 +34,6 @@ This is a static marketing site showcasing George AI's features, use cases, and 
 │   ├── styles/       # Global CSS
 │   └── utils/        # Utility functions (cn.ts for class merging)
 ├── Dockerfile        # Production Docker build
-├── nginx.conf        # Nginx configuration
 └── astro.config.mjs  # Astro configuration
 ```
 
@@ -50,7 +49,7 @@ pnpm install
 
 ### Running Locally
 
-From the repository root or the `apps/marketing-web` directory:
+From the repository root or the `apps/georgeai-web` directory:
 
 ```bash
 # Start dev server (with host binding for devcontainer)
@@ -87,13 +86,13 @@ The marketing site is deployed as a static site served by Nginx.
 **Important:** Build from the repository root to include monorepo dependencies:
 
 ```bash
-docker build -f apps/marketing-web/Dockerfile -t george-ai-marketing:local .
+docker build -f apps/georgeai-web/Dockerfile -t george-ai-web:local .
 ```
 
 ### Running the Docker Container
 
 ```bash
-docker run -p 8080:8080 george-ai-marketing:local
+docker run -p 8080:8080 george-ai-web:local
 ```
 
 The site will be available at http://localhost:8080
@@ -106,6 +105,28 @@ The site will be available at http://localhost:8080
 - **Minimal image**: Uses nginx:alpine for small footprint
 
 ## Configuration
+
+### Contact Form SMTP
+
+The contact form requires SMTP credentials to send emails. Copy the example config and add your credentials:
+
+```bash
+cp .env.example .env
+# Edit .env and add your SMTP credentials
+```
+
+Required environment variables:
+- `SMTP_HOSTNAME` - SMTP server hostname (e.g., smtp.mailjet.com)
+- `SMTP_PORT` - SMTP server port (usually 587 for TLS)
+- `SMTP_USER` - SMTP username/API key
+- `SMTP_PASSWORD` - SMTP password/secret key
+
+**Recommended SMTP Providers:**
+- [Mailjet](https://app.mailjet.com/account/setup) - Free tier available
+- [SendGrid](https://app.sendgrid.com/settings/api_keys) - Free tier available
+- [AWS SES](https://console.aws.amazon.com/ses/) - Pay as you go
+
+**Note:** The contact form will fail silently if SMTP is not configured. Check browser console and server logs for errors.
 
 ### Site URL
 

@@ -26,36 +26,41 @@ WORKDIR /app
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/web-utils/package.json ./packages/web-utils/
-COPY apps/chat-web/package.json ./apps/chat-web/
+COPY apps/georgeai-webapp/package.json ./apps/georgeai-webapp/
 
 RUN pnpm i --frozen-lockfile
 
 # Copy source files afterwards to allow Docker layer caching
 COPY packages/web-utils ./packages/web-utils
-COPY apps/chat-web ./apps/chat-web
+COPY apps/georgeai-webapp ./apps/georgeai-webapp
 COPY CHANGELOG.md LICENSE ./
 
 # Build the application
-RUN pnpm --filter @george-ai/chat-web run build
+RUN pnpm --filter @george-ai/webapp run build
 
 # Deploy creates a clean directory with resolved dependencies
-RUN pnpm --filter @george-ai/chat-web deploy --prod /app/deploy
+RUN pnpm --filter @george-ai/webapp deploy --prod /app/deploy
 
 FROM base AS runner
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/chat-web
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/georgeai-webapp
+
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 --home /home/vinxi vinxi \
-    && mkdir -p /home/vinxi/.cache \
-    && chown -R vinxi:nodejs /home/vinxi
+    && adduser --system --uid 1001 --home /home/nodejs nodejs \
+    && mkdir -p /home/nodejs/.cache \
+    && chown -R nodejs:nodejs /home/nodejs
 
 # Copy the deployed output (all dependencies resolved, no symlinks)
-COPY --from=builder --chown=vinxi:nodejs /app/deploy .
-# Copy the built output
-COPY --from=builder --chown=vinxi:nodejs /app/apps/chat-web/.output ./.output
+COPY --from=builder --chown=nodejs:nodejs /app/deploy .
 
-USER vinxi
+# Copy the built output separately (not included in pnpm deploy)
+COPY --from=builder --chown=nodejs:nodejs /app/apps/georgeai-webapp/.output ./.output
+
+USER nodejs
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=30s \
+  CMD curl -f -s http://localhost:3000 > /dev/null || exit 1
 
 CMD [ "node", "./.output/server/index.mjs" ]

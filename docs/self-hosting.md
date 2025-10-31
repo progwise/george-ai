@@ -832,7 +832,7 @@ docker compose up -d
 
 # 4. Verify health
 docker compose ps
-curl http://localhost:3003/health
+curl http://localhost:3003/graphql
 ```
 
 ### Major Updates (Breaking Changes)

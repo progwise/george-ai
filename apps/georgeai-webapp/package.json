@@ -1,5 +1,5 @@
 {
-  "name": "@george-ai/chat-web",
+  "name": "@george-ai/webapp",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "license": "SEE LICENSE IN LICENSE",

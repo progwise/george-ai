@@ -2,10 +2,10 @@
 
 Guide for building and running George AI Docker images for the apps in this monorepo:
 
-- **chat-web** - the main app frontend
-- **georgeai-server** - the backend for graphql, upload and more
-- **marketing-web** - the george-ai.net marketing web
-- **crawler-server** - the Crawl4AI service for web crawling
+- **georgeai-webapp** - the main app frontend
+- **georgeai-backend** - the backend for graphql, upload and more
+- **georgeai-web** - the george-ai.net marketing web
+- **webcrawler** - the Crawl4AI service for web crawling
 - **smb-test-server** - used to allow testing Windows File Shares
 
 ## Building Docker Images
@@ -23,13 +23,13 @@ Be aware of the difference between `pnpm build` and `docker build`:
 cd /workspaces/george-ai
 
 # Build frontend
-docker build -f apps/chat-web/Dockerfile -t george-ai-frontend .
+docker build -f apps/georgeai-webapp/Dockerfile -t georgeai-webapp .
 
 # Build backend
-docker build -f apps/georgeai-server/Dockerfile -t george-ai-backend .
+docker build -f apps/georgeai-backend/Dockerfile -t georgeai-backend .
 
 # Build marketing site
-docker build -f apps/marketing-web/Dockerfile -t george-ai-marketing .
+docker build -f apps/georgeai-web/Dockerfile -t georgeai-web .
 ```
 
 Building from app directories will fail with "package not found" errors because Docker needs access to `packages/` and the root `pnpm-workspace.yaml`.
@@ -38,7 +38,7 @@ Building from app directories will fail with "package not found" errors because 
 
 ```bash
 GIT_COMMIT_SHA=$(git rev-parse HEAD)
-docker build -f apps/chat-web/Dockerfile -t george-ai-frontend:latest --build-arg GIT_COMMIT_SHA=$GIT_COMMIT_SHA .
+docker build -f apps/georgeai-webapp/Dockerfile -t george-ai-frontend:latest --build-arg GIT_COMMIT_SHA=$GIT_COMMIT_SHA .
 ```
 
 ---
@@ -67,7 +67,7 @@ docker compose up -d
 
 **Includes:** Builds apps from source, connects to devcontainer services
 
-**Ports:** 3002 (frontend), 3004 (backend) to avoid conflicts
+**Ports:** 3002 (frontend), 3004 (backend), 3005 (marketing website)
 
 ```bash
 docker compose -f docker-compose.verify.yml up --build
@@ -77,7 +77,15 @@ docker compose -f docker-compose.verify.yml up --build
 
 - Devcontainer services must be running (database, Keycloak, Typesense)
 - Connects to `george-ai_devcontainer_default` network
-- Access at http://localhost:3002 and http://localhost:3004/graphql
+- Access at http://localhost:3002 (webapp), http://localhost:3004/graphql (backend), http://localhost:3005 (marketing)
+
+**Using .env file:**
+
+To use values from your `.env` file (e.g., SMTP credentials for contact form):
+
+```bash
+source .env && docker compose -f docker-compose.verify.yml up --build
+```
 
 **Use when:** Testing Dockerfile changes locally.
 
