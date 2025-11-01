@@ -224,6 +224,7 @@ const [isOpen, setIsOpen] = useState(false)
 **CRITICAL:** When using `DialogForm` with async operations, the dialog MUST NOT be closable during the operation to prevent crashes and data inconsistency.
 
 **Problem:** By default, users can close DialogForm via:
+
 - Clicking backdrop (outside modal)
 - Clicking "Cancel" button
 - Pressing ESC key
@@ -279,6 +280,7 @@ export const MyComponent = () => {
 **Why This Matters:**
 
 Without proper async handling, users can:
+
 - Navigate away during deletions → app crashes
 - Close dialog during mutations → incomplete operations
 - Miss error messages → confusion about operation status
@@ -568,11 +570,13 @@ export type ListFieldFormInput = z.infer<ReturnType<typeof getListFieldFormSchem
 
 ```typescript
 import { createServerFn } from '@tanstack/react-start'
+
 import { getLanguage } from '../../i18n'
 import { ListFieldFormInput, getListFieldFormSchema } from './field-modal'
 
 export const addListFieldFn = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: ListFieldFormInput) => {  // ✅ Typed input
+  .inputValidator(async (data: ListFieldFormInput) => {
+    // ✅ Typed input
     const language = await getLanguage()
     const schema = getListFieldFormSchema('create', language)
 
@@ -580,7 +584,7 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
     return schema.parse(data)
   })
   .handler(async (ctx) => {
-    const data = await ctx.data  // ✅ Fully typed with transforms applied!
+    const data = await ctx.data // ✅ Fully typed with transforms applied!
 
     return await backendRequest(
       graphql(`
@@ -596,8 +600,8 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
         data: {
           name: data.name,
           prompt: data.prompt,
-          useVectorStore: data.useVectorStore,  // Already boolean (transformed)
-          context: data.context,  // Already string[] (transformed)
+          useVectorStore: data.useVectorStore, // Already boolean (transformed)
+          context: data.context, // Already string[] (transformed)
         },
       },
     )
