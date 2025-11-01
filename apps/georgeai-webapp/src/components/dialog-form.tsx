@@ -38,12 +38,23 @@ export const DialogForm = ({
   }
 
   const handleClose = () => {
+    // Prevent closing dialog during async operations (e.g., mutations, API calls)
+    // to avoid crashes and data inconsistency. See issue #652.
+    if (disabledSubmit) return
+
     ref.current?.close()
     formRef.current?.reset()
   }
 
+  const handleCancel = (event: React.SyntheticEvent<HTMLDialogElement>) => {
+    // Prevent ESC key from closing dialog during async operations
+    if (disabledSubmit) {
+      event.preventDefault()
+    }
+  }
+
   return (
-    <dialog className="modal" ref={ref}>
+    <dialog className="modal" ref={ref} onCancel={handleCancel}>
       <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
