@@ -119,7 +119,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DATABASE_URL_TEST: ${{ 'postgresql://chatweb:password@localhost:5432/chatweb?schema=public' }}
-          OLLAMA_BASE_URL: http://ollama-api.george-ai.net:11434
+          OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL || 'http://localhost:11434' }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           MODEL_NAME_CHAT: qwen3:latest
           MODEL_NAME_VL: gemma3:latest
           MODEL_NAME_EMBEDDING: bge-m3:latest
