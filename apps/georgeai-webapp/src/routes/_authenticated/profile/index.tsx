@@ -7,7 +7,12 @@ import { validateForm } from '@george-ai/web-utils'
 import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
+import {
+  UserProfileForm,
+  UserProfileFormInput,
+  getFormSchema,
+  updateProfile,
+} from '../../../components/user/user-profile-form'
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
@@ -63,9 +68,9 @@ function RouteComponent() {
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async (data: UserProfileFormInput) => {
       await updateProfile({
-        data: formData,
+        data,
       })
 
       return await sendConfirmationMail({
@@ -85,19 +90,19 @@ function RouteComponent() {
   })
 
   const handleSendConfirmationMail = (form: HTMLFormElement) => {
-    const { formData, errors } = validateForm(form, formSchema)
+    const { data, errors } = validateForm(form, formSchema)
     if (!errors) {
-      sendConfirmationMailMutation(formData)
+      sendConfirmationMailMutation(data)
     } else {
       toastError(errors.map((error) => <div key={error}>{error}</div>))
     }
   }
 
   const handleSaveChanges = async (form: HTMLFormElement) => {
-    const { formData, errors } = validateForm(form, formSchema)
+    const { data, errors } = validateForm(form, formSchema)
     if (!errors) {
       await updateProfile({
-        data: formData,
+        data,
       })
       toastSuccess(t('texts.profileSaved'))
       refetchProfile()
