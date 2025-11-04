@@ -527,9 +527,8 @@ Consistent validation using **TypeScript types + Zod schemas** for type safety, 
 1. **Shared Schema:** One Zod schema for client + server
 2. **Inferred Types:** TypeScript types derived from Zod schemas (single source of truth)
 3. **Internationalized:** All messages use translation system
-4. **Type-Safe Parameters:** No `FormData` in mutation signatures - use typed objects
-5. **Client Validation:** Immediate feedback
-6. **Server Validation:** Security (always validate)
+4. **Client Validation:** Immediate feedback
+5. **Server Validation:** Security (always validate)
 
 **Step 1: Define Shared Schema with Inferred Type**
 
@@ -571,12 +570,14 @@ export type ListFieldFormInput = z.infer<ReturnType<typeof getListFieldFormSchem
 ```typescript
 import { createServerFn } from '@tanstack/react-start'
 
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 import { getLanguage } from '../../i18n'
 import { ListFieldFormInput, getListFieldFormSchema } from './field-modal'
 
 export const addListFieldFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: ListFieldFormInput) => {
-    // ✅ Typed input
+    // ✅ Typed input - client already validated, server re-validates for security
     const language = await getLanguage()
     const schema = getListFieldFormSchema('create', language)
 
@@ -625,7 +626,7 @@ const FieldModal = () => {
   )
 
   const addFieldMutation = useMutation({
-    mutationFn: async (data: ListFieldFormInput) => {  // ✅ Typed parameter, not FormData
+    mutationFn: async (data: ListFieldFormInput) => {  // ✅ Typed parameter
       return await addListFieldFn({ data })
     },
     onSuccess: () => {
@@ -637,17 +638,15 @@ const FieldModal = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const { formData, errors } = validateForm(e.currentTarget, schema)
+    // validateForm returns typed data (inferred from schema)
+    const { data, errors } = validateForm(e.currentTarget, schema)
 
     if (errors) {
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
 
-    // Convert FormData to typed object
-    const data = Object.fromEntries(formData) as ListFieldFormInput
-
-    // Submit typed data (not FormData!)
+    // data is already typed as ListFieldFormInput - no 'as' needed!
     if (isEditMode) {
       updateFieldMutation.mutate(data)
     } else {
@@ -661,7 +660,7 @@ const FieldModal = () => {
 
 - **Single source of truth**: Schema defines both types and validation
 - **TypeScript + Zod**: Compile-time safety + runtime validation
-- **No FormData in mutations**: Type-safe parameters everywhere
+- **Fully typed**: No `FormData` or `as` type assertions needed
 - **Transformations**: Zod handles conversions (checkboxes → boolean, CSV → array)
 - **Internationalized error messages**: All validation messages translated
 - **Client validation**: Immediate feedback before submission
@@ -672,7 +671,8 @@ const FieldModal = () => {
 
 - Always export both the schema function AND the inferred type
 - Use `z.infer<ReturnType<typeof getSchemaFunction>>` for function-based schemas
-- Never pass `FormData` to mutations - convert to typed object first
+- `validateForm` returns typed data automatically - no manual conversion needed
+- Both client and server use typed objects, not FormData
 - Add validation messages to both `en.ts` and `de.ts`
 - Show all errors at once for better UX
 - Zod transformations happen after validation passes
