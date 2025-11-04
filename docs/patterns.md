@@ -530,6 +530,8 @@ Consistent validation using **TypeScript types + Zod schemas** for type safety, 
 4. **Client Validation:** Immediate feedback
 5. **Server Validation:** Security (always validate)
 
+> **Note**: This pattern represents the target state for all form validation in the codebase. Some existing components still use the legacy FormData pattern - these are being migrated (see issue #815). **All new code should follow this typed object pattern.**
+
 **Step 1: Define Shared Schema with Inferred Type**
 
 ```typescript
