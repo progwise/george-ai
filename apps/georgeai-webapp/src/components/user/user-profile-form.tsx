@@ -7,8 +7,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { useAuth } from '../../auth/auth'
 import { graphql } from '../../gql'
 import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
-import { Language } from '../../i18n'
-import { getLanguage, translate } from '../../i18n/get-language'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
@@ -50,17 +49,14 @@ export const getFormSchema = (language: Language) =>
     freeStorage: z.coerce.number().optional(),
   })
 
-export const updateProfile = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: FormData) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Invalid form data')
-    }
+// Infer TypeScript type from schema
+export type UserProfileFormInput = z.infer<ReturnType<typeof getFormSchema>>
 
-    const formDataObject = Object.fromEntries(data)
+export const updateProfile = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: UserProfileFormInput) => {
     const language = await getLanguage()
     const schema = getFormSchema(language)
-
-    return { ...schema.parse(formDataObject) }
+    return schema.parse(data)
   })
   .handler(async (ctx) => {
     const data = await ctx.data

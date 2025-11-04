@@ -219,6 +219,74 @@ const [isOpen, setIsOpen] = useState(false)
 <MyModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 ```
 
+**Pattern 3: DialogForm with Async Operations** (mutations, API calls)
+
+**CRITICAL:** When using `DialogForm` with async operations, the dialog MUST NOT be closable during the operation to prevent crashes and data inconsistency.
+
+**Problem:** By default, users can close DialogForm via:
+
+- Clicking backdrop (outside modal)
+- Clicking "Cancel" button
+- Pressing ESC key
+
+This causes issues when async operations are in progress (deletions, updates, etc.).
+
+**Solution:** The `DialogForm` component automatically prevents closure when `disabledSubmit={true}`:
+
+```typescript
+import { useRef } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { DialogForm } from '../../components/dialog-form'
+
+export const MyComponent = () => {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteLibraryFn({ data: libraryId }),
+    onSuccess: () => {
+      toastSuccess('Deleted successfully')
+      dialogRef.current?.close() // Close after success
+    },
+    onError: (error) => {
+      toastError(error.message)
+      // Dialog stays open so user sees error
+    },
+  })
+
+  return (
+    <>
+      <button onClick={() => dialogRef.current?.showModal()}>Delete</button>
+
+      <DialogForm
+        ref={dialogRef}
+        title="Delete Library?"
+        description="This action cannot be undone."
+        onSubmit={() => deleteMutation.mutate()}
+        submitButtonText="Delete"
+        disabledSubmit={deleteMutation.isPending} // ✅ Prevents ALL closure methods
+      />
+    </>
+  )
+}
+```
+
+**Key Points:**
+
+- ✅ **Set `disabledSubmit={isPending}`** - This disables submit button AND prevents backdrop/cancel/ESC closure
+- ✅ **Close dialog in `onSuccess`** - Only close after operation completes successfully
+- ✅ **Keep dialog open on error** - User can see error and retry or cancel
+- ❌ **NEVER close dialog before async operation completes** - Causes crashes and data inconsistency
+
+**Why This Matters:**
+
+Without proper async handling, users can:
+
+- Navigate away during deletions → app crashes
+- Close dialog during mutations → incomplete operations
+- Miss error messages → confusion about operation status
+
+See issue #652 for real-world example of this bug.
+
 ---
 
 ### Toast Notifications
@@ -452,23 +520,26 @@ builder.prismaObject('ApiKey', {
 
 ### Form Validation Pattern
 
-Consistent validation using Zod for type safety, i18n, and client+server validation.
+Consistent validation using **TypeScript types + Zod schemas** for type safety, i18n, and client+server validation.
 
 **Core Principles:**
 
 1. **Shared Schema:** One Zod schema for client + server
-2. **Internationalized:** All messages use translation system
-3. **FormData Handling:** Use `validateForm` and `validateFormData` utilities
+2. **Inferred Types:** TypeScript types derived from Zod schemas (single source of truth)
+3. **Internationalized:** All messages use translation system
 4. **Client Validation:** Immediate feedback
 5. **Server Validation:** Security (always validate)
 
-**Step 1: Define Shared Schema**
+> **Note**: This pattern represents the target state for all form validation in the codebase. Some existing components still use the legacy FormData pattern - these are being migrated (see issue #815). **All new code should follow this typed object pattern.**
+
+**Step 1: Define Shared Schema with Inferred Type**
 
 ```typescript
 import { z } from 'zod'
 
 import { Language, translate } from '../../i18n'
 
+// Define Zod schema
 export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language) =>
   z.object({
     name: z
@@ -479,48 +550,75 @@ export const getListFieldFormSchema = (editMode: 'update' | 'create', language: 
       .string()
       .min(10, translate('lists.fields.promptTooShort', language))
       .max(2000, translate('lists.fields.promptTooLong', language)),
-    // Multiple checkboxes (comma-separated)
+    // Multiple checkboxes (comma-separated) - transformed to string[]
     context: z
       .string()
       .optional()
       .transform((csv) => csv && csv.split(','))
       .pipe(z.array(z.string()).optional()),
-    // Checkbox to boolean
+    // Checkbox to boolean - transformed from 'on' | undefined
     useVectorStore: z
       .string()
       .optional()
       .transform((val) => val === 'on'),
   })
+
+// Infer TypeScript type from schema
+export type ListFieldFormInput = z.infer<ReturnType<typeof getListFieldFormSchema>>
 ```
 
-**Step 2: Server Function with Validation**
+**Step 2: Server Function with TypeScript + Zod Validation**
 
 ```typescript
 import { createServerFn } from '@tanstack/react-start'
-import { validateFormData } from '@george-ai/web-utils'
-import { getLanguage } from '../../i18n'
-import { getListFieldFormSchema } from './field-modal'
 
-export const addListField = createServerFn({ method: 'POST' })
-  .inputValidator(async (formData: FormData) => {
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
+import { getLanguage } from '../../i18n'
+import { ListFieldFormInput, getListFieldFormSchema } from './field-modal'
+
+export const addListFieldFn = createServerFn({ method: 'POST' })
+  .inputValidator(async (data: ListFieldFormInput) => {
+    // ✅ Typed input - client already validated, server re-validates for security
     const language = await getLanguage()
     const schema = getListFieldFormSchema('create', language)
-    const { data, errors } = validateFormData(formData, schema)
 
-    if (errors) throw new Error(errors.join(', '))
-    return data
+    // Zod validates AND transforms the data
+    return schema.parse(data)
   })
   .handler(async (ctx) => {
-    const data = await ctx.data
-    return await backendRequest(/* GraphQL mutation */, data)
+    const data = await ctx.data // ✅ Fully typed with transforms applied!
+
+    return await backendRequest(
+      graphql(`
+        mutation addListField($listId: String!, $data: AiListFieldInput!) {
+          addListField(listId: $listId, data: $data) {
+            id
+            name
+          }
+        }
+      `),
+      {
+        listId: data.listId,
+        data: {
+          name: data.name,
+          prompt: data.prompt,
+          useVectorStore: data.useVectorStore, // Already boolean (transformed)
+          context: data.context, // Already string[] (transformed)
+        },
+      },
+    )
   })
 ```
 
 **Step 3: Client-Side Form Handling**
 
 ```typescript
+import { useMutation } from '@tanstack/react-query'
 import { validateForm } from '@george-ai/web-utils'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { ListFieldFormInput, getListFieldFormSchema } from './field-modal'
+import { addListFieldFn } from './server-functions'
 
 const FieldModal = () => {
   const { t, language } = useTranslation()
@@ -529,21 +627,32 @@ const FieldModal = () => {
     [isEditMode, language],
   )
 
+  const addFieldMutation = useMutation({
+    mutationFn: async (data: ListFieldFormInput) => { // ✅ Typed parameter
+      return await addListFieldFn({ data })
+    },
+    onSuccess: () => {
+      toastSuccess(t('lists.fields.addSuccess'))
+      onClose()
+    },
+  })
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const { formData, errors } = validateForm(e.currentTarget, schema)
+    // validateForm returns typed data (inferred from schema)
+    const { data, errors } = validateForm(e.currentTarget, schema)
 
     if (errors) {
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
 
-    // Submit to server
+    // data is already typed as ListFieldFormInput - no 'as' needed!
     if (isEditMode) {
-      updateFieldMutation.mutate(formData)
+      updateFieldMutation.mutate(data)
     } else {
-      addFieldMutation.mutate(formData)
+      addFieldMutation.mutate(data)  // ✅ Type-safe all the way
     }
   }
 }
@@ -551,18 +660,24 @@ const FieldModal = () => {
 
 **Key Benefits:**
 
-- Single source of truth (one schema)
-- Full TypeScript type safety
-- Internationalized error messages
-- Client validation for UX
-- Server validation for security
-- Handles multiple checkboxes automatically
+- **Single source of truth**: Schema defines both types and validation
+- **TypeScript + Zod**: Compile-time safety + runtime validation
+- **Fully typed**: No `FormData` or `as` type assertions needed
+- **Transformations**: Zod handles conversions (checkboxes → boolean, CSV → array)
+- **Internationalized error messages**: All validation messages translated
+- **Client validation**: Immediate feedback before submission
+- **Server validation**: Security (always validate on server)
+- **Full autocomplete**: IntelliSense works everywhere
 
 **Important Notes:**
 
-- Always use `validateForm` (client) or `validateFormData` (server)
+- Always export both the schema function AND the inferred type
+- Use `z.infer<ReturnType<typeof getSchemaFunction>>` for function-based schemas
+- `validateForm` returns typed data automatically - no manual conversion needed
+- Both client and server use typed objects, not FormData
 - Add validation messages to both `en.ts` and `de.ts`
 - Show all errors at once for better UX
+- Zod transformations happen after validation passes
 
 ---
 

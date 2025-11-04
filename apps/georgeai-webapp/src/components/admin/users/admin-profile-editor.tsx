@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
+import { validateForm } from '@george-ai/web-utils'
+
 import { UserProfileForm_UserProfileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SaveIcon } from '../../../icons/save-icon'
 import { activateUserProfile, getProfileQueryOptions } from '../../../server-functions/users'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { UserProfileForm, updateProfile } from '../../user/user-profile-form'
+import { UserProfileForm, UserProfileFormInput, getFormSchema, updateProfile } from '../../user/user-profile-form'
 
 interface AdminProfileEditorProps {
   profile: UserProfileForm_UserProfileFragment
@@ -24,14 +26,14 @@ export function AdminProfileEditor({
   onSuccess,
   onActivationSuccess,
 }: AdminProfileEditorProps) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
   const queryClient = useQueryClient()
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async (data: UserProfileFormInput) => {
       return await updateProfile({
-        data: formData,
+        data,
       })
     },
     onSuccess: () => {
@@ -63,8 +65,13 @@ export function AdminProfileEditor({
 
   const handleSaveProfile = () => {
     if (formRef.current) {
-      const formData = new FormData(formRef.current)
-      updateProfileMutation.mutate(formData)
+      const schema = getFormSchema(language)
+      const { data, errors } = validateForm(formRef.current, schema)
+      if (errors) {
+        toastError(errors.map((error) => <div key={error}>{error}</div>))
+        return
+      }
+      updateProfileMutation.mutate(data)
     }
   }
 
@@ -92,7 +99,13 @@ export function AdminProfileEditor({
       <UserProfileForm
         userProfile={profile}
         onSubmit={(event) => {
-          updateProfileMutation.mutate(new FormData(event.currentTarget))
+          const schema = getFormSchema(language)
+          const { data, errors } = validateForm(event.currentTarget, schema)
+          if (errors) {
+            toastError(errors.map((error) => <div key={error}>{error}</div>))
+            return
+          }
+          updateProfileMutation.mutate(data)
         }}
         formRef={formRef}
         isAdmin={true}

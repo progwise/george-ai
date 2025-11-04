@@ -33,13 +33,12 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const { formData, errors } = validateForm(e.currentTarget, schema)
+    const { data, errors } = validateForm(e.currentTarget, schema)
     if (errors) {
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
-    const name = formData.get('name') as string
-    generateApiKey(name, {
+    generateApiKey(data.name, {
       onSuccess: (data) => {
         setGeneratedKey(data.key)
       },
