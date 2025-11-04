@@ -72,6 +72,9 @@ export const getListFieldFormSchema = (
       .pipe(z.array(z.string()).optional()),
   })
 
+// Infer TypeScript type from schema
+export type ListFieldFormInput = z.infer<ReturnType<typeof getListFieldFormSchema>>
+
 graphql(`
   fragment FieldModal_List on AiList {
     id
@@ -140,8 +143,8 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   )
 
   const addFieldMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return await addListFieldFn({ data: formData })
+    mutationFn: async (data: ListFieldFormInput) => {
+      return await addListFieldFn({ data })
     },
     onSuccess: (data) => {
       // Show success toast with field name
@@ -154,8 +157,8 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   })
 
   const updateFieldMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return await updateListFieldFn({ data: formData })
+    mutationFn: async (data: ListFieldFormInput) => {
+      return await updateListFieldFn({ data })
     },
     onSuccess: ({ updateListField }) => {
       // Show success toast with field name
@@ -169,15 +172,15 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const { formData, errors } = validateForm(e.currentTarget, schema)
+    const { data, errors } = validateForm(e.currentTarget, schema)
     if (errors) {
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
     if (isEditMode) {
-      updateFieldMutation.mutate(formData)
+      updateFieldMutation.mutate(data)
     } else {
-      addFieldMutation.mutate(formData)
+      addFieldMutation.mutate(data)
     }
   }
 

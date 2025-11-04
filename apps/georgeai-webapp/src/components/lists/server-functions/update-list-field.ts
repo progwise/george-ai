@@ -3,14 +3,13 @@ import { createServerFn } from '@tanstack/react-start'
 import { graphql } from '../../../gql'
 import { getLanguage } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
-import { getListFieldFormSchema } from '../field-modal'
+import { ListFieldFormInput, getListFieldFormSchema } from '../field-modal'
 
 export const updateListFieldFn = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: FormData) => {
+  .inputValidator(async (data: ListFieldFormInput) => {
     const language = await getLanguage()
-    const entries = Object.fromEntries(data)
-    const useVectorStore = entries.useVectorStore === 'on'
-    const validatedData = getListFieldFormSchema('update', language, useVectorStore).parse(entries)
+    const useVectorStore = data.useVectorStore || false
+    const validatedData = getListFieldFormSchema('update', language, useVectorStore).parse(data)
     return validatedData
   })
   .handler(async (ctx) => {
