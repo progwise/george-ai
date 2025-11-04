@@ -628,7 +628,7 @@ const FieldModal = () => {
   )
 
   const addFieldMutation = useMutation({
-    mutationFn: async (data: ListFieldFormInput) => {  // ✅ Typed parameter
+    mutationFn: async (data: ListFieldFormInput) => { // ✅ Typed parameter
       return await addListFieldFn({ data })
     },
     onSuccess: () => {
