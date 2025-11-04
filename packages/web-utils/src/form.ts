@@ -30,10 +30,7 @@ const getDataFromForm = (form: HTMLFormElement): FormData => {
 
 // Validates HTML form and returns typed data with errors
 // Use this in client-side form handling
-export const validateForm = <T extends ZodRawShape>(
-  form: HTMLFormElement,
-  schema: z.ZodObject<T>,
-): { data: z.infer<z.ZodObject<T>> | null; errors: string[] | null } => {
+export const validateForm = <T extends ZodRawShape>(form: HTMLFormElement, schema: z.ZodObject<T>) => {
   const formData = getDataFromForm(form)
   const parseResult = schema.safeParse(Object.fromEntries(formData))
 

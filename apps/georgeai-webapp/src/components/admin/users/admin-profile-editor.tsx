@@ -26,7 +26,7 @@ export function AdminProfileEditor({
   onSuccess,
   onActivationSuccess,
 }: AdminProfileEditorProps) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
   const queryClient = useQueryClient()
 
@@ -65,7 +65,7 @@ export function AdminProfileEditor({
 
   const handleSaveProfile = () => {
     if (formRef.current) {
-      const schema = getFormSchema('en')
+      const schema = getFormSchema(language)
       const { data, errors } = validateForm(formRef.current, schema)
       if (errors) {
         toastError(errors.map((error) => <div key={error}>{error}</div>))
@@ -99,7 +99,7 @@ export function AdminProfileEditor({
       <UserProfileForm
         userProfile={profile}
         onSubmit={(event) => {
-          const schema = getFormSchema('en')
+          const schema = getFormSchema(language)
           const { data, errors } = validateForm(event.currentTarget, schema)
           if (errors) {
             toastError(errors.map((error) => <div key={error}>{error}</div>))

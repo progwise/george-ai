@@ -7,7 +7,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { useAuth } from '../../auth/auth'
 import { graphql } from '../../gql'
 import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
-import { Language, translate } from '../../i18n'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
@@ -53,8 +53,9 @@ export const getFormSchema = (language: Language) =>
 export type UserProfileFormInput = z.infer<ReturnType<typeof getFormSchema>>
 
 export const updateProfile = createServerFn({ method: 'POST' })
-  .inputValidator((data: UserProfileFormInput) => {
-    const schema = getFormSchema('en')
+  .inputValidator(async (data: UserProfileFormInput) => {
+    const language = await getLanguage()
+    const schema = getFormSchema(language)
     return schema.parse(data)
   })
   .handler(async (ctx) => {
