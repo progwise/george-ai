@@ -28,9 +28,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/web-utils/package.json ./packages/web-utils/
 COPY apps/georgeai-webapp/package.json ./apps/georgeai-webapp/
 
-# Configure git to use HTTPS instead of SSH for dependency installation
-RUN git config --global url."https://github.com/".insteadOf git@github.com:
-
 RUN pnpm i --frozen-lockfile
 
 # Copy source files afterwards to allow Docker layer caching

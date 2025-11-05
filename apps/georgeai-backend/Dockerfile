@@ -42,9 +42,6 @@ COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/web-utils/package.json ./packages/web-utils/
 COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
-# Configure git to use HTTPS instead of SSH for dependency installation
-RUN git config --global url."https://github.com/".insteadOf git@github.com:
-
 RUN pnpm i --frozen-lockfile
 
 # Copy LICENSE file for legal compliance
