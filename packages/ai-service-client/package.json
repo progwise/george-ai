@@ -18,18 +18,18 @@
   },
   "dependencies": {
     "@george-ai/web-utils": "workspace:*",
-    "ollama": "^0.5.17",
-    "zod": "^3.23.8"
+    "ollama": "^0.6.2",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@george-ai/package-configs": "workspace:*",
-    "@langchain/ollama": "^0.2.0",
+    "@langchain/ollama": "^1.0.0",
     "@types/node": "^22.10.7",
     "eslint": "^9.17.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.18.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "vitest": "^3.1.1"
   }
 }
