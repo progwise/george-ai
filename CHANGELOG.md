@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Webcrawler: Updated all Python dependencies to latest versions - crawl4ai now uses official PyPI release (0.7.6), FastAPI updated to 0.121.0
 - Marketing website: Mobile responsiveness and accessibility improvements across all pages
 - Documentation: Updated file naming conventions and corrected inconsistencies
 
