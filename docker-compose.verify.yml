@@ -91,6 +91,20 @@ services:
     ports:
       - '3005:4321'
 
+  # Webcrawler - Python-based web crawler service
+  gai-verify-webcrawler:
+    build:
+      context: .
+      dockerfile: apps/webcrawler/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+    container_name: gai-verify-webcrawler
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - '11246:11245'
+
 networks:
   george-ai_devcontainer_default:
     external: true

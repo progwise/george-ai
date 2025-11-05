@@ -4,8 +4,19 @@
 
 ## Dependencies
 
-1. pip install "git+ssh://git@github.com/progwise/crawl4ai.git@fix/streaming-error-handling"
-2. pip install fastApi
+Core dependencies (install these manually when updating):
+
+```bash
+# crawl4ai - Use our PR with streaming error fixes (recommended)
+pip install "git+ssh://git@github.com/progwise/crawl4ai.git@fix/streaming-error-handling"
+# OR use official PyPI version
+pip install -U crawl4ai
+
+# FastAPI with standard extras
+pip install "fastapi[standard]"
+```
+
+All dependencies are frozen in `requirements.txt` for reproducible builds.
 
 # Create Virtual Environment
 
@@ -83,3 +94,59 @@ docker stop $(docker ps -q --filter ancestor=webcrawler )
 ```bash
 docker logs $(docker ps -q --filter ancestor=webcrawler )
 ```
+
+# Maintenance
+
+## Updating Dependencies
+
+### Method 1: Manual Workflow (Current)
+
+1. Delete and recreate the virtual environment:
+
+```bash
+rm -rf .venv
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install core dependencies:
+
+```bash
+pip install -U crawl4ai
+pip install "fastapi[standard]"
+```
+
+3. Freeze all dependencies:
+
+```bash
+pip freeze > requirements.txt
+```
+
+### Method 2: Using pip-tools (Recommended for easier maintenance)
+
+Install pip-tools:
+
+```bash
+pip install pip-tools
+```
+
+Create a `requirements.in` file with only core dependencies:
+
+```
+crawl4ai
+fastapi[standard]
+```
+
+Generate locked requirements:
+
+```bash
+pip-compile requirements.in
+```
+
+This creates a `requirements.txt` with all pinned versions. To update:
+
+```bash
+pip-compile --upgrade requirements.in
+```
+
+**Note**: We currently use Method 1 to maintain the requirements.txt file.
