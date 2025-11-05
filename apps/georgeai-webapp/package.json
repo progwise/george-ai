@@ -46,7 +46,7 @@
     "tailwindcss": "^4.1.13",
     "tailwindcss-animated": "^2.0.0",
     "unified": "^11.0.5",
-    "vite": "^7.1.11",
+    "vite": "^7.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
