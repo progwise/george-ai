@@ -12,8 +12,11 @@ import {
   unloadOllamaModel,
 } from './ollama-api'
 
-describe('ollama-api integration tests', () => {
-  const instance = { url: process.env.OLLAMA_BASE_URL!, apiKey: process.env.OLLAMA_API_KEY! }
+// Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
+describe.skipIf(
+  !process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || !process.env.MODEL_NAME_EMBEDDING,
+)('ollama-api integration tests', () => {
+  const instance = { url: process.env.OLLAMA_BASE_URL!, apiKey: process.env.OLLAMA_API_KEY }
   const modelNameVL = process.env.MODEL_NAME_VL!
   const modelNameEmbedding = process.env.MODEL_NAME_EMBEDDING!
   const modelNameChat = process.env.MODEL_NAME_CHAT!

@@ -3,21 +3,18 @@ import { describe, expect, it } from 'vitest'
 import { type OllamaStreamChunk, getChatResponseStream } from './ollama-api'
 import { getTestImage } from './testing/test-image-helper'
 
-const instances = process.env.OLLAMA_BASE_URL
-  ? [{ url: process.env.OLLAMA_BASE_URL, apiKey: process.env.OLLAMA_API_KEY! }]
-  : []
-const modelNames = process.env.MODEL_NAME_VL ? [process.env.MODEL_NAME_VL] : []
-// Models to test with - add your own vision-capable models here for testing
-// const fileNames = ['cat-medium.png', 'page-1.png', 'page-2.png', 'page-3.png']
-const fileNames = ['cat-medium.png']
+// Skip all tests if required environment variables are not set
+describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_VL)(
+  'ollama vision streaming tests',
+  () => {
+    const instance = { url: process.env.OLLAMA_BASE_URL!, apiKey: process.env.OLLAMA_API_KEY }
+    const modelName = process.env.MODEL_NAME_VL!
+    // Models to test with - add your own vision-capable models here for testing
+    // const fileNames = ['cat-medium.png', 'page-1.png', 'page-2.png', 'page-3.png']
+    const fileNames = ['cat-medium.png']
 
-describe.each(instances)('ollama vision streaming tests for ollama %s', (instance) => {
-  // Helper function to load image as base64
-
-  describe('vision model streaming', () => {
-    it.each(modelNames)(
-      'should analyze a photo with model %s',
-      async (modelName) => {
+    describe('vision model streaming', () => {
+      it('should analyze a photo', async () => {
         const catImage = await getTestImage('cat-medium.png')
 
         const stream = await getChatResponseStream(instance, modelName, [
@@ -63,11 +60,10 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       30000,
     )
 
-    // Test for parallel execution
-    // Skipped by default as this is a heavy test - remove .skip to enable
-    it.skip.each([modelNames])(
-      'should analyze a packaging image in parallel %s',
-      async (model) => {
+      // Test for parallel execution
+      // Skipped by default as this is a heavy test - remove .skip to enable
+      it.skip('should analyze a packaging image in parallel', async () => {
+        const model = modelName
         // Load the pharmaceutical packaging image
         const pharmaceuticalImage = await getTestImage('page-1.png')
 
@@ -136,13 +132,11 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       180000,
     )
 
-    describe.each(fileNames)('test multiple images %s', (fileName) => {
-      it.each(modelNames)(
-        `should analyze model %s`,
-        async (model) => {
+      describe.each(fileNames)('test multiple images %s', (fileName) => {
+        it('should analyze image', async () => {
           const image = await getTestImage(fileName)
 
-          const stream = await getChatResponseStream(instance, model, [
+          const stream = await getChatResponseStream(instance, modelName, [
             { role: 'user', content: 'Describe this image', images: [image] },
           ])
 
@@ -181,15 +175,13 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       )
     })
 
-    it.each(modelNames)(
-      'should handle multiple images in conversation with model %s',
-      async (model) => {
+      it('should handle multiple images in conversation', async () => {
         // Load both images
         const image1 = await getTestImage('cat-medium.png')
         const image2 = await getTestImage('vancouver-medium.png')
 
         // First message with pharmaceutical image
-        const stream = await getChatResponseStream(instance, model, [
+        const stream = await getChatResponseStream(instance, modelName, [
           {
             role: 'user',
             content: 'Compare this 2 images?',
@@ -222,14 +214,12 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       90000,
     )
 
-    it.each(modelNames)(
-      'should fail fast on invalid image format with model %s',
-      async (model) => {
+      it('should fail fast on invalid image format', async () => {
         // Create an invalid base64 image (corrupted/malformed)
         const invalidImage =
           'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQIHWP8//8/AzYwiqHBgA0OAABCWgEHw8oWBQAAAABJRU5ErkJggg=='
 
-        const stream = await getChatResponseStream(instance, model, [
+        const stream = await getChatResponseStream(instance, modelName, [
           {
             role: 'user',
             content: 'Describe this image',
@@ -259,5 +249,6 @@ describe.each(instances)('ollama vision streaming tests for ollama %s', (instanc
       },
       30000,
     )
-  })
-})
+    })
+  },
+)
