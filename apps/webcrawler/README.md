@@ -102,6 +102,7 @@ docker logs $(docker ps -q --filter ancestor=webcrawler )
 ### Method 1: Manual Workflow (Current)
 
 1. Delete and recreate the virtual environment:
+
 ```bash
 rm -rf .venv
 python3 -m venv .venv
@@ -109,12 +110,14 @@ source .venv/bin/activate
 ```
 
 2. Install core dependencies:
+
 ```bash
 pip install -U crawl4ai
 pip install "fastapi[standard]"
 ```
 
 3. Freeze all dependencies:
+
 ```bash
 pip freeze > requirements.txt
 ```
@@ -122,22 +125,26 @@ pip freeze > requirements.txt
 ### Method 2: Using pip-tools (Recommended for easier maintenance)
 
 Install pip-tools:
+
 ```bash
 pip install pip-tools
 ```
 
 Create a `requirements.in` file with only core dependencies:
+
 ```
 crawl4ai
 fastapi[standard]
 ```
 
 Generate locked requirements:
+
 ```bash
 pip-compile requirements.in
 ```
 
 This creates a `requirements.txt` with all pinned versions. To update:
+
 ```bash
 pip-compile --upgrade requirements.in
 ```
