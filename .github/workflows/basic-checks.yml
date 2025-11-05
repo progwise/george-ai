@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Configure git to use HTTPS instead of SSH
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -26,6 +28,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Configure git to use HTTPS instead of SSH
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,6 +59,8 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
+      - name: Configure git to use HTTPS instead of SSH
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -76,6 +82,8 @@ jobs:
       postgres: *postgres_service
     steps:
       - uses: actions/checkout@v4
+      - name: Configure git to use HTTPS instead of SSH
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -101,6 +109,8 @@ jobs:
       postgres: *postgres_service
     steps:
       - uses: actions/checkout@v4
+      - name: Configure git to use HTTPS instead of SSH
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:

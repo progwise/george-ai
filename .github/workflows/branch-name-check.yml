@@ -20,6 +20,7 @@ jobs:
             "refactor/"
             "docs/"
             "chore/"
+            "dependabot/"
           )
 
           # Check if branch name matches any allowed prefix
@@ -40,6 +41,7 @@ jobs:
             echo "  - refactor/   (code refactoring)"
             echo "  - docs/       (documentation updates)"
             echo "  - chore/      (maintenance tasks)"
+            echo "  - dependabot/ (automated dependency updates)"
             echo ""
             echo "Examples:"
             echo "  ✅ feature/add-user-profile"
