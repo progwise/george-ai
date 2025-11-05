@@ -13,9 +13,6 @@ COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/georgeai-web/package.json ./apps/georgeai-web/
 
-# Configure git to use HTTPS instead of SSH for dependency installation
-RUN git config --global url."https://github.com/".insteadOf git@github.com:
-
 # Install dependencies
 RUN pnpm install --frozen-lockfile --filter @george-ai/web
 
