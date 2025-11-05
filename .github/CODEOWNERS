@@ -1,0 +1,42 @@
+# CODEOWNERS - Critical files require review by @moncapitaine
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @moncapitaine
+
+# Critical infrastructure and security
+/.github/ @moncapitaine
+/.github/workflows/ @moncapitaine
+/.devcontainer/ @moncapitaine
+/docker-compose*.yml @moncapitaine
+/Dockerfile @moncapitaine
+**/Dockerfile @moncapitaine
+
+# Environment and configuration files
+.env.example @moncapitaine
+**/.env.example @moncapitaine
+*.config.js @moncapitaine
+*.config.ts @moncapitaine
+
+# Database and schema
+/packages/pothos-graphql/prisma/ @moncapitaine
+**/schema.prisma @moncapitaine
+**/migrations/ @moncapitaine
+
+# Backend core
+/apps/georgeai-backend/ @moncapitaine
+/packages/pothos-graphql/src/graphql/ @moncapitaine
+
+# Authentication and security
+/packages/pothos-graphql/src/auth/ @moncapitaine
+/packages/pothos-graphql/src/middleware/ @moncapitaine
+
+# Legal and licensing
+/LICENSE @moncapitaine
+/CODE_OF_CONDUCT.md @moncapitaine
+/SECURITY.md @moncapitaine
+
+# Package manifests
+package.json @moncapitaine
+pnpm-lock.yaml @moncapitaine
+**/package.json @moncapitaine
