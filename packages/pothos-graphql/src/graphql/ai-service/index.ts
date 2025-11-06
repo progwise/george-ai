@@ -84,12 +84,7 @@ builder.queryField('aiServiceStatus', (t) =>
     authScopes: {
       isLoggedIn: true,
     },
-    resolve: async (_, __, { session }) => {
-      // Only allow admin users to access this information
-      if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
-      }
-
+    resolve: async () => {
       try {
         const status = await getClusterStatus()
         return status

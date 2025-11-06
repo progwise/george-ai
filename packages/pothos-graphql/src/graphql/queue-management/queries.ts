@@ -15,36 +15,91 @@ builder.queryField('queueSystemStatus', (t) =>
       isLoggedIn: true,
     },
     resolve: async (_, __, { session }) => {
-      if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
-      }
+      const userId = session?.user?.id
+      const isAdmin = session?.user?.isAdmin ?? false
 
-      // Get enrichment queue stats
+      // Build WHERE clauses based on user access
+      // Admins see all tasks, non-admins see tasks from libraries/lists they own OR participate in
+      const contentProcessingAccessFilter = isAdmin
+        ? {}
+        : {
+            library: {
+              OR: [
+                { ownerId: userId },
+                {
+                  participants: {
+                    some: {
+                      userId,
+                    },
+                  },
+                },
+              ],
+            },
+          }
+
+      const enrichmentAccessFilter = isAdmin
+        ? {}
+        : {
+            list: {
+              OR: [
+                { ownerId: userId },
+                {
+                  participants: {
+                    some: {
+                      userId,
+                    },
+                  },
+                },
+              ],
+            },
+          }
+
+      // Get enrichment queue stats (filtered by user access)
       const enrichmentPending = await prisma.aiEnrichmentTask.count({
-        where: { startedAt: null, completedAt: null, status: { not: 'failed' } },
+        where: {
+          ...enrichmentAccessFilter,
+          startedAt: null,
+          completedAt: null,
+          status: { not: 'failed' },
+        },
       })
 
       const enrichmentProcessing = await prisma.aiEnrichmentTask.count({
-        where: { startedAt: { not: null }, completedAt: null, status: { not: 'failed' } },
+        where: {
+          ...enrichmentAccessFilter,
+          startedAt: { not: null },
+          completedAt: null,
+          status: { not: 'failed' },
+        },
       })
 
       const enrichmentFailed = await prisma.aiEnrichmentTask.count({
-        where: { status: 'failed' },
+        where: {
+          ...enrichmentAccessFilter,
+          status: 'failed',
+        },
       })
 
       const enrichmentCompleted = await prisma.aiEnrichmentTask.count({
-        where: { completedAt: { not: null } },
+        where: {
+          ...enrichmentAccessFilter,
+          completedAt: { not: null },
+        },
       })
 
       const enrichmentLastProcessed = await prisma.aiEnrichmentTask.findFirst({
-        where: { completedAt: { not: null } },
+        where: {
+          ...enrichmentAccessFilter,
+          completedAt: { not: null },
+        },
         orderBy: { completedAt: 'desc' },
         select: { completedAt: true },
       })
 
-      // Get content processing queue stats
+      // Get content processing queue stats (filtered by user access)
       const contentProcessingPending = await prisma.aiContentProcessingTask.count({
         where: {
+          ...contentProcessingAccessFilter,
           processingStartedAt: null,
           processingFinishedAt: null,
           processingFailedAt: null,
@@ -53,6 +108,7 @@ builder.queryField('queueSystemStatus', (t) =>
 
       const contentProcessingProcessing = await prisma.aiContentProcessingTask.count({
         where: {
+          ...contentProcessingAccessFilter,
           processingStartedAt: { not: null },
           processingFinishedAt: null,
           processingFailedAt: null,
@@ -61,6 +117,7 @@ builder.queryField('queueSystemStatus', (t) =>
 
       const contentProcessingFailed = await prisma.aiContentProcessingTask.count({
         where: {
+          ...contentProcessingAccessFilter,
           OR: [
             { processingFailedAt: { not: null } },
             { extractionFailedAt: { not: null } },
@@ -70,11 +127,17 @@ builder.queryField('queueSystemStatus', (t) =>
       })
 
       const contentProcessingCompleted = await prisma.aiContentProcessingTask.count({
-        where: { processingFinishedAt: { not: null } },
+        where: {
+          ...contentProcessingAccessFilter,
+          processingFinishedAt: { not: null },
+        },
       })
 
       const contentProcessingLastProcessed = await prisma.aiContentProcessingTask.findFirst({
-        where: { processingFinishedAt: { not: null } },
+        where: {
+          ...contentProcessingAccessFilter,
+          processingFinishedAt: { not: null },
+        },
         orderBy: { processingFinishedAt: 'desc' },
         select: { processingFinishedAt: true },
       })
