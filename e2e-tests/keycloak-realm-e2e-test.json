@@ -1,0 +1,63 @@
+{
+  "realm": "george-ai-e2e-test",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "george-ai-e2e",
+      "name": "George AI E2E Tests",
+      "description": "Client for E2E automated tests",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:3001/*",
+        "http://localhost:3001",
+        "https://george-ai.net/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3001",
+        "https://george-ai.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3001/*##http://localhost:3001##https://george-ai.net/*",
+        "use.refresh.tokens": "true",
+        "backchannel.logout.session.required": "true"
+      },
+      "fullScopeAllowed": true
+    }
+  ],
+  "users": [
+    {
+      "username": "e2e-test-user@example.com",
+      "email": "e2e-test-user@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "E2E",
+      "lastName": "Test User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2ETestPassword123!",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
