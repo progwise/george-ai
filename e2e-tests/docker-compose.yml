@@ -29,11 +29,6 @@ services:
     ports:
       - '8108:8108'
     command: '--data-dir /data/typesense --api-key=xyz-test-key --enable-cors'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8108/health']
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - george-ai-e2e
 
@@ -90,7 +85,7 @@ services:
       gai-e2e-backend-db:
         condition: service_healthy
       gai-e2e-typesense:
-        condition: service_healthy
+        condition: service_started
     networks:
       - george-ai-e2e
 
