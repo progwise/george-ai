@@ -46,6 +46,9 @@ services:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
     container_name: gai-e2e-backend
     environment:
+      # Node environment
+      NODE_ENV: production
+
       # Database
       DATABASE_URL: postgresql://chatweb:password@gai-e2e-backend-db:5432/chatweb?schema=public
 
@@ -56,9 +59,9 @@ services:
       TYPESENSE_API_KEY: xyz-test-key
 
       # Keycloak (shared production instance with test realm)
-      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://keycloak.george-ai.net}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai-e2e-test}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-e2e}
+      KEYCLOAK_URL: https://keycloak.george-ai.net
+      KEYCLOAK_REALM: george-ai-e2e-test
+      KEYCLOAK_CLIENT_ID: george-ai-e2e
       KEYCLOAK_REDIRECT_URL: http://localhost:3001
 
       # Backend config
@@ -71,12 +74,13 @@ services:
       UPLOADS_PATH: /tmp/uploads
 
       # Workers (disabled for e2e tests)
-      AUTOSTART_ENRICHMENT_WORKER: false
-      AUTOSTART_CONTENT_PROCESSING_WORKER: false
+      AUTOSTART_ENRICHMENT_WORKER: true
+      AUTOSTART_CONTENT_PROCESSING_WORKER: true
 
       # Ollama (shared remote instance, optional)
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      OLLAMA_VRAM_GB: 16
 
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
@@ -107,9 +111,9 @@ services:
       BACKEND_PUBLIC_URL: http://localhost:3003
 
       # Keycloak (shared production instance with test realm)
-      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://keycloak.george-ai.net}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-george-ai-e2e-test}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-george-ai-e2e}
+      KEYCLOAK_URL: https://keycloak.george-ai.net
+      KEYCLOAK_REALM: george-ai-e2e-test
+      KEYCLOAK_CLIENT_ID: george-ai-e2e
       KEYCLOAK_REDIRECT_URL: http://localhost:3001
 
       # Frontend config
