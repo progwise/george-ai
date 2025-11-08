@@ -12,5 +12,25 @@ test('login', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Password' }).fill(E2E_PASSWORD)
   await page.getByRole('button', { name: 'Sign in' }).click()
 
-  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible()
+  await expect(
+    page.getByRole('tab', {
+      name: /libraries/i,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tab', {
+      name: /lists/i,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tab', {
+      name: /assistants/i,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tab', {
+      name: /conversations/i,
+    }),
+  ).toBeVisible()
 })

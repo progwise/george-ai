@@ -13,6 +13,7 @@ The E2E test environment uses Docker Compose to run all required services:
 - **gai-e2e-web**: Marketing website (built from current code)
 
 **Shared Services (no local setup needed):**
+
 - **Keycloak**: Uses `keycloak.george-ai.net` with test realm `george-ai-e2e-test`
 - **Ollama**: Optional remote instance for AI-dependent tests
 
@@ -88,6 +89,7 @@ docker compose down -v
 ### Troubleshooting
 
 **Services not starting:**
+
 ```bash
 # Check service status
 docker compose ps
@@ -101,6 +103,7 @@ docker compose restart
 ```
 
 **Database issues:**
+
 ```bash
 # Reset database (removes all data)
 docker compose down -v
@@ -117,6 +120,7 @@ The E2E tests use a shared Keycloak instance at `keycloak.george-ai.net` with a 
 ### One-Time Setup (Manual Import)
 
 1. **Login to Keycloak Admin Console**
+
    ```
    URL: https://keycloak.george-ai.net
    Username: admin
@@ -139,6 +143,7 @@ The E2E tests use a shared Keycloak instance at `keycloak.george-ai.net` with a 
 ### Client Configuration
 
 The `george-ai-e2e` client is configured with:
+
 - **Redirect URIs**: `http://localhost:3001/*`, `https://george-ai.net/*`
 - **Web Origins**: `http://localhost:3001`, `https://george-ai.net`
 - **Public Client**: Yes (no client secret required)
@@ -149,6 +154,7 @@ The `george-ai-e2e` client is configured with:
 The same docker-compose setup is used in GitHub Actions CI pipeline. See `.github/workflows/e2e-tests.yml` for the CI configuration.
 
 Environment variables for CI are stored in GitHub Secrets:
+
 - `E2E_USERNAME` (default: `e2e-test-user@example.com`)
 - `E2E_PASSWORD` (default: `E2ETestPassword123!`)
 - `OLLAMA_BASE_URL` (optional)

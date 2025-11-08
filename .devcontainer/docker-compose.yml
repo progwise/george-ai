@@ -92,9 +92,9 @@ services:
       KC_DB_PASSWORD: password
 
       KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8180
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
-      KC_PROXY: edge
 
       KC_HTTP_ENABLED: true
       KC_LOG_LEVEL: info
