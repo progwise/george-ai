@@ -102,12 +102,7 @@ jobs:
           TYPESENSE_DATA_DIR: /data
           TYPESENSE_API_KEY: xyz-test-key
           TYPESENSE_ENABLE_CORS: true
-        options: >-
-          --tmpfs /data
-          --health-cmd "curl -f http://localhost:8108/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --tmpfs /data
 
       # Backend API
       backend:
