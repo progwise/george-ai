@@ -99,10 +99,11 @@ jobs:
       typesense:
         image: typesense/typesense:27.1
         env:
-          TYPESENSE_DATA_DIR: /tmp/typesense
+          TYPESENSE_DATA_DIR: /data
           TYPESENSE_API_KEY: xyz-test-key
           TYPESENSE_ENABLE_CORS: true
         options: >-
+          --tmpfs /data
           --health-cmd "curl -f http://localhost:8108/health || exit 1"
           --health-interval 10s
           --health-timeout 5s
