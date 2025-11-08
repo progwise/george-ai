@@ -27,13 +27,23 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-e2e
 
 jobs:
-  # Job 1: Build Docker images for testing
+  # Job 1: Build Docker images for testing in parallel
   build-images:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      matrix:
+        app:
+          - name: backend
+            dockerfile: apps/georgeai-backend/Dockerfile
+          - name: webapp
+            dockerfile: apps/georgeai-webapp/Dockerfile
+          - name: web
+            dockerfile: apps/georgeai-web/Dockerfile
 
     steps:
       - name: Checkout repository
@@ -49,39 +59,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push backend image
+      - name: Build and push ${{ matrix.app.name }} image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/georgeai-backend/Dockerfile
+          file: ${{ matrix.app.dockerfile }}
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ github.sha }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push webapp image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: apps/georgeai-webapp/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_PREFIX }}-webapp:${{ github.sha }}
-          build-args: |
-            GIT_COMMIT_SHA=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push web image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: apps/georgeai-web/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_PREFIX }}-web:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.app.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
 
   # Job 2: Run E2E tests using service containers
   e2e-tests:
