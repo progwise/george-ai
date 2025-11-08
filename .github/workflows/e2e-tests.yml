@@ -26,15 +26,13 @@ jobs:
   e2e:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-jammy
+      options: --user root
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -110,10 +108,6 @@ jobs:
       - name: Show running containers
         if: always()
         run: docker ps -a
-
-      - name: Install Playwright browsers
-        working-directory: e2e-tests
-        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests
         working-directory: e2e-tests
