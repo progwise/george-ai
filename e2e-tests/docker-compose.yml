@@ -28,7 +28,7 @@ services:
       - TYPESENSE_API_KEY=xyz-test-key
     ports:
       - '8108:8108'
-    command: '--data-dir /data/typesense --api-key=xyz-test-key --enable-cors'
+    command: '--data-dir /tmp/typesense --api-key=xyz-test-key --enable-cors'
     networks:
       - george-ai-e2e
 
