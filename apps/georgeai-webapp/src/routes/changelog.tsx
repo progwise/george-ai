@@ -1,6 +1,6 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -28,7 +28,7 @@ function RouteComponent() {
   })
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="bg-base-100 min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body">
