@@ -8,9 +8,7 @@ test('login', async ({ page }) => {
   if (process.env.CI || process.env.E2E_DEBUG) {
     page.on('console', (msg) => console.log('BROWSER CONSOLE:', msg.type(), msg.text()))
     page.on('pageerror', (error) => console.log('BROWSER ERROR:', error.message))
-    page.on('requestfailed', (request) =>
-      console.log('NETWORK FAILED:', request.url(), request.failure()?.errorText),
-    )
+    page.on('requestfailed', (request) => console.log('NETWORK FAILED:', request.url(), request.failure()?.errorText))
   }
 
   await page.goto('/')

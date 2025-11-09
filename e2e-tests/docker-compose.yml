@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: chatweb
       POSTGRES_USER: chatweb
-      POSTGRES_PASSWORD: password  # LOCAL TESTING ONLY
+      POSTGRES_PASSWORD: password # LOCAL TESTING ONLY
     ports:
       - '5432:5432'
     healthcheck:
