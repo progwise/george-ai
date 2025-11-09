@@ -27,8 +27,54 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-e2e
 
 jobs:
-  # Job 1: Build Docker images for testing in parallel
+  # Job 1: Check if Docker images already exist for this commit
+  check-images:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      images_exist: ${{ steps.check.outputs.all_exist }}
+
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if all images exist
+        id: check
+        run: |
+          echo "Checking if images exist for commit ${{ github.sha }}..."
+          ALL_EXIST=true
+
+          for app in backend webapp web; do
+            IMAGE="${{ env.IMAGE_PREFIX }}-${app}:${{ github.sha }}"
+            echo "Checking ${IMAGE}..."
+
+            if docker manifest inspect "${IMAGE}" > /dev/null 2>&1; then
+              echo "✓ ${app} image exists"
+            else
+              echo "✗ ${app} image does not exist"
+              ALL_EXIST=false
+            fi
+          done
+
+          echo "all_exist=${ALL_EXIST}" >> $GITHUB_OUTPUT
+
+          if [ "${ALL_EXIST}" = "true" ]; then
+            echo "✅ All images exist - skipping build"
+          else
+            echo "⚠️ Some images missing - will build"
+          fi
+
+  # Job 2: Build Docker images for testing in parallel (only if needed)
   build-images:
+    needs: check-images
+    if: needs.check-images.outputs.images_exist != 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
@@ -71,9 +117,10 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.app.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
 
-  # Job 2: Run E2E tests using service containers
+  # Job 3: Run E2E tests using service containers
   e2e-tests:
-    needs: build-images
+    needs: [check-images, build-images]
+    if: always() && needs.check-images.result == 'success' && (needs.build-images.result == 'success' || needs.build-images.result == 'skipped')
     runs-on: ubuntu-22.04
     timeout-minutes: 30
 
@@ -189,6 +236,11 @@ jobs:
       - name: Install E2E test dependencies
         working-directory: e2e-tests
         run: pnpm install --frozen-lockfile
+
+      - name: Test Keycloak connectivity
+        run: |
+          echo "Testing connectivity to Keycloak..."
+          curl -v https://keycloak.george-ai.net/realms/george-ai-e2e-test/.well-known/openid-configuration || echo "WARNING: Cannot reach Keycloak realm"
 
       - name: Wait for services to be ready
         run: |
