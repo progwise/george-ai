@@ -35,6 +35,11 @@ COPY packages/web-utils ./packages/web-utils
 COPY apps/georgeai-webapp ./apps/georgeai-webapp
 COPY CHANGELOG.md LICENSE ./
 
+# Replace symlinks with actual files in public directory (required for Docker build)
+RUN rm -f ./apps/georgeai-webapp/public/CHANGELOG.md && \
+    cp ./CHANGELOG.md ./apps/georgeai-webapp/public/CHANGELOG.md && \
+    cp ./LICENSE ./apps/georgeai-webapp/public/LICENSE
+
 # Build the application
 RUN pnpm --filter @george-ai/webapp run build
 

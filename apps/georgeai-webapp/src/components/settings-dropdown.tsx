@@ -190,9 +190,9 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
         {/* Changelog */}
         <div className="divider m-0" />
         <li>
-          <a href="/CHANGELOG.md" target="_blank" rel="noopener noreferrer" className="text-sm">
+          <Link to="/changelog" className="text-sm">
             {t('settings.changelog')}
-          </a>
+          </Link>
         </li>
 
         {/* Documentation */}
