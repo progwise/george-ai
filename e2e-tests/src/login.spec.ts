@@ -11,9 +11,7 @@ test('login', async ({ page }) => {
   page.on('pageerror', (error) => console.log('BROWSER ERROR:', error.message))
 
   // Listen for network failures
-  page.on('requestfailed', (request) =>
-    console.log('NETWORK FAILED:', request.url(), request.failure()?.errorText)
-  )
+  page.on('requestfailed', (request) => console.log('NETWORK FAILED:', request.url(), request.failure()?.errorText))
 
   await page.goto('/')
 
