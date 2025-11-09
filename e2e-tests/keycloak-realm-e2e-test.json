@@ -26,10 +26,10 @@
       "serviceAccountsEnabled": false,
       "frontchannelLogout": true,
       "protocol": "openid-connect",
-      "redirectUris": ["http://localhost:3001/*", "http://localhost:3001", "https://george-ai.net/*"],
-      "webOrigins": ["http://localhost:3001", "https://george-ai.net"],
+      "redirectUris": ["http://localhost:3001/*", "http://localhost:3001"],
+      "webOrigins": ["http://localhost:3001"],
       "attributes": {
-        "post.logout.redirect.uris": "http://localhost:3001/*##http://localhost:3001##https://george-ai.net/*",
+        "post.logout.redirect.uris": "http://localhost:3001/*##http://localhost:3001",
         "use.refresh.tokens": "true",
         "backchannel.logout.session.required": "true"
       },
