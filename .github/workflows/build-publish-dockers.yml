@@ -1,9 +1,17 @@
 name: Build and publish Docker images
 
 on:
-  push:
+  # Only publish Docker images after all quality checks pass on main
+  workflow_run:
+    workflows:
+      - 'Basic linting, formatting and building'
+      - 'E2E Tests'
+    types:
+      - completed
     branches:
       - main
+  # Allow manual triggers and version tags
+  push:
     tags:
       - v*
   workflow_dispatch:
@@ -13,188 +21,225 @@ env:
   REGISTRY_PATH: ghcr.io/progwise/george-ai
 
 jobs:
-  georgeai-webapp:
+  # Job 1: Safety check - Only publish if prerequisite workflows succeeded
+  check-prerequisites:
     runs-on: ubuntu-22.04
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    steps:
+      - name: Check workflow trigger
+        run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            echo "Triggered workflow: ${{ github.event.workflow_run.name }}"
+            echo "Workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
+            if [[ "${{ github.event.workflow_run.conclusion }}" != "success" ]]; then
+              echo "❌ Prerequisite workflow did not succeed. Stopping Docker image publishing."
+              exit 1
+            fi
+            echo "✅ Prerequisite workflow succeeded. Proceeding with Docker image publishing."
+          else
+            echo "✅ Manual trigger or version tag. Proceeding with Docker image publishing."
+          fi
+
+  # Job 2: Calculate content-based hashes for each app
+  calculate-hashes:
+    needs: check-prerequisites
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      backend_hash: ${{ steps.hash.outputs.backend }}
+      webapp_hash: ${{ steps.hash.outputs.webapp }}
+      webcrawler_hash: ${{ steps.hash.outputs.webcrawler }}
+      web_hash: ${{ steps.hash.outputs.web }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Log in to the Container registry
+        with:
+          fetch-depth: 0
+
+      - name: Calculate content hashes
+        id: hash
+        run: |
+          echo "Calculating content-based hashes for each app..."
+
+          # Backend hash (depends on backend code + all packages)
+          BACKEND_HASH=$(find apps/georgeai-backend packages pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          BACKEND_HASH_SHORT="${BACKEND_HASH:0:12}"
+          echo "backend=${BACKEND_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Backend hash: ${BACKEND_HASH_SHORT}"
+
+          # Webapp hash (depends on webapp code + web-utils package)
+          WEBAPP_HASH=$(find apps/georgeai-webapp packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEBAPP_HASH_SHORT="${WEBAPP_HASH:0:12}"
+          echo "webapp=${WEBAPP_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Webapp hash: ${WEBAPP_HASH_SHORT}"
+
+          # Webcrawler hash (depends on webcrawler code only)
+          WEBCRAWLER_HASH=$(find apps/webcrawler pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEBCRAWLER_HASH_SHORT="${WEBCRAWLER_HASH:0:12}"
+          echo "webcrawler=${WEBCRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Webcrawler hash: ${WEBCRAWLER_HASH_SHORT}"
+
+          # Web hash (depends on web code only)
+          WEB_HASH=$(find apps/georgeai-web pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEB_HASH_SHORT="${WEB_HASH:0:12}"
+          echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Web hash: ${WEB_HASH_SHORT}"
+
+  # Job 3: Check which images need building
+  check-images:
+    needs: calculate-hashes
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      build_backend: ${{ steps.check.outputs.build_backend }}
+      build_webapp: ${{ steps.check.outputs.build_webapp }}
+      build_webcrawler: ${{ steps.check.outputs.build_webcrawler }}
+      build_web: ${{ steps.check.outputs.build_web }}
+
+    steps:
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for webapp
-        id: meta-webapp
+      - name: Check which images need building
+        id: check
+        env:
+          BACKEND_HASH: ${{ needs.calculate-hashes.outputs.backend_hash }}
+          WEBAPP_HASH: ${{ needs.calculate-hashes.outputs.webapp_hash }}
+          WEBCRAWLER_HASH: ${{ needs.calculate-hashes.outputs.webcrawler_hash }}
+          WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
+        run: |
+          echo "Checking which images need to be built..."
+
+          # Check backend
+          BACKEND_TAG="${{ env.REGISTRY_PATH }}/backend:${BACKEND_HASH}"
+          if docker manifest inspect "${BACKEND_TAG}" > /dev/null 2>&1; then
+            echo "✓ Backend image exists (${BACKEND_HASH})"
+            echo "build_backend=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Backend image needs building (${BACKEND_HASH})"
+            echo "build_backend=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check webapp
+          WEBAPP_TAG="${{ env.REGISTRY_PATH }}/webapp:${WEBAPP_HASH}"
+          if docker manifest inspect "${WEBAPP_TAG}" > /dev/null 2>&1; then
+            echo "✓ Webapp image exists (${WEBAPP_HASH})"
+            echo "build_webapp=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Webapp image needs building (${WEBAPP_HASH})"
+            echo "build_webapp=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check webcrawler
+          WEBCRAWLER_TAG="${{ env.REGISTRY_PATH }}/webcrawler:${WEBCRAWLER_HASH}"
+          if docker manifest inspect "${WEBCRAWLER_TAG}" > /dev/null 2>&1; then
+            echo "✓ Webcrawler image exists (${WEBCRAWLER_HASH})"
+            echo "build_webcrawler=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Webcrawler image needs building (${WEBCRAWLER_HASH})"
+            echo "build_webcrawler=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check web
+          WEB_TAG="${{ env.REGISTRY_PATH }}/web:${WEB_HASH}"
+          if docker manifest inspect "${WEB_TAG}" > /dev/null 2>&1; then
+            echo "✓ Web image exists (${WEB_HASH})"
+            echo "build_web=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Web image needs building (${WEB_HASH})"
+            echo "build_web=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Job 4: Build and publish Docker images (matrix strategy)
+  build-and-publish:
+    needs: [calculate-hashes, check-images]
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_webcrawler == 'true' || needs.check-images.outputs.build_web == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            dockerfile: apps/georgeai-backend/Dockerfile
+            build: ${{ needs.check-images.outputs.build_backend }}
+            hash: ${{ needs.calculate-hashes.outputs.backend_hash }}
+          - name: webapp
+            dockerfile: apps/georgeai-webapp/Dockerfile
+            build: ${{ needs.check-images.outputs.build_webapp }}
+            hash: ${{ needs.calculate-hashes.outputs.webapp_hash }}
+          - name: webcrawler
+            dockerfile: apps/webcrawler/Dockerfile
+            build: ${{ needs.check-images.outputs.build_webcrawler }}
+            hash: ${{ needs.calculate-hashes.outputs.webcrawler_hash }}
+          - name: web
+            dockerfile: apps/georgeai-web/Dockerfile
+            build: ${{ needs.check-images.outputs.build_web }}
+            hash: ${{ needs.calculate-hashes.outputs.web_hash }}
+
+    steps:
+      - name: Checkout repository
+        if: matrix.build == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        if: matrix.build == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        if: matrix.build == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for ${{ matrix.name }}
+        if: matrix.build == 'true'
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_PATH }}/webapp
+          images: ${{ env.REGISTRY_PATH }}/${{ matrix.name }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
-            type=raw,value=latest
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ matrix.hash }}
 
-      # https://github.com/docker/build-push-action#usage
-      - name: Build and push webapp
-        id: push-webapp
+      - name: Build and push ${{ matrix.name }}
+        if: matrix.build == 'true'
+        id: push
         uses: docker/build-push-action@v6
         with:
-          file: ./apps/georgeai-webapp/Dockerfile
+          file: ${{ matrix.dockerfile }}
           context: .
           push: true
-          tags: ${{ steps.meta-webapp.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: |
-            ${{ steps.meta-webapp.outputs.labels }}
+            ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
-  georgeai-backend:
-    runs-on: ubuntu-22.04
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for backend
-        id: meta-backend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_PATH }}/backend
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest
-
-      # https://github.com/docker/build-push-action#usage
-      - name: Build and push backend
-        id: push-backend
-        uses: docker/build-push-action@v6
-        with:
-          file: ./apps/georgeai-backend/Dockerfile
-          context: .
-          push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: |
-            ${{ steps.meta-backend.outputs.labels }}
-            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
-          build-args: |
-            GIT_COMMIT_SHA=${{ github.sha }}
-
-  georgeai-webcrawler:
-    runs-on: ubuntu-22.04
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for crawler
-        id: meta-webcrawler
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_PATH }}/webcrawler
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest
-
-      # https://github.com/docker/build-push-action#usage
-      - name: Build and push webcrawler
-        id: push-webcrawler
-        uses: docker/build-push-action@v6
-        with:
-          file: ./apps/webcrawler/Dockerfile
-          context: .
-          push: true
-          tags: ${{ steps.meta-webcrawler.outputs.tags }}
-          labels: |
-            ${{ steps.meta-webcrawler.outputs.labels }}
-            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
-          build-args: |
-            GIT_COMMIT_SHA=${{ github.sha }}
-
-  georgeai-web:
-    runs-on: ubuntu-22.04
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for web
-        id: meta-web
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_PATH }}/web
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest
-
-      # https://github.com/docker/build-push-action#usage
-      - name: Build and push web
-        id: push-web
-        uses: docker/build-push-action@v6
-        with:
-          file: ./apps/georgeai-web/Dockerfile
-          context: .
-          push: true
-          tags: ${{ steps.meta-web.outputs.tags }}
-          labels: |
-            ${{ steps.meta-web.outputs.labels }}
-            org.opencontainers.image.documentation=https://github.com/progwise/george-ai/blob/main/CHANGELOG.md
+      - name: Skip ${{ matrix.name }} build
+        if: matrix.build != 'true'
+        run: echo "⏭️ Skipping ${{ matrix.name }} - image already exists with hash ${{ matrix.hash }}"
