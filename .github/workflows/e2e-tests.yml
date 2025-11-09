@@ -23,6 +23,7 @@ env:
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
 
   # Image registry
+  # NOTE: Forks must have GitHub Container Registry write access or override IMAGE_PREFIX
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-e2e
 
@@ -191,7 +192,7 @@ jobs:
         if: matrix.build != 'true'
         run: echo "⏭️ Skipping ${{ matrix.name }} - image already exists"
 
-  # Job 3: Run E2E tests using service containers
+  # Job 4: Run E2E tests using service containers
   e2e-tests:
     needs: [check-images, build-images]
     if: always() && needs.check-images.result == 'success' && (needs.build-images.result == 'success' || needs.build-images.result == 'skipped')

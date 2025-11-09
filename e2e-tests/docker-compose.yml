@@ -1,3 +1,7 @@
+# E2E Test Environment - Docker Compose
+# WARNING: Hardcoded passwords are for LOCAL TESTING ONLY
+# NEVER use these credentials in production environments
+
 services:
   # Main PostgreSQL database for backend
   gai-e2e-backend-db:
@@ -6,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: chatweb
       POSTGRES_USER: chatweb
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: password  # LOCAL TESTING ONLY
     ports:
       - '5432:5432'
     healthcheck:

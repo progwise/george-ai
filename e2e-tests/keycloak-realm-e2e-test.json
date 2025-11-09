@@ -47,7 +47,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "E2ETestPassword123!",
+          "value": "CHANGEME_PASSWORD",
           "temporary": false
         }
       ]
