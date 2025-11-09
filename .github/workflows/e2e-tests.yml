@@ -241,7 +241,7 @@ jobs:
           KEYCLOAK_URL: https://keycloak.george-ai.net
           KEYCLOAK_REALM: george-ai-e2e-test
           KEYCLOAK_CLIENT_ID: george-ai-e2e
-          KEYCLOAK_REDIRECT_URL: http://localhost:3001
+          KEYCLOAK_REDIRECT_URL: http://webapp:3000
           GRAPHQL_API_KEY: TestKey
           BACKEND_URL: http://backend:3003
           BACKEND_PUBLIC_URL: http://backend:3003
@@ -267,7 +267,7 @@ jobs:
           KEYCLOAK_URL: https://keycloak.george-ai.net
           KEYCLOAK_REALM: george-ai-e2e-test
           KEYCLOAK_CLIENT_ID: george-ai-e2e
-          KEYCLOAK_REDIRECT_URL: http://localhost:3001
+          KEYCLOAK_REDIRECT_URL: http://webapp:3000
           PUBLIC_APP_URL: http://webapp:3000
           GIT_COMMIT_SHA: ${{ github.sha }}
 
@@ -345,13 +345,18 @@ jobs:
 
       - name: Run E2E tests
         working-directory: e2e-tests
-        run: pnpm test
+        run: |
+          echo "BASE_URL for tests: http://webapp:3000"
+          echo "Testing webapp accessibility..."
+          curl -I http://webapp:3000 || echo "WARNING: Cannot reach webapp"
+          pnpm test
         env:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME || 'e2e-test-user@example.com' }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD || 'E2ETestPassword123!' }}
           CI: true
           # Override base URLs to use service containers
           BASE_URL: http://webapp:3000
+          DEBUG: pw:api
 
       - name: Upload Playwright report
         if: failure()
