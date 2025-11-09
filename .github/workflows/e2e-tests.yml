@@ -27,15 +27,59 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-e2e
 
 jobs:
-  # Job 1: Check if Docker images already exist for this commit
+  # Job 1: Calculate content-based hashes for each app
+  calculate-hashes:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      backend_hash: ${{ steps.hash.outputs.backend }}
+      webapp_hash: ${{ steps.hash.outputs.webapp }}
+      web_hash: ${{ steps.hash.outputs.web }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate content hashes
+        id: hash
+        run: |
+          echo "Calculating content-based hashes for each app..."
+
+          # Backend hash (depends on backend code + all packages)
+          BACKEND_HASH=$(find apps/georgeai-backend packages pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          BACKEND_HASH_SHORT="${BACKEND_HASH:0:12}"
+          echo "backend=${BACKEND_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Backend hash: ${BACKEND_HASH_SHORT}"
+
+          # Webapp hash (depends on webapp code + web-utils package)
+          WEBAPP_HASH=$(find apps/georgeai-webapp packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEBAPP_HASH_SHORT="${WEBAPP_HASH:0:12}"
+          echo "webapp=${WEBAPP_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Webapp hash: ${WEBAPP_HASH_SHORT}"
+
+          # Web hash (depends on web code only)
+          WEB_HASH=$(find apps/georgeai-web pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEB_HASH_SHORT="${WEB_HASH:0:12}"
+          echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "Web hash: ${WEB_HASH_SHORT}"
+
+  # Job 2: Check which images need building
   check-images:
+    needs: calculate-hashes
     runs-on: ubuntu-22.04
     timeout-minutes: 5
     permissions:
       contents: read
       packages: read
     outputs:
-      images_exist: ${{ steps.check.outputs.all_exist }}
+      build_backend: ${{ steps.check.outputs.build_backend }}
+      build_webapp: ${{ steps.check.outputs.build_webapp }}
+      build_web: ${{ steps.check.outputs.build_web }}
+      backend_tag: ${{ steps.check.outputs.backend_tag }}
+      webapp_tag: ${{ steps.check.outputs.webapp_tag }}
+      web_tag: ${{ steps.check.outputs.web_tag }}
 
     steps:
       - name: Log in to GitHub Container Registry
@@ -45,36 +89,52 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if all images exist
+      - name: Check which images need building
         id: check
+        env:
+          BACKEND_HASH: ${{ needs.calculate-hashes.outputs.backend_hash }}
+          WEBAPP_HASH: ${{ needs.calculate-hashes.outputs.webapp_hash }}
+          WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
         run: |
-          echo "Checking if images exist for commit ${{ github.sha }}..."
-          ALL_EXIST=true
+          echo "Checking which images need to be built..."
 
-          for app in backend webapp web; do
-            IMAGE="${{ env.IMAGE_PREFIX }}-${app}:${{ github.sha }}"
-            echo "Checking ${IMAGE}..."
-
-            if docker manifest inspect "${IMAGE}" > /dev/null 2>&1; then
-              echo "✓ ${app} image exists"
-            else
-              echo "✗ ${app} image does not exist"
-              ALL_EXIST=false
-            fi
-          done
-
-          echo "all_exist=${ALL_EXIST}" >> $GITHUB_OUTPUT
-
-          if [ "${ALL_EXIST}" = "true" ]; then
-            echo "✅ All images exist - skipping build"
+          # Check backend
+          BACKEND_TAG="${{ env.IMAGE_PREFIX }}-backend:${BACKEND_HASH}"
+          echo "backend_tag=${BACKEND_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${BACKEND_TAG}" > /dev/null 2>&1; then
+            echo "✓ Backend image exists (${BACKEND_HASH})"
+            echo "build_backend=false" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ Some images missing - will build"
+            echo "✗ Backend image needs building (${BACKEND_HASH})"
+            echo "build_backend=true" >> $GITHUB_OUTPUT
           fi
 
-  # Job 2: Build Docker images for testing in parallel (only if needed)
+          # Check webapp
+          WEBAPP_TAG="${{ env.IMAGE_PREFIX }}-webapp:${WEBAPP_HASH}"
+          echo "webapp_tag=${WEBAPP_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${WEBAPP_TAG}" > /dev/null 2>&1; then
+            echo "✓ Webapp image exists (${WEBAPP_HASH})"
+            echo "build_webapp=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Webapp image needs building (${WEBAPP_HASH})"
+            echo "build_webapp=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check web
+          WEB_TAG="${{ env.IMAGE_PREFIX }}-web:${WEB_HASH}"
+          echo "web_tag=${WEB_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${WEB_TAG}" > /dev/null 2>&1; then
+            echo "✓ Web image exists (${WEB_HASH})"
+            echo "build_web=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Web image needs building (${WEB_HASH})"
+            echo "build_web=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Job 3: Build Docker images (only those that changed)
   build-images:
-    needs: check-images
-    if: needs.check-images.outputs.images_exist != 'true'
+    needs: [calculate-hashes, check-images]
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
@@ -83,39 +143,53 @@ jobs:
 
     strategy:
       matrix:
-        app:
+        include:
           - name: backend
             dockerfile: apps/georgeai-backend/Dockerfile
+            build: ${{ needs.check-images.outputs.build_backend }}
+            hash: ${{ needs.calculate-hashes.outputs.backend_hash }}
           - name: webapp
             dockerfile: apps/georgeai-webapp/Dockerfile
+            build: ${{ needs.check-images.outputs.build_webapp }}
+            hash: ${{ needs.calculate-hashes.outputs.webapp_hash }}
           - name: web
             dockerfile: apps/georgeai-web/Dockerfile
+            build: ${{ needs.check-images.outputs.build_web }}
+            hash: ${{ needs.calculate-hashes.outputs.web_hash }}
 
     steps:
       - name: Checkout repository
+        if: matrix.build == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
+        if: matrix.build == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
+        if: matrix.build == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ${{ matrix.app.name }} image
+      - name: Build and push ${{ matrix.name }} image
+        if: matrix.build == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ matrix.app.dockerfile }}
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ matrix.hash }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
-          cache-from: type=gha,scope=${{ matrix.app.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+      - name: Skip ${{ matrix.name }} build
+        if: matrix.build != 'true'
+        run: echo "⏭️ Skipping ${{ matrix.name }} - image already exists"
 
   # Job 3: Run E2E tests using service containers
   e2e-tests:
@@ -153,7 +227,7 @@ jobs:
 
       # Backend API
       backend:
-        image: ghcr.io/${{ github.repository_owner }}/george-ai-e2e-backend:${{ github.sha }}
+        image: ${{ needs.check-images.outputs.backend_tag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -182,7 +256,7 @@ jobs:
 
       # Frontend webapp
       webapp:
-        image: ghcr.io/${{ github.repository_owner }}/george-ai-e2e-webapp:${{ github.sha }}
+        image: ${{ needs.check-images.outputs.webapp_tag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -199,7 +273,7 @@ jobs:
 
       # Marketing website
       web:
-        image: ghcr.io/${{ github.repository_owner }}/george-ai-e2e-web:${{ github.sha }}
+        image: ${{ needs.check-images.outputs.web_tag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
