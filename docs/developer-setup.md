@@ -131,7 +131,7 @@ docker compose -f docker-compose.verify.yml up --build -d
 docker compose -f docker-compose.verify.yml up --build gai-verify-backend
 
 # Start only frontend
-docker compose -f docker-compose.verify.yml up --build gai-verify-frontend
+docker compose -f docker-compose.verify.yml up --build gai-verify-webapp
 ```
 
 #### Access Verify Services
@@ -226,15 +226,15 @@ Images are built once and can be deployed to multiple environments by providing 
 
 ```bash
 # Check container logs
-docker logs gai-verify-frontend
+docker logs gai-verify-webapp
 docker logs gai-verify-backend
 
 # Access container shell
-docker exec -it gai-verify-frontend sh
+docker exec -it gai-verify-webapp sh
 docker exec -it gai-verify-backend sh
 
 # Check environment variables
-docker exec gai-verify-frontend printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE)"
+docker exec gai-verify-webapp printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE)"
 ```
 
 ## Next Steps

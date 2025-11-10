@@ -6,11 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [unreleased]
 
+### Added
+
+- Changelog viewer page with formatted markdown display - access from settings dropdown for better readability
+- Automated end-to-end testing infrastructure with content-based Docker image caching (15x faster CI)
+- CODEOWNERS file for critical repository files to ensure proper review
+
 ### Changed
 
 - Webcrawler: Updated all Python dependencies to latest versions - crawl4ai now uses official PyPI release (0.7.6), FastAPI updated to 0.121.0
 - Marketing website: Mobile responsiveness and accessibility improvements across all pages
 - Documentation: Updated file naming conventions and corrected inconsistencies
+- CI/CD: Docker images only published to GitHub Container Registry after all tests pass
+- Dependency updates: Vite upgraded from 6.3.6 to 7.1.12
+
+### Fixed
+
+- CHANGELOG.md now correctly included in Docker builds (was broken symlink)
+- Queue and AI service status now visible to all users with proper access control
+- Ollama tests properly skipped when environment variables are missing
+- Docker build lockfile issues resolved
 
 ## [2025-10-22]
 

@@ -47,7 +47,7 @@ services:
       dockerfile: apps/georgeai-webapp/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
-    container_name: gai-verify-frontend
+    container_name: gai-verify-webapp
     restart: unless-stopped
     environment:
       # Runtime configuration
