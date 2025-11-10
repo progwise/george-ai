@@ -23,8 +23,8 @@ test.describe('Changelog', () => {
     // Wait for dashboard to load
     await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible()
 
-    // Open settings dropdown
-    await page.getByRole('button', { name: /settings/i }).click()
+    // Open user menu dropdown
+    await page.getByRole('button', { name: 'User menu' }).click()
 
     // Click changelog link
     await page.getByRole('link', { name: /changelog/i }).click()
