@@ -2,18 +2,21 @@
 import Layout from '../layouts/Layout.astro'
 ---
 
-<Layout title="George-AI - Self-hosted AI data platform">
+<Layout
+  title="Self-Hosted AI Data Platform | Document Processing & Vector Search | George AI"
+  description="Self-hosted AI data platform with RAG, vector search, and document processing. Transform PDFs, Office docs, and emails into searchable markdown. Built-in crawlers, enrichment, and AI assistants for business users. Open-source alternative to cloud AI platforms."
+>
   <!-- Hero Section -->
   <div class="hero bg-base-200 rounded-lg mb-12">
     <div class="hero-content text-center py-8 sm:py-12 md:py-16">
       <div class="max-w-2xl">
         <h1 class="text-5xl font-bold mb-4">George AI</h1>
-        <p class="text-xl mb-8">Self-hosted AI data platform managed by business users</p>
+        <p class="text-xl mb-8">LLM context platform managed by business users, not IT</p>
         <p class="mb-8">
-          Transform any data into markdown, AI vectors and enriched Lists (smart spreadsheets with AI-extracted fields). Use it directly with built-in crawlers, enrichment, and search—or integrate as GraphQL tools in n8n, Make.com workflows. No coding required.
+          Stop managing context separately for every agent and use case. Build one central business context for all your AI agents—no matter where your data comes from. Whether you use our built-in assistants or integrate with n8n, Make.com, custom RAG applications via GraphQL—one unified, Markdown-based knowledge store serves them all.
         </p>
         <p class="mb-8 font-semibold">
-          Built around Markdown—one unified format for PDFs, Office documents, videos, emails, any records • Self-hosted and secure • <a href="/pricing" class="link link-hover">You choose: DIY or managed</a>
+          Focus on your business cases, not implementation details • Self-hosted and secure • <a href="/pricing" class="link link-hover">You choose: DIY or managed</a>
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="https://github.com/progwise/george-ai" class="btn btn-primary btn-lg gap-2">
@@ -36,7 +39,7 @@ import Layout from '../layouts/Layout.astro'
       <!-- Use Case 1: Direct Usage -->
       <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="text-2xl font-semibold mb-4">Do I really need to develop my 100th workflow or AI Agent?</h3>
+          <h2 class="text-2xl font-semibold mb-4">Do I really need to develop my 100th workflow or AI Agent?</h2>
           <p class="text-lg opacity-75 mb-6">
             Use George AI out-of-the-box: configure crawlers, enrich data into Lists, search, filter, and export. Built-in AI chat assistants answer questions from your documents. No n8n, Make.com, or custom development needed—business users manage everything.
           </p>
@@ -50,7 +53,7 @@ import Layout from '../layouts/Layout.astro'
       <!-- Use Case 2: Integration -->
       <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="text-2xl font-semibold mb-4">Simplify your existing workflows and agents</h3>
+          <h2 class="text-2xl font-semibold mb-4">Simplify your existing workflows and agents</h2>
           <p class="text-lg opacity-75 mb-6">
             Use George AI as your data layer: ingest from n8n, Make.com, or custom tools. Access via GraphQL (pre-built n8n nodes available): search, vector distance with gap detection, query documents. Your workflows stay—they just become simpler. One platform handles embeddings, deduplication, and keeping data current for all your projects.
           </p>
@@ -65,7 +68,7 @@ import Layout from '../layouts/Layout.astro'
     <!-- How It Works -->
     <div class="mt-12">
       <div class="text-center mb-8">
-        <h3 class="text-2xl font-bold mb-3">How George AI Works</h3>
+        <h2 class="text-2xl font-bold mb-3">How George AI Works</h2>
         <div class="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-base-200 rounded-full border-2 border-base-300">
           <span class="font-bold text-base sm:text-lg">Collect</span>
           <span class="text-base-content/50">→</span>
@@ -80,7 +83,7 @@ import Layout from '../layouts/Layout.astro'
       <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <!-- Inputs -->
         <div class="bg-linear-to-br from-success/10 to-success/5 p-6 rounded-xl border-2 border-success/30">
-          <h4 class="text-center font-bold text-lg mb-6 text-success">📥 Data Collection (Inputs)</h4>
+          <h3 class="text-center font-bold text-lg mb-6 text-success">📥 Data Collection (Inputs)</h3>
           <div class="grid grid-cols-2 gap-4">
             <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
               <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
@@ -130,7 +133,7 @@ import Layout from '../layouts/Layout.astro'
 
         <!-- Outputs -->
         <div class="bg-linear-to-br from-info/10 to-info/5 p-6 rounded-xl border-2 border-info/30">
-          <h4 class="text-center font-bold text-lg mb-6 text-info">📤 Data Consumption (Outputs)</h4>
+          <h3 class="text-center font-bold text-lg mb-6 text-info">📤 Data Consumption (Outputs)</h3>
           <div class="grid grid-cols-2 gap-4">
             <div class="group relative overflow-hidden bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary hover:shadow-xl transition-all cursor-default">
               <div class="flex flex-col items-center p-4 transition-transform group-hover:-translate-y-2">
@@ -184,41 +187,41 @@ import Layout from '../layouts/Layout.astro'
     <div class="mt-16 mb-16">
       <div class="card bg-linear-to-r from-secondary/20 to-accent/20 shadow-xl border-2 border-secondary">
         <div class="card-body">
-          <h3 class="text-center text-2xl font-bold mb-8">What Makes George AI Different</h3>
-          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <h2 class="text-center text-2xl font-bold mb-8">What Makes George AI Different</h2>
+          <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <!-- Differentiator 1 -->
             <div class="text-center">
               <div class="text-5xl mb-4">🎯</div>
-              <h4 class="font-bold text-lg mb-2">Organize by Business Case, Not Source</h4>
+              <h3 class="font-bold text-lg mb-2">Business cases are key, not Agents or Sources</h3>
               <p class="text-sm opacity-75">
-                Organize by project, customer, or topic—not by SharePoint, email, or Slack. Stop hunting across systems.
+                Stop organizing by sources (SharePoint, Slack) or agents (custom RAG workflows). Sources and agents are implementation details—organize by business case: project, customer, or topic.
               </p>
             </div>
 
             <!-- Differentiator 2 -->
             <div class="text-center">
               <div class="text-5xl mb-4">🔄</div>
-              <h4 class="font-bold text-lg mb-2">Automatic Data Freshness</h4>
+              <h3 class="font-bold text-lg mb-2">Automatic Data Freshness</h3>
               <p class="text-sm opacity-75">
-                Stop building deduplication workflows. George AI tracks when documents were last seen and removes stale data automatically.
+                Deduplication and stale data removal handled automatically. George AI tracks document lifecycles across all sources.
               </p>
             </div>
 
             <!-- Differentiator 3 -->
             <div class="text-center">
               <div class="text-5xl mb-4">📊</div>
-              <h4 class="font-bold text-lg mb-2">Analyse Enriched Data</h4>
+              <h3 class="font-bold text-lg mb-2">Analyze Enriched Data</h3>
               <p class="text-sm opacity-75">
-                AI enrichment extracts structured data into Lists. Not just search—understand patterns, generate reports, take action.
+                Extract structured fields with AI into smart Lists. Not just search—query, filter, export, and take action.
               </p>
             </div>
 
             <!-- Differentiator 4 -->
             <div class="text-center">
               <div class="text-5xl mb-4">🧠</div>
-              <h4 class="font-bold text-lg mb-2">Better Context for RAG</h4>
+              <h3 class="font-bold text-lg mb-2">LLM Context Management</h3>
               <p class="text-sm opacity-75">
-                Enriched fields add structured data upfront—whether a PDF or video describes "Product Dimensions", it's already extracted. Your AI agents get consistent, pre-processed context instead of parsing varying formats.
+                Pre-processed, structured context ready for your AI agents. Consistent format whether source is PDF, video, or email.
               </p>
             </div>
           </div>

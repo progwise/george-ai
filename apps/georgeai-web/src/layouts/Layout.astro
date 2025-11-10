@@ -14,8 +14,8 @@ interface Props {
 
 const {
   title,
-  description = 'Self-hosted AI data platform. Centralized vector store for business users and AI applications. Ensure your vectors actually work.',
-  ogImage = '/bowler-logo.svg',
+  description = 'Self-hosted LLM context management platform. Optimize knowledge quality for AI agents and RAG systems. Centralized context store for business users and AI applications.',
+  ogImage = '/gai-og.png',
   ogType = 'website',
 } = Astro.props
 // Normalize path by removing trailing slash (e.g., /pricing/ → /pricing) for consistent active state matching
@@ -70,7 +70,7 @@ const currentPageName = getCurrentPageName()
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "George-AI",
-        "description": "Self-hosted AI data platform. Centralized vector store for business users and AI applications with data quality verification.",
+        "description": "Self-hosted LLM context management platform. Centralized knowledge store optimizing context quality for AI agents, RAG systems, and business applications.",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": ["Linux", "Windows", "macOS"],
         "offers": {
@@ -87,13 +87,15 @@ const currentPageName = getCurrentPageName()
         "softwareHelp": "https://george-ai.net/docs",
         "screenshot": "https://george-ai.net/bowler-logo.svg",
         "featureList": [
+          "LLM context management and optimization",
           "Multi-source data collection and ingestion (Email, Web, SharePoint, SMB, Box.com, webhooks, n8n)",
-          "AI-powered document processing and embeddings",
-          "Vector search with Typesense",
-          "Self-hosted deployment",
+          "AI-powered document processing and markdown conversion",
+          "Semantic vector search with Typesense",
+          "Context enrichment with structured data extraction",
+          "Self-hosted deployment with full data control",
           "Multi-tenant support",
           "EU AI Act compliance features",
-          "GraphQL API",
+          "GraphQL API for AI agents and workflows",
           "n8n workflow integration"
         ],
         "author": {

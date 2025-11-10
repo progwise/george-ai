@@ -1,5 +1,52 @@
 ---
 import Layout from '../layouts/Layout.astro'
+
+// FAQ data - single source of truth for both HTML and JSON-LD schema
+const faqs = [
+  {
+    question: "Do I need to pay for AI separately?",
+    answer: "Yes - we follow the same model as n8n and other automation platforms. You bring your own AI provider (Ollama, OpenAI, Anthropic, Azure OpenAI, Google Gemini, AWS Bedrock, Mistral, Groq, Cohere, Hugging Face, or any compatible API), and we never charge you for AI usage. This gives you complete cost transparency and control. Optionally, we can provide a turnkey Ollama GPU server."
+  },
+  {
+    question: "What does \"100 GB ingested data\" mean?",
+    answer: "This is the total size of data ingested into George-AI, including manual uploads, emails, posts (Slack, Discord, etc.), crawled files (SharePoint, Box, SMB), and data ingested via n8n workflows or webhooks. Behind the scenes, George-AI stores your data in multiple formats (originals, converted text, embeddings, metadata), so actual storage used is ~4-5x larger - but that's on us. You only pay based on what you ingest."
+  },
+  {
+    question: "How does the Ollama Server work?",
+    answer: "We offer two tiers of turnkey GPU infrastructure in European data centers: Entry Level (RTX 5000 Ada 32GB) at €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen. Premium (RTX Pro 6000 Blackwell 96GB) at €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7. Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability.",
+    htmlAnswer: `<p>We offer two tiers of turnkey GPU infrastructure in European data centers:</p>
+            <ul class="list-disc ml-6 mt-2 space-y-2">
+              <li><strong>Entry Level (RTX 5000 Ada 32GB):</strong> €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen.</li>
+              <li><strong>Premium (RTX Pro 6000 Blackwell 96GB):</strong> €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7.</li>
+            </ul>
+            <p class="mt-4">Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability.</p>`
+  },
+  {
+    question: "Can I use free/open-source AI models?",
+    answer: "Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: Ollama (self-hosted or our turnkey server), Hugging Face (free tier available), Groq (fast inference with free tier), AWS Bedrock, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure.",
+    htmlAnswer: `<p>Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: <strong>Ollama</strong> (self-hosted or our turnkey server), <strong>Hugging Face</strong> (free tier available), <strong>Groq</strong> (fast inference with free tier), <strong>AWS Bedrock</strong>, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure.</p>`
+  },
+  {
+    question: "Why is self-hosted free with unlimited usage?",
+    answer: "George-AI is source available (BSL 1.1 license, converts to Apache 2.0 in 3 years). You're already paying for your own infrastructure and AI, so we'll never charge you for usage. The Community edition is fully functional and free forever. We make money by offering managed cloud hosting, enterprise features, custom AI development, professional services, and SLAs."
+  },
+  {
+    question: "What happens if I exceed my cloud storage limit?",
+    answer: "We'll notify you in advance if you approach your 100 GB limit. You can either upgrade to a custom plan with more storage or archive/remove old data. No surprise charges - you'll always know where you stand."
+  },
+  {
+    question: "Can I switch from self-hosted to cloud (or vice versa)?",
+    answer: "Yes! We provide migration tools to move between self-hosted and cloud deployments. Your data remains yours, and we'll help you migrate smoothly. Contact our support team for migration assistance."
+  },
+  {
+    question: "Where is my data hosted?",
+    answer: "By default, our cloud infrastructure is hosted in EU data centers (Germany, France, Finland) with GDPR-compliant providers. We also plan to run data centers in the US and Canada. On request, we can offer the service in your country. Self-hosted customers have complete control over where their data lives."
+  },
+  {
+    question: "Can I keep my current pricing if you change plans in the future?",
+    answer: "Yes. We grandfather existing customers for at least 12 months when we make pricing changes. You'll have plenty of notice and time to adjust. We value long-term relationships over short-term revenue. Note: Pricing adjustments due to significant changes in electricity prices, cooling costs, or data center operating costs may require shorter notice, but we'll communicate transparently and work with you to find solutions."
+  }
+]
 ---
 
 <Layout title="Pricing - George-AI" description="Transparent pricing for George-AI - Self-hosted AI data platform">
@@ -556,102 +603,37 @@ import Layout from '../layouts/Layout.astro'
       <h2 class="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
 
       <div class="space-y-4">
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Do I need to pay for AI separately?" checked />
-          <div class="collapse-title text-xl font-medium">
-            Do I need to pay for AI separately?
+        {faqs.map((faq, index) => (
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="checkbox" aria-label={faq.question} checked={index === 0} />
+            <div class="collapse-title text-xl font-medium">
+              {faq.question}
+            </div>
+            <div class="collapse-content">
+              {faq.htmlAnswer ? (
+                <div set:html={faq.htmlAnswer} />
+              ) : (
+                <p>{faq.answer}</p>
+              )}
+            </div>
           </div>
-          <div class="collapse-content">
-            <p>Yes - we follow the same model as n8n and other automation platforms. You bring your own AI provider (Ollama, OpenAI, Anthropic, Azure OpenAI, Google Gemini, AWS Bedrock, Mistral, Groq, Cohere, Hugging Face, or any compatible API), and we never charge you for AI usage. This gives you complete cost transparency and control. Optionally, we can provide a turnkey Ollama GPU server.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="What does 100 GB ingested data mean?" />
-          <div class="collapse-title text-xl font-medium">
-            What does "100 GB ingested data" mean?
-          </div>
-          <div class="collapse-content">
-            <p>This is the total size of data ingested into George-AI, including manual uploads, emails, posts (Slack, Discord, etc.), crawled files (SharePoint, Box, SMB), and data ingested via n8n workflows or webhooks. Behind the scenes, George-AI stores your data in multiple formats (originals, converted text, embeddings, metadata), so actual storage used is ~4-5x larger - but that's on us. You only pay based on what you ingest.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="How does the Ollama Server work?" />
-          <div class="collapse-title text-xl font-medium">
-            How does the Ollama Server work?
-          </div>
-          <div class="collapse-content">
-            <p>We offer two tiers of turnkey GPU infrastructure in European data centers:</p>
-            <ul class="list-disc ml-6 mt-2 space-y-2">
-              <li><strong>Entry Level (RTX 5000 Ada 32GB):</strong> €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen.</li>
-              <li><strong>Premium (RTX Pro 6000 Blackwell 96GB):</strong> €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7.</li>
-            </ul>
-            <p class="mt-4">Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Can I use free/open-source AI models?" />
-          <div class="collapse-title text-xl font-medium">
-            Can I use free/open-source AI models?
-          </div>
-          <div class="collapse-content">
-            <p>Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: <strong>Ollama</strong> (self-hosted or our turnkey server), <strong>Hugging Face</strong> (free tier available), <strong>Groq</strong> (fast inference with free tier), <strong>AWS Bedrock</strong>, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Why is self-hosted free with unlimited usage?" />
-          <div class="collapse-title text-xl font-medium">
-            Why is self-hosted free with unlimited usage?
-          </div>
-          <div class="collapse-content">
-            <p>George-AI is source available (BSL 1.1 license, converts to Apache 2.0 in 3 years). You're already paying for your own infrastructure and AI, so we'll never charge you for usage. The Community edition is fully functional and free forever. We make money by offering managed cloud hosting, enterprise features, custom AI development, professional services, and SLAs.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="What happens if I exceed my cloud storage limit?" />
-          <div class="collapse-title text-xl font-medium">
-            What happens if I exceed my cloud storage limit?
-          </div>
-          <div class="collapse-content">
-            <p>We'll notify you in advance if you approach your 100 GB limit. You can either upgrade to a custom plan with more storage or archive/remove old data. No surprise charges - you'll always know where you stand.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Can I switch from self-hosted to cloud (or vice versa)?" />
-          <div class="collapse-title text-xl font-medium">
-            Can I switch from self-hosted to cloud (or vice versa)?
-          </div>
-          <div class="collapse-content">
-            <p>Yes! We provide migration tools to move between self-hosted and cloud deployments. Your data remains yours, and we'll help you migrate smoothly. Contact our support team for migration assistance.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Where is my data hosted?" />
-          <div class="collapse-title text-xl font-medium">
-            Where is my data hosted?
-          </div>
-          <div class="collapse-content">
-            <p>By default, our cloud infrastructure is hosted in EU data centers (Germany, France, Finland) with GDPR-compliant providers. We also plan to run data centers in the US and Canada. On request, we can offer the service in your country. Self-hosted customers have complete control over where their data lives.</p>
-          </div>
-        </div>
-
-        <div class="collapse collapse-arrow bg-base-200">
-          <input type="radio" name="faq" aria-label="Can I keep my current pricing if you change plans in the future?" />
-          <div class="collapse-title text-xl font-medium">
-            Can I keep my current pricing if you change plans in the future?
-          </div>
-          <div class="collapse-content">
-            <p>Yes. We grandfather existing customers for at least 12 months when we make pricing changes. You'll have plenty of notice and time to adjust. We value long-term relationships over short-term revenue. Note: Pricing adjustments due to significant changes in electricity prices, cooling costs, or data center operating costs may require shorter notice, but we'll communicate transparently and work with you to find solutions.</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
+
+    <!-- FAQ Schema Markup (JSON-LD) - Generated from FAQ data -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    })} />
 
     <!-- Comparison Note -->
     <div class="alert alert-info shadow-lg mb-12">
