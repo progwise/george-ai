@@ -52,8 +52,7 @@ pnpm test
 
 The tests will connect to the services running in your devcontainer via `localhost:3001` and `localhost:3003`.
 
-**Note:** If you encounter Keycloak errors with Firefox, use Chromium or WebKit instead: `pnpm test:ui --project=chromium`
-for local development. Firefox blocks third-party cookies on localhost ([issue #23018](https://github.com/keycloak/keycloak/issues/23018)). In CI there are no Firefox issues.
+**Note:** If you encounter Keycloak errors with Firefox during local development, use Chromium or WebKit instead: `pnpm test:ui --project=chromium`. Firefox blocks third-party cookies on localhost ([issue #23018](https://github.com/keycloak/keycloak/issues/23018)). In CI there are no Firefox issues.
 
 ### Running Standalone (Without Devcontainer)
 
