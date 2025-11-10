@@ -14,7 +14,7 @@ interface Props {
 
 const {
   title,
-  description = 'Self-hosted AI data platform. Centralized vector store for business users and AI applications. Ensure your vectors actually work.',
+  description = 'Self-hosted LLM context management platform. Optimize knowledge quality for AI agents and RAG systems. Centralized context store for business users and AI applications.',
   ogImage = '/bowler-logo.svg',
   ogType = 'website',
 } = Astro.props
@@ -42,6 +42,7 @@ const currentPageName = getCurrentPageName()
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
+    <meta name="keywords" content="self hosted ai platform, llm context management, ai context management platform, rag platform, vector database platform, ai knowledge base, document processing ai, enterprise ai platform, semantic search for llms, llm data preparation, ai context retrieval, vector search, document ai, markdown processing, ai enrichment, context window optimization, llm knowledge management" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
@@ -70,7 +71,7 @@ const currentPageName = getCurrentPageName()
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "George-AI",
-        "description": "Self-hosted AI data platform. Centralized vector store for business users and AI applications with data quality verification.",
+        "description": "Self-hosted LLM context management platform. Centralized knowledge store optimizing context quality for AI agents, RAG systems, and business applications.",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": ["Linux", "Windows", "macOS"],
         "offers": {
@@ -87,13 +88,15 @@ const currentPageName = getCurrentPageName()
         "softwareHelp": "https://george-ai.net/docs",
         "screenshot": "https://george-ai.net/bowler-logo.svg",
         "featureList": [
+          "LLM context management and optimization",
           "Multi-source data collection and ingestion (Email, Web, SharePoint, SMB, Box.com, webhooks, n8n)",
-          "AI-powered document processing and embeddings",
-          "Vector search with Typesense",
-          "Self-hosted deployment",
+          "AI-powered document processing and markdown conversion",
+          "Semantic vector search with Typesense",
+          "Context enrichment with structured data extraction",
+          "Self-hosted deployment with full data control",
           "Multi-tenant support",
           "EU AI Act compliance features",
-          "GraphQL API",
+          "GraphQL API for AI agents and workflows",
           "n8n workflow integration"
         ],
         "author": {
