@@ -1,10 +1,10 @@
 name: Build and publish Docker images
 
 on:
-  # Only publish Docker images after all quality checks pass on main
+  # Only publish Docker images after E2E tests pass on main
+  # (E2E tests depend on basic checks, so this ensures all quality checks passed)
   workflow_run:
     workflows:
-      - 'Basic linting, formatting and building'
       - 'E2E Tests'
     types:
       - completed
