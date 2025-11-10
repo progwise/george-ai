@@ -13,11 +13,18 @@ const faqs = [
   },
   {
     question: "How does the Ollama Server work?",
-    answer: "We offer two tiers of turnkey GPU infrastructure in European data centers: Entry Level (RTX 5000 Ada 32GB) at €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen. Premium (RTX Pro 6000 Blackwell 96GB) at €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7. Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability."
+    answer: "We offer two tiers of turnkey GPU infrastructure in European data centers: Entry Level (RTX 5000 Ada 32GB) at €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen. Premium (RTX Pro 6000 Blackwell 96GB) at €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7. Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability.",
+    htmlAnswer: `<p>We offer two tiers of turnkey GPU infrastructure in European data centers:</p>
+            <ul class="list-disc ml-6 mt-2 space-y-2">
+              <li><strong>Entry Level (RTX 5000 Ada 32GB):</strong> €5,000 setup + €5,000/year - Perfect for most use cases, energy efficient (250W), runs popular models like Llama 3, Mistral, Qwen.</li>
+              <li><strong>Premium (RTX Pro 6000 Blackwell 96GB):</strong> €5,000 setup + €10,000/year - 3× larger VRAM for bigger models and higher performance, latest Blackwell architecture with GDDR7.</li>
+            </ul>
+            <p class="mt-4">Both include complete setup with multiple Ollama instances (separate Docker containers for different models and API keys), pre-configured models, Open WebUI installation (optional, no extra fee), 24/7 monitoring, SLA, and dedicated support. These instances can be used with George-AI or any other application. Minimum 1 year contract. Optionally deploy at your site for an additional €5,000. Unlimited AI queries with complete cost predictability.</p>`
   },
   {
     question: "Can I use free/open-source AI models?",
-    answer: "Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: Ollama (self-hosted or our turnkey server), Hugging Face (free tier available), Groq (fast inference with free tier), AWS Bedrock, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure."
+    answer: "Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: Ollama (self-hosted or our turnkey server), Hugging Face (free tier available), Groq (fast inference with free tier), AWS Bedrock, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure.",
+    htmlAnswer: `<p>Absolutely! You can access open-source models like Llama 3, Mistral, Qwen, and others through multiple providers: <strong>Ollama</strong> (self-hosted or our turnkey server), <strong>Hugging Face</strong> (free tier available), <strong>Groq</strong> (fast inference with free tier), <strong>AWS Bedrock</strong>, or other compatible providers. All George-AI editions support the same AI providers - the difference is who manages the infrastructure.</p>`
   },
   {
     question: "Why is self-hosted free with unlimited usage?",
@@ -598,12 +605,16 @@ const faqs = [
       <div class="space-y-4">
         {faqs.map((faq, index) => (
           <div class="collapse collapse-arrow bg-base-200">
-            <input type="radio" name="faq" aria-label={faq.question} checked={index === 0} />
+            <input type="checkbox" aria-label={faq.question} checked={index === 0} />
             <div class="collapse-title text-xl font-medium">
               {faq.question}
             </div>
             <div class="collapse-content">
-              <p>{faq.answer}</p>
+              {faq.htmlAnswer ? (
+                <div set:html={faq.htmlAnswer} />
+              ) : (
+                <p>{faq.answer}</p>
+              )}
             </div>
           </div>
         ))}
