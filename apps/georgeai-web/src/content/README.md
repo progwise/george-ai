@@ -101,16 +101,21 @@ featured: false  # Set to true for homepage featured posts
 **Production (deployed site):**
 - ✅ Published posts (`draft: false`) shown on `/blog` index
 - ✅ Published posts accessible via URL
-- ✅ Draft posts (`draft: true`) **hidden from index**
-- ✅ Draft posts **still accessible via direct URL** (if you know the slug)
+- ✅ Published posts included in sitemap.xml
+- ❌ Draft posts (`draft: true`) **not generated at all**
+- ❌ Draft posts **not accessible** (404 error)
+- ❌ Draft posts **not in sitemap** (won't be indexed by search engines)
 
-### The "URL is King" Principle
+### Draft Protection in Production
 
-Even in production, draft posts generate pages and are accessible if you know the URL. This is **intentional** and useful for:
+In production builds, draft posts are completely excluded:
 
-- **Preview Links:** Share draft post URLs with reviewers
-- **Staged Publishing:** Prepare content before listing it publicly
-- **SEO Preparation:** Let search engines discover content early (if desired)
+- **No Page Generation:** Draft posts don't generate HTML pages
+- **No Sitemap Inclusion:** Search engines won't discover them
+- **404 for Direct URLs:** Even if someone knows the slug, they get 404
+- **SEO Safe:** Prevents accidental indexing of unfinished content
+
+This ensures drafts remain truly private until you're ready to publish.
 
 ### Publishing a Post
 
@@ -443,12 +448,19 @@ pnpm dev
 
 ### Step 3: Get Feedback (Optional)
 
-Share the preview URL with reviewers:
-```
-https://george-ai.net/blog/your-slug
+To share drafts with reviewers, you have two options:
+
+**Option 1: Share Development Server (Local Network)**
+```bash
+pnpm dev --host
+# Share your local IP: http://192.168.x.x:3001/blog/your-slug
 ```
 
-Even if `draft: true`, they can access it via direct URL.
+**Option 2: Temporarily Publish**
+```yaml
+draft: false  # Temporarily set to false
+```
+Push to production, get feedback, then set back to `draft: true` if needed.
 
 ### Step 4: Publish
 
