@@ -4,7 +4,11 @@ import readingTime from 'reading-time'
 import Layout from '../../layouts/Layout.astro'
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog')
+  // In production, only generate pages for published posts (draft: false)
+  // In development, generate pages for all posts (including drafts)
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true
+  })
   return posts.map((post) => ({
     params: { slug: post.slug },
     props: { post },
