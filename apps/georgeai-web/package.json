@@ -18,12 +18,16 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.10",
     "@astrojs/node": "^9.5.0",
+    "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.15",
     "astro": "^5.14.7",
     "daisyui": "^5.1.10",
     "nodemailer": "^6.9.16",
+    "reading-time": "^1.5.0",
     "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.1.15"
   },

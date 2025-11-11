@@ -16,7 +16,8 @@
         "github.vscode-github-actions",
         "prisma.prisma",
         "vitest.explorer",
-        "astro-build.astro-vscode"
+        "astro-build.astro-vscode",
+        "unifiedjs.vscode-mdx"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",
@@ -32,6 +33,13 @@
         },
         "[typescriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[mdx]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "files.associations": {
+          "*.mdx": "mdx"
         },
         "[prisma]": {
           "editor.defaultFormatter": "Prisma.prisma"

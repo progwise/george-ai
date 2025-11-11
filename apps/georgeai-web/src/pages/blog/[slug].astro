@@ -1,0 +1,111 @@
+---
+import { getCollection } from 'astro:content'
+import readingTime from 'reading-time'
+import Layout from '../../layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const { Content, headings } = await post.render()
+const { text: readingTimeText } = readingTime(post.body)
+
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+})
+---
+
+<Layout
+  title={`${post.data.title} - George AI Blog`}
+  description={post.data.description}
+  ogImage={post.data.heroImage}
+  ogType="article"
+>
+  <article class="max-w-4xl mx-auto">
+    <!-- Hero Image -->
+    {post.data.heroImage && (
+      <img
+        src={post.data.heroImage}
+        alt={post.data.title}
+        class="w-full h-64 object-cover rounded-lg mb-8"
+      />
+    )}
+
+    <!-- Metadata -->
+    <div class="mb-8 text-center">
+      <h1 class="text-4xl font-bold mb-4">{post.data.title}</h1>
+      <div class="flex items-center justify-center gap-4 text-base-content/70">
+        <span>By {post.data.author}</span>
+        <span>•</span>
+        <time datetime={post.data.pubDate.toISOString()}>
+          {formattedDate}
+        </time>
+        <span>•</span>
+        <span>{readingTimeText}</span>
+      </div>
+
+      <!-- Tags -->
+      <div class="flex gap-2 justify-center mt-4 flex-wrap">
+        {post.data.tags.map((tag) => (
+          <span class="badge badge-primary">{tag}</span>
+        ))}
+      </div>
+    </div>
+
+    <!-- Table of Contents -->
+    {headings.length > 0 && (
+      <nav class="bg-base-200 p-6 rounded-lg mb-8">
+        <h2 class="text-xl font-bold mb-4">Table of Contents</h2>
+        <ul class="space-y-2">
+          {headings.map((heading) => (
+            <li style={`margin-left: ${(heading.depth - 2) * 1}rem`}>
+              <a href={`#${heading.slug}`} class="link link-hover">
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    <!-- Blog Content -->
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+
+    <!-- Author Bio -->
+    <div class="mt-12 p-6 bg-base-200 rounded-lg">
+      <h3 class="text-xl font-bold mb-2">About the Author</h3>
+      <p class="text-base-content/70">
+        Michael Vogt is the founder of George AI and an expert in self-hosted AI infrastructure and LLM context management.
+      </p>
+    </div>
+
+    <!-- Back to Blog -->
+    <div class="mt-8 text-center">
+      <a href="/blog" class="btn btn-primary">← Back to Blog</a>
+    </div>
+  </article>
+
+  <!-- JSON-LD for SEO -->
+  <script type="application/ld+json" is:inline set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.data.title,
+    "description": post.data.description,
+    "author": {
+      "@type": "Person",
+      "name": post.data.author,
+    },
+    "datePublished": post.data.pubDate.toISOString(),
+    "dateModified": (post.data.updatedDate || post.data.pubDate).toISOString(),
+    "image": post.data.heroImage ? `https://george-ai.net${post.data.heroImage}` : undefined,
+  })} />
+</Layout>
