@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 const MARKETING_WEBSITE_URL = 'http://localhost:4321'
+const EXPECTED_DISCORD_URL = process.env.EXPECTED_DISCORD_URL || 'https://discord.gg/GbQFKb2MNJ'
 
 test.describe('Marketing Website', () => {
   test('Discord link on contact page has valid href', async ({ page }) => {
@@ -23,7 +24,7 @@ test.describe('Marketing Website', () => {
     expect(href).toMatch(/^https:\/\/discord\.gg\//)
 
     // Verify it's the correct Discord server
-    expect(href).toBe('https://discord.gg/GbQFKb2MNJ')
+    expect(href).toBe(EXPECTED_DISCORD_URL)
   })
 
   test('Discord link on docs page has valid href', async ({ page }) => {
@@ -46,7 +47,7 @@ test.describe('Marketing Website', () => {
     expect(href).toMatch(/^https:\/\/discord\.gg\//)
 
     // Verify it's the correct Discord server
-    expect(href).toBe('https://discord.gg/GbQFKb2MNJ')
+    expect(href).toBe(EXPECTED_DISCORD_URL)
   })
 
   test('Discord link opens in new tab', async ({ page }) => {
