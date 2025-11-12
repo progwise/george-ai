@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+}
+
+const { post } = Astro.props
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+})
+---
+
+<a href={`/blog/${post.slug}`} class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+  {post.data.heroImage && (
+    <figure>
+      <img src={post.data.heroImage} alt={post.data.title} class="h-48 w-full object-cover" />
+    </figure>
+  )}
+  <div class="card-body">
+    {post.data.featured && (
+      <div class="badge badge-primary mb-2">Featured</div>
+    )}
+    <h2 class="card-title">{post.data.title}</h2>
+    <p class="text-sm text-base-content/70">{post.data.description}</p>
+    <div class="card-actions justify-between items-center mt-4">
+      <time class="text-sm text-base-content/60">{formattedDate}</time>
+      <div class="flex gap-2 flex-wrap">
+        {post.data.tags.slice(0, 2).map((tag) => (
+          <span class="badge badge-sm badge-outline">{tag}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</a>

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '../../layouts/Layout.astro'
+import BlogCard from '../../components/blog/BlogCard.astro'
+
+// Get all published blog posts, sorted by date
+const allPosts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true
+})
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+---
+
+<Layout
+  title="Blog - George AI"
+  description="Insights on LLM context management, RAG pipelines, and self-hosted AI infrastructure"
+>
+  <div class="mb-12 text-center">
+    <h1 class="text-4xl sm:text-5xl font-bold mb-4">Blog</h1>
+    <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+      Insights on LLM context management, RAG systems, and enterprise AI
+    </p>
+  </div>
+
+  {sortedPosts.length === 0 ? (
+    <div class="text-center py-12">
+      <p class="text-lg text-base-content/70">No blog posts yet. Check back soon!</p>
+    </div>
+  ) : (
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {sortedPosts.map((post) => (
+        <BlogCard post={post} />
+      ))}
+    </div>
+  )}
+</Layout>
