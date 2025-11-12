@@ -55,7 +55,7 @@ code george-ai
 
 ## Community & Support
 
-- 💬 **Questions & Discussions**: Join our [Discord server](https://discord.gg/5XP8f2Qe)
+- 💬 **Questions & Discussions**: Join our [Discord server](https://discord.gg/GbQFKb2MNJ)
 - 🐛 **Bug Reports**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new?template=bug_report.yml)
 - ✨ **Feature Requests**: [Create a GitHub Issue](https://github.com/progwise/george-ai/issues/new?template=feature_request.yml)
 

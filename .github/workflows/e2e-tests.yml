@@ -185,6 +185,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ matrix.hash }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
+            PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 

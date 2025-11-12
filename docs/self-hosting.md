@@ -1039,7 +1039,7 @@ docker compose logs --tail=100 backend
 
 1. **Documentation**: https://george-ai.net/docs
 2. **GitHub Issues**: https://github.com/progwise/george-ai/issues
-3. **Discord Community**: https://discord.gg/5XP8f2Qe
+3. **Discord Community**: https://discord.gg/GbQFKb2MNJ
 4. **Developer Setup Guide**: See `docs/developer-setup.md` for development environment setup
 
 ---

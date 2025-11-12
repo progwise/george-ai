@@ -110,7 +110,7 @@ import ContactFormModal from '../components/ContactFormModal.astro'
           </h2>
           <p>Join our Discord server for quick help, troubleshooting, and real-time discussions with the community. Perfect for asking questions and sharing experiences with George-AI.</p>
           <div class="card-actions justify-end mt-4">
-            <a href="https://discord.gg/5XP8f2Qe" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+            <a href={import.meta.env.PUBLIC_DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
               Join Discord
             </a>
           </div>

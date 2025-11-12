@@ -479,7 +479,7 @@ For full license details, see the [LICENSE](../LICENSE) file.
 
 ### Community
 
-- **Discord**: https://discord.gg/5XP8f2Qe
+- **Discord**: https://discord.gg/GbQFKb2MNJ
 - **GitHub Issues**: https://github.com/progwise/george-ai/issues
 - **GitHub Discussions**: https://github.com/progwise/george-ai/discussions
 

@@ -241,4 +241,4 @@ docker exec gai-verify-webapp printenv | grep -E "(BACKEND_URL|KEYCLOAK|DATABASE
 
 - See [Architecture Documentation](./architecture.md) to understand the system design
 - Read the [User Documentation](https://george-ai.net/docs) to learn about features
-- Join our [Discord community](https://discord.gg/5XP8f2Qe) for help and discussions
+- Join our [Discord community](https://discord.gg/GbQFKb2MNJ) for help and discussions

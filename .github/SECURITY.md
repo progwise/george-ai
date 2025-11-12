@@ -74,7 +74,7 @@ George AI processes potentially sensitive data (files, embeddings, metadata). Wh
 For security-related questions:
 
 - **Email**: info@george-ai.net
-- **Discord**: https://discord.gg/5XP8f2Qe (general questions only, NOT for reporting vulnerabilities)
+- **Discord**: https://discord.gg/GbQFKb2MNJ (general questions only, NOT for reporting vulnerabilities)
 
 ---
 

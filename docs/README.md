@@ -117,7 +117,7 @@ Visit the **[User Documentation](https://george-ai.net/docs)** on the George AI 
 - **Website**: https://george-ai.net
 - **User Docs**: https://george-ai.net/docs
 - **GitHub**: https://github.com/progwise/george-ai
-- **Discord**: https://discord.gg/5XP8f2Qe
+- **Discord**: https://discord.gg/GbQFKb2MNJ
 - **License**: [Business Source License 1.1](../LICENSE)
 
 ## 📋 Documentation Overview
@@ -134,7 +134,7 @@ Visit the **[User Documentation](https://george-ai.net/docs)** on the George AI 
 
 ## 🤝 Getting Help
 
-- **Questions?** Join our [Discord community](https://discord.gg/5XP8f2Qe)
+- **Questions?** Join our [Discord community](https://discord.gg/GbQFKb2MNJ)
 - **Bug reports?** [Report a bug](https://github.com/progwise/george-ai/issues/new?template=bug_report.yml) or [request a feature](https://github.com/progwise/george-ai/issues/new?template=feature_request.yml)
 - **Security concerns?** See our [Security Policy](../.github/SECURITY.md)
 
