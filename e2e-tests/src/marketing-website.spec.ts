@@ -10,6 +10,9 @@ test.describe('Marketing Website', () => {
     // Find the Discord link within the Discord Community card
     const discordLink = page.getByRole('link', { name: /join discord/i })
 
+    // Scroll element into view before checking visibility
+    await discordLink.scrollIntoViewIfNeeded()
+
     // Verify link exists and is visible
     await expect(discordLink).toBeVisible()
 
@@ -30,6 +33,9 @@ test.describe('Marketing Website', () => {
     // Find the Discord link in the "Need Help?" section
     const discordLink = page.getByRole('link', { name: /join discord community/i })
 
+    // Scroll element into view before checking visibility
+    await discordLink.scrollIntoViewIfNeeded()
+
     // Verify link exists and is visible
     await expect(discordLink).toBeVisible()
 
@@ -47,6 +53,9 @@ test.describe('Marketing Website', () => {
     await page.goto(`${MARKETING_WEBSITE_URL}/contact`)
 
     const discordLink = page.getByRole('link', { name: /join discord/i })
+
+    // Scroll element into view before checking attributes
+    await discordLink.scrollIntoViewIfNeeded()
 
     // Verify it has target="_blank" and rel="noopener noreferrer" for security
     await expect(discordLink).toHaveAttribute('target', '_blank')
