@@ -21,10 +21,10 @@
     "@george-ai/web-utils": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.2",
-    "graphql": "^16.11.0",
-    "graphql-yoga": "^5.16.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "graphql": "^16.12.0",
+    "graphql-yoga": "^5.16.2",
     "jsonwebtoken": "^9.0.2",
     "tsx": "^4.20.6"
   },
@@ -32,10 +32,10 @@
     "@eslint/js": "^9.16.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.9",
     "eslint": "^9.17.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.18.0"
   }
 }
