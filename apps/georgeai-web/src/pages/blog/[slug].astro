@@ -68,10 +68,10 @@ const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
     {headings.length > 0 && (
       <nav class="bg-base-200 p-6 rounded-lg mb-8">
         <h2 class="text-xl font-bold mb-4">Table of Contents</h2>
-        <ul class="space-y-2">
+        <ul class="menu">
           {headings.map((heading) => (
-            <li style={`margin-left: ${(heading.depth - 2) * 1}rem`}>
-              <a href={`#${heading.slug}`} class="link link-hover">
+            <li class={heading.depth > 2 ? `ml-${(heading.depth - 2) * 4}` : ''}>
+              <a href={`#${heading.slug}`}>
                 {heading.text}
               </a>
             </li>
