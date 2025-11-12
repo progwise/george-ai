@@ -121,10 +121,16 @@ This ensures drafts remain truly private until you're ready to publish.
 
 ### Publishing a Post
 
-1. **Set `draft: false`** in frontmatter
-2. **Verify `pubDate`** is correct
-3. **Push to main branch**
-4. **Deploy** (automatic on push)
+**Before publishing, ensure:**
+
+1. **Replace all placeholders** in your draft:
+   - `VIDEO_ID_HERE` → actual YouTube video ID
+   - `IMAGE_URL_HERE` → actual image paths
+   - Any `TODO` comments or temporary content
+2. **Set `draft: false`** in frontmatter
+3. **Verify `pubDate`** is correct
+4. **Push to main branch**
+5. **Deploy** (automatic on push)
 
 **The post will now:**
 
@@ -414,6 +420,7 @@ pnpm dev
 
 ### Checklist Before Publishing
 
+- [ ] **All placeholders replaced** (VIDEO_ID_HERE, IMAGE_URL_HERE, TODOs)
 - [ ] Title is 50-60 characters
 - [ ] Description is 150-160 characters
 - [ ] Hero image is optimized (< 200KB)

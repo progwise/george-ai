@@ -6,6 +6,10 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     pubDate: z.coerce.date(),
+    /**
+     * Update this field when making significant content changes.
+     * This helps readers and systems know when the post was last meaningfully updated.
+     */
     updatedDate: z.coerce.date().optional(),
     heroImage: z.string().optional(),
     author: z.string().default('Michael Vogt'),

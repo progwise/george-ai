@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content'
 import readingTime from 'reading-time'
 import Layout from '../../layouts/Layout.astro'
+import { getAuthorBio } from '../../content/authors'
 
 export async function getStaticPaths() {
   // In production, only generate pages for published posts (draft: false)
@@ -88,7 +89,7 @@ const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
     <div class="mt-12 p-6 bg-base-200 rounded-lg">
       <h3 class="text-xl font-bold mb-2">About the Author</h3>
       <p class="text-base-content/70">
-        Michael Vogt is the founder of George AI and an expert in self-hosted AI infrastructure and LLM context management.
+        {getAuthorBio(post.data.author)}
       </p>
     </div>
 
@@ -110,6 +111,6 @@ const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
     },
     "datePublished": post.data.pubDate.toISOString(),
     "dateModified": (post.data.updatedDate || post.data.pubDate).toISOString(),
-    "image": post.data.heroImage ? `https://george-ai.net${post.data.heroImage}` : undefined,
+    "image": post.data.heroImage ? `${Astro.site}${post.data.heroImage}` : undefined,
   })} />
 </Layout>

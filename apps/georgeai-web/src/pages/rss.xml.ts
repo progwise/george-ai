@@ -10,7 +10,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: 'George AI Blog',
     description: 'Insights on LLM context management, RAG pipelines, and self-hosted AI infrastructure',
-    site: context.site ?? 'https://george-ai.net',
+    site: context.site!,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,
