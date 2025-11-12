@@ -64,28 +64,28 @@ Every blog post must start with YAML frontmatter:
 title: 'Your Blog Post Title (50-60 chars for SEO)'
 description: 'Meta description for search engines (150-160 chars). Summarize the post and include target keywords.'
 pubDate: 2025-01-11
-updatedDate: 2025-01-15  # Optional - use when updating content
-heroImage: '/images/blog/your-hero-image.svg'  # Optional
-author: 'Michael Vogt'  # Default, can override
+updatedDate: 2025-01-15 # Optional - use when updating content
+heroImage: '/images/blog/your-hero-image.svg' # Optional
+author: 'Michael Vogt' # Default, can override
 tags: ['RAG', 'Self-Hosted AI', 'LLM Context', 'Vector Search']
-draft: true  # Set to false when ready to publish
-featured: false  # Set to true for homepage featured posts
+draft: true # Set to false when ready to publish
+featured: false # Set to true for homepage featured posts
 ---
 ```
 
 ### Field Descriptions
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `title` | string | ✅ | Post title (50-60 chars optimal for SEO) |
-| `description` | string | ✅ | Meta description (150-160 chars, include keywords) |
-| `pubDate` | date | ✅ | Publication date (YYYY-MM-DD format) |
-| `updatedDate` | date | ❌ | Last update date (shows "Updated on" badge) |
-| `heroImage` | string | ❌ | Hero image path (relative to `/public`) |
-| `author` | string | ❌ | Author name (defaults to "Michael Vogt") |
-| `tags` | array | ✅ | Post tags (4-6 tags recommended) |
-| `draft` | boolean | ❌ | Draft status (defaults to `false`) |
-| `featured` | boolean | ❌ | Featured post flag (defaults to `false`) |
+| Field         | Type    | Required | Description                                        |
+| ------------- | ------- | -------- | -------------------------------------------------- |
+| `title`       | string  | ✅       | Post title (50-60 chars optimal for SEO)           |
+| `description` | string  | ✅       | Meta description (150-160 chars, include keywords) |
+| `pubDate`     | date    | ✅       | Publication date (YYYY-MM-DD format)               |
+| `updatedDate` | date    | ❌       | Last update date (shows "Updated on" badge)        |
+| `heroImage`   | string  | ❌       | Hero image path (relative to `/public`)            |
+| `author`      | string  | ❌       | Author name (defaults to "Michael Vogt")           |
+| `tags`        | array   | ✅       | Post tags (4-6 tags recommended)                   |
+| `draft`       | boolean | ❌       | Draft status (defaults to `false`)                 |
+| `featured`    | boolean | ❌       | Featured post flag (defaults to `false`)           |
 
 ---
 
@@ -94,11 +94,13 @@ featured: false  # Set to true for homepage featured posts
 ### How Drafts Work
 
 **Development (`pnpm dev`):**
+
 - ✅ All posts visible on `/blog` index (including drafts)
 - ✅ All posts accessible via direct URL
 - 🎯 **Purpose:** Preview and test your draft posts
 
 **Production (deployed site):**
+
 - ✅ Published posts (`draft: false`) shown on `/blog` index
 - ✅ Published posts accessible via URL
 - ✅ Published posts included in sitemap.xml
@@ -125,6 +127,7 @@ This ensures drafts remain truly private until you're ready to publish.
 4. **Deploy** (automatic on push)
 
 **The post will now:**
+
 - ✅ Appear on `/blog` index
 - ✅ Be included in RSS feed (`/rss.xml`)
 - ✅ Be indexed by search engines
@@ -139,10 +142,12 @@ MDX allows you to use React components inside Markdown. This enables interactive
 
 ```markdown
 # Heading 1
+
 ## Heading 2
+
 ### Heading 3
 
-**Bold text** and *italic text*
+**Bold text** and _italic text_
 
 - Bullet list
 - Another item
@@ -213,6 +218,7 @@ The video ID is from the URL: `youtube.com/watch?v=dQw4w9WgXcQ`
 ```
 
 **Props:**
+
 - `id` (required): YouTube video ID
 - `title` (required): Accessible title for screen readers
 
@@ -241,9 +247,7 @@ const { type = 'info' } = Astro.props
 ```mdx
 import Alert from '../../components/blog/Alert.astro'
 
-<Alert type="warning">
-  This is a warning message!
-</Alert>
+<Alert type="warning">This is a warning message!</Alert>
 ```
 
 ---
@@ -262,12 +266,14 @@ apps/georgeai-web/public/images/blog/
 ### Image Best Practices
 
 **Hero Images:**
+
 - Dimensions: 1200×630px (optimal for social sharing)
 - Format: PNG, JPG, or SVG
 - File size: < 200KB (optimize for web)
 - Path: `/images/blog/hero-images/your-post-hero.svg`
 
 **Inline Images:**
+
 - Use descriptive filenames: `rag-pipeline-diagram.svg`
 - Optimize file size (< 100KB for each image)
 - Add meaningful alt text for accessibility
@@ -287,6 +293,7 @@ heroImage: '/images/blog/hero-images/rag-pipelines.svg'
 ### Creating Hero Images
 
 Use tools like:
+
 - **Figma** - Design custom graphics
 - **Excalidraw** - Hand-drawn diagrams
 - **Canva** - Quick social media graphics
@@ -326,6 +333,7 @@ description: 'This is a very long description that goes into way too much detail
 ### Keyword Strategy
 
 **Primary Keywords** (use in title, description, H1):
+
 - self-hosted AI
 - LLM context management
 - RAG pipeline
@@ -333,6 +341,7 @@ description: 'This is a very long description that goes into way too much detail
 - document AI
 
 **Secondary Keywords** (use in H2, H3, content):
+
 - context window optimization
 - semantic search
 - document processing
@@ -340,6 +349,7 @@ description: 'This is a very long description that goes into way too much detail
 - enterprise AI
 
 **Long-tail Keywords** (use naturally in content):
+
 - "self-hosted alternative to Pinecone"
 - "optimize LLM context window"
 - "manage AI agent context"
@@ -357,6 +367,7 @@ description: 'This is a very long description that goes into way too much detail
 ```
 
 **SEO Impact:**
+
 - Clear hierarchy helps search engines understand structure
 - Users can scan content easily
 - Table of contents generates automatically from headings
@@ -374,6 +385,7 @@ Explore [use cases for healthcare](/use-cases/healthcare).
 ```
 
 **Benefits:**
+
 - Keeps users on site (lower bounce rate)
 - Distributes SEO value across pages
 - Helps search engines discover content
@@ -395,6 +407,7 @@ pnpm dev
 ```
 
 **Preview URLs:**
+
 - Blog index: `http://localhost:3001/blog`
 - Your post: `http://localhost:3001/blog/your-slug`
 - RSS feed: `http://localhost:3001/rss.xml`
@@ -435,7 +448,7 @@ title: 'Your Post Title'
 description: 'Your meta description'
 pubDate: 2025-01-11
 tags: ['Tag1', 'Tag2']
-draft: true  # ← Keep as draft while writing
+draft: true # ← Keep as draft while writing
 ---
 ```
 
@@ -451,21 +464,24 @@ pnpm dev
 To share drafts with reviewers, you have two options:
 
 **Option 1: Share Development Server (Local Network)**
+
 ```bash
 pnpm dev --host
 # Share your local IP: http://192.168.x.x:3001/blog/your-slug
 ```
 
 **Option 2: Temporarily Publish**
+
 ```yaml
-draft: false  # Temporarily set to false
+draft: false # Temporarily set to false
 ```
+
 Push to production, get feedback, then set back to `draft: true` if needed.
 
 ### Step 4: Publish
 
 ```yaml
-draft: false  # ← Change to false
+draft: false # ← Change to false
 ```
 
 ```bash
@@ -477,6 +493,7 @@ git push
 ### Step 5: Verify Deployment
 
 After deployment:
+
 - [ ] Post appears on `/blog` index
 - [ ] Post is in RSS feed (`/rss.xml`)
 - [ ] Social sharing works (Open Graph tags)
@@ -513,16 +530,19 @@ From **Issue #839 - Priority 2 Task #4**:
 ## Additional Resources
 
 ### Documentation
+
 - [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
 - [MDX Documentation](https://mdxjs.com/)
 - [Markdown Guide](https://www.markdownguide.org/)
 
 ### SEO Tools
+
 - [Google Search Console](https://search.google.com/search-console)
 - [Bing Webmaster Tools](https://www.bing.com/webmasters)
 - [Meta Tags Preview](https://metatags.io/)
 
 ### Image Tools
+
 - [Figma](https://www.figma.com/) - Design tool
 - [Excalidraw](https://excalidraw.com/) - Diagram tool
 - [TinyPNG](https://tinypng.com/) - Image compression

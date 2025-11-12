@@ -1,9 +1,9 @@
 ---
-title: "Why Your RAG Pipeline is Failing: The Context Quality Problem"
+title: 'Why Your RAG Pipeline is Failing: The Context Quality Problem'
 description: "Everyone focuses on vector databases and embeddings, but the real bottleneck is input quality. Here's what you need to fix."
 pubDate: 2025-01-15
-author: "Michael Vogt"
-tags: ["RAG", "LLM", "Context Management", "Data Quality"]
+author: 'Michael Vogt'
+tags: ['RAG', 'LLM', 'Context Management', 'Data Quality']
 featured: true
 ---
 
@@ -59,6 +59,7 @@ All documents → Markdown. Every time.
 - HTML pages? Strip scripts, keep structure, convert to Markdown.
 
 **Why Markdown?**
+
 - Preserves document structure (headings, lists, tables)
 - LLMs are trained on Markdown (better tokenization)
 - Human-readable (you can debug issues)
@@ -67,11 +68,13 @@ All documents → Markdown. Every time.
 ### 2. Semantic Chunking
 
 Naive chunking:
+
 ```
 Split every 500 tokens. Hope for the best.
 ```
 
 Semantic chunking:
+
 ```
 Split at natural boundaries (sections, paragraphs).
 Preserve context within chunks.
@@ -83,6 +86,7 @@ The difference in retrieval quality is night and day.
 ### 3. Quality Validation
 
 Before embedding:
+
 - Check for encoding issues
 - Verify OCR quality
 - Flag incomplete conversions
@@ -95,11 +99,13 @@ Before embedding:
 A pharmaceutical company was processing 30,000+ packaging specification PDFs.
 
 **Before George AI:**
+
 - Raw PDF upload to Pinecone
 - ~40% retrieval accuracy
 - Manual verification required for every result
 
 **After George AI:**
+
 - PDF → Markdown conversion with OCR
 - Semantic chunking by specification section
 - ~85% retrieval accuracy
