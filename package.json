@@ -9,13 +9,13 @@
   },
   "private": true,
   "scripts": {
-    "lint": "turbo run lint && pnpm -C e2e-tests lint",
+    "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "codegen": "node codegen.ts",
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "typecheck": "turbo run typecheck && pnpm -C e2e-tests typecheck",
+    "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "prisma:generate": "turbo run prisma:generate",
     "prisma:migrate": "turbo run prisma:migrate"
