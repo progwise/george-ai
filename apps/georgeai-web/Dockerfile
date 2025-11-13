@@ -22,6 +22,10 @@ COPY apps/georgeai-web ./apps/georgeai-web
 # Copy LICENSE file for legal compliance
 COPY LICENSE ./
 
+# Accept build args and expose as environment variables for Astro build
+ARG PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
+ENV PUBLIC_DISCORD_INVITE_URL=${PUBLIC_DISCORD_INVITE_URL}
+
 # Build with Node adapter
 RUN pnpm --filter @george-ai/web build
 

@@ -185,6 +185,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ matrix.hash }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
+            PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
@@ -386,6 +387,8 @@ jobs:
           # Service containers expose to localhost (secure context for Web Crypto API)
           BASE_URL: http://localhost:3001
           DEBUG: pw:api
+          # Expected Discord URL for E2E tests
+          EXPECTED_DISCORD_URL: https://discord.gg/GbQFKb2MNJ
 
       - name: Upload Playwright report
         if: failure()

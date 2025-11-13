@@ -26,7 +26,7 @@ For detailed instructions, see [Developer Setup Guide](./developer-setup.md).
 
 ## Getting Help
 
-- **Discord**: https://discord.gg/5XP8f2Qe
+- **Discord**: https://discord.gg/GbQFKb2MNJ
 - **GitHub Issues**: https://github.com/progwise/george-ai/issues
 - **GitHub Discussions**: https://github.com/progwise/george-ai/discussions
 

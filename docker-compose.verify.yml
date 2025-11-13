@@ -75,6 +75,7 @@ services:
       dockerfile: apps/georgeai-web/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-local-docker}
+        PUBLIC_DISCORD_INVITE_URL: ${PUBLIC_DISCORD_INVITE_URL:-https://discord.gg/GbQFKb2MNJ}
     container_name: gai-verify-web
     restart: unless-stopped
     environment:
