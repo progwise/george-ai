@@ -27,7 +27,7 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     ownerId: t.exposeID('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    languageModel: t.expose('languageModel', { type: 'String' }),
+    // languageModel field removed - now using aiLanguageModel relation
     baseCases: t.relation('baseCases', { nullable: false, query: () => ({ orderBy: [{ sequence: 'asc' }] }) }),
     users: t.prismaField({
       type: ['User'],
@@ -123,10 +123,26 @@ builder.mutationField('updateAiAssistant', (t) =>
       data: t.arg({ type: AiAssistantInput, required: true }),
     },
     resolve: async (query, _source, { id, data }) => {
+      const { languageModel, ...restData } = data
+
+      // Look up the model by name if provided
+      let languageModelId: string | null = null
+      if (languageModel) {
+        const model = await prisma.aiLanguageModel.findUnique({
+          where: { provider_name: { provider: 'ollama', name: languageModel } },
+        })
+        if (model) {
+          languageModelId = model.id
+        }
+      }
+
       const result = await prisma.aiAssistant.update({
         ...query,
         where: { id },
-        data,
+        data: {
+          ...restData,
+          languageModelId,
+        },
       })
       return result
     },

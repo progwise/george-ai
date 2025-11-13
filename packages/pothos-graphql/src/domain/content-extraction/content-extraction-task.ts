@@ -30,7 +30,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     select: {
       id: true,
       fileConverterOptions: true,
-      embeddingModelName: true,
+      embeddingModel: { select: { name: true } },
       embeddingTimeoutMs: true,
     },
   })
@@ -87,7 +87,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       break
   }
 
-  if (!library.embeddingModelName) {
+  if (!library.embeddingModel) {
     throw new Error(`Library ${libraryId} has no configured embedding model`)
   }
 
@@ -104,7 +104,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       fileId,
       libraryId,
       extractionOptions,
-      embeddingModelName: library.embeddingModelName,
+      embeddingModelName: library.embeddingModel.name,
       extractionSubTasks: {
         create: appliedExtractionMethods.map((method) => ({ extractionMethod: method })),
       },
@@ -133,14 +133,14 @@ export const createEmbeddingOnlyTask = async (
         select: {
           id: true,
           fileConverterOptions: true,
-          embeddingModelName: true,
+          embeddingModel: { select: { name: true } },
           embeddingTimeoutMs: true,
         },
       },
     },
   })
 
-  if (!file.library.embeddingModelName) {
+  if (!file.library.embeddingModel) {
     throw new Error(`Library ${file.libraryId} has no configured embedding model`)
   }
 
@@ -202,7 +202,7 @@ export const createEmbeddingOnlyTask = async (
       },
       // Special embedding-only method that uses existing markdown
       // and only creates embeddings
-      embeddingModelName: file.library.embeddingModelName,
+      embeddingModelName: file.library.embeddingModel.name,
       timeoutMs: file.library.embeddingTimeoutMs || 180000, // Use library setting or default
     },
   })

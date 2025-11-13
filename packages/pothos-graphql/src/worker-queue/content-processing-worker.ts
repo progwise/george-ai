@@ -44,7 +44,7 @@ type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
         originUri: true
         mimeType: true
         libraryId: true
-        library: { select: { embeddingModelName: true } }
+        library: { select: { embeddingModel: { select: { name: true } } } }
       }
     }
   }
@@ -98,7 +98,7 @@ const updateProcessingTask = async (args: {
           originUri: true,
           mimeType: true,
           libraryId: true,
-          library: { select: { embeddingModelName: true } },
+          library: { select: { embeddingModel: { select: { name: true } } } },
         },
       },
     },
@@ -190,7 +190,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       extractionSubTasks: task.extractionSubTasks,
       extractionOptions: task.extractionOptions,
       mimeType: task.file.mimeType,
-      embeddingModelName: task.file.library.embeddingModelName,
+      embeddingModelName: task.file.library.embeddingModel?.name ?? null,
       fileId: task.fileId,
       fileName: task.file.name,
       libraryId: task.file.libraryId,
@@ -724,7 +724,7 @@ async function processQueue() {
             originUri: true,
             mimeType: true,
             libraryId: true,
-            library: { select: { embeddingModelName: true } },
+            library: { select: { embeddingModel: { select: { name: true } } } },
           },
         },
       },

@@ -40,7 +40,7 @@ builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
-    embeddingModelName: t.exposeString('embeddingModelName'),
+    // embeddingModelName field removed - now using embeddingModel relation
     embeddingTimeoutMs: t.exposeInt('embeddingTimeoutMs'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
     autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),

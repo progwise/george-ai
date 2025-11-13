@@ -26,7 +26,7 @@ builder.prismaObject('AiListField', {
     prompt: t.exposeString('prompt'),
     failureTerms: t.exposeString('failureTerms'),
     contentQuery: t.exposeString('contentQuery'),
-    languageModel: t.exposeString('languageModel'),
+    // languageModel field removed - now using aiLanguageModel relation
     useVectorStore: t.exposeBoolean('useVectorStore'),
     context: t.relation('context', { nullable: false }),
     pendingItemsCount: t.field({

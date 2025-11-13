@@ -44,6 +44,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
           fields: {
             where: { id: fieldId },
             include: {
+              languageModel: { select: { name: true } },
               context: {
                 include: {
                   contextField: {
@@ -68,8 +69,8 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         throw new Error(`Cannot create enrichment tasks: Field ${fieldId} not found in list ${listId}`)
       }
 
-      const field = list.fields[0]
-      if (field.sourceType !== 'llm_computed') {
+      const listField = list.fields[0]
+      if (listField.sourceType !== 'llm_computed') {
         throw new Error(`Cannot create enrichment tasks for field ${fieldId}: Field is not enrichable`)
       }
 
@@ -81,7 +82,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       const files = await prisma.aiLibraryFile.findMany({
         include: {
           crawledByCrawler: { select: { id: true, uri: true } },
-          library: { select: { id: true, name: true, embeddingModelName: true } },
+          library: { select: { id: true, name: true, embeddingModel: { select: { name: true } } } },
           cache: { where: { fieldId } },
           contentExtractionTasks: {
             where: { processingFinishedAt: { not: null } },
@@ -132,13 +133,21 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       })
 
       console.log('found files for enrichment:', files.length)
+
+      // Transform field to match validation schema (convert languageModel relation to string)
+      const fieldWithRelation = listField as typeof listField & {
+        languageModel?: { name: string } | null
+      }
+      const fieldForValidation = {
+        ...fieldWithRelation,
+        languageModel: fieldWithRelation.languageModel?.name || '',
+      }
+
       const {
         success: fieldValidationSuccess,
         data: validatedField,
         error: fieldValidationError,
-      } = getFieldEnrichmentValidationSchema({ useVectorStore: list.fields[0].useVectorStore }).safeParse(
-        list.fields[0],
-      )
+      } = getFieldEnrichmentValidationSchema({ useVectorStore: listField.useVectorStore }).safeParse(fieldForValidation)
 
       if (!fieldValidationSuccess) {
         throw new Error(

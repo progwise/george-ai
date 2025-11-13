@@ -110,7 +110,7 @@ export const getEnrichmentTaskInputMetadata = ({
   file: Prisma.AiLibraryFileGetPayload<{
     include: {
       crawledByCrawler: { select: { id: true; uri: true } }
-      library: { select: { id: true; name: true; embeddingModelName: true } }
+      library: { select: { id: true; name: true; embeddingModel: { select: { name: true } } } }
       cache: true
       contentExtractionTasks: { select: { processingFinishedAt: true } }
     }
@@ -130,7 +130,7 @@ export const getEnrichmentTaskInputMetadata = ({
     aiGenerationPrompt: validatedField.prompt,
     contextFields,
     dataType: validatedField.type,
-    libraryEmbeddingModel: file.library.embeddingModelName || undefined,
+    libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
     contentQuery: validatedField.useVectorStore ? validatedField.contentQuery || undefined : undefined,
     useVectorStore: !!validatedField.useVectorStore,
     fileId: file.id,

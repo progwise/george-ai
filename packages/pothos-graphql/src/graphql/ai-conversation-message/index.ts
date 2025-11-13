@@ -158,14 +158,14 @@ builder.mutationField('sendMessage', (t) =>
                   id: true,
                   name: true,
                   description: true,
-                  embeddingModelName: true,
+                  embeddingModel: { select: { name: true } },
                   fileConverterOptions: true,
                 },
               },
               usedFor: true,
             },
           },
-          languageModel: true,
+          languageModel: { select: { name: true } },
           description: true,
           baseCases: true,
         },
@@ -266,7 +266,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModel: assistant.languageModel || 'gpt-4o-mini',
+            languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||
               'You are a helpful assistant and no prompt was specified. Please state that you need a prompt to work properly.',
@@ -276,7 +276,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
-            embeddingModelName: usage.library.embeddingModelName || '',
+            embeddingModelName: usage.library.embeddingModel?.name || '',
           })),
         })) {
           const content = answerFromAssistant
