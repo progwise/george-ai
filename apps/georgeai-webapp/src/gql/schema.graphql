@@ -106,7 +106,7 @@ type AiAssistant {
   description: String
   iconUrl: String
   id: ID!
-  languageModel: String
+  languageModel: AiLanguageModel
   name: String!
   ownerId: ID!
   updatedAt: DateTime
@@ -281,12 +281,23 @@ type AiEnrichmentTaskProcessingDataOutput {
   similarChunks: [EnrichmentTaskSimilarChunk!]
 }
 
+type AiLanguageModel {
+  canDoChatCompletion: Boolean!
+  canDoEmbedding: Boolean!
+  canDoFunctionCalling: Boolean!
+  canDoVision: Boolean!
+  enabled: Boolean!
+  id: ID!
+  name: String!
+  provider: String!
+}
+
 type AiLibrary {
   autoProcessCrawledFiles: Boolean!
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  embeddingModelName: String
+  embeddingModel: AiLanguageModel
   embeddingTimeoutMs: Int
   fileConverterOptions: String
   filesCount: Int!
@@ -460,10 +471,9 @@ enum AiLibraryFileSortOrder {
 input AiLibraryInput {
   autoProcessCrawledFiles: Boolean
   description: String
-  embeddingModelName: String
+  embeddingModelId: String
   embeddingTimeoutMs: Int
   fileConverterOptions: String
-  icon: String
   name: String!
   url: String
 }
@@ -562,7 +572,7 @@ type AiListField {
   failureTerms: String
   fileProperty: String
   id: ID!
-  languageModel: String
+  languageModel: AiLanguageModel
   list: AiList!
   listId: String!
   name: String!
@@ -1231,6 +1241,7 @@ type Query {
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
   aiEmbeddingModels: [String!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiLanguageModels(canDoChatCompletion: Boolean, canDoEmbedding: Boolean): [AiLanguageModel!]!
   aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!

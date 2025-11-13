@@ -161,10 +161,9 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   return z.object({
     autoProcessCrawledFiles: z.boolean().nullish(),
     description: z.string().nullish(),
-    embeddingModelName: z.string().nullish(),
+    embeddingModelId: z.string().nullish(),
     embeddingTimeoutMs: z.number().nullish(),
     fileConverterOptions: z.string().nullish(),
-    icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
   })

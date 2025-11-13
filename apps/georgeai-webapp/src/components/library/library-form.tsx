@@ -10,7 +10,7 @@ import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { LoadingSpinner } from '../loading-spinner'
-import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
+import { getChatModelsQueryOptions, getLanguageModelsForEmbeddingQueryOptions } from '../model/get-models'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -23,7 +23,10 @@ graphql(`
     ownerId
     filesCount
     description
-    embeddingModelName
+    embeddingModel {
+      id
+      name
+    }
     fileConverterOptions
     autoProcessCrawledFiles
   }
@@ -43,8 +46,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
 
   const {
-    data: { aiEmbeddingModels },
-  } = useSuspenseQuery(getEmbeddingModelsQueryOptions())
+    data: { aiLanguageModels },
+  } = useSuspenseQuery(getLanguageModelsForEmbeddingQueryOptions())
 
   const {
     data: { aiChatModels },
@@ -56,11 +59,11 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
   const mappedEmbeddingModels = useMemo(
     () =>
-      aiEmbeddingModels.map((model) => ({
-        id: model,
-        name: model,
+      aiLanguageModels.map((model) => ({
+        id: model.id,
+        name: model.name,
       })),
-    [aiEmbeddingModels],
+    [aiLanguageModels],
   )
 
   const mappedChatModels = useMemo(
@@ -204,10 +207,10 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <Select
-                    name="embeddingModelName"
+                    name="embeddingModelId"
                     label={t('labels.embeddingModelName')}
                     options={mappedEmbeddingModels}
-                    value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
+                    value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModel?.id)}
                     className="col-span-1"
                     placeholder={t('libraries.placeholders.embeddingModelName')}
                     {...fieldProps}

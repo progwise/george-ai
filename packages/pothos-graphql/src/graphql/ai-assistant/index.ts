@@ -27,7 +27,7 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     ownerId: t.exposeID('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    // languageModel field removed - now using aiLanguageModel relation
+    languageModel: t.relation('languageModel'),
     baseCases: t.relation('baseCases', { nullable: false, query: () => ({ orderBy: [{ sequence: 'asc' }] }) }),
     users: t.prismaField({
       type: ['User'],

@@ -32,6 +32,26 @@ export const getEmbeddingModelsQueryOptions = () => ({
   queryKey: ['aiEmbeddingModels'],
   queryFn: () => getEmbeddingModels(),
 })
+
+const getLanguageModels = createServerFn({ method: 'GET' }).handler(async () => {
+  return backendRequest(
+    graphql(`
+      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {
+        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {
+          id
+          name
+          provider
+        }
+      }
+    `),
+    { canDoEmbedding: true },
+  )
+})
+
+export const getLanguageModelsForEmbeddingQueryOptions = () => ({
+  queryKey: ['aiLanguageModels', 'embedding'],
+  queryFn: () => getLanguageModels(),
+})
 export const getModelsQueryOptions = () => ({
   queryKey: ['aiEmbeddingModels'],
   queryFn: () => getChatModels(),

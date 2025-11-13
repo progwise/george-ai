@@ -22,7 +22,9 @@ graphql(`
     iconUrl
     description
     ownerId
-    languageModel
+    languageModel {
+      name
+    }
     updatedAt
   }
 `)
@@ -163,7 +165,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         name="languageModel"
         label={t('labels.languageModel')}
         options={aiModels}
-        value={aiModels.find((model) => model.id === assistant.languageModel)}
+        value={aiModels.find((model) => model.id === assistant.languageModel?.name)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}

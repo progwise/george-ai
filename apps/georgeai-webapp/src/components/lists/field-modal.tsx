@@ -95,7 +95,9 @@ graphql(`
     prompt
     failureTerms
     contentQuery
-    languageModel
+    languageModel {
+      name
+    }
     useVectorStore
     order
     context {
@@ -239,7 +241,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 options={availableModels.map((model) => ({ id: model, name: model }))}
                 value={availableModels
                   .map((model) => ({ id: model, name: model }))
-                  .find((model) => model.id === editField?.languageModel)}
+                  .find((model) => model.id === editField?.languageModel?.name)}
                 placeholder={t('lists.fields.selectAiModel')}
                 schema={schema}
                 required

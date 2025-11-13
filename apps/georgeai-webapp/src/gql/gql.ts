@@ -39,7 +39,7 @@ type Documents = {
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            condition\n            instruction\n          }\n        }\n      ': typeof types.UpsertAiBaseCasesDocument
   '\n  fragment AssistantBasecaseForm_Assistant on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      condition\n      instruction\n    }\n  }\n': typeof types.AssistantBasecaseForm_AssistantFragmentDoc
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
   '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n': typeof types.AssistantLibraries_AssistantFragmentDoc
   '\n  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n': typeof types.AssistantLibraries_LibraryUsageFragmentDoc
@@ -101,7 +101,7 @@ type Documents = {
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    id\n    libraryId\n    latestExtractionMarkdownFileNames\n    availableExtractionMarkdownFileNames\n  }\n': typeof types.AiLibraryFile_MarkdownFileSelectorFragmentDoc
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
   '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ': typeof types.ProcessFileDocument
-  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
+  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n': typeof types.LibraryMenu_AiLibrariesFragmentDoc
   '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n': typeof types.GetApiKeysDocument
@@ -134,7 +134,7 @@ type Documents = {
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModel\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n        contentQuery\n        useVectorStore\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
-  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_FieldFragmentDoc
+  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      name\n    }\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n': typeof types.FieldModal_FieldFragmentDoc
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n': typeof types.ListExport_FieldFragmentDoc
   '\n  fragment ListExport_List on AiList {\n    id\n    name\n    fields {\n      ...ListExport_Field\n    }\n  }\n': typeof types.ListExport_ListFragmentDoc
   '\n  fragment ListFieldsTableFilters_AiListField on AiListField {\n    id\n    name\n    type\n  }\n': typeof types.ListFieldsTableFilters_AiListFieldFragmentDoc
@@ -153,7 +153,7 @@ type Documents = {
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListFieldsTableMenu_AiList\n            ...ListMenu_AiList\n            fields {\n              ...ListFieldsTableFilters_AiListField\n              ...ListFieldSettings_Field\n            }\n          }\n        }\n      ': typeof types.GetListDocument
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ': typeof types.GetUserListsDocument
-  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.AddListFieldDocument
+  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
   '\n        mutation clearEnrichment($listId: String!, $fieldId: String!, $fileId: String!) {\n          clearListEnrichments(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.ClearEnrichmentDocument
   '\n        mutation ClearEnrichments($listId: String!, $fieldId: String!, $fileId: String) {\n          clearListEnrichments(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.ClearEnrichmentsDocument
@@ -169,11 +169,12 @@ type Documents = {
   '\n        mutation CreateListEnrichmentTasks(\n          $listId: String!\n          $fieldId: String!\n          $fileId: String\n          $onlyMissingValues: Boolean\n          $filters: [AiListFilterInput!]\n        ) {\n          createEnrichmentTasks(\n            listId: $listId\n            fieldId: $fieldId\n            fileId: $fileId\n            onlyMissingValues: $onlyMissingValues\n            filters: $filters\n          ) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.CreateListEnrichmentTasksDocument
   '\n        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {\n            createdTasksCount\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n          }\n        }\n      ': typeof types.RemoveFromEnrichmentQueueDocument
   '\n        mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n            createdTasksCount\n          }\n        }\n      ': typeof types.StopListEnrichmentDocument
-  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
+  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n  fragment ListFieldSettings_Field on AiListField {\n    id\n    order\n    ...ListFieldsTable_Field\n  }\n': typeof types.ListFieldSettings_FieldFragmentDoc
   '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': typeof types.AiChatModelsDocument
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': typeof types.AiEmbeddingModelsDocument
+  '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ': typeof types.AiLanguageModelsDocument
   '\n  fragment User_EntityParticipantsDialog on User {\n    id\n    name\n    username\n    given_name\n    family_name\n    email\n    avatarUrl\n    profile {\n      position\n      business\n    }\n  }\n\n  fragment Assistant_EntityParticipantsDialog on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ownerId\n  }\n': typeof types.User_EntityParticipantsDialogFragmentDoc
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
@@ -251,7 +252,7 @@ const documents: Documents = {
     types.AssistantBasecaseForm_AssistantFragmentDoc,
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ':
     types.DeleteAiAssistantDocument,
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel\n    updatedAt\n  }\n':
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n':
     types.AssistantForm_AssistantFragmentDoc,
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateAssistantDocument,
@@ -375,7 +376,7 @@ const documents: Documents = {
     types.PrepareFileDocument,
   '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ':
     types.ProcessFileDocument,
-  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n':
+  '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n':
     types.AiLibraryForm_LibraryFragmentDoc,
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n':
     types.LibraryMenu_AiLibraryFragmentDoc,
@@ -439,7 +440,7 @@ const documents: Documents = {
     types.EnrichmentAccordionItem_EnrichmentFragmentDoc,
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n':
     types.FieldModal_ListFragmentDoc,
-  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n':
+  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      name\n    }\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n':
     types.FieldModal_FieldFragmentDoc,
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n':
     types.ListExport_FieldFragmentDoc,
@@ -476,7 +477,7 @@ const documents: Documents = {
     types.ListsBaseFragmentDoc,
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ':
     types.GetUserListsDocument,
-  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel\n          }\n        }\n      ':
+  '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ':
     types.AddListFieldDocument,
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n              owner {\n                name\n              }\n            }\n          }\n        }\n      ':
     types.AddListSourceDocument,
@@ -508,7 +509,7 @@ const documents: Documents = {
     types.RemoveFromEnrichmentQueueDocument,
   '\n        mutation StopListEnrichment($listId: String!, $fieldId: String!) {\n          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId) {\n            cleanedUpTasksCount\n            cleanedUpEnrichmentsCount\n            createdTasksCount\n          }\n        }\n      ':
     types.StopListEnrichmentDocument,
-  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ':
+  '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ':
     types.UpdateListFieldDocument,
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateListDocument,
@@ -516,6 +517,8 @@ const documents: Documents = {
     types.ListFieldSettings_FieldFragmentDoc,
   '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': types.AiChatModelsDocument,
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': types.AiEmbeddingModelsDocument,
+  '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ':
+    types.AiLanguageModelsDocument,
   '\n  fragment User_EntityParticipantsDialog on User {\n    id\n    name\n    username\n    given_name\n    family_name\n    email\n    avatarUrl\n    profile {\n      position\n      business\n    }\n  }\n\n  fragment Assistant_EntityParticipantsDialog on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ownerId\n  }\n':
     types.User_EntityParticipantsDialogFragmentDoc,
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
@@ -733,8 +736,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel\n    updatedAt\n  }\n',
-): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel\n    updatedAt\n  }\n']
+  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1105,8 +1108,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n',
-): (typeof documents)['\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n']
+  source: '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n',
+): (typeof documents)['\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1303,8 +1306,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n',
-): (typeof documents)['\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n']
+  source: '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      name\n    }\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n',
+): (typeof documents)['\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      name\n    }\n    useVectorStore\n    order\n    context {\n      contextFieldId\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1417,8 +1420,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel\n          }\n        }\n      ']
+  source: '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1513,8 +1516,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel\n          }\n        }\n      ']
+  source: '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1539,6 +1542,12 @@ export function graphql(
 export function graphql(
   source: '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ',
 ): (typeof documents)['\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ',
+): (typeof documents)['\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

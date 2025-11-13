@@ -122,7 +122,7 @@ export type AiAssistant = {
   description?: Maybe<Scalars['String']['output']>
   iconUrl?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-  languageModel?: Maybe<Scalars['String']['output']>
+  languageModel?: Maybe<AiLanguageModel>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -306,13 +306,25 @@ export type AiEnrichmentTaskProcessingDataOutput = {
   similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
 }
 
+export type AiLanguageModel = {
+  __typename?: 'AiLanguageModel'
+  canDoChatCompletion: Scalars['Boolean']['output']
+  canDoEmbedding: Scalars['Boolean']['output']
+  canDoFunctionCalling: Scalars['Boolean']['output']
+  canDoVision: Scalars['Boolean']['output']
+  enabled: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  provider: Scalars['String']['output']
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   autoProcessCrawledFiles: Scalars['Boolean']['output']
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
-  embeddingModelName?: Maybe<Scalars['String']['output']>
+  embeddingModel?: Maybe<AiLanguageModel>
   embeddingTimeoutMs?: Maybe<Scalars['Int']['output']>
   fileConverterOptions?: Maybe<Scalars['String']['output']>
   filesCount: Scalars['Int']['output']
@@ -508,10 +520,9 @@ export enum AiLibraryFileSortOrder {
 export type AiLibraryInput = {
   autoProcessCrawledFiles?: InputMaybe<Scalars['Boolean']['input']>
   description?: InputMaybe<Scalars['String']['input']>
-  embeddingModelName?: InputMaybe<Scalars['String']['input']>
+  embeddingModelId?: InputMaybe<Scalars['String']['input']>
   embeddingTimeoutMs?: InputMaybe<Scalars['Int']['input']>
   fileConverterOptions?: InputMaybe<Scalars['String']['input']>
-  icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -617,7 +628,7 @@ export type AiListField = {
   failureTerms?: Maybe<Scalars['String']['output']>
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-  languageModel?: Maybe<Scalars['String']['output']>
+  languageModel?: Maybe<AiLanguageModel>
   list: AiList
   listId: Scalars['String']['output']
   name: Scalars['String']['output']
@@ -1603,6 +1614,7 @@ export type Query = {
   aiConversations: Array<AiConversation>
   aiEmbeddingModels: Array<Scalars['String']['output']>
   aiFileChunks: FileChunkQueryResponse
+  aiLanguageModels: Array<AiLanguageModel>
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -1670,6 +1682,11 @@ export type QueryAiFileChunksArgs = {
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryAiLanguageModelsArgs = {
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type QueryAiLibrariesArgs = {
@@ -2581,8 +2598,8 @@ export type AssistantForm_AssistantFragment = {
   iconUrl?: string | null
   description?: string | null
   ownerId: string
-  languageModel?: string | null
   updatedAt?: string | null
+  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
 }
 
 export type UpdateAssistantMutationVariables = Exact<{
@@ -2674,8 +2691,8 @@ export type AiAssistantDetailsQuery = {
     iconUrl?: string | null
     description?: string | null
     ownerId: string
-    languageModel?: string | null
     updatedAt?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
     baseCases: Array<{
       __typename?: 'AiAssistantBaseCase'
       id?: string | null
@@ -3728,9 +3745,9 @@ export type AiLibraryForm_LibraryFragment = {
   ownerId: string
   filesCount: number
   description?: string | null
-  embeddingModelName?: string | null
   fileConverterOptions?: string | null
   autoProcessCrawledFiles: boolean
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
 }
 
 export type LibraryMenu_AiLibraryFragment = {
@@ -3824,7 +3841,6 @@ export type AiLibraryDetailQuery = {
     ownerId: string
     filesCount: number
     description?: string | null
-    embeddingModelName?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
     owner: {
@@ -3853,6 +3869,7 @@ export type AiLibraryDetailQuery = {
         profile?: { __typename?: 'UserProfile'; position?: string | null; business?: string | null } | null
       }
     }>
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
   }
 }
 
@@ -4041,9 +4058,9 @@ export type ChangeLibraryMutation = {
     ownerId: string
     filesCount: number
     description?: string | null
-    embeddingModelName?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
   }
 }
 
@@ -4349,9 +4366,9 @@ export type FieldModal_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
   order: number
+  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4403,8 +4420,8 @@ export type ListFieldsTableMenu_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
+  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4451,9 +4468,9 @@ export type ListFieldsTable_ListFragment = {
     prompt?: string | null
     failureTerms?: string | null
     contentQuery?: string | null
-    languageModel?: string | null
     useVectorStore?: boolean | null
     order: number
+    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
@@ -4471,9 +4488,9 @@ export type ListFieldsTable_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
   order: number
+  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4717,9 +4734,9 @@ export type GetListQuery = {
       prompt?: string | null
       failureTerms?: string | null
       contentQuery?: string | null
-      languageModel?: string | null
       useVectorStore?: boolean | null
       order: number
+      languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
     sources: Array<{
@@ -4802,7 +4819,7 @@ export type AddListFieldMutation = {
     prompt?: string | null
     failureTerms?: string | null
     contentQuery?: string | null
-    languageModel?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   }
 }
 
@@ -5046,7 +5063,7 @@ export type UpdateListFieldMutation = {
     failureTerms?: string | null
     useVectorStore?: boolean | null
     contentQuery?: string | null
-    languageModel?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   }
 }
 
@@ -5071,8 +5088,8 @@ export type ListFieldSettings_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
+  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -5083,6 +5100,16 @@ export type AiChatModelsQuery = { __typename?: 'Query'; aiChatModels: Array<stri
 export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
 
 export type AiEmbeddingModelsQuery = { __typename?: 'Query'; aiEmbeddingModels: Array<string> }
+
+export type AiLanguageModelsQueryVariables = Exact<{
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type AiLanguageModelsQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+}
 
 export type User_EntityParticipantsDialogFragment = {
   __typename?: 'User'
@@ -6719,7 +6746,14 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
@@ -8263,7 +8297,17 @@ export const AiLibraryForm_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -8934,7 +8978,14 @@ export const FieldModal_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -8983,7 +9034,14 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9028,7 +9086,14 @@ export const ListFieldSettings_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9091,7 +9156,14 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9258,7 +9330,14 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -11661,7 +11740,14 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
@@ -14149,7 +14235,17 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -14946,7 +15042,17 @@ export const ChangeLibraryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -15893,7 +15999,14 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -16249,7 +16362,14 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'languageModel' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
               ],
             },
           },
@@ -17229,7 +17349,14 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'languageModel' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
               ],
             },
           },
@@ -17313,6 +17440,57 @@ export const AiEmbeddingModelsDocument = {
     },
   ],
 } as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
+export const AiLanguageModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLanguageModels' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLanguageModelsQuery, AiLanguageModelsQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [

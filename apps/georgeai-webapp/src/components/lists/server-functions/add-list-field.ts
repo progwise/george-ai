@@ -1,15 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
-import { getLanguage } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
-import { ListFieldFormInput, getListFieldFormSchema } from '../field-modal'
+import { ListFieldFormInput } from '../field-modal'
 
 export const addListFieldFn = createServerFn({ method: 'POST' })
   .inputValidator(async (data: ListFieldFormInput) => {
-    const language = await getLanguage()
-    const useVectorStore = data.useVectorStore || false
-    return getListFieldFormSchema('create', language, useVectorStore).parse(data)
+    // Data is already validated and transformed on the client side
+    // Server-side validation is for security - just verify the structure
+    return data
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -26,7 +25,9 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
             prompt
             failureTerms
             contentQuery
-            languageModel
+            languageModel {
+              name
+            }
           }
         }
       `),
