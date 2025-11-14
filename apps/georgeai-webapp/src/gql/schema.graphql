@@ -262,7 +262,7 @@ type AiEnrichmentTaskProcessingData {
 type AiEnrichmentTaskProcessingDataInput {
   aiGenerationPrompt: String!
   aiModelName: String!
-  aiModelProvider: String!
+  aiModelProvider: String
   contentQuery: String
   contextFields: [EnrichmentTaskContextField!]!
   dataType: ListFieldType!
@@ -283,12 +283,15 @@ type AiEnrichmentTaskProcessingDataOutput {
 }
 
 type AiLanguageModel {
+  adminNotes: String
   canDoChatCompletion: Boolean!
   canDoEmbedding: Boolean!
   canDoFunctionCalling: Boolean!
   canDoVision: Boolean!
+  createdAt: DateTime!
   enabled: Boolean!
   id: ID!
+  lastUsedAt: DateTime
   name: String!
   provider: String!
 }
@@ -599,7 +602,7 @@ input AiListFieldInput {
   context: [String!]
   failureTerms: String
   fileProperty: String
-  languageModel: String
+  languageModelId: String
   name: String!
   order: Int
   prompt: String
@@ -1164,6 +1167,7 @@ type Mutation {
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
+  deleteAiLanguageModel(id: ID!): AiLanguageModel
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFile(fileId: String!): AiLibraryFile!
@@ -1217,6 +1221,7 @@ type Mutation {
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
+  updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
   updateAiLibraryCrawler(
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
@@ -1397,6 +1402,11 @@ type SyncModelsResult {
   errors: [String!]!
   modelsDiscovered: Int!
   success: Boolean!
+}
+
+input UpdateAiLanguageModelInput {
+  adminNotes: String
+  enabled: Boolean
 }
 
 type UpdateLibraryParticipantsResult {

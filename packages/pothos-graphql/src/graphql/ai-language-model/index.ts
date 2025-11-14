@@ -16,5 +16,8 @@ builder.prismaObject('AiLanguageModel', {
     canDoVision: t.exposeBoolean('canDoVision', { nullable: false }),
     canDoFunctionCalling: t.exposeBoolean('canDoFunctionCalling', { nullable: false }),
     enabled: t.exposeBoolean('enabled', { nullable: false }),
+    adminNotes: t.exposeString('adminNotes', { nullable: true }),
+    lastUsedAt: t.expose('lastUsedAt', { type: 'DateTime', nullable: true }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
   }),
 })

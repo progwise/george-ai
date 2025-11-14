@@ -286,7 +286,7 @@ export type AiEnrichmentTaskProcessingDataInput = {
   __typename?: 'AiEnrichmentTaskProcessingDataInput'
   aiGenerationPrompt: Scalars['String']['output']
   aiModelName: Scalars['String']['output']
-  aiModelProvider: Scalars['String']['output']
+  aiModelProvider?: Maybe<Scalars['String']['output']>
   contentQuery?: Maybe<Scalars['String']['output']>
   contextFields: Array<EnrichmentTaskContextField>
   dataType: ListFieldType
@@ -309,12 +309,15 @@ export type AiEnrichmentTaskProcessingDataOutput = {
 
 export type AiLanguageModel = {
   __typename?: 'AiLanguageModel'
+  adminNotes?: Maybe<Scalars['String']['output']>
   canDoChatCompletion: Scalars['Boolean']['output']
   canDoEmbedding: Scalars['Boolean']['output']
   canDoFunctionCalling: Scalars['Boolean']['output']
   canDoVision: Scalars['Boolean']['output']
+  createdAt: Scalars['DateTime']['output']
   enabled: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>
   name: Scalars['String']['output']
   provider: Scalars['String']['output']
 }
@@ -656,7 +659,7 @@ export type AiListFieldInput = {
   context?: InputMaybe<Array<Scalars['String']['input']>>
   failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
-  languageModel?: InputMaybe<Scalars['String']['input']>
+  languageModelId?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   order?: InputMaybe<Scalars['Int']['input']>
   prompt?: InputMaybe<Scalars['String']['input']>
@@ -1199,6 +1202,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
+  deleteAiLanguageModel?: Maybe<AiLanguageModel>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteLibrary: AiLibrary
   deleteLibraryFile: AiLibraryFile
@@ -1239,6 +1243,7 @@ export type Mutation = {
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
+  updateAiLanguageModel?: Maybe<AiLanguageModel>
   updateAiLibraryCrawler: AiLibraryCrawler
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibrary: AiLibrary
@@ -1389,6 +1394,10 @@ export type MutationDeleteAiConversationArgs = {
 
 export type MutationDeleteAiConversationsArgs = {
   conversationIds: Array<Scalars['String']['input']>
+}
+
+export type MutationDeleteAiLanguageModelArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
@@ -1548,6 +1557,11 @@ export type MutationUnhideMessageArgs = {
 export type MutationUpdateAiAssistantArgs = {
   data: AiAssistantInput
   id: Scalars['String']['input']
+}
+
+export type MutationUpdateAiLanguageModelArgs = {
+  data: UpdateAiLanguageModelInput
+  id: Scalars['ID']['input']
 }
 
 export type MutationUpdateAiLibraryCrawlerArgs = {
@@ -1920,6 +1934,11 @@ export type SyncModelsResult = {
   errors: Array<Scalars['String']['output']>
   modelsDiscovered: Scalars['Int']['output']
   success: Scalars['Boolean']['output']
+}
+
+export type UpdateAiLanguageModelInput = {
+  adminNotes?: InputMaybe<Scalars['String']['input']>
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type UpdateLibraryParticipantsResult = {
@@ -4384,7 +4403,7 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
       fileName: string
       libraryId: string
       libraryName: string
-      aiModelProvider: string
+      aiModelProvider?: string | null
       aiModelName: string
       aiGenerationPrompt: string
       dataType: ListFieldType
@@ -4705,7 +4724,7 @@ export type GetEnrichmentsQuery = {
           fileName: string
           libraryId: string
           libraryName: string
-          aiModelProvider: string
+          aiModelProvider?: string | null
           aiModelName: string
           aiGenerationPrompt: string
           dataType: ListFieldType
@@ -5242,6 +5261,62 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetAiLanguageModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAiLanguageModelsQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: Array<{
+    __typename?: 'AiLanguageModel'
+    id: string
+    name: string
+    provider: string
+    canDoEmbedding: boolean
+    canDoChatCompletion: boolean
+    canDoVision: boolean
+    canDoFunctionCalling: boolean
+    enabled: boolean
+    adminNotes?: string | null
+    lastUsedAt?: string | null
+    createdAt: string
+  }>
+}
+
+export type SyncModelsMutationVariables = Exact<{ [key: string]: never }>
+
+export type SyncModelsMutation = {
+  __typename?: 'Mutation'
+  syncModels?: {
+    __typename?: 'SyncModelsResult'
+    success: boolean
+    modelsDiscovered: number
+    errors: Array<string>
+  } | null
+}
+
+export type UpdateAiLanguageModelMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: UpdateAiLanguageModelInput
+}>
+
+export type UpdateAiLanguageModelMutation = {
+  __typename?: 'Mutation'
+  updateAiLanguageModel?: {
+    __typename?: 'AiLanguageModel'
+    id: string
+    enabled: boolean
+    adminNotes?: string | null
+  } | null
+}
+
+export type DeleteAiLanguageModelMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteAiLanguageModelMutation = {
+  __typename?: 'Mutation'
+  deleteAiLanguageModel?: { __typename?: 'AiLanguageModel'; id: string } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -17725,6 +17800,159 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetAiLanguageModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAiLanguageModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'canDoEmbedding' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'canDoVision' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAiLanguageModelsQuery, GetAiLanguageModelsQueryVariables>
+export const SyncModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SyncModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'syncModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'modelsDiscovered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errors' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SyncModelsMutation, SyncModelsMutationVariables>
+export const UpdateAiLanguageModelDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateAiLanguageModel' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAiLanguageModelInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLanguageModel' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAiLanguageModelMutation, UpdateAiLanguageModelMutationVariables>
+export const DeleteAiLanguageModelDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteAiLanguageModel' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLanguageModel' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiLanguageModelMutation, DeleteAiLanguageModelMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

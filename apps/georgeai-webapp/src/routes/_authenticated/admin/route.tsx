@@ -1,6 +1,7 @@
 import { Link, Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { CpuIcon } from '../../../icons/cpu-icon'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 import { ServerIcon } from '../../../icons/server-icon'
 import { UsersIcon } from '../../../icons/users-icon'
@@ -102,6 +103,20 @@ function RouteComponent() {
               >
                 <ServerIcon className="mr-2 h-4 w-4" />
                 {t('admin.monitorAiServices')}
+              </Link>
+
+              <Link
+                to="/admin/ai-models"
+                activeProps={{
+                  className: 'tab tab-active [--tab-bg:theme(colors.info)] [--tab-color:theme(colors.info-content)]',
+                }}
+                inactiveProps={{
+                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+                }}
+                activeOptions={{ exact: false }}
+              >
+                <CpuIcon className="mr-2 h-4 w-4" />
+                {t('admin.manageAiModels')}
               </Link>
 
               <Link

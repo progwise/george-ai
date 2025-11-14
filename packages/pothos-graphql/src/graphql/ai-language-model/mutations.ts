@@ -77,13 +77,17 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
 /**
  * Syncs discovered models to database with upsert logic
  * Always updates capabilities on sync (auto-detection improvements propagate)
+ * Disables models that are no longer available from their providers
  */
 async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promise<number> {
   let syncedCount = 0
 
   await prisma.$transaction(async (tx) => {
+    // Get unique providers from discovered models
+    const activeProviders = [...new Set(discoveredModels.map((m) => m.provider))]
+
+    // Upsert all discovered models (enable them if they exist)
     for (const model of discoveredModels) {
-      // Always upsert - update capabilities on every sync
       await tx.aiLanguageModel.upsert({
         where: { provider_name: { provider: model.provider, name: model.name } },
         update: {
@@ -91,6 +95,7 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
           canDoChatCompletion: model.canDoChatCompletion,
           canDoVision: model.canDoVision,
           canDoFunctionCalling: model.canDoFunctionCalling,
+          enabled: true, // Re-enable if it was previously disabled
         },
         create: {
           name: model.name,
@@ -104,6 +109,33 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
         },
       })
       syncedCount++
+    }
+
+    // Disable models that are no longer available from their providers
+    // Only affects providers that were successfully synced in this run
+    const discoveredModelKeys = new Set(discoveredModels.map((m) => `${m.provider}:${m.name}`))
+
+    const existingModels = await tx.aiLanguageModel.findMany({
+      where: {
+        provider: { in: activeProviders },
+        deleted: false,
+      },
+      select: { id: true, provider: true, name: true },
+    })
+
+    for (const existingModel of existingModels) {
+      const modelKey = `${existingModel.provider}:${existingModel.name}`
+      if (!discoveredModelKeys.has(modelKey)) {
+        // This model exists in the database but was not discovered from the provider
+        // Disable it (but don't delete - preserve historical data)
+        await tx.aiLanguageModel.update({
+          where: { id: existingModel.id },
+          data: { enabled: false },
+        })
+        console.log(
+          `⚠️ Disabled model ${existingModel.provider}:${existingModel.name} (no longer available from provider)`,
+        )
+      }
     }
   })
 
@@ -143,6 +175,59 @@ builder.mutationField('syncModels', (t) =>
           errors: [errorMessage],
         }
       }
+    },
+  }),
+)
+
+// Define UpdateAiLanguageModelInput type
+const UpdateAiLanguageModelInput = builder.inputType('UpdateAiLanguageModelInput', {
+  fields: (t) => ({
+    adminNotes: t.string({ required: false }),
+    enabled: t.boolean({ required: false }),
+  }),
+})
+
+// GraphQL mutation for updating a language model (admin-only)
+builder.mutationField('updateAiLanguageModel', (t) =>
+  t.withAuth({ isLoggedIn: true, admin: true }).prismaField({
+    type: 'AiLanguageModel',
+    args: {
+      id: t.arg.id({ required: true }),
+      data: t.arg({ type: UpdateAiLanguageModelInput, required: true }),
+    },
+    resolve: async (query, _root, { id, data }) => {
+      // Filter out null/undefined values
+      const updateData: { adminNotes?: string; enabled?: boolean } = {}
+      if (data.adminNotes !== null && data.adminNotes !== undefined) {
+        updateData.adminNotes = data.adminNotes
+      }
+      if (data.enabled !== null && data.enabled !== undefined) {
+        updateData.enabled = data.enabled
+      }
+
+      return await prisma.aiLanguageModel.update({
+        ...query,
+        where: { id },
+        data: updateData,
+      })
+    },
+  }),
+)
+
+// GraphQL mutation for soft-deleting a language model (admin-only)
+builder.mutationField('deleteAiLanguageModel', (t) =>
+  t.withAuth({ isLoggedIn: true, admin: true }).prismaField({
+    type: 'AiLanguageModel',
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _root, { id }) => {
+      // Soft delete (set deleted: true, enabled: false)
+      return await prisma.aiLanguageModel.update({
+        ...query,
+        where: { id },
+        data: { deleted: true, enabled: false },
+      })
     },
   }),
 )

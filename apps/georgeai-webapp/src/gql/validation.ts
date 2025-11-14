@@ -30,6 +30,7 @@ import {
   ListFieldType,
   ProcessingStatus,
   QueueType,
+  UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -175,7 +176,7 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     context: z.array(z.string()).nullish(),
     failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
-    languageModel: z.string().nullish(),
+    languageModelId: z.string().nullish(),
     name: z.string(),
     order: z.number().nullish(),
     prompt: z.string().nullish(),
@@ -217,6 +218,13 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
+  })
+}
+
+export function UpdateAiLanguageModelInputSchema(): z.ZodObject<Properties<UpdateAiLanguageModelInput>> {
+  return z.object({
+    adminNotes: z.string().nullish(),
+    enabled: z.boolean().nullish(),
   })
 }
 
