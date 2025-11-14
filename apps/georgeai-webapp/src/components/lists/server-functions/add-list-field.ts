@@ -37,7 +37,7 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
           name: data.name,
           type: data.type,
           sourceType: data.sourceType,
-          languageModel: data.languageModel,
+          languageModelId: data.languageModelId,
           prompt: data.prompt,
           contentQuery: data.contentQuery,
           failureTerms: data.failureTerms,

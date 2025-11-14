@@ -156,7 +156,7 @@ type AiContentProcessingTask {
   createdAt: DateTime!
   embeddingFailedAt: DateTime
   embeddingFinishedAt: DateTime
-  embeddingModelName: String
+  embeddingModel: AiLanguageModel
   embeddingStartedAt: DateTime
   embeddingStatus: EmbeddingStatus!
   embeddingTimeMs: Int
@@ -261,7 +261,8 @@ type AiEnrichmentTaskProcessingData {
 
 type AiEnrichmentTaskProcessingDataInput {
   aiGenerationPrompt: String!
-  aiModel: String!
+  aiModelName: String!
+  aiModelProvider: String!
   contentQuery: String
   contextFields: [EnrichmentTaskContextField!]!
   dataType: ListFieldType!
@@ -1064,6 +1065,39 @@ type MarkdownResult {
   fileName: String!
 }
 
+type ModelUsageByModel {
+  modelId: String!
+  modelName: String!
+  provider: String!
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+}
+
+type ModelUsageByProvider {
+  provider: String!
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+}
+
+type ModelUsageByType {
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+  usageType: String!
+}
+
+type ModelUsageStats {
+  avgDurationMs: Float!
+  avgTokensInput: Float!
+  avgTokensOutput: Float!
+  totalDurationMs: Int!
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+}
+
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -1179,6 +1213,7 @@ type Mutation {
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
+  syncModels: SyncModelsResult
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -1227,7 +1262,6 @@ type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
-  aiChatModels: [String!]!
   aiContentProcessingTasks(
     fileId: String
     libraryId: String!
@@ -1239,7 +1273,6 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
-  aiEmbeddingModels: [String!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLanguageModels(canDoChatCompletion: Boolean, canDoEmbedding: Boolean): [AiLanguageModel!]!
   aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
@@ -1282,14 +1315,33 @@ type Query {
     take: Int! = 20
   ): ListItemsQueryResult!
   aiLists: [AiList!]!
+  aiModelUsageByModel(
+    endDate: DateTime
+    libraryId: String
+    provider: String
+    startDate: DateTime
+    userId: String
+  ): [ModelUsageByModel!]!
+  aiModelUsageByProvider(
+    endDate: DateTime
+    libraryId: String
+    startDate: DateTime
+    userId: String
+  ): [ModelUsageByProvider!]!
+  aiModelUsageByType(endDate: DateTime, libraryId: String, startDate: DateTime, userId: String): [ModelUsageByType!]!
+  aiModelUsageStats(
+    assistantId: String
+    endDate: DateTime
+    libraryId: String
+    listId: String
+    modelId: String
+    startDate: DateTime
+    usageType: String
+    userId: String
+  ): ModelUsageStats
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
-  aiVisionModels: [String!]!
   apiKeys(libraryId: String!): [ApiKey!]!
-  """
-  Get all available OCR-capable vision models
-  """
-  availableOCRModels: [String!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
@@ -1339,6 +1391,12 @@ type SharePointValidationResult {
 type SourceFileLink {
   fileName: String!
   url: String!
+}
+
+type SyncModelsResult {
+  errors: [String!]!
+  modelsDiscovered: Int!
+  success: Boolean!
 }
 
 type UpdateLibraryParticipantsResult {

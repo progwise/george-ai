@@ -1,4 +1,4 @@
-import { getClusterStatus } from '@george-ai/ai-service-client'
+import { getOllamaClusterStatus } from '@george-ai/ai-service-client'
 
 import { builder } from '../builder'
 
@@ -86,7 +86,7 @@ builder.queryField('aiServiceStatus', (t) =>
     },
     resolve: async () => {
       try {
-        const status = await getClusterStatus()
+        const status = await getOllamaClusterStatus()
         return status
       } catch (error) {
         console.error('Error fetching AI service status:', error)

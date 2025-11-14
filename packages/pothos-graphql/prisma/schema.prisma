@@ -188,7 +188,7 @@ model AiContentProcessingTask {
   libraryId            String
   createdAt            DateTime                     @default(now())
   timeoutMs            Int?
-  embeddingModelName   String?
+  embeddingModelId     String?
   extractionOptions    String?
   processingStartedAt  DateTime?
   processingFinishedAt DateTime?
@@ -206,6 +206,7 @@ model AiContentProcessingTask {
   chunksSize           Int?
   metadata             String?
   processingCancelled  Boolean                      @default(false)
+  embeddingModel       AiLanguageModel?             @relation("ContentProcessingEmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
   extractionSubTasks   AiContentExtractionSubTask[]
   file                 AiLibraryFile                @relation(fields: [fileId], references: [id], onDelete: Cascade)
   library              AiLibrary                    @relation(fields: [libraryId], references: [id], onDelete: Cascade)
@@ -489,23 +490,24 @@ model ApiKey {
 }
 
 model AiLanguageModel {
-  id                         String         @id @default(cuid())
-  createdAt                  DateTime       @default(now())
-  updatedAt                  DateTime       @updatedAt
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
   name                       String
   provider                   String
-  canDoEmbedding             Boolean        @default(false)
-  canDoChatCompletion        Boolean        @default(false)
-  canDoVision                Boolean        @default(false)
-  canDoFunctionCalling       Boolean        @default(false)
-  enabled                    Boolean        @default(true)
-  deleted                    Boolean        @default(false)
+  canDoEmbedding             Boolean                     @default(false)
+  canDoChatCompletion        Boolean                     @default(false)
+  canDoVision                Boolean                     @default(false)
+  canDoFunctionCalling       Boolean                     @default(false)
+  enabled                    Boolean                     @default(true)
+  deleted                    Boolean                     @default(false)
   adminNotes                 String?
   lastUsedAt                 DateTime?
-  assistantsUsing            AiAssistant[]  @relation("LanguageModel")
-  librariesUsingForEmbedding AiLibrary[]    @relation("EmbeddingModel")
-  librariesUsingForOcr       AiLibrary[]    @relation("OcrModel")
-  listFieldsUsing            AiListField[]  @relation("ListFieldLanguageModel")
+  assistantsUsing            AiAssistant[]               @relation("LanguageModel")
+  librariesUsingForEmbedding AiLibrary[]                 @relation("EmbeddingModel")
+  librariesUsingForOcr       AiLibrary[]                 @relation("OcrModel")
+  listFieldsUsing            AiListField[]               @relation("ListFieldLanguageModel")
+  contentProcessingTasks     AiContentProcessingTask[]   @relation("ContentProcessingEmbeddingModel")
   usageLogs                  AiModelUsage[]
 
   @@unique([provider, name])

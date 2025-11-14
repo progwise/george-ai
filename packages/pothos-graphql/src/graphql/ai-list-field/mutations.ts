@@ -21,7 +21,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     prompt: t.string({ required: false }),
     failureTerms: t.string({ required: false }),
     contentQuery: t.string({ required: false }),
-    languageModel: t.string({ required: false }),
+    languageModelId: t.string({ required: false }),
     useVectorStore: t.boolean({ required: false }),
     context: t.stringList({ required: false }),
   }),
@@ -41,33 +41,20 @@ builder.mutationField('addListField', (t) =>
       })
       await canAccessListOrThrow(existingList.id, session.user.id)
 
-      const { languageModel, ...restData } = data
-
-      // Look up the model by name if provided
-      let languageModelId: string | null = null
-      if (languageModel) {
-        const model = await prisma.aiLanguageModel.findUnique({
-          where: { provider_name: { provider: 'ollama', name: languageModel } },
-        })
-        if (model) {
-          languageModelId = model.id
-        }
-      }
-
       const newField = await prisma.aiListField.create({
         ...query,
         data: {
-          listId,
-          name: restData.name,
-          type: restData.type,
-          order: restData.order || 0,
-          sourceType: restData.sourceType,
-          fileProperty: restData.fileProperty,
-          prompt: restData.prompt,
-          failureTerms: restData.failureTerms,
-          contentQuery: restData.contentQuery,
-          languageModelId,
-          useVectorStore: restData.useVectorStore,
+          name: data.name,
+          type: data.type,
+          order: data.order ?? undefined,
+          sourceType: data.sourceType,
+          fileProperty: data.fileProperty,
+          prompt: data.prompt,
+          failureTerms: data.failureTerms,
+          contentQuery: data.contentQuery,
+          languageModelId: data.languageModelId || null,
+          useVectorStore: data.useVectorStore,
+          listId: existingList.id,
         },
       })
 
@@ -102,33 +89,20 @@ builder.mutationField('updateListField', (t) =>
       })
       await canAccessListOrThrow(existingField.listId, session.user.id)
 
-      const { languageModel, ...restData } = data
-
-      // Look up the model by name if provided
-      let languageModelId: string | null = null
-      if (languageModel) {
-        const model = await prisma.aiLanguageModel.findUnique({
-          where: { provider_name: { provider: 'ollama', name: languageModel } },
-        })
-        if (model) {
-          languageModelId = model.id
-        }
-      }
-
       const updatedField = await prisma.aiListField.update({
         ...query,
         where: { id },
         data: {
-          name: restData.name,
-          type: restData.type,
-          order: restData.order ?? undefined,
-          sourceType: restData.sourceType,
-          fileProperty: restData.fileProperty,
-          prompt: restData.prompt,
-          failureTerms: restData.failureTerms,
-          contentQuery: restData.contentQuery,
-          languageModelId,
-          useVectorStore: restData.useVectorStore,
+          name: data.name,
+          type: data.type,
+          order: data.order ?? undefined,
+          sourceType: data.sourceType,
+          fileProperty: data.fileProperty,
+          prompt: data.prompt,
+          failureTerms: data.failureTerms,
+          contentQuery: data.contentQuery,
+          languageModelId: data.languageModelId || null,
+          useVectorStore: data.useVectorStore,
         },
       })
 

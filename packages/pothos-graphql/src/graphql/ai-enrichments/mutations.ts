@@ -44,7 +44,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
           fields: {
             where: { id: fieldId },
             include: {
-              languageModel: { select: { name: true } },
+              languageModel: { select: { id: true, provider: true, name: true } },
               context: {
                 include: {
                   contextField: {
@@ -82,7 +82,9 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       const files = await prisma.aiLibraryFile.findMany({
         include: {
           crawledByCrawler: { select: { id: true, uri: true } },
-          library: { select: { id: true, name: true, embeddingModel: { select: { name: true } } } },
+          library: {
+            select: { id: true, name: true, embeddingModel: { select: { id: true, provider: true, name: true } } },
+          },
           cache: { where: { fieldId } },
           contentExtractionTasks: {
             where: { processingFinishedAt: { not: null } },
@@ -136,11 +138,13 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
-        languageModel?: { name: string } | null
+        languageModel?: { id: string; provider: string; name: string } | null
       }
       const fieldForValidation = {
         ...fieldWithRelation,
-        languageModel: fieldWithRelation.languageModel?.name || '',
+        languageModelId: fieldWithRelation.languageModel?.id || '',
+        languageModelName: fieldWithRelation.languageModel?.name || '',
+        languageProvider: fieldWithRelation.languageModel?.provider || null,
       }
 
       const {

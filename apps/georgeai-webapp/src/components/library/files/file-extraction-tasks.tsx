@@ -16,7 +16,11 @@ graphql(`
     embeddingFailedAt
     chunksCount
     chunksSize
-    embeddingModelName
+    embeddingModel {
+      id
+      provider
+      name
+    }
     extractionOptions
     processingStatus
     extractionStatus

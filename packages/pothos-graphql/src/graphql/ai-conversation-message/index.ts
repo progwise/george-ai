@@ -158,14 +158,14 @@ builder.mutationField('sendMessage', (t) =>
                   id: true,
                   name: true,
                   description: true,
-                  embeddingModel: { select: { name: true } },
+                  embeddingModel: { select: { provider: true, name: true } },
                   fileConverterOptions: true,
                 },
               },
               usedFor: true,
             },
           },
-          languageModel: { select: { name: true } },
+          languageModel: { select: { provider: true, name: true } },
           description: true,
           baseCases: true,
         },
@@ -266,6 +266,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
+            languageModelProvider: assistant.languageModel?.provider || 'ollama',
             languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||

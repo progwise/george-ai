@@ -1,20 +1,9 @@
 import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
 
+import type { AIResponse, ChatOptions } from '../types.js'
 import { OpenAIChatCompletionChunkSchema } from './openai-api.js'
-import type { AIResponse, Message } from './types.js'
 
-export interface OpenAIChatOptions {
-  model: string
-  messages: Message[]
-  apiKey: string
-  baseUrl?: string
-  timeout?: number // in milliseconds
-  onChunk?: (chunk: string) => void // optional streaming callback
-  abortSignal?: AbortSignal // optional abort signal to cancel the request
-  abortOnConsecutiveRepeats?: number // number of repetitions to trigger abort
-}
-
-export async function openAIChat(options: OpenAIChatOptions): Promise<AIResponse> {
+export async function openAIChat(options: ChatOptions): Promise<AIResponse> {
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0
@@ -22,8 +11,12 @@ export async function openAIChat(options: OpenAIChatOptions): Promise<AIResponse
   let promptTokens = 0
   let completionTokens = 0
 
-  const baseUrl = options.baseUrl || 'https://api.openai.com/v1'
-  console.log(`Using OpenAI API ${baseUrl} for model ${options.model}`)
+  const baseUrl = process.env.OPEN_AI_API_URL || 'https://api.openai.com/v1'
+  const apiKey = process.env.OPEN_AI_KEY
+
+  if (!apiKey) {
+    throw new Error('OPEN_AI_KEY environment variable is not set')
+  }
 
   let isAborted = false
   let hasTimeout = false
@@ -33,11 +26,11 @@ export async function openAIChat(options: OpenAIChatOptions): Promise<AIResponse
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${options.apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: options.model,
+        model: options.modelName,
         messages: options.messages,
         stream: true,
         stream_options: { include_usage: true }, // CRITICAL: Required for usage tracking

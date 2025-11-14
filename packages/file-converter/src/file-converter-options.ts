@@ -5,7 +5,6 @@ export const KNOWN_OPTIONS = [
   'enableTextExtraction',
   'enableImageProcessing',
   'ocrPrompt',
-  'ocrModel',
   'ocrTimeout',
   'ocrLoopDetectionThreshold',
   'ocrImageScale',
@@ -18,7 +17,6 @@ export type FileConverterSettingName = (typeof KNOWN_OPTIONS)[number]
 export const DEFAULT_VALUES: Record<string, string> = {
   ocrPrompt:
     'Please give me the content of this image as markdown structured as follows:\nShort summary what you see in the image\nList all visual blocks with a headline and its content\nReturn plain and well structured Markdown. Do not repeat information.',
-  ocrModel: 'qwen2.5vl:latest',
   ocrTimeout: '120',
   ocrLoopDetectionThreshold: '5',
   ocrImageScale: '1.5',
@@ -35,7 +33,6 @@ export const FileConverterOptionsSchema = z.object({
   enableTextExtraction: z.boolean().default(false),
   enableImageProcessing: z.boolean().default(false),
   ocrPrompt: z.string().default(DEFAULT_VALUES.ocrPrompt),
-  ocrModel: z.string().default(DEFAULT_VALUES.ocrModel),
   ocrTimeout: z.number().default(parseInt(DEFAULT_VALUES.ocrTimeout, 10)),
   ocrLoopDetectionThreshold: z.number().default(parseInt(DEFAULT_VALUES.ocrLoopDetectionThreshold, 10)),
   ocrImageScale: z.number().default(1.5),
@@ -154,10 +151,6 @@ export const serializeFileConverterOptions = (options: FileConverterOptions): st
     parts.push(`ocrPrompt=${encodeURIComponent(options.ocrPrompt)}`)
   }
 
-  if (options.ocrModel) {
-    parts.push(`ocrModel=${options.ocrModel}`)
-  }
-
   if (options.ocrTimeout !== undefined) {
     parts.push(`ocrTimeout=${options.ocrTimeout}`)
   }
@@ -253,7 +246,7 @@ export const EXTRACTION_METHODS: Record<
     name: 'PDF Image OCR',
     description: 'Extract content from PDF images using LLM',
     supportedMimeTypes: ['application/pdf'],
-    requiresOptions: ['ocrModel', 'ocrPrompt'],
+    requiresOptions: ['ocrPrompt'],
   },
   'docx-extraction': {
     name: 'DOCX Extraction',
@@ -317,9 +310,6 @@ export const validateOptionsForExtractionMethod = (
 
     // Check if required options are present and valid
     for (const requiredOption of methodConfig.requiresOptions) {
-      if (requiredOption === 'ocrModel' && (!options.ocrModel || options.ocrModel.trim() === '')) {
-        return { success: false, error: `OCR model is required for ${extractionMethod}` }
-      }
       if (requiredOption === 'ocrPrompt' && (!options.ocrPrompt || options.ocrPrompt.trim() === '')) {
         return { success: false, error: `OCR prompt is required for ${extractionMethod}` }
       }

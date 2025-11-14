@@ -40,7 +40,7 @@ export const getListFieldFormSchema = (
       .max(100, translate('lists.fields.nameTooLong', language)),
     type: z.nativeEnum(ListFieldType, { message: translate('lists.fields.typeRequired', language) }),
     sourceType: z.nativeEnum(ListFieldSourceType, { message: translate('lists.fields.sourceTypeRequired', language) }),
-    languageModel: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
+    languageModelId: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
     prompt: z
       .string()
       .min(10, translate('lists.fields.promptTooShort', language))
@@ -96,6 +96,8 @@ graphql(`
     failureTerms
     contentQuery
     languageModel {
+      id
+      provider
       name
     }
     useVectorStore
@@ -237,9 +239,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
               <Select
                 label={t('lists.fields.aiModel')}
-                name="languageModel"
+                name="languageModelId"
                 options={availableModels}
-                value={availableModels.find((model) => model.id === editField?.languageModel?.name)}
+                value={availableModels.find((model) => model.id === editField?.languageModel?.id) || null}
                 placeholder={t('lists.fields.selectAiModel')}
                 schema={schema}
                 required

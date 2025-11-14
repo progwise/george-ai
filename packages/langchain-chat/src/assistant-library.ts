@@ -1,9 +1,10 @@
-import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
+import { AssistantModel } from './assistant-model'
+
 export const getLibraryRelevancePrompt = async (
-  model: BaseChatModel,
+  model: AssistantModel,
   {
     chatHistory,
     question,

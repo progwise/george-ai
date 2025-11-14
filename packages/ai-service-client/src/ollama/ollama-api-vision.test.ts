@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { getTestImage } from '../testing/test-image-helper'
 import { type OllamaStreamChunk, getChatResponseStream } from './ollama-api'
-import { getTestImage } from './testing/test-image-helper'
 
 // Skip all tests if required environment variables are not set
 describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_VL)('ollama vision streaming tests', () => {

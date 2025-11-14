@@ -27,6 +27,8 @@ export const updateListFieldFn = createServerFn({ method: 'POST' })
             useVectorStore
             contentQuery
             languageModel {
+              id
+              provider
               name
             }
           }
@@ -38,7 +40,7 @@ export const updateListFieldFn = createServerFn({ method: 'POST' })
           name: data.name,
           type: data.type,
           sourceType: data.sourceType,
-          languageModel: data.languageModel,
+          languageModelId: data.languageModelId,
           prompt: data.prompt,
           failureTerms: data.failureTerms,
           contentQuery: data.contentQuery,

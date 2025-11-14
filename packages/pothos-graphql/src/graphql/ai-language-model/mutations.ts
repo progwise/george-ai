@@ -1,4 +1,4 @@
-import { classifyModel, getOpenAIModels, ollamaResourceManager } from '@george-ai/ai-service-client'
+import { classifyModel, getOllamaModelNames, getOpenAIModelNames } from '@george-ai/ai-service-client'
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -26,7 +26,7 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
   if (process.env.OLLAMA_BASE_URL) {
     try {
       // Use existing method - already handles multi-instance deduplication!
-      const ollamaModelNames = await ollamaResourceManager.getAvailableModelNames()
+      const ollamaModelNames = await getOllamaModelNames()
 
       for (const name of ollamaModelNames) {
         const classification = classifyModel(name)
@@ -50,15 +50,12 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
   // 2. Discover OpenAI models (new)
   if (process.env.OPENAI_API_KEY) {
     try {
-      const response = await getOpenAIModels({
-        url: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-        apiKey: process.env.OPENAI_API_KEY,
-      })
+      const response = await getOpenAIModelNames()
 
-      for (const model of response.data) {
-        const classification = classifyModel(model.id)
+      for (const model of response) {
+        const classification = classifyModel(model)
         discoveredModels.push({
-          name: model.id,
+          name: model,
           provider: 'openai',
           canDoEmbedding: classification.isEmbeddingModel,
           canDoChatCompletion: classification.isChatModel,
@@ -67,7 +64,7 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
         })
       }
 
-      console.log(`✅ Discovered ${response.data.length} OpenAI models`)
+      console.log(`✅ Discovered ${response.length} OpenAI models`)
     } catch (error) {
       console.warn('⚠️ OpenAI sync failed:', error)
       // Continue even if OpenAI fails

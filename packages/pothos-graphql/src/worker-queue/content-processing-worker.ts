@@ -23,6 +23,7 @@ import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
 
 import { Prisma } from '../../prisma/generated/client'
+import { logModelUsage } from '../domain/languageModel'
 import { prisma } from '../prisma'
 
 let isWorkerRunning = false
@@ -37,6 +38,7 @@ let processingCount = 0
 type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
   include: {
     extractionSubTasks: true
+    embeddingModel: { select: { id: true; provider: true; name: true } }
     file: {
       select: {
         id: true
@@ -44,7 +46,6 @@ type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
         originUri: true
         mimeType: true
         libraryId: true
-        library: { select: { embeddingModel: { select: { name: true } } } }
       }
     }
   }
@@ -91,6 +92,7 @@ const updateProcessingTask = async (args: {
   const update = await prisma.aiContentProcessingTask.update({
     include: {
       extractionSubTasks: true,
+      embeddingModel: { select: { id: true, provider: true, name: true } },
       file: {
         select: {
           id: true,
@@ -98,7 +100,6 @@ const updateProcessingTask = async (args: {
           originUri: true,
           mimeType: true,
           libraryId: true,
-          library: { select: { embeddingModel: { select: { name: true } } } },
         },
       },
     },
@@ -190,7 +191,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       extractionSubTasks: task.extractionSubTasks,
       extractionOptions: task.extractionOptions,
       mimeType: task.file.mimeType,
-      embeddingModelName: task.file.library.embeddingModel?.name ?? null,
+      embeddingModelProvider: task.embeddingModel?.provider ?? null,
+      embeddingModelName: task.embeddingModel?.name ?? null,
       fileId: task.fileId,
       fileName: task.file.name,
       libraryId: task.file.libraryId,
@@ -364,6 +366,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         mimeType: task.file.mimeType!,
         libraryId: task.file.libraryId,
         markdownFileName: markdownFileName,
+        embeddingModelId: task.embeddingModel?.id,
+        embeddingModelProvider: validated.embeddingModelProvider,
         embeddingModelName: validated.embeddingModelName,
       })
       return embeddingResult
@@ -495,6 +499,8 @@ const processEmbeddingPhase = async (args: {
   mimeType: string
   libraryId: string
   markdownFileName: string
+  embeddingModelId: string | undefined
+  embeddingModelProvider: string
   embeddingModelName: string
 }) => {
   console.log(`🔗 Starting embedding phase for task ${args.taskId}`)
@@ -502,10 +508,14 @@ const processEmbeddingPhase = async (args: {
   // Get markdown file path
   const markdownPath = path.join(getFileDir({ fileId: args.fileId, libraryId: args.libraryId }), args.markdownFileName)
 
+  // Track start time for usage logging
+  const startTime = Date.now()
+
   // Use embedFile function (embeddingModelName validated in validation phase)
   const embeddedFile = await embedMarkdownFile({
     timeoutSignal: args.timeoutSignal,
     libraryId: args.libraryId,
+    embeddingModelProvider: args.embeddingModelProvider,
     embeddingModelName: args.embeddingModelName,
     fileId: args.fileId,
     fileName: args.fileName,
@@ -513,6 +523,27 @@ const processEmbeddingPhase = async (args: {
     mimeType: args.mimeType,
     markdownFilePath: markdownPath,
   })
+
+  // Log usage for embeddings (async, non-blocking)
+  const durationMs = Date.now() - startTime
+  void (async () => {
+    try {
+      // Use embeddingModelId if available, otherwise skip logging
+      if (args.embeddingModelId) {
+        await logModelUsage({
+          modelId: args.embeddingModelId,
+          libraryId: args.libraryId,
+          usageType: 'embedding',
+          durationMs,
+          tokensInput: embeddedFile.size, // Use text size as proxy for input tokens
+          tokensOutput: embeddedFile.chunks, // Number of embeddings generated
+        })
+      }
+    } catch (error) {
+      // Usage tracking failures don't break the operation
+      console.error('Failed to log embedding usage:', error)
+    }
+  })()
 
   return {
     success: true, //TODO: Is it a success if there are chunkErrors?
@@ -529,6 +560,7 @@ const performValidation = async (args: {
   extractionSubTasks: Array<{ extractionMethod: string; markdownFileName?: string | null; finishedAt?: Date | null }>
   extractionOptions?: string | null
   mimeType: string | null
+  embeddingModelProvider: string | null
   embeddingModelName: string | null
   fileId: string
   fileName: string | null
@@ -594,6 +626,10 @@ const performValidation = async (args: {
     return { success: false, errors }
   }
 
+  if (!args.embeddingModelProvider) {
+    errors.push('Library embedding model provider not configured')
+  }
+
   // Validate embedding model is configured
   if (!args.embeddingModelName) {
     errors.push(`Library embedding model not configured`)
@@ -609,6 +645,7 @@ const performValidation = async (args: {
     validated: {
       extractionSubTasks: args.extractionSubTasks,
       extractionOptions: fileConverterOptions,
+      embeddingModelProvider: args.embeddingModelProvider!,
       embeddingModelName: args.embeddingModelName!,
       uploadFilePath,
     },
@@ -624,6 +661,8 @@ const performContentExtraction = async (args: {
   extractionOptions: FileConverterOptions
   uploadFilePath: string
   mimeType: string
+  ocrModelProvider?: string
+  ocrModelName?: string
 }) => {
   try {
     // Process based on extraction method
@@ -660,12 +699,16 @@ const performContentExtraction = async (args: {
       }
 
       case 'pdf-image-llm': {
+        if (!args.ocrModelProvider || !args.ocrModelName) {
+          throw new Error('OCR model provider and name must be specified for pdf-image-llm extraction')
+        }
         result = await transformPdfToImageToMarkdown(
           args.uploadFilePath,
           args.timeoutSignal,
           args.extractionOptions.ocrImageScale,
           args.extractionOptions.ocrPrompt,
-          args.extractionOptions.ocrModel,
+          args.ocrModelProvider,
+          args.ocrModelName,
           args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
           args.extractionOptions.ocrMaxConsecutiveRepeats,
         )
@@ -682,7 +725,7 @@ const performContentExtraction = async (args: {
       libraryId: args.libraryId,
       extractionMethod: args.extractionMethod,
       markdown: result.markdownContent,
-      model: args.extractionMethod === 'pdf-image-llm' ? args.extractionOptions.ocrModel : undefined,
+      model: args.extractionMethod === 'pdf-image-llm' ? args.ocrModelName : undefined,
     })
 
     return {
@@ -717,6 +760,7 @@ async function processQueue() {
     const pendingTasks = await prisma.aiContentProcessingTask.findMany({
       include: {
         extractionSubTasks: true,
+        embeddingModel: { select: { id: true, provider: true, name: true } },
         file: {
           select: {
             id: true,
@@ -724,7 +768,6 @@ async function processQueue() {
             originUri: true,
             mimeType: true,
             libraryId: true,
-            library: { select: { embeddingModel: { select: { name: true } } } },
           },
         },
       },

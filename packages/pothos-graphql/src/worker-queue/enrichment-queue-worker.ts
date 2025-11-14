@@ -1,8 +1,9 @@
-import { Message, ollamaChat } from '@george-ai/ai-service-client'
+import { Message, chat } from '@george-ai/ai-service-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
+import { logModelUsage } from '../domain/languageModel'
 import { prisma } from '../prisma'
 
 let isWorkerRunning = false
@@ -100,11 +101,38 @@ async function processQueueItem({
       }
 
       outputMetaData.messages = messages
-      const chatResponse = await ollamaChat({
+
+      // Track start time for usage logging
+      const startTime = Date.now()
+
+      const chatResponse = await chat({
         messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
-        model: metadata.input.aiModel,
+        modelProvider: metadata.input.aiModelProvider || 'ollama',
+        modelName: metadata.input.aiModelName,
       })
       computedValue = chatResponse.content.trim()
+
+      // Log usage for enrichment (async, non-blocking)
+      const durationMs = Date.now() - startTime
+      void (async () => {
+        try {
+          if (!metadata.input) {
+            return
+          }
+
+          await logModelUsage({
+            modelId: metadata.input.aiModelId,
+            listId: enrichmentTask.listId,
+            libraryId: metadata.input.libraryId,
+            usageType: 'enrichment',
+            tokensInput: chatResponse.metadata?.tokensProcessed,
+            durationMs,
+          })
+        } catch (error) {
+          // Usage tracking failures don't break the operation
+          console.error('Failed to log enrichment usage:', error)
+        }
+      })()
 
       outputMetaData.aiInstance = chatResponse.metadata?.instanceUrl
       outputMetaData.enrichedValue = computedValue

@@ -175,7 +175,7 @@ export type AiContentProcessingTask = {
   createdAt: Scalars['DateTime']['output']
   embeddingFailedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingFinishedAt?: Maybe<Scalars['DateTime']['output']>
-  embeddingModelName?: Maybe<Scalars['String']['output']>
+  embeddingModel?: Maybe<AiLanguageModel>
   embeddingStartedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingStatus: EmbeddingStatus
   embeddingTimeMs?: Maybe<Scalars['Int']['output']>
@@ -285,7 +285,8 @@ export type AiEnrichmentTaskProcessingData = {
 export type AiEnrichmentTaskProcessingDataInput = {
   __typename?: 'AiEnrichmentTaskProcessingDataInput'
   aiGenerationPrompt: Scalars['String']['output']
-  aiModel: Scalars['String']['output']
+  aiModelName: Scalars['String']['output']
+  aiModelProvider: Scalars['String']['output']
   contentQuery?: Maybe<Scalars['String']['output']>
   contextFields: Array<EnrichmentTaskContextField>
   dataType: ListFieldType
@@ -1130,6 +1131,43 @@ export type MarkdownResult = {
   fileName: Scalars['String']['output']
 }
 
+export type ModelUsageByModel = {
+  __typename?: 'ModelUsageByModel'
+  modelId: Scalars['String']['output']
+  modelName: Scalars['String']['output']
+  provider: Scalars['String']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
+export type ModelUsageByProvider = {
+  __typename?: 'ModelUsageByProvider'
+  provider: Scalars['String']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
+export type ModelUsageByType = {
+  __typename?: 'ModelUsageByType'
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+  usageType: Scalars['String']['output']
+}
+
+export type ModelUsageStats = {
+  __typename?: 'ModelUsageStats'
+  avgDurationMs: Scalars['Float']['output']
+  avgTokensInput: Scalars['Float']['output']
+  avgTokensOutput: Scalars['Float']['output']
+  totalDurationMs: Scalars['Int']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
@@ -1197,6 +1235,7 @@ export type Mutation = {
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
   stopQueueWorker: QueueOperationResult
+  syncModels?: Maybe<SyncModelsResult>
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -1606,13 +1645,11 @@ export type Query = {
   aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
-  aiChatModels: Array<Scalars['String']['output']>
   aiContentProcessingTasks: ContentExtractionTaskQueryResult
   aiContentQueries: Array<ContentQueryResult>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
-  aiEmbeddingModels: Array<Scalars['String']['output']>
   aiFileChunks: FileChunkQueryResponse
   aiLanguageModels: Array<AiLanguageModel>
   aiLibraries: Array<AiLibrary>
@@ -1629,12 +1666,13 @@ export type Query = {
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
+  aiModelUsageByModel: Array<ModelUsageByModel>
+  aiModelUsageByProvider: Array<ModelUsageByProvider>
+  aiModelUsageByType: Array<ModelUsageByType>
+  aiModelUsageStats?: Maybe<ModelUsageStats>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
-  aiVisionModels: Array<Scalars['String']['output']>
   apiKeys: Array<ApiKey>
-  /** Get all available OCR-capable vision models */
-  availableOCRModels: Array<Scalars['String']['output']>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
@@ -1765,6 +1803,39 @@ export type QueryAiListItemsArgs = {
   take?: Scalars['Int']['input']
 }
 
+export type QueryAiModelUsageByModelArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  provider?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageByProviderArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageByTypeArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageStatsArgs = {
+  assistantId?: InputMaybe<Scalars['String']['input']>
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  listId?: InputMaybe<Scalars['String']['input']>
+  modelId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  usageType?: InputMaybe<Scalars['String']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
 export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
@@ -1842,6 +1913,13 @@ export type SourceFileLink = {
   __typename?: 'SourceFileLink'
   fileName: Scalars['String']['output']
   url: Scalars['String']['output']
+}
+
+export type SyncModelsResult = {
+  __typename?: 'SyncModelsResult'
+  errors: Array<Scalars['String']['output']>
+  modelsDiscovered: Scalars['Int']['output']
+  success: Scalars['Boolean']['output']
 }
 
 export type UpdateLibraryParticipantsResult = {
@@ -3427,12 +3505,12 @@ export type AiContentProcessingTask_ListFragment = {
   embeddingFailedAt?: string | null
   chunksCount?: number | null
   chunksSize?: number | null
-  embeddingModelName?: string | null
   extractionOptions?: string | null
   processingStatus: ProcessingStatus
   extractionStatus: ExtractionStatus
   embeddingStatus: EmbeddingStatus
   metadata?: string | null
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type AiLibraryFile_InfoBoxFragment = {
@@ -4106,7 +4184,6 @@ export type GetContentProcessingTasksQuery = {
       embeddingFailedAt?: string | null
       embeddingTimeMs?: number | null
       embeddingTimeout: boolean
-      embeddingModelName?: string | null
       file: {
         __typename?: 'AiLibraryFile'
         id: string
@@ -4123,6 +4200,7 @@ export type GetContentProcessingTasksQuery = {
         finishedAt?: string | null
         failedAt?: string | null
       }>
+      embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     }>
   }
 }
@@ -4155,7 +4233,6 @@ export type AiContentProcessingTask_AccordionItemFragment = {
   embeddingFailedAt?: string | null
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
-  embeddingModelName?: string | null
   file: {
     __typename?: 'AiLibraryFile'
     id: string
@@ -4172,6 +4249,7 @@ export type AiContentProcessingTask_AccordionItemFragment = {
     finishedAt?: string | null
     failedAt?: string | null
   }>
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type TaskMenu_FilesQueryResultFragment = {
@@ -4199,7 +4277,7 @@ export type AiContentProcessingTask_TimelineFragment = {
   embeddingFailedAt?: string | null
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
-  embeddingModelName?: string | null
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   extractionSubTasks: Array<{
     __typename?: 'AiContentExtractionSubTask'
     id: string
@@ -4306,7 +4384,8 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
       fileName: string
       libraryId: string
       libraryName: string
-      aiModel: string
+      aiModelProvider: string
+      aiModelName: string
       aiGenerationPrompt: string
       dataType: ListFieldType
       libraryEmbeddingModel?: string | null
@@ -4368,7 +4447,7 @@ export type FieldModal_FieldFragment = {
   contentQuery?: string | null
   useVectorStore?: boolean | null
   order: number
-  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4421,7 +4500,7 @@ export type ListFieldsTableMenu_FieldFragment = {
   failureTerms?: string | null
   contentQuery?: string | null
   useVectorStore?: boolean | null
-  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4470,7 +4549,7 @@ export type ListFieldsTable_ListFragment = {
     contentQuery?: string | null
     useVectorStore?: boolean | null
     order: number
-    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
@@ -4490,7 +4569,7 @@ export type ListFieldsTable_FieldFragment = {
   contentQuery?: string | null
   useVectorStore?: boolean | null
   order: number
-  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4626,7 +4705,8 @@ export type GetEnrichmentsQuery = {
           fileName: string
           libraryId: string
           libraryName: string
-          aiModel: string
+          aiModelProvider: string
+          aiModelName: string
           aiGenerationPrompt: string
           dataType: ListFieldType
           libraryEmbeddingModel?: string | null
@@ -4736,7 +4816,7 @@ export type GetListQuery = {
       contentQuery?: string | null
       useVectorStore?: boolean | null
       order: number
-      languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+      languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
     sources: Array<{
@@ -5063,7 +5143,7 @@ export type UpdateListFieldMutation = {
     failureTerms?: string | null
     useVectorStore?: boolean | null
     contentQuery?: string | null
-    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   }
 }
 
@@ -5089,7 +5169,7 @@ export type ListFieldSettings_FieldFragment = {
   failureTerms?: string | null
   contentQuery?: string | null
   useVectorStore?: boolean | null
-  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -8213,7 +8293,18 @@ export const AiContentProcessingTask_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunksSize' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionStatus' } },
@@ -8499,7 +8590,18 @@ export const AiContentProcessingTask_TimelineFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -8603,7 +8705,18 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -8759,7 +8872,8 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelProvider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
                       {
                         kind: 'Field',
@@ -8989,7 +9103,11 @@ export const FieldModal_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -9045,7 +9163,11 @@ export const ListFieldsTable_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -9097,7 +9219,11 @@ export const ListFieldSettings_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -9167,7 +9293,11 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -9341,7 +9471,11 @@ export const ListFieldsTable_ListFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -15194,7 +15328,18 @@ export const GetContentProcessingTasksDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -15668,7 +15813,8 @@ export const GetEnrichmentsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelProvider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
                       {
                         kind: 'Field',
@@ -16014,7 +16160,11 @@ export const GetListDocument = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
@@ -17364,7 +17514,11 @@ export const UpdateListFieldDocument = {
                   name: { kind: 'Name', value: 'languageModel' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
               ],

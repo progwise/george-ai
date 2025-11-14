@@ -6,7 +6,8 @@ export interface Assistant {
   id: string
   name: string
   description: string | null
-  languageModel: string | null
+  languageModelProvider: string
+  languageModel: string
   baseCases: Array<{ condition?: string | null; instruction?: string | null }>
 }
 

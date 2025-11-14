@@ -85,7 +85,7 @@ builder.prismaObject('AiContentProcessingTask', {
     // Result data
     chunksCount: t.exposeInt('chunksCount', { nullable: true }),
     chunksSize: t.exposeInt('chunksSize', { nullable: true }),
-    embeddingModelName: t.exposeString('embeddingModelName', { nullable: true }),
+    embeddingModel: t.relation('embeddingModel', { nullable: true }),
 
     // Metadata
     metadata: t.exposeString('metadata', { nullable: true }),
