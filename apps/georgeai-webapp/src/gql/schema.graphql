@@ -127,7 +127,7 @@ type AiAssistantBaseCase {
 input AiAssistantInput {
   description: String
   icon: String
-  languageModel: String
+  languageModelId: String
   name: String!
   url: String
 }

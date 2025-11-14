@@ -14,7 +14,9 @@ export interface AIResponse {
     tokensProcessed?: number
     timeElapsed?: number
     lastChunkTimestamp?: number
-    instanceUrl?: string // Which OLLAMA instance was used
+    instanceUrl?: string // Which OLLAMA/OpenAI instance was used
+    promptTokens?: number // For usage tracking (OpenAI)
+    completionTokens?: number // For usage tracking (OpenAI)
   }
   error?: object
 }

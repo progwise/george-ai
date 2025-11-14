@@ -76,7 +76,7 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
   return z.object({
     description: z.string().nullish(),
     icon: z.string().nullish(),
-    languageModel: z.string().nullish(),
+    languageModelId: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
   })

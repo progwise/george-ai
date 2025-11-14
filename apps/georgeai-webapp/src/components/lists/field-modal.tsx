@@ -17,7 +17,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getChatModelsQueryOptions } from '../model/get-models'
+import { getLanguageModelsForChatQueryOptions } from '../model/get-models'
 import { addListFieldFn, updateListFieldFn } from './server-functions'
 
 export const getListFieldFormSchema = (
@@ -119,9 +119,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   const { t, language } = useTranslation()
 
   // Query available AI chat models
-  const { data: aiModelsData } = useSuspenseQuery(getChatModelsQueryOptions())
+  const { data: aiModelsData } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
 
-  const availableModels = aiModelsData?.aiChatModels || []
+  const availableModels = aiModelsData.aiLanguageModels
   const availableFields = list.fields || []
 
   // Get current context field IDs for edit mode
@@ -238,10 +238,8 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
               <Select
                 label={t('lists.fields.aiModel')}
                 name="languageModel"
-                options={availableModels.map((model) => ({ id: model, name: model }))}
-                value={availableModels
-                  .map((model) => ({ id: model, name: model }))
-                  .find((model) => model.id === editField?.languageModel?.name)}
+                options={availableModels}
+                value={availableModels.find((model) => model.id === editField?.languageModel?.name)}
                 placeholder={t('lists.fields.selectAiModel')}
                 schema={schema}
                 required

@@ -4,4 +4,13 @@ export { getOllamaEmbedding } from './ollama-embed'
 export { ollamaResourceManager } from './ollama-resource-manager'
 export { getClusterStatus } from './cluster-status'
 export type { AIResponse, Message } from './types'
-export { isChatModel, isEmbeddingModel, isVisionModel, getCapabilitiesForModel } from './model-classifier'
+export {
+  isChatModel,
+  isEmbeddingModel,
+  isVisionModel,
+  getCapabilitiesForModel,
+  classifyModel,
+} from './model-classifier'
+export { getOpenAIModels, generateOpenAIEmbeddings, type OpenAIModel } from './openai-api'
+export { openAIChat, type OpenAIChatOptions } from './openai-chat'
+export { getOpenAIEmbedding, type OpenAIEmbeddingOptions } from './openai-embed'

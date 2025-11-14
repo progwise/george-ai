@@ -39,7 +39,7 @@ type Documents = {
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            condition\n            instruction\n          }\n        }\n      ': typeof types.UpsertAiBaseCasesDocument
   '\n  fragment AssistantBasecaseForm_Assistant on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      condition\n      instruction\n    }\n  }\n': typeof types.AssistantBasecaseForm_AssistantFragmentDoc
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
   '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n': typeof types.AssistantLibraries_AssistantFragmentDoc
   '\n  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n': typeof types.AssistantLibraries_LibraryUsageFragmentDoc
@@ -172,9 +172,8 @@ type Documents = {
   '\n        mutation updateListField($id: String!, $data: AiListFieldInput!) {\n          updateListField(id: $id, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            useVectorStore\n            contentQuery\n            languageModel {\n              name\n            }\n          }\n        }\n      ': typeof types.UpdateListFieldDocument
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n  fragment ListFieldSettings_Field on AiListField {\n    id\n    order\n    ...ListFieldsTable_Field\n  }\n': typeof types.ListFieldSettings_FieldFragmentDoc
-  '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': typeof types.AiChatModelsDocument
-  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': typeof types.AiEmbeddingModelsDocument
   '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ': typeof types.AiLanguageModelsDocument
+  '\n      query aiLanguageModelsForChat($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ': typeof types.AiLanguageModelsForChatDocument
   '\n  fragment User_EntityParticipantsDialog on User {\n    id\n    name\n    username\n    given_name\n    family_name\n    email\n    avatarUrl\n    profile {\n      position\n      business\n    }\n  }\n\n  fragment Assistant_EntityParticipantsDialog on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ownerId\n  }\n': typeof types.User_EntityParticipantsDialogFragmentDoc
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
@@ -252,7 +251,7 @@ const documents: Documents = {
     types.AssistantBasecaseForm_AssistantFragmentDoc,
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ':
     types.DeleteAiAssistantDocument,
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n':
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n':
     types.AssistantForm_AssistantFragmentDoc,
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateAssistantDocument,
@@ -515,10 +514,10 @@ const documents: Documents = {
     types.UpdateListDocument,
   '\n  fragment ListFieldSettings_Field on AiListField {\n    id\n    order\n    ...ListFieldsTable_Field\n  }\n':
     types.ListFieldSettings_FieldFragmentDoc,
-  '\n      query aiChatModels {\n        aiChatModels\n      }\n    ': types.AiChatModelsDocument,
-  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ': types.AiEmbeddingModelsDocument,
   '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ':
     types.AiLanguageModelsDocument,
+  '\n      query aiLanguageModelsForChat($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ':
+    types.AiLanguageModelsForChatDocument,
   '\n  fragment User_EntityParticipantsDialog on User {\n    id\n    name\n    username\n    given_name\n    family_name\n    email\n    avatarUrl\n    profile {\n      position\n      business\n    }\n  }\n\n  fragment Assistant_EntityParticipantsDialog on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ownerId\n  }\n':
     types.User_EntityParticipantsDialogFragmentDoc,
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
@@ -736,8 +735,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n',
-): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      name\n    }\n    updatedAt\n  }\n']
+  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1534,20 +1533,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query aiChatModels {\n        aiChatModels\n      }\n    ',
-): (typeof documents)['\n      query aiChatModels {\n        aiChatModels\n      }\n    ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ',
-): (typeof documents)['\n      query aiEmbeddingModels {\n        aiEmbeddingModels\n      }\n    ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ',
 ): (typeof documents)['\n      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query aiLanguageModelsForChat($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ',
+): (typeof documents)['\n      query aiLanguageModelsForChat($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {\n        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {\n          id\n          name\n          provider\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

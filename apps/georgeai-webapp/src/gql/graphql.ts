@@ -144,7 +144,7 @@ export type AiAssistantBaseCase = {
 export type AiAssistantInput = {
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
-  languageModel?: InputMaybe<Scalars['String']['input']>
+  languageModelId?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -2599,7 +2599,7 @@ export type AssistantForm_AssistantFragment = {
   description?: string | null
   ownerId: string
   updatedAt?: string | null
-  languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type UpdateAssistantMutationVariables = Exact<{
@@ -2692,7 +2692,7 @@ export type AiAssistantDetailsQuery = {
     description?: string | null
     ownerId: string
     updatedAt?: string | null
-    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     baseCases: Array<{
       __typename?: 'AiAssistantBaseCase'
       id?: string | null
@@ -5093,20 +5093,22 @@ export type ListFieldSettings_FieldFragment = {
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
-export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
-
-export type AiChatModelsQuery = { __typename?: 'Query'; aiChatModels: Array<string> }
-
-export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
-
-export type AiEmbeddingModelsQuery = { __typename?: 'Query'; aiEmbeddingModels: Array<string> }
-
 export type AiLanguageModelsQueryVariables = Exact<{
   canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
   canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type AiLanguageModelsQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+}
+
+export type AiLanguageModelsForChatQueryVariables = Exact<{
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type AiLanguageModelsForChatQuery = {
   __typename?: 'Query'
   aiLanguageModels: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
 }
@@ -6751,7 +6753,11 @@ export const AssistantForm_AssistantFragmentDoc = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -11745,7 +11751,11 @@ export const AiAssistantDetailsDocument = {
             name: { kind: 'Name', value: 'languageModel' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -17412,34 +17422,6 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
-export const AiChatModelsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiChatModels' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'aiChatModels' } }],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
-export const AiEmbeddingModelsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiEmbeddingModels' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'aiEmbeddingModels' } }],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
 export const AiLanguageModelsDocument = {
   kind: 'Document',
   definitions: [
@@ -17491,6 +17473,57 @@ export const AiLanguageModelsDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLanguageModelsQuery, AiLanguageModelsQueryVariables>
+export const AiLanguageModelsForChatDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLanguageModelsForChat' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLanguageModelsForChatQuery, AiLanguageModelsForChatQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [

@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
@@ -10,7 +10,7 @@ import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 import { LoadingSpinner } from '../loading-spinner'
-import { getChatModelsQueryOptions, getLanguageModelsForEmbeddingQueryOptions } from '../model/get-models'
+import { getLanguageModelsForChatQueryOptions, getLanguageModelsForEmbeddingQueryOptions } from '../model/get-models'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -46,34 +46,16 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
 
   const {
-    data: { aiLanguageModels },
+    data: { aiLanguageModels: aiEmbeddingModels },
   } = useSuspenseQuery(getLanguageModelsForEmbeddingQueryOptions())
 
   const {
-    data: { aiChatModels },
-  } = useSuspenseQuery(getChatModelsQueryOptions())
+    data: { aiLanguageModels: aiChatModels },
+  } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
 
   const fieldProps = {
     schema,
   }
-
-  const mappedEmbeddingModels = useMemo(
-    () =>
-      aiLanguageModels.map((model) => ({
-        id: model.id,
-        name: model.name,
-      })),
-    [aiLanguageModels],
-  )
-
-  const mappedChatModels = useMemo(
-    () =>
-      aiChatModels.map((model) => ({
-        id: model,
-        name: model,
-      })),
-    [aiChatModels],
-  )
 
   // Parse current file converter options
   const currentOptions = library.fileConverterOptions ? library.fileConverterOptions.split(',') : []
@@ -209,8 +191,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                   <Select
                     name="embeddingModelId"
                     label={t('labels.embeddingModelName')}
-                    options={mappedEmbeddingModels}
-                    value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModel?.id)}
+                    options={aiEmbeddingModels}
+                    value={aiEmbeddingModels.find((model) => model.id === library.embeddingModel?.id)}
                     className="col-span-1"
                     placeholder={t('libraries.placeholders.embeddingModelName')}
                     {...fieldProps}
@@ -325,8 +307,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       <Select
                         name="ocrModel"
                         label={t('labels.ocrModel')}
-                        options={mappedChatModels}
-                        value={mappedChatModels.find(
+                        options={aiChatModels}
+                        value={aiChatModels.find(
                           (model) => model.id === parseOptionValue('ocrModel', 'qwen2.5vl:latest'),
                         )}
                         className="col-span-2 lg:col-span-1"

@@ -3,37 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { graphql } from '../../gql'
 import { backendRequest } from '../../server-functions/backend'
 
-const getChatModels = createServerFn({ method: 'GET' }).handler(async () => {
-  return backendRequest(
-    graphql(`
-      query aiChatModels {
-        aiChatModels
-      }
-    `),
-  )
-})
-
-export const getChatModelsQueryOptions = () => ({
-  queryKey: ['aiChatModels'],
-  queryFn: () => getChatModels(),
-})
-
-const getEmbeddingModels = createServerFn({ method: 'GET' }).handler(async () => {
-  return backendRequest(
-    graphql(`
-      query aiEmbeddingModels {
-        aiEmbeddingModels
-      }
-    `),
-  )
-})
-
-export const getEmbeddingModelsQueryOptions = () => ({
-  queryKey: ['aiEmbeddingModels'],
-  queryFn: () => getEmbeddingModels(),
-})
-
-const getLanguageModels = createServerFn({ method: 'GET' }).handler(async () => {
+const getLanguageModelsForEmbedding = createServerFn({ method: 'GET' }).handler(async () => {
   return backendRequest(
     graphql(`
       query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {
@@ -50,9 +20,25 @@ const getLanguageModels = createServerFn({ method: 'GET' }).handler(async () => 
 
 export const getLanguageModelsForEmbeddingQueryOptions = () => ({
   queryKey: ['aiLanguageModels', 'embedding'],
-  queryFn: () => getLanguageModels(),
+  queryFn: () => getLanguageModelsForEmbedding(),
 })
-export const getModelsQueryOptions = () => ({
-  queryKey: ['aiEmbeddingModels'],
-  queryFn: () => getChatModels(),
+
+const getLanguageModelsForChat = createServerFn({ method: 'GET' }).handler(async () => {
+  return backendRequest(
+    graphql(`
+      query aiLanguageModelsForChat($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {
+        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {
+          id
+          name
+          provider
+        }
+      }
+    `),
+    { canDoChatCompletion: true },
+  )
+})
+
+export const getLanguageModelsForChatQueryOptions = () => ({
+  queryKey: ['aiLanguageModels', 'chat'],
+  queryFn: () => getLanguageModelsForChat(),
 })

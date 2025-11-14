@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
@@ -12,7 +12,7 @@ import { getBackendPublicUrl } from '../common'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
-import { getChatModelsQueryOptions } from '../model/get-models'
+import { getLanguageModelsForChatQueryOptions } from '../model/get-models'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -23,6 +23,8 @@ graphql(`
     description
     ownerId
     languageModel {
+      id
+      provider
       name
     }
     updatedAt
@@ -34,7 +36,7 @@ const getFormSchema = (language: Language) =>
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),
     description: z.string().nullish(),
-    languageModel: z.string().nullish(),
+    languageModelId: z.string().nullish(),
   })
 
 const updateAssistant = createServerFn({ method: 'POST' })
@@ -59,7 +61,7 @@ const updateAssistant = createServerFn({ method: 'POST' })
         data: {
           name: data.name,
           description: data.description,
-          languageModel: data.languageModel,
+          languageModelId: data.languageModelId,
         },
       },
     )
@@ -77,7 +79,9 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
-  const { data: fetchedModelData } = useSuspenseQuery(getChatModelsQueryOptions())
+  const {
+    data: { aiLanguageModels },
+  } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
 
   const { mutate: update } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -124,11 +128,6 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
     },
   }
 
-  const aiModels = useMemo(
-    () => fetchedModelData.aiChatModels.map((model) => ({ id: model, name: model })),
-    [fetchedModelData],
-  )
-
   return (
     <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="id" value={assistant.id} />
@@ -162,10 +161,10 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
       />
 
       <Select
-        name="languageModel"
+        name="languageModelId"
         label={t('labels.languageModel')}
-        options={aiModels}
-        value={aiModels.find((model) => model.id === assistant.languageModel?.name)}
+        options={aiLanguageModels}
+        value={aiLanguageModels.find((model) => model.id === assistant.languageModel?.id)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}
