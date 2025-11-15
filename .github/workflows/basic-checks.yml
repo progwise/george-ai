@@ -121,6 +121,7 @@ jobs:
           DATABASE_URL_TEST: ${{ 'postgresql://chatweb:password@localhost:5432/chatweb?schema=public' }}
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MODEL_NAME_CHAT: qwen3:latest
           MODEL_NAME_VL: gemma3:latest
           MODEL_NAME_EMBEDDING: bge-m3:latest

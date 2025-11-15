@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Message } from './types'
+import { Message } from '../types'
 
 const OllamaModelSchema = z.object({
   name: z.string(),

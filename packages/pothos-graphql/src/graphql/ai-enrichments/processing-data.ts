@@ -9,7 +9,8 @@ const AiEnrichmentTaskProcessingDataInput = builder
       fileName: t.exposeString('fileName', { nullable: false }),
       libraryId: t.exposeString('libraryId', { nullable: false }),
       libraryName: t.exposeString('libraryName', { nullable: false }),
-      aiModel: t.exposeString('aiModel', { nullable: false }),
+      aiModelProvider: t.exposeString('aiModelProvider', { nullable: true }),
+      aiModelName: t.exposeString('aiModelName', { nullable: false }),
       aiGenerationPrompt: t.exposeString('aiGenerationPrompt', { nullable: false }),
       contextFields: t.field({
         type: [

@@ -17,7 +17,8 @@ export const classifyModel = (modelName: string): ModelClassification => {
     /^mxbai-embed/, // MixedBread AI embedding models
     /^bge-/, // BGE series embedding models
     /^e5-/, // E5 series embedding models
-    /text-embedding/, // OpenAI-style naming
+    /text-embedding-3/, // OpenAI text-embedding-3-small/large
+    /text-embedding-ada/, // OpenAI text-embedding-ada-002
     /^all-minilm/, // All-MiniLM embedding models
   ]
 
@@ -40,7 +41,13 @@ export const classifyModel = (modelName: string): ModelClassification => {
     /^vicuna/, // Vicuna models
     /^alpaca/, // Alpaca models
     /^chat/, // Models with "chat" prefix
-    /^gpt/, // GPT-style models
+    /^gpt-5/, // OpenAI GPT-5 series (gpt-5, gpt-5-mini, gpt-5-nano)
+    /^gpt-4\.1/, // OpenAI GPT-4.1 series (gpt-4.1, gpt-4.1-mini, gpt-4.1-nano)
+    /^gpt-4-turbo/, // OpenAI GPT-4 Turbo
+    /^gpt-4/, // OpenAI GPT-4
+    /^gpt-3\.5-turbo/, // OpenAI GPT-3.5 Turbo
+    /^o3-/, // OpenAI o3 reasoning models
+    /^o4-/, // OpenAI o4 reasoning models
     /instruct/, // Instruction-tuned models
   ]
 
@@ -58,6 +65,11 @@ export const classifyModel = (modelName: string): ModelClassification => {
     /^minicpm-v/, // MiniCPM-V vision models
     /^internvl/, // InternVL vision models
     /^cogvlm/, // CogVLM vision models
+    /^gpt-4o/, // OpenAI GPT-4o (native multimodal)
+    /^gpt-5/, // OpenAI GPT-5 series (multimodal: text, image, audio, video)
+    /^gpt-4-turbo/, // OpenAI GPT-4 Turbo (vision support)
+    /^o3-/, // OpenAI o3 reasoning models (vision support)
+    /^o4-/, // OpenAI o4 reasoning models (vision support)
     /vision/, // Models with "vision" in name
   ]
 

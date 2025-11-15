@@ -1,7 +1,6 @@
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-
-import { getOllamaChatModel } from '@george-ai/ai-service-client'
 
 import { Assistant } from './assistant'
 
@@ -33,12 +32,15 @@ const evaluateInstructionPrompt = ChatPromptTemplate.fromMessages([
   ['human', '{question}'],
 ])
 
-export const getConditionIsTrue = async (input: {
-  assistant: Assistant
-  baseCase: { condition?: string | null; instruction?: string | null }
-  message: string
-  history: BaseMessage[]
-}): Promise<{ caseApplies: boolean; instructionPrompt: string }> => {
+export const getConditionIsTrue = async (
+  model: BaseChatModel,
+  input: {
+    assistant: Assistant
+    baseCase: { condition?: string | null; instruction?: string | null }
+    message: string
+    history: BaseMessage[]
+  },
+): Promise<{ caseApplies: boolean; instructionPrompt: string }> => {
   // Use format() instead of invoke() to get a string directly
   // format() returns Promise<string> - the formatted prompt as a string
   // invoke() returns Promise<ChatPromptValue> - array of messages
@@ -68,7 +70,6 @@ export const getConditionIsTrue = async (input: {
   if (process.env.OLLAMA_API_KEY) {
     headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
   }
-  const model = await getOllamaChatModel(input.assistant.languageModel)
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})
 

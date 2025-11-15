@@ -25,7 +25,11 @@ graphql(`
     embeddingFailedAt
     embeddingTimeMs
     embeddingTimeout
-    embeddingModelName
+    embeddingModel {
+      id
+      provider
+      name
+    }
     extractionSubTasks {
       id
       extractionMethod

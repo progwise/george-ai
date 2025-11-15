@@ -1,4 +1,4 @@
-import { Document } from 'langchain/document'
+import { Document } from '@langchain/core/documents'
 import fs from 'node:fs'
 
 const MAX_CHUNK_SIZE = 4000 // Maximum characters per chunk for vectorstore

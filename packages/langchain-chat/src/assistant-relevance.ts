@@ -1,7 +1,7 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
-import { getOllamaChatModel } from '@george-ai/ai-service-client'
+import { AssistantModel } from './assistant-model'
 
 const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
@@ -23,20 +23,18 @@ export const getRelevance = async ({
   assistantBaseInformation,
   question,
   chatHistory,
-  modelName,
+  model,
 }: {
   assistantBaseInformation: BaseMessage[]
   question: string
   chatHistory: BaseMessage[]
-  modelName: string
+  model: AssistantModel
 }) => {
   const prompt = await relevancePrompt.invoke({
     question,
     assistant_base_information: assistantBaseInformation,
     chat_history: chatHistory,
   })
-
-  const model = await getOllamaChatModel(modelName)
 
   const isRelevantAnswer = await model.invoke(prompt, {})
   return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'

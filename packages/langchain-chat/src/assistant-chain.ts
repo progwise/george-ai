@@ -1,12 +1,10 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
-import { getOllamaChatModel } from '@george-ai/ai-service-client'
-
 import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
 import { getLibraryRelevancePrompt } from './assistant-library'
-import { AssistantModel } from './assistant-model'
+import { AssistantModel, getModel } from './assistant-model'
 import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
 import { Library } from './library'
@@ -30,7 +28,8 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = await getOllamaChatModel(input.assistant.languageModel)
+  const model = await getModel(input.assistant.languageModelProvider, input.assistant.languageModel)
+
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({
@@ -42,7 +41,7 @@ export async function* askAssistantChain(input: {
     assistantBaseInformation,
     chatHistory: trimmedHistoryMessages,
     question: input.message.content,
-    modelName: input.assistant.languageModel,
+    model,
   })
 
   if (!isQuestionRelevant) {

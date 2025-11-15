@@ -30,8 +30,9 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     select: {
       id: true,
       fileConverterOptions: true,
-      embeddingModelName: true,
+      embeddingModel: { select: { id: true, provider: true, name: true } },
       embeddingTimeoutMs: true,
+      ocrModel: { select: { id: true, provider: true, name: true } },
     },
   })
 
@@ -40,7 +41,10 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     select: { id: true, mimeType: true },
   })
 
-  const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
+  const converterOptions = {
+    ...parseFileConverterOptions(library.fileConverterOptions),
+    ocrModel: library.ocrModel || undefined,
+  }
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
 
@@ -87,7 +91,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       break
   }
 
-  if (!library.embeddingModelName) {
+  if (!library.embeddingModel) {
     throw new Error(`Library ${libraryId} has no configured embedding model`)
   }
 
@@ -104,7 +108,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       fileId,
       libraryId,
       extractionOptions,
-      embeddingModelName: library.embeddingModelName,
+      embeddingModelId: library.embeddingModel.id,
       extractionSubTasks: {
         create: appliedExtractionMethods.map((method) => ({ extractionMethod: method })),
       },
@@ -133,14 +137,14 @@ export const createEmbeddingOnlyTask = async (
         select: {
           id: true,
           fileConverterOptions: true,
-          embeddingModelName: true,
+          embeddingModelId: true,
           embeddingTimeoutMs: true,
         },
       },
     },
   })
 
-  if (!file.library.embeddingModelName) {
+  if (!file.library.embeddingModelId) {
     throw new Error(`Library ${file.libraryId} has no configured embedding model`)
   }
 
@@ -202,7 +206,7 @@ export const createEmbeddingOnlyTask = async (
       },
       // Special embedding-only method that uses existing markdown
       // and only creates embeddings
-      embeddingModelName: file.library.embeddingModelName,
+      embeddingModelId: file.library.embeddingModelId,
       timeoutMs: file.library.embeddingTimeoutMs || 180000, // Use library setting or default
     },
   })

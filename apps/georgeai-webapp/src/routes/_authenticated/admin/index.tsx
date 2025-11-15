@@ -2,6 +2,7 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArrowRight } from '../../../icons/arrow-right'
+import { CpuIcon } from '../../../icons/cpu-icon'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 import { ServerIcon } from '../../../icons/server-icon'
 import { UsersIcon } from '../../../icons/users-icon'
@@ -84,6 +85,36 @@ function AdminDashboard() {
                   <div className="badge badge-sm badge-ghost">GPU Memory</div>
                   <div className="badge badge-sm badge-ghost">Model Status</div>
                   <div className="badge badge-sm badge-ghost">Load Balancing</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* AI Models Management Card */}
+          <Link to="/admin/ai-models" className="group">
+            <div className="card from-info/10 to-info/5 border-info/20 hover:border-info/40 border bg-gradient-to-br shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+              <div className="card-body p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-4 flex items-center gap-4">
+                      <div className="bg-info/20 rounded-full p-3">
+                        <CpuIcon className="text-info h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="card-title mb-1 text-xl">{t('admin.manageAiModels')}</h3>
+                        <div className="badge badge-info badge-outline">Model Management</div>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-relaxed opacity-80">{t('admin.manageAiModelsDescription')}</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
+                </div>
+
+                {/* Feature highlights */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="badge badge-sm badge-ghost">Sync Models</div>
+                  <div className="badge badge-sm badge-ghost">Enable/Disable</div>
+                  <div className="badge badge-sm badge-ghost">Provider Management</div>
                 </div>
               </div>
             </div>

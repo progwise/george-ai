@@ -30,7 +30,8 @@ graphql(`
         fileName
         libraryId
         libraryName
-        aiModel
+        aiModelProvider
+        aiModelName
         aiGenerationPrompt
         contextFields {
           fieldId
@@ -92,7 +93,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
 
   const processingData = enrichment.processingData ?? {
     input: {
-      aiModel: 'unknown',
+      aiModelName: 'unknown',
     },
     output: {
       similarChunks: [],
@@ -265,10 +266,10 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 <span className="text-base-content/60 min-w-[80px]">Duration:</span>
                 <span>{duration(enrichment.requestedAt, enrichment.completedAt)}</span>
               </div>
-              {processingData.input?.aiModel && (
+              {processingData.input?.aiModelName && (
                 <div className="flex gap-2">
                   <span className="text-base-content/60 min-w-[80px]">AI Model:</span>
-                  <span className="font-mono text-xs">{processingData.input.aiModel}</span>
+                  <span className="font-mono text-xs">{processingData.input.aiModelName}</span>
                 </div>
               )}
             </div>

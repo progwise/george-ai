@@ -1,4 +1,4 @@
-import { getCapabilitiesForModel } from './model-classifier'
+import { getCapabilitiesForModel } from '../model-classifier'
 import { ollamaResourceManager } from './ollama-resource-manager'
 
 export const getClusterStatus = async () => {

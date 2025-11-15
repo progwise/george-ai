@@ -22,7 +22,7 @@
     "typescript-eslint": "^8.31.0"
   },
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --project=chromium",
     "test:ui": "playwright test --ui",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

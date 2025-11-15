@@ -1,6 +1,7 @@
 import { getFileChunks, getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
+import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile FileChunks')
@@ -105,7 +106,16 @@ builder.queryField('aiSimilarFileChunks', (t) =>
     resolve: async (_source, { fileId, term, hits }, context) => {
       const file = await canAccessFileOrThrow(fileId, context.session.user.id)
 
-      if (!file.library.embeddingModelName) {
+      // Load library with embeddingModel relation
+      const library = await prisma.aiLibrary.findUniqueOrThrow({
+        where: { id: file.libraryId },
+        select: {
+          id: true,
+          embeddingModel: { select: { name: true } },
+        },
+      })
+
+      if (!library.embeddingModel) {
         throw new Error(
           `Cannot perform similarity search. Library ${file.libraryId} does not have an embedding model configured.`,
         )
@@ -118,7 +128,7 @@ builder.queryField('aiSimilarFileChunks', (t) =>
       const result = await getSimilarChunks({
         fileId,
         libraryId: file.libraryId,
-        embeddingsModelName: file.library.embeddingModelName,
+        embeddingsModelName: library.embeddingModel.name,
         term,
         hits: hits || undefined,
       })

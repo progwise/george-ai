@@ -26,6 +26,7 @@ import { Route as AuthenticatedConversationsConversationIdRouteImport } from './
 import { Route as AuthenticatedAssistantsAssistantIdRouteImport } from './routes/_authenticated/assistants/$assistantId'
 import { Route as AuthenticatedAdminQueuesRouteImport } from './routes/_authenticated/admin/queues'
 import { Route as AuthenticatedAdminAiServicesRouteImport } from './routes/_authenticated/admin/ai-services'
+import { Route as AuthenticatedAdminAiModelsRouteImport } from './routes/_authenticated/admin/ai-models'
 import { Route as AuthenticatedListsListIdRouteRouteImport } from './routes/_authenticated/lists/$listId/route'
 import { Route as AuthenticatedLibrariesLibraryIdRouteRouteImport } from './routes/_authenticated/libraries/$libraryId/route'
 import { Route as AuthenticatedListsListIdIndexRouteImport } from './routes/_authenticated/lists/$listId/index'
@@ -149,6 +150,12 @@ const AuthenticatedAdminAiServicesRoute =
   AuthenticatedAdminAiServicesRouteImport.update({
     id: '/ai-services',
     path: '/ai-services',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAiModelsRoute =
+  AuthenticatedAdminAiModelsRouteImport.update({
+    id: '/ai-models',
+    path: '/ai-models',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedListsListIdRouteRoute =
@@ -348,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
+  '/admin/ai-models': typeof AuthenticatedAdminAiModelsRoute
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
@@ -392,6 +400,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/changelog': typeof ChangelogRoute
   '/login': typeof LoginRoute
+  '/admin/ai-models': typeof AuthenticatedAdminAiModelsRoute
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
@@ -438,6 +447,7 @@ export interface FileRoutesById {
   '/_authenticated/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
+  '/_authenticated/admin/ai-models': typeof AuthenticatedAdminAiModelsRoute
   '/_authenticated/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/_authenticated/admin/queues': typeof AuthenticatedAdminQueuesRoute
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
@@ -488,6 +498,7 @@ export interface FileRouteTypes {
     | '/conversations'
     | '/libraries/$libraryId'
     | '/lists/$listId'
+    | '/admin/ai-models'
     | '/admin/ai-services'
     | '/admin/queues'
     | '/assistants/$assistantId'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/'
     | '/changelog'
     | '/login'
+    | '/admin/ai-models'
     | '/admin/ai-services'
     | '/admin/queues'
     | '/assistants/$assistantId'
@@ -577,6 +589,7 @@ export interface FileRouteTypes {
     | '/_authenticated/conversations'
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/lists/$listId'
+    | '/_authenticated/admin/ai-models'
     | '/_authenticated/admin/ai-services'
     | '/_authenticated/admin/queues'
     | '/_authenticated/assistants/$assistantId'
@@ -744,6 +757,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-services'
       fullPath: '/admin/ai-services'
       preLoaderRoute: typeof AuthenticatedAdminAiServicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ai-models': {
+      id: '/_authenticated/admin/ai-models'
+      path: '/ai-models'
+      fullPath: '/admin/ai-models'
+      preLoaderRoute: typeof AuthenticatedAdminAiModelsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/lists/$listId': {
@@ -960,6 +980,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAiModelsRoute: typeof AuthenticatedAdminAiModelsRoute
   AuthenticatedAdminAiServicesRoute: typeof AuthenticatedAdminAiServicesRoute
   AuthenticatedAdminQueuesRoute: typeof AuthenticatedAdminQueuesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -969,6 +990,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAiModelsRoute: AuthenticatedAdminAiModelsRoute,
     AuthenticatedAdminAiServicesRoute: AuthenticatedAdminAiServicesRoute,
     AuthenticatedAdminQueuesRoute: AuthenticatedAdminQueuesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,

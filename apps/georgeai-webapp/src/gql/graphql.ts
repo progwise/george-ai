@@ -122,7 +122,7 @@ export type AiAssistant = {
   description?: Maybe<Scalars['String']['output']>
   iconUrl?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-  languageModel?: Maybe<Scalars['String']['output']>
+  languageModel?: Maybe<AiLanguageModel>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -144,7 +144,7 @@ export type AiAssistantBaseCase = {
 export type AiAssistantInput = {
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
-  languageModel?: InputMaybe<Scalars['String']['input']>
+  languageModelId?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -175,7 +175,7 @@ export type AiContentProcessingTask = {
   createdAt: Scalars['DateTime']['output']
   embeddingFailedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingFinishedAt?: Maybe<Scalars['DateTime']['output']>
-  embeddingModelName?: Maybe<Scalars['String']['output']>
+  embeddingModel?: Maybe<AiLanguageModel>
   embeddingStartedAt?: Maybe<Scalars['DateTime']['output']>
   embeddingStatus: EmbeddingStatus
   embeddingTimeMs?: Maybe<Scalars['Int']['output']>
@@ -285,7 +285,8 @@ export type AiEnrichmentTaskProcessingData = {
 export type AiEnrichmentTaskProcessingDataInput = {
   __typename?: 'AiEnrichmentTaskProcessingDataInput'
   aiGenerationPrompt: Scalars['String']['output']
-  aiModel: Scalars['String']['output']
+  aiModelName: Scalars['String']['output']
+  aiModelProvider?: Maybe<Scalars['String']['output']>
   contentQuery?: Maybe<Scalars['String']['output']>
   contextFields: Array<EnrichmentTaskContextField>
   dataType: ListFieldType
@@ -306,18 +307,49 @@ export type AiEnrichmentTaskProcessingDataOutput = {
   similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
 }
 
+export type AiLanguageModel = {
+  __typename?: 'AiLanguageModel'
+  adminNotes?: Maybe<Scalars['String']['output']>
+  assistantsUsingAsChat?: Maybe<Array<AiAssistant>>
+  canDoChatCompletion: Scalars['Boolean']['output']
+  canDoEmbedding: Scalars['Boolean']['output']
+  canDoFunctionCalling: Scalars['Boolean']['output']
+  canDoVision: Scalars['Boolean']['output']
+  createdAt: Scalars['DateTime']['output']
+  enabled: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>
+  librariesUsingAsEmbedding?: Maybe<Array<AiLibrary>>
+  listFieldsUsing?: Maybe<Array<AiListField>>
+  name: Scalars['String']['output']
+  provider: Scalars['String']['output']
+}
+
+/** Paginated result for AI Language Models */
+export type AiLanguageModelsResult = {
+  __typename?: 'AiLanguageModelsResult'
+  count: Scalars['Int']['output']
+  embeddingCount: Scalars['Int']['output']
+  enabledCount: Scalars['Int']['output']
+  models: Array<AiLanguageModel>
+  providerCount: Scalars['Int']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   autoProcessCrawledFiles: Scalars['Boolean']['output']
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
-  embeddingModelName?: Maybe<Scalars['String']['output']>
+  embeddingModel?: Maybe<AiLanguageModel>
   embeddingTimeoutMs?: Maybe<Scalars['Int']['output']>
   fileConverterOptions?: Maybe<Scalars['String']['output']>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
+  ocrModel?: Maybe<AiLanguageModel>
   owner: User
   ownerId: Scalars['String']['output']
   participants: Array<AiLibraryParticipant>
@@ -508,11 +540,11 @@ export enum AiLibraryFileSortOrder {
 export type AiLibraryInput = {
   autoProcessCrawledFiles?: InputMaybe<Scalars['Boolean']['input']>
   description?: InputMaybe<Scalars['String']['input']>
-  embeddingModelName?: InputMaybe<Scalars['String']['input']>
+  embeddingModelId?: InputMaybe<Scalars['String']['input']>
   embeddingTimeoutMs?: InputMaybe<Scalars['Int']['input']>
   fileConverterOptions?: InputMaybe<Scalars['String']['input']>
-  icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
+  ocrModelId?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -617,7 +649,7 @@ export type AiListField = {
   failureTerms?: Maybe<Scalars['String']['output']>
   fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-  languageModel?: Maybe<Scalars['String']['output']>
+  languageModel?: Maybe<AiLanguageModel>
   list: AiList
   listId: Scalars['String']['output']
   name: Scalars['String']['output']
@@ -644,7 +676,7 @@ export type AiListFieldInput = {
   context?: InputMaybe<Array<Scalars['String']['input']>>
   failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
-  languageModel?: InputMaybe<Scalars['String']['input']>
+  languageModelId?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   order?: InputMaybe<Scalars['Int']['input']>
   prompt?: InputMaybe<Scalars['String']['input']>
@@ -1119,6 +1151,43 @@ export type MarkdownResult = {
   fileName: Scalars['String']['output']
 }
 
+export type ModelUsageByModel = {
+  __typename?: 'ModelUsageByModel'
+  modelId: Scalars['String']['output']
+  modelName: Scalars['String']['output']
+  provider: Scalars['String']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
+export type ModelUsageByProvider = {
+  __typename?: 'ModelUsageByProvider'
+  provider: Scalars['String']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
+export type ModelUsageByType = {
+  __typename?: 'ModelUsageByType'
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+  usageType: Scalars['String']['output']
+}
+
+export type ModelUsageStats = {
+  __typename?: 'ModelUsageStats'
+  avgDurationMs: Scalars['Float']['output']
+  avgTokensInput: Scalars['Float']['output']
+  avgTokensOutput: Scalars['Float']['output']
+  totalDurationMs: Scalars['Int']['output']
+  totalRequests: Scalars['Int']['output']
+  totalTokensInput: Scalars['Int']['output']
+  totalTokensOutput: Scalars['Int']['output']
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
@@ -1157,6 +1226,7 @@ export type Mutation = {
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  disableAiLanguageModel?: Maybe<AiLanguageModel>
   dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
   dropPendingTasks: Scalars['Int']['output']
@@ -1186,9 +1256,11 @@ export type Mutation = {
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
   stopQueueWorker: QueueOperationResult
+  syncModels?: Maybe<SyncModelsResult>
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
+  updateAiLanguageModel?: Maybe<AiLanguageModel>
   updateAiLibraryCrawler: AiLibraryCrawler
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibrary: AiLibrary
@@ -1371,6 +1443,10 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   listId: Scalars['String']['input']
 }
 
+export type MutationDisableAiLanguageModelArgs = {
+  id: Scalars['ID']['input']
+}
+
 export type MutationDropAllLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
 }
@@ -1500,6 +1576,11 @@ export type MutationUpdateAiAssistantArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationUpdateAiLanguageModelArgs = {
+  data: UpdateAiLanguageModelInput
+  id: Scalars['ID']['input']
+}
+
 export type MutationUpdateAiLibraryCrawlerArgs = {
   credentials?: InputMaybe<AiLibraryCrawlerCredentialsInput>
   data: AiLibraryCrawlerInput
@@ -1595,14 +1676,13 @@ export type Query = {
   aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
-  aiChatModels: Array<Scalars['String']['output']>
   aiContentProcessingTasks: ContentExtractionTaskQueryResult
   aiContentQueries: Array<ContentQueryResult>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
-  aiEmbeddingModels: Array<Scalars['String']['output']>
   aiFileChunks: FileChunkQueryResponse
+  aiLanguageModels: AiLanguageModelsResult
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -1617,12 +1697,13 @@ export type Query = {
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
+  aiModelUsageByModel: Array<ModelUsageByModel>
+  aiModelUsageByProvider: Array<ModelUsageByProvider>
+  aiModelUsageByType: Array<ModelUsageByType>
+  aiModelUsageStats?: Maybe<ModelUsageStats>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
-  aiVisionModels: Array<Scalars['String']['output']>
   apiKeys: Array<ApiKey>
-  /** Get all available OCR-capable vision models */
-  availableOCRModels: Array<Scalars['String']['output']>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
@@ -1670,6 +1751,19 @@ export type QueryAiFileChunksArgs = {
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryAiLanguageModelsArgs = {
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoFunctionCalling?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+  onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
+  providers?: InputMaybe<Array<Scalars['String']['input']>>
+  search?: InputMaybe<Scalars['String']['input']>
+  showDisabled?: InputMaybe<Scalars['Boolean']['input']>
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type QueryAiLibrariesArgs = {
@@ -1746,6 +1840,39 @@ export type QueryAiListItemsArgs = {
   skip?: Scalars['Int']['input']
   sorting?: InputMaybe<Array<AiListSortingInput>>
   take?: Scalars['Int']['input']
+}
+
+export type QueryAiModelUsageByModelArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  provider?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageByProviderArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageByTypeArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiModelUsageStatsArgs = {
+  assistantId?: InputMaybe<Scalars['String']['input']>
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  listId?: InputMaybe<Scalars['String']['input']>
+  modelId?: InputMaybe<Scalars['String']['input']>
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  usageType?: InputMaybe<Scalars['String']['input']>
+  userId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type QueryAiSimilarFileChunksArgs = {
@@ -1825,6 +1952,18 @@ export type SourceFileLink = {
   __typename?: 'SourceFileLink'
   fileName: Scalars['String']['output']
   url: Scalars['String']['output']
+}
+
+export type SyncModelsResult = {
+  __typename?: 'SyncModelsResult'
+  errors: Array<Scalars['String']['output']>
+  modelsDiscovered: Scalars['Int']['output']
+  success: Scalars['Boolean']['output']
+}
+
+export type UpdateAiLanguageModelInput = {
+  adminNotes?: InputMaybe<Scalars['String']['input']>
+  enabled: Scalars['Boolean']['input']
 }
 
 export type UpdateLibraryParticipantsResult = {
@@ -2114,6 +2253,30 @@ export type LoginMutation = {
     createdAt: string
     isAdmin: boolean
   }
+}
+
+export type EditModelButton_LanguageModelFragment = {
+  __typename?: 'AiLanguageModel'
+  id: string
+  provider: string
+  name: string
+  adminNotes?: string | null
+  enabled: boolean
+}
+
+export type UpdateAiLanguageModelMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: UpdateAiLanguageModelInput
+}>
+
+export type UpdateAiLanguageModelMutation = {
+  __typename?: 'Mutation'
+  updateAiLanguageModel?: {
+    __typename?: 'AiLanguageModel'
+    id: string
+    enabled: boolean
+    adminNotes?: string | null
+  } | null
 }
 
 export type GetAiServiceStatusQueryVariables = Exact<{ [key: string]: never }>
@@ -2581,8 +2744,8 @@ export type AssistantForm_AssistantFragment = {
   iconUrl?: string | null
   description?: string | null
   ownerId: string
-  languageModel?: string | null
   updatedAt?: string | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type UpdateAssistantMutationVariables = Exact<{
@@ -2674,8 +2837,8 @@ export type AiAssistantDetailsQuery = {
     iconUrl?: string | null
     description?: string | null
     ownerId: string
-    languageModel?: string | null
     updatedAt?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     baseCases: Array<{
       __typename?: 'AiAssistantBaseCase'
       id?: string | null
@@ -3410,12 +3573,12 @@ export type AiContentProcessingTask_ListFragment = {
   embeddingFailedAt?: string | null
   chunksCount?: number | null
   chunksSize?: number | null
-  embeddingModelName?: string | null
   extractionOptions?: string | null
   processingStatus: ProcessingStatus
   extractionStatus: ExtractionStatus
   embeddingStatus: EmbeddingStatus
   metadata?: string | null
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type AiLibraryFile_InfoBoxFragment = {
@@ -3728,9 +3891,10 @@ export type AiLibraryForm_LibraryFragment = {
   ownerId: string
   filesCount: number
   description?: string | null
-  embeddingModelName?: string | null
   fileConverterOptions?: string | null
   autoProcessCrawledFiles: boolean
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+  ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
 }
 
 export type LibraryMenu_AiLibraryFragment = {
@@ -3824,7 +3988,6 @@ export type AiLibraryDetailQuery = {
     ownerId: string
     filesCount: number
     description?: string | null
-    embeddingModelName?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
     owner: {
@@ -3853,6 +4016,8 @@ export type AiLibraryDetailQuery = {
         profile?: { __typename?: 'UserProfile'; position?: string | null; business?: string | null } | null
       }
     }>
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+    ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
   }
 }
 
@@ -4041,9 +4206,10 @@ export type ChangeLibraryMutation = {
     ownerId: string
     filesCount: number
     description?: string | null
-    embeddingModelName?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+    ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
   }
 }
 
@@ -4089,7 +4255,6 @@ export type GetContentProcessingTasksQuery = {
       embeddingFailedAt?: string | null
       embeddingTimeMs?: number | null
       embeddingTimeout: boolean
-      embeddingModelName?: string | null
       file: {
         __typename?: 'AiLibraryFile'
         id: string
@@ -4106,6 +4271,7 @@ export type GetContentProcessingTasksQuery = {
         finishedAt?: string | null
         failedAt?: string | null
       }>
+      embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     }>
   }
 }
@@ -4138,7 +4304,6 @@ export type AiContentProcessingTask_AccordionItemFragment = {
   embeddingFailedAt?: string | null
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
-  embeddingModelName?: string | null
   file: {
     __typename?: 'AiLibraryFile'
     id: string
@@ -4155,6 +4320,7 @@ export type AiContentProcessingTask_AccordionItemFragment = {
     finishedAt?: string | null
     failedAt?: string | null
   }>
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
 
 export type TaskMenu_FilesQueryResultFragment = {
@@ -4182,7 +4348,7 @@ export type AiContentProcessingTask_TimelineFragment = {
   embeddingFailedAt?: string | null
   embeddingTimeMs?: number | null
   embeddingTimeout: boolean
-  embeddingModelName?: string | null
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   extractionSubTasks: Array<{
     __typename?: 'AiContentExtractionSubTask'
     id: string
@@ -4289,7 +4455,8 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
       fileName: string
       libraryId: string
       libraryName: string
-      aiModel: string
+      aiModelProvider?: string | null
+      aiModelName: string
       aiGenerationPrompt: string
       dataType: ListFieldType
       libraryEmbeddingModel?: string | null
@@ -4349,9 +4516,9 @@ export type FieldModal_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
   order: number
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4403,8 +4570,8 @@ export type ListFieldsTableMenu_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4451,9 +4618,9 @@ export type ListFieldsTable_ListFragment = {
     prompt?: string | null
     failureTerms?: string | null
     contentQuery?: string | null
-    languageModel?: string | null
     useVectorStore?: boolean | null
     order: number
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
   }>
 }
@@ -4471,9 +4638,9 @@ export type ListFieldsTable_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
   order: number
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
@@ -4609,7 +4776,8 @@ export type GetEnrichmentsQuery = {
           fileName: string
           libraryId: string
           libraryName: string
-          aiModel: string
+          aiModelProvider?: string | null
+          aiModelName: string
           aiGenerationPrompt: string
           dataType: ListFieldType
           libraryEmbeddingModel?: string | null
@@ -4717,9 +4885,9 @@ export type GetListQuery = {
       prompt?: string | null
       failureTerms?: string | null
       contentQuery?: string | null
-      languageModel?: string | null
       useVectorStore?: boolean | null
       order: number
+      languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
       context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
     }>
     sources: Array<{
@@ -4802,7 +4970,7 @@ export type AddListFieldMutation = {
     prompt?: string | null
     failureTerms?: string | null
     contentQuery?: string | null
-    languageModel?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   }
 }
 
@@ -5046,7 +5214,7 @@ export type UpdateListFieldMutation = {
     failureTerms?: string | null
     useVectorStore?: boolean | null
     contentQuery?: string | null
-    languageModel?: string | null
+    languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   }
 }
 
@@ -5071,18 +5239,62 @@ export type ListFieldSettings_FieldFragment = {
   prompt?: string | null
   failureTerms?: string | null
   contentQuery?: string | null
-  languageModel?: string | null
   useVectorStore?: boolean | null
+  languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
 }
 
-export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
+export type AiLanguageModelsQueryVariables = Exact<{
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+}>
 
-export type AiChatModelsQuery = { __typename?: 'Query'; aiChatModels: Array<string> }
+export type AiLanguageModelsQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
+}
 
-export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
+export type AiLanguageModelsForChatQueryVariables = Exact<{
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+}>
 
-export type AiEmbeddingModelsQuery = { __typename?: 'Query'; aiEmbeddingModels: Array<string> }
+export type AiLanguageModelsForChatQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
+}
+
+export type AiLanguageModelsWithSearchQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  search?: InputMaybe<Scalars['String']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type AiLanguageModelsWithSearchQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
+}
 
 export type User_EntityParticipantsDialogFragment = {
   __typename?: 'User'
@@ -5133,6 +5345,64 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetAiLanguageModelsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  providers?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+  canDoFunctionCalling?: InputMaybe<Scalars['Boolean']['input']>
+  onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
+  showDisabled?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type GetAiLanguageModelsQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    enabledCount: number
+    embeddingCount: number
+    providerCount: number
+    models: Array<{
+      __typename?: 'AiLanguageModel'
+      id: string
+      name: string
+      provider: string
+      canDoEmbedding: boolean
+      canDoChatCompletion: boolean
+      canDoVision: boolean
+      canDoFunctionCalling: boolean
+      enabled: boolean
+      adminNotes?: string | null
+      lastUsedAt?: string | null
+      createdAt: string
+      librariesUsingAsEmbedding?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
+      assistantsUsingAsChat?: Array<{ __typename?: 'AiAssistant'; id: string; name: string }> | null
+      listFieldsUsing?: Array<{
+        __typename?: 'AiListField'
+        id: string
+        list: { __typename?: 'AiList'; id: string; name: string }
+      }> | null
+    }>
+  }
+}
+
+export type SyncModelsMutationVariables = Exact<{ [key: string]: never }>
+
+export type SyncModelsMutation = {
+  __typename?: 'Mutation'
+  syncModels?: {
+    __typename?: 'SyncModelsResult'
+    success: boolean
+    modelsDiscovered: number
+    errors: Array<string>
+  } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -6146,6 +6416,26 @@ export type AdminUserByIdQuery = {
   } | null
 }
 
+export const EditModelButton_LanguageModelFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EditModelButton_LanguageModel' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLanguageModel' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EditModelButton_LanguageModelFragment, unknown>
 export const QueueSystemStatus_ManagementPanelFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -6719,7 +7009,18 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
@@ -8173,7 +8474,18 @@ export const AiContentProcessingTask_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunksSize' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionStatus' } },
@@ -8263,7 +8575,30 @@ export const AiLibraryForm_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -8449,7 +8784,18 @@ export const AiContentProcessingTask_TimelineFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -8553,7 +8899,18 @@ export const AiContentProcessingTask_AccordionItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -8709,7 +9066,8 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelProvider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
                       {
                         kind: 'Field',
@@ -8934,7 +9292,18 @@ export const FieldModal_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -8983,7 +9352,18 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9028,7 +9408,18 @@ export const ListFieldSettings_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9091,7 +9482,18 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -9258,7 +9660,18 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -10139,6 +10552,60 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const UpdateAiLanguageModelDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateAiLanguageModel' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAiLanguageModelInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLanguageModel' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAiLanguageModelMutation, UpdateAiLanguageModelMutationVariables>
 export const GetAiServiceStatusDocument = {
   kind: 'Document',
   definitions: [
@@ -11661,7 +12128,18 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
@@ -14149,7 +14627,30 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -14946,7 +15447,30 @@ export const ChangeLibraryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
           { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
@@ -15078,7 +15602,18 @@ export const GetContentProcessingTasksDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingFailedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeout' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embeddingModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'extractionSubTasks' },
@@ -15552,7 +16087,8 @@ export const GetEnrichmentsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'aiModel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelProvider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'aiModelName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'aiGenerationPrompt' } },
                       {
                         kind: 'Field',
@@ -15893,7 +16429,18 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'languageModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
@@ -16249,7 +16796,14 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'languageModel' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
               ],
             },
           },
@@ -17229,7 +17783,18 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'languageModel' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -17285,34 +17850,235 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
-export const AiChatModelsDocument = {
+export const AiLanguageModelsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiChatModels' },
+      name: { kind: 'Name', value: 'aiLanguageModels' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'aiChatModels' } }],
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
     },
   ],
-} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
-export const AiEmbeddingModelsDocument = {
+} as unknown as DocumentNode<AiLanguageModelsQuery, AiLanguageModelsQueryVariables>
+export const AiLanguageModelsForChatDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiEmbeddingModels' },
+      name: { kind: 'Name', value: 'aiLanguageModelsForChat' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'aiEmbeddingModels' } }],
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
     },
   ],
-} as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
+} as unknown as DocumentNode<AiLanguageModelsForChatQuery, AiLanguageModelsForChatQueryVariables>
+export const AiLanguageModelsWithSearchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLanguageModelsWithSearch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'search' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoVision' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLanguageModelsWithSearchQuery, AiLanguageModelsWithSearchQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -17360,6 +18126,227 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetAiLanguageModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAiLanguageModels' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '0' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '20' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'providers' } },
+          type: {
+            kind: 'ListType',
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'onlyUsed' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showDisabled' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'providers' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'providers' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoVision' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoFunctionCalling' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'onlyUsed' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'onlyUsed' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'showDisabled' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'showDisabled' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabledCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'embeddingCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'providerCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoEmbedding' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoVision' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'librariesUsingAsEmbedding' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantsUsingAsChat' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'listFieldsUsing' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'list' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAiLanguageModelsQuery, GetAiLanguageModelsQueryVariables>
+export const SyncModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SyncModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'syncModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'modelsDiscovered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errors' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SyncModelsMutation, SyncModelsMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [
