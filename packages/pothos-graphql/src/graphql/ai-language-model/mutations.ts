@@ -105,7 +105,6 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
           canDoVision: model.canDoVision,
           canDoFunctionCalling: model.canDoFunctionCalling,
           enabled: true,
-          deleted: false,
         },
       })
       syncedCount++
@@ -118,7 +117,6 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
     const existingModels = await tx.aiLanguageModel.findMany({
       where: {
         provider: { in: activeProviders },
-        deleted: false,
       },
       select: { id: true, provider: true, name: true },
     })
@@ -183,7 +181,7 @@ builder.mutationField('syncModels', (t) =>
 const UpdateAiLanguageModelInput = builder.inputType('UpdateAiLanguageModelInput', {
   fields: (t) => ({
     adminNotes: t.string({ required: false }),
-    enabled: t.boolean({ required: false }),
+    enabled: t.boolean({ required: true }),
   }),
 })
 
@@ -196,37 +194,31 @@ builder.mutationField('updateAiLanguageModel', (t) =>
       data: t.arg({ type: UpdateAiLanguageModelInput, required: true }),
     },
     resolve: async (query, _root, { id, data }) => {
-      // Filter out null/undefined values
-      const updateData: { adminNotes?: string; enabled?: boolean } = {}
-      if (data.adminNotes !== null && data.adminNotes !== undefined) {
-        updateData.adminNotes = data.adminNotes
-      }
-      if (data.enabled !== null && data.enabled !== undefined) {
-        updateData.enabled = data.enabled
-      }
-
       return await prisma.aiLanguageModel.update({
         ...query,
         where: { id },
-        data: updateData,
+        data: {
+          adminNotes: data.adminNotes ?? null,
+          enabled: data.enabled,
+        },
       })
     },
   }),
 )
 
-// GraphQL mutation for soft-deleting a language model (admin-only)
-builder.mutationField('deleteAiLanguageModel', (t) =>
+// GraphQL mutation for disabling a language model (admin-only)
+builder.mutationField('disableAiLanguageModel', (t) =>
   t.withAuth({ isLoggedIn: true, admin: true }).prismaField({
     type: 'AiLanguageModel',
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _root, { id }) => {
-      // Soft delete (set deleted: true, enabled: false)
+      // Disable the model (set enabled: false)
       return await prisma.aiLanguageModel.update({
         ...query,
         where: { id },
-        data: { deleted: true, enabled: false },
+        data: { enabled: false },
       })
     },
   }),

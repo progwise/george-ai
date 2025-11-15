@@ -34,7 +34,6 @@ export const DialogForm = ({
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     onSubmit(formData)
-    event.currentTarget.reset()
   }
 
   const handleClose = () => {

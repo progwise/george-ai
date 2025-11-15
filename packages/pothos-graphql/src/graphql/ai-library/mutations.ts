@@ -16,6 +16,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     embeddingModelId: t.string({ required: false }),
+    ocrModelId: t.string({ required: false }),
     fileConverterOptions: t.string({ required: false }),
     embeddingTimeoutMs: t.int({ required: false }),
     autoProcessCrawledFiles: t.boolean({ required: false }),
@@ -34,7 +35,7 @@ builder.mutationField('updateLibrary', (t) =>
       await canAccessLibraryOrThrow(id, context.session.user.id)
 
       // Validate fileConverterOptions if provided
-      const { embeddingModelId, ...restData } = data
+      const { embeddingModelId, ocrModelId, ...restData } = data
 
       return prisma.aiLibrary.update({
         ...query,
@@ -47,6 +48,7 @@ builder.mutationField('updateLibrary', (t) =>
           embeddingTimeoutMs: restData.embeddingTimeoutMs,
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           embeddingModelId: embeddingModelId ?? undefined,
+          ocrModelId: ocrModelId ?? undefined,
         },
       })
     },
@@ -63,7 +65,7 @@ builder.mutationField('createLibrary', (t) =>
       const userId = context.session.user.id
 
       // Validate fileConverterOptions if provided
-      const { embeddingModelId, ...restData } = data
+      const { embeddingModelId, ocrModelId, ...restData } = data
 
       return prisma.aiLibrary.create({
         ...query,
@@ -76,6 +78,7 @@ builder.mutationField('createLibrary', (t) =>
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           ownerId: userId,
           embeddingModelId: embeddingModelId ?? undefined,
+          ocrModelId: ocrModelId ?? undefined,
         },
       })
     },

@@ -310,6 +310,7 @@ export type AiEnrichmentTaskProcessingDataOutput = {
 export type AiLanguageModel = {
   __typename?: 'AiLanguageModel'
   adminNotes?: Maybe<Scalars['String']['output']>
+  assistantsUsingAsChat?: Maybe<Array<AiAssistant>>
   canDoChatCompletion: Scalars['Boolean']['output']
   canDoEmbedding: Scalars['Boolean']['output']
   canDoFunctionCalling: Scalars['Boolean']['output']
@@ -318,8 +319,22 @@ export type AiLanguageModel = {
   enabled: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>
+  librariesUsingAsEmbedding?: Maybe<Array<AiLibrary>>
+  listFieldsUsing?: Maybe<Array<AiListField>>
   name: Scalars['String']['output']
   provider: Scalars['String']['output']
+}
+
+/** Paginated result for AI Language Models */
+export type AiLanguageModelsResult = {
+  __typename?: 'AiLanguageModelsResult'
+  count: Scalars['Int']['output']
+  embeddingCount: Scalars['Int']['output']
+  enabledCount: Scalars['Int']['output']
+  models: Array<AiLanguageModel>
+  providerCount: Scalars['Int']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
 }
 
 export type AiLibrary = {
@@ -334,6 +349,7 @@ export type AiLibrary = {
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
+  ocrModel?: Maybe<AiLanguageModel>
   owner: User
   ownerId: Scalars['String']['output']
   participants: Array<AiLibraryParticipant>
@@ -528,6 +544,7 @@ export type AiLibraryInput = {
   embeddingTimeoutMs?: InputMaybe<Scalars['Int']['input']>
   fileConverterOptions?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
+  ocrModelId?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -1202,7 +1219,6 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
-  deleteAiLanguageModel?: Maybe<AiLanguageModel>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteLibrary: AiLibrary
   deleteLibraryFile: AiLibraryFile
@@ -1210,6 +1226,7 @@ export type Mutation = {
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  disableAiLanguageModel?: Maybe<AiLanguageModel>
   dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
   dropPendingTasks: Scalars['Int']['output']
@@ -1396,10 +1413,6 @@ export type MutationDeleteAiConversationsArgs = {
   conversationIds: Array<Scalars['String']['input']>
 }
 
-export type MutationDeleteAiLanguageModelArgs = {
-  id: Scalars['ID']['input']
-}
-
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
 }
@@ -1428,6 +1441,10 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
   fileId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
+}
+
+export type MutationDisableAiLanguageModelArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDropAllLibraryFilesArgs = {
@@ -1665,7 +1682,7 @@ export type Query = {
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
   aiFileChunks: FileChunkQueryResponse
-  aiLanguageModels: Array<AiLanguageModel>
+  aiLanguageModels: AiLanguageModelsResult
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -1739,6 +1756,13 @@ export type QueryAiFileChunksArgs = {
 export type QueryAiLanguageModelsArgs = {
   canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
   canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoFunctionCalling?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+  onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
+  providers?: InputMaybe<Array<Scalars['String']['input']>>
+  showDisabled?: InputMaybe<Scalars['Boolean']['input']>
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type QueryAiLibrariesArgs = {
@@ -1938,7 +1962,7 @@ export type SyncModelsResult = {
 
 export type UpdateAiLanguageModelInput = {
   adminNotes?: InputMaybe<Scalars['String']['input']>
-  enabled?: InputMaybe<Scalars['Boolean']['input']>
+  enabled: Scalars['Boolean']['input']
 }
 
 export type UpdateLibraryParticipantsResult = {
@@ -2228,6 +2252,30 @@ export type LoginMutation = {
     createdAt: string
     isAdmin: boolean
   }
+}
+
+export type EditModelButton_LanguageModelFragment = {
+  __typename?: 'AiLanguageModel'
+  id: string
+  provider: string
+  name: string
+  adminNotes?: string | null
+  enabled: boolean
+}
+
+export type UpdateAiLanguageModelMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: UpdateAiLanguageModelInput
+}>
+
+export type UpdateAiLanguageModelMutation = {
+  __typename?: 'Mutation'
+  updateAiLanguageModel?: {
+    __typename?: 'AiLanguageModel'
+    id: string
+    enabled: boolean
+    adminNotes?: string | null
+  } | null
 }
 
 export type GetAiServiceStatusQueryVariables = Exact<{ [key: string]: never }>
@@ -3844,7 +3892,8 @@ export type AiLibraryForm_LibraryFragment = {
   description?: string | null
   fileConverterOptions?: string | null
   autoProcessCrawledFiles: boolean
-  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
+  embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+  ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
 }
 
 export type LibraryMenu_AiLibraryFragment = {
@@ -3966,7 +4015,8 @@ export type AiLibraryDetailQuery = {
         profile?: { __typename?: 'UserProfile'; position?: string | null; business?: string | null } | null
       }
     }>
-    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+    ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
   }
 }
 
@@ -4157,7 +4207,8 @@ export type ChangeLibraryMutation = {
     description?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
-    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
+    embeddingModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
+    ocrModel?: { __typename?: 'AiLanguageModel'; id: string; name: string; provider: string } | null
   }
 }
 
@@ -5199,7 +5250,13 @@ export type AiLanguageModelsQueryVariables = Exact<{
 
 export type AiLanguageModelsQuery = {
   __typename?: 'Query'
-  aiLanguageModels: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
 }
 
 export type AiLanguageModelsForChatQueryVariables = Exact<{
@@ -5209,7 +5266,13 @@ export type AiLanguageModelsForChatQueryVariables = Exact<{
 
 export type AiLanguageModelsForChatQuery = {
   __typename?: 'Query'
-  aiLanguageModels: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
 }
 
 export type User_EntityParticipantsDialogFragment = {
@@ -5263,24 +5326,50 @@ export type SaveUserProfileMutation = {
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
-export type GetAiLanguageModelsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAiLanguageModelsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  providers?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+  canDoFunctionCalling?: InputMaybe<Scalars['Boolean']['input']>
+  onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
+  showDisabled?: InputMaybe<Scalars['Boolean']['input']>
+}>
 
 export type GetAiLanguageModelsQuery = {
   __typename?: 'Query'
-  aiLanguageModels: Array<{
-    __typename?: 'AiLanguageModel'
-    id: string
-    name: string
-    provider: string
-    canDoEmbedding: boolean
-    canDoChatCompletion: boolean
-    canDoVision: boolean
-    canDoFunctionCalling: boolean
-    enabled: boolean
-    adminNotes?: string | null
-    lastUsedAt?: string | null
-    createdAt: string
-  }>
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    enabledCount: number
+    embeddingCount: number
+    providerCount: number
+    models: Array<{
+      __typename?: 'AiLanguageModel'
+      id: string
+      name: string
+      provider: string
+      canDoEmbedding: boolean
+      canDoChatCompletion: boolean
+      canDoVision: boolean
+      canDoFunctionCalling: boolean
+      enabled: boolean
+      adminNotes?: string | null
+      lastUsedAt?: string | null
+      createdAt: string
+      librariesUsingAsEmbedding?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
+      assistantsUsingAsChat?: Array<{ __typename?: 'AiAssistant'; id: string; name: string }> | null
+      listFieldsUsing?: Array<{
+        __typename?: 'AiListField'
+        id: string
+        list: { __typename?: 'AiList'; id: string; name: string }
+      }> | null
+    }>
+  }
 }
 
 export type SyncModelsMutationVariables = Exact<{ [key: string]: never }>
@@ -5293,30 +5382,6 @@ export type SyncModelsMutation = {
     modelsDiscovered: number
     errors: Array<string>
   } | null
-}
-
-export type UpdateAiLanguageModelMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-  data: UpdateAiLanguageModelInput
-}>
-
-export type UpdateAiLanguageModelMutation = {
-  __typename?: 'Mutation'
-  updateAiLanguageModel?: {
-    __typename?: 'AiLanguageModel'
-    id: string
-    enabled: boolean
-    adminNotes?: string | null
-  } | null
-}
-
-export type DeleteAiLanguageModelMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type DeleteAiLanguageModelMutation = {
-  __typename?: 'Mutation'
-  deleteAiLanguageModel?: { __typename?: 'AiLanguageModel'; id: string } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -6330,6 +6395,26 @@ export type AdminUserByIdQuery = {
   } | null
 }
 
+export const EditModelButton_LanguageModelFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EditModelButton_LanguageModel' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLanguageModel' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EditModelButton_LanguageModelFragment, unknown>
 export const QueueSystemStatus_ManagementPanelFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8477,6 +8562,19 @@ export const AiLibraryForm_LibraryFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
               ],
             },
           },
@@ -10433,6 +10531,60 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const UpdateAiLanguageModelDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateAiLanguageModel' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAiLanguageModelInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLanguageModel' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAiLanguageModelMutation, UpdateAiLanguageModelMutationVariables>
 export const GetAiServiceStatusDocument = {
   kind: 'Document',
   definitions: [
@@ -14462,6 +14614,19 @@ export const AiLibraryDetailDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
               ],
             },
           },
@@ -15269,6 +15434,19 @@ export const ChangeLibraryDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocrModel' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
               ],
             },
           },
@@ -17691,9 +17869,21 @@ export const AiLanguageModelsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -17742,9 +17932,21 @@ export const AiLanguageModelsForChatDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -17807,26 +18009,185 @@ export const GetAiLanguageModelsDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'GetAiLanguageModels' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '0' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '20' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'providers' } },
+          type: {
+            kind: 'ListType',
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'onlyUsed' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showDisabled' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'providers' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'providers' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoVision' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoFunctionCalling' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'onlyUsed' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'onlyUsed' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'showDisabled' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'showDisabled' } },
+              },
+            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'canDoEmbedding' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'canDoChatCompletion' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'canDoVision' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabledCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'embeddingCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'providerCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoEmbedding' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoVision' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'canDoFunctionCalling' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'librariesUsingAsEmbedding' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantsUsingAsChat' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'listFieldsUsing' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'list' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -17862,97 +18223,6 @@ export const SyncModelsDocument = {
     },
   ],
 } as unknown as DocumentNode<SyncModelsMutation, SyncModelsMutationVariables>
-export const UpdateAiLanguageModelDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'UpdateAiLanguageModel' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAiLanguageModelInput' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateAiLanguageModel' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'adminNotes' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpdateAiLanguageModelMutation, UpdateAiLanguageModelMutationVariables>
-export const DeleteAiLanguageModelDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'DeleteAiLanguageModel' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteAiLanguageModel' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteAiLanguageModelMutation, DeleteAiLanguageModelMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

@@ -166,6 +166,7 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     embeddingTimeoutMs: z.number().nullish(),
     fileConverterOptions: z.string().nullish(),
     name: z.string(),
+    ocrModelId: z.string().nullish(),
     url: z.string().nullish(),
   })
 }
@@ -224,7 +225,7 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
 export function UpdateAiLanguageModelInputSchema(): z.ZodObject<Properties<UpdateAiLanguageModelInput>> {
   return z.object({
     adminNotes: z.string().nullish(),
-    enabled: z.boolean().nullish(),
+    enabled: z.boolean(),
   })
 }
 

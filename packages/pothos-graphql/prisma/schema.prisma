@@ -500,7 +500,6 @@ model AiLanguageModel {
   canDoVision                Boolean                     @default(false)
   canDoFunctionCalling       Boolean                     @default(false)
   enabled                    Boolean                     @default(true)
-  deleted                    Boolean                     @default(false)
   adminNotes                 String?
   lastUsedAt                 DateTime?
   assistantsUsing            AiAssistant[]               @relation("LanguageModel")

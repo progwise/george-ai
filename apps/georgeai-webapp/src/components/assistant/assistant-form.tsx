@@ -79,9 +79,8 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
-  const {
-    data: { aiLanguageModels },
-  } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
+  const { data } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
+  const aiLanguageModels = data?.models ?? []
 
   const { mutate: update } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -164,7 +163,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         name="languageModelId"
         label={t('labels.languageModel')}
         options={aiLanguageModels}
-        value={aiLanguageModels.find((model) => model.id === assistant.languageModel?.id)}
+        value={aiLanguageModels.find((model: { id: string }) => model.id === assistant.languageModel?.id)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}

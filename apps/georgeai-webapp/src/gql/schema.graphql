@@ -284,6 +284,7 @@ type AiEnrichmentTaskProcessingDataOutput {
 
 type AiLanguageModel {
   adminNotes: String
+  assistantsUsingAsChat: [AiAssistant!]
   canDoChatCompletion: Boolean!
   canDoEmbedding: Boolean!
   canDoFunctionCalling: Boolean!
@@ -292,8 +293,23 @@ type AiLanguageModel {
   enabled: Boolean!
   id: ID!
   lastUsedAt: DateTime
+  librariesUsingAsEmbedding: [AiLibrary!]
+  listFieldsUsing: [AiListField!]
   name: String!
   provider: String!
+}
+
+"""
+Paginated result for AI Language Models
+"""
+type AiLanguageModelsResult {
+  count: Int!
+  embeddingCount: Int!
+  enabledCount: Int!
+  models: [AiLanguageModel!]!
+  providerCount: Int!
+  skip: Int!
+  take: Int!
 }
 
 type AiLibrary {
@@ -307,6 +323,7 @@ type AiLibrary {
   filesCount: Int!
   id: ID!
   name: String!
+  ocrModel: AiLanguageModel
   owner: User!
   ownerId: String!
   participants: [AiLibraryParticipant!]!
@@ -479,6 +496,7 @@ input AiLibraryInput {
   embeddingTimeoutMs: Int
   fileConverterOptions: String
   name: String!
+  ocrModelId: String
   url: String
 }
 
@@ -1167,7 +1185,6 @@ type Mutation {
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
-  deleteAiLanguageModel(id: ID!): AiLanguageModel
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFile(fileId: String!): AiLibraryFile!
@@ -1188,6 +1205,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
+  disableAiLanguageModel(id: ID!): AiLanguageModel
   dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
   dropPendingTasks(libraryId: String!): Int!
@@ -1279,7 +1297,17 @@ type Query {
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
-  aiLanguageModels(canDoChatCompletion: Boolean, canDoEmbedding: Boolean): [AiLanguageModel!]!
+  aiLanguageModels(
+    canDoChatCompletion: Boolean
+    canDoEmbedding: Boolean
+    canDoFunctionCalling: Boolean
+    canDoVision: Boolean
+    onlyUsed: Boolean = false
+    providers: [String!]
+    showDisabled: Boolean = false
+    skip: Int = 0
+    take: Int = 20
+  ): AiLanguageModelsResult!
   aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
@@ -1406,7 +1434,7 @@ type SyncModelsResult {
 
 input UpdateAiLanguageModelInput {
   adminNotes: String
-  enabled: Boolean
+  enabled: Boolean!
 }
 
 type UpdateLibraryParticipantsResult {

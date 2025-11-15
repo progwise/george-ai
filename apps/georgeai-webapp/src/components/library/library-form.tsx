@@ -26,6 +26,12 @@ graphql(`
     embeddingModel {
       id
       name
+      provider
+    }
+    ocrModel {
+      id
+      name
+      provider
     }
     fileConverterOptions
     autoProcessCrawledFiles
@@ -45,13 +51,11 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
 
-  const {
-    data: { aiLanguageModels: aiEmbeddingModels },
-  } = useSuspenseQuery(getLanguageModelsForEmbeddingQueryOptions())
+  const { data: embeddingData } = useSuspenseQuery(getLanguageModelsForEmbeddingQueryOptions())
+  const aiEmbeddingModels = embeddingData?.models ?? []
 
-  const {
-    data: { aiLanguageModels: aiChatModels },
-  } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
+  const { data: chatData } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
+  const aiChatModels = chatData?.models ?? []
 
   const fieldProps = {
     schema,
@@ -192,7 +196,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     name="embeddingModelId"
                     label={t('labels.embeddingModelName')}
                     options={aiEmbeddingModels}
-                    value={aiEmbeddingModels.find((model) => model.id === library.embeddingModel?.id)}
+                    value={aiEmbeddingModels.find((model: { id: string }) => model.id === library.embeddingModel?.id)}
                     className="col-span-1"
                     placeholder={t('libraries.placeholders.embeddingModelName')}
                     {...fieldProps}
@@ -305,19 +309,16 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
                       {/* OCR Model */}
                       <Select
-                        name="ocrModel"
+                        name="ocrModelId"
                         label={t('labels.ocrModel')}
                         options={aiChatModels}
                         value={aiChatModels.find(
-                          (model) => model.id === parseOptionValue('ocrModel', 'qwen2.5vl:latest'),
+                          (model: { id: string }) => model.id === (library.ocrModel?.id || 'qwen2.5vl:latest'),
                         )}
                         className="col-span-2 lg:col-span-1"
                         placeholder={t('labels.ocrModelPlaceholder')}
                         readonly={!isImageProcessingEnabled}
                         {...fieldProps}
-                        onBlur={(item) => {
-                          changeFileConverterOptions('ocrModel', item?.id || '')
-                        }}
                       />
 
                       {/* OCR Timeout */}

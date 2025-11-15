@@ -121,7 +121,7 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input validator w-full flex-1 resize-none whitespace-pre-wrap break-words py-1 leading-normal',
+            'textarea validator wrap-break-word w-full flex-1 resize-none whitespace-pre-wrap py-1 leading-normal placeholder:italic placeholder:opacity-50',
             readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
           )}
           style={{ font: 'inherit' }}
@@ -149,7 +149,7 @@ export const Input = <T extends ZodRawShape>({
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input validator w-full',
+            'input validator w-full placeholder:italic placeholder:opacity-50',
             readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
           )}
           placeholder={placeholder || ''}

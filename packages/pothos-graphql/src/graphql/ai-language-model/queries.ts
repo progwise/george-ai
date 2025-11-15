@@ -3,27 +3,206 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiLanguageModel Queries')
 
+// Paginated result type for AI models
+const AiLanguageModelsResult = builder
+  .objectRef<{
+    take: number
+    skip: number
+    providers?: string[]
+    canDoEmbedding?: boolean
+    canDoChatCompletion?: boolean
+    canDoVision?: boolean
+    canDoFunctionCalling?: boolean
+    onlyUsed: boolean
+    showDisabled: boolean
+  }>('AiLanguageModelsResult')
+  .implement({
+    description: 'Paginated result for AI Language Models',
+    fields: (t) => ({
+      take: t.exposeInt('take', { nullable: false }),
+      skip: t.exposeInt('skip', { nullable: false }),
+      enabledCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          const capabilityFilters = []
+          if (root.canDoEmbedding !== undefined && root.canDoEmbedding !== null) {
+            capabilityFilters.push({ canDoEmbedding: root.canDoEmbedding })
+          }
+          if (root.canDoChatCompletion !== undefined && root.canDoChatCompletion !== null) {
+            capabilityFilters.push({ canDoChatCompletion: root.canDoChatCompletion })
+          }
+          if (root.canDoVision !== undefined && root.canDoVision !== null) {
+            capabilityFilters.push({ canDoVision: root.canDoVision })
+          }
+          if (root.canDoFunctionCalling !== undefined && root.canDoFunctionCalling !== null) {
+            capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
+          }
+
+          const where = {
+            enabled: true, // Always count only enabled
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          return prisma.aiLanguageModel.count({ where })
+        },
+      }),
+      embeddingCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          const where = {
+            ...(!root.showDisabled && { enabled: true }),
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            canDoEmbedding: true, // Always filter for embedding capability
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          return prisma.aiLanguageModel.count({ where })
+        },
+      }),
+      providerCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          const capabilityFilters = []
+          if (root.canDoEmbedding !== undefined && root.canDoEmbedding !== null) {
+            capabilityFilters.push({ canDoEmbedding: root.canDoEmbedding })
+          }
+          if (root.canDoChatCompletion !== undefined && root.canDoChatCompletion !== null) {
+            capabilityFilters.push({ canDoChatCompletion: root.canDoChatCompletion })
+          }
+          if (root.canDoVision !== undefined && root.canDoVision !== null) {
+            capabilityFilters.push({ canDoVision: root.canDoVision })
+          }
+          if (root.canDoFunctionCalling !== undefined && root.canDoFunctionCalling !== null) {
+            capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
+          }
+
+          const where = {
+            ...(!root.showDisabled && { enabled: true }),
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          // Get distinct providers
+          const providers = await prisma.aiLanguageModel.findMany({
+            where,
+            select: { provider: true },
+            distinct: ['provider'],
+          })
+
+          return providers.length
+        },
+      }),
+      count: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          // Build OR array for capabilities
+          const capabilityFilters = []
+          if (root.canDoEmbedding !== undefined && root.canDoEmbedding !== null) {
+            capabilityFilters.push({ canDoEmbedding: root.canDoEmbedding })
+          }
+          if (root.canDoChatCompletion !== undefined && root.canDoChatCompletion !== null) {
+            capabilityFilters.push({ canDoChatCompletion: root.canDoChatCompletion })
+          }
+          if (root.canDoVision !== undefined && root.canDoVision !== null) {
+            capabilityFilters.push({ canDoVision: root.canDoVision })
+          }
+          if (root.canDoFunctionCalling !== undefined && root.canDoFunctionCalling !== null) {
+            capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
+          }
+
+          const where = {
+            ...(!root.showDisabled && { enabled: true }),
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          return prisma.aiLanguageModel.count({ where })
+        },
+      }),
+      models: t.prismaField({
+        type: ['AiLanguageModel'],
+        nullable: { list: false, items: false },
+        resolve: async (query, root) => {
+          // Build OR array for capabilities
+          const capabilityFilters = []
+          if (root.canDoEmbedding !== undefined && root.canDoEmbedding !== null) {
+            capabilityFilters.push({ canDoEmbedding: root.canDoEmbedding })
+          }
+          if (root.canDoChatCompletion !== undefined && root.canDoChatCompletion !== null) {
+            capabilityFilters.push({ canDoChatCompletion: root.canDoChatCompletion })
+          }
+          if (root.canDoVision !== undefined && root.canDoVision !== null) {
+            capabilityFilters.push({ canDoVision: root.canDoVision })
+          }
+          if (root.canDoFunctionCalling !== undefined && root.canDoFunctionCalling !== null) {
+            capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
+          }
+
+          const where = {
+            ...(!root.showDisabled && { enabled: true }),
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          return prisma.aiLanguageModel.findMany({
+            ...query,
+            where,
+            skip: root.skip ?? 0,
+            take: root.take ?? 20,
+            orderBy: [{ provider: 'asc' }, { name: 'asc' }],
+            include: {
+              librariesUsingForEmbedding: {
+                select: { id: true, name: true },
+              },
+              assistantsUsing: {
+                select: { id: true, name: true },
+              },
+              listFieldsUsing: {
+                select: { id: true, list: { select: { id: true, name: true } } },
+              },
+            },
+          })
+        },
+      }),
+    }),
+  })
+
 builder.queryField('aiLanguageModels', (t) =>
-  t.prismaField({
-    type: ['AiLanguageModel'],
+  t.withAuth({ isLoggedIn: true, admin: true }).field({
+    type: AiLanguageModelsResult,
     nullable: false,
     args: {
+      skip: t.arg.int({ required: false, defaultValue: 0 }),
+      take: t.arg.int({ required: false, defaultValue: 20 }),
+      providers: t.arg.stringList({ required: false }),
       canDoEmbedding: t.arg.boolean({ required: false }),
       canDoChatCompletion: t.arg.boolean({ required: false }),
+      canDoVision: t.arg.boolean({ required: false }),
+      canDoFunctionCalling: t.arg.boolean({ required: false }),
+      onlyUsed: t.arg.boolean({ required: false, defaultValue: false }),
+      showDisabled: t.arg.boolean({ required: false, defaultValue: false }),
     },
-    resolve: async (query, _parent, args) => {
-      return prisma.aiLanguageModel.findMany({
-        ...query,
-        where: {
-          enabled: true,
-          deleted: false,
-          ...(args.canDoEmbedding !== undefined &&
-            args.canDoEmbedding !== null && { canDoEmbedding: args.canDoEmbedding }),
-          ...(args.canDoChatCompletion !== undefined &&
-            args.canDoChatCompletion !== null && { canDoChatCompletion: args.canDoChatCompletion }),
-        },
-        orderBy: [{ provider: 'asc' }, { name: 'asc' }],
-      })
+    resolve: async (_parent, args) => {
+      return {
+        take: args.take ?? 20,
+        skip: args.skip ?? 0,
+        providers: args.providers ?? undefined,
+        canDoEmbedding: args.canDoEmbedding ?? undefined,
+        canDoChatCompletion: args.canDoChatCompletion ?? undefined,
+        canDoVision: args.canDoVision ?? undefined,
+        canDoFunctionCalling: args.canDoFunctionCalling ?? undefined,
+        onlyUsed: args.onlyUsed ?? false,
+        showDisabled: args.showDisabled ?? false,
+      }
     },
   }),
 )

@@ -123,7 +123,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   // Query available AI chat models
   const { data: aiModelsData } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
 
-  const availableModels = aiModelsData.aiLanguageModels
+  const availableModels = aiModelsData?.models ?? []
   const availableFields = list.fields || []
 
   // Get current context field IDs for edit mode
@@ -241,7 +241,9 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 label={t('lists.fields.aiModel')}
                 name="languageModelId"
                 options={availableModels}
-                value={availableModels.find((model) => model.id === editField?.languageModel?.id) || null}
+                value={
+                  availableModels.find((model: { id: string }) => model.id === editField?.languageModel?.id) || null
+                }
                 placeholder={t('lists.fields.selectAiModel')}
                 schema={schema}
                 required

@@ -19,5 +19,8 @@ builder.prismaObject('AiLanguageModel', {
     adminNotes: t.exposeString('adminNotes', { nullable: true }),
     lastUsedAt: t.expose('lastUsedAt', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+    librariesUsingAsEmbedding: t.relation('librariesUsingForEmbedding'),
+    assistantsUsingAsChat: t.relation('assistantsUsing'),
+    listFieldsUsing: t.relation('listFieldsUsing'),
   }),
 })
