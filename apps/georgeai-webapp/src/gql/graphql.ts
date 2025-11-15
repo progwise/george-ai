@@ -1760,6 +1760,7 @@ export type QueryAiLanguageModelsArgs = {
   canDoVision?: InputMaybe<Scalars['Boolean']['input']>
   onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
   providers?: InputMaybe<Array<Scalars['String']['input']>>
+  search?: InputMaybe<Scalars['String']['input']>
   showDisabled?: InputMaybe<Scalars['Boolean']['input']>
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
@@ -5265,6 +5266,26 @@ export type AiLanguageModelsForChatQueryVariables = Exact<{
 }>
 
 export type AiLanguageModelsForChatQuery = {
+  __typename?: 'Query'
+  aiLanguageModels: {
+    __typename?: 'AiLanguageModelsResult'
+    skip: number
+    take: number
+    count: number
+    models: Array<{ __typename?: 'AiLanguageModel'; id: string; name: string; provider: string }>
+  }
+}
+
+export type AiLanguageModelsWithSearchQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  search?: InputMaybe<Scalars['String']['input']>
+  canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
+  canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
+  canDoVision?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type AiLanguageModelsWithSearchQuery = {
   __typename?: 'Query'
   aiLanguageModels: {
     __typename?: 'AiLanguageModelsResult'
@@ -17955,6 +17976,109 @@ export const AiLanguageModelsForChatDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLanguageModelsForChatQuery, AiLanguageModelsForChatQueryVariables>
+export const AiLanguageModelsWithSearchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLanguageModelsWithSearch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLanguageModels' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'search' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoEmbedding' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoEmbedding' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoChatCompletion' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoChatCompletion' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'canDoVision' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'canDoVision' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLanguageModelsWithSearchQuery, AiLanguageModelsWithSearchQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [

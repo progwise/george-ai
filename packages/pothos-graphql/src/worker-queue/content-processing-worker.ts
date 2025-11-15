@@ -254,6 +254,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             extractionOptions: validated.extractionOptions,
             uploadFilePath: validated.uploadFilePath!,
             mimeType: task.file.mimeType,
+            ocrModel: validated.extractionOptions?.ocrModel,
           })
 
           if (!extractionResult.success) {
@@ -661,8 +662,11 @@ const performContentExtraction = async (args: {
   extractionOptions: FileConverterOptions
   uploadFilePath: string
   mimeType: string
-  ocrModelProvider?: string
-  ocrModelName?: string
+  ocrModel?: {
+    id: string
+    name: string
+    provider: string
+  }
 }) => {
   try {
     // Process based on extraction method
@@ -699,7 +703,7 @@ const performContentExtraction = async (args: {
       }
 
       case 'pdf-image-llm': {
-        if (!args.ocrModelProvider || !args.ocrModelName) {
+        if (!args.ocrModel) {
           throw new Error('OCR model provider and name must be specified for pdf-image-llm extraction')
         }
         result = await transformPdfToImageToMarkdown(
@@ -707,8 +711,8 @@ const performContentExtraction = async (args: {
           args.timeoutSignal,
           args.extractionOptions.ocrImageScale,
           args.extractionOptions.ocrPrompt,
-          args.ocrModelProvider,
-          args.ocrModelName,
+          args.ocrModel.provider,
+          args.ocrModel.name,
           args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
           args.extractionOptions.ocrMaxConsecutiveRepeats,
         )
@@ -725,7 +729,8 @@ const performContentExtraction = async (args: {
       libraryId: args.libraryId,
       extractionMethod: args.extractionMethod,
       markdown: result.markdownContent,
-      model: args.extractionMethod === 'pdf-image-llm' ? args.ocrModelName : undefined,
+      model:
+        args.extractionMethod === 'pdf-image-llm' ? `${args.ocrModel?.provider}:${args.ocrModel?.name}` : undefined,
     })
 
     return {

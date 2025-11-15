@@ -51,7 +51,7 @@ const OpenAIChatCompletionChunkSchema = z.object({
       completion_tokens: z.number(),
       total_tokens: z.number(),
     })
-    .optional(),
+    .nullish(),
 })
 
 export type OpenAIChatCompletionChunk = z.infer<typeof OpenAIChatCompletionChunkSchema>

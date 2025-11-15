@@ -32,6 +32,7 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
       fileConverterOptions: true,
       embeddingModel: { select: { id: true, provider: true, name: true } },
       embeddingTimeoutMs: true,
+      ocrModel: { select: { id: true, provider: true, name: true } },
     },
   })
 
@@ -40,7 +41,10 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     select: { id: true, mimeType: true },
   })
 
-  const converterOptions = parseFileConverterOptions(library.fileConverterOptions)
+  const converterOptions = {
+    ...parseFileConverterOptions(library.fileConverterOptions),
+    ocrModel: library.ocrModel || undefined,
+  }
   console.log(`Library ${libraryId} converter options:`, converterOptions)
   const extractionOptions = serializeFileConverterOptions(converterOptions)
 

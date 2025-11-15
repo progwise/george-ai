@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
@@ -11,8 +11,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { getBackendPublicUrl } from '../common'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
-import { Select } from '../form/select'
-import { getLanguageModelsForChatQueryOptions } from '../model/get-models'
+import { ModelSelect } from '../form/model-select'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -78,9 +77,6 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   const queryClient = useQueryClient()
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
-
-  const { data } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
-  const aiLanguageModels = data?.models ?? []
 
   const { mutate: update } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -159,13 +155,13 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         {...fieldProps}
       />
 
-      <Select
+      <ModelSelect
         name="languageModelId"
         label={t('labels.languageModel')}
-        options={aiLanguageModels}
-        value={aiLanguageModels.find((model: { id: string }) => model.id === assistant.languageModel?.id)}
+        value={assistant.languageModel}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
+        capability="chat"
         {...fieldProps}
       />
     </form>

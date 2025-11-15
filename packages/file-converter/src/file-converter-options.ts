@@ -37,6 +37,13 @@ export const FileConverterOptionsSchema = z.object({
   ocrLoopDetectionThreshold: z.number().default(parseInt(DEFAULT_VALUES.ocrLoopDetectionThreshold, 10)),
   ocrImageScale: z.number().default(1.5),
   ocrMaxConsecutiveRepeats: z.number().default(5),
+  ocrModel: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      provider: z.string(),
+    })
+    .optional(),
 })
 
 export type FileConverterOptions = z.infer<typeof FileConverterOptionsSchema>
@@ -126,6 +133,16 @@ export const parseFileConverterOptions = (optionsString: string | null | undefin
       if (!isNaN(parsed)) {
         options[key] = parsed
       }
+    } else if (key === 'ocrModelId' || key === 'ocrModelName' || key === 'ocrModelProvider') {
+      const ocrModel = (options['ocrModel'] || {}) as Record<string, string>
+      if (key === 'ocrModelId') {
+        ocrModel['id'] = decodeURIComponent(value)
+      } else if (key === 'ocrModelName') {
+        ocrModel['name'] = decodeURIComponent(value)
+      } else if (key === 'ocrModelProvider') {
+        ocrModel['provider'] = decodeURIComponent(value)
+      }
+      options['ocrModel'] = ocrModel
     }
   }
 
@@ -165,6 +182,11 @@ export const serializeFileConverterOptions = (options: FileConverterOptions): st
 
   if (options.ocrLoopDetectionThreshold !== undefined) {
     parts.push(`ocrLoopDetectionThreshold=${options.ocrLoopDetectionThreshold}`)
+  }
+  if (options.ocrModel) {
+    parts.push(`ocrModelId=${encodeURIComponent(options.ocrModel?.id)}`)
+    parts.push(`ocrModelName=${encodeURIComponent(options.ocrModel?.name)}`)
+    parts.push(`ocrModelProvider=${encodeURIComponent(options.ocrModel?.provider)}`)
   }
 
   // Return empty string if no options are set (will be stored as null in DB)

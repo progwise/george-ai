@@ -1304,6 +1304,7 @@ type Query {
     canDoVision: Boolean
     onlyUsed: Boolean = false
     providers: [String!]
+    search: String
     showDisabled: Boolean = false
     skip: Int = 0
     take: Int = 20

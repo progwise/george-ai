@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -8,9 +7,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
-import { Select } from '../form/select'
+import { ModelSelect } from '../form/model-select'
 import { LoadingSpinner } from '../loading-spinner'
-import { getLanguageModelsForChatQueryOptions, getLanguageModelsForEmbeddingQueryOptions } from '../model/get-models'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -50,12 +48,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const { updateLibrary, isPending } = useLibraryActions(library.id)
 
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
-
-  const { data: embeddingData } = useSuspenseQuery(getLanguageModelsForEmbeddingQueryOptions())
-  const aiEmbeddingModels = embeddingData?.models ?? []
-
-  const { data: chatData } = useSuspenseQuery(getLanguageModelsForChatQueryOptions())
-  const aiChatModels = chatData?.models ?? []
 
   const fieldProps = {
     schema,
@@ -192,13 +184,13 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             <div className="collapse-content">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Select
+                  <ModelSelect
                     name="embeddingModelId"
                     label={t('labels.embeddingModelName')}
-                    options={aiEmbeddingModels}
-                    value={aiEmbeddingModels.find((model: { id: string }) => model.id === library.embeddingModel?.id)}
+                    value={library.embeddingModel}
                     className="col-span-1"
                     placeholder={t('libraries.placeholders.embeddingModelName')}
+                    capability="embedding"
                     {...fieldProps}
                   />
 
@@ -308,16 +300,14 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       />
 
                       {/* OCR Model */}
-                      <Select
+                      <ModelSelect
                         name="ocrModelId"
                         label={t('labels.ocrModel')}
-                        options={aiChatModels}
-                        value={aiChatModels.find(
-                          (model: { id: string }) => model.id === (library.ocrModel?.id || 'qwen2.5vl:latest'),
-                        )}
+                        value={library.ocrModel}
                         className="col-span-2 lg:col-span-1"
                         placeholder={t('labels.ocrModelPlaceholder')}
                         readonly={!isImageProcessingEnabled}
+                        capability="vision"
                         {...fieldProps}
                       />
 

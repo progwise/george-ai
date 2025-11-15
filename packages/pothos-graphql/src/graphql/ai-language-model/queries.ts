@@ -8,6 +8,7 @@ const AiLanguageModelsResult = builder
   .objectRef<{
     take: number
     skip: number
+    search?: string
     providers?: string[]
     canDoEmbedding?: boolean
     canDoChatCompletion?: boolean
@@ -41,6 +42,7 @@ const AiLanguageModelsResult = builder
 
           const where = {
             enabled: true, // Always count only enabled
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
@@ -55,6 +57,7 @@ const AiLanguageModelsResult = builder
         resolve: async (root) => {
           const where = {
             ...(!root.showDisabled && { enabled: true }),
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             canDoEmbedding: true, // Always filter for embedding capability
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
@@ -83,6 +86,7 @@ const AiLanguageModelsResult = builder
 
           const where = {
             ...(!root.showDisabled && { enabled: true }),
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
@@ -119,6 +123,7 @@ const AiLanguageModelsResult = builder
 
           const where = {
             ...(!root.showDisabled && { enabled: true }),
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
@@ -148,6 +153,7 @@ const AiLanguageModelsResult = builder
 
           const where = {
             ...(!root.showDisabled && { enabled: true }),
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
@@ -183,6 +189,7 @@ builder.queryField('aiLanguageModels', (t) =>
     args: {
       skip: t.arg.int({ required: false, defaultValue: 0 }),
       take: t.arg.int({ required: false, defaultValue: 20 }),
+      search: t.arg.string({ required: false }),
       providers: t.arg.stringList({ required: false }),
       canDoEmbedding: t.arg.boolean({ required: false }),
       canDoChatCompletion: t.arg.boolean({ required: false }),
@@ -195,6 +202,7 @@ builder.queryField('aiLanguageModels', (t) =>
       return {
         take: args.take ?? 20,
         skip: args.skip ?? 0,
+        search: args.search ?? undefined,
         providers: args.providers ?? undefined,
         canDoEmbedding: args.canDoEmbedding ?? undefined,
         canDoChatCompletion: args.canDoChatCompletion ?? undefined,
