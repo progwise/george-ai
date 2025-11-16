@@ -1,0 +1,493 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="AI Models & Providers - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li><a href="/docs">Administration</a></li>
+        <li>AI Models & Providers</li>
+      </ul>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="badge badge-primary mb-4">Administration</div>
+      <h1 class="text-5xl font-bold mb-4">AI Models & Providers</h1>
+      <p class="text-xl text-base-content/70">
+        Manage AI models from multiple providers and configure them for embeddings, chat, and document processing
+      </p>
+    </div>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          George AI supports multiple AI providers simultaneously, giving you flexibility to choose the best models for your use case.
+        </p>
+        <p>
+          All providers are <strong>optional</strong> - you can run George AI with Ollama only, OpenAI only, both, or neither (app runs but AI features are disabled until configured).
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mt-6">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-figure text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="stat-title">Supported Providers</div>
+          <div class="stat-value text-primary text-3xl">2+</div>
+          <div class="stat-desc">Ollama, OpenAI (more coming)</div>
+        </div>
+
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-figure text-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div class="stat-title">Auto-Detection</div>
+          <div class="stat-value text-secondary text-3xl">100%</div>
+          <div class="stat-desc">Model capabilities detected automatically</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported Providers -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Supported Providers</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Status</th>
+              <th>Capabilities</th>
+              <th>Best For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="font-bold">Ollama</div>
+                <div class="text-sm opacity-70">Local models</div>
+              </td>
+              <td><span class="badge badge-success">Stable</span></td>
+              <td class="text-sm">Chat, Embedding, Vision</td>
+              <td class="text-sm">Privacy, offline use, self-hosted</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="font-bold">OpenAI</div>
+                <div class="text-sm opacity-70">Cloud models</div>
+              </td>
+              <td><span class="badge badge-success">Stable</span></td>
+              <td class="text-sm">Chat, Embedding, Vision, Function Calling</td>
+              <td class="text-sm">Performance, reliability, latest models</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="font-bold">Anthropic</div>
+                <div class="text-sm opacity-70">Claude models</div>
+              </td>
+              <td><span class="badge badge-warning">Planned</span></td>
+              <td class="text-sm">Chat, Vision</td>
+              <td class="text-sm">Long context, reasoning</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="font-bold">Azure OpenAI</div>
+                <div class="text-sm opacity-70">Enterprise cloud</div>
+              </td>
+              <td><span class="badge badge-warning">Planned</span></td>
+              <td class="text-sm">Chat, Embedding, Vision</td>
+              <td class="text-sm">Enterprise compliance, regional data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Managing AI Models -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Managing AI Models</h2>
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">1</div>
+              <div>
+                <h4 class="font-bold mb-1">Navigate to AI Models</h4>
+                <p class="text-sm text-base-content/70">Go to Admin Panel → AI Models</p>
+                <p class="text-sm text-base-content/70 mt-1">URL: <code class="text-xs">/admin/ai-models</code></p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">2</div>
+              <div>
+                <h4 class="font-bold mb-1">Sync Models from Providers</h4>
+                <p class="text-sm text-base-content/70">Click the "Sync Models" button to discover available models</p>
+                <p class="text-sm text-base-content/70 mt-1">This will:</p>
+                <ul class="list-disc list-inside text-sm text-base-content/70 ml-4 mt-1 space-y-1">
+                  <li>Connect to all configured providers (Ollama, OpenAI)</li>
+                  <li>Discover available models</li>
+                  <li>Auto-detect capabilities (embedding, chat, vision, function calling)</li>
+                  <li>Update existing models (if already synced)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">3</div>
+              <div>
+                <h4 class="font-bold mb-1">Enable/Disable Models</h4>
+                <p class="text-sm text-base-content/70">Toggle models on/off to control which ones appear in selection dropdowns</p>
+                <div class="alert alert-info mt-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span class="text-sm">Disabled models are hidden from users but remain in the database for historical usage tracking</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="badge badge-primary badge-lg">4</div>
+              <div>
+                <h4 class="font-bold mb-1">View Statistics</h4>
+                <p class="text-sm text-base-content/70">See usage statistics for each model:</p>
+                <ul class="list-disc list-inside text-sm text-base-content/70 ml-4 mt-1 space-y-1">
+                  <li>Total requests</li>
+                  <li>Total tokens processed</li>
+                  <li>Used by (Libraries, Assistants, List Fields)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Model Capabilities -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Understanding Model Capabilities</h2>
+      <div class="prose max-w-none mb-4">
+        <p>Each model is automatically tagged with capabilities based on its name and provider information:</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current text-primary">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+              </svg>
+              Chat Completion
+            </h3>
+            <p class="text-sm">For Assistants - conversational AI, question answering</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4, llama3.2, qwen2.5</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current text-secondary">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              Embeddings
+            </h3>
+            <p class="text-sm">For Libraries - semantic search, vector generation</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: text-embedding-3-small, nomic-embed-text</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current text-accent">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              Vision/OCR
+            </h3>
+            <p class="text-sm">For Libraries - image processing, document OCR</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, llama3.2-vision, qwen2-vl</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current text-info">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+              </svg>
+              Function Calling
+            </h3>
+            <p class="text-sm">For Lists - structured data extraction from documents</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, qwen2.5 (experimental)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Where Models Are Used -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Where to Select Models</h2>
+      <div class="space-y-4">
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="model-usage" checked />
+          <div class="collapse-title text-xl font-medium">
+            Library Settings - Embedding Model
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Used for generating vector embeddings to enable semantic search</p>
+            <div class="text-sm text-base-content/70 space-y-1">
+              <p><strong>Where:</strong> Library Settings → Embedding Model dropdown</p>
+              <p><strong>Required Capability:</strong> Embeddings</p>
+              <p><strong>Recommended:</strong> text-embedding-3-small (OpenAI), nomic-embed-text (Ollama)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Changing the embedding model requires reprocessing all documents</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="model-usage" />
+          <div class="collapse-title text-xl font-medium">
+            Library Settings - OCR Model
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Used for extracting text from images and scanned PDFs via Optical Character Recognition</p>
+            <div class="text-sm text-base-content/70 space-y-1">
+              <p><strong>Where:</strong> Library Settings → Advanced → OCR Model dropdown</p>
+              <p><strong>Required Capability:</strong> Vision</p>
+              <p><strong>Recommended:</strong> gpt-4o (OpenAI), llama3.2-vision (Ollama)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: OCR is only used for image files (PNG, JPG) and scanned PDFs</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="model-usage" />
+          <div class="collapse-title text-xl font-medium">
+            Assistant Settings - Chat Model
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Used for conversational AI when chatting with your Assistant</p>
+            <div class="text-sm text-base-content/70 space-y-1">
+              <p><strong>Where:</strong> Assistant Settings → Language Model dropdown</p>
+              <p><strong>Required Capability:</strong> Chat Completion</p>
+              <p><strong>Recommended:</strong> gpt-4o (OpenAI), llama3.2 (Ollama), qwen2.5 (Ollama)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Larger models provide better answers but are slower</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="model-usage" />
+          <div class="collapse-title text-xl font-medium">
+            List Field Settings - Enrichment Model
+          </div>
+          <div class="collapse-content">
+            <p class="mb-2">Used for extracting structured data from documents (e.g., extract invoice numbers, dates, amounts)</p>
+            <div class="text-sm text-base-content/70 space-y-1">
+              <p><strong>Where:</strong> List → Field Settings → Language Model dropdown</p>
+              <p><strong>Required Capability:</strong> Function Calling (preferred) or Chat Completion</p>
+              <p><strong>Recommended:</strong> gpt-4o (OpenAI), qwen2.5 (Ollama - experimental)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Models with function calling provide better structured extraction</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage Tracking -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Monitoring Usage & Costs</h2>
+      <div class="prose max-w-none">
+        <p>George AI automatically tracks usage for all AI models to help you understand costs and optimize performance.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4 mt-4">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Total Requests</div>
+          <div class="stat-value text-3xl">5,247</div>
+          <div class="stat-desc">Across all models this month</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Total Tokens</div>
+          <div class="stat-value text-3xl">2.4M</div>
+          <div class="stat-desc">Input + output tokens</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Estimated Cost</div>
+          <div class="stat-value text-3xl">$12</div>
+          <div class="stat-desc">OpenAI models only</div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Usage Tracking Details</h3>
+          <p class="text-sm">View detailed usage per model in the AI Models page. Usage includes request count, token usage, and average processing time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advanced: Multi-Instance Ollama -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Advanced: Multi-Instance Ollama Load Balancing</h2>
+      <div class="alert alert-warning mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <h3 class="font-bold">Advanced Configuration</h3>
+          <p class="text-sm">This feature is for self-hosted deployments with multiple GPU servers. Most users can skip this section.</p>
+        </div>
+      </div>
+
+      <div class="prose max-w-none">
+        <p>
+          If you're self-hosting George AI with multiple Ollama instances (e.g., multiple GPU servers), you can configure load balancing
+          to distribute AI processing across all servers automatically.
+        </p>
+        <p>
+          George AI will intelligently route requests based on GPU memory, current load, and model availability.
+        </p>
+      </div>
+
+      <div class="collapse collapse-arrow bg-base-100 shadow-lg mt-4">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">
+          View Multi-Instance Configuration Details
+        </div>
+        <div class="collapse-content">
+          <div class="text-sm space-y-4">
+            <p><strong>Configuration via Environment Variables:</strong></p>
+            <div class="mockup-code text-xs">
+              <pre data-prefix="$"><code># Primary Ollama instance</code></pre>
+              <pre data-prefix=""><code>OLLAMA_BASE_URL=http://ollama:11434</code></pre>
+              <pre data-prefix=""><code>OLLAMA_API_KEY=</code></pre>
+              <pre data-prefix=""><code>OLLAMA_VRAM_GB=32</code></pre>
+              <pre data-prefix="$"><code></code></pre>
+              <pre data-prefix="$"><code># Additional instances (up to 10)</code></pre>
+              <pre data-prefix=""><code>OLLAMA_BASE_URL_1=http://ollama-gpu-1:11434</code></pre>
+              <pre data-prefix=""><code>OLLAMA_VRAM_GB_1=24</code></pre>
+              <pre data-prefix="$"><code></code></pre>
+              <pre data-prefix=""><code>OLLAMA_BASE_URL_2=http://ollama-gpu-2:11434</code></pre>
+              <pre data-prefix=""><code>OLLAMA_VRAM_GB_2=24</code></pre>
+            </div>
+            <p class="mt-4"><strong>Features:</strong></p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>Automatic load balancing across instances</li>
+              <li>GPU-aware routing (uses VRAM information)</li>
+              <li>Model availability checking</li>
+              <li>Automatic failover if an instance goes offline</li>
+              <li>Model deduplication (same model across instances counted once)</li>
+            </ul>
+            <p class="mt-4 text-xs italic">Note: After configuring multi-instance Ollama, run "Sync Models" to discover models from all instances.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Troubleshooting</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Issue</th>
+              <th>Possible Cause</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>No models appear after sync</td>
+              <td>No providers configured</td>
+              <td>Configure at least one provider (Ollama or OpenAI) and restart the application. Then sync models.</td>
+            </tr>
+            <tr>
+              <td>Sync fails for OpenAI</td>
+              <td>Invalid API key or network issue</td>
+              <td>Verify OPENAI_API_KEY in environment variables. Check logs for error details.</td>
+            </tr>
+            <tr>
+              <td>Sync fails for Ollama</td>
+              <td>Ollama not running or incorrect URL</td>
+              <td>Verify OLLAMA_BASE_URL is correct and Ollama service is running. Check network connectivity.</td>
+            </tr>
+            <tr>
+              <td>Model not available in dropdown</td>
+              <td>Model is disabled or doesn't have required capability</td>
+              <td>Go to Admin → AI Models and enable the model. Verify it has the required capability (e.g., embeddings, chat).</td>
+            </tr>
+            <tr>
+              <td>OCR not working on images</td>
+              <td>No vision-capable model selected</td>
+              <td>Select a vision model in Library Settings → OCR Model (e.g., gpt-4o, llama3.2-vision)</td>
+            </tr>
+            <tr>
+              <td>High OpenAI costs</td>
+              <td>Using expensive models for all operations</td>
+              <td>Use smaller models for embeddings (text-embedding-3-small) and consider Ollama for high-volume operations.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+      <div class="space-y-4">
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Mix Providers for Cost Optimization</h3>
+            <p class="text-sm">Use Ollama for high-volume operations (embeddings) and OpenAI for quality-critical tasks (chat, OCR)</p>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Sync Models Regularly</h3>
+            <p class="text-sm">When you add new models to Ollama or OpenAI releases new models, re-sync to make them available</p>
+          </div>
+        </div>
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <div>
+            <h3 class="font-bold">Don't Disable Models in Active Use</h3>
+            <p class="text-sm">Check usage statistics before disabling. If a model is used by Libraries/Assistants/Lists, they'll need reconfiguration.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section>
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">Related Topics</h2>
+          <div class="card-actions flex-wrap mt-4">
+            <a href="/docs/libraries" class="btn btn-secondary">
+              Configure Libraries →
+            </a>
+            <a href="/docs/assistants" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Create Assistants
+            </a>
+            <a href="/docs/enrichments" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Setup Enrichments
+            </a>
+            <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Understanding Embeddings
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Layout>

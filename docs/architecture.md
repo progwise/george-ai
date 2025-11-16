@@ -154,6 +154,143 @@ flowchart TD
 
 ---
 
+## Multi-Provider AI Architecture
+
+George AI supports multiple AI providers simultaneously, with all providers being optional. This architecture enables flexible deployment scenarios from fully local (Ollama only) to hybrid (Ollama + OpenAI) to cloud-only (OpenAI only).
+
+### Database-Driven Model Management
+
+All AI models are stored in the **`AiLanguageModel`** database table with auto-detected capabilities:
+
+- **Provider**: `ollama`, `openai`, `anthropic`, etc.
+- **Capabilities**:
+  - `canDoEmbedding` - Generate vector embeddings for semantic search
+  - `canDoChatCompletion` - Conversational AI and question answering
+  - `canDoVision` - Image processing and OCR
+  - `canDoFunctionCalling` - Structured data extraction
+- **Status**:
+  - `enabled` - Admin-controlled visibility in UI dropdowns
+  - `deleted` - Soft delete flag for historical data preservation
+- **Usage Tracking**: `AiModelUsage` table tracks tokens, requests, duration, and costs
+
+**Benefits of database-driven approach**:
+
+- Models selectable via foreign keys (type-safe, referential integrity)
+- Usage tracking and cost monitoring per model
+- Admin UI for model management (`/admin/ai-models`)
+- Soft deletes preserve historical data
+- Capability-based filtering in UI (only show embedding models for embedding selection)
+
+### Supported Providers
+
+| Provider         | Status     | Configuration                       | Capabilities                              |
+| ---------------- | ---------- | ----------------------------------- | ----------------------------------------- |
+| **Ollama**       | ✅ Stable  | `OLLAMA_BASE_URL`, `OLLAMA_API_KEY` | Chat, Embedding, Vision                   |
+| **OpenAI**       | ✅ Stable  | `OPENAI_API_KEY`, `OPENAI_BASE_URL` | Chat, Embedding, Vision, Function Calling |
+| **Anthropic**    | 🚧 Planned | Coming soon                         | Chat, Vision                              |
+| **Azure OpenAI** | 🚧 Planned | Coming soon                         | Chat, Embedding, Vision                   |
+
+### Model Discovery & Sync
+
+Admin users can sync models from all configured providers via the Admin UI. **For user-facing documentation, see the [AI Models & Providers guide](https://george-ai.net/docs/admin/ai-models).**
+
+**Technical Implementation**:
+
+1. User clicks "Sync Models" in `/admin/ai-models` UI
+2. GraphQL mutation `syncAiModels` executes:
+   - Queries all configured Ollama instances (`OLLAMA_BASE_URL`, `OLLAMA_BASE_URL_1`, etc.)
+   - Queries OpenAI API (if `OPENAI_API_KEY` configured)
+   - Retrieves model lists from each provider
+3. Capability detection:
+   - Model name pattern matching (e.g., `*-embed*` = embedding, `*-vision*` = vision)
+   - Provider metadata (OpenAI API returns capabilities)
+   - Default assumptions per provider
+4. Database upsert:
+   - Creates new `AiLanguageModel` records
+   - Updates capabilities if model already exists
+   - Sets `enabled: true` by default
+5. Deduplication:
+   - Same model across multiple Ollama instances counted once
+   - Model identified by `provider + name`
+
+**Code Location**: `packages/pothos-graphql/src/graphql/ai-language-model/`
+
+### Multi-Instance Ollama Support
+
+The existing multi-instance Ollama load balancing is preserved and enhanced with database integration.
+
+**Configuration** (up to 10 instances):
+
+```bash
+# Primary instance
+OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_API_KEY=
+OLLAMA_VRAM_GB=32
+
+# Additional instances
+OLLAMA_BASE_URL_1=http://ollama-gpu-1:11434
+OLLAMA_VRAM_GB_1=24
+
+OLLAMA_BASE_URL_2=http://ollama-gpu-2:11434
+OLLAMA_VRAM_GB_2=24
+```
+
+**Load Balancing Strategy** (implemented in `ai-service-client` package):
+
+1. **Request arrives** for a specific model (e.g., `llama3.2`)
+2. **Filter instances** that have the model loaded
+3. **Score each instance** based on:
+   - Available GPU memory (VRAM)
+   - Current request load
+   - Instance health (recent failures)
+4. **Route to best instance** (highest score)
+5. **Failover** - If instance fails, retry on next-best instance
+
+**Model Discovery Deduplication**:
+
+- Model sync queries all instances
+- Same model on multiple instances = single database record
+- Requests routed to any instance with the model
+
+**For user-facing setup and monitoring instructions, see the [AI Models & Providers guide](https://george-ai.net/docs/admin/ai-models#multi-instance-ollama).**
+
+### Where Models Are Used
+
+Models are referenced via foreign keys throughout the application:
+
+1. **Library Settings** (`AiLibrary` table):
+   - `embeddingModelId` → Model for generating vector embeddings
+   - `ocrModelId` → Vision model for image OCR
+
+2. **Assistant Settings** (`AiAssistant` table):
+   - `languageModelId` → Model for conversational AI
+
+3. **List Field Settings** (`AiListField` table):
+   - `languageModelId` → Model for structured data extraction
+
+**Migration from legacy string-based model names**:
+
+- Existing deployments: Model names stored in JSON fields (`fileConverterOptions`)
+- Runtime migration: On first use, model record created in database, foreign key populated
+
+### Graceful Degradation
+
+If no AI providers are configured:
+
+- ✅ Application runs normally
+- ✅ UI shows "No models available" message
+- ✅ Users can configure providers at any time via environment variables
+- ✅ Model sync available immediately (no restart required)
+- ❌ AI features disabled until providers configured
+
+**User Experience**:
+
+- Libraries without embedding model: Upload works, search disabled
+- Assistants without language model: Create works, chat disabled
+- List fields without language model: Create works, enrichment disabled
+
+---
+
 ## External Services
 
 ### PostgreSQL

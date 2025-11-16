@@ -9,7 +9,8 @@ George AI transforms documents from any source into searchable vectors and struc
 - **Markdown-first**: All documents (PDFs, Excel, HTML) → unified Markdown → consistent processing
 - **Dual output**: Searchable vectors (semantic search) + structured data (AI enrichments)
 - **Business user managed**: Configure data collection, processing, and enrichment without developers
-- **Self-hosted**: Your data, your infrastructure, local AI with Ollama
+- **AI provider flexibility**: Use Ollama (local), OpenAI (cloud), or both - all providers optional
+- **Self-hosted**: Your data, your infrastructure, full control
 
 [Learn more about features and use cases →](https://george-ai.net)
 
@@ -24,7 +25,13 @@ cd george-ai
 
 # Copy and configure environment variables
 cp .env.example .env
-# Edit .env with your configuration
+
+# Configure AI providers (optional - choose one or both):
+# Option 1: Ollama (self-hosted models)
+#   OLLAMA_BASE_URL=http://ollama:11434
+# Option 2: OpenAI (cloud API)
+#   OPENAI_API_KEY=sk-your-api-key-here
+# Option 3: Use both providers for flexibility
 
 # Start all services
 docker compose up -d
@@ -36,6 +43,8 @@ docker compose up -d
 ```
 
 **First time setup:** After starting services, configure Keycloak authentication and run database migrations. See [Self-Hosting Guide](https://george-ai.net/docs/self-hosting) for detailed instructions.
+
+**AI provider setup:** Navigate to Admin → AI Models, click "Sync Models" to discover available models, then select models in Library/Assistant/List settings. See [AI Models & Providers guide](https://george-ai.net/docs/admin/ai-models) for details.
 
 ### Developer Setup
 
