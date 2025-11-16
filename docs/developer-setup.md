@@ -40,9 +40,9 @@ You need `.env` files in the directory you start the app from:
 
 **Note:** The root `.env.example` is configured for development with devcontainer. For production deployments, see `docs/examples/.env.example` instead.
 
-### 2a. AI Provider Configuration (Optional)
+### 2a. AI Provider Configuration (Required for AI Features)
 
-George AI supports multiple AI providers for embeddings, chat, and vision capabilities. **All providers are optional** - configure only what you need.
+George AI supports multiple AI providers for embeddings, chat, and vision capabilities. **You must configure at least one provider for any AI features to work** - the choice of which provider(s) to configure is optional.
 
 #### Ollama (Local Models)
 

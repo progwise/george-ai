@@ -272,7 +272,6 @@ Models are referenced via foreign keys throughout the application:
 
 - Existing deployments: Model names stored in JSON fields (`fileConverterOptions`)
 - Runtime migration: On first use, model record created in database, foreign key populated
-- See `/docs/migration-guide.md` for details
 
 ### Graceful Degradation
 

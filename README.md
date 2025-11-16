@@ -31,7 +31,7 @@ cp .env.example .env
 #   OLLAMA_BASE_URL=http://ollama:11434
 # Option 2: OpenAI (cloud API)
 #   OPENAI_API_KEY=sk-your-api-key-here
-# Option 3: Both providers for flexibility
+# Option 3: Use both providers for flexibility
 
 # Start all services
 docker compose up -d
