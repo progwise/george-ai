@@ -527,24 +527,14 @@ const processEmbeddingPhase = async (args: {
 
   // Log usage for embeddings (async, non-blocking)
   const durationMs = Date.now() - startTime
-  void (async () => {
-    try {
-      // Use embeddingModelId if available, otherwise skip logging
-      if (args.embeddingModelId) {
-        await logModelUsage({
-          modelId: args.embeddingModelId,
-          libraryId: args.libraryId,
-          usageType: 'embedding',
-          durationMs,
-          tokensInput: embeddedFile.size, // Use text size as proxy for input tokens
-          tokensOutput: embeddedFile.chunks, // Number of embeddings generated
-        })
-      }
-    } catch (error) {
-      // Usage tracking failures don't break the operation
-      console.error('Failed to log embedding usage:', error)
-    }
-  })()
+  await logModelUsage({
+    modelId: args.embeddingModelId,
+    libraryId: args.libraryId,
+    usageType: 'embedding',
+    durationMs,
+    tokensInput: embeddedFile.size, // Use text size as proxy for input tokens
+    tokensOutput: embeddedFile.chunks, // Number of embeddings generated
+  })
 
   return {
     success: true, //TODO: Is it a success if there are chunkErrors?

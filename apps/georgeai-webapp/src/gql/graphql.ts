@@ -329,9 +329,11 @@ export type AiLanguageModel = {
 export type AiLanguageModelsResult = {
   __typename?: 'AiLanguageModelsResult'
   count: Scalars['Int']['output']
+  disabledCount: Scalars['Int']['output']
   embeddingCount: Scalars['Int']['output']
   enabledCount: Scalars['Int']['output']
   models: Array<AiLanguageModel>
+  providerCapabilities: Array<ProviderCapabilityCounts>
   providerCount: Scalars['Int']['output']
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
@@ -1151,24 +1153,6 @@ export type MarkdownResult = {
   fileName: Scalars['String']['output']
 }
 
-export type ModelUsageByModel = {
-  __typename?: 'ModelUsageByModel'
-  modelId: Scalars['String']['output']
-  modelName: Scalars['String']['output']
-  provider: Scalars['String']['output']
-  totalRequests: Scalars['Int']['output']
-  totalTokensInput: Scalars['Int']['output']
-  totalTokensOutput: Scalars['Int']['output']
-}
-
-export type ModelUsageByProvider = {
-  __typename?: 'ModelUsageByProvider'
-  provider: Scalars['String']['output']
-  totalRequests: Scalars['Int']['output']
-  totalTokensInput: Scalars['Int']['output']
-  totalTokensOutput: Scalars['Int']['output']
-}
-
 export type ModelUsageByType = {
   __typename?: 'ModelUsageByType'
   totalRequests: Scalars['Int']['output']
@@ -1671,6 +1655,18 @@ export type ProcessingTaskStateCount = {
   status: ProcessingStatus
 }
 
+export type ProviderCapabilityCounts = {
+  __typename?: 'ProviderCapabilityCounts'
+  chatCount: Scalars['Int']['output']
+  disabledCount: Scalars['Int']['output']
+  embeddingCount: Scalars['Int']['output']
+  enabledCount: Scalars['Int']['output']
+  functionCount: Scalars['Int']['output']
+  modelCount: Scalars['Int']['output']
+  provider: Scalars['String']['output']
+  visionCount: Scalars['Int']['output']
+}
+
 export type Query = {
   __typename?: 'Query'
   aiActAssessment: AiActAssessment
@@ -1697,8 +1693,6 @@ export type Query = {
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
-  aiModelUsageByModel: Array<ModelUsageByModel>
-  aiModelUsageByProvider: Array<ModelUsageByProvider>
   aiModelUsageByType: Array<ModelUsageByType>
   aiModelUsageStats?: Maybe<ModelUsageStats>
   aiServiceStatus: AiServiceClusterStatus
@@ -1840,21 +1834,6 @@ export type QueryAiListItemsArgs = {
   skip?: Scalars['Int']['input']
   sorting?: InputMaybe<Array<AiListSortingInput>>
   take?: Scalars['Int']['input']
-}
-
-export type QueryAiModelUsageByModelArgs = {
-  endDate?: InputMaybe<Scalars['DateTime']['input']>
-  libraryId?: InputMaybe<Scalars['String']['input']>
-  provider?: InputMaybe<Scalars['String']['input']>
-  startDate?: InputMaybe<Scalars['DateTime']['input']>
-  userId?: InputMaybe<Scalars['String']['input']>
-}
-
-export type QueryAiModelUsageByProviderArgs = {
-  endDate?: InputMaybe<Scalars['DateTime']['input']>
-  libraryId?: InputMaybe<Scalars['String']['input']>
-  startDate?: InputMaybe<Scalars['DateTime']['input']>
-  userId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type QueryAiModelUsageByTypeArgs = {
@@ -5367,8 +5346,18 @@ export type GetAiLanguageModelsQuery = {
     take: number
     count: number
     enabledCount: number
-    embeddingCount: number
-    providerCount: number
+    disabledCount: number
+    providerCapabilities: Array<{
+      __typename?: 'ProviderCapabilityCounts'
+      provider: string
+      modelCount: number
+      enabledCount: number
+      disabledCount: number
+      embeddingCount: number
+      chatCount: number
+      visionCount: number
+      functionCount: number
+    }>
     models: Array<{
       __typename?: 'AiLanguageModel'
       id: string
@@ -5391,6 +5380,25 @@ export type GetAiLanguageModelsQuery = {
       }> | null
     }>
   }
+}
+
+export type GetUsageStatsQueryVariables = Exact<{
+  startDate?: InputMaybe<Scalars['DateTime']['input']>
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+}>
+
+export type GetUsageStatsQuery = {
+  __typename?: 'Query'
+  aiModelUsageStats?: {
+    __typename?: 'ModelUsageStats'
+    totalRequests: number
+    totalTokensInput: number
+    totalTokensOutput: number
+    totalDurationMs: number
+    avgTokensInput: number
+    avgTokensOutput: number
+    avgDurationMs: number
+  } | null
 }
 
 export type SyncModelsMutationVariables = Exact<{ [key: string]: never }>
@@ -18247,8 +18255,24 @@ export const GetAiLanguageModelsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'count' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'enabledCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'embeddingCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'providerCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'disabledCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'providerCapabilities' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'modelCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enabledCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'disabledCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'embeddingCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'chatCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'visionCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'functionCount' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'models' },
@@ -18320,6 +18344,61 @@ export const GetAiLanguageModelsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiLanguageModelsQuery, GetAiLanguageModelsQueryVariables>
+export const GetUsageStatsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetUsageStats' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'startDate' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'DateTime' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'endDate' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'DateTime' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiModelUsageStats' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'startDate' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'startDate' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'endDate' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'endDate' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalRequests' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalTokensInput' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalTokensOutput' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDurationMs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avgTokensInput' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avgTokensOutput' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avgDurationMs' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUsageStatsQuery, GetUsageStatsQueryVariables>
 export const SyncModelsDocument = {
   kind: 'Document',
   definitions: [

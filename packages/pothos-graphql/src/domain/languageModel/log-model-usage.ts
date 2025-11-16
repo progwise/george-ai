@@ -1,7 +1,7 @@
 import { prisma } from '../../prisma'
 
 export interface ModelUsageContext {
-  modelId: string
+  modelId?: string
   userId?: string
   libraryId?: string
   assistantId?: string
@@ -16,31 +16,21 @@ export interface ModelUsageContext {
  * Logs AI model usage for billing/analytics
  *
  * - Atomic transaction: creates usage log + updates model.lastUsedAt
- * - Denormalizes provider/model name to preserve historical data
  * - Non-throwing: logging failures don't break user operations
  *
  * @param context Usage context with model, user, and metrics
  */
 export async function logModelUsage(context: ModelUsageContext): Promise<void> {
+  if (!context.modelId) {
+    console.warn('No modelId provided for usage logging')
+    return
+  }
   try {
-    // Get model info for denormalization
-    const model = await prisma.aiLanguageModel.findUnique({
-      where: { id: context.modelId },
-      select: { provider: true, name: true },
-    })
-
-    if (!model) {
-      console.warn(`Model ${context.modelId} not found for usage logging`)
-      return
-    }
-
     // Atomic transaction: create usage log + update lastUsedAt
     await prisma.$transaction([
       prisma.aiModelUsage.create({
         data: {
           modelId: context.modelId,
-          providerName: model.provider,
-          modelName: model.name,
           userId: context.userId,
           libraryId: context.libraryId,
           assistantId: context.assistantId,

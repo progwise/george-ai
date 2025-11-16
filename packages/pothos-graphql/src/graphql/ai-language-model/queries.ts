@@ -3,6 +3,20 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiLanguageModel Queries')
 
+// Type for provider capability counts
+const ProviderCapabilityCounts = builder.simpleObject('ProviderCapabilityCounts', {
+  fields: (t) => ({
+    provider: t.string({ nullable: false }),
+    modelCount: t.int({ nullable: false }),
+    enabledCount: t.int({ nullable: false }),
+    disabledCount: t.int({ nullable: false }),
+    embeddingCount: t.int({ nullable: false }),
+    chatCount: t.int({ nullable: false }),
+    visionCount: t.int({ nullable: false }),
+    functionCount: t.int({ nullable: false }),
+  }),
+})
+
 // Paginated result type for AI models
 const AiLanguageModelsResult = builder
   .objectRef<{
@@ -42,6 +56,35 @@ const AiLanguageModelsResult = builder
 
           const where = {
             enabled: true, // Always count only enabled
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
+            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          return prisma.aiLanguageModel.count({ where })
+        },
+      }),
+      disabledCount: t.field({
+        type: 'Int',
+        nullable: false,
+        resolve: async (root) => {
+          const capabilityFilters = []
+          if (root.canDoEmbedding !== undefined && root.canDoEmbedding !== null) {
+            capabilityFilters.push({ canDoEmbedding: root.canDoEmbedding })
+          }
+          if (root.canDoChatCompletion !== undefined && root.canDoChatCompletion !== null) {
+            capabilityFilters.push({ canDoChatCompletion: root.canDoChatCompletion })
+          }
+          if (root.canDoVision !== undefined && root.canDoVision !== null) {
+            capabilityFilters.push({ canDoVision: root.canDoVision })
+          }
+          if (root.canDoFunctionCalling !== undefined && root.canDoFunctionCalling !== null) {
+            capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
+          }
+
+          const where = {
+            enabled: false, // Only count disabled models
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
@@ -130,6 +173,51 @@ const AiLanguageModelsResult = builder
           }
 
           return prisma.aiLanguageModel.count({ where })
+        },
+      }),
+      providerCapabilities: t.field({
+        type: [ProviderCapabilityCounts],
+        nullable: { list: false, items: false },
+        resolve: async (root) => {
+          const baseWhere = {
+            ...(!root.showDisabled && { enabled: true }),
+            ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
+            ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+          }
+
+          // Get all distinct providers
+          const providers = ['ollama', 'openai']
+
+          // For each provider, count models by capability
+          const results = await Promise.all(
+            providers.map(async (provider) => {
+              const providerWhere = { ...baseWhere, provider }
+
+              const [modelCount, enabledCount, disabledCount, embeddingCount, chatCount, visionCount, functionCount] =
+                await Promise.all([
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, enabled: true } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, enabled: false } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, canDoEmbedding: true } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, canDoChatCompletion: true } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, canDoVision: true } }),
+                  prisma.aiLanguageModel.count({ where: { ...providerWhere, canDoFunctionCalling: true } }),
+                ])
+
+              return {
+                provider,
+                modelCount,
+                enabledCount,
+                disabledCount,
+                embeddingCount,
+                chatCount,
+                visionCount,
+                functionCount,
+              }
+            }),
+          )
+
+          return results
         },
       }),
       models: t.prismaField({
@@ -228,26 +316,6 @@ const ModelUsageStats = builder.simpleObject('ModelUsageStats', {
   }),
 })
 
-const ModelUsageByProvider = builder.simpleObject('ModelUsageByProvider', {
-  fields: (t) => ({
-    provider: t.string({ nullable: false }),
-    totalRequests: t.int({ nullable: false }),
-    totalTokensInput: t.int({ nullable: false }),
-    totalTokensOutput: t.int({ nullable: false }),
-  }),
-})
-
-const ModelUsageByModel = builder.simpleObject('ModelUsageByModel', {
-  fields: (t) => ({
-    modelId: t.string({ nullable: false }),
-    modelName: t.string({ nullable: false }),
-    provider: t.string({ nullable: false }),
-    totalRequests: t.int({ nullable: false }),
-    totalTokensInput: t.int({ nullable: false }),
-    totalTokensOutput: t.int({ nullable: false }),
-  }),
-})
-
 const ModelUsageByType = builder.simpleObject('ModelUsageByType', {
   fields: (t) => ({
     usageType: t.string({ nullable: false }),
@@ -317,112 +385,6 @@ builder.queryField('aiModelUsageStats', (t) =>
         avgTokensOutput: aggregation._avg.tokensOutput || 0,
         avgDurationMs: aggregation._avg.durationMs || 0,
       }
-    },
-  }),
-)
-
-// Query: Usage breakdown by provider
-builder.queryField('aiModelUsageByProvider', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: [ModelUsageByProvider],
-    nullable: { list: false, items: false },
-    args: {
-      userId: t.arg.string({ required: false }),
-      libraryId: t.arg.string({ required: false }),
-      startDate: t.arg({ type: 'DateTime', required: false }),
-      endDate: t.arg({ type: 'DateTime', required: false }),
-    },
-    resolve: async (_parent, args, ctx) => {
-      const where = {
-        ...(args.libraryId && { libraryId: args.libraryId }),
-        ...(args.startDate || args.endDate
-          ? {
-              createdAt: {
-                ...(args.startDate && { gte: args.startDate }),
-                ...(args.endDate && { lte: args.endDate }),
-              },
-            }
-          : {}),
-        ...(!ctx.session.user.isAdmin && { userId: ctx.session.user.id }),
-        ...(ctx.session.user.isAdmin && args.userId && { userId: args.userId }),
-      }
-
-      const results = await prisma.aiModelUsage.groupBy({
-        by: ['providerName'],
-        where,
-        _sum: {
-          requestCount: true,
-          tokensInput: true,
-          tokensOutput: true,
-        },
-        orderBy: {
-          _sum: {
-            requestCount: 'desc',
-          },
-        },
-      })
-
-      return results.map((r) => ({
-        provider: r.providerName,
-        totalRequests: r._sum.requestCount || 0,
-        totalTokensInput: r._sum.tokensInput || 0,
-        totalTokensOutput: r._sum.tokensOutput || 0,
-      }))
-    },
-  }),
-)
-
-// Query: Usage breakdown by model
-builder.queryField('aiModelUsageByModel', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: [ModelUsageByModel],
-    nullable: { list: false, items: false },
-    args: {
-      userId: t.arg.string({ required: false }),
-      libraryId: t.arg.string({ required: false }),
-      provider: t.arg.string({ required: false }),
-      startDate: t.arg({ type: 'DateTime', required: false }),
-      endDate: t.arg({ type: 'DateTime', required: false }),
-    },
-    resolve: async (_parent, args, ctx) => {
-      const where = {
-        ...(args.libraryId && { libraryId: args.libraryId }),
-        ...(args.provider && { providerName: args.provider }),
-        ...(args.startDate || args.endDate
-          ? {
-              createdAt: {
-                ...(args.startDate && { gte: args.startDate }),
-                ...(args.endDate && { lte: args.endDate }),
-              },
-            }
-          : {}),
-        ...(!ctx.session.user.isAdmin && { userId: ctx.session.user.id }),
-        ...(ctx.session.user.isAdmin && args.userId && { userId: args.userId }),
-      }
-
-      const results = await prisma.aiModelUsage.groupBy({
-        by: ['modelId', 'modelName', 'providerName'],
-        where,
-        _sum: {
-          requestCount: true,
-          tokensInput: true,
-          tokensOutput: true,
-        },
-        orderBy: {
-          _sum: {
-            requestCount: 'desc',
-          },
-        },
-      })
-
-      return results.map((r) => ({
-        modelId: r.modelId,
-        modelName: r.modelName,
-        provider: r.providerName,
-        totalRequests: r._sum.requestCount || 0,
-        totalTokensInput: r._sum.tokensInput || 0,
-        totalTokensOutput: r._sum.tokensOutput || 0,
-      }))
     },
   }),
 )

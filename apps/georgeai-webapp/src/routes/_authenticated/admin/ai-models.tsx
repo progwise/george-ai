@@ -1,6 +1,7 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -9,7 +10,7 @@ import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { Pagination } from '../../../components/table/pagination'
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { CpuIcon } from '../../../icons/cpu-icon'
+import { BowlerLogoIcon } from '../../../icons/bowler-logo-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
 import { RefreshIcon } from '../../../icons/refresh-icon'
@@ -58,8 +59,17 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
             take
             count
             enabledCount
-            embeddingCount
-            providerCount
+            disabledCount
+            providerCapabilities {
+              provider
+              modelCount
+              enabledCount
+              disabledCount
+              embeddingCount
+              chatCount
+              visionCount
+              functionCount
+            }
             models {
               id
               name
@@ -104,6 +114,61 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
       },
     )
     return result.aiLanguageModels
+  })
+
+const getUsageStats = createServerFn({ method: 'GET' })
+  .inputValidator((data: object) =>
+    z
+      .object({
+        period: z.enum(['week', 'month', 'year']).default('month'),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    const now = new Date()
+    const startDate = new Date()
+
+    // Calculate start date based on period
+    if (ctx.data.period === 'week') {
+      startDate.setDate(now.getDate() - 7)
+    } else if (ctx.data.period === 'month') {
+      startDate.setMonth(now.getMonth() - 1)
+    } else {
+      startDate.setFullYear(now.getFullYear() - 1)
+    }
+
+    const result = await backendRequest(
+      graphql(`
+        query GetUsageStats($startDate: DateTime, $endDate: DateTime) {
+          aiModelUsageStats(startDate: $startDate, endDate: $endDate) {
+            totalRequests
+            totalTokensInput
+            totalTokensOutput
+            totalDurationMs
+            avgTokensInput
+            avgTokensOutput
+            avgDurationMs
+          }
+        }
+      `),
+      {
+        startDate,
+        endDate: now,
+      },
+    )
+
+    // Ensure we always return a value (GraphQL field is nullable)
+    return (
+      result.aiModelUsageStats ?? {
+        totalRequests: 0,
+        totalTokensInput: 0,
+        totalTokensOutput: 0,
+        totalDurationMs: 0,
+        avgTokensInput: 0,
+        avgTokensOutput: 0,
+        avgDurationMs: 0,
+      }
+    )
   })
 
 const syncModels = createServerFn({ method: 'POST' }).handler(async () => {
@@ -154,6 +219,12 @@ export const aiLanguageModelsQueryOptions = (params: {
     }),
 })
 
+export const usageStatsQueryOptions = (period: 'week' | 'month' | 'year') =>
+  queryOptions({
+    queryKey: ['usageStats', period],
+    queryFn: () => getUsageStats({ data: { period } }),
+  })
+
 export const Route = createFileRoute('/_authenticated/admin/ai-models')({
   component: AiModelsPage,
   validateSearch: aiModelsSearchSchema,
@@ -169,6 +240,56 @@ export const Route = createFileRoute('/_authenticated/admin/ai-models')({
   },
 })
 
+// Helper component for capability badges
+function CapabilityBadges({
+  embeddingCount,
+  chatCount,
+  visionCount,
+  functionCount,
+  provider,
+  onFilterByCapability,
+}: {
+  embeddingCount: number
+  chatCount: number
+  visionCount: number
+  functionCount: number
+  provider?: string
+  onFilterByCapability: (capability: string, provider?: string) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      <button
+        type="button"
+        onClick={() => onFilterByCapability('embedding', provider)}
+        className="badge badge-info badge-xs cursor-pointer whitespace-nowrap transition-opacity hover:opacity-80"
+      >
+        {embeddingCount} emb
+      </button>
+      <button
+        type="button"
+        onClick={() => onFilterByCapability('chat', provider)}
+        className="badge badge-primary badge-xs cursor-pointer whitespace-nowrap transition-opacity hover:opacity-80"
+      >
+        {chatCount} chat
+      </button>
+      <button
+        type="button"
+        onClick={() => onFilterByCapability('vision', provider)}
+        className="badge badge-secondary badge-xs cursor-pointer whitespace-nowrap transition-opacity hover:opacity-80"
+      >
+        {visionCount} vis
+      </button>
+      <button
+        type="button"
+        onClick={() => onFilterByCapability('functions', provider)}
+        className="badge badge-accent badge-xs cursor-pointer whitespace-nowrap transition-opacity hover:opacity-80"
+      >
+        {functionCount} fn
+      </button>
+    </div>
+  )
+}
+
 function AiModelsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -177,18 +298,39 @@ function AiModelsPage() {
   const { data } = useSuspenseQuery(aiLanguageModelsQueryOptions(search))
   const models = data?.models ?? []
 
-  // Group models by provider for stats
-  const modelsByProvider = models.reduce<Record<string, typeof models>>((acc, model) => {
-    if (!acc[model.provider]) {
-      acc[model.provider] = []
-    }
-    acc[model.provider].push(model)
-    return acc
-  }, {})
+  // Usage period state (last week, last month, last year)
+  const [usagePeriod, setUsagePeriod] = useState<'week' | 'month' | 'year'>('month')
+  const { data: usageStats } = useSuspenseQuery(usageStatsQueryOptions(usagePeriod))
 
   // All available providers (for filter checkboxes)
   const allProviders = ['ollama', 'openai']
   const allCapabilities = ['embedding', 'chat', 'vision', 'functions']
+
+  // Helper to navigate with capability filter
+  const filterByCapability = (capability: string, provider?: string) => {
+    navigate({
+      from: Route.fullPath,
+      search: (prev) => ({
+        ...prev,
+        capabilities: [capability],
+        ...(provider && { providers: [provider] }),
+        skip: 0,
+      }),
+    })
+  }
+
+  // Helper for Total Models card - clears provider filter
+  const filterByCapabilityAllProviders = (capability: string) => {
+    navigate({
+      from: Route.fullPath,
+      search: (prev) => ({
+        ...prev,
+        capabilities: [capability],
+        providers: undefined, // Clear providers filter to show all
+        skip: 0,
+      }),
+    })
+  }
 
   const toggleProvider = (provider: string) => {
     const currentProviders = search.providers || []
@@ -279,82 +421,130 @@ function AiModelsPage() {
 
           {/* Stats */}
           <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Models Overview Card */}
             <div className="card border-base-300 bg-base-100 border shadow-lg">
               <div className="card-body p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm opacity-60">{t('admin.aiModels.totalModels')}</p>
-                    <p className="text-3xl font-bold">{data.count}</p>
+                <div className="flex flex-col gap-3">
+                  {/* Header with Logo */}
+                  <div className="flex items-center gap-2">
+                    <BowlerLogoIcon className="h-6 w-6" />
+                    <span className="text-sm font-bold">{t('admin.aiModels.totalModels')}</span>
                   </div>
-                  <CpuIcon className="h-12 w-12 opacity-30" />
+
+                  {/* Counts */}
+                  <div className="flex items-baseline gap-3">
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {data.providerCapabilities.reduce(
+                          (sum: number, p) => sum + p.enabledCount + p.disabledCount,
+                          0,
+                        )}
+                      </p>
+                      <p className="text-xs opacity-50">Total</p>
+                    </div>
+                    <div>
+                      <p className="text-success text-xl font-bold">
+                        {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount, 0)}
+                      </p>
+                      <p className="text-xs opacity-50">{t('admin.aiModels.enabled')}</p>
+                    </div>
+                    <div>
+                      <p className="text-error text-xl font-bold">
+                        {data.providerCapabilities.reduce((sum: number, p) => sum + p.disabledCount, 0)}
+                      </p>
+                      <p className="text-xs opacity-50">Disabled</p>
+                    </div>
+                  </div>
+
+                  {/* Capability Badges */}
+                  <CapabilityBadges
+                    embeddingCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.embeddingCount, 0)}
+                    chatCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.chatCount, 0)}
+                    visionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.visionCount, 0)}
+                    functionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.functionCount, 0)}
+                    onFilterByCapability={filterByCapabilityAllProviders}
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="card border-base-300 bg-base-100 border shadow-lg">
-              <div className="card-body p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm opacity-60">{t('admin.aiModels.enabledModels')}</p>
-                    <p className="text-success text-3xl font-bold">{data.enabledCount}</p>
-                  </div>
-                  <div className="badge badge-success badge-lg">{t('admin.aiModels.enabled')}</div>
-                </div>
-              </div>
-            </div>
+            {/* Provider Cards - One per provider */}
+            {data.providerCapabilities.map((providerData) => {
+              const provider = providerData.provider
 
-            <div className="card border-base-300 bg-base-100 border shadow-lg">
-              <div className="card-body p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm opacity-60">{t('admin.aiModels.providers')}</p>
-                    <p className="text-3xl font-bold">{data.providerCount}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {Object.keys(modelsByProvider).map((provider) => {
-                      if (provider === 'ollama') {
-                        return (
-                          <div key={provider} className="tooltip" data-tip="Ollama">
-                            <a
-                              href="https://ollama.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block transition-all hover:scale-110 hover:opacity-100"
-                            >
-                              <OllamaLogoIcon className="h-10 w-10 opacity-70" />
-                            </a>
-                          </div>
-                        )
-                      }
-                      if (provider === 'openai') {
-                        return (
-                          <div key={provider} className="tooltip" data-tip="OpenAI">
-                            <a
-                              href="https://openai.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block transition-all hover:scale-110 hover:opacity-100"
-                            >
-                              <OpenAILogoIcon className="h-10 w-10 opacity-70" />
-                            </a>
-                          </div>
-                        )
-                      }
-                      return null
-                    })}
+              return (
+                <div key={provider} className="card border-base-300 bg-base-100 border shadow-lg">
+                  <div className="card-body p-6">
+                    <div className="flex flex-col gap-3">
+                      {/* Provider Header */}
+                      <div className="flex items-center gap-2">
+                        {provider === 'ollama' && <OllamaLogoIcon className="h-6 w-6" />}
+                        {provider === 'openai' && <OpenAILogoIcon className="h-6 w-6" />}
+                        <span className="text-sm font-bold capitalize">{provider}</span>
+                      </div>
+
+                      {/* Counts */}
+                      <div className="flex items-baseline gap-3">
+                        <div>
+                          <p className="text-2xl font-bold">{providerData.enabledCount + providerData.disabledCount}</p>
+                          <p className="text-xs opacity-50">Total</p>
+                        </div>
+                        <div>
+                          <p className="text-success text-xl font-bold">{providerData.enabledCount}</p>
+                          <p className="text-xs opacity-50">Enabled</p>
+                        </div>
+                        <div>
+                          <p className="text-error text-xl font-bold">{providerData.disabledCount}</p>
+                          <p className="text-xs opacity-50">Disabled</p>
+                        </div>
+                      </div>
+
+                      {/* Capability Badges */}
+                      <CapabilityBadges
+                        embeddingCount={providerData.embeddingCount}
+                        chatCount={providerData.chatCount}
+                        visionCount={providerData.visionCount}
+                        functionCount={providerData.functionCount}
+                        provider={provider}
+                        onFilterByCapability={filterByCapability}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              )
+            })}
 
+            {/* Usage Statistics Card */}
             <div className="card border-base-300 bg-base-100 border shadow-lg">
               <div className="card-body p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm opacity-60">{t('admin.aiModels.embeddingModels')}</p>
-                    <p className="text-info text-3xl font-bold">{data.embeddingCount}</p>
+                <div className="flex flex-col">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm opacity-60">Usage</p>
+                    <select
+                      className="select select-xs"
+                      value={usagePeriod}
+                      onChange={(e) => setUsagePeriod(e.target.value as 'week' | 'month' | 'year')}
+                    >
+                      <option value="week">Last Week</option>
+                      <option value="month">Last Month</option>
+                      <option value="year">Last Year</option>
+                    </select>
                   </div>
-                  <div className="badge badge-info badge-lg">{t('admin.aiModels.embedding')}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs opacity-60">Requests</span>
+                      <span className="text-sm font-bold">{(usageStats?.totalRequests ?? 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs opacity-60">Tokens</span>
+                      <span className="text-sm font-bold">
+                        {usageStats
+                          ? ((usageStats.totalTokensInput + usageStats.totalTokensOutput) / 1000).toFixed(1)
+                          : '0'}
+                        k
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -477,7 +667,7 @@ function AiModelsPage() {
                               key={library.id}
                               to="/libraries/$libraryId"
                               params={{ libraryId: library.id }}
-                              className="badge badge-sm badge-info hover:badge-info-content"
+                              className="badge badge-outline badge-sm badge-info hover:badge-info-content"
                             >
                               {library.name}
                             </Link>
@@ -491,7 +681,7 @@ function AiModelsPage() {
                               key={assistant.id}
                               to="/assistants/$assistantId"
                               params={{ assistantId: assistant.id }}
-                              className="badge badge-sm badge-primary hover:badge-primary-content"
+                              className="badge badge-outline badge-sm badge-primary hover:badge-primary-content"
                             >
                               {assistant.name}
                             </Link>
@@ -505,7 +695,7 @@ function AiModelsPage() {
                               key={field.id}
                               to="/lists/$listId"
                               params={{ listId: field.list.id }}
-                              className="badge badge-sm badge-accent hover:badge-accent-content"
+                              className="badge badge-outline badge-sm badge-accent hover:badge-accent-content"
                             >
                               {field.list.name}
                             </Link>

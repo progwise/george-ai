@@ -490,23 +490,23 @@ model ApiKey {
 }
 
 model AiLanguageModel {
-  id                         String                      @id @default(cuid())
-  createdAt                  DateTime                    @default(now())
-  updatedAt                  DateTime                    @updatedAt
+  id                         String                    @id @default(cuid())
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
   name                       String
   provider                   String
-  canDoEmbedding             Boolean                     @default(false)
-  canDoChatCompletion        Boolean                     @default(false)
-  canDoVision                Boolean                     @default(false)
-  canDoFunctionCalling       Boolean                     @default(false)
-  enabled                    Boolean                     @default(true)
+  canDoEmbedding             Boolean                   @default(false)
+  canDoChatCompletion        Boolean                   @default(false)
+  canDoVision                Boolean                   @default(false)
+  canDoFunctionCalling       Boolean                   @default(false)
+  enabled                    Boolean                   @default(true)
   adminNotes                 String?
   lastUsedAt                 DateTime?
-  assistantsUsing            AiAssistant[]               @relation("LanguageModel")
-  librariesUsingForEmbedding AiLibrary[]                 @relation("EmbeddingModel")
-  librariesUsingForOcr       AiLibrary[]                 @relation("OcrModel")
-  listFieldsUsing            AiListField[]               @relation("ListFieldLanguageModel")
-  contentProcessingTasks     AiContentProcessingTask[]   @relation("ContentProcessingEmbeddingModel")
+  assistantsUsing            AiAssistant[]             @relation("LanguageModel")
+  librariesUsingForEmbedding AiLibrary[]               @relation("EmbeddingModel")
+  librariesUsingForOcr       AiLibrary[]               @relation("OcrModel")
+  listFieldsUsing            AiListField[]             @relation("ListFieldLanguageModel")
+  contentProcessingTasks     AiContentProcessingTask[] @relation("ContentProcessingEmbeddingModel")
   usageLogs                  AiModelUsage[]
 
   @@unique([provider, name])
@@ -520,8 +520,6 @@ model AiModelUsage {
   libraryId    String?
   assistantId  String?
   listId       String?
-  providerName String
-  modelName    String
   usageType    String
   tokensInput  Int?
   tokensOutput Int?

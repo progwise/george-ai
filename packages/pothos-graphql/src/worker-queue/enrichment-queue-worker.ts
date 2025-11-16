@@ -24,8 +24,8 @@ async function processQueueItem({
     if (!metadata.input) {
       throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
     }
-    // Mark as processing - use upsert to handle the case where item was deleted
-    await prisma.aiEnrichmentTask.update({
+    // Mark as processing - use updateMany to handle race conditions
+    const updated = await prisma.aiEnrichmentTask.updateMany({
       where: {
         id: enrichmentTask.id,
         status: 'pending', // Only update if still pending
@@ -35,6 +35,12 @@ async function processQueueItem({
         startedAt: new Date(),
       },
     })
+
+    // If no rows were updated, the item was likely deleted or already processing
+    if (updated.count === 0) {
+      console.log(`⚠️ Task ${enrichmentTask.id} no longer pending, skipping`)
+      return
+    }
 
     // Try to get enriched value, but handle errors gracefully
     let computedValue: string | null = null
@@ -114,25 +120,15 @@ async function processQueueItem({
 
       // Log usage for enrichment (async, non-blocking)
       const durationMs = Date.now() - startTime
-      void (async () => {
-        try {
-          if (!metadata.input) {
-            return
-          }
-
-          await logModelUsage({
-            modelId: metadata.input.aiModelId,
-            listId: enrichmentTask.listId,
-            libraryId: metadata.input.libraryId,
-            usageType: 'enrichment',
-            tokensInput: chatResponse.metadata?.tokensProcessed,
-            durationMs,
-          })
-        } catch (error) {
-          // Usage tracking failures don't break the operation
-          console.error('Failed to log enrichment usage:', error)
-        }
-      })()
+      await logModelUsage({
+        modelId: metadata.input.aiModelId,
+        listId: enrichmentTask.listId,
+        libraryId: metadata.input.libraryId,
+        usageType: 'enrichment',
+        tokensInput: chatResponse.metadata?.promptTokens || chatResponse.metadata?.tokensProcessed,
+        tokensOutput: chatResponse.metadata?.completionTokens,
+        durationMs,
+      })
 
       outputMetaData.aiInstance = chatResponse.metadata?.instanceUrl
       outputMetaData.enrichedValue = computedValue
@@ -259,8 +255,12 @@ async function processQueue() {
   if (!isWorkerRunning) return
 
   try {
-    // Only get items if we have capacity
-    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS
+    // Count currently processing items to calculate available capacity
+    const processingCount = await prisma.aiEnrichmentTask.count({
+      where: { status: 'processing' },
+    })
+    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS - processingCount
+
     if (availableCapacity <= 0) {
       return
     }

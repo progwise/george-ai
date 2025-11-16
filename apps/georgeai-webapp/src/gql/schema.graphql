@@ -304,9 +304,11 @@ Paginated result for AI Language Models
 """
 type AiLanguageModelsResult {
   count: Int!
+  disabledCount: Int!
   embeddingCount: Int!
   enabledCount: Int!
   models: [AiLanguageModel!]!
+  providerCapabilities: [ProviderCapabilityCounts!]!
   providerCount: Int!
   skip: Int!
   take: Int!
@@ -1086,22 +1088,6 @@ type MarkdownResult {
   fileName: String!
 }
 
-type ModelUsageByModel {
-  modelId: String!
-  modelName: String!
-  provider: String!
-  totalRequests: Int!
-  totalTokensInput: Int!
-  totalTokensOutput: Int!
-}
-
-type ModelUsageByProvider {
-  provider: String!
-  totalRequests: Int!
-  totalTokensInput: Int!
-  totalTokensOutput: Int!
-}
-
 type ModelUsageByType {
   totalRequests: Int!
   totalTokensInput: Int!
@@ -1281,6 +1267,17 @@ type ProcessingTaskStateCount {
   status: ProcessingStatus!
 }
 
+type ProviderCapabilityCounts {
+  chatCount: Int!
+  disabledCount: Int!
+  embeddingCount: Int!
+  enabledCount: Int!
+  functionCount: Int!
+  modelCount: Int!
+  provider: String!
+  visionCount: Int!
+}
+
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
@@ -1349,19 +1346,6 @@ type Query {
     take: Int! = 20
   ): ListItemsQueryResult!
   aiLists: [AiList!]!
-  aiModelUsageByModel(
-    endDate: DateTime
-    libraryId: String
-    provider: String
-    startDate: DateTime
-    userId: String
-  ): [ModelUsageByModel!]!
-  aiModelUsageByProvider(
-    endDate: DateTime
-    libraryId: String
-    startDate: DateTime
-    userId: String
-  ): [ModelUsageByProvider!]!
   aiModelUsageByType(endDate: DateTime, libraryId: String, startDate: DateTime, userId: String): [ModelUsageByType!]!
   aiModelUsageStats(
     assistantId: String
