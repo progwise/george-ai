@@ -1,4 +1,4 @@
-import { ollamaChat } from '@george-ai/ai-service-client'
+import { chat } from '@george-ai/ai-service-client'
 
 import { transformPdfToImages } from './pdf-to-images.js'
 import { ConverterResult } from './types.js'
@@ -10,7 +10,8 @@ export const transformPdfToImageToMarkdown = async (
   timeoutSignal: AbortSignal,
   imageScale: number,
   ocrPrompt: string,
-  ocrModel: string,
+  ocrModelProvider: string,
+  ocrModelName: string,
   ocrTimeoutPerPage: number, // in milliseconds
   ocrMaxConsecutiveRepeats: number = 5, // number of repetitions to trigger abort
 ): Promise<ConverterResult> => {
@@ -29,8 +30,9 @@ export const transformPdfToImageToMarkdown = async (
     try {
       console.log(`Processing image ${pageNumber} from PDF: ${imageFilePaths[index]}`)
 
-      const response = await ollamaChat({
-        model: ocrModel,
+      const response = await chat({
+        modelProvider: ocrModelProvider,
+        modelName: ocrModelName,
         messages: [
           {
             role: 'system',

@@ -15,8 +15,8 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     name: t.string({ required: true }),
     description: t.string({ required: false }),
     url: t.string({ required: false }),
-    icon: t.string({ required: false }),
-    embeddingModelName: t.string({ required: false }),
+    embeddingModelId: t.string({ required: false }),
+    ocrModelId: t.string({ required: false }),
     fileConverterOptions: t.string({ required: false }),
     embeddingTimeoutMs: t.int({ required: false }),
     autoProcessCrawledFiles: t.boolean({ required: false }),
@@ -35,16 +35,21 @@ builder.mutationField('updateLibrary', (t) =>
       await canAccessLibraryOrThrow(id, context.session.user.id)
 
       // Validate fileConverterOptions if provided
-      const validatedData = {
-        ...data,
-        fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
-        autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
-      }
+      const { embeddingModelId, ocrModelId, ...restData } = data
 
       return prisma.aiLibrary.update({
         ...query,
         where: { id },
-        data: validatedData,
+        data: {
+          name: restData.name,
+          description: restData.description,
+          url: restData.url,
+          fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+          embeddingTimeoutMs: restData.embeddingTimeoutMs,
+          autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
+          embeddingModelId: embeddingModelId ?? undefined,
+          ocrModelId: ocrModelId ?? undefined,
+        },
       })
     },
   }),
@@ -60,17 +65,20 @@ builder.mutationField('createLibrary', (t) =>
       const userId = context.session.user.id
 
       // Validate fileConverterOptions if provided
-      const validatedData = {
-        ...data,
-        fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
-        autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
-      }
+      const { embeddingModelId, ocrModelId, ...restData } = data
 
       return prisma.aiLibrary.create({
         ...query,
         data: {
-          ...validatedData,
+          name: restData.name,
+          description: restData.description,
+          url: restData.url,
+          fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+          embeddingTimeoutMs: restData.embeddingTimeoutMs,
+          autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           ownerId: userId,
+          embeddingModelId: embeddingModelId ?? undefined,
+          ocrModelId: ocrModelId ?? undefined,
         },
       })
     },

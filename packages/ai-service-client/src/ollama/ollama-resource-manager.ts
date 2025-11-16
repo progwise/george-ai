@@ -1,6 +1,7 @@
 import { getErrorObject, getErrorString } from '@george-ai/web-utils'
 
-import { isEmbeddingModel, isVisionModel } from './model-classifier.js'
+import { isEmbeddingModel, isVisionModel } from '../model-classifier'
+import { Semaphore } from '../semaphore'
 import {
   OllamaModel,
   OllamaRunningModel,
@@ -9,7 +10,6 @@ import {
   getOllamaVersion,
   unloadOllamaModel,
 } from './ollama-api.js'
-import { Semaphore } from './semaphore.js'
 
 interface OllamaInstanceConfiguration {
   url: string

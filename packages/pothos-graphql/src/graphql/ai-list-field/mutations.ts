@@ -21,7 +21,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     prompt: t.string({ required: false }),
     failureTerms: t.string({ required: false }),
     contentQuery: t.string({ required: false }),
-    languageModel: t.string({ required: false }),
+    languageModelId: t.string({ required: false }),
     useVectorStore: t.boolean({ required: false }),
     context: t.stringList({ required: false }),
   }),
@@ -44,17 +44,17 @@ builder.mutationField('addListField', (t) =>
       const newField = await prisma.aiListField.create({
         ...query,
         data: {
-          listId,
           name: data.name,
           type: data.type,
-          order: data.order || 0,
+          order: data.order ?? undefined,
           sourceType: data.sourceType,
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           failureTerms: data.failureTerms,
           contentQuery: data.contentQuery,
-          languageModel: data.languageModel,
+          languageModelId: data.languageModelId || null,
           useVectorStore: data.useVectorStore,
+          listId: existingList.id,
         },
       })
 
@@ -101,7 +101,7 @@ builder.mutationField('updateListField', (t) =>
           prompt: data.prompt,
           failureTerms: data.failureTerms,
           contentQuery: data.contentQuery,
-          languageModel: data.languageModel,
+          languageModelId: data.languageModelId || null,
           useVectorStore: data.useVectorStore,
         },
       })

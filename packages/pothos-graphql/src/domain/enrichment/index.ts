@@ -32,7 +32,9 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
   z.object({
     id: z.string(),
     name: z.string(),
-    languageModel: z.string(),
+    languageModelId: z.string(),
+    languageProvider: z.string().nullable().optional(),
+    languageModelName: z.string(),
     prompt: z.string().min(1, 'Prompt is required'),
     type: z.enum(LIST_FIELD_TYPES),
     fileProperty: z.null(),
@@ -58,7 +60,9 @@ export const EnrichmentMetadataSchema = z.object({
       failureTerms: z.string().nullable().optional(),
       libraryId: z.string(),
       libraryName: z.string(),
-      aiModel: z.string(),
+      aiModelId: z.string(),
+      aiModelProvider: z.string().nullable().optional(),
+      aiModelName: z.string(),
       aiGenerationPrompt: z.string(),
       contextFields: z.array(
         z.object({
@@ -110,7 +114,7 @@ export const getEnrichmentTaskInputMetadata = ({
   file: Prisma.AiLibraryFileGetPayload<{
     include: {
       crawledByCrawler: { select: { id: true; uri: true } }
-      library: { select: { id: true; name: true; embeddingModelName: true } }
+      library: { select: { id: true; name: true; embeddingModel: { select: { provider: true; name: true } } } }
       cache: true
       contentExtractionTasks: { select: { processingFinishedAt: true } }
     }
@@ -126,11 +130,13 @@ export const getEnrichmentTaskInputMetadata = ({
     }
   })
   return {
-    aiModel: validatedField.languageModel,
+    aiModelId: validatedField.languageModelId,
+    aiModelProvider: validatedField.languageProvider,
+    aiModelName: validatedField.languageModelName,
     aiGenerationPrompt: validatedField.prompt,
     contextFields,
     dataType: validatedField.type,
-    libraryEmbeddingModel: file.library.embeddingModelName || undefined,
+    libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
     contentQuery: validatedField.useVectorStore ? validatedField.contentQuery || undefined : undefined,
     useVectorStore: !!validatedField.useVectorStore,
     fileId: file.id,

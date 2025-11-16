@@ -1,5 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
@@ -8,9 +7,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
-import { Select } from '../form/select'
+import { ModelSelect } from '../form/model-select'
 import { LoadingSpinner } from '../loading-spinner'
-import { getChatModelsQueryOptions, getEmbeddingModelsQueryOptions } from '../model/get-models'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -23,7 +21,16 @@ graphql(`
     ownerId
     filesCount
     description
-    embeddingModelName
+    embeddingModel {
+      id
+      name
+      provider
+    }
+    ocrModel {
+      id
+      name
+      provider
+    }
     fileConverterOptions
     autoProcessCrawledFiles
   }
@@ -42,35 +49,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
   const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
 
-  const {
-    data: { aiEmbeddingModels },
-  } = useSuspenseQuery(getEmbeddingModelsQueryOptions())
-
-  const {
-    data: { aiChatModels },
-  } = useSuspenseQuery(getChatModelsQueryOptions())
-
   const fieldProps = {
     schema,
   }
-
-  const mappedEmbeddingModels = useMemo(
-    () =>
-      aiEmbeddingModels.map((model) => ({
-        id: model,
-        name: model,
-      })),
-    [aiEmbeddingModels],
-  )
-
-  const mappedChatModels = useMemo(
-    () =>
-      aiChatModels.map((model) => ({
-        id: model,
-        name: model,
-      })),
-    [aiChatModels],
-  )
 
   // Parse current file converter options
   const currentOptions = library.fileConverterOptions ? library.fileConverterOptions.split(',') : []
@@ -203,13 +184,13 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             <div className="collapse-content">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Select
-                    name="embeddingModelName"
+                  <ModelSelect
+                    name="embeddingModelId"
                     label={t('labels.embeddingModelName')}
-                    options={mappedEmbeddingModels}
-                    value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
+                    value={library.embeddingModel}
                     className="col-span-1"
                     placeholder={t('libraries.placeholders.embeddingModelName')}
+                    capability="embedding"
                     {...fieldProps}
                   />
 
@@ -319,20 +300,15 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                       />
 
                       {/* OCR Model */}
-                      <Select
-                        name="ocrModel"
+                      <ModelSelect
+                        name="ocrModelId"
                         label={t('labels.ocrModel')}
-                        options={mappedChatModels}
-                        value={mappedChatModels.find(
-                          (model) => model.id === parseOptionValue('ocrModel', 'qwen2.5vl:latest'),
-                        )}
+                        value={library.ocrModel}
                         className="col-span-2 lg:col-span-1"
                         placeholder={t('labels.ocrModelPlaceholder')}
                         readonly={!isImageProcessingEnabled}
+                        capability="vision"
                         {...fieldProps}
-                        onBlur={(item) => {
-                          changeFileConverterOptions('ocrModel', item?.id || '')
-                        }}
                       />
 
                       {/* OCR Timeout */}

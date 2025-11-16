@@ -106,7 +106,7 @@ type AiAssistant {
   description: String
   iconUrl: String
   id: ID!
-  languageModel: String
+  languageModel: AiLanguageModel
   name: String!
   ownerId: ID!
   updatedAt: DateTime
@@ -127,7 +127,7 @@ type AiAssistantBaseCase {
 input AiAssistantInput {
   description: String
   icon: String
-  languageModel: String
+  languageModelId: String
   name: String!
   url: String
 }
@@ -156,7 +156,7 @@ type AiContentProcessingTask {
   createdAt: DateTime!
   embeddingFailedAt: DateTime
   embeddingFinishedAt: DateTime
-  embeddingModelName: String
+  embeddingModel: AiLanguageModel
   embeddingStartedAt: DateTime
   embeddingStatus: EmbeddingStatus!
   embeddingTimeMs: Int
@@ -261,7 +261,8 @@ type AiEnrichmentTaskProcessingData {
 
 type AiEnrichmentTaskProcessingDataInput {
   aiGenerationPrompt: String!
-  aiModel: String!
+  aiModelName: String!
+  aiModelProvider: String
   contentQuery: String
   contextFields: [EnrichmentTaskContextField!]!
   dataType: ListFieldType!
@@ -281,17 +282,50 @@ type AiEnrichmentTaskProcessingDataOutput {
   similarChunks: [EnrichmentTaskSimilarChunk!]
 }
 
+type AiLanguageModel {
+  adminNotes: String
+  assistantsUsingAsChat: [AiAssistant!]
+  canDoChatCompletion: Boolean!
+  canDoEmbedding: Boolean!
+  canDoFunctionCalling: Boolean!
+  canDoVision: Boolean!
+  createdAt: DateTime!
+  enabled: Boolean!
+  id: ID!
+  lastUsedAt: DateTime
+  librariesUsingAsEmbedding: [AiLibrary!]
+  listFieldsUsing: [AiListField!]
+  name: String!
+  provider: String!
+}
+
+"""
+Paginated result for AI Language Models
+"""
+type AiLanguageModelsResult {
+  count: Int!
+  disabledCount: Int!
+  embeddingCount: Int!
+  enabledCount: Int!
+  models: [AiLanguageModel!]!
+  providerCapabilities: [ProviderCapabilityCounts!]!
+  providerCount: Int!
+  skip: Int!
+  take: Int!
+}
+
 type AiLibrary {
   autoProcessCrawledFiles: Boolean!
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  embeddingModelName: String
+  embeddingModel: AiLanguageModel
   embeddingTimeoutMs: Int
   fileConverterOptions: String
   filesCount: Int!
   id: ID!
   name: String!
+  ocrModel: AiLanguageModel
   owner: User!
   ownerId: String!
   participants: [AiLibraryParticipant!]!
@@ -460,11 +494,11 @@ enum AiLibraryFileSortOrder {
 input AiLibraryInput {
   autoProcessCrawledFiles: Boolean
   description: String
-  embeddingModelName: String
+  embeddingModelId: String
   embeddingTimeoutMs: Int
   fileConverterOptions: String
-  icon: String
   name: String!
+  ocrModelId: String
   url: String
 }
 
@@ -562,7 +596,7 @@ type AiListField {
   failureTerms: String
   fileProperty: String
   id: ID!
-  languageModel: String
+  languageModel: AiLanguageModel
   list: AiList!
   listId: String!
   name: String!
@@ -588,7 +622,7 @@ input AiListFieldInput {
   context: [String!]
   failureTerms: String
   fileProperty: String
-  languageModel: String
+  languageModelId: String
   name: String!
   order: Int
   prompt: String
@@ -1054,6 +1088,23 @@ type MarkdownResult {
   fileName: String!
 }
 
+type ModelUsageByType {
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+  usageType: String!
+}
+
+type ModelUsageStats {
+  avgDurationMs: Float!
+  avgTokensInput: Float!
+  avgTokensOutput: Float!
+  totalDurationMs: Int!
+  totalRequests: Int!
+  totalTokensInput: Int!
+  totalTokensOutput: Int!
+}
+
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -1140,6 +1191,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
+  disableAiLanguageModel(id: ID!): AiLanguageModel
   dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
   dropPendingTasks(libraryId: String!): Int!
@@ -1169,9 +1221,11 @@ type Mutation {
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
+  syncModels: SyncModelsResult
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
+  updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
   updateAiLibraryCrawler(
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
@@ -1213,11 +1267,21 @@ type ProcessingTaskStateCount {
   status: ProcessingStatus!
 }
 
+type ProviderCapabilityCounts {
+  chatCount: Int!
+  disabledCount: Int!
+  embeddingCount: Int!
+  enabledCount: Int!
+  functionCount: Int!
+  modelCount: Int!
+  provider: String!
+  visionCount: Int!
+}
+
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
-  aiChatModels: [String!]!
   aiContentProcessingTasks(
     fileId: String
     libraryId: String!
@@ -1229,8 +1293,19 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
-  aiEmbeddingModels: [String!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiLanguageModels(
+    canDoChatCompletion: Boolean
+    canDoEmbedding: Boolean
+    canDoFunctionCalling: Boolean
+    canDoVision: Boolean
+    onlyUsed: Boolean = false
+    providers: [String!]
+    search: String
+    showDisabled: Boolean = false
+    skip: Int = 0
+    take: Int = 20
+  ): AiLanguageModelsResult!
   aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
@@ -1271,14 +1346,20 @@ type Query {
     take: Int! = 20
   ): ListItemsQueryResult!
   aiLists: [AiList!]!
+  aiModelUsageByType(endDate: DateTime, libraryId: String, startDate: DateTime, userId: String): [ModelUsageByType!]!
+  aiModelUsageStats(
+    assistantId: String
+    endDate: DateTime
+    libraryId: String
+    listId: String
+    modelId: String
+    startDate: DateTime
+    usageType: String
+    userId: String
+  ): ModelUsageStats
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
-  aiVisionModels: [String!]!
   apiKeys(libraryId: String!): [ApiKey!]!
-  """
-  Get all available OCR-capable vision models
-  """
-  availableOCRModels: [String!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
@@ -1328,6 +1409,17 @@ type SharePointValidationResult {
 type SourceFileLink {
   fileName: String!
   url: String!
+}
+
+type SyncModelsResult {
+  errors: [String!]!
+  modelsDiscovered: Int!
+  success: Boolean!
+}
+
+input UpdateAiLanguageModelInput {
+  adminNotes: String
+  enabled: Boolean!
 }
 
 type UpdateLibraryParticipantsResult {

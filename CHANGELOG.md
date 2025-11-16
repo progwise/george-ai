@@ -8,12 +8,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+### Changed
+
+### Fixed
+
+## [2025-01-16]
+
+### Added
+
+- **Multi-Provider AI Support** - George AI now supports multiple AI providers simultaneously (Ollama, OpenAI, with Anthropic and Azure coming soon)
+- **Database-Driven Model Management** - All AI models stored in database with auto-detected capabilities (embedding, chat, vision, function calling)
+- **Admin UI for AI Models** - Full CRUD interface at `/admin/ai-models` for managing models across all providers
+- **Model Discovery & Sync** - Automatic discovery of available models from all configured providers with one-click sync
+- **Optional AI Providers** - All providers are now optional - run with Ollama only, OpenAI only, both, or neither (graceful degradation)
+- **OpenAI Integration** - Complete OpenAI support including chat completions, embeddings, and vision models
+- **Enhanced Model Selection** - New model selection component with real-time search, pagination, and provider icons
+- **AI Model Statistics** - Per-provider statistics dashboard showing model counts, capabilities, and usage metrics
+- **Usage Tracking Foundation** - Token and request tracking for billing and analytics (foundation for future cost monitoring)
+- **Interactive Capability Badges** - Clickable badges in admin UI to filter models by capability (embedding, chat, vision, functions)
 - Changelog viewer page with formatted markdown display - access from settings dropdown for better readability
 - Automated end-to-end testing infrastructure with content-based Docker image caching (15x faster CI)
 - CODEOWNERS file for critical repository files to ensure proper review
 
 ### Changed
 
+- **AI Service Architecture** - Restructured ai-service-client into provider-specific modules (ollama/, openai/) for better extensibility
+- **Model References** - Libraries, assistants, and list fields now reference models via foreign keys instead of string names
+- **Embedding Model Migration** - Content processing tasks now snapshot the embedding model used (preserves historical accuracy)
+- **Multi-Instance Ollama** - Existing multi-instance Ollama implementation preserved with no regressions
+- **LangChain v1.0** - Updated to LangChain v1.0 with all breaking changes resolved
+- **File Converter Options** - Simplified structure with OCR model now managed via database relation
+- **GraphQL Schema** - Enhanced with model filtering, capability queries, and provider-specific statistics
 - Webcrawler: Updated all Python dependencies to latest versions - crawl4ai now uses official PyPI release (0.7.6), FastAPI updated to 0.121.0
 - Marketing website: Mobile responsiveness and accessibility improvements across all pages
 - Documentation: Updated file naming conventions and corrected inconsistencies
@@ -22,10 +47,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Enrichment Queue Worker** - Fixed broken concurrency control (now correctly counts running tasks)
+- **Enrichment Race Condition** - Fixed race condition in status updates using atomic updateMany operations
+- **OpenAI Streaming** - Added `stream_options: { include_usage: true }` for proper token tracking in chat streams
+- **Model Classifier** - Enhanced to detect GPT-5, GPT-4.x, and modern OpenAI model patterns
+- **Capability Detection** - Improved auto-detection for vision and function-calling capabilities
 - CHANGELOG.md now correctly included in Docker builds (was broken symlink)
 - Queue and AI service status now visible to all users with proper access control
 - Ollama tests properly skipped when environment variables are missing
 - Docker build lockfile issues resolved
+
+### Breaking Changes
+
+- **Database Migration Required** - Run `pnpm prisma migrate deploy` to create new AI model tables
+- **Environment Variables** - OpenAI support adds optional `OPENAI_API_KEY` and `OPENAI_BASE_URL`
+- **GraphQL Schema** - Model selection queries now return structured objects instead of string names (codegen required)
+
+### Migration Notes
+
+- Existing Ollama models are automatically migrated to database on first sync
+- Libraries, assistants, and list fields preserve NULL model references (no forced defaults)
+- Multi-instance Ollama configurations continue to work without changes
+- After deployment, admins should visit `/admin/ai-models` and click "Sync Models" to populate the database
 
 ## [2025-10-22]
 

@@ -3,6 +3,17 @@ export interface Message {
   content: string
   images?: string[]
 }
+
+export interface ChatOptions {
+  modelProvider: string
+  modelName: string
+  messages: Message[]
+  timeout?: number // in milliseconds
+  onChunk?: (chunk: string) => void // optional streaming callback
+  abortSignal?: AbortSignal // optional abort signal to cancel the request
+  abortOnConsecutiveRepeats?: number // number of repetitions to trigger abort
+}
+
 export interface AIResponse {
   content: string // All content received
   success: boolean // Whether processing completed normally
@@ -14,7 +25,9 @@ export interface AIResponse {
     tokensProcessed?: number
     timeElapsed?: number
     lastChunkTimestamp?: number
-    instanceUrl?: string // Which OLLAMA instance was used
+    instanceUrl?: string // Which OLLAMA/OpenAI instance was used
+    promptTokens?: number // For usage tracking (OpenAI)
+    completionTokens?: number // For usage tracking (OpenAI)
   }
   error?: object
 }

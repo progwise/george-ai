@@ -30,6 +30,7 @@ import {
   ListFieldType,
   ProcessingStatus,
   QueueType,
+  UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -76,7 +77,7 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
   return z.object({
     description: z.string().nullish(),
     icon: z.string().nullish(),
-    languageModel: z.string().nullish(),
+    languageModelId: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
   })
@@ -161,11 +162,11 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   return z.object({
     autoProcessCrawledFiles: z.boolean().nullish(),
     description: z.string().nullish(),
-    embeddingModelName: z.string().nullish(),
+    embeddingModelId: z.string().nullish(),
     embeddingTimeoutMs: z.number().nullish(),
     fileConverterOptions: z.string().nullish(),
-    icon: z.string().nullish(),
     name: z.string(),
+    ocrModelId: z.string().nullish(),
     url: z.string().nullish(),
   })
 }
@@ -176,7 +177,7 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     context: z.array(z.string()).nullish(),
     failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
-    languageModel: z.string().nullish(),
+    languageModelId: z.string().nullish(),
     name: z.string(),
     order: z.number().nullish(),
     prompt: z.string().nullish(),
@@ -218,6 +219,13 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
+  })
+}
+
+export function UpdateAiLanguageModelInputSchema(): z.ZodObject<Properties<UpdateAiLanguageModelInput>> {
+  return z.object({
+    adminNotes: z.string().nullish(),
+    enabled: z.boolean(),
   })
 }
 

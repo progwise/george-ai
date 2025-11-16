@@ -1,6 +1,7 @@
 import { Link, Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { CpuIcon } from '../../../icons/cpu-icon'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 import { ServerIcon } from '../../../icons/server-icon'
 import { UsersIcon } from '../../../icons/users-icon'
@@ -21,9 +22,9 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   return (
-    <div className="from-base-300/50 via-base-200/30 to-base-100/50 min-h-screen bg-gradient-to-br">
+    <div className="from-base-300/50 via-base-200/30 to-base-100/50 bg-linear-to-br grid h-[calc(100dvh-6rem)] w-full grid-rows-[auto_1fr_auto]">
       {/* Admin Header with Navigation */}
-      <div className="from-primary/10 via-secondary/10 to-accent/10 border-primary/20 border-b bg-gradient-to-r shadow-sm">
+      <div className="from-primary/10 via-secondary/10 to-accent/10 border-primary/20 bg-linear-to-r border-b shadow-sm">
         <div className="container mx-auto px-6 py-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Header Section */}
@@ -105,6 +106,20 @@ function RouteComponent() {
               </Link>
 
               <Link
+                to="/admin/ai-models"
+                activeProps={{
+                  className: 'tab tab-active [--tab-bg:theme(colors.info)] [--tab-color:theme(colors.info-content)]',
+                }}
+                inactiveProps={{
+                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+                }}
+                activeOptions={{ exact: false }}
+              >
+                <CpuIcon className="mr-2 h-4 w-4" />
+                {t('admin.manageAiModels')}
+              </Link>
+
+              <Link
                 to="/admin/queues"
                 activeProps={{
                   className:
@@ -154,12 +169,12 @@ function RouteComponent() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1">
+      <div className="min-h-0 min-w-0">
         <Outlet />
       </div>
 
       {/* Footer */}
-      <div className="bg-base-200/50 border-base-300/50 mt-auto border-t">
+      <div className="bg-base-200/50 border-base-300/50 border-t">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between text-sm opacity-60">
             <div className="flex items-center gap-2">

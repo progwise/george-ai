@@ -4,7 +4,7 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { getOllamaEmbedding } from '@george-ai/ai-service-client'
+import { getEmbedding } from '@george-ai/ai-service-client'
 
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
@@ -112,6 +112,7 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
 export const embedMarkdownFile = async (args: {
   timeoutSignal: AbortSignal
   libraryId: string
+  embeddingModelProvider: string
   embeddingModelName: string
   fileId: string
   fileName: string
@@ -119,7 +120,16 @@ export const embedMarkdownFile = async (args: {
   mimeType: string
   markdownFilePath: string
 }) => {
-  const { libraryId, embeddingModelName, fileId, fileName, originUri, mimeType, markdownFilePath } = args
+  const {
+    libraryId,
+    embeddingModelProvider,
+    embeddingModelName,
+    fileId,
+    fileName,
+    originUri,
+    mimeType,
+    markdownFilePath,
+  } = args
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
@@ -153,7 +163,7 @@ export const embedMarkdownFile = async (args: {
         console.warn('⚠️ Embedding process aborted due to timeout signal')
         break
       }
-      const embeddingResult = await getOllamaEmbedding(embeddingModelName, chunk.pageContent)
+      const embeddingResult = await getEmbedding(embeddingModelProvider, embeddingModelName, chunk.pageContent)
 
       if (embeddingResult.embeddings.length === 0) {
         console.error('❌ No embeddings returned from Ollama')

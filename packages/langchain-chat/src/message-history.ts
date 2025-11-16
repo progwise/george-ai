@@ -1,4 +1,4 @@
-import { ChatMessageHistory } from 'langchain/stores/message/in_memory'
+import { ChatMessageHistory } from '@langchain/community/stores/message/in_memory'
 
 const messageHistories = new Map<string, ChatMessageHistory>()
 

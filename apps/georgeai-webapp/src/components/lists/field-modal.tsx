@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
@@ -15,9 +15,9 @@ import {
 import { Language, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
+import { ModelSelect } from '../form/model-select'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getChatModelsQueryOptions } from '../model/get-models'
 import { addListFieldFn, updateListFieldFn } from './server-functions'
 
 export const getListFieldFormSchema = (
@@ -40,7 +40,7 @@ export const getListFieldFormSchema = (
       .max(100, translate('lists.fields.nameTooLong', language)),
     type: z.nativeEnum(ListFieldType, { message: translate('lists.fields.typeRequired', language) }),
     sourceType: z.nativeEnum(ListFieldSourceType, { message: translate('lists.fields.sourceTypeRequired', language) }),
-    languageModel: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
+    languageModelId: z.string().nonempty(translate('lists.fields.languageModelRequired', language)),
     prompt: z
       .string()
       .min(10, translate('lists.fields.promptTooShort', language))
@@ -95,7 +95,11 @@ graphql(`
     prompt
     failureTerms
     contentQuery
-    languageModel
+    languageModel {
+      id
+      provider
+      name
+    }
     useVectorStore
     order
     context {
@@ -116,10 +120,6 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
 
-  // Query available AI chat models
-  const { data: aiModelsData } = useSuspenseQuery(getChatModelsQueryOptions())
-
-  const availableModels = aiModelsData?.aiChatModels || []
   const availableFields = list.fields || []
 
   // Get current context field IDs for edit mode
@@ -233,14 +233,12 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 required
               />
 
-              <Select
+              <ModelSelect
                 label={t('lists.fields.aiModel')}
-                name="languageModel"
-                options={availableModels.map((model) => ({ id: model, name: model }))}
-                value={availableModels
-                  .map((model) => ({ id: model, name: model }))
-                  .find((model) => model.id === editField?.languageModel)}
+                name="languageModelId"
+                value={editField?.languageModel || null}
                 placeholder={t('lists.fields.selectAiModel')}
+                capability="chat"
                 schema={schema}
                 required
               />

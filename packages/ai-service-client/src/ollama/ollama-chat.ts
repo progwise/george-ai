@@ -1,17 +1,8 @@
 import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
 
+import type { AIResponse, ChatOptions } from '../types.js'
 import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
-import type { AIResponse, Message } from './types.js'
-
-export interface ChatOptions {
-  model: string
-  messages: Message[]
-  timeout?: number // in milliseconds
-  onChunk?: (chunk: string) => void // optional streaming callback
-  abortSignal?: AbortSignal // optional abort signal to cancel the request
-  abortOnConsecutiveRepeats?: number // number of repetitions to trigger abort
-}
 
 export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   let allContent = ''
@@ -20,8 +11,8 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
   let lastChunkTimestamp = startTime
 
   // Select best OLLAMA instance based on current GPU memory usage and model availability
-  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(options.model)
-  console.log(`Using OLLAMA instance ${instance.config.url} for model ${options.model}`)
+  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(options.modelName)
+  console.log(`Using OLLAMA instance ${instance.config.url} for model ${options.modelName}`)
 
   let isAborted = false
   let hasTimeout = false
@@ -31,7 +22,12 @@ export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
     // Acquire semaphore before making request
     await semaphore.acquire()
 
-    const response = await getChatResponseStream(instance.config, options.model, options.messages, options.abortSignal)
+    const response = await getChatResponseStream(
+      instance.config,
+      options.modelName,
+      options.messages,
+      options.abortSignal,
+    )
     const reader = response.getReader()
 
     try {
