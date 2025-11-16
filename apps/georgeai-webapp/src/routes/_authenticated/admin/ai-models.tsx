@@ -1,190 +1,20 @@
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { EditModelButton } from '../../../components/admin/ai-models/edit-model-button'
+import { aiLanguageModelsQueryOptions } from '../../../components/admin/ai-models/get-language-models'
+import { usageStatsQueryOptions } from '../../../components/admin/ai-models/get-usage-stats'
+import { syncModels } from '../../../components/admin/ai-models/mutate-sync-models'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { Pagination } from '../../../components/table/pagination'
-import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../../../icons/bowler-logo-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
 import { RefreshIcon } from '../../../icons/refresh-icon'
-import { backendRequest } from '../../../server-functions/backend'
-
-// Server functions
-const getAiLanguageModels = createServerFn({ method: 'GET' })
-  .inputValidator((data: object) =>
-    z
-      .object({
-        skip: z.number().int().min(0).default(0),
-        take: z.number().int().min(1).default(20),
-        providers: z.array(z.string()).optional(),
-        capabilities: z.array(z.string()).optional(),
-        onlyUsed: z.boolean().default(false),
-        showDisabled: z.boolean().default(false),
-      })
-      .parse(data),
-  )
-  .handler(async (ctx) => {
-    const result = await backendRequest(
-      graphql(`
-        query GetAiLanguageModels(
-          $skip: Int = 0
-          $take: Int = 20
-          $providers: [String!]
-          $canDoEmbedding: Boolean
-          $canDoChatCompletion: Boolean
-          $canDoVision: Boolean
-          $canDoFunctionCalling: Boolean
-          $onlyUsed: Boolean = false
-          $showDisabled: Boolean = false
-        ) {
-          aiLanguageModels(
-            skip: $skip
-            take: $take
-            providers: $providers
-            canDoEmbedding: $canDoEmbedding
-            canDoChatCompletion: $canDoChatCompletion
-            canDoVision: $canDoVision
-            canDoFunctionCalling: $canDoFunctionCalling
-            onlyUsed: $onlyUsed
-            showDisabled: $showDisabled
-          ) {
-            skip
-            take
-            count
-            enabledCount
-            disabledCount
-            providerCapabilities {
-              provider
-              modelCount
-              enabledCount
-              disabledCount
-              embeddingCount
-              chatCount
-              visionCount
-              functionCount
-            }
-            models {
-              id
-              name
-              provider
-              canDoEmbedding
-              canDoChatCompletion
-              canDoVision
-              canDoFunctionCalling
-              enabled
-              adminNotes
-              lastUsedAt
-              createdAt
-              librariesUsingAsEmbedding {
-                id
-                name
-              }
-              assistantsUsingAsChat {
-                id
-                name
-              }
-              listFieldsUsing {
-                id
-                list {
-                  id
-                  name
-                }
-              }
-            }
-          }
-        }
-      `),
-      {
-        skip: ctx.data.skip,
-        take: ctx.data.take,
-        providers: ctx.data.providers?.length ? ctx.data.providers : undefined,
-        canDoEmbedding: ctx.data.capabilities?.includes('embedding') ? true : undefined,
-        canDoChatCompletion: ctx.data.capabilities?.includes('chat') ? true : undefined,
-        canDoVision: ctx.data.capabilities?.includes('vision') ? true : undefined,
-        canDoFunctionCalling: ctx.data.capabilities?.includes('functions') ? true : undefined,
-        onlyUsed: ctx.data.onlyUsed,
-        showDisabled: ctx.data.showDisabled,
-      },
-    )
-    return result.aiLanguageModels
-  })
-
-const getUsageStats = createServerFn({ method: 'GET' })
-  .inputValidator((data: object) =>
-    z
-      .object({
-        period: z.enum(['week', 'month', 'year']).default('month'),
-      })
-      .parse(data),
-  )
-  .handler(async (ctx) => {
-    const now = new Date()
-    const startDate = new Date()
-
-    // Calculate start date based on period
-    if (ctx.data.period === 'week') {
-      startDate.setDate(now.getDate() - 7)
-    } else if (ctx.data.period === 'month') {
-      startDate.setMonth(now.getMonth() - 1)
-    } else {
-      startDate.setFullYear(now.getFullYear() - 1)
-    }
-
-    const result = await backendRequest(
-      graphql(`
-        query GetUsageStats($startDate: DateTime, $endDate: DateTime) {
-          aiModelUsageStats(startDate: $startDate, endDate: $endDate) {
-            totalRequests
-            totalTokensInput
-            totalTokensOutput
-            totalDurationMs
-            avgTokensInput
-            avgTokensOutput
-            avgDurationMs
-          }
-        }
-      `),
-      {
-        startDate,
-        endDate: now,
-      },
-    )
-
-    // Ensure we always return a value (GraphQL field is nullable)
-    return (
-      result.aiModelUsageStats ?? {
-        totalRequests: 0,
-        totalTokensInput: 0,
-        totalTokensOutput: 0,
-        totalDurationMs: 0,
-        avgTokensInput: 0,
-        avgTokensOutput: 0,
-        avgDurationMs: 0,
-      }
-    )
-  })
-
-const syncModels = createServerFn({ method: 'POST' }).handler(async () => {
-  return await backendRequest(
-    graphql(`
-      mutation SyncModels {
-        syncModels {
-          success
-          modelsDiscovered
-          errors
-        }
-      }
-    `),
-    {},
-  )
-})
 
 // Search schema for route validation
 const aiModelsSearchSchema = z.object({
@@ -195,35 +25,6 @@ const aiModelsSearchSchema = z.object({
   onlyUsed: z.coerce.boolean().default(false),
   showDisabled: z.coerce.boolean().default(false),
 })
-
-// Query options
-export const aiLanguageModelsQueryOptions = (params: {
-  skip: number
-  take: number
-  providers?: string[]
-  capabilities?: string[]
-  onlyUsed?: boolean
-  showDisabled?: boolean
-}) => ({
-  queryKey: ['aiLanguageModels', { ...params }],
-  queryFn: () =>
-    getAiLanguageModels({
-      data: {
-        skip: params.skip,
-        take: params.take,
-        providers: params.providers,
-        capabilities: params.capabilities,
-        onlyUsed: params.onlyUsed ?? false,
-        showDisabled: params.showDisabled ?? false,
-      },
-    }),
-})
-
-export const usageStatsQueryOptions = (period: 'week' | 'month' | 'year') =>
-  queryOptions({
-    queryKey: ['usageStats', period],
-    queryFn: () => getUsageStats({ data: { period } }),
-  })
 
 export const Route = createFileRoute('/_authenticated/admin/ai-models')({
   component: AiModelsPage,
