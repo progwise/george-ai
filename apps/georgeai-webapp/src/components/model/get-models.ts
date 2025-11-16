@@ -16,8 +16,8 @@ interface GetLanguageModelsParams {
 const getLanguageModelsForEmbedding = createServerFn({ method: 'GET' }).handler(async () => {
   const result = await backendRequest(
     graphql(`
-      query aiLanguageModels($canDoEmbedding: Boolean, $canDoChatCompletion: Boolean) {
-        aiLanguageModels(canDoEmbedding: $canDoEmbedding, canDoChatCompletion: $canDoChatCompletion) {
+      query aiLanguageModelsForEmbedding($canDoEmbedding: Boolean) {
+        aiLanguageModels(canDoEmbedding: $canDoEmbedding) {
           skip
           take
           count

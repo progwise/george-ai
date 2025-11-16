@@ -177,7 +177,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'text-neutral'
                     : milestone.status === 'doing'
-                      ? 'text-info animate-jump animate-infinite animate-duration-[2000ms] animate-delay-0 animate-ease-linear animate-normal'
+                      ? 'text-info animate-jump animate-infinite animate-duration-2000 animate-delay-0 animate-ease-linear animate-normal'
                       : milestone.status === 'skipped'
                         ? 'text-neutral-300'
                         : milestone.success
@@ -199,7 +199,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'badge-neutral'
                     : milestone.status === 'doing'
-                      ? 'badge-info animate-duration-[2000ms] animate-pulse'
+                      ? 'badge-info animate-duration-2000 animate-pulse'
                       : milestone.status === 'skipped'
                         ? 'badge-ghost text-base-content/50 font-normal italic'
                         : milestone.success
@@ -209,7 +209,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
               >
                 <div className="">{milestone.labels[milestone.status]}</div>
               </div>
-              <div className="text-neutral/50 text-xs italic">
+              <div className="text-base-content/50 text-xs italic">
                 {milestone.status !== 'doing' ? (
                   formatDuration(milestone.elapsedTime)
                 ) : milestone.start ? (
