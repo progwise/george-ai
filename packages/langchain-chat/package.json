@@ -16,7 +16,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/client-s3": "^3.932.0",
     "@george-ai/ai-service-client": "workspace:*",
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
@@ -26,15 +26,15 @@
     "@langchain/ollama": "^1.0.1",
     "@langchain/openai": "^1.1.1",
     "langchain": "^1.0.4",
-    "read-excel-file": "^5.8.7",
-    "typesense": "^2.0.3",
-    "zod": "^3.23.8"
+    "read-excel-file": "^6.0.1",
+    "typesense": "^2.1.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@george-ai/package-configs": "workspace:*",
     "eslint": "^9.17.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.18.0"
   }
 }
