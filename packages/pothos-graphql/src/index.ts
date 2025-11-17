@@ -39,6 +39,8 @@ export { canAccessLibraryOrThrow } from './domain/library'
 export { canAccessListOrThrow } from './domain/list'
 export { validateApiKey } from './domain/api-key'
 export type { ApiKeyValidationResult } from './domain/api-key'
+export { getWorkspaceMembership, getLibraryWorkspace } from './domain/workspace'
+export type { WorkspaceMembershipInfo } from './domain/workspace'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentProcessingWorker } from './worker-queue/content-processing-worker'

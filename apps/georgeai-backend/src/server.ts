@@ -49,10 +49,12 @@ const yoga = createYoga({
         .find((c) => c.trim().startsWith('keycloak-token='))
         ?.split('=')[1]
       const authHeader = request.headers.get('authorization')
+      const workspaceIdHeader = request.headers.get('x-workspace-id')
 
       return {
         jwtToken: jwtTokenHeader || keycloakToken,
         bearerToken: authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null,
+        workspaceId: workspaceIdHeader,
       }
     }),
 })

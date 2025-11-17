@@ -163,6 +163,17 @@ builder.mutationField('login', (t) =>
           family_name,
           username: preferred_username,
           avatarUrl: preferredAvatarUrlForNew,
+          defaultWorkspace: {
+            connect: {
+              id: '00000000-0000-0000-0000-000000000001', // System workspace
+            },
+          },
+          workspaceMemberships: {
+            create: {
+              workspaceId: '00000000-0000-0000-0000-000000000001', // System workspace
+              role: 'owner',
+            },
+          },
           profile: {
             create: {
               email,

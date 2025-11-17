@@ -8,3 +8,4 @@ export { createContentProcessingTask, createEmbeddingOnlyTask } from './content-
 export { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from './user/avatar-provider'
 export { EnrichmentStatusValues, type EnrichmentMetadata, EnrichmentMetadataSchema } from './enrichment'
 export { validateApiKey, type ApiKeyValidationResult } from './api-key'
+export { getWorkspaceMembership, type WorkspaceMembershipInfo, getLibraryWorkspace } from './workspace'
