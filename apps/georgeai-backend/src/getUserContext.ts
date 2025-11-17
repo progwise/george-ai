@@ -59,18 +59,29 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
         // For API keys, get workspace from the associated library
         const workspaceId = await getLibraryWorkspace(apiKeyResult.libraryId)
 
-        return {
-          session: {
-            user: {
-              id: userInformation.id,
-              username: userInformation.username,
-              email: userInformation.email,
-              isAdmin: userInformation.isAdmin ?? false,
+        if (workspaceId) {
+          // SECURITY: Verify user is a member of the library's workspace
+          const membership = await getWorkspaceMembership(userInformation.id, workspaceId)
+
+          if (!membership) {
+            // User is not a member of the library's workspace - unauthorized
+            return { session: null }
+          }
+
+          return {
+            session: {
+              user: {
+                id: userInformation.id,
+                username: userInformation.username,
+                email: userInformation.email,
+                isAdmin: userInformation.isAdmin ?? false,
+              },
+              userProfile: userInformation.profile ?? undefined,
             },
-            userProfile: userInformation.profile ?? undefined,
-          },
-          apiKey: apiKeyResult,
-          workspaceId,
+            apiKey: apiKeyResult,
+            workspaceId,
+            workspaceRole: membership.role,
+          }
         }
       }
       // If we can't find the user by ID, still return the API key context
