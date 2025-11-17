@@ -34,9 +34,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
       })
 
       if (existing) {
-        throw new Error(
-          `Provider '${data.provider}' with name '${data.name}' already exists in this workspace`,
-        )
+        throw new Error(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
       }
 
       return prisma.aiServiceProvider.create({
@@ -92,9 +90,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
         })
 
         if (duplicate) {
-          throw new Error(
-            `Provider '${data.provider}' with name '${data.name}' already exists in this workspace`,
-          )
+          throw new Error(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
         }
       }
 
