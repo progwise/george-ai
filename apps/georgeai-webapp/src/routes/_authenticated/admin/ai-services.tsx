@@ -1,49 +1,237 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { getAiServiceStatusQueryOptions } from '../../../components/admin/ai-services/get-ai-service-status'
+import { getAiProvidersQueryOptions } from '../../../components/admin/queries/get-ai-providers'
+import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
+import { deleteProviderFn } from '../../../components/admin/server-functions/delete-provider'
+import { restoreDefaultProvidersFn } from '../../../components/admin/server-functions/restore-default-providers'
+import { testProviderConnectionFn } from '../../../components/admin/server-functions/test-provider-connection'
+import { toggleProviderFn } from '../../../components/admin/server-functions/toggle-provider'
+import { updateProviderFn } from '../../../components/admin/server-functions/update-provider'
+import { DialogForm } from '../../../components/dialog-form'
+import { toastError, toastSuccess } from '../../../components/georgeToaster'
+import { AiServiceProviderInput } from '../../../gql/graphql'
+import BotIcon from '../../../icons/bot-icon'
+import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
+import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
   loader: async ({ context }) => {
-    await Promise.all([context.queryClient.ensureQueryData(getAiServiceStatusQueryOptions())])
+    await Promise.all([
+      context.queryClient.ensureQueryData(getAiServiceStatusQueryOptions()),
+      context.queryClient.ensureQueryData(getAiProvidersQueryOptions()),
+    ])
   },
 })
 
+type ProviderFormData = {
+  id?: string
+  provider: string
+  name: string
+  enabled: boolean
+  baseUrl?: string
+  apiKeyHint?: string | null
+  vramGb?: number
+}
+
+const getProviderIcon = (provider: string, className?: string) => {
+  switch (provider.toLowerCase()) {
+    case 'ollama':
+      return <OllamaLogoIcon className={className} />
+    case 'openai':
+      return <OpenAILogoIcon className={className} />
+    case 'anthropic':
+      return <BotIcon className={className} />
+    default:
+      return <BotIcon className={className} />
+  }
+}
+
 function AiServicesAdminPage() {
   const { queryClient } = Route.useRouteContext()
-  const [autoRefresh, setAutoRefresh] = useState(false)
+  const [autoRefresh, setAutoRefresh] = useState(true)
+  const [editingProvider, setEditingProvider] = useState<ProviderFormData | null>(null)
+  const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null)
+  const [selectedProviderType, setSelectedProviderType] = useState<string>('ollama')
 
-  // Use suspense query - data is guaranteed to be available
+  const providerDialogRef = useRef<HTMLDialogElement>(null)
+  const deleteDialogRef = useRef<HTMLDialogElement>(null)
+
   const { data: serviceStatus } = useSuspenseQuery({
     ...getAiServiceStatusQueryOptions(),
-    refetchInterval: autoRefresh ? 5000 : false, // Override refetch interval for auto-refresh
+    refetchInterval: autoRefresh ? 5000 : false,
   })
 
-  // Manual refresh function
-  const handleRefresh = () => {
-    queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+  const { data: providers } = useSuspenseQuery(getAiProvidersQueryOptions())
+
+  const createMutation = useMutation({
+    mutationFn: (data: AiServiceProviderInput) => createProviderFn({ data }),
+    onSuccess: () => {
+      toastSuccess('Provider created successfully')
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      providerDialogRef.current?.close()
+      setEditingProvider(null)
+    },
+    onError: (error) => {
+      console.log('Error creating provider:', error)
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Failed to create provider')
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AiServiceProviderInput }) =>
+      updateProviderFn({ data: { id, data } }),
+    onSuccess: () => {
+      toastSuccess('Provider updated successfully')
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      providerDialogRef.current?.close()
+      setEditingProvider(null)
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Failed to update provider')
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteProviderFn({ data: id }),
+    onSuccess: () => {
+      toastSuccess('Provider deleted successfully')
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      deleteDialogRef.current?.close()
+      setDeletingProviderId(null)
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Failed to delete provider')
+    },
+  })
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
+    onSuccess: () => queryClient.invalidateQueries(getAiProvidersQueryOptions()),
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Failed to toggle provider')
+    },
+  })
+
+  const restoreMutation = useMutation({
+    mutationFn: restoreDefaultProvidersFn,
+    onSuccess: (result) => {
+      toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Failed to restore default providers')
+    },
+  })
+
+  const testConnectionMutation = useMutation({
+    mutationFn: (data: { providerId?: string; provider: string; baseUrl?: string; apiKey?: string }) =>
+      testProviderConnectionFn({ data }),
+    onSuccess: (result) => {
+      if (result.success) {
+        toastSuccess(
+          <div>
+            <div>{result.message}</div>
+            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
+          </div>,
+        )
+      } else {
+        toastError(
+          <div>
+            <div>{result.message}</div>
+            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
+          </div>,
+        )
+      }
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      toastError(message || 'Connection test failed')
+    },
+  })
+
+  const handleAddProvider = () => {
+    setEditingProvider({
+      provider: 'ollama',
+      name: '',
+      enabled: true,
+    })
+    setSelectedProviderType('ollama')
+    providerDialogRef.current?.showModal()
   }
 
-  // Format memory values for display
+  const handleEditProvider = (provider: (typeof providers)[0]) => {
+    setEditingProvider({
+      id: provider.id,
+      provider: provider.provider,
+      name: provider.name,
+      enabled: provider.enabled,
+      baseUrl: provider.baseUrl ?? undefined,
+      apiKeyHint: provider.apiKeyHint,
+      vramGb: provider.vramGb ?? undefined,
+    })
+    setSelectedProviderType(provider.provider)
+    providerDialogRef.current?.showModal()
+  }
+
+  const handleDeleteProvider = (id: string) => {
+    setDeletingProviderId(id)
+    deleteDialogRef.current?.showModal()
+  }
+
+  const handleSubmitProvider = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+
+    const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
+    const formApiKey = (formData.get('apiKey') as string)?.trim()
+
+    const data: AiServiceProviderInput = {
+      provider: selectedProviderType,
+      name: formData.get('name') as string,
+      enabled: formData.get('enabled') === 'on',
+      baseUrl: formBaseUrl || undefined,
+      // Send undefined if empty - backend will preserve existing value when updating
+      apiKey: formApiKey || undefined,
+      vramGb: formData.get('vramGb') ? Number(formData.get('vramGb')) : undefined,
+    }
+
+    if (editingProvider?.id) {
+      updateMutation.mutate({ id: editingProvider.id, data })
+    } else {
+      createMutation.mutate(data)
+    }
+  }
+
+  const handleConfirmDelete = () => {
+    if (deletingProviderId) {
+      deleteMutation.mutate(deletingProviderId)
+    }
+  }
+
   const formatMemory = (bytes: number) => {
     const gb = bytes / (1024 * 1024 * 1024)
     return `${gb.toFixed(1)} GB`
   }
 
-  // Calculate memory utilization percentage
   const getMemoryUtilization = (used: number, total: number) => {
     if (total === 0) return 0
     return Math.round((used / total) * 100)
   }
 
-  // Get status badge classes
   const getStatusBadge = (isOnline: boolean) => {
     return isOnline ? 'badge-success' : 'badge-error'
   }
 
-  // Get utilization color based on percentage
   const getUtilizationColor = (percentage: number) => {
     if (percentage < 50) return 'progress-success'
     if (percentage < 80) return 'progress-warning'
@@ -53,7 +241,10 @@ function AiServicesAdminPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Ollama Service Administration</h1>
+        <div>
+          <h1 className="text-3xl font-bold">AI Service Providers</h1>
+          <p className="text-sm opacity-70">Auto-refreshing every 5 seconds</p>
+        </div>
         <div className="flex gap-2">
           <label className="label cursor-pointer">
             <input
@@ -62,49 +253,113 @@ function AiServicesAdminPage() {
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
             />
-            <span className="label-text ml-2">Auto Refresh (5s)</span>
+            <span className="label-text ml-2">Auto Refresh</span>
           </label>
-          <button className="btn btn-primary" onClick={handleRefresh} type="button">
-            Refresh Now
+          <button
+            className="btn btn-secondary"
+            onClick={() => restoreMutation.mutate({})}
+            disabled={restoreMutation.isPending}
+            type="button"
+          >
+            {restoreMutation.isPending ? 'Restoring...' : 'Restore Default Providers'}
+          </button>
+          <button className="btn btn-primary" onClick={handleAddProvider} type="button">
+            Add Provider
           </button>
         </div>
       </div>
 
-      {/* Cluster Overview */}
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Instances</div>
-          <div className="stat-value text-primary">{serviceStatus.totalInstances}</div>
-          <div className="stat-desc">
-            {serviceStatus.availableInstances} available • {serviceStatus.healthyInstances} healthy
-          </div>
-        </div>
+      <div className="mb-8">
+        <h2 className="mb-4 text-2xl font-semibold">Configured Providers</h2>
+        <div className="space-y-4">
+          {providers.length === 0 ? (
+            <div className="alert alert-info">
+              <span>No providers configured. Add your first provider to get started.</span>
+            </div>
+          ) : (
+            providers.map((provider) => (
+              <div key={provider.id} className="card bg-base-100 shadow-md">
+                <div className="card-body">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="card-title">
+                        {getProviderIcon(provider.provider, 'h-6 w-6')}
+                        {provider.name}
+                        <div className={`badge ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
+                          {provider.enabled ? 'Enabled' : 'Disabled'}
+                        </div>
+                        <div className="badge badge-outline">{provider.provider}</div>
+                      </h3>
+                      {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
+                      {provider.vramGb !== null && <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>}
+                    </div>
 
-        <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Total VRAM</div>
-          <div className="stat-value text-secondary">{formatMemory(serviceStatus.totalMemory)}</div>
-          <div className="stat-desc">
-            {formatMemory(serviceStatus.totalUsedMemory)} used (
-            {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
-          </div>
-        </div>
-
-        <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Max Concurrency</div>
-          <div className="stat-value text-accent">{serviceStatus.totalMaxConcurrency}</div>
-          <div className="stat-desc">Across all instances</div>
-        </div>
-
-        <div className="stat bg-base-200 rounded-lg">
-          <div className="stat-title">Queue Length</div>
-          <div className="stat-value text-info">{serviceStatus.totalQueueLength}</div>
-          <div className="stat-desc">Total waiting requests</div>
+                    <div className="flex gap-2">
+                      <label className="label cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="toggle toggle-success"
+                          checked={provider.enabled}
+                          onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
+                        />
+                      </label>
+                      <button
+                        className="btn btn-sm btn-ghost"
+                        onClick={() => handleEditProvider(provider)}
+                        type="button"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-error btn-ghost"
+                        onClick={() => handleDeleteProvider(provider.id)}
+                        type="button"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Individual Instances */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-2xl font-semibold">Overview Metrics</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Total Providers</div>
+            <div className="stat-value text-primary">{providers.length}</div>
+            <div className="stat-desc">{providers.filter((p) => p.enabled).length} enabled</div>
+          </div>
+
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Ollama Instances</div>
+            <div className="stat-value text-secondary">{serviceStatus.availableInstances}</div>
+            <div className="stat-desc">{serviceStatus.healthyInstances} healthy</div>
+          </div>
+
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Total VRAM</div>
+            <div className="stat-value text-accent">{formatMemory(serviceStatus.totalMemory)}</div>
+            <div className="stat-desc">
+              {formatMemory(serviceStatus.totalUsedMemory)} used (
+              {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
+            </div>
+          </div>
+
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Queue Length</div>
+            <div className="stat-value text-info">{serviceStatus.totalQueueLength}</div>
+            <div className="stat-desc">Total waiting requests</div>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Ollama Instances</h2>
+        <h2 className="text-2xl font-semibold">Ollama Instance Details</h2>
 
         {serviceStatus.instances.length === 0 ? (
           <div className="alert alert-warning">
@@ -119,10 +374,10 @@ function AiServicesAdminPage() {
               return (
                 <div key={instance.name} className="card bg-base-100 shadow-xl">
                   <div className="card-body">
-                    {/* Instance Header */}
                     <div className="mb-4 flex items-start justify-between">
                       <div>
                         <h3 className="card-title">
+                          <OllamaLogoIcon className="h-6 w-6" />
                           {instance.name}
                           <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
                             {instance.isOnline ? 'Online' : 'Offline'}
@@ -133,7 +388,6 @@ function AiServicesAdminPage() {
                         {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
                       </div>
 
-                      {/* Memory Stats */}
                       <div className="stats stats-vertical lg:stats-horizontal bg-base-200">
                         <div className="stat">
                           <div className="stat-title text-xs">VRAM Usage</div>
@@ -154,9 +408,7 @@ function AiServicesAdminPage() {
                       </div>
                     </div>
 
-                    {/* Content Grid */}
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                      {/* Available Models (Collapsible) */}
                       <div>
                         <div className="bg-base-200 collapse">
                           <input type="checkbox" />
@@ -200,7 +452,6 @@ function AiServicesAdminPage() {
                         </div>
                       </div>
 
-                      {/* Running Models */}
                       <div>
                         <h4 className="mb-3 flex items-center gap-2 font-semibold">
                           <div className="badge badge-success badge-sm">{instance.runningModels?.length || 0}</div>
@@ -230,7 +481,6 @@ function AiServicesAdminPage() {
                         </div>
                       </div>
 
-                      {/* Model Queues */}
                       <div>
                         <h4 className="mb-3 flex items-center gap-2 font-semibold">
                           <div className="badge badge-warning badge-sm">{instance.modelQueues?.length || 0}</div>
@@ -273,7 +523,220 @@ function AiServicesAdminPage() {
         )}
       </div>
 
-      <div className="mt-8 text-center text-sm opacity-50">Last updated: {new Date().toLocaleString()}</div>
+      <dialog className="modal" ref={providerDialogRef}>
+        <div className="modal-box w-11/12 max-w-3xl">
+          <h3 className="mb-6 text-2xl font-bold">{editingProvider?.id ? 'Edit Provider' : 'Add Provider'}</h3>
+          <form key={editingProvider?.id || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">Provider Type</span>
+              </label>
+              <select
+                name="provider"
+                className="select select-bordered w-full"
+                defaultValue={editingProvider?.provider}
+                onChange={(e) => setSelectedProviderType(e.target.value)}
+                disabled={!!editingProvider?.id}
+                required
+              >
+                <option value="ollama">Ollama - Self-hosted LLM runtime</option>
+                <option value="openai">OpenAI - GPT models</option>
+              </select>
+              <label className="label">
+                <span className="label-text-alt">
+                  {editingProvider?.id
+                    ? 'Provider type cannot be changed. Only one non-Ollama provider of each type can be enabled.'
+                    : 'Choose the AI service provider type. Only one non-Ollama provider of each type can be enabled.'}
+                </span>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Display Name</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  className="input input-bordered w-full"
+                  defaultValue={editingProvider?.name}
+                  placeholder="e.g., Primary Ollama"
+                  required
+                />
+                <label className="label">
+                  <span className="label-text-alt">A friendly name to identify this provider</span>
+                </label>
+              </div>
+
+              {selectedProviderType === 'ollama' && (
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">VRAM (GB)</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="vramGb"
+                    className="input input-bordered w-full"
+                    defaultValue={editingProvider?.vramGb}
+                    placeholder="e.g., 32"
+                    min="1"
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">GPU memory available for this instance</span>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {selectedProviderType === 'ollama' && (
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Base URL</span>
+                </label>
+                <input
+                  type="url"
+                  name="baseUrl"
+                  className="input input-bordered w-full font-mono text-sm"
+                  defaultValue={editingProvider?.baseUrl}
+                  placeholder="e.g., http://ollama:11434"
+                />
+                <label className="label">
+                  <span className="label-text-alt">The Ollama API endpoint URL</span>
+                </label>
+              </div>
+            )}
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">API Key</span>
+                {editingProvider?.apiKeyHint && (
+                  <span className="label-text-alt">
+                    Current: <span className="font-mono">{editingProvider.apiKeyHint}</span>
+                  </span>
+                )}
+              </label>
+              <input
+                type="password"
+                name="apiKey"
+                className="input input-bordered w-full font-mono text-sm"
+                placeholder={
+                  editingProvider?.apiKeyHint
+                    ? 'Leave empty to keep existing key'
+                    : selectedProviderType === 'openai'
+                      ? 'sk-...'
+                      : 'Optional'
+                }
+                autoComplete="new-password"
+                required={selectedProviderType === 'openai' && !editingProvider?.apiKeyHint}
+              />
+              <label className="label">
+                <span className="label-text-alt">
+                  {selectedProviderType === 'openai'
+                    ? editingProvider?.apiKeyHint
+                      ? 'Enter a new key to replace the existing one'
+                      : 'Required - Your OpenAI API key'
+                    : 'Optional - Only needed if Ollama requires authentication'}
+                </span>
+              </label>
+            </div>
+
+            <div className="form-control">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={(e) => {
+                  const form = e.currentTarget.form
+                  if (!form) return
+
+                  const formData = new FormData(form)
+                  const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
+                  const formApiKey = (formData.get('apiKey') as string)?.trim()
+
+                  testConnectionMutation.mutate({
+                    providerId: editingProvider?.id,
+                    provider: selectedProviderType,
+                    baseUrl: formBaseUrl || undefined,
+                    apiKey: formApiKey || undefined,
+                  })
+                }}
+                disabled={testConnectionMutation.isPending}
+              >
+                {testConnectionMutation.isPending ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs" />
+                    Testing Connection...
+                  </>
+                ) : (
+                  'Test Connection'
+                )}
+              </button>
+              <label className="label">
+                <span className="label-text-alt">
+                  Verify that the provider is reachable with the configured credentials
+                </span>
+              </label>
+            </div>
+
+            <div className="divider" />
+
+            <div className="form-control">
+              <label className="label cursor-pointer justify-start gap-4">
+                <input
+                  type="checkbox"
+                  name="enabled"
+                  className="checkbox checkbox-primary"
+                  defaultChecked={editingProvider?.enabled}
+                />
+                <div>
+                  <span className="label-text font-semibold">Enable this provider</span>
+                  <p className="text-xs opacity-70">Disabled providers won't be used for AI operations</p>
+                </div>
+              </label>
+            </div>
+
+            <div className="modal-action">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  providerDialogRef.current?.close()
+                  setEditingProvider(null)
+                }}
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {createMutation.isPending || updateMutation.isPending ? (
+                  <>
+                    <span className="loading loading-spinner" />
+                    {editingProvider?.id ? 'Updating...' : 'Creating...'}
+                  </>
+                ) : (
+                  <>{editingProvider?.id ? 'Update Provider' : 'Create Provider'}</>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button type="button">close</button>
+        </form>
+      </dialog>
+
+      <DialogForm
+        ref={deleteDialogRef}
+        title="Delete Provider?"
+        description="This action cannot be undone. Are you sure you want to delete this provider?"
+        onSubmit={handleConfirmDelete}
+        submitButtonText="Delete"
+        disabledSubmit={deleteMutation.isPending}
+      />
     </div>
   )
 }

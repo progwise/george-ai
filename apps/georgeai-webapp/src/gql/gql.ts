@@ -22,6 +22,7 @@ type Documents = {
   '\n      mutation SyncModels {\n        syncModels {\n          success\n          modelsDiscovered\n          errors\n        }\n      }\n    ': typeof types.SyncModelsDocument
   '\n        mutation UpdateAiLanguageModel($id: ID!, $data: UpdateAiLanguageModelInput!) {\n          updateAiLanguageModel(id: $id, data: $data) {\n            id\n            enabled\n            adminNotes\n          }\n        }\n      ': typeof types.UpdateAiLanguageModelDocument
   '\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ': typeof types.GetAiServiceStatusDocument
+  '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n': typeof types.GetAiServiceProvidersDocument
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n': typeof types.GetQueueSystemStatusDocument
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StartQueueWorkerDocument
   '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StopQueueWorkerDocument
@@ -30,6 +31,12 @@ type Documents = {
   '\n        mutation ClearTasks($queueType: QueueType!, $libraryId: String) {\n          clearPendingTasks(queueType: $queueType, libraryId: $libraryId) {\n            success\n            message\n            affectedCount\n          }\n        }\n      ': typeof types.ClearTasksDocument
   '\n  mutation CancelContentProcessingTasks($libraryId: String) {\n    cancelContentProcessingTasks(libraryId: $libraryId) {\n      success\n      message\n      affectedCount\n    }\n  }\n': typeof types.CancelContentProcessingTasksDocument
   '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n': typeof types.QueueSystemStatus_ManagementPanelFragmentDoc
+  '\n  mutation CreateAiServiceProvider($data: AiServiceProviderInput!) {\n    createAiServiceProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.CreateAiServiceProviderDocument
+  '\n  mutation DeleteAiServiceProvider($id: ID!) {\n    deleteAiServiceProvider(id: $id)\n  }\n': typeof types.DeleteAiServiceProviderDocument
+  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n': typeof types.RestoreDefaultProvidersDocument
+  '\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n': typeof types.TestProviderConnectionDocument
+  '\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n': typeof types.ToggleAiServiceProviderDocument
+  '\n  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {\n    updateAiServiceProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.UpdateAiServiceProviderDocument
   '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ': typeof types.EnsureUserProfileDocument
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n    avatarUrl\n  }\n': typeof types.ManagedUserFragmentDoc
   '\n        query getManagedUsers($skip: Int!, $take: Int!, $filter: String, $statusFilter: String) {\n          managedUsers(skip: $skip, take: $take, filter: $filter, statusFilter: $statusFilter) {\n            skip\n            take\n            filter\n            userStatistics {\n              total\n              confirmed\n              unconfirmed\n              activated\n              unactivated\n            }\n            users {\n              ...ManagedUser\n            }\n          }\n        }\n      ': typeof types.GetManagedUsersDocument
@@ -223,6 +230,8 @@ const documents: Documents = {
     types.UpdateAiLanguageModelDocument,
   '\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ':
     types.GetAiServiceStatusDocument,
+  '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n':
+    types.GetAiServiceProvidersDocument,
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n':
     types.GetQueueSystemStatusDocument,
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
@@ -239,6 +248,18 @@ const documents: Documents = {
     types.CancelContentProcessingTasksDocument,
   '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n':
     types.QueueSystemStatus_ManagementPanelFragmentDoc,
+  '\n  mutation CreateAiServiceProvider($data: AiServiceProviderInput!) {\n    createAiServiceProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n':
+    types.CreateAiServiceProviderDocument,
+  '\n  mutation DeleteAiServiceProvider($id: ID!) {\n    deleteAiServiceProvider(id: $id)\n  }\n':
+    types.DeleteAiServiceProviderDocument,
+  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n':
+    types.RestoreDefaultProvidersDocument,
+  '\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n':
+    types.TestProviderConnectionDocument,
+  '\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n':
+    types.ToggleAiServiceProviderDocument,
+  '\n  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {\n    updateAiServiceProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n':
+    types.UpdateAiServiceProviderDocument,
   '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ':
     types.EnsureUserProfileDocument,
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n    avatarUrl\n  }\n':
@@ -651,6 +672,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n',
+): (typeof documents)['\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n',
 ): (typeof documents)['\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n']
 /**
@@ -695,6 +722,42 @@ export function graphql(
 export function graphql(
   source: '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n',
 ): (typeof documents)['\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation CreateAiServiceProvider($data: AiServiceProviderInput!) {\n    createAiServiceProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n',
+): (typeof documents)['\n  mutation CreateAiServiceProvider($data: AiServiceProviderInput!) {\n    createAiServiceProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation DeleteAiServiceProvider($id: ID!) {\n    deleteAiServiceProvider(id: $id)\n  }\n',
+): (typeof documents)['\n  mutation DeleteAiServiceProvider($id: ID!) {\n    deleteAiServiceProvider(id: $id)\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n',
+): (typeof documents)['\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n',
+): (typeof documents)['\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {\n    updateAiServiceProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n',
+): (typeof documents)['\n  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {\n    updateAiServiceProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

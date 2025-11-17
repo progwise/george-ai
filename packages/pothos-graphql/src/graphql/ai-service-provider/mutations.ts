@@ -1,3 +1,7 @@
+import { GraphQLError } from 'graphql'
+
+import { getOllamaModelNames, getOpenAIModelNames } from '@george-ai/ai-service-client'
+
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -24,7 +28,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
     resolve: async (query, _source, { data }, context) => {
       const userId = context.session.user.id
 
-      // Check for duplicate (unique constraint: workspaceId + provider + name)
+      // Check for duplicate name within same provider type
       const existing = await prisma.aiServiceProvider.findFirst({
         where: {
           workspaceId: context.workspaceId,
@@ -34,7 +38,22 @@ builder.mutationField('createAiServiceProvider', (t) =>
       })
 
       if (existing) {
-        throw new Error(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
+        throw new GraphQLError(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
+      }
+
+      // For non-Ollama providers, if enabling this provider, disable others of same type
+      const shouldEnable = data.enabled ?? true
+      if (shouldEnable && data.provider !== 'ollama') {
+        await prisma.aiServiceProvider.updateMany({
+          where: {
+            workspaceId: context.workspaceId,
+            provider: data.provider,
+            enabled: true,
+          },
+          data: {
+            enabled: false,
+          },
+        })
       }
 
       return prisma.aiServiceProvider.create({
@@ -43,7 +62,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
           workspaceId: context.workspaceId,
           provider: data.provider,
           name: data.name,
-          enabled: data.enabled ?? true,
+          enabled: shouldEnable,
           baseUrl: data.baseUrl,
           apiKey: data.apiKey, // TODO: Encrypt before storing
           vramGb: data.vramGb,
@@ -75,7 +94,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
       })
 
       if (!existing) {
-        throw new Error('Provider not found or access denied')
+        throw new GraphQLError('Provider not found or access denied')
       }
 
       // Check for duplicate name if provider/name changed
@@ -90,8 +109,24 @@ builder.mutationField('updateAiServiceProvider', (t) =>
         })
 
         if (duplicate) {
-          throw new Error(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
+          throw new GraphQLError(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
         }
+      }
+
+      // For non-Ollama providers, if enabling this provider, disable others of same type
+      const shouldEnable = data.enabled ?? existing.enabled
+      if (shouldEnable && data.provider !== 'ollama') {
+        await prisma.aiServiceProvider.updateMany({
+          where: {
+            workspaceId: context.workspaceId,
+            provider: data.provider,
+            enabled: true,
+            id: { not: String(id) },
+          },
+          data: {
+            enabled: false,
+          },
+        })
       }
 
       return prisma.aiServiceProvider.update({
@@ -100,9 +135,10 @@ builder.mutationField('updateAiServiceProvider', (t) =>
         data: {
           provider: data.provider,
           name: data.name,
-          enabled: data.enabled ?? existing.enabled,
+          enabled: shouldEnable,
           baseUrl: data.baseUrl,
-          apiKey: data.apiKey, // TODO: Encrypt before storing
+          // Only update apiKey if provided (preserve existing if undefined)
+          ...(data.apiKey !== undefined && { apiKey: data.apiKey }), // TODO: Encrypt before storing
           vramGb: data.vramGb,
           updatedBy: userId,
         },
@@ -132,7 +168,22 @@ builder.mutationField('toggleAiServiceProvider', (t) =>
       })
 
       if (!existing) {
-        throw new Error('Provider not found or access denied')
+        throw new GraphQLError('Provider not found or access denied')
+      }
+
+      // For non-Ollama providers, if enabling this provider, disable others of same type
+      if (enabled && existing.provider !== 'ollama') {
+        await prisma.aiServiceProvider.updateMany({
+          where: {
+            workspaceId: context.workspaceId,
+            provider: existing.provider,
+            enabled: true,
+            id: { not: String(id) },
+          },
+          data: {
+            enabled: false,
+          },
+        })
       }
 
       return prisma.aiServiceProvider.update({
@@ -165,7 +216,7 @@ builder.mutationField('deleteAiServiceProvider', (t) =>
       })
 
       if (!existing) {
-        throw new Error('Provider not found or access denied')
+        throw new GraphQLError('Provider not found or access denied')
       }
 
       // TODO: Check for dependencies (libraries, assistants using this provider)
@@ -176,6 +227,303 @@ builder.mutationField('deleteAiServiceProvider', (t) =>
       })
 
       return true
+    },
+  }),
+)
+
+// Result type for restore operation
+const RestoreDefaultProvidersResult = builder.objectRef<{
+  created: number
+  skipped: number
+  providerIds: string[]
+}>('RestoreDefaultProvidersResult')
+
+builder.objectType(RestoreDefaultProvidersResult, {
+  fields: (t) => ({
+    created: t.field({
+      type: 'Int',
+      nullable: false,
+      resolve: (parent) => parent.created,
+    }),
+    skipped: t.field({
+      type: 'Int',
+      nullable: false,
+      resolve: (parent) => parent.skipped,
+    }),
+    providers: t.prismaField({
+      type: ['AiServiceProvider'],
+      nullable: { list: false, items: false },
+      resolve: async (query, parent) => {
+        return prisma.aiServiceProvider.findMany({
+          ...query,
+          where: { id: { in: parent.providerIds } },
+        })
+      },
+    }),
+  }),
+})
+
+// Restore default providers from environment variables
+builder.mutationField('restoreDefaultProviders', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: RestoreDefaultProvidersResult,
+    nullable: false,
+    resolve: async (_source, _args, context) => {
+      const userId = context.session.user.id
+      const workspaceId = context.workspaceId
+      const providersToCreate: Array<{
+        provider: string
+        name: string
+        baseUrl?: string
+        apiKey?: string
+        vramGb?: number
+      }> = []
+
+      // Import OpenAI if configured
+      if (process.env.OPENAI_API_KEY) {
+        providersToCreate.push({
+          provider: 'openai',
+          name: 'OpenAI',
+          apiKey: process.env.OPENAI_API_KEY,
+          baseUrl: process.env.OPENAI_BASE_URL,
+        })
+      }
+
+      // Import primary Ollama instance
+      if (process.env.OLLAMA_BASE_URL) {
+        providersToCreate.push({
+          provider: 'ollama',
+          name: 'Primary Ollama',
+          baseUrl: process.env.OLLAMA_BASE_URL,
+          apiKey: process.env.OLLAMA_API_KEY,
+          vramGb: process.env.OLLAMA_VRAM_GB ? parseInt(process.env.OLLAMA_VRAM_GB) : 16,
+        })
+      }
+
+      // Import additional Ollama instances (OLLAMA_BASE_URL_1 through OLLAMA_BASE_URL_9)
+      for (let i = 1; i <= 9; i++) {
+        const baseUrl = process.env[`OLLAMA_BASE_URL_${i}`]
+        if (baseUrl) {
+          providersToCreate.push({
+            provider: 'ollama',
+            name: `Ollama Instance ${i + 1}`,
+            baseUrl,
+            apiKey: process.env[`OLLAMA_API_KEY_${i}`],
+            vramGb: process.env[`OLLAMA_VRAM_GB_${i}`] ? parseInt(process.env[`OLLAMA_VRAM_GB_${i}`]!) : 16,
+          })
+        }
+      }
+
+      // Create providers, skipping duplicates
+      let created = 0
+      let skipped = 0
+      const createdProviders: Array<{ id: string }> = []
+
+      for (const providerData of providersToCreate) {
+        // Check if this specific provider (by name) already exists
+        const existing = await prisma.aiServiceProvider.findFirst({
+          where: {
+            workspaceId,
+            provider: providerData.provider,
+            name: providerData.name,
+          },
+        })
+
+        if (existing) {
+          skipped++
+          continue
+        }
+
+        // For non-Ollama providers, disable others of same type before creating
+        if (providerData.provider !== 'ollama') {
+          await prisma.aiServiceProvider.updateMany({
+            where: {
+              workspaceId,
+              provider: providerData.provider,
+              enabled: true,
+            },
+            data: {
+              enabled: false,
+            },
+          })
+        }
+
+        // Create new provider (enabled by default)
+        const newProvider = await prisma.aiServiceProvider.create({
+          data: {
+            workspaceId,
+            provider: providerData.provider,
+            name: providerData.name,
+            enabled: true,
+            baseUrl: providerData.baseUrl,
+            apiKey: providerData.apiKey, // TODO: Encrypt before storing
+            vramGb: providerData.vramGb,
+            createdBy: userId,
+          },
+        })
+
+        createdProviders.push(newProvider)
+        created++
+      }
+
+      return {
+        created,
+        skipped,
+        providerIds: createdProviders.map((p) => p.id),
+      }
+    },
+  }),
+)
+
+// Input type for testing provider connection
+const TestProviderConnectionInput = builder.inputType('TestProviderConnectionInput', {
+  fields: (t) => ({
+    providerId: t.string({ required: false }), // If provided, use stored credentials as fallback
+    provider: t.string({ required: true }),
+    baseUrl: t.string({ required: false }),
+    apiKey: t.string({ required: false }),
+  }),
+})
+
+// Result type for connection test
+const TestProviderConnectionResult = builder.objectRef<{
+  success: boolean
+  message: string
+  details?: string
+}>('TestProviderConnectionResult')
+
+builder.objectType(TestProviderConnectionResult, {
+  fields: (t) => ({
+    success: t.field({
+      type: 'Boolean',
+      nullable: false,
+      resolve: (parent) => parent.success,
+    }),
+    message: t.field({
+      type: 'String',
+      nullable: false,
+      resolve: (parent) => parent.message,
+    }),
+    details: t.field({
+      type: 'String',
+      nullable: true,
+      resolve: (parent) => parent.details,
+    }),
+  }),
+})
+
+// Test provider connection
+builder.mutationField('testProviderConnection', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: TestProviderConnectionResult,
+    nullable: false,
+    args: {
+      data: t.arg({ type: TestProviderConnectionInput, required: true }),
+    },
+    resolve: async (_source, { data }, context) => {
+      try {
+        // If providerId is given, fetch stored credentials to use as fallback
+        let storedProvider = null
+        if (data.providerId) {
+          storedProvider = await prisma.aiServiceProvider.findFirst({
+            where: {
+              id: data.providerId,
+              workspaceId: context.workspaceId,
+            },
+          })
+        }
+
+        // Use provided values, fall back to stored values if available
+        const baseUrl = data.baseUrl || storedProvider?.baseUrl || undefined
+        const apiKey = data.apiKey || storedProvider?.apiKey || undefined
+
+        if (data.provider === 'ollama') {
+          // Test Ollama connection
+          const ollamaBaseUrl = baseUrl || process.env.OLLAMA_BASE_URL || 'http://ollama:11434'
+
+          // Temporarily set environment variables for the test
+          const originalBaseUrl = process.env.OLLAMA_BASE_URL
+          const originalApiKey = process.env.OLLAMA_API_KEY
+
+          try {
+            process.env.OLLAMA_BASE_URL = ollamaBaseUrl
+            if (apiKey) {
+              process.env.OLLAMA_API_KEY = apiKey
+            }
+
+            const models = await getOllamaModelNames()
+
+            return {
+              success: true,
+              message: `Successfully connected to Ollama at ${ollamaBaseUrl}`,
+              details: `Found ${models.length} models`,
+            }
+          } finally {
+            // Restore original environment variables
+            if (originalBaseUrl !== undefined) {
+              process.env.OLLAMA_BASE_URL = originalBaseUrl
+            } else {
+              delete process.env.OLLAMA_BASE_URL
+            }
+            if (originalApiKey !== undefined) {
+              process.env.OLLAMA_API_KEY = originalApiKey
+            } else {
+              delete process.env.OLLAMA_API_KEY
+            }
+          }
+        } else if (data.provider === 'openai') {
+          // Test OpenAI connection
+          if (!apiKey) {
+            return {
+              success: false,
+              message: 'API key is required for OpenAI',
+            }
+          }
+
+          // Temporarily set environment variable for the test
+          const originalApiKey = process.env.OPENAI_API_KEY
+          const originalBaseUrl = process.env.OPENAI_BASE_URL
+
+          try {
+            process.env.OPENAI_API_KEY = apiKey
+            if (baseUrl) {
+              process.env.OPENAI_BASE_URL = baseUrl
+            }
+
+            const models = await getOpenAIModelNames()
+
+            return {
+              success: true,
+              message: 'Successfully connected to OpenAI',
+              details: `Found ${models.length} models`,
+            }
+          } finally {
+            // Restore original environment variables
+            if (originalApiKey !== undefined) {
+              process.env.OPENAI_API_KEY = originalApiKey
+            } else {
+              delete process.env.OPENAI_API_KEY
+            }
+            if (originalBaseUrl !== undefined) {
+              process.env.OPENAI_BASE_URL = originalBaseUrl
+            } else {
+              delete process.env.OPENAI_BASE_URL
+            }
+          }
+        } else {
+          return {
+            success: false,
+            message: `Provider type '${data.provider}' is not supported for connection testing`,
+          }
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        return {
+          success: false,
+          message: 'Connection test failed',
+          details: errorMessage,
+        }
+      }
     },
   }),
 )

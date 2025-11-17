@@ -15,6 +15,20 @@ builder.prismaObject('AiServiceProvider', {
     enabled: t.exposeBoolean('enabled', { nullable: false }),
     baseUrl: t.exposeString('baseUrl', { nullable: true }),
     // apiKey is intentionally NOT exposed for security
+    // Instead, we provide a hint showing first/last characters
+    apiKeyHint: t.string({
+      nullable: true,
+      resolve: (provider) => {
+        if (!provider.apiKey) return null
+        const key = provider.apiKey
+        if (key.length <= 10) {
+          // For short keys, show first 2 and last 2
+          return `${key.slice(0, 2)}...${key.slice(-2)}`
+        }
+        // For longer keys, show first 3 and last 2
+        return `${key.slice(0, 3)}...${key.slice(-2)}`
+      },
+    }),
     vramGb: t.exposeInt('vramGb', { nullable: true }),
     createdBy: t.exposeString('createdBy', { nullable: true }),
     updatedBy: t.exposeString('updatedBy', { nullable: true }),

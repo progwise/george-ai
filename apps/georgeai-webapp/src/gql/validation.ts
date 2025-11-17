@@ -31,6 +31,7 @@ import {
   ListFieldType,
   ProcessingStatus,
   QueueType,
+  TestProviderConnectionInput,
   UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
@@ -231,6 +232,15 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
+  })
+}
+
+export function TestProviderConnectionInputSchema(): z.ZodObject<Properties<TestProviderConnectionInput>> {
+  return z.object({
+    apiKey: z.string().nullish(),
+    baseUrl: z.string().nullish(),
+    provider: z.string(),
+    providerId: z.string().nullish(),
   })
 }
 

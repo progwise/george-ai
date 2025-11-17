@@ -15,15 +15,30 @@ interface DiscoveredModel {
 }
 
 /**
- * Discovers models from all configured providers (Ollama, OpenAI)
- * Reuses existing ollamaResourceManager.getAvailableModelNames() for multi-instance support
- * Reuses existing classifyModel() for capability detection
+ * Discovers models from all configured workspace providers
+ * Reads from AiServiceProvider table instead of .env
+ * Deduplicates providers by type + baseUrl
  */
 async function discoverModels(): Promise<DiscoveredModel[]> {
   const discoveredModels: DiscoveredModel[] = []
 
-  // 1. Discover Ollama models (using existing resource manager)
-  if (process.env.OLLAMA_BASE_URL) {
+  // Get all enabled providers from database (across all workspaces)
+  const providers = await prisma.aiServiceProvider.findMany({
+    where: { enabled: true },
+  })
+
+  // Deduplicate providers by type + baseUrl (same instance might be used by multiple workspaces)
+  const uniqueProviders = new Map<string, typeof providers[0]>()
+  for (const provider of providers) {
+    const key = `${provider.provider}:${provider.baseUrl || 'default'}`
+    if (!uniqueProviders.has(key)) {
+      uniqueProviders.set(key, provider)
+    }
+  }
+
+  // 1. Discover Ollama models
+  const ollamaProviders = Array.from(uniqueProviders.values()).filter((p) => p.provider === 'ollama')
+  if (ollamaProviders.length > 0) {
     try {
       // Use existing method - already handles multi-instance deduplication!
       const ollamaModelNames = await getOllamaModelNames()
@@ -36,38 +51,42 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
           canDoEmbedding: classification.isEmbeddingModel,
           canDoChatCompletion: classification.isChatModel,
           canDoVision: classification.isVisionModel,
-          canDoFunctionCalling: classification.isChatModel, // Chat models can do function calling
-        })
-      }
-
-      console.log(`✅ Discovered ${ollamaModelNames.length} Ollama models`)
-    } catch (error) {
-      console.warn('⚠️ Ollama sync failed:', error)
-      // Continue with other providers
-    }
-  }
-
-  // 2. Discover OpenAI models (new)
-  if (process.env.OPENAI_API_KEY) {
-    try {
-      const response = await getOpenAIModelNames()
-
-      for (const model of response) {
-        const classification = classifyModel(model)
-        discoveredModels.push({
-          name: model,
-          provider: 'openai',
-          canDoEmbedding: classification.isEmbeddingModel,
-          canDoChatCompletion: classification.isChatModel,
-          canDoVision: classification.isVisionModel,
           canDoFunctionCalling: classification.isChatModel,
         })
       }
 
-      console.log(`✅ Discovered ${response.length} OpenAI models`)
+      console.log(`✅ Discovered ${ollamaModelNames.length} Ollama models from ${ollamaProviders.length} instances`)
+    } catch (error) {
+      console.warn('⚠️ Ollama sync failed:', error)
+    }
+  }
+
+  // 2. Discover OpenAI models
+  const openaiProviders = Array.from(uniqueProviders.values()).filter((p) => p.provider === 'openai')
+  if (openaiProviders.length > 0) {
+    try {
+      // For now, use the first OpenAI provider's API key
+      // All OpenAI providers access the same global model list
+      const openaiProvider = openaiProviders[0]
+      if (openaiProvider.apiKey) {
+        const response = await getOpenAIModelNames()
+
+        for (const model of response) {
+          const classification = classifyModel(model)
+          discoveredModels.push({
+            name: model,
+            provider: 'openai',
+            canDoEmbedding: classification.isEmbeddingModel,
+            canDoChatCompletion: classification.isChatModel,
+            canDoVision: classification.isVisionModel,
+            canDoFunctionCalling: classification.isChatModel,
+          })
+        }
+
+        console.log(`✅ Discovered ${response.length} OpenAI models`)
+      }
     } catch (error) {
       console.warn('⚠️ OpenAI sync failed:', error)
-      // Continue even if OpenAI fails
     }
   }
 

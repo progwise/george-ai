@@ -269,51 +269,108 @@ function AiModelsPage() {
               </div>
             </div>
 
-            {/* Provider Cards - One per provider */}
-            {data.providerCapabilities.map((providerData) => {
-              const provider = providerData.provider
+            {/* Ollama Card - Aggregated from all Ollama providers */}
+            {(() => {
+              const ollamaData = data.providerCapabilities.find((p) => p.provider === 'ollama')
+              if (!ollamaData) return null
 
               return (
-                <div key={provider} className="card border-base-300 bg-base-100 border shadow-lg">
+                <div key="ollama" className="card border-base-300 bg-base-100 border shadow-lg">
                   <div className="card-body p-6">
                     <div className="flex flex-col gap-3">
-                      {/* Provider Header */}
                       <div className="flex items-center gap-2">
-                        {provider === 'ollama' && <OllamaLogoIcon className="h-6 w-6" />}
-                        {provider === 'openai' && <OpenAILogoIcon className="h-6 w-6" />}
-                        <span className="text-sm font-bold capitalize">{provider}</span>
+                        <OllamaLogoIcon className="h-6 w-6" />
+                        <span className="text-sm font-bold">Ollama</span>
                       </div>
-
-                      {/* Counts */}
                       <div className="flex items-baseline gap-3">
                         <div>
-                          <p className="text-2xl font-bold">{providerData.enabledCount + providerData.disabledCount}</p>
+                          <p className="text-2xl font-bold">
+                            {ollamaData.enabledCount + ollamaData.disabledCount}
+                          </p>
                           <p className="text-xs opacity-50">Total</p>
                         </div>
                         <div>
-                          <p className="text-success text-xl font-bold">{providerData.enabledCount}</p>
+                          <p className="text-success text-xl font-bold">{ollamaData.enabledCount}</p>
                           <p className="text-xs opacity-50">Enabled</p>
                         </div>
                         <div>
-                          <p className="text-error text-xl font-bold">{providerData.disabledCount}</p>
+                          <p className="text-error text-xl font-bold">{ollamaData.disabledCount}</p>
                           <p className="text-xs opacity-50">Disabled</p>
                         </div>
                       </div>
-
-                      {/* Capability Badges */}
                       <CapabilityBadges
-                        embeddingCount={providerData.embeddingCount}
-                        chatCount={providerData.chatCount}
-                        visionCount={providerData.visionCount}
-                        functionCount={providerData.functionCount}
-                        provider={provider}
+                        embeddingCount={ollamaData.embeddingCount}
+                        chatCount={ollamaData.chatCount}
+                        visionCount={ollamaData.visionCount}
+                        functionCount={ollamaData.functionCount}
+                        provider="ollama"
                         onFilterByCapability={filterByCapability}
                       />
                     </div>
                   </div>
                 </div>
               )
-            })}
+            })()}
+
+            {/* Cards for other provider types (OpenAI, etc.) */}
+            {data.providerCapabilities
+              .filter((p) => p.provider !== 'ollama')
+              .map((providerData) => {
+                const getProviderIcon = (provider: string) => {
+                  switch (provider) {
+                    case 'openai':
+                      return <OpenAILogoIcon className="h-6 w-6" />
+                    default:
+                      return null
+                  }
+                }
+
+                const getProviderLabel = (provider: string) => {
+                  switch (provider) {
+                    case 'openai':
+                      return 'OpenAI'
+                    default:
+                      return provider
+                  }
+                }
+
+                return (
+                  <div key={providerData.provider} className="card border-base-300 bg-base-100 border shadow-lg">
+                    <div className="card-body p-6">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                          {getProviderIcon(providerData.provider)}
+                          <span className="text-sm font-bold">{getProviderLabel(providerData.provider)}</span>
+                        </div>
+                        <div className="flex items-baseline gap-3">
+                          <div>
+                            <p className="text-2xl font-bold">
+                              {providerData.enabledCount + providerData.disabledCount}
+                            </p>
+                            <p className="text-xs opacity-50">Total</p>
+                          </div>
+                          <div>
+                            <p className="text-success text-xl font-bold">{providerData.enabledCount}</p>
+                            <p className="text-xs opacity-50">Enabled</p>
+                          </div>
+                          <div>
+                            <p className="text-error text-xl font-bold">{providerData.disabledCount}</p>
+                            <p className="text-xs opacity-50">Disabled</p>
+                          </div>
+                        </div>
+                        <CapabilityBadges
+                          embeddingCount={providerData.embeddingCount}
+                          chatCount={providerData.chatCount}
+                          visionCount={providerData.visionCount}
+                          functionCount={providerData.functionCount}
+                          provider={providerData.provider}
+                          onFilterByCapability={filterByCapability}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
 
             {/* Usage Statistics Card */}
             <div className="card border-base-300 bg-base-100 border shadow-lg">

@@ -761,6 +761,7 @@ type AiServiceInstance {
 }
 
 type AiServiceProvider {
+  apiKeyHint: String
   baseUrl: String
   createdAt: DateTime!
   createdBy: String
@@ -1237,6 +1238,7 @@ type Mutation {
   removeListSource(id: String!): AiListSource!
   reorderListFields(fieldId: String!, newPlace: Int!): [AiListField!]!
   resetAssessmentAnswers(assistantId: String!): DateTime!
+  restoreDefaultProviders: RestoreDefaultProvidersResult!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   revokeApiKey(id: String!): Boolean!
   runAiLibraryCrawler(crawlerId: String!): String!
@@ -1248,6 +1250,7 @@ type Mutation {
   stopAllQueueWorkers: QueueOperationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels: SyncModelsResult
+  testProviderConnection(data: TestProviderConnectionInput!): TestProviderConnectionResult!
   toggleAdminStatus(userId: String!): User
   toggleAiServiceProvider(enabled: Boolean!, id: ID!): AiServiceProvider!
   unhideMessage(messageId: String!): AiConversationMessage
@@ -1430,6 +1433,12 @@ enum QueueType {
   ENRICHMENT
 }
 
+type RestoreDefaultProvidersResult {
+  created: Int!
+  providers: [AiServiceProvider!]!
+  skipped: Int!
+}
+
 type SharePointValidationResult {
   errorMessage: String
   errorType: String
@@ -1444,6 +1453,19 @@ type SourceFileLink {
 type SyncModelsResult {
   errors: [String!]!
   modelsDiscovered: Int!
+  success: Boolean!
+}
+
+input TestProviderConnectionInput {
+  apiKey: String
+  baseUrl: String
+  provider: String!
+  providerId: String
+}
+
+type TestProviderConnectionResult {
+  details: String
+  message: String!
   success: Boolean!
 }
 
