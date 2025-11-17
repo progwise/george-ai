@@ -18,6 +18,7 @@ import {
   AiListSortingDirection,
   AiListSortingInput,
   AiListSourceInput,
+  AiServiceProviderInput,
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
@@ -211,6 +212,17 @@ export function AiListSortingInputSchema(): z.ZodObject<Properties<AiListSorting
 export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
   return z.object({
     libraryId: z.string(),
+  })
+}
+
+export function AiServiceProviderInputSchema(): z.ZodObject<Properties<AiServiceProviderInput>> {
+  return z.object({
+    apiKey: z.string().nullish(),
+    baseUrl: z.string().nullish(),
+    enabled: z.boolean().nullish(),
+    name: z.string(),
+    provider: z.string(),
+    vramGb: z.number().nullish(),
   })
 }
 

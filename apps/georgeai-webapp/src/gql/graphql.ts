@@ -821,6 +821,31 @@ export type AiServiceInstance = {
   version: Scalars['String']['output']
 }
 
+export type AiServiceProvider = {
+  __typename?: 'AiServiceProvider'
+  baseUrl?: Maybe<Scalars['String']['output']>
+  createdAt: Scalars['DateTime']['output']
+  createdBy?: Maybe<Scalars['String']['output']>
+  enabled: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  provider: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
+  updatedBy?: Maybe<Scalars['String']['output']>
+  vramGb?: Maybe<Scalars['Int']['output']>
+  workspace: Workspace
+  workspaceId: Scalars['String']['output']
+}
+
+export type AiServiceProviderInput = {
+  apiKey?: InputMaybe<Scalars['String']['input']>
+  baseUrl?: InputMaybe<Scalars['String']['input']>
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
+  name: Scalars['String']['input']
+  provider: Scalars['String']['input']
+  vramGb?: InputMaybe<Scalars['Int']['input']>
+}
+
 export type ApiKey = {
   __typename?: 'ApiKey'
   createdAt: Scalars['DateTime']['output']
@@ -1193,6 +1218,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibraryCrawler: AiLibraryCrawler
+  createAiServiceProvider: AiServiceProvider
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
   createEmbeddingTask: AiContentProcessingTask
@@ -1204,6 +1230,7 @@ export type Mutation = {
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteAiServiceProvider: Scalars['Boolean']['output']
   deleteLibrary: AiLibrary
   deleteLibraryFile: AiLibraryFile
   deleteLibraryFiles: Scalars['Int']['output']
@@ -1242,10 +1269,12 @@ export type Mutation = {
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   toggleAdminStatus?: Maybe<User>
+  toggleAiServiceProvider: AiServiceProvider
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLanguageModel?: Maybe<AiLanguageModel>
   updateAiLibraryCrawler: AiLibraryCrawler
+  updateAiServiceProvider: AiServiceProvider
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibrary: AiLibrary
   updateLibraryParticipants: UpdateLibraryParticipantsResult
@@ -1351,6 +1380,10 @@ export type MutationCreateAiLibraryCrawlerArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationCreateAiServiceProviderArgs = {
+  data: AiServiceProviderInput
+}
+
 export type MutationCreateContentProcessingTaskArgs = {
   fileId: Scalars['String']['input']
 }
@@ -1399,6 +1432,10 @@ export type MutationDeleteAiConversationsArgs = {
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiServiceProviderArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteLibraryArgs = {
@@ -1551,6 +1588,11 @@ export type MutationToggleAdminStatusArgs = {
   userId: Scalars['String']['input']
 }
 
+export type MutationToggleAiServiceProviderArgs = {
+  enabled: Scalars['Boolean']['input']
+  id: Scalars['ID']['input']
+}
+
 export type MutationUnhideMessageArgs = {
   messageId: Scalars['String']['input']
 }
@@ -1569,6 +1611,11 @@ export type MutationUpdateAiLibraryCrawlerArgs = {
   credentials?: InputMaybe<AiLibraryCrawlerCredentialsInput>
   data: AiLibraryCrawlerInput
   id: Scalars['String']['input']
+}
+
+export type MutationUpdateAiServiceProviderArgs = {
+  data: AiServiceProviderInput
+  id: Scalars['ID']['input']
 }
 
 export type MutationUpdateAssessmentQuestionArgs = {
@@ -1695,6 +1742,8 @@ export type Query = {
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
   aiModelUsageStats?: Maybe<ModelUsageStats>
+  aiServiceProvider?: Maybe<AiServiceProvider>
+  aiServiceProviders: Array<AiServiceProvider>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
   apiKeys: Array<ApiKey>
@@ -1852,6 +1901,14 @@ export type QueryAiModelUsageStatsArgs = {
   startDate?: InputMaybe<Scalars['DateTime']['input']>
   usageType?: InputMaybe<Scalars['String']['input']>
   userId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiServiceProviderArgs = {
+  id: Scalars['ID']['input']
+}
+
+export type QueryAiServiceProvidersArgs = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type QueryAiSimilarFileChunksArgs = {
@@ -2027,6 +2084,28 @@ export type UserStatistic = {
   total: Scalars['Int']['output']
   unactivated: Scalars['Int']['output']
   unconfirmed: Scalars['Int']['output']
+}
+
+export type Workspace = {
+  __typename?: 'Workspace'
+  assistants: Array<AiAssistant>
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  libraries: Array<AiLibrary>
+  lists: Array<AiList>
+  members: Array<WorkspaceMember>
+  name: Scalars['String']['output']
+  slug: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
+}
+
+export type WorkspaceMember = {
+  __typename?: 'WorkspaceMember'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  role: Scalars['String']['output']
+  user: User
+  workspace: Workspace
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */

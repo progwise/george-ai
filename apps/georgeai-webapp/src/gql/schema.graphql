@@ -760,6 +760,30 @@ type AiServiceInstance {
   version: String!
 }
 
+type AiServiceProvider {
+  baseUrl: String
+  createdAt: DateTime!
+  createdBy: String
+  enabled: Boolean!
+  id: ID!
+  name: String!
+  provider: String!
+  updatedAt: DateTime!
+  updatedBy: String
+  vramGb: Int
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+input AiServiceProviderInput {
+  apiKey: String
+  baseUrl: String
+  enabled: Boolean
+  name: String!
+  provider: String!
+  vramGb: Int
+}
+
 type ApiKey {
   createdAt: DateTime!
   id: ID!
@@ -1146,6 +1170,7 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler!
+  createAiServiceProvider(data: AiServiceProviderInput!): AiServiceProvider!
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   createEmbeddingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
@@ -1172,6 +1197,7 @@ type Mutation {
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
+  deleteAiServiceProvider(id: ID!): Boolean!
   deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFile(fileId: String!): AiLibraryFile!
   deleteLibraryFiles(fileIds: [ID!]!): Int!
@@ -1223,6 +1249,7 @@ type Mutation {
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels: SyncModelsResult
   toggleAdminStatus(userId: String!): User
+  toggleAiServiceProvider(enabled: Boolean!, id: ID!): AiServiceProvider!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
@@ -1231,6 +1258,7 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     id: String!
   ): AiLibraryCrawler!
+  updateAiServiceProvider(data: AiServiceProviderInput!, id: ID!): AiServiceProvider!
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
   updateLibraryParticipants(libraryId: String!, userIds: [String!]!): UpdateLibraryParticipantsResult!
@@ -1357,6 +1385,8 @@ type Query {
     usageType: String
     userId: String
   ): ModelUsageStats
+  aiServiceProvider(id: ID!): AiServiceProvider
+  aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   apiKeys(libraryId: String!): [ApiKey!]!
@@ -1498,4 +1528,24 @@ type UserStatistic {
   total: Int!
   unactivated: Int!
   unconfirmed: Int!
+}
+
+type Workspace {
+  assistants: [AiAssistant!]!
+  createdAt: DateTime!
+  id: ID!
+  libraries: [AiLibrary!]!
+  lists: [AiList!]!
+  members: [WorkspaceMember!]!
+  name: String!
+  slug: String!
+  updatedAt: DateTime!
+}
+
+type WorkspaceMember {
+  createdAt: DateTime!
+  id: ID!
+  role: String!
+  user: User!
+  workspace: Workspace!
 }

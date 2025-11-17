@@ -2,6 +2,7 @@ import { builder } from './graphql/builder'
 
 import './domain/crawler/cron-jobs'
 import './graphql/ai-service'
+import './graphql/ai-service-provider'
 import './graphql/ai-act-assessment'
 import './graphql/queue-management'
 import './graphql/ai-assistant'
@@ -26,6 +27,7 @@ import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
 import './graphql/version'
+import './graphql/workspace'
 
 const schema = builder.toSchema()
 
