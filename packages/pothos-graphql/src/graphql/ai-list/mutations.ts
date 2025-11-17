@@ -18,9 +18,6 @@ builder.mutationField('createList', (t) =>
       data: t.arg({ type: AiListInput, required: true }),
     },
     resolve: async (query, _source, { data }, context) => {
-      if (!context.workspaceId) {
-        throw new Error('No workspace context')
-      }
       const existingList = await prisma.aiList.findFirst({
         where: { ownerId: context.session.user.id, name: data.name, workspaceId: context.workspaceId },
       })

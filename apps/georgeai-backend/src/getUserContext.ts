@@ -32,6 +32,11 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
       // Get workspace membership (single efficient query with fallback)
       const membership = await getWorkspaceMembership(userInformation.id, requestedWorkspaceId)
 
+      if (!membership) {
+        // User requested a workspace they don't have access to - reject authentication
+        return { session: null }
+      }
+
       return {
         session: {
           user: {
@@ -43,8 +48,8 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
           userProfile: userInformation.profile ?? undefined,
         },
         jwt: jwtToken,
-        workspaceId: membership?.workspaceId,
-        workspaceRole: membership?.role,
+        workspaceId: membership.workspaceId,
+        workspaceRole: membership.role,
       }
     }
   }

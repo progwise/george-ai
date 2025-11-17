@@ -54,9 +54,6 @@ builder.mutationField('createAiAssistant', (t) =>
     },
     resolve: async (query, _source, { name }, context) => {
       const userId = context.session.user.id
-      if (!context.workspaceId) {
-        throw new Error('No workspace context')
-      }
       return prisma.aiAssistant.create({
         ...query,
         data: {

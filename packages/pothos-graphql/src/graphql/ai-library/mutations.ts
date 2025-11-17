@@ -63,9 +63,6 @@ builder.mutationField('createLibrary', (t) =>
     },
     resolve: (query, _source, { data }, context) => {
       const userId = context.session.user.id
-      if (!context.workspaceId) {
-        throw new Error('No workspace context')
-      }
 
       // Validate fileConverterOptions if provided
       const { embeddingModelId, ocrModelId, ...restData } = data
