@@ -109,7 +109,9 @@ builder.mutationField('updateAiServiceProvider', (t) =>
         })
 
         if (duplicate) {
-          throw new GraphQLError(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
+          throw new GraphQLError(
+            `Provider '${data.provider}' with name '${data.name}' already exists in this workspace`,
+          )
         }
       }
 

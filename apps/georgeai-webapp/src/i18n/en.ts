@@ -170,7 +170,7 @@ export default {
       apiKeyOpenAI: 'Required - Your OpenAI API key',
       apiKeyOllama: 'Optional - Only needed if Ollama requires authentication',
       enableProvider: 'Enable this provider',
-      enableProviderHelp: 'Disabled providers won\'t be used for AI operations',
+      enableProviderHelp: "Disabled providers won't be used for AI operations",
       cancel: 'Cancel',
       updating: 'Updating...',
       creating: 'Creating...',

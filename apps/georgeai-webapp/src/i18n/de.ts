@@ -178,7 +178,8 @@ export default {
       updateProvider: 'Anbieter aktualisieren',
       createProvider: 'Anbieter erstellen',
       deleteProviderTitle: 'Anbieter löschen?',
-      deleteProviderConfirmation: 'Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie diesen Anbieter wirklich löschen?',
+      deleteProviderConfirmation:
+        'Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie diesen Anbieter wirklich löschen?',
     },
   },
   aiAct: {

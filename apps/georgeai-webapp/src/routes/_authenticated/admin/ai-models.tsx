@@ -284,9 +284,7 @@ function AiModelsPage() {
                       </div>
                       <div className="flex items-baseline gap-3">
                         <div>
-                          <p className="text-2xl font-bold">
-                            {ollamaData.enabledCount + ollamaData.disabledCount}
-                          </p>
+                          <p className="text-2xl font-bold">{ollamaData.enabledCount + ollamaData.disabledCount}</p>
                           <p className="text-xs opacity-50">Total</p>
                         </div>
                         <div>

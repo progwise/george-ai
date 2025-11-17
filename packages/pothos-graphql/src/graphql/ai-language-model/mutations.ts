@@ -28,7 +28,7 @@ async function discoverModels(): Promise<DiscoveredModel[]> {
   })
 
   // Deduplicate providers by type + baseUrl (same instance might be used by multiple workspaces)
-  const uniqueProviders = new Map<string, typeof providers[0]>()
+  const uniqueProviders = new Map<string, (typeof providers)[0]>()
   for (const provider of providers) {
     const key = `${provider.provider}:${provider.baseUrl || 'default'}`
     if (!uniqueProviders.has(key)) {

@@ -1,5 +1,5 @@
-import { builder } from '../builder'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 // Generic AI model information
 const AiModelInfo = builder.simpleObject('AiModelInfo', {
