@@ -1,9 +1,8 @@
 import { builder } from '../builder'
 
-import './mutations'
-import './queries'
-
-console.log('Setting up: Workspace')
+// TODO: Implement in Phase 2
+// import './mutations'
+// import './queries'
 
 builder.prismaObject('Workspace', {
   name: 'Workspace',

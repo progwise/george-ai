@@ -1,4 +1,9 @@
-import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../domain'
+import {
+  SYSTEM_WORKSPACE_ID,
+  extractAvatarFromToken,
+  getPreferredAvatarUrl,
+  shouldUpdateAvatarFromProvider,
+} from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -165,12 +170,12 @@ builder.mutationField('login', (t) =>
           avatarUrl: preferredAvatarUrlForNew,
           defaultWorkspace: {
             connect: {
-              id: '00000000-0000-0000-0000-000000000001', // System workspace
+              id: SYSTEM_WORKSPACE_ID,
             },
           },
           workspaceMemberships: {
             create: {
-              workspaceId: '00000000-0000-0000-0000-000000000001', // System workspace
+              workspaceId: SYSTEM_WORKSPACE_ID,
               role: 'owner',
             },
           },

@@ -11,7 +11,6 @@ export interface WorkspaceMembershipInfo {
  *
  * @param userId - The user's ID
  * @param requestedWorkspaceId - Optional workspace ID from request header
- * @param fallbackWorkspaceId - User's default workspace ID
  * @returns Workspace membership info or undefined if not a member
  */
 export async function getWorkspaceMembership(userId: string, requestedWorkspaceId?: string | null) {
@@ -30,23 +29,23 @@ export async function getWorkspaceMembership(userId: string, requestedWorkspaceI
       role: defaultWorkspace.defaultWorkspace.members[0]?.role ?? 'member',
     }
   }
-  // Try requested workspace first
-  if (requestedWorkspaceId) {
-    const membership = await prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: requestedWorkspaceId,
-          userId,
-        },
-      },
-    })
 
-    if (membership) {
-      return {
+  // Check requested workspace membership
+  const membership = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
         workspaceId: requestedWorkspaceId,
-        role: membership.role,
-      }
+        userId,
+      },
+    },
+  })
+
+  if (membership) {
+    return {
+      workspaceId: requestedWorkspaceId,
+      role: membership.role,
     }
   }
+
   return
 }

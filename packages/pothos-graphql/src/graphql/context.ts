@@ -21,7 +21,8 @@ export interface Context {
 }
 
 export interface LoggedInContext extends Context {
-  session: { user: AuthUser; userProfile?: UserProfile; jwt: string }
+  session: { user: AuthUser; userProfile?: UserProfile }
+  jwt: string
   workspaceId: string
   workspaceRole: string
 }
