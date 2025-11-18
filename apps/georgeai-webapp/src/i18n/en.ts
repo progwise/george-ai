@@ -972,5 +972,6 @@ export default {
   },
   workspace: {
     selectWorkspace: 'Select Workspace',
+    switcherLabel: 'Switch workspace',
   },
 }

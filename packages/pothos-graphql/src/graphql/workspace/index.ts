@@ -1,5 +1,6 @@
 import { builder } from '../builder'
 
+import './mutations'
 import './queries'
 
 console.log('Setting up: Workspace')

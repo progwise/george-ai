@@ -15,6 +15,8 @@ import 'dotenv/config'
  */
 export default defineConfig({
   testDir: './src',
+  /* Global setup - runs once before all tests */
+  globalSetup: './src/global-setup.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

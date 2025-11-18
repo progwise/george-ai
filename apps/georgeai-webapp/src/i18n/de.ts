@@ -985,5 +985,6 @@ export default {
   },
   workspace: {
     selectWorkspace: 'Arbeitsbereich auswählen',
+    switcherLabel: 'Arbeitsbereich wechseln',
   },
 }

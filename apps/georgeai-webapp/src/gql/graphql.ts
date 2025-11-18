@@ -1228,6 +1228,7 @@ export type Mutation = {
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
   createMissingContentExtractionTasks: Array<AiContentProcessingTask>
+  createWorkspace: Workspace
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
@@ -1420,6 +1421,11 @@ export type MutationCreateListArgs = {
 
 export type MutationCreateMissingContentExtractionTasksArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type MutationCreateWorkspaceArgs = {
+  name: Scalars['String']['input']
+  slug: Scalars['String']['input']
 }
 
 export type MutationDeleteAiAssistantArgs = {

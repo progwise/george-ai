@@ -1195,6 +1195,7 @@ type Mutation {
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
   createMissingContentExtractionTasks(libraryId: String!): [AiContentProcessingTask!]!
+  createWorkspace(name: String!, slug: String!): Workspace!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!

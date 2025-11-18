@@ -28,7 +28,12 @@ export const WorkspaceSwitcher = () => {
 
   return (
     <div className="dropdown dropdown-end">
-      <div tabIndex={0} role="button" className="btn btn-ghost btn-sm gap-1 text-sm font-normal normal-case">
+      <div
+        tabIndex={0}
+        role="button"
+        aria-label={t('workspace.switcherLabel')}
+        className="btn btn-ghost btn-sm gap-1 text-sm font-normal normal-case"
+      >
         <span className="max-w-32 truncate">{currentWorkspace?.name ?? t('workspace.selectWorkspace')}</span>
         <ChevronDownIcon className="size-4" />
       </div>
