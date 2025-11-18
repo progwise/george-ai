@@ -8,6 +8,7 @@ import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ScrollObserver } from './scroll-observer'
 import { SettingsDropdown } from './settings-dropdown'
+import { WorkspaceSwitcher } from './workspace-switcher'
 
 interface TopNavigationLinkProps {
   to: keyof FileRoutesByTo
@@ -76,7 +77,8 @@ export default function TopNavigation({ user }: TopNavigationProps) {
               </li>
             </ul>
           </div>
-          <div className="navbar-end">
+          <div className="navbar-end flex gap-2">
+            {user && <WorkspaceSwitcher />}
             <SettingsDropdown user={user} />
           </div>
         </nav>

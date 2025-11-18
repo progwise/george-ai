@@ -269,6 +269,7 @@ type AiEnrichmentTaskProcessingDataInput {
   fileId: String!
   fileName: String!
   libraryEmbeddingModel: String
+  libraryEmbeddingModelProvider: String
   libraryId: String!
   libraryName: String!
   useVectorStore: Boolean!
@@ -1401,6 +1402,8 @@ type Query {
   userProfile: UserProfile!
   users: [User!]!
   version: String
+  workspace(id: ID!): Workspace
+  workspaces: [Workspace!]!
 }
 
 type QueueOperationResult {

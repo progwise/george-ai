@@ -293,6 +293,7 @@ export type AiEnrichmentTaskProcessingDataInput = {
   fileId: Scalars['String']['output']
   fileName: Scalars['String']['output']
   libraryEmbeddingModel?: Maybe<Scalars['String']['output']>
+  libraryEmbeddingModelProvider?: Maybe<Scalars['String']['output']>
   libraryId: Scalars['String']['output']
   libraryName: Scalars['String']['output']
   useVectorStore: Scalars['Boolean']['output']
@@ -1762,6 +1763,8 @@ export type Query = {
   userProfile: UserProfile
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
+  workspace?: Maybe<Workspace>
+  workspaces: Array<Workspace>
 }
 
 export type QueryAiActAssessmentArgs = {
@@ -1949,6 +1952,10 @@ export type QueryQueryAiLibraryFilesArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
+}
+
+export type QueryWorkspaceArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type QueueOperationResult = {
@@ -5620,6 +5627,20 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWorkspacesQuery = {
+  __typename?: 'Query'
+  workspaces: Array<{
+    __typename?: 'Workspace'
+    id: string
+    name: string
+    slug: string
+    createdAt: string
+    updatedAt: string
+  }>
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -18942,6 +18963,35 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetWorkspacesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaces' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaces' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [
