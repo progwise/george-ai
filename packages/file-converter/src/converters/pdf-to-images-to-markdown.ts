@@ -1,4 +1,4 @@
-import { chat, type ServiceProviderType } from '@george-ai/ai-service-client'
+import { type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 
 import { transformPdfToImages } from './pdf-to-images.js'
 import { ConverterResult } from './types.js'

@@ -23,10 +23,7 @@ class ProviderCache {
    * @param loader - Function that fetches providers for a workspace from the database
    * @param options - Cache configuration options
    */
-  initialize(
-    loader: (workspaceId: string) => Promise<ServiceProviderConfig[]>,
-    options?: CacheOptions,
-  ): void {
+  initialize(loader: (workspaceId: string) => Promise<ServiceProviderConfig[]>, options?: CacheOptions): void {
     this.loader = loader
     if (options?.ttl !== undefined) {
       this.ttl = options.ttl
@@ -34,9 +31,7 @@ class ProviderCache {
     if (options?.maxSize !== undefined) {
       this.maxSize = options.maxSize
     }
-    console.log(
-      `Provider cache initialized with TTL=${this.ttl}ms, maxSize=${this.maxSize}`,
-    )
+    console.log(`Provider cache initialized with TTL=${this.ttl}ms, maxSize=${this.maxSize}`)
   }
 
   /**
@@ -44,9 +39,7 @@ class ProviderCache {
    */
   async getProviders(workspaceId: string): Promise<ServiceProviderConfig[]> {
     if (!this.loader) {
-      throw new Error(
-        'Provider cache not initialized. Call initializeProviderCache() on startup.',
-      )
+      throw new Error('Provider cache not initialized. Call initializeProviderCache() on startup.')
     }
 
     // Check cache

@@ -1,4 +1,4 @@
-import { Message, chat, type ServiceProviderType } from '@george-ai/ai-service-client'
+import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
@@ -85,7 +85,11 @@ async function processQueueItem({
       )
 
       if (metadata.input.useVectorStore) {
-        if (!metadata.input.contentQuery || !metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
+        if (
+          !metadata.input.contentQuery ||
+          !metadata.input.libraryEmbeddingModel ||
+          !metadata.input.libraryEmbeddingModelProvider
+        ) {
           throw new Error(
             `Content query, library embedding model, and provider are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
           )

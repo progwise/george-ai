@@ -3,11 +3,7 @@ import { openAIChat } from './openAi'
 import { providerCache } from './provider-cache'
 import { ChatOptions, ServiceProviderType } from './types'
 
-export const chat = async (
-  workspaceId: string,
-  modelProvider: ServiceProviderType,
-  chatOptions: ChatOptions,
-) => {
+export const chat = async (workspaceId: string, modelProvider: ServiceProviderType, chatOptions: ChatOptions) => {
   // Get workspace providers from cache (with auto-refresh)
   const allProviders = await providerCache.getProviders(workspaceId)
 

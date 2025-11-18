@@ -1,4 +1,4 @@
-import { getEmbedding, type ServiceProviderType } from '@george-ai/ai-service-client'
+import { type ServiceProviderType, getEmbedding } from '@george-ai/ai-service-client'
 
 interface EmbeddingsCacheEntry {
   embeddingModelName: string

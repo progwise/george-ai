@@ -4,7 +4,7 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { getEmbedding, type ServiceProviderType } from '@george-ai/ai-service-client'
+import { type ServiceProviderType, getEmbedding } from '@george-ai/ai-service-client'
 
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
