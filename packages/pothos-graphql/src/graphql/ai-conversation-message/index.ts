@@ -6,6 +6,16 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiConversationMessage')
 
+export const AiConversationFeedback = builder.prismaObject('AiConversationFeedback', {
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    feedback: t.exposeString('feedback', { nullable: false }),
+    feedbackSuggestion: t.exposeString('feedbackSuggestion', { nullable: true }),
+    feedbackUserId: t.exposeString('feedbackUserId', { nullable: true }),
+    answerMessage: t.relation('answerMessage'),
+  }),
+})
+
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -22,6 +32,9 @@ builder.prismaObject('AiConversationMessage', {
     hidden: t.exposeBoolean('hidden', { nullable: true }),
     sender: t.relation('sender', { nullable: false }),
     conversation: t.relation('conversation'),
+    feedback: t.relation('feedback', {
+      nullable: true,
+    }),
   }),
 })
 

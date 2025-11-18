@@ -39,6 +39,10 @@ model User {
   modelUsageLogs             AiModelUsage[]
   apiKeys                    ApiKey[]
   profile                    UserProfile?
+
+  answerUserAiConversationFeedback AiConversationFeedback[] @relation("feedbackAnswerUser")
+
+  feedbackProviderAiConversationFeedback AiConversationFeedback[] @relation("feedbackProviderUser")
 }
 
 model UserProfile {
@@ -77,6 +81,7 @@ model AiAssistant {
   conversationParticipations AiConversationParticipant[]
   usages                     AiLibraryUsage[]
   modelUsageLogs             AiModelUsage[]
+  conversationFeedback       AiConversationFeedback[]
 }
 
 model AiAssistantBaseCase {
@@ -432,6 +437,24 @@ model AiConversation {
   participants            AiConversationParticipant[]
 }
 
+model AiConversationFeedback {
+  id                 String                 @id @default(cuid())
+  createdAt          DateTime               @default(now())
+  originalContext    String
+  originalAnswer     String
+  feedback           String
+  languageModelName  String?
+  answerMessageId    String?                @unique
+  answerAssistantId  String?
+  answerUserId       String?
+  feedbackSuggestion String?
+  feedbackUserId     String?
+  answerMessage      AiConversationMessage? @relation(fields: [answerMessageId], references: [id])
+  answerAssistant    AiAssistant?           @relation(fields: [answerAssistantId], references: [id])
+  answerUser         User?                  @relation("feedbackAnswerUser", fields: [answerUserId], references: [id])
+  feedBackUser       User?                  @relation("feedbackProviderUser", fields: [feedbackUserId], references: [id])
+}
+
 model AiConversationParticipant {
   id                  String                  @id @default(cuid())
   createdAt           DateTime                @default(now())
@@ -456,6 +479,7 @@ model AiConversationMessage {
   hidden         Boolean                   @default(false)
   conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  feedback       AiConversationFeedback[]
 }
 
 model AiConversationInvitation {

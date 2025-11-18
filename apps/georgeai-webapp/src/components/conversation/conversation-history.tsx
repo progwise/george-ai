@@ -28,14 +28,22 @@ graphql(`
         ... on HumanParticipant {
           user {
             avatarUrl
+            id
           }
         }
         ... on AssistantParticipant {
           assistant {
             iconUrl
             updatedAt
+            languageModel
           }
         }
+      }
+      feedback {
+        id
+        feedback
+        feedbackUserId
+        feedbackSuggestion
       }
     }
   }
@@ -125,22 +133,45 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
       </div>
     )
   }
+
+  const getMessageContext = (currentSequenceNum: string) => {
+    if (!currentSequenceNum) return ''
+
+    let conversationHistory: string = ''
+
+    for (let i = 0; i <= messages.length; i++) {
+      const message = messages[i]
+
+      if (message.sequenceNumber && (message.sequenceNumber as string) === currentSequenceNum) break
+      if (i !== 0) conversationHistory += '; '
+      conversationHistory += message.content
+    }
+    return conversationHistory
+  }
+
   return (
     <div className="mt-2 flex grow flex-col gap-2">
       {messages.map((message) => {
+        const messageFeedbackIndex = message.feedback?.map((feedback) => feedback.feedbackUserId).indexOf(userId) ?? -1
+        const messageFeedback =
+          message.feedback && messageFeedbackIndex >= 0 ? message.feedback[messageFeedbackIndex] : undefined
         return (
           <ConversationMessage
             key={message.id}
             isLoading={false}
             userId={userId}
             conversationOwnerId={conversation.ownerId}
+            isFirstMessage={messages.map((m) => m.id).indexOf(message.id) === 0}
+            messageContext={getMessageContext(message.sequenceNumber)}
             message={{
               id: message.id,
+              sequenceNumber: message.sequenceNumber,
               content: message.content || '',
               source: message.source,
               createdAt: message.createdAt,
               conversationId: selectedConversationId,
               hidden: message.hidden ?? false,
+              feedback: messageFeedback,
               sender: message.sender.isBot
                 ? {
                     id: message.sender.id,
@@ -152,6 +183,7 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
                         ? {
                             iconUrl: message.sender.assistant.iconUrl,
                             updatedAt: message.sender.assistant.updatedAt || undefined,
+                            languageModel: message.sender.assistant.languageModel || undefined,
                           }
                         : undefined,
                   }
@@ -164,6 +196,7 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
                       message.sender.__typename === 'HumanParticipant' && message.sender.user
                         ? {
                             avatarUrl: message.sender.user.avatarUrl,
+                            id: message.sender.user.id,
                           }
                         : undefined,
                   },
@@ -177,8 +210,10 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
           isLoading={true}
           userId={userId}
           conversationOwnerId={conversation.ownerId}
+          isFirstMessage={messages.map((m) => m.id).indexOf(message.id) === 0}
           message={{
             id: message.id,
+            sequenceNumber: message.sequenceNumber,
             content: message.content,
             source: message.source,
             createdAt: message.createdAt,
@@ -205,6 +240,7 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
                   user: message.sender.avatarUrl
                     ? {
                         avatarUrl: message.sender.avatarUrl,
+                        id: message.sender.userId,
                       }
                     : undefined,
                 },
