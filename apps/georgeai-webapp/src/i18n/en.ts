@@ -970,4 +970,7 @@ export default {
     omitted: 'Omitted',
     skipped: 'Skipped',
   },
+  workspace: {
+    selectWorkspace: 'Select Workspace',
+  },
 }

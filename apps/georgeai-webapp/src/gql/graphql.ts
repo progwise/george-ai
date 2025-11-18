@@ -2061,6 +2061,7 @@ export type User = {
   __typename?: 'User'
   avatarUrl?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
+  defaultWorkspaceId: Scalars['ID']['output']
   email: Scalars['String']['output']
   family_name?: Maybe<Scalars['String']['output']>
   given_name?: Maybe<Scalars['String']['output']>
@@ -2345,6 +2346,7 @@ export type LoginMutation = {
     avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
+    defaultWorkspaceId: string
   }
 }
 
@@ -10782,6 +10784,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
               ],
             },
           },

@@ -983,4 +983,7 @@ export default {
     omitted: 'Ausgelassen',
     skipped: 'Übersprungen',
   },
+  workspace: {
+    selectWorkspace: 'Arbeitsbereich auswählen',
+  },
 }

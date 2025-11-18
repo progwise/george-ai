@@ -22,6 +22,7 @@ builder.prismaObject('User', {
     family_name: t.exposeString('family_name', { nullable: true }),
     avatarUrl: t.exposeString('avatarUrl', { nullable: true }),
     isAdmin: t.exposeBoolean('isAdmin', { nullable: false }),
+    defaultWorkspaceId: t.exposeID('defaultWorkspaceId', { nullable: false }),
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),

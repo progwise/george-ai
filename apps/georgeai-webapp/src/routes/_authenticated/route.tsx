@@ -12,8 +12,10 @@ export const Route = createFileRoute('/_authenticated')({
       })
     }
 
-    // Get current workspace ID from cookie (not GraphQL - just reading the cookie)
-    const workspaceId = await getCurrentWorkspaceCookie()
+    // Get workspace ID from cookie, fallback to user's default workspace
+    const workspaceId = await getCurrentWorkspaceCookie({
+      data: { userDefaultWorkspaceId: context.user.defaultWorkspaceId },
+    })
 
     // make user in router context non nullable and add workspaceId
     return { user: context.user, workspaceId }

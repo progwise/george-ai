@@ -1497,6 +1497,7 @@ type UpdateStats {
 type User {
   avatarUrl: String
   createdAt: DateTime!
+  defaultWorkspaceId: ID!
   email: String!
   family_name: String
   given_name: String

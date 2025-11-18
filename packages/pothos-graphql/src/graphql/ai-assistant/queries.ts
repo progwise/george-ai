@@ -40,6 +40,7 @@ builder.queryField('aiAssistants', (t) =>
       return prisma.aiAssistant.findMany({
         ...query,
         where: {
+          workspaceId: context.workspaceId,
           OR: [{ ownerId: context.session.user.id }, { participants: { some: { userId: context.session.user.id } } }],
         },
       })

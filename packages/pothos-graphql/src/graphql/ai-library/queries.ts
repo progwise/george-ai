@@ -33,6 +33,7 @@ builder.queryField('aiLibraries', (t) =>
     },
     resolve: (query, _source, args, context) => {
       const user = context.session.user
+      const workspaceId = context.workspaceId
       const orderBy = args.orderBy || 'updatedAtDesc'
       const orderByClause =
         orderBy === 'nameAsc'
@@ -50,6 +51,7 @@ builder.queryField('aiLibraries', (t) =>
       return prisma.aiLibrary.findMany({
         ...query,
         where: {
+          workspaceId,
           OR: [
             { ownerId: user.id },
             {

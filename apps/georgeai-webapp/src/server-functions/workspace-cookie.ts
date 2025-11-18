@@ -14,8 +14,13 @@ export const setWorkspaceCookie = createServerFn({ method: 'POST' })
     }
   })
 
-export const getCurrentWorkspaceCookie = createServerFn({ method: 'GET' }).handler(() => {
-  const cookieValue = getCookie(WORKSPACE_COOKIE_NAME)
-  if (!cookieValue) return '00000000-0000-0000-0000-000000000001' //TODO default workspace id together with pothos-graphql package
-  return cookieValue
-})
+export const getCurrentWorkspaceCookie = createServerFn({ method: 'GET' })
+  .inputValidator((input?: { userDefaultWorkspaceId?: string }) => input ?? {})
+  .handler(({ data }) => {
+    const cookieValue = getCookie(WORKSPACE_COOKIE_NAME)
+    if (!cookieValue) {
+      // Fallback to user's default workspace or System workspace
+      return data.userDefaultWorkspaceId ?? '00000000-0000-0000-0000-000000000001'
+    }
+    return cookieValue
+  })
