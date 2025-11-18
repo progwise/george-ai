@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+## [2025-11-18]
+
+### Added
+
+- Feedback system in conversation enables users to evaluate messages as positive or negative and to leave an alternative answer suggestion
+
 ## [2025-01-16]
 
 ### Added

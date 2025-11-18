@@ -35,6 +35,7 @@ graphql(`
       assistantId
       ... on HumanParticipant {
         user {
+          id
           avatarUrl
           username
         }
@@ -43,6 +44,7 @@ graphql(`
         assistant {
           iconUrl
           updatedAt
+          languageModel
         }
       }
     }

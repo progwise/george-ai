@@ -18,6 +18,9 @@ import {
   AiListSortingDirection,
   AiListSortingInput,
   AiListSourceInput,
+  ConversationFeedbackCreateInput,
+  ConversationFeedbackSuggestionInput,
+  ConversationFeedbackUpdateInput,
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
@@ -211,6 +214,34 @@ export function AiListSortingInputSchema(): z.ZodObject<Properties<AiListSorting
 export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
   return z.object({
     libraryId: z.string(),
+  })
+}
+
+export function ConversationFeedbackCreateInputSchema(): z.ZodObject<Properties<ConversationFeedbackCreateInput>> {
+  return z.object({
+    answerAssistantId: z.string().nullish(),
+    answerMessageId: z.string(),
+    answerUserId: z.string().nullish(),
+    feedback: z.string(),
+    feedbackSuggestion: z.string().nullish(),
+    languageModel: z.string().nullish(),
+    originalAnswer: z.string(),
+    originalContext: z.string(),
+  })
+}
+
+export function ConversationFeedbackSuggestionInputSchema(): z.ZodObject<
+  Properties<ConversationFeedbackSuggestionInput>
+> {
+  return z.object({
+    feedbackSuggestion: z.string().nullish(),
+  })
+}
+
+export function ConversationFeedbackUpdateInputSchema(): z.ZodObject<Properties<ConversationFeedbackUpdateInput>> {
+  return z.object({
+    feedback: z.string(),
+    feedbackSuggestion: z.string().nullish(),
   })
 }
 

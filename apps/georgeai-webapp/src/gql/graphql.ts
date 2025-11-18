@@ -222,12 +222,22 @@ export type AiConversationCreateInput = {
   userIds: Array<Scalars['String']['input']>
 }
 
+export type AiConversationFeedback = {
+  __typename?: 'AiConversationFeedback'
+  answerMessage?: Maybe<AiConversationMessage>
+  feedback: Scalars['String']['output']
+  feedbackSuggestion?: Maybe<Scalars['String']['output']>
+  feedbackUserId?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+}
+
 export type AiConversationMessage = {
   __typename?: 'AiConversationMessage'
   content?: Maybe<Scalars['String']['output']>
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   createdAt: Scalars['DateTime']['output']
+  feedback?: Maybe<Array<AiConversationFeedback>>
   hidden?: Maybe<Scalars['Boolean']['output']>
   id: Scalars['ID']['output']
   sender: AiConversationParticipant
@@ -893,6 +903,26 @@ export type ContentQueryResult = {
   listName: Scalars['String']['output']
 }
 
+export type ConversationFeedbackCreateInput = {
+  answerAssistantId?: InputMaybe<Scalars['String']['input']>
+  answerMessageId: Scalars['String']['input']
+  answerUserId?: InputMaybe<Scalars['String']['input']>
+  feedback: Scalars['String']['input']
+  feedbackSuggestion?: InputMaybe<Scalars['String']['input']>
+  languageModel?: InputMaybe<Scalars['String']['input']>
+  originalAnswer: Scalars['String']['input']
+  originalContext: Scalars['String']['input']
+}
+
+export type ConversationFeedbackSuggestionInput = {
+  feedbackSuggestion?: InputMaybe<Scalars['String']['input']>
+}
+
+export type ConversationFeedbackUpdateInput = {
+  feedback: Scalars['String']['input']
+  feedbackSuggestion?: InputMaybe<Scalars['String']['input']>
+}
+
 export type ConversationInvitationInput = {
   allowDifferentEmailAddress: Scalars['Boolean']['input']
   allowMultipleParticipants: Scalars['Boolean']['input']
@@ -1183,6 +1213,7 @@ export type Mutation = {
   cancelContentProcessingTasks: QueueOperationResult
   cancelFileUpload: Scalars['Boolean']['output']
   cancelProcessingTask: AiContentProcessingTask
+  changeConversationFeedbackSuggestion?: Maybe<AiConversationFeedback>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   clearFailedTasks: QueueOperationResult
   clearListEnrichments: EnrichmentQueueTasksMutationResult
@@ -1194,6 +1225,7 @@ export type Mutation = {
   createAiConversation?: Maybe<AiConversation>
   createAiLibraryCrawler: AiLibraryCrawler
   createContentProcessingTask: AiContentProcessingTask
+  createConversationFeedback?: Maybe<AiConversationFeedback>
   createConversationInvitations?: Maybe<AiConversation>
   createEmbeddingTask: AiContentProcessingTask
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
@@ -1204,6 +1236,7 @@ export type Mutation = {
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteConversationFeedback?: Maybe<AiConversationFeedback>
   deleteLibrary: AiLibrary
   deleteLibraryFile: AiLibraryFile
   deleteLibraryFiles: Scalars['Int']['output']
@@ -1247,6 +1280,7 @@ export type Mutation = {
   updateAiLanguageModel?: Maybe<AiLanguageModel>
   updateAiLibraryCrawler: AiLibraryCrawler
   updateAssessmentQuestion: Scalars['DateTime']['output']
+  updateConversationFeedback?: Maybe<AiConversationFeedback>
   updateLibrary: AiLibrary
   updateLibraryParticipants: UpdateLibraryParticipantsResult
   updateLibraryUsage?: Maybe<AiLibraryUsage>
@@ -1303,6 +1337,11 @@ export type MutationCancelProcessingTaskArgs = {
   taskId: Scalars['String']['input']
 }
 
+export type MutationChangeConversationFeedbackSuggestionArgs = {
+  data: ConversationFeedbackSuggestionInput
+  id: Scalars['String']['input']
+}
+
 export type MutationClearEmbeddedFilesArgs = {
   libraryId: Scalars['String']['input']
 }
@@ -1355,6 +1394,10 @@ export type MutationCreateContentProcessingTaskArgs = {
   fileId: Scalars['String']['input']
 }
 
+export type MutationCreateConversationFeedbackArgs = {
+  data: ConversationFeedbackCreateInput
+}
+
 export type MutationCreateConversationInvitationsArgs = {
   conversationId: Scalars['String']['input']
   data: Array<ConversationInvitationInput>
@@ -1398,6 +1441,10 @@ export type MutationDeleteAiConversationsArgs = {
 }
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
+  id: Scalars['String']['input']
+}
+
+export type MutationDeleteConversationFeedbackArgs = {
   id: Scalars['String']['input']
 }
 
@@ -1576,6 +1623,11 @@ export type MutationUpdateAssessmentQuestionArgs = {
   notes?: InputMaybe<Scalars['String']['input']>
   questionId: Scalars['String']['input']
   value?: InputMaybe<Scalars['String']['input']>
+}
+
+export type MutationUpdateConversationFeedbackArgs = {
+  data: ConversationFeedbackUpdateInput
+  id: Scalars['String']['input']
 }
 
 export type MutationUpdateLibraryArgs = {
@@ -2979,7 +3031,12 @@ export type ConversationHistory_ConversationFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+          assistant?: {
+            __typename?: 'AiAssistant'
+            iconUrl?: string | null
+            updatedAt?: string | null
+            languageModel?: string | null
+          } | null
         }
       | {
           __typename: 'HumanParticipant'
@@ -2987,8 +3044,15 @@ export type ConversationHistory_ConversationFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null; id: string } | null
         }
+    feedback?: Array<{
+      __typename?: 'AiConversationFeedback'
+      id: string
+      feedback: string
+      feedbackUserId?: string | null
+      feedbackSuggestion?: string | null
+    }> | null
   }>
 }
 
@@ -3017,6 +3081,44 @@ export type DeleteMessageMutationVariables = Exact<{
 export type DeleteMessageMutation = {
   __typename?: 'Mutation'
   deleteMessage?: { __typename?: 'AiConversationMessage'; id: string } | null
+}
+
+export type CreateConversationFeedbackMutationVariables = Exact<{
+  data: ConversationFeedbackCreateInput
+}>
+
+export type CreateConversationFeedbackMutation = {
+  __typename?: 'Mutation'
+  createConversationFeedback?: { __typename?: 'AiConversationFeedback'; id: string } | null
+}
+
+export type UpdateConversationFeedbackMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: ConversationFeedbackUpdateInput
+}>
+
+export type UpdateConversationFeedbackMutation = {
+  __typename?: 'Mutation'
+  updateConversationFeedback?: { __typename?: 'AiConversationFeedback'; id: string } | null
+}
+
+export type DeleteConversationFeedbackMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteConversationFeedbackMutation = {
+  __typename?: 'Mutation'
+  deleteConversationFeedback?: { __typename?: 'AiConversationFeedback'; id: string } | null
+}
+
+export type ChangeConversationFeedbackSuggestionMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: ConversationFeedbackSuggestionInput
+}>
+
+export type ChangeConversationFeedbackSuggestionMutation = {
+  __typename?: 'Mutation'
+  changeConversationFeedbackSuggestion?: { __typename?: 'AiConversationFeedback'; id: string } | null
 }
 
 export type ConversationParticipantsDialogButton_ConversationFragment = {
@@ -3050,7 +3152,12 @@ export type ConversationParticipants_ConversationFragment = {
         name?: string | null
         userId?: string | null
         assistantId?: string | null
-        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+        assistant?: {
+          __typename?: 'AiAssistant'
+          iconUrl?: string | null
+          updatedAt?: string | null
+          languageModel?: string | null
+        } | null
       }
     | {
         __typename: 'HumanParticipant'
@@ -3058,7 +3165,7 @@ export type ConversationParticipants_ConversationFragment = {
         name?: string | null
         userId?: string | null
         assistantId?: string | null
-        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
+        user?: { __typename?: 'User'; id: string; avatarUrl?: string | null; username: string } | null
       }
   >
 }
@@ -3101,7 +3208,12 @@ export type ConversationDetailFragment = {
         name?: string | null
         userId?: string | null
         assistantId?: string | null
-        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+        assistant?: {
+          __typename?: 'AiAssistant'
+          iconUrl?: string | null
+          updatedAt?: string | null
+          languageModel?: string | null
+        } | null
       }
     | {
         __typename: 'HumanParticipant'
@@ -3109,7 +3221,7 @@ export type ConversationDetailFragment = {
         name?: string | null
         userId?: string | null
         assistantId?: string | null
-        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
+        user?: { __typename?: 'User'; id: string; avatarUrl?: string | null; username: string } | null
       }
   >
   assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -3128,7 +3240,12 @@ export type ConversationDetailFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+          assistant?: {
+            __typename?: 'AiAssistant'
+            iconUrl?: string | null
+            updatedAt?: string | null
+            languageModel?: string | null
+          } | null
         }
       | {
           __typename: 'HumanParticipant'
@@ -3136,8 +3253,15 @@ export type ConversationDetailFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null; id: string } | null
         }
+    feedback?: Array<{
+      __typename?: 'AiConversationFeedback'
+      id: string
+      feedback: string
+      feedbackUserId?: string | null
+      feedbackSuggestion?: string | null
+    }> | null
   }>
 }
 
@@ -3160,7 +3284,12 @@ export type GetConversationQuery = {
           name?: string | null
           userId?: string | null
           assistantId?: string | null
-          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+          assistant?: {
+            __typename?: 'AiAssistant'
+            iconUrl?: string | null
+            updatedAt?: string | null
+            languageModel?: string | null
+          } | null
         }
       | {
           __typename: 'HumanParticipant'
@@ -3168,7 +3297,7 @@ export type GetConversationQuery = {
           name?: string | null
           userId?: string | null
           assistantId?: string | null
-          user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
+          user?: { __typename?: 'User'; id: string; avatarUrl?: string | null; username: string } | null
         }
     >
     assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -3187,7 +3316,12 @@ export type GetConversationQuery = {
             name?: string | null
             isBot: boolean
             assistantId?: string | null
-            assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
+            assistant?: {
+              __typename?: 'AiAssistant'
+              iconUrl?: string | null
+              updatedAt?: string | null
+              languageModel?: string | null
+            } | null
           }
         | {
             __typename: 'HumanParticipant'
@@ -3195,8 +3329,15 @@ export type GetConversationQuery = {
             name?: string | null
             isBot: boolean
             assistantId?: string | null
-            user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+            user?: { __typename?: 'User'; avatarUrl?: string | null; id: string } | null
           }
+      feedback?: Array<{
+        __typename?: 'AiConversationFeedback'
+        id: string
+        feedback: string
+        feedbackUserId?: string | null
+        feedbackSuggestion?: string | null
+      }> | null
     }>
   } | null
 }
@@ -7387,6 +7528,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                           ],
@@ -7409,6 +7551,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                           ],
                         },
                       },
@@ -7558,7 +7701,10 @@ export const ConversationHistory_ConversationFragmentDoc = {
                               name: { kind: 'Name', value: 'user' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                ],
                               },
                             },
                           ],
@@ -7578,12 +7724,26 @@ export const ConversationHistory_ConversationFragmentDoc = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                                 ],
                               },
                             },
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'feedback' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackUserId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackSuggestion' } },
                     ],
                   },
                 },
@@ -7739,6 +7899,7 @@ export const ConversationDetailFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                           ],
@@ -7761,6 +7922,7 @@ export const ConversationDetailFragmentDoc = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                           ],
                         },
                       },
@@ -7849,7 +8011,10 @@ export const ConversationDetailFragmentDoc = {
                               name: { kind: 'Name', value: 'user' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                ],
                               },
                             },
                           ],
@@ -7869,12 +8034,26 @@ export const ConversationDetailFragmentDoc = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                                 ],
                               },
                             },
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'feedback' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackUserId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackSuggestion' } },
                     ],
                   },
                 },
@@ -12700,6 +12879,186 @@ export const DeleteMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteMessageMutation, DeleteMessageMutationVariables>
+export const CreateConversationFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createConversationFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConversationFeedbackCreateInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createConversationFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateConversationFeedbackMutation, CreateConversationFeedbackMutationVariables>
+export const UpdateConversationFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateConversationFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConversationFeedbackUpdateInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateConversationFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateConversationFeedbackMutation, UpdateConversationFeedbackMutationVariables>
+export const DeleteConversationFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteConversationFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteConversationFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteConversationFeedbackMutation, DeleteConversationFeedbackMutationVariables>
+export const ChangeConversationFeedbackSuggestionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'changeConversationFeedbackSuggestion' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConversationFeedbackSuggestionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'changeConversationFeedbackSuggestion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ChangeConversationFeedbackSuggestionMutation,
+  ChangeConversationFeedbackSuggestionMutationVariables
+>
 export const GetConversationDocument = {
   kind: 'Document',
   definitions: [
@@ -12803,6 +13162,7 @@ export const GetConversationDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                           ],
@@ -12825,6 +13185,7 @@ export const GetConversationDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                           ],
                         },
                       },
@@ -12913,7 +13274,10 @@ export const GetConversationDocument = {
                               name: { kind: 'Name', value: 'user' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                ],
                               },
                             },
                           ],
@@ -12933,12 +13297,26 @@ export const GetConversationDocument = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
                                 ],
                               },
                             },
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'feedback' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackUserId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'feedbackSuggestion' } },
                     ],
                   },
                 },

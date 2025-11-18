@@ -233,3 +233,105 @@ builder.mutationField('deleteAiConversations', (t) =>
     },
   }),
 )
+
+const ConversationFeedbackCreateInput = builder.inputType('ConversationFeedbackCreateInput', {
+  fields: (t) => ({
+    originalContext: t.string({ required: true }),
+    originalAnswer: t.string({ required: true }),
+    feedback: t.string({ required: true }),
+    answerMessageId: t.string({ required: true }),
+    languageModel: t.string({ required: false }),
+    answerAssistantId: t.string({ required: false }),
+    answerUserId: t.string({ required: false }),
+    feedbackSuggestion: t.string({ required: false }),
+  }),
+})
+
+builder.mutationField('createConversationFeedback', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiConversationFeedback',
+    args: {
+      data: t.arg({ type: ConversationFeedbackCreateInput, required: true }),
+    },
+    resolve: async (_query, _source, { data }, context) => {
+      const userId = context.session.user.id
+      const result = await prisma.aiConversationFeedback.create({
+        data: {
+          originalContext: data.originalContext,
+          originalAnswer: data.originalAnswer,
+          languageModelName: data.languageModel,
+          answerMessageId: data.answerMessageId,
+          answerAssistantId: data.answerAssistantId,
+          answerUserId: data.answerUserId,
+          feedback: data.feedback,
+          feedbackSuggestion: data.feedbackSuggestion,
+          feedbackUserId: userId,
+        },
+      })
+
+      return result
+    },
+  }),
+)
+
+const ConversationFeedbackUpdateInput = builder.inputType('ConversationFeedbackUpdateInput', {
+  fields: (t) => ({
+    feedback: t.string({ required: true }),
+    feedbackSuggestion: t.string({ required: false }),
+  }),
+})
+
+builder.mutationField('updateConversationFeedback', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiConversationFeedback',
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: ConversationFeedbackUpdateInput, required: true }),
+    },
+    resolve: async (_query, _source, { id, data }, context) => {
+      const result = await prisma.aiConversationFeedback.update({
+        where: { id, feedbackUserId: context.session.user.id },
+        data,
+      })
+      return result
+    },
+  }),
+)
+
+builder.mutationField('deleteConversationFeedback', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiConversationFeedback',
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { id }, context) => {
+      return await prisma.aiConversationFeedback.delete({
+        where: { id, feedbackUserId: context.session.user.id },
+      })
+    },
+  }),
+)
+
+const ConversationFeedbackSuggestionInput = builder.inputType('ConversationFeedbackSuggestionInput', {
+  fields: (t) => ({
+    feedbackSuggestion: t.string({ required: false }),
+  }),
+})
+
+builder.mutationField('changeConversationFeedbackSuggestion', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiConversationFeedback',
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: ConversationFeedbackSuggestionInput, required: true }),
+    },
+    resolve: async (_query, _source, { id, data }, context) => {
+      return await prisma.aiConversationFeedback.update({
+        where: { id, feedbackUserId: context.session.user.id },
+        data: {
+          feedbackSuggestion: data.feedbackSuggestion ?? null,
+        },
+      })
+    },
+  }),
+)
