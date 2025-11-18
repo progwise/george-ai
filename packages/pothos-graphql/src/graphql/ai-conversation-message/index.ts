@@ -1,3 +1,4 @@
+import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
 import { prisma } from '../../prisma'
@@ -147,6 +148,7 @@ builder.mutationField('sendMessage', (t) =>
           id: true,
           name: true,
           iconUrl: true,
+          workspaceId: true,
           conversationParticipations: {
             select: { id: true },
             where: { conversationId: data.conversationId },
@@ -246,6 +248,7 @@ builder.mutationField('sendMessage', (t) =>
         let answer = ''
 
         for await (const answerFromAssistant of askAssistantChain({
+          workspaceId: assistant.workspaceId,
           message: {
             id: newUserMessage.id,
             content: data.content,
@@ -266,7 +269,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModelProvider: assistant.languageModel?.provider || 'ollama',
+            languageModelProvider: (assistant.languageModel?.provider || 'ollama') as ServiceProviderType,
             languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||
@@ -277,6 +280,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
+            embeddingModelProvider: (usage.library.embeddingModel?.provider || 'ollama') as ServiceProviderType,
             embeddingModelName: usage.library.embeddingModel?.name || '',
           })),
         })) {

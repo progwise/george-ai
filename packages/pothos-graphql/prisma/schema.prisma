@@ -65,17 +65,17 @@ model UserProfile {
 }
 
 model Workspace {
-  id                 String                @id @default(cuid())
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime              @updatedAt
-  name               String
-  slug               String                @unique
-  aiProviders        AiServiceProvider[]
-  libraries          AiLibrary[]
-  assistants         AiAssistant[]
-  lists              AiList[]
-  members            WorkspaceMember[]
-  defaultForUsers    User[]                @relation("DefaultWorkspace")
+  id              String              @id @default(cuid())
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  name            String
+  slug            String              @unique
+  aiProviders     AiServiceProvider[]
+  libraries       AiLibrary[]
+  assistants      AiAssistant[]
+  lists           AiList[]
+  members         WorkspaceMember[]
+  defaultForUsers User[]              @relation("DefaultWorkspace")
 }
 
 model WorkspaceMember {

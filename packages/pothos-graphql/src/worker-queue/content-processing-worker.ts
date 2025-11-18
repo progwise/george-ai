@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'node:path'
 
+import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import {
   type ConverterResult,
   type ExtractionMethodId,
@@ -24,6 +25,7 @@ import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-uti
 
 import { Prisma } from '../../prisma/generated/client'
 import { logModelUsage } from '../domain/languageModel'
+import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
 
 let isWorkerRunning = false
@@ -191,7 +193,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       extractionSubTasks: task.extractionSubTasks,
       extractionOptions: task.extractionOptions,
       mimeType: task.file.mimeType,
-      embeddingModelProvider: task.embeddingModel?.provider ?? null,
+      embeddingModelProvider: (task.embeddingModel?.provider as ServiceProviderType) ?? null,
       embeddingModelName: task.embeddingModel?.name ?? null,
       fileId: task.fileId,
       fileName: task.file.name,
@@ -501,10 +503,16 @@ const processEmbeddingPhase = async (args: {
   libraryId: string
   markdownFileName: string
   embeddingModelId: string | undefined
-  embeddingModelProvider: string
+  embeddingModelProvider: ServiceProviderType
   embeddingModelName: string
 }) => {
   console.log(`🔗 Starting embedding phase for task ${args.taskId}`)
+
+  // Get workspaceId from library
+  const workspaceId = await getLibraryWorkspace(args.libraryId)
+  if (!workspaceId) {
+    throw new Error(`Library ${args.libraryId} has no workspace`)
+  }
 
   // Get markdown file path
   const markdownPath = path.join(getFileDir({ fileId: args.fileId, libraryId: args.libraryId }), args.markdownFileName)
@@ -515,6 +523,7 @@ const processEmbeddingPhase = async (args: {
   // Use embedFile function (embeddingModelName validated in validation phase)
   const embeddedFile = await embedMarkdownFile({
     timeoutSignal: args.timeoutSignal,
+    workspaceId,
     libraryId: args.libraryId,
     embeddingModelProvider: args.embeddingModelProvider,
     embeddingModelName: args.embeddingModelName,
@@ -551,7 +560,7 @@ const performValidation = async (args: {
   extractionSubTasks: Array<{ extractionMethod: string; markdownFileName?: string | null; finishedAt?: Date | null }>
   extractionOptions?: string | null
   mimeType: string | null
-  embeddingModelProvider: string | null
+  embeddingModelProvider: ServiceProviderType | null
   embeddingModelName: string | null
   fileId: string
   fileName: string | null
@@ -696,16 +705,23 @@ const performContentExtraction = async (args: {
         if (!args.ocrModel) {
           throw new Error('OCR model provider and name must be specified for pdf-image-llm extraction')
         }
-        result = await transformPdfToImageToMarkdown(
-          args.uploadFilePath,
-          args.timeoutSignal,
-          args.extractionOptions.ocrImageScale,
-          args.extractionOptions.ocrPrompt,
-          args.ocrModel.provider,
-          args.ocrModel.name,
-          args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
-          args.extractionOptions.ocrMaxConsecutiveRepeats,
-        )
+        // Get workspaceId from library
+        const workspaceId = await getLibraryWorkspace(args.libraryId)
+        if (!workspaceId) {
+          throw new Error(`Library ${args.libraryId} has no workspace`)
+        }
+
+        result = await transformPdfToImageToMarkdown({
+          filePath: args.uploadFilePath,
+          timeoutSignal: args.timeoutSignal,
+          imageScale: args.extractionOptions.ocrImageScale,
+          ocrPrompt: args.extractionOptions.ocrPrompt,
+          workspaceId,
+          ocrModelProvider: args.ocrModel.provider as ServiceProviderType,
+          ocrModelName: args.ocrModel.name,
+          ocrTimeoutPerPage: args.extractionOptions.ocrTimeout * 1000, // Convert seconds to milliseconds
+          ocrMaxConsecutiveRepeats: args.extractionOptions.ocrMaxConsecutiveRepeats,
+        })
         break
       }
 

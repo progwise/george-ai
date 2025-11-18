@@ -30,6 +30,7 @@ const AiEnrichmentTaskProcessingDataInput = builder
       }),
       dataType: t.field({ nullable: false, type: 'ListFieldType', resolve: (parent) => parent.dataType }),
       libraryEmbeddingModel: t.exposeString('libraryEmbeddingModel', { nullable: true }),
+      libraryEmbeddingModelProvider: t.exposeString('libraryEmbeddingModelProvider', { nullable: true }),
       contentQuery: t.exposeString('contentQuery', { nullable: true }),
       useVectorStore: t.exposeBoolean('useVectorStore', { nullable: false }),
     }),

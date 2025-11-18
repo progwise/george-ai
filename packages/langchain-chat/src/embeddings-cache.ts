@@ -1,4 +1,4 @@
-import { getEmbedding } from '@george-ai/ai-service-client'
+import { getEmbedding, type ServiceProviderType } from '@george-ai/ai-service-client'
 
 interface EmbeddingsCacheEntry {
   embeddingModelName: string
@@ -30,11 +30,17 @@ const evictLRU = (): void => {
   console.log(`Evicted LRU embedding from cache: ${keyToRemove.substring(0, 50)}...`)
 }
 
-export const getEmbeddingWithCache = async (
-  embeddingModelProvider: string,
-  embeddingModelName: string,
-  question?: string,
-): Promise<number[]> => {
+export const getEmbeddingWithCache = async ({
+  workspaceId,
+  embeddingModelProvider,
+  embeddingModelName,
+  question,
+}: {
+  workspaceId: string
+  embeddingModelProvider: ServiceProviderType
+  embeddingModelName: string
+  question?: string
+}): Promise<number[]> => {
   if (!question) {
     return []
   }
@@ -49,7 +55,7 @@ export const getEmbeddingWithCache = async (
 
   // Not in cache, compute the embedding
   console.log(`Embeddings cache miss for: ${cacheKey.substring(0, 50)}...`)
-  const embeddingsResult = await getEmbedding(embeddingModelProvider, embeddingModelName, question)
+  const embeddingsResult = await getEmbedding(workspaceId, embeddingModelProvider, embeddingModelName, question)
 
   if (embeddingsResult.embeddings.length === 0) {
     throw new Error('No embeddings returned from Ollama')

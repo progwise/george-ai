@@ -4,7 +4,7 @@ import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { getEmbedding } from '@george-ai/ai-service-client'
+import { getEmbedding, type ServiceProviderType } from '@george-ai/ai-service-client'
 
 import { getEmbeddingWithCache } from './embeddings-cache'
 import { splitMarkdownFile } from './split-markdown'
@@ -109,10 +109,22 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
   await removeFileById(libraryId, fileId)
 }
 
-export const embedMarkdownFile = async (args: {
+export const embedMarkdownFile = async ({
+  timeoutSignal,
+  workspaceId,
+  libraryId,
+  embeddingModelProvider,
+  embeddingModelName,
+  fileId,
+  fileName,
+  originUri,
+  mimeType,
+  markdownFilePath,
+}: {
   timeoutSignal: AbortSignal
+  workspaceId: string
   libraryId: string
-  embeddingModelProvider: string
+  embeddingModelProvider: ServiceProviderType
   embeddingModelName: string
   fileId: string
   fileName: string
@@ -120,16 +132,6 @@ export const embedMarkdownFile = async (args: {
   mimeType: string
   markdownFilePath: string
 }) => {
-  const {
-    libraryId,
-    embeddingModelProvider,
-    embeddingModelName,
-    fileId,
-    fileName,
-    originUri,
-    mimeType,
-    markdownFilePath,
-  } = args
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
@@ -159,11 +161,16 @@ export const embedMarkdownFile = async (args: {
 
   try {
     for (const chunk of chunks) {
-      if (args.timeoutSignal.aborted) {
+      if (timeoutSignal.aborted) {
         console.warn('⚠️ Embedding process aborted due to timeout signal')
         break
       }
-      const embeddingResult = await getEmbedding(embeddingModelProvider, embeddingModelName, chunk.pageContent)
+      const embeddingResult = await getEmbedding(
+        workspaceId,
+        embeddingModelProvider,
+        embeddingModelName,
+        chunk.pageContent,
+      )
 
       if (embeddingResult.embeddings.length === 0) {
         console.error('❌ No embeddings returned from Ollama')
@@ -194,7 +201,7 @@ export const embedMarkdownFile = async (args: {
       chunks: successfulCreatedChunks.length,
       chunkErrors: failedChunks,
       size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
-      timeout: args.timeoutSignal.aborted,
+      timeout: timeoutSignal.aborted,
     }
   } catch (error) {
     console.error('❌ Error importing documents into Typesense:', error)
@@ -331,14 +338,21 @@ export const getFileChunks = async ({
 }
 
 export const getSimilarChunks = async (params: {
+  workspaceId: string
   libraryId: string
   fileId?: string
   term: string
+  embeddingsModelProvider: ServiceProviderType
   embeddingsModelName: string
   hits?: number
 }) => {
-  const { libraryId, fileId, term, embeddingsModelName, hits } = params
-  const questionAsVector = await getEmbeddingWithCache(embeddingsModelName, term)
+  const { workspaceId, libraryId, fileId, term, embeddingsModelProvider, embeddingsModelName, hits } = params
+  const questionAsVector = await getEmbeddingWithCache({
+    workspaceId,
+    embeddingModelProvider: embeddingsModelProvider,
+    embeddingModelName: embeddingsModelName,
+    question: term,
+  })
   const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(libraryId)
   const searchParams = {

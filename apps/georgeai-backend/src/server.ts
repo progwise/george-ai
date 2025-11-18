@@ -5,9 +5,12 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
-import { schema } from '@george-ai/pothos-graphql'
-// Import and start workers
-import { startContentProcessingWorker, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
+import {
+  initializeWorkspace,
+  schema,
+  startContentProcessingWorker,
+  startEnrichmentQueueWorker,
+} from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
@@ -17,6 +20,9 @@ import { libraryFiles } from './library-files'
 import { dataUploadMiddleware } from './upload'
 
 console.log('Starting GeorgeAI GraphQL server...')
+
+// Initialize workspace provider cache
+initializeWorkspace()
 console.log(`
   Environment: ${process.env.NODE_ENV || 'development'}
   GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}

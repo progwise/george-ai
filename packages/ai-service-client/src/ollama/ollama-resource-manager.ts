@@ -11,35 +11,11 @@ import {
   unloadOllamaModel,
 } from './ollama-api.js'
 
-interface OllamaInstanceConfiguration {
+export interface OllamaInstanceConfiguration {
   url: string
   apiKey?: string
   vramGB: number // Total VRAM in GB
-}
-
-export function getInstanceConfigurations(): OllamaInstanceConfiguration[] {
-  const baseUrl = process.env.OLLAMA_BASE_URL
-  const apiKey = process.env.OLLAMA_API_KEY
-  const vramGB = parseInt(process.env.OLLAMA_VRAM_GB || '16', 10)
-
-  if (!baseUrl) {
-    throw new Error('OLLAMA_BASE_URL environment variable is not set')
-  }
-
-  // Support multiple instances via environment variables
-  const instances = [{ url: baseUrl, apiKey, vramGB }]
-
-  // Check for additional instances (starting from 1, not 2)
-  for (let i = 1; i <= 10; i++) {
-    const url = process.env[`OLLAMA_BASE_URL_${i}`]
-    const key = process.env[`OLLAMA_API_KEY_${i}`]
-    const vram = parseInt(process.env[`OLLAMA_VRAM_GB_${i}`] || '16', 10)
-    if (url) {
-      instances.push({ url, apiKey: key, vramGB: vram })
-    }
-  }
-
-  return instances
+  name: string // Instance name for identification
 }
 
 type OllamaInstance = {
@@ -56,12 +32,33 @@ class OllamaResourceManager {
 
   constructor() {}
 
-  public async init() {
-    this.instances = {}
-    const instancePromises = getInstanceConfigurations().map(async (config, index) => {
+  /**
+   * Ensure instances are initialized for the given provider configurations
+   * Reuses existing instances if URL matches, creates new ones if needed
+   */
+  private async ensureInstances(providers: OllamaInstanceConfiguration[]): Promise<void> {
+    const providerUrls = new Set(providers.map((p) => p.url))
+
+    // Remove instances that are no longer in the provider list
+    for (const url of Object.keys(this.instances)) {
+      if (!providerUrls.has(url)) {
+        delete this.instances[url]
+      }
+    }
+
+    // Initialize or update instances for each provider
+    const instancePromises = providers.map(async (config) => {
+      const existing = this.instances[config.url]
+      if (existing) {
+        // Update config if changed
+        existing.config = config
+        return
+      }
+
+      // Create new instance
       const status = await this.getInstanceStatus(config)
       const instance: OllamaInstance = {
-        name: `ollama-${index}`,
+        name: config.name,
         config,
         status,
         semaphores: new Map(),
@@ -73,8 +70,8 @@ class OllamaResourceManager {
       }
       this.instances[config.url] = instance
     })
+
     await Promise.all(instancePromises)
-    console.log(`Initialized ${Object.keys(this.instances).length} OLLAMA instances`)
   }
 
   async getAvailableModelNames(): Promise<string[]> {
@@ -209,7 +206,13 @@ class OllamaResourceManager {
     }
   }
 
-  async getBestInstance(model: string): Promise<{ instance: OllamaInstance; semaphore: Semaphore }> {
+  async getBestInstance(
+    endpoints: { url: string; vramGB: number; name: string }[],
+    model: string,
+  ): Promise<{ instance: OllamaInstance; semaphore: Semaphore }> {
+    // Ensure instances are initialized for these providers
+    await this.ensureInstances(endpoints)
+
     // Refresh status, models, and load for all instances
     const updatePromises = Object.keys(this.instances).map(async (url) => {
       await this.updateInstanceStatus(url)
@@ -293,24 +296,5 @@ class OllamaResourceManager {
 }
 
 // Export singleton instance
+// Instances are initialized on-demand when getBestInstance() is called with provider configs
 export const ollamaResourceManager = new OllamaResourceManager()
-ollamaResourceManager
-  .init()
-  .catch((error) => {
-    console.error('Failed to initialize OllamaResourceManager:', error)
-  })
-  .then(async () => {
-    console.log('OllamaResourceManager initialized')
-    console.log('Available models:', await ollamaResourceManager.getAvailableModelNames())
-    console.log(
-      'OLLAMA Instances:',
-      JSON.stringify(
-        (await ollamaResourceManager.getAllInstances()).map((instance) => ({
-          ...instance.config,
-          isOnline: instance.status?.isOnline,
-        })),
-        null,
-        2,
-      ),
-    )
-  })

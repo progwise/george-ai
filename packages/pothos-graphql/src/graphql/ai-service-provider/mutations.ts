@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { getOllamaModelNames, getOpenAIModelNames } from '@george-ai/ai-service-client'
+import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -56,7 +56,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
         })
       }
 
-      return prisma.aiServiceProvider.create({
+      const provider = await prisma.aiServiceProvider.create({
         ...query,
         data: {
           workspaceId: context.workspaceId,
@@ -69,6 +69,11 @@ builder.mutationField('createAiServiceProvider', (t) =>
           createdBy: userId,
         },
       })
+
+      // Invalidate provider cache for this workspace
+      invalidateWorkspace(context.workspaceId)
+
+      return provider
     },
   }),
 )
@@ -131,7 +136,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
         })
       }
 
-      return prisma.aiServiceProvider.update({
+      const provider = await prisma.aiServiceProvider.update({
         ...query,
         where: { id: String(id) },
         data: {
@@ -145,6 +150,11 @@ builder.mutationField('updateAiServiceProvider', (t) =>
           updatedBy: userId,
         },
       })
+
+      // Invalidate provider cache for this workspace
+      invalidateWorkspace(context.workspaceId)
+
+      return provider
     },
   }),
 )
@@ -188,7 +198,7 @@ builder.mutationField('toggleAiServiceProvider', (t) =>
         })
       }
 
-      return prisma.aiServiceProvider.update({
+      const provider = await prisma.aiServiceProvider.update({
         ...query,
         where: { id: String(id) },
         data: {
@@ -196,6 +206,11 @@ builder.mutationField('toggleAiServiceProvider', (t) =>
           updatedBy: userId,
         },
       })
+
+      // Invalidate provider cache for this workspace
+      invalidateWorkspace(context.workspaceId)
+
+      return provider
     },
   }),
 )
@@ -227,6 +242,9 @@ builder.mutationField('deleteAiServiceProvider', (t) =>
       await prisma.aiServiceProvider.delete({
         where: { id: String(id) },
       })
+
+      // Invalidate provider cache for this workspace
+      invalidateWorkspace(context.workspaceId)
 
       return true
     },
@@ -368,6 +386,11 @@ builder.mutationField('restoreDefaultProviders', (t) =>
         created++
       }
 
+      // Invalidate provider cache for this workspace if any providers were created
+      if (created > 0) {
+        invalidateWorkspace(workspaceId)
+      }
+
       return {
         created,
         skipped,
@@ -441,36 +464,25 @@ builder.mutationField('testProviderConnection', (t) =>
 
         if (data.provider === 'ollama') {
           // Test Ollama connection
-          const ollamaBaseUrl = baseUrl || process.env.OLLAMA_BASE_URL || 'http://ollama:11434'
-
-          // Temporarily set environment variables for the test
-          const originalBaseUrl = process.env.OLLAMA_BASE_URL
-          const originalApiKey = process.env.OLLAMA_API_KEY
-
-          try {
-            process.env.OLLAMA_BASE_URL = ollamaBaseUrl
-            if (apiKey) {
-              process.env.OLLAMA_API_KEY = apiKey
+          if (!baseUrl) {
+            return {
+              success: false,
+              message: 'Base URL is required for Ollama connection test',
             }
+          }
 
-            const models = await getOllamaModelNames()
+          const result = await testOllamaConnection({ url: baseUrl, apiKey })
 
+          if (result.success) {
             return {
               success: true,
-              message: `Successfully connected to Ollama at ${ollamaBaseUrl}`,
-              details: `Found ${models.length} models`,
+              message: `Successfully connected to Ollama at ${baseUrl}`,
             }
-          } finally {
-            // Restore original environment variables
-            if (originalBaseUrl !== undefined) {
-              process.env.OLLAMA_BASE_URL = originalBaseUrl
-            } else {
-              delete process.env.OLLAMA_BASE_URL
-            }
-            if (originalApiKey !== undefined) {
-              process.env.OLLAMA_API_KEY = originalApiKey
-            } else {
-              delete process.env.OLLAMA_API_KEY
+          } else {
+            return {
+              success: false,
+              message: 'Failed to connect to Ollama',
+              details: result.error,
             }
           }
         } else if (data.provider === 'openai') {
@@ -482,34 +494,18 @@ builder.mutationField('testProviderConnection', (t) =>
             }
           }
 
-          // Temporarily set environment variable for the test
-          const originalApiKey = process.env.OPENAI_API_KEY
-          const originalBaseUrl = process.env.OPENAI_BASE_URL
+          const result = await testOpenAIConnection({ apiKey })
 
-          try {
-            process.env.OPENAI_API_KEY = apiKey
-            if (baseUrl) {
-              process.env.OPENAI_BASE_URL = baseUrl
-            }
-
-            const models = await getOpenAIModelNames()
-
+          if (result.success) {
             return {
               success: true,
-              message: 'Successfully connected to OpenAI',
-              details: `Found ${models.length} models`,
+              message: `Successfully connected to OpenAI`,
             }
-          } finally {
-            // Restore original environment variables
-            if (originalApiKey !== undefined) {
-              process.env.OPENAI_API_KEY = originalApiKey
-            } else {
-              delete process.env.OPENAI_API_KEY
-            }
-            if (originalBaseUrl !== undefined) {
-              process.env.OPENAI_BASE_URL = originalBaseUrl
-            } else {
-              delete process.env.OPENAI_BASE_URL
+          } else {
+            return {
+              success: false,
+              message: 'Failed to connect to OpenAI',
+              details: result.error,
             }
           }
         } else {

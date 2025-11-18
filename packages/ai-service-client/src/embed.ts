@@ -1,12 +1,47 @@
 import { getOllamaEmbedding } from './ollama'
 import { getOpenAIEmbedding } from './openAi'
+import { providerCache } from './provider-cache'
+import type { ServiceProviderType } from './types'
 
-export const getEmbedding = async (embeddingModelProvider: string, embeddingModelName: string, question: string) => {
-  if (embeddingModelProvider === 'ollama') {
-    return getOllamaEmbedding(embeddingModelName, question)
-  } else if (embeddingModelProvider === 'openai') {
-    return getOpenAIEmbedding(embeddingModelName, question)
+export const getEmbedding = async (
+  workspaceId: string,
+  modelProvider: ServiceProviderType,
+  modelName: string,
+  question: string,
+) => {
+  // Get workspace providers from cache (with auto-refresh)
+  const allProviders = await providerCache.getProviders(workspaceId)
+
+  // Find the provider config for the requested provider type
+  const providerConfig = allProviders.find((p) => p.provider === modelProvider)
+  if (!providerConfig) {
+    throw new Error(
+      `No ${modelProvider} provider configured for workspace ${workspaceId}. Please configure providers in admin settings.`,
+    )
+  }
+
+  if (providerConfig.provider === 'ollama') {
+    if (
+      providerConfig.endpoints.length === 0 ||
+      providerConfig.endpoints.some((ep) => !ep.url || ep.url.length === 0)
+    ) {
+      throw new Error('No Ollama endpoints provided in the provider configuration')
+    }
+    const endpoints = providerConfig.endpoints.map((ep) => {
+      return {
+        url: ep.url!,
+        apiKey: ep.apiKey,
+        vramGB: ep.vramGB,
+        name: ep.name,
+      }
+    })
+    return getOllamaEmbedding(modelName, question, endpoints)
+  } else if (providerConfig.provider === 'openai') {
+    if (providerConfig.endpoints.length === 0 || !providerConfig.endpoints[0].apiKey) {
+      throw new Error('OpenAI API key is not provided in the provider configuration')
+    }
+    return getOpenAIEmbedding(modelName, question, providerConfig.endpoints[0].apiKey)
   } else {
-    throw new Error(`Unsupported embedding model provider: ${embeddingModelProvider}`)
+    throw new Error(`Unsupported embedding model provider: ${providerConfig.provider}`)
   }
 }

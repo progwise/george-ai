@@ -1,4 +1,4 @@
-import { classifyModel, getOllamaModelNames, getOpenAIModelNames } from '@george-ai/ai-service-client'
+import { classifyModel, discoverModels as discoverModelsForProvider } from '@george-ai/ai-service-client'
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -16,78 +16,51 @@ interface DiscoveredModel {
 
 /**
  * Discovers models from all configured workspace providers
- * Reads from AiServiceProvider table instead of .env
- * Deduplicates providers by type + baseUrl
+ * Queries each workspace's providers and deduplicates models globally
  */
-async function discoverModels(): Promise<DiscoveredModel[]> {
+async function discoverModels(workspaceId: string): Promise<DiscoveredModel[]> {
   const discoveredModels: DiscoveredModel[] = []
 
-  // Get all enabled providers from database (across all workspaces)
-  const providers = await prisma.aiServiceProvider.findMany({
-    where: { enabled: true },
-  })
+  // 1. Discover Ollama models for this workspace
+  try {
+    const ollamaModelNames = await discoverModelsForProvider(workspaceId, 'ollama')
 
-  // Deduplicate providers by type + baseUrl (same instance might be used by multiple workspaces)
-  const uniqueProviders = new Map<string, (typeof providers)[0]>()
-  for (const provider of providers) {
-    const key = `${provider.provider}:${provider.baseUrl || 'default'}`
-    if (!uniqueProviders.has(key)) {
-      uniqueProviders.set(key, provider)
+    for (const name of ollamaModelNames) {
+      const classification = classifyModel(name)
+      discoveredModels.push({
+        name,
+        provider: 'ollama',
+        canDoEmbedding: classification.isEmbeddingModel,
+        canDoChatCompletion: classification.isChatModel,
+        canDoVision: classification.isVisionModel,
+        canDoFunctionCalling: classification.isChatModel,
+      })
     }
+
+    console.log(`✅ Discovered ${ollamaModelNames.length} Ollama models for workspace ${workspaceId}`)
+  } catch (error) {
+    console.warn(`⚠️ Ollama sync failed for workspace ${workspaceId}:`, error)
   }
 
-  // 1. Discover Ollama models
-  const ollamaProviders = Array.from(uniqueProviders.values()).filter((p) => p.provider === 'ollama')
-  if (ollamaProviders.length > 0) {
-    try {
-      // Use existing method - already handles multi-instance deduplication!
-      const ollamaModelNames = await getOllamaModelNames()
+  // 2. Discover OpenAI models for this workspace
+  try {
+    const openaiModelNames = await discoverModelsForProvider(workspaceId, 'openai')
 
-      for (const name of ollamaModelNames) {
-        const classification = classifyModel(name)
-        discoveredModels.push({
-          name,
-          provider: 'ollama',
-          canDoEmbedding: classification.isEmbeddingModel,
-          canDoChatCompletion: classification.isChatModel,
-          canDoVision: classification.isVisionModel,
-          canDoFunctionCalling: classification.isChatModel,
-        })
-      }
-
-      console.log(`✅ Discovered ${ollamaModelNames.length} Ollama models from ${ollamaProviders.length} instances`)
-    } catch (error) {
-      console.warn('⚠️ Ollama sync failed:', error)
+    for (const name of openaiModelNames) {
+      const classification = classifyModel(name)
+      discoveredModels.push({
+        name,
+        provider: 'openai',
+        canDoEmbedding: classification.isEmbeddingModel,
+        canDoChatCompletion: classification.isChatModel,
+        canDoVision: classification.isVisionModel,
+        canDoFunctionCalling: classification.isChatModel,
+      })
     }
-  }
 
-  // 2. Discover OpenAI models
-  const openaiProviders = Array.from(uniqueProviders.values()).filter((p) => p.provider === 'openai')
-  if (openaiProviders.length > 0) {
-    try {
-      // For now, use the first OpenAI provider's API key
-      // All OpenAI providers access the same global model list
-      const openaiProvider = openaiProviders[0]
-      if (openaiProvider.apiKey) {
-        const response = await getOpenAIModelNames()
-
-        for (const model of response) {
-          const classification = classifyModel(model)
-          discoveredModels.push({
-            name: model,
-            provider: 'openai',
-            canDoEmbedding: classification.isEmbeddingModel,
-            canDoChatCompletion: classification.isChatModel,
-            canDoVision: classification.isVisionModel,
-            canDoFunctionCalling: classification.isChatModel,
-          })
-        }
-
-        console.log(`✅ Discovered ${response.length} OpenAI models`)
-      }
-    } catch (error) {
-      console.warn('⚠️ OpenAI sync failed:', error)
-    }
+    console.log(`✅ Discovered ${openaiModelNames.length} OpenAI models for workspace ${workspaceId}`)
+  } catch (error) {
+    console.warn(`⚠️ OpenAI sync failed for workspace ${workspaceId}:`, error)
   }
 
   return discoveredModels
@@ -168,13 +141,13 @@ const SyncModelsResult = builder.simpleObject('SyncModelsResult', {
   }),
 })
 
-// GraphQL mutation for syncing models (admin-only)
+// GraphQL mutation for syncing models
 builder.mutationField('syncModels', (t) =>
-  t.withAuth({ isLoggedIn: true, admin: true }).field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: SyncModelsResult,
-    resolve: async () => {
+    resolve: async (_source, _args, context) => {
       try {
-        const discoveredModels = await discoverModels()
+        const discoveredModels = await discoverModels(context.workspaceId)
         const syncedCount = await syncModelsToDatabase(discoveredModels)
 
         return {
@@ -204,9 +177,9 @@ const UpdateAiLanguageModelInput = builder.inputType('UpdateAiLanguageModelInput
   }),
 })
 
-// GraphQL mutation for updating a language model (admin-only)
+// GraphQL mutation for updating a language model
 builder.mutationField('updateAiLanguageModel', (t) =>
-  t.withAuth({ isLoggedIn: true, admin: true }).prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLanguageModel',
     args: {
       id: t.arg.id({ required: true }),
@@ -225,9 +198,9 @@ builder.mutationField('updateAiLanguageModel', (t) =>
   }),
 )
 
-// GraphQL mutation for disabling a language model (admin-only)
+// GraphQL mutation for disabling a language model
 builder.mutationField('disableAiLanguageModel', (t) =>
-  t.withAuth({ isLoggedIn: true, admin: true }).prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLanguageModel',
     args: {
       id: t.arg.id({ required: true }),

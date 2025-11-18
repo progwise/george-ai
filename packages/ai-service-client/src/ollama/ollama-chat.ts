@@ -4,14 +4,17 @@ import type { AIResponse, ChatOptions } from '../types.js'
 import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
 
-export async function ollamaChat(options: ChatOptions): Promise<AIResponse> {
+export async function ollamaChat(
+  options: ChatOptions,
+  endpoints: { url: string; apiKey?: string; vramGB: number; name: string }[],
+): Promise<AIResponse> {
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0
   let lastChunkTimestamp = startTime
 
   // Select best OLLAMA instance based on current GPU memory usage and model availability
-  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(options.modelName)
+  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(endpoints, options.modelName)
   console.log(`Using OLLAMA instance ${instance.config.url} for model ${options.modelName}`)
 
   let isAborted = false

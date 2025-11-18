@@ -18,6 +18,7 @@ export interface AssistantChainMessage {
 }
 
 export async function* askAssistantChain(input: {
+  workspaceId: string
   message: AssistantChainMessage
   history: AssistantChainMessage[]
   assistant: Assistant
@@ -28,7 +29,7 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = await getModel(input.assistant.languageModelProvider, input.assistant.languageModel)
+  const model = await getModel(input.workspaceId, input.assistant.languageModelProvider, input.assistant.languageModel)
 
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
@@ -66,10 +67,12 @@ export async function* askAssistantChain(input: {
     })
 
     const vectorStoreResult = await getSimilarChunks({
-      term: libraryPromptResult.searchPrompt,
-      hits: 4,
-      embeddingsModelName: library.embeddingModelName,
+      workspaceId: input.workspaceId,
       libraryId: library.id,
+      term: libraryPromptResult.searchPrompt,
+      embeddingsModelProvider: library.embeddingModelProvider,
+      embeddingsModelName: library.embeddingModelName,
+      hits: 4,
     })
 
     const messages = vectorStoreResult.map(

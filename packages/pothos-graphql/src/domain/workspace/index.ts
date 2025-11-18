@@ -1,4 +1,6 @@
 export { getWorkspaceMembership } from './get-workspace-membership'
 export type { WorkspaceMembershipInfo } from './get-workspace-membership'
 export { getLibraryWorkspace } from './get-library-workspace'
+export { getWorkspaceProviders } from './get-workspace-providers'
+export { initializeWorkspace } from './initialize-workspace-cache'
 export { SYSTEM_WORKSPACE_ID } from './constants'
