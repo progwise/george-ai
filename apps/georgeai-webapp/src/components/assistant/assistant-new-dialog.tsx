@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
@@ -35,50 +34,46 @@ const createNewAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-export const AssistantNewDialog = () => {
-  const dialogRef = useRef<HTMLDialogElement>(null)
+interface AssistantNewDialogProps {
+  ref: React.RefObject<HTMLDialogElement | null>
+}
+
+export const AssistantNewDialog = ({ ref }: AssistantNewDialogProps) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
     mutationFn: createNewAssistant,
-    onSettled: (result) => {
+    onSuccess: (result) => {
       const newId = result?.createAiAssistant?.id
       if (!newId) {
         throw new Error('Failed to create assistant')
       }
+      ref.current?.close()
       navigate({ to: `/assistants/${newId}` })
     },
   })
-
-  const showDialog = () => {
-    dialogRef.current?.showModal()
-  }
 
   const onSubmit = (data: FormData) => {
     mutate({ data })
   }
 
   return (
-    <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
-        {t('assistants.addNewButton')}
-      </button>
-      <DialogForm
-        ref={dialogRef}
-        title={t('assistants.addNew')}
-        description={t('assistants.addNewDescription')}
-        onSubmit={onSubmit}
-        disabledSubmit={isPending}
-      >
-        <Input
-          name="name"
-          type="text"
-          label={t('labels.name')}
-          placeholder={t('assistants.placeholders.name')}
-          required
-        />
-      </DialogForm>
-    </>
+    <DialogForm
+      ref={ref}
+      title={t('assistants.addNew')}
+      description={t('assistants.addNewDescription')}
+      onSubmit={onSubmit}
+      disabledSubmit={isPending}
+      submitButtonText={t('actions.create')}
+    >
+      <Input
+        name="name"
+        type="text"
+        label={t('assistants.labelName')}
+        placeholder={t('assistants.placeholders.name')}
+        required
+      />
+    </DialogForm>
   )
 }

@@ -5651,6 +5651,16 @@ export type GetWorkspacesQuery = {
   }>
 }
 
+export type CreateWorkspaceMutationVariables = Exact<{
+  name: Scalars['String']['input']
+  slug: Scalars['String']['input']
+}>
+
+export type CreateWorkspaceMutation = {
+  __typename?: 'Mutation'
+  createWorkspace: { __typename?: 'Workspace'; id: string; name: string; slug: string; createdAt: string }
+}
+
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type UserProfileQuery = {
@@ -19001,6 +19011,58 @@ export const GetWorkspacesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>
+export const CreateWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'slug' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

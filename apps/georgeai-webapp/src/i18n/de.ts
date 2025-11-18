@@ -251,6 +251,7 @@ export default {
     noAssistantsFound: 'Keine Assistenten gefunden',
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
     owner: 'Besitzer',
+    labelName: 'Name des Assistenten',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
       euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
@@ -659,6 +660,7 @@ export default {
     myLibraries: '{count} Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
     nameLibrary: 'Name',
+    labelName: 'Name der Bibliothek',
     owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihre Bibliothek',
@@ -986,5 +988,18 @@ export default {
   workspace: {
     selectWorkspace: 'Arbeitsbereich auswählen',
     switcherLabel: 'Arbeitsbereich wechseln',
+    createTitle: 'Arbeitsbereich erstellen',
+    createDescription:
+      'Erstellen Sie einen neuen Arbeitsbereich, um Ihre Bibliotheken, Assistenten und Listen zu organisieren.',
+    create: 'Erstellen',
+    createSuccess: 'Arbeitsbereich erfolgreich erstellt',
+    name: 'Name des Arbeitsbereichs',
+    namePlaceholder: 'Mein Arbeitsbereich',
+    nameRequired: 'Arbeitsbereich-Name ist erforderlich',
+    slug: 'Slug',
+    slugPlaceholder: 'mein-arbeitsbereich',
+    slugRequired: 'Arbeitsbereich-Slug ist erforderlich',
+    slugInvalid: 'Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten',
+    slugHint: 'Wird in URLs verwendet. Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt.',
   },
 }

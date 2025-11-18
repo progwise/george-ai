@@ -23,14 +23,11 @@ export const useWorkspace = () => {
     return workspaces[0] ?? null
   }, [workspaces, selectedWorkspaceId])
 
-  // Update current workspace ID if it doesn't match
-  const currentWorkspaceId = currentWorkspace?.id ?? null
-
   // Set workspace and update cookie
   const setWorkspace = useCallback(
-    (workspaceId: string | null) => {
+    async (workspaceId: string | null) => {
+      await setWorkspaceCookie({ data: { workspaceId } })
       setSelectedWorkspaceId(workspaceId)
-      setWorkspaceCookie({ data: { workspaceId } })
     },
     [setSelectedWorkspaceId],
   )
@@ -38,7 +35,7 @@ export const useWorkspace = () => {
   return {
     workspaces: workspaces ?? [],
     currentWorkspace,
-    currentWorkspaceId,
+    currentWorkspaceId: currentWorkspace?.id || null,
     setWorkspace,
     isLoading,
   }

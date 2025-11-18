@@ -37,12 +37,13 @@ export const NewLibraryDialog = ({ ref }: { ref: React.RefObject<HTMLDialogEleme
       description={t('libraries.addNewDescription')}
       onSubmit={mutate}
       disabledSubmit={isPending}
+      submitButtonText={t('actions.create')}
     >
       <div className="flex w-full flex-col gap-4">
         <Input
           name="name"
           type="text"
-          label={t('labels.name')}
+          label={t('libraries.labelName')}
           placeholder={t('libraries.placeholders.name')}
           required
         />

@@ -21,7 +21,7 @@ interface User {
 }
 
 interface SettingsDropdownProps {
-  user?: User
+  user: User | null
 }
 
 export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {

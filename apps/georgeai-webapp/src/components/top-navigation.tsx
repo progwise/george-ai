@@ -28,7 +28,8 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
 )
 
 interface TopNavigationProps {
-  user?: UserFragment
+  user: UserFragment | null
+  workspaceId: string | null
 }
 
 export default function TopNavigation({ user }: TopNavigationProps) {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
@@ -39,6 +39,7 @@ export const Input = <T extends ZodRawShape>({
   className,
   validateOnSchemaChange = false,
 }: InputProps<T>) => {
+  const uniqueId = useId()
   const [errors, setErrors] = useState<string[]>([])
   const [hasBeenTouched, setHasBeenTouched] = useState(false)
   const renderedType = type === 'date' ? 'text' : type
@@ -97,19 +98,20 @@ export const Input = <T extends ZodRawShape>({
 
   return (
     <fieldset className={twMerge('fieldset group', type === 'textarea' && 'flex flex-col', className)}>
-      <legend className="fieldset-legend flex w-full justify-between">
-        <span
+      <div className="fieldset-legend flex w-full justify-between">
+        <label
+          htmlFor={uniqueId}
           className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
         >
           {label}
-        </span>
+        </label>
         <span className="text-error">{errors.join(', ')}</span>
         {required && <span className="text-error">*</span>}
-      </legend>
+      </div>
 
       {type === 'textarea' ? (
         <textarea
-          id={name}
+          id={uniqueId}
           ref={(el) => {
             internalRef.current = el
             if (ref) {
@@ -136,7 +138,7 @@ export const Input = <T extends ZodRawShape>({
         />
       ) : (
         <input
-          id={name}
+          id={uniqueId}
           ref={(el) => {
             internalRef.current = el
             if (ref) {

@@ -35,7 +35,7 @@ export const NewListDialog = ({ ref }: NewListDialogProps) => {
       description={t('lists.createDialogDescription')}
       onSubmit={createList}
       disabledSubmit={createListIsPending}
-      submitButtonText={t('lists.createListButtonText')}
+      submitButtonText={t('actions.create')}
       className="max-w-sm"
     >
       <Input

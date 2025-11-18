@@ -248,6 +248,7 @@ export default {
     noAssistantsFound: 'No assistants found',
     noLibrariesToAdd: 'All libraries added',
     owner: 'Owner',
+    labelName: 'Assistant Name',
     placeholders: {
       description: 'Describe your assistant',
       euAiActNotePlaceholder: 'Additional information or context...',
@@ -650,6 +651,7 @@ export default {
     myLibraries: '{count} Libraries',
     noLibrariesFound: 'No libraries found',
     nameLibrary: 'Name',
+    labelName: 'Library Name',
     owner: 'Owner',
     placeholders: {
       description: 'Describe your library',
@@ -973,5 +975,17 @@ export default {
   workspace: {
     selectWorkspace: 'Select Workspace',
     switcherLabel: 'Switch workspace',
+    createTitle: 'Create Workspace',
+    createDescription: 'Create a new workspace to organize your libraries, assistants, and lists.',
+    create: 'Create',
+    createSuccess: 'Workspace created successfully',
+    name: 'Workspace Name',
+    namePlaceholder: 'My Workspace',
+    nameRequired: 'Workspace name is required',
+    slug: 'Slug',
+    slugPlaceholder: 'my-workspace',
+    slugRequired: 'Workspace slug is required',
+    slugInvalid: 'Slug must contain only lowercase letters, numbers, and hyphens',
+    slugHint: 'Used in URLs. Only lowercase letters, numbers, and hyphens allowed.',
   },
 }
