@@ -197,14 +197,19 @@ FILE_STORAGE_PATH=/app/storage
 
 #### AI Services (Optional)
 
+> **Note**: AI providers are now configured **per workspace** via the Admin UI (`/admin/ai-services`). Environment variables below are optional and only used for initial provider import via "Restore Default Providers" button. See [Workspace Configuration](#workspace-configuration) for details.
+
 ```bash
+# OpenAI
+OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1  # Optional, defaults to OpenAI
 
 # Ollama (Local LLM)
 OLLAMA_BASE_URL=http://ollama:11434
 OLLAMA_API_KEY=optional_api_key
 OLLAMA_VRAM_GB=32
 
-# Multiple Ollama instances
+# Multiple Ollama instances (supports up to 10 instances)
 OLLAMA_BASE_URL_1=http://host.docker.internal:11434
 OLLAMA_API_KEY_1=
 OLLAMA_VRAM_GB_1=64
@@ -213,6 +218,14 @@ OLLAMA_BASE_URL_2=https://ollama.example.com:11434
 OLLAMA_API_KEY_2=your-api-key-here
 OLLAMA_VRAM_GB_2=128
 ```
+
+**Key Changes in Multi-Tenancy:**
+
+- Each workspace can configure its own AI providers (Ollama, OpenAI)
+- Provider configurations are stored in the database, not environment variables
+- Multiple workspaces can share the same physical Ollama/OpenAI instances
+- Model availability is automatically filtered based on workspace providers
+- Environment variables above are only used for "Restore Default Providers" feature
 
 #### Worker Configuration
 

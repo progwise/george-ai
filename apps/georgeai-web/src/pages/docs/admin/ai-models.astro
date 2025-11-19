@@ -170,6 +170,106 @@ import Layout from '../../../layouts/Layout.astro'
       </div>
     </section>
 
+    <!-- Workspace Filtering -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Workspace-Scoped Model Availability</h2>
+      <div class="prose max-w-none mb-4">
+        <p class="text-lg">
+          Model dropdowns automatically filter based on your current workspace's configured AI providers.
+        </p>
+        <p>
+          This means users only see models from providers that are enabled in their current workspace, ensuring proper access control and preventing confusion.
+        </p>
+      </div>
+
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="font-bold">How It Works</h3>
+          <p class="text-sm">When you select a model for libraries, assistants, or list fields, George AI automatically shows only models from providers configured in your current workspace. Switching workspaces updates available models in real-time.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current mr-2 text-success">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Benefits
+            </h3>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Zero configuration - filtering happens automatically</li>
+              <li>Users can't accidentally select unavailable models</li>
+              <li>Each workspace can use different AI providers</li>
+              <li>Real-time updates when switching workspaces</li>
+              <li>Applies to all model selections (embedding, chat, OCR)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current mr-2 text-info">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Example
+            </h3>
+            <div class="text-sm space-y-2">
+              <p><strong>Workspace A:</strong> Configured with OpenAI</p>
+              <p class="text-xs opacity-70">Users see: GPT-4, GPT-3.5, text-embedding-3-small, etc.</p>
+              <p class="mt-3"><strong>Workspace B:</strong> Configured with Ollama</p>
+              <p class="text-xs opacity-70">Users see: llama3, mistral, nomic-embed-text, etc.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title text-lg mb-4">Checking Available Models</h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">1</div>
+              <div>
+                <p class="font-semibold">Switch to your target workspace</p>
+                <p class="text-sm opacity-70">Use the workspace switcher in the top navigation</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">2</div>
+              <div>
+                <p class="font-semibold">Open any model selection dropdown</p>
+                <p class="text-sm opacity-70">Library embedding models, assistant language models, etc.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">3</div>
+              <div>
+                <p class="font-semibold">View workspace-filtered models</p>
+                <p class="text-sm opacity-70">Only models from workspace providers are shown</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <span><strong>Note:</strong> If no providers are configured in a workspace, model dropdowns will be empty. Admins should configure at least one provider via <a href="/docs/admin/ai-services" class="link">AI Services</a>.</span>
+      </div>
+
+      <div class="prose max-w-none mt-6">
+        <p>For detailed information about workspaces and provider configuration, see the <a href="/docs/workspaces" class="link link-primary">Workspace Documentation</a>.</p>
+      </div>
+    </section>
+
     <!-- Model Capabilities -->
     <section class="mb-12">
       <h2 class="text-3xl font-bold mb-6">Understanding Model Capabilities</h2>
@@ -472,8 +572,14 @@ import Layout from '../../../layouts/Layout.astro'
         <div class="card-body">
           <h2 class="card-title text-2xl">Related Topics</h2>
           <div class="card-actions flex-wrap mt-4">
-            <a href="/docs/libraries" class="btn btn-secondary">
-              Configure Libraries →
+            <a href="/docs/workspaces" class="btn btn-secondary">
+              Workspaces →
+            </a>
+            <a href="/docs/admin/ai-services" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              AI Services & Providers
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Configure Libraries
             </a>
             <a href="/docs/assistants" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
               Create Assistants

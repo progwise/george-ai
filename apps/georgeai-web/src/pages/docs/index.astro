@@ -143,6 +143,15 @@ import Layout from '../../layouts/Layout.astro'
     <h2 class="text-3xl font-bold mb-8">Administration</h2>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
+      <!-- Workspaces -->
+      <a href="/docs/workspaces" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-primary mb-2">New</div>
+          <h3 class="card-title">Workspaces</h3>
+          <p class="text-sm">Organize teams with workspace-scoped AI providers and complete data isolation</p>
+        </div>
+      </a>
+
       <!-- Users -->
       <a href="/docs/admin/users" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
         <div class="card-body">
@@ -179,9 +188,8 @@ import Layout from '../../layouts/Layout.astro'
       <!-- AI Services -->
       <a href="/docs/admin/ai-services" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
         <div class="card-body">
-          <div class="badge badge-warning mb-2">Advanced</div>
-          <h3 class="card-title">AI Service Clustering</h3>
-          <p class="text-sm">Configure multiple Ollama servers with load balancing</p>
+          <h3 class="card-title">AI Services & Providers</h3>
+          <p class="text-sm">Configure workspace-scoped Ollama and OpenAI providers</p>
         </div>
       </a>
 
