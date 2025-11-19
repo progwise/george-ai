@@ -96,7 +96,8 @@ test.describe('Workspace Model Filtering', () => {
       if (
         modelText?.includes('ollama') ||
         modelText?.toLowerCase().includes('llama') ||
-        modelText?.toLowerCase().includes('mistral')
+        modelText?.toLowerCase().includes('mistral') ||
+        modelText?.toLowerCase().includes('bge')
       ) {
         ollamaModelCount++
       }
@@ -174,7 +175,8 @@ test.describe('Workspace Model Filtering', () => {
         modelText?.toLowerCase().includes('llama') ||
         modelText?.toLowerCase().includes('mistral') ||
         modelText?.toLowerCase().includes('nomic') ||
-        modelText?.toLowerCase().includes('mxbai')
+        modelText?.toLowerCase().includes('mxbai') ||
+        modelText?.toLowerCase().includes('bge')
       ) {
         ollamaModelCount++
       }
@@ -218,13 +220,39 @@ test.describe('Workspace Model Filtering', () => {
     await languageModelDropdown.scrollIntoViewIfNeeded()
     await languageModelDropdown.click()
 
-    // Get first dropdown models (OpenAI workspace)
+    // Get ALL models in first workspace (OpenAI)
     let dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
     await expect(dropdown).toBeVisible()
 
-    const firstModelText = await dropdown.locator('li button').first().textContent()
-    const isFirstOpenAI =
-      firstModelText?.toLowerCase().includes('gpt') || firstModelText?.toLowerCase().includes('openai')
+    const firstWorkspaceModels = dropdown.locator('li button')
+    const firstCount = await firstWorkspaceModels.count()
+
+    let firstOpenaiCount = 0
+    let firstOllamaCount = 0
+
+    for (let i = 0; i < firstCount; i++) {
+      const modelText = await firstWorkspaceModels.nth(i).textContent()
+      if (
+        modelText?.includes('openai') ||
+        modelText?.toLowerCase().includes('gpt') ||
+        modelText?.toLowerCase().includes('text-embedding')
+      ) {
+        firstOpenaiCount++
+      }
+      if (
+        modelText?.includes('ollama') ||
+        modelText?.toLowerCase().includes('llama') ||
+        modelText?.toLowerCase().includes('mistral') ||
+        modelText?.toLowerCase().includes('nomic') ||
+        modelText?.toLowerCase().includes('mxbai') ||
+        modelText?.toLowerCase().includes('qwen') ||
+        modelText?.toLowerCase().includes('phi') ||
+        modelText?.toLowerCase().includes('gemma') ||
+        modelText?.toLowerCase().includes('bge')
+      ) {
+        firstOllamaCount++
+      }
+    }
 
     // Close dropdown
     await page.keyboard.press('Escape')
@@ -256,20 +284,49 @@ test.describe('Workspace Model Filtering', () => {
     await languageModelDropdown2.scrollIntoViewIfNeeded()
     await languageModelDropdown2.click()
 
-    // Get models in second workspace (Ollama)
+    // Get ALL models in second workspace (Ollama)
     dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
     await expect(dropdown).toBeVisible()
 
-    const secondModelText = await dropdown.locator('li button').first().textContent()
-    const isSecondOllama =
-      secondModelText?.toLowerCase().includes('llama') ||
-      secondModelText?.toLowerCase().includes('mistral') ||
-      secondModelText?.toLowerCase().includes('ollama') ||
-      secondModelText?.toLowerCase().includes('mxbai')
+    const secondWorkspaceModels = dropdown.locator('li button')
+    const secondCount = await secondWorkspaceModels.count()
 
-    // Verify models changed based on workspace
-    if (isFirstOpenAI) {
-      expect(isSecondOllama).toBe(true)
+    let secondOpenaiCount = 0
+    let secondOllamaCount = 0
+
+    for (let i = 0; i < secondCount; i++) {
+      const modelText = await secondWorkspaceModels.nth(i).textContent()
+      if (
+        modelText?.includes('openai') ||
+        modelText?.toLowerCase().includes('gpt') ||
+        modelText?.toLowerCase().includes('text-embedding-3')
+      ) {
+        secondOpenaiCount++
+      }
+      if (
+        modelText?.includes('ollama') ||
+        modelText?.toLowerCase().includes('llama') ||
+        modelText?.toLowerCase().includes('mistral') ||
+        modelText?.toLowerCase().includes('nomic') ||
+        modelText?.toLowerCase().includes('mxbai') ||
+        modelText?.toLowerCase().includes('qwen') ||
+        modelText?.toLowerCase().includes('phi') ||
+        modelText?.toLowerCase().includes('gemma') ||
+        modelText?.toLowerCase().includes('bge')
+      ) {
+        secondOllamaCount++
+      }
     }
+
+    // Verify workspace 1 has OpenAI models, no Ollama
+    expect(firstOpenaiCount).toBeGreaterThan(0)
+    expect(firstOllamaCount).toBe(0)
+
+    // Verify workspace 2 has Ollama models, no OpenAI
+    expect(secondOllamaCount).toBeGreaterThan(0)
+    expect(secondOpenaiCount).toBe(0)
+
+    // Close dropdown
+    await page.keyboard.press('Escape')
   })
 })
