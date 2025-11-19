@@ -43,9 +43,9 @@ export const WorkspaceSwitcher = () => {
     // Invalidate workspace-scoped data queries, but NOT localStorage state or workspaces list
     await queryClient.invalidateQueries({
       predicate: (query) => {
-        const key = query.queryKey[0] as string
+        const key = query.queryKey[0]
         // Don't invalidate localStorage state (selectedWorkspaceId) or workspaces list
-        return key !== 'selectedWorkspaceId' && key !== 'workspaces'
+        return typeof key === 'string' && key !== 'selectedWorkspaceId' && key !== 'workspaces'
       },
     })
     // Close the dropdown
