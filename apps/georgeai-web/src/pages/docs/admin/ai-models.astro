@@ -130,6 +130,27 @@ import Layout from '../../../layouts/Layout.astro'
           </tbody>
         </table>
       </div>
+
+      <!-- Model References Alerts -->
+      <div class="grid md:grid-cols-2 gap-4 mt-6">
+        <div class="alert alert-info shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div class="flex-1">
+            <div class="font-bold">OpenAI Models Reference</div>
+            <div class="text-xs">40+ OpenAI models with detailed capabilities</div>
+          </div>
+          <a href="/docs/admin/openai-models" class="btn btn-sm btn-neutral">View Details</a>
+        </div>
+
+        <div class="alert alert-success shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div class="flex-1">
+            <div class="font-bold">Open Source Models Reference</div>
+            <div class="text-xs">30+ OSS models (Llama, Gemma, Qwen, DeepSeek, Phi, Mistral)</div>
+          </div>
+          <a href="/docs/admin/opensource-models" class="btn btn-sm btn-neutral">View Details</a>
+        </div>
+      </div>
     </section>
 
     <!-- Provider Roadmap -->
@@ -615,9 +636,9 @@ import Layout from '../../../layouts/Layout.astro'
             <div class="text-sm text-base-content/70 space-y-1">
               <p><strong>Where:</strong> List → Field Settings → Language Model dropdown</p>
               <p><strong>Required Capability:</strong> Function Calling (preferred) or Chat Completion</p>
-              <p><strong>Recommended (Ollama):</strong> qwen3 (4B/8B/14B/32B), qwen2.5 (3B/14B/32B), gemma3 (1B/4B/12B/27B)</p>
+              <p><strong>Recommended (Ollama):</strong> qwen3 (4B/8B/14B/32B), qwen2.5 (3B/14B/32B), llama3.3 (70B), mistral (7B), deepseek-r1 (reasoning)</p>
               <p><strong>Recommended (OpenAI):</strong> gpt-4o-mini (fast/cheap), gpt-4o, o3 (reasoning)</p>
-              <p class="text-xs mt-2 italic">💡 Tip: Larger models provide better structured extraction but need more GPU memory</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Use qwen3/qwen2.5 for best Ollama function calling. Models with native tool support provide better structured extraction.</p>
             </div>
           </div>
         </div>
