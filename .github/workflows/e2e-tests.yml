@@ -22,6 +22,9 @@ env:
   OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
 
+  # OpenAI API Key (optional)
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
   # Image registry
   # NOTE: Forks must have GitHub Container Registry write access or override IMAGE_PREFIX
   REGISTRY: ghcr.io
