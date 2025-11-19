@@ -1220,6 +1220,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
+  deleteWorkspace(workspaceId: String!): Boolean!
   disableAiLanguageModel(id: ID!): AiLanguageModel
   dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
@@ -1276,6 +1277,7 @@ type Mutation {
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
+  validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
 }
 
 enum ProcessingStatus {
@@ -1561,12 +1563,21 @@ type Workspace {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
   id: ID!
+  isDefault: Boolean!
   libraries: [AiLibrary!]!
   lists: [AiList!]!
   members: [WorkspaceMember!]!
   name: String!
   slug: String!
   updatedAt: DateTime!
+}
+
+type WorkspaceDeletionValidation {
+  assistantCount: Int!
+  canDelete: Boolean!
+  libraryCount: Int!
+  listCount: Int!
+  message: String!
 }
 
 type WorkspaceMember {

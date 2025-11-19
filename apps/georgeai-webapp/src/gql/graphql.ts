@@ -1240,6 +1240,7 @@ export type Mutation = {
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  deleteWorkspace: Scalars['Boolean']['output']
   disableAiLanguageModel?: Maybe<AiLanguageModel>
   dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
@@ -1292,6 +1293,7 @@ export type Mutation = {
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
   validateSharePointConnection: SharePointValidationResult
+  validateWorkspaceDeletion: WorkspaceDeletionValidation
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -1472,6 +1474,10 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
   fileId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
+}
+
+export type MutationDeleteWorkspaceArgs = {
+  workspaceId: Scalars['String']['input']
 }
 
 export type MutationDisableAiLanguageModelArgs = {
@@ -1691,6 +1697,10 @@ export type MutationUpsertAiBaseCasesArgs = {
 export type MutationValidateSharePointConnectionArgs = {
   sharepointAuth: Scalars['String']['input']
   uri: Scalars['String']['input']
+}
+
+export type MutationValidateWorkspaceDeletionArgs = {
+  workspaceId: Scalars['String']['input']
 }
 
 export enum ProcessingStatus {
@@ -2133,12 +2143,22 @@ export type Workspace = {
   assistants: Array<AiAssistant>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
+  isDefault: Scalars['Boolean']['output']
   libraries: Array<AiLibrary>
   lists: Array<AiList>
   members: Array<WorkspaceMember>
   name: Scalars['String']['output']
   slug: Scalars['String']['output']
   updatedAt: Scalars['DateTime']['output']
+}
+
+export type WorkspaceDeletionValidation = {
+  __typename?: 'WorkspaceDeletionValidation'
+  assistantCount: Scalars['Int']['output']
+  canDelete: Scalars['Boolean']['output']
+  libraryCount: Scalars['Int']['output']
+  listCount: Scalars['Int']['output']
+  message: Scalars['String']['output']
 }
 
 export type WorkspaceMember = {
@@ -5646,6 +5666,7 @@ export type GetWorkspacesQuery = {
     id: string
     name: string
     slug: string
+    isDefault: boolean
     createdAt: string
     updatedAt: string
   }>
@@ -5659,6 +5680,28 @@ export type CreateWorkspaceMutationVariables = Exact<{
 export type CreateWorkspaceMutation = {
   __typename?: 'Mutation'
   createWorkspace: { __typename?: 'Workspace'; id: string; name: string; slug: string; createdAt: string }
+}
+
+export type DeleteWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type DeleteWorkspaceMutation = { __typename?: 'Mutation'; deleteWorkspace: boolean }
+
+export type ValidateWorkspaceDeletionMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type ValidateWorkspaceDeletionMutation = {
+  __typename?: 'Mutation'
+  validateWorkspaceDeletion: {
+    __typename?: 'WorkspaceDeletionValidation'
+    canDelete: boolean
+    libraryCount: number
+    assistantCount: number
+    listCount: number
+    message: string
+  }
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -19001,6 +19044,7 @@ export const GetWorkspacesDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDefault' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
               ],
@@ -19063,6 +19107,82 @@ export const CreateWorkspaceDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>
+export const DeleteWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>
+export const ValidateWorkspaceDeletionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ValidateWorkspaceDeletion' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'validateWorkspaceDeletion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'canDelete' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ValidateWorkspaceDeletionMutation, ValidateWorkspaceDeletionMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

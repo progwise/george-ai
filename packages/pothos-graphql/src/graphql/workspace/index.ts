@@ -13,6 +13,13 @@ builder.prismaObject('Workspace', {
     slug: t.exposeString('slug', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    isDefault: t.withAuth({ isLoggedIn: true }).boolean({
+      nullable: false,
+      resolve: async (workspace, _args, ctx) => {
+        const user = ctx.session.user
+        return workspace.id === user.defaultWorkspaceId
+      },
+    }),
     members: t.relation('members', { nullable: false }),
     libraries: t.relation('libraries', { nullable: false }),
     assistants: t.relation('assistants', { nullable: false }),

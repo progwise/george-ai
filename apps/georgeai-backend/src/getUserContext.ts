@@ -44,6 +44,7 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
             username: userInformation.username,
             email: decoded.email,
             isAdmin: userInformation.isAdmin ?? false,
+            defaultWorkspaceId: userInformation.defaultWorkspaceId ?? undefined,
           },
           userProfile: userInformation.profile ?? undefined,
         },

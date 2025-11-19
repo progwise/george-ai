@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { RefObject } from 'react'
+import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
-import { toastError, toastSuccess } from '../georgeToaster'
+import { toastSuccess } from '../georgeToaster'
 import { createWorkspaceFn } from './server-functions/create-workspace'
 
 interface CreateWorkspaceDialogProps {
@@ -16,6 +16,7 @@ interface CreateWorkspaceDialogProps {
 export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateWorkspaceDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [error, setError] = useState<string | null>(null)
 
   const createMutation = useMutation({
     mutationFn: async (data: { name: string; slug: string }) => {
@@ -24,11 +25,20 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
     onSuccess: (workspace) => {
       toastSuccess(t('workspace.createSuccess'))
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+      setError(null)
+
       dialogRef.current?.close()
+
+      // Reset form after dialog close animation completes
+      setTimeout(() => {
+        const form = dialogRef.current?.querySelector('form')
+        form?.reset()
+      }, 200)
+
       onWorkspaceCreated?.(workspace.id)
     },
     onError: (error) => {
-      toastError(error.message)
+      setError(error.message)
     },
   })
 
@@ -38,18 +48,18 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
 
     // Basic validation
     if (!name?.trim()) {
-      toastError(t('workspace.nameRequired'))
+      setError(t('workspace.nameRequired'))
       return
     }
 
     if (!slug?.trim()) {
-      toastError(t('workspace.slugRequired'))
+      setError(t('workspace.slugRequired'))
       return
     }
 
     // Validate slug format (lowercase, alphanumeric, hyphens only)
     if (!/^[a-z0-9-]+$/.test(slug)) {
-      toastError(t('workspace.slugInvalid'))
+      setError(t('workspace.slugInvalid'))
       return
     }
 
@@ -57,6 +67,11 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
   }
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Clear any previous errors when user starts typing
+    if (error) {
+      setError(null)
+    }
+
     const nameInput = e.currentTarget
     const slugInput = nameInput.form?.querySelector('input[name="slug"]') as HTMLInputElement | null
 
@@ -85,6 +100,25 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
       submitButtonText={t('workspace.create')}
       disabledSubmit={createMutation.isPending}
     >
+      {error && (
+        <div className="alert alert-error">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
+
       <Input
         name="name"
         label={t('workspace.name')}
@@ -102,6 +136,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
         required
         disabled={createMutation.isPending}
         schema={schema}
+        onChange={() => error && setError(null)}
       />
 
       <div className="text-base-content/70 text-sm">{t('workspace.slugHint')}</div>

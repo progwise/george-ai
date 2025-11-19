@@ -35,11 +35,16 @@ test.describe('Workspace Model Filtering', () => {
   })
 
   test('should show only OpenAI models in workspace with OpenAI provider', async ({ page }) => {
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle')
+
     // Switch to E2E Test Workspace 1 (OpenAI only)
     const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
+    await expect(workspaceSwitcher).toBeVisible()
     await workspaceSwitcher.click()
-    await page.getByRole('button', { name: 'E2E Test Workspace 1' }).click()
+    await page.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
     await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
+    await page.waitForTimeout(500) // Wait for toast to disappear
 
     // Navigate to library creation
     await page.getByRole('link', { name: 'Libraries' }).click()
@@ -112,11 +117,16 @@ test.describe('Workspace Model Filtering', () => {
   })
 
   test('should show only Ollama models in workspace with Ollama provider', async ({ page }) => {
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle')
+
     // Switch to E2E Test Workspace 2 (Ollama only)
     const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
+    await expect(workspaceSwitcher).toBeVisible()
     await workspaceSwitcher.click()
-    await page.getByRole('button', { name: 'E2E Test Workspace 2' }).click()
+    await page.getByRole('button', { name: 'E2E Test Workspace 2', exact: true }).click()
     await expect(workspaceSwitcher).toContainText('E2E Test Workspace 2')
+    await page.waitForTimeout(500) // Wait for toast to disappear
 
     // Navigate to library creation
     await page.getByRole('link', { name: 'Libraries' }).click()
@@ -191,11 +201,17 @@ test.describe('Workspace Model Filtering', () => {
   })
 
   test('should update available models when switching workspaces', async ({ page }) => {
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(500)
+
     // Switch to E2E Test Workspace 1 (OpenAI)
     let workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
+    await expect(workspaceSwitcher).toBeVisible()
     await workspaceSwitcher.click()
-    await page.getByRole('button', { name: 'E2E Test Workspace 1' }).click()
+    await page.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
     await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
+    await page.waitForTimeout(500) // Wait for toast to disappear
 
     // Navigate to assistant creation
     await page.getByRole('link', { name: 'Assistants' }).click()
@@ -260,8 +276,9 @@ test.describe('Workspace Model Filtering', () => {
     // Switch to E2E Test Workspace 2 (Ollama)
     workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
     await workspaceSwitcher.click()
-    await page.getByRole('button', { name: 'E2E Test Workspace 2' }).click()
+    await page.getByRole('button', { name: 'E2E Test Workspace 2', exact: true }).click()
     await expect(workspaceSwitcher).toContainText('E2E Test Workspace 2')
+    await page.waitForTimeout(500) // Wait for toast to disappear
 
     // Should navigate to assistants list (away from detail page)
     await expect(page).toHaveURL(/\/assistants$/)

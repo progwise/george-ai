@@ -992,6 +992,7 @@ export default {
     createDescription:
       'Erstellen Sie einen neuen Arbeitsbereich, um Ihre Bibliotheken, Assistenten und Listen zu organisieren.',
     create: 'Erstellen',
+    createLong: 'Neuen Arbeitsbereich erstellen',
     createSuccess: 'Arbeitsbereich erfolgreich erstellt',
     name: 'Name des Arbeitsbereichs',
     namePlaceholder: 'Mein Arbeitsbereich',
@@ -1001,5 +1002,17 @@ export default {
     slugRequired: 'Arbeitsbereich-Slug ist erforderlich',
     slugInvalid: 'Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten',
     slugHint: 'Wird in URLs verwendet. Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt.',
+    deleteTitle: 'Arbeitsbereich löschen',
+    deleteDescription: 'Diese Aktion kann nicht rückgängig gemacht werden. Der Arbeitsbereich wird dauerhaft gelöscht.',
+    deleteBlockedDescription: 'Dieser Arbeitsbereich kann nicht gelöscht werden, da er Elemente enthält.',
+    delete: 'Arbeitsbereich löschen',
+    deleteSuccess: 'Arbeitsbereich erfolgreich gelöscht',
+    cannotDelete: 'Arbeitsbereich mit vorhandenen Elementen kann nicht gelöscht werden',
+    confirmName: 'Geben Sie den Arbeitsbereichsnamen zur Bestätigung ein',
+    confirmNameMismatch: 'Arbeitsbereichsname stimmt nicht überein',
+    deleteConfirmPrompt: 'Geben Sie {{workspaceName}} ein, um das Löschen zu bestätigen',
+    deleteWarning: 'Diese Aktion kann nicht rückgängig gemacht werden!',
+    deleteInstructions:
+      'Bitte löschen Sie alle Bibliotheken, Assistenten und Listen, bevor Sie diesen Arbeitsbereich löschen.',
   },
 }

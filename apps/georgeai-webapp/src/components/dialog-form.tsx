@@ -62,7 +62,7 @@ export const DialogForm = ({
           <div className="modal-action flex justify-end gap-2">
             {buttonOptions === 'onlyClose' ? (
               <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>
-                {submitButtonText || t('actions.close')}
+                {t('actions.close')}
               </button>
             ) : (
               <>

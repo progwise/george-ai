@@ -10,6 +10,7 @@ const workspacesQueryDocument = graphql(`
       id
       name
       slug
+      isDefault
       createdAt
       updatedAt
     }
