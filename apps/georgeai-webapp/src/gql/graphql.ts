@@ -293,6 +293,7 @@ export type AiEnrichmentTaskProcessingDataInput = {
   fileId: Scalars['String']['output']
   fileName: Scalars['String']['output']
   libraryEmbeddingModel?: Maybe<Scalars['String']['output']>
+  libraryEmbeddingModelProvider?: Maybe<Scalars['String']['output']>
   libraryId: Scalars['String']['output']
   libraryName: Scalars['String']['output']
   useVectorStore: Scalars['Boolean']['output']
@@ -821,6 +822,32 @@ export type AiServiceInstance = {
   version: Scalars['String']['output']
 }
 
+export type AiServiceProvider = {
+  __typename?: 'AiServiceProvider'
+  apiKeyHint?: Maybe<Scalars['String']['output']>
+  baseUrl?: Maybe<Scalars['String']['output']>
+  createdAt: Scalars['DateTime']['output']
+  createdBy?: Maybe<Scalars['String']['output']>
+  enabled: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  provider: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
+  updatedBy?: Maybe<Scalars['String']['output']>
+  vramGb?: Maybe<Scalars['Int']['output']>
+  workspace: Workspace
+  workspaceId: Scalars['String']['output']
+}
+
+export type AiServiceProviderInput = {
+  apiKey?: InputMaybe<Scalars['String']['input']>
+  baseUrl?: InputMaybe<Scalars['String']['input']>
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
+  name: Scalars['String']['input']
+  provider: Scalars['String']['input']
+  vramGb?: InputMaybe<Scalars['Int']['input']>
+}
+
 export type ApiKey = {
   __typename?: 'ApiKey'
   createdAt: Scalars['DateTime']['output']
@@ -1193,6 +1220,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibraryCrawler: AiLibraryCrawler
+  createAiServiceProvider: AiServiceProvider
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
   createEmbeddingTask: AiContentProcessingTask
@@ -1200,16 +1228,19 @@ export type Mutation = {
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
   createMissingContentExtractionTasks: Array<AiContentProcessingTask>
+  createWorkspace: Workspace
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteAiServiceProvider: Scalars['Boolean']['output']
   deleteLibrary: AiLibrary
   deleteLibraryFile: AiLibraryFile
   deleteLibraryFiles: Scalars['Int']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  deleteWorkspace: Scalars['Boolean']['output']
   disableAiLanguageModel?: Maybe<AiLanguageModel>
   dropAllLibraryFiles: Scalars['Int']['output']
   dropOutdatedMarkdowns: Scalars['Int']['output']
@@ -1230,6 +1261,7 @@ export type Mutation = {
   removeListSource: AiListSource
   reorderListFields: Array<AiListField>
   resetAssessmentAnswers: Scalars['DateTime']['output']
+  restoreDefaultProviders: RestoreDefaultProvidersResult
   retryFailedTasks: QueueOperationResult
   revokeApiKey: Scalars['Boolean']['output']
   runAiLibraryCrawler: Scalars['String']['output']
@@ -1241,11 +1273,14 @@ export type Mutation = {
   stopAllQueueWorkers: QueueOperationResult
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
+  testProviderConnection: TestProviderConnectionResult
   toggleAdminStatus?: Maybe<User>
+  toggleAiServiceProvider: AiServiceProvider
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLanguageModel?: Maybe<AiLanguageModel>
   updateAiLibraryCrawler: AiLibraryCrawler
+  updateAiServiceProvider: AiServiceProvider
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibrary: AiLibrary
   updateLibraryParticipants: UpdateLibraryParticipantsResult
@@ -1258,6 +1293,7 @@ export type Mutation = {
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
   validateSharePointConnection: SharePointValidationResult
+  validateWorkspaceDeletion: WorkspaceDeletionValidation
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -1351,6 +1387,10 @@ export type MutationCreateAiLibraryCrawlerArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationCreateAiServiceProviderArgs = {
+  data: AiServiceProviderInput
+}
+
 export type MutationCreateContentProcessingTaskArgs = {
   fileId: Scalars['String']['input']
 }
@@ -1385,6 +1425,11 @@ export type MutationCreateMissingContentExtractionTasksArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationCreateWorkspaceArgs = {
+  name: Scalars['String']['input']
+  slug: Scalars['String']['input']
+}
+
 export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -1399,6 +1444,10 @@ export type MutationDeleteAiConversationsArgs = {
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiServiceProviderArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteLibraryArgs = {
@@ -1425,6 +1474,10 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
   fileId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
+}
+
+export type MutationDeleteWorkspaceArgs = {
+  workspaceId: Scalars['String']['input']
 }
 
 export type MutationDisableAiLanguageModelArgs = {
@@ -1547,8 +1600,17 @@ export type MutationStopQueueWorkerArgs = {
   queueType: QueueType
 }
 
+export type MutationTestProviderConnectionArgs = {
+  data: TestProviderConnectionInput
+}
+
 export type MutationToggleAdminStatusArgs = {
   userId: Scalars['String']['input']
+}
+
+export type MutationToggleAiServiceProviderArgs = {
+  enabled: Scalars['Boolean']['input']
+  id: Scalars['ID']['input']
 }
 
 export type MutationUnhideMessageArgs = {
@@ -1569,6 +1631,11 @@ export type MutationUpdateAiLibraryCrawlerArgs = {
   credentials?: InputMaybe<AiLibraryCrawlerCredentialsInput>
   data: AiLibraryCrawlerInput
   id: Scalars['String']['input']
+}
+
+export type MutationUpdateAiServiceProviderArgs = {
+  data: AiServiceProviderInput
+  id: Scalars['ID']['input']
 }
 
 export type MutationUpdateAssessmentQuestionArgs = {
@@ -1630,6 +1697,10 @@ export type MutationUpsertAiBaseCasesArgs = {
 export type MutationValidateSharePointConnectionArgs = {
   sharepointAuth: Scalars['String']['input']
   uri: Scalars['String']['input']
+}
+
+export type MutationValidateWorkspaceDeletionArgs = {
+  workspaceId: Scalars['String']['input']
 }
 
 export enum ProcessingStatus {
@@ -1695,6 +1766,8 @@ export type Query = {
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
   aiModelUsageStats?: Maybe<ModelUsageStats>
+  aiServiceProvider?: Maybe<AiServiceProvider>
+  aiServiceProviders: Array<AiServiceProvider>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
   apiKeys: Array<ApiKey>
@@ -1706,6 +1779,8 @@ export type Query = {
   userProfile: UserProfile
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
+  workspace?: Maybe<Workspace>
+  workspaces: Array<Workspace>
 }
 
 export type QueryAiActAssessmentArgs = {
@@ -1854,6 +1929,14 @@ export type QueryAiModelUsageStatsArgs = {
   userId?: InputMaybe<Scalars['String']['input']>
 }
 
+export type QueryAiServiceProviderArgs = {
+  id: Scalars['ID']['input']
+}
+
+export type QueryAiServiceProvidersArgs = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
@@ -1885,6 +1968,10 @@ export type QueryQueryAiLibraryFilesArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
+}
+
+export type QueryWorkspaceArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type QueueOperationResult = {
@@ -1920,6 +2007,13 @@ export enum QueueType {
   Enrichment = 'ENRICHMENT',
 }
 
+export type RestoreDefaultProvidersResult = {
+  __typename?: 'RestoreDefaultProvidersResult'
+  created: Scalars['Int']['output']
+  providers: Array<AiServiceProvider>
+  skipped: Scalars['Int']['output']
+}
+
 export type SharePointValidationResult = {
   __typename?: 'SharePointValidationResult'
   errorMessage?: Maybe<Scalars['String']['output']>
@@ -1937,6 +2031,20 @@ export type SyncModelsResult = {
   __typename?: 'SyncModelsResult'
   errors: Array<Scalars['String']['output']>
   modelsDiscovered: Scalars['Int']['output']
+  success: Scalars['Boolean']['output']
+}
+
+export type TestProviderConnectionInput = {
+  apiKey?: InputMaybe<Scalars['String']['input']>
+  baseUrl?: InputMaybe<Scalars['String']['input']>
+  provider: Scalars['String']['input']
+  providerId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type TestProviderConnectionResult = {
+  __typename?: 'TestProviderConnectionResult'
+  details?: Maybe<Scalars['String']['output']>
+  message: Scalars['String']['output']
   success: Scalars['Boolean']['output']
 }
 
@@ -1969,6 +2077,7 @@ export type User = {
   __typename?: 'User'
   avatarUrl?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
+  defaultWorkspaceId: Scalars['ID']['output']
   email: Scalars['String']['output']
   family_name?: Maybe<Scalars['String']['output']>
   given_name?: Maybe<Scalars['String']['output']>
@@ -2027,6 +2136,38 @@ export type UserStatistic = {
   total: Scalars['Int']['output']
   unactivated: Scalars['Int']['output']
   unconfirmed: Scalars['Int']['output']
+}
+
+export type Workspace = {
+  __typename?: 'Workspace'
+  assistants: Array<AiAssistant>
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  isDefault: Scalars['Boolean']['output']
+  libraries: Array<AiLibrary>
+  lists: Array<AiList>
+  members: Array<WorkspaceMember>
+  name: Scalars['String']['output']
+  slug: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
+}
+
+export type WorkspaceDeletionValidation = {
+  __typename?: 'WorkspaceDeletionValidation'
+  assistantCount: Scalars['Int']['output']
+  canDelete: Scalars['Boolean']['output']
+  libraryCount: Scalars['Int']['output']
+  listCount: Scalars['Int']['output']
+  message: Scalars['String']['output']
+}
+
+export type WorkspaceMember = {
+  __typename?: 'WorkspaceMember'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  role: Scalars['String']['output']
+  user: User
+  workspace: Workspace
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -2231,6 +2372,7 @@ export type LoginMutation = {
     avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
+    defaultWorkspaceId: string
   }
 }
 
@@ -2393,6 +2535,28 @@ export type GetAiServiceStatusQuery = {
   }
 }
 
+export type GetAiServiceProvidersQueryVariables = Exact<{
+  enabled?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type GetAiServiceProvidersQuery = {
+  __typename?: 'Query'
+  aiServiceProviders: Array<{
+    __typename?: 'AiServiceProvider'
+    id: string
+    createdAt: string
+    updatedAt: string
+    provider: string
+    name: string
+    enabled: boolean
+    baseUrl?: string | null
+    apiKeyHint?: string | null
+    vramGb?: number | null
+    createdBy?: string | null
+    updatedBy?: string | null
+  }>
+}
+
 export type GetQueueSystemStatusQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetQueueSystemStatusQuery = {
@@ -2511,6 +2675,87 @@ export type QueueSystemStatus_ManagementPanelFragment = {
     completedTasks: number
     lastProcessedAt?: string | null
   }>
+}
+
+export type CreateAiServiceProviderMutationVariables = Exact<{
+  data: AiServiceProviderInput
+}>
+
+export type CreateAiServiceProviderMutation = {
+  __typename?: 'Mutation'
+  createAiServiceProvider: {
+    __typename?: 'AiServiceProvider'
+    id: string
+    provider: string
+    name: string
+    enabled: boolean
+  }
+}
+
+export type DeleteAiServiceProviderMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteAiServiceProviderMutation = { __typename?: 'Mutation'; deleteAiServiceProvider: boolean }
+
+export type RestoreDefaultProvidersMutationVariables = Exact<{ [key: string]: never }>
+
+export type RestoreDefaultProvidersMutation = {
+  __typename?: 'Mutation'
+  restoreDefaultProviders: {
+    __typename?: 'RestoreDefaultProvidersResult'
+    created: number
+    skipped: number
+    providers: Array<{
+      __typename?: 'AiServiceProvider'
+      id: string
+      name: string
+      provider: string
+      baseUrl?: string | null
+      enabled: boolean
+      vramGb?: number | null
+    }>
+  }
+}
+
+export type TestProviderConnectionMutationVariables = Exact<{
+  data: TestProviderConnectionInput
+}>
+
+export type TestProviderConnectionMutation = {
+  __typename?: 'Mutation'
+  testProviderConnection: {
+    __typename?: 'TestProviderConnectionResult'
+    success: boolean
+    message: string
+    details?: string | null
+  }
+}
+
+export type ToggleAiServiceProviderMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  enabled: Scalars['Boolean']['input']
+}>
+
+export type ToggleAiServiceProviderMutation = {
+  __typename?: 'Mutation'
+  toggleAiServiceProvider: { __typename?: 'AiServiceProvider'; id: string; enabled: boolean }
+}
+
+export type UpdateAiServiceProviderMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: AiServiceProviderInput
+}>
+
+export type UpdateAiServiceProviderMutation = {
+  __typename?: 'Mutation'
+  updateAiServiceProvider: {
+    __typename?: 'AiServiceProvider'
+    id: string
+    provider: string
+    name: string
+    enabled: boolean
+  }
 }
 
 export type EnsureUserProfileMutationVariables = Exact<{
@@ -5410,6 +5655,53 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWorkspacesQuery = {
+  __typename?: 'Query'
+  workspaces: Array<{
+    __typename?: 'Workspace'
+    id: string
+    name: string
+    slug: string
+    isDefault: boolean
+    createdAt: string
+    updatedAt: string
+  }>
+}
+
+export type CreateWorkspaceMutationVariables = Exact<{
+  name: Scalars['String']['input']
+  slug: Scalars['String']['input']
+}>
+
+export type CreateWorkspaceMutation = {
+  __typename?: 'Mutation'
+  createWorkspace: { __typename?: 'Workspace'; id: string; name: string; slug: string; createdAt: string }
+}
+
+export type DeleteWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type DeleteWorkspaceMutation = { __typename?: 'Mutation'; deleteWorkspace: boolean }
+
+export type ValidateWorkspaceDeletionMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type ValidateWorkspaceDeletionMutation = {
+  __typename?: 'Mutation'
+  validateWorkspaceDeletion: {
+    __typename?: 'WorkspaceDeletionValidation'
+    canDelete: boolean
+    libraryCount: number
+    assistantCount: number
+    listCount: number
+    message: string
+  }
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -10551,6 +10843,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
               ],
             },
           },
@@ -10992,6 +11285,55 @@ export const GetAiServiceStatusDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiServiceStatusQuery, GetAiServiceStatusQueryVariables>
+export const GetAiServiceProvidersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAiServiceProviders' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiServiceProviders' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'enabled' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'apiKeyHint' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'vramGb' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdBy' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedBy' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
 export const GetQueueSystemStatusDocument = {
   kind: 'Document',
   definitions: [
@@ -11322,6 +11664,274 @@ export const CancelContentProcessingTasksDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelContentProcessingTasksMutation, CancelContentProcessingTasksMutationVariables>
+export const CreateAiServiceProviderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateAiServiceProvider' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiServiceProviderInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiServiceProvider' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAiServiceProviderMutation, CreateAiServiceProviderMutationVariables>
+export const DeleteAiServiceProviderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteAiServiceProvider' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiServiceProvider' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiServiceProviderMutation, DeleteAiServiceProviderMutationVariables>
+export const RestoreDefaultProvidersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RestoreDefaultProviders' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'restoreDefaultProviders' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skipped' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'providers' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'vramGb' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RestoreDefaultProvidersMutation, RestoreDefaultProvidersMutationVariables>
+export const TestProviderConnectionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'TestProviderConnection' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'TestProviderConnectionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'testProviderConnection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'details' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TestProviderConnectionMutation, TestProviderConnectionMutationVariables>
+export const ToggleAiServiceProviderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ToggleAiServiceProvider' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleAiServiceProvider' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'enabled' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleAiServiceProviderMutation, ToggleAiServiceProviderMutationVariables>
+export const UpdateAiServiceProviderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateAiServiceProvider' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiServiceProviderInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiServiceProvider' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAiServiceProviderMutation, UpdateAiServiceProviderMutationVariables>
 export const EnsureUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -18415,6 +19025,164 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetWorkspacesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaces' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaces' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDefault' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>
+export const CreateWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'slug' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>
+export const DeleteWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>
+export const ValidateWorkspaceDeletionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ValidateWorkspaceDeletion' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'validateWorkspaceDeletion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'canDelete' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ValidateWorkspaceDeletionMutation, ValidateWorkspaceDeletionMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

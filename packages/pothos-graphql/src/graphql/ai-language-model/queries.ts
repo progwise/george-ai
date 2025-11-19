@@ -30,6 +30,7 @@ const AiLanguageModelsResult = builder
     canDoFunctionCalling?: boolean
     onlyUsed: boolean
     showDisabled: boolean
+    workspaceId?: string
   }>('AiLanguageModelsResult')
   .implement({
     description: 'Paginated result for AI Language Models',
@@ -54,10 +55,20 @@ const AiLanguageModelsResult = builder
             capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
           }
 
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             enabled: true, // Always count only enabled
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -83,10 +94,20 @@ const AiLanguageModelsResult = builder
             capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
           }
 
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             enabled: false, // Only count disabled models
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -98,10 +119,20 @@ const AiLanguageModelsResult = builder
         type: 'Int',
         nullable: false,
         resolve: async (root) => {
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             ...(!root.showDisabled && { enabled: true }),
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             canDoEmbedding: true, // Always filter for embedding capability
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -127,10 +158,20 @@ const AiLanguageModelsResult = builder
             capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
           }
 
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             ...(!root.showDisabled && { enabled: true }),
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -164,10 +205,20 @@ const AiLanguageModelsResult = builder
             capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
           }
 
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             ...(!root.showDisabled && { enabled: true }),
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -179,14 +230,28 @@ const AiLanguageModelsResult = builder
         type: [ProviderCapabilityCounts],
         nullable: { list: false, items: false },
         resolve: async (root) => {
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders: string[] | undefined
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          } else {
+            workspaceProviders = root.providers
+          }
+
           const baseWhere = {
             ...(!root.showDisabled && { enabled: true }),
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
           }
 
-          // Get all distinct providers
-          const providers = ['ollama', 'openai']
+          // Get all distinct providers (or use workspace providers)
+          const providers =
+            workspaceProviders && workspaceProviders.length > 0 ? workspaceProviders : ['ollama', 'openai']
 
           // For each provider, count models by capability
           const results = await Promise.all(
@@ -239,10 +304,20 @@ const AiLanguageModelsResult = builder
             capabilityFilters.push({ canDoFunctionCalling: root.canDoFunctionCalling })
           }
 
+          // Get workspace providers if workspaceId is provided
+          let workspaceProviders = root.providers
+          if (root.workspaceId && !root.providers) {
+            const providers = await prisma.aiServiceProvider.findMany({
+              where: { workspaceId: root.workspaceId, enabled: true },
+              select: { provider: true },
+            })
+            workspaceProviders = providers.map((p) => p.provider)
+          }
+
           const where = {
             ...(!root.showDisabled && { enabled: true }),
             ...(root.search && { name: { contains: root.search, mode: 'insensitive' as const } }),
-            ...(root.providers && root.providers.length > 0 && { provider: { in: root.providers } }),
+            ...(workspaceProviders && workspaceProviders.length > 0 && { provider: { in: workspaceProviders } }),
             ...(capabilityFilters.length > 0 && { OR: capabilityFilters }),
             ...(root.onlyUsed && { lastUsedAt: { not: null } }),
           }
@@ -271,7 +346,7 @@ const AiLanguageModelsResult = builder
   })
 
 builder.queryField('aiLanguageModels', (t) =>
-  t.withAuth({ isLoggedIn: true, admin: true }).field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: AiLanguageModelsResult,
     nullable: false,
     args: {
@@ -286,7 +361,7 @@ builder.queryField('aiLanguageModels', (t) =>
       onlyUsed: t.arg.boolean({ required: false, defaultValue: false }),
       showDisabled: t.arg.boolean({ required: false, defaultValue: false }),
     },
-    resolve: async (_parent, args) => {
+    resolve: async (_parent, args, ctx) => {
       return {
         take: args.take ?? 20,
         skip: args.skip ?? 0,
@@ -298,6 +373,7 @@ builder.queryField('aiLanguageModels', (t) =>
         canDoFunctionCalling: args.canDoFunctionCalling ?? undefined,
         onlyUsed: args.onlyUsed ?? false,
         showDisabled: args.showDisabled ?? false,
+        workspaceId: ctx.workspaceId,
       }
     },
   }),

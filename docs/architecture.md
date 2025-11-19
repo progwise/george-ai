@@ -289,6 +289,22 @@ If no AI providers are configured:
 - Assistants without language model: Create works, chat disabled
 - List fields without language model: Create works, enrichment disabled
 
+### Workspace-Scoped Providers
+
+**Provider Configuration**:
+
+- AI providers (`AiServiceProvider` table) scoped per workspace via `workspaceId`
+- Provider cache with 60s TTL, automatic invalidation on mutations
+- Configured via Admin UI (`/admin/ai-services`), not environment variables
+
+**Model Filtering**:
+
+- `aiLanguageModels` GraphQL query filters by workspace's enabled providers
+- Model dropdowns automatically show only workspace-available models
+- Real-time updates when switching workspaces
+
+**For user guide, see [Workspace Documentation](https://george-ai.net/docs/workspaces).**
+
 ---
 
 ## External Services

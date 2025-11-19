@@ -77,6 +77,7 @@ builder.mutationField('createLibrary', (t) =>
           embeddingTimeoutMs: restData.embeddingTimeoutMs,
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           ownerId: userId,
+          workspaceId: context.workspaceId,
           embeddingModelId: embeddingModelId ?? undefined,
           ocrModelId: ocrModelId ?? undefined,
         },

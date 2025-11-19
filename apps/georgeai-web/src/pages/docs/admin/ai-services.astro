@@ -2,29 +2,244 @@
 import Layout from '../../../layouts/Layout.astro'
 ---
 
-<Layout title="AI Service Clustering - George-AI Documentation">
+<Layout title="AI Services & Providers - George-AI Documentation">
   <div class="max-w-4xl mx-auto">
     <!-- Breadcrumb -->
     <div class="text-sm breadcrumbs mb-6">
       <ul>
         <li><a href="/docs">Documentation</a></li>
         <li><a href="/docs">Administration</a></li>
-        <li>AI Service Clustering</li>
+        <li>AI Services & Providers</li>
       </ul>
     </div>
 
     <!-- Header -->
     <div class="mb-8">
-      <div class="badge badge-warning mb-4">Advanced</div>
-      <h1 class="text-5xl font-bold mb-4">AI Service Clustering</h1>
+      <div class="badge badge-primary mb-4">Administration</div>
+      <h1 class="text-5xl font-bold mb-4">AI Services & Providers</h1>
       <p class="text-xl text-base-content/70">
-        Configure and manage Ollama servers with automatic load balancing
+        Configure workspace-scoped AI providers (Ollama, OpenAI) and manage connection settings
       </p>
     </div>
 
     <!-- Overview -->
     <section class="mb-12">
       <h2 class="text-3xl font-bold mb-4">Overview</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          AI providers are configured <strong>per workspace</strong>, giving you complete flexibility in how each team or project uses AI models.
+        </p>
+        <p>
+          Each workspace can have its own Ollama and OpenAI configurations, allowing you to mix providers based on privacy requirements, performance needs, or budget constraints.
+        </p>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="font-bold">Workspace Scoping</h3>
+          <p class="text-sm">Provider configurations are isolated per workspace. Switching workspaces shows different available models based on each workspace's configured providers.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accessing AI Services -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Accessing AI Services Admin</h2>
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title mb-4">Navigation</h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">1</div>
+              <div>
+                <p class="font-semibold">Switch to target workspace</p>
+                <p class="text-sm opacity-70">Use the workspace switcher in the top navigation</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">2</div>
+              <div>
+                <p class="font-semibold">Open Settings menu → Admin → AI Services</p>
+                <p class="text-sm opacity-70">URL: <code>/admin/ai-services</code></p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="badge badge-primary">3</div>
+              <div>
+                <p class="font-semibold">Configure providers for this workspace</p>
+                <p class="text-sm opacity-70">Changes only affect the current workspace</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <span><strong>Permissions Required:</strong> You must be a Workspace Admin or Owner to configure AI providers.</span>
+      </div>
+    </section>
+
+    <!-- Configuring Providers -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Configuring AI Providers</h2>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current mr-2 text-primary">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+              Ollama (Local)
+            </h3>
+            <p class="text-sm mb-2">Self-hosted AI models for privacy and offline use</p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Complete data privacy</li>
+              <li>No API costs</li>
+              <li>Offline operation</li>
+              <li>GPU required for performance</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current mr-2 text-secondary">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+              </svg>
+              OpenAI (Cloud)
+            </h3>
+            <p class="text-sm mb-2">Cloud-based AI models from OpenAI</p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Latest GPT models</li>
+              <li>High performance</li>
+              <li>No infrastructure needed</li>
+              <li>Pay per use (API costs)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="provider-config" checked />
+          <div class="collapse-title text-xl font-medium">
+            Configuring Ollama Provider
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-4 text-sm">
+              <div>
+                <p class="font-semibold mb-1">Required Settings:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4">
+                  <li><strong>Name:</strong> Descriptive name (e.g., "Production Ollama")</li>
+                  <li><strong>Base URL:</strong> Ollama server address (e.g., <code>http://ollama:11434</code>)</li>
+                  <li><strong>API Key:</strong> Optional (if Ollama authentication enabled)</li>
+                  <li><strong>VRAM (GB):</strong> Total GPU memory available (helps with load balancing)</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-semibold mb-1">Connection Testing:</p>
+                <p>Click "Test Connection" to verify the configuration before saving. This will:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4 mt-1">
+                  <li>Check network connectivity to Ollama server</li>
+                  <li>Verify API authentication (if enabled)</li>
+                  <li>List available models on the server</li>
+                </ul>
+              </div>
+              <div class="alert alert-info">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm">After configuring Ollama, navigate to Admin → AI Models and click "Sync Models" to discover available models.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-100 shadow-lg">
+          <input type="radio" name="provider-config" />
+          <div class="collapse-title text-xl font-medium">
+            Configuring OpenAI Provider
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-4 text-sm">
+              <div>
+                <p class="font-semibold mb-1">Required Settings:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4">
+                  <li><strong>Name:</strong> Descriptive name (e.g., "OpenAI Production")</li>
+                  <li><strong>Base URL:</strong> API endpoint (default: <code>https://api.openai.com/v1</code>)</li>
+                  <li><strong>API Key:</strong> Your OpenAI API key (starts with <code>sk-...</code>)</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-semibold mb-1">Security:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4">
+                  <li>API keys are encrypted in the database</li>
+                  <li>Keys never exposed to frontend (shown as <code>sk-...xy</code>)</li>
+                  <li>Can test connection without re-entering key</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-semibold mb-1">Connection Testing:</p>
+                <p>Click "Test Connection" to verify your API key and check available models.</p>
+              </div>
+              <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="text-sm"><strong>Cost Monitoring:</strong> OpenAI charges per token. Monitor usage in Admin → AI Models to track costs.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Provider Cache -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Provider Performance</h2>
+      <div class="prose max-w-none">
+        <p>George AI caches workspace provider configurations for optimal performance:</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4 mt-4">
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Cache TTL</div>
+          <div class="stat-value text-3xl">60s</div>
+          <div class="stat-desc">Provider config cached for 1 minute</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Auto Invalidation</div>
+          <div class="stat-value text-success text-3xl">✓</div>
+          <div class="stat-desc">Cache clears on provider changes</div>
+        </div>
+        <div class="stat bg-base-200 rounded-lg">
+          <div class="stat-title">Performance Gain</div>
+          <div class="stat-value text-3xl">10x</div>
+          <div class="stat-desc">Faster model queries</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Instance Ollama -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Advanced: Multi-Instance Ollama Load Balancing</h2>
+      <div class="alert alert-warning mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <div>
+          <h3 class="font-bold">Advanced Configuration</h3>
+          <p class="text-sm">This section covers Ollama clustering with multiple GPU servers. Most users can skip this.</p>
+        </div>
+      </div>
+
       <div class="prose max-w-none">
         <p class="text-lg">
           George AI can distribute AI processing across multiple Ollama servers, automatically balancing load based on each server's capabilities.
@@ -254,8 +469,17 @@ import Layout from '../../../layouts/Layout.astro'
         <div class="card-body">
           <h2 class="card-title text-2xl">Related Topics</h2>
           <div class="card-actions flex-wrap mt-4">
-            <a href="/docs/processing" class="btn btn-secondary">
-              Document Processing →
+            <a href="/docs/workspaces" class="btn btn-secondary">
+              Workspaces →
+            </a>
+            <a href="/docs/admin/ai-models" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              AI Models & Providers
+            </a>
+            <a href="/docs/libraries" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Configure Libraries
+            </a>
+            <a href="/docs/processing" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
+              Document Processing
             </a>
             <a href="/docs/embeddings" class="btn btn-ghost btn-outline border-white text-white hover:bg-white hover:text-primary">
               Embeddings

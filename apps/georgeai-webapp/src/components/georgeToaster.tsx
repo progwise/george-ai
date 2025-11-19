@@ -36,7 +36,7 @@ export const GeorgeToaster = () => {
       toastOptions={{
         duration: 5000,
         error: { ariaProps: { role: 'alert', 'aria-live': 'assertive' } },
-        position: 'top-right',
+        position: 'bottom-right',
         style: { zIndex: 1000 },
       }}
     />

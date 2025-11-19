@@ -59,6 +59,7 @@ builder.mutationField('createAiAssistant', (t) =>
         data: {
           name,
           ownerId: userId,
+          workspaceId: context.workspaceId,
         },
       })
     },

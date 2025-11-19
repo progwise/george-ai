@@ -1,9 +1,10 @@
-import { Message, chat } from '@george-ai/ai-service-client'
+import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
+import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
 
 let isWorkerRunning = false
@@ -24,6 +25,13 @@ async function processQueueItem({
     if (!metadata.input) {
       throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
     }
+
+    // Get workspaceId from library
+    const workspaceId = await getLibraryWorkspace(metadata.input.libraryId)
+    if (!workspaceId) {
+      throw new Error(`Library ${metadata.input.libraryId} has no workspace`)
+    }
+
     // Mark as processing - use updateMany to handle race conditions
     const updated = await prisma.aiEnrichmentTask.updateMany({
       where: {
@@ -77,16 +85,22 @@ async function processQueueItem({
       )
 
       if (metadata.input.useVectorStore) {
-        if (!metadata.input.contentQuery || !metadata.input.libraryEmbeddingModel) {
+        if (
+          !metadata.input.contentQuery ||
+          !metadata.input.libraryEmbeddingModel ||
+          !metadata.input.libraryEmbeddingModelProvider
+        ) {
           throw new Error(
-            `Content query and library embedding model are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
+            `Content query, library embedding model, and provider are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
           )
         }
         const similarChunks = await getSimilarChunks({
-          embeddingsModelName: metadata.input.libraryEmbeddingModel,
-          term: metadata.input.contentQuery,
+          workspaceId,
           libraryId: metadata.input.libraryId,
           fileId: metadata.input.fileId,
+          term: metadata.input.contentQuery,
+          embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
+          embeddingsModelName: metadata.input.libraryEmbeddingModel,
           hits: 3,
         })
 
@@ -111,11 +125,14 @@ async function processQueueItem({
       // Track start time for usage logging
       const startTime = Date.now()
 
-      const chatResponse = await chat({
-        messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
-        modelProvider: metadata.input.aiModelProvider || 'ollama',
-        modelName: metadata.input.aiModelName,
-      })
+      const chatResponse = await chat(
+        workspaceId,
+        (metadata.input.aiModelProvider || 'ollama') as ServiceProviderType,
+        {
+          messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
+          modelName: metadata.input.aiModelName,
+        },
+      )
       computedValue = chatResponse.content.trim()
 
       // Log usage for enrichment (async, non-blocking)

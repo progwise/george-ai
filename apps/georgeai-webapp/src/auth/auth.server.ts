@@ -29,6 +29,7 @@ const loginDocument = graphql(`
       avatarUrl
       createdAt
       isAdmin
+      defaultWorkspaceId
     }
   }
 `)

@@ -269,6 +269,7 @@ type AiEnrichmentTaskProcessingDataInput {
   fileId: String!
   fileName: String!
   libraryEmbeddingModel: String
+  libraryEmbeddingModelProvider: String
   libraryId: String!
   libraryName: String!
   useVectorStore: Boolean!
@@ -760,6 +761,31 @@ type AiServiceInstance {
   version: String!
 }
 
+type AiServiceProvider {
+  apiKeyHint: String
+  baseUrl: String
+  createdAt: DateTime!
+  createdBy: String
+  enabled: Boolean!
+  id: ID!
+  name: String!
+  provider: String!
+  updatedAt: DateTime!
+  updatedBy: String
+  vramGb: Int
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+input AiServiceProviderInput {
+  apiKey: String
+  baseUrl: String
+  enabled: Boolean
+  name: String!
+  provider: String!
+  vramGb: Int
+}
+
 type ApiKey {
   createdAt: DateTime!
   id: ID!
@@ -1146,6 +1172,7 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler!
+  createAiServiceProvider(data: AiServiceProviderInput!): AiServiceProvider!
   createContentProcessingTask(fileId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   createEmbeddingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
@@ -1168,10 +1195,12 @@ type Mutation {
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
   createMissingContentExtractionTasks(libraryId: String!): [AiContentProcessingTask!]!
+  createWorkspace(name: String!, slug: String!): Workspace!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
+  deleteAiServiceProvider(id: ID!): Boolean!
   deleteLibrary(id: String!): AiLibrary!
   deleteLibraryFile(fileId: String!): AiLibraryFile!
   deleteLibraryFiles(fileIds: [ID!]!): Int!
@@ -1191,6 +1220,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
+  deleteWorkspace(workspaceId: String!): Boolean!
   disableAiLanguageModel(id: ID!): AiLanguageModel
   dropAllLibraryFiles(libraryId: String!): Int!
   dropOutdatedMarkdowns(fileId: String!): Int!
@@ -1211,6 +1241,7 @@ type Mutation {
   removeListSource(id: String!): AiListSource!
   reorderListFields(fieldId: String!, newPlace: Int!): [AiListField!]!
   resetAssessmentAnswers(assistantId: String!): DateTime!
+  restoreDefaultProviders: RestoreDefaultProvidersResult!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   revokeApiKey(id: String!): Boolean!
   runAiLibraryCrawler(crawlerId: String!): String!
@@ -1222,7 +1253,9 @@ type Mutation {
   stopAllQueueWorkers: QueueOperationResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels: SyncModelsResult
+  testProviderConnection(data: TestProviderConnectionInput!): TestProviderConnectionResult!
   toggleAdminStatus(userId: String!): User
+  toggleAiServiceProvider(enabled: Boolean!, id: ID!): AiServiceProvider!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
@@ -1231,6 +1264,7 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     id: String!
   ): AiLibraryCrawler!
+  updateAiServiceProvider(data: AiServiceProviderInput!, id: ID!): AiServiceProvider!
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
   updateLibraryParticipants(libraryId: String!, userIds: [String!]!): UpdateLibraryParticipantsResult!
@@ -1243,6 +1277,7 @@ type Mutation {
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
+  validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
 }
 
 enum ProcessingStatus {
@@ -1357,6 +1392,8 @@ type Query {
     usageType: String
     userId: String
   ): ModelUsageStats
+  aiServiceProvider(id: ID!): AiServiceProvider
+  aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   apiKeys(libraryId: String!): [ApiKey!]!
@@ -1368,6 +1405,8 @@ type Query {
   userProfile: UserProfile!
   users: [User!]!
   version: String
+  workspace(id: ID!): Workspace
+  workspaces: [Workspace!]!
 }
 
 type QueueOperationResult {
@@ -1400,6 +1439,12 @@ enum QueueType {
   ENRICHMENT
 }
 
+type RestoreDefaultProvidersResult {
+  created: Int!
+  providers: [AiServiceProvider!]!
+  skipped: Int!
+}
+
 type SharePointValidationResult {
   errorMessage: String
   errorType: String
@@ -1414,6 +1459,19 @@ type SourceFileLink {
 type SyncModelsResult {
   errors: [String!]!
   modelsDiscovered: Int!
+  success: Boolean!
+}
+
+input TestProviderConnectionInput {
+  apiKey: String
+  baseUrl: String
+  provider: String!
+  providerId: String
+}
+
+type TestProviderConnectionResult {
+  details: String
+  message: String!
   success: Boolean!
 }
 
@@ -1442,6 +1500,7 @@ type UpdateStats {
 type User {
   avatarUrl: String
   createdAt: DateTime!
+  defaultWorkspaceId: ID!
   email: String!
   family_name: String
   given_name: String
@@ -1498,4 +1557,33 @@ type UserStatistic {
   total: Int!
   unactivated: Int!
   unconfirmed: Int!
+}
+
+type Workspace {
+  assistants: [AiAssistant!]!
+  createdAt: DateTime!
+  id: ID!
+  isDefault: Boolean!
+  libraries: [AiLibrary!]!
+  lists: [AiList!]!
+  members: [WorkspaceMember!]!
+  name: String!
+  slug: String!
+  updatedAt: DateTime!
+}
+
+type WorkspaceDeletionValidation {
+  assistantCount: Int!
+  canDelete: Boolean!
+  libraryCount: Int!
+  listCount: Int!
+  message: String!
+}
+
+type WorkspaceMember {
+  createdAt: DateTime!
+  id: ID!
+  role: String!
+  user: User!
+  workspace: Workspace!
 }

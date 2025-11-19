@@ -14,9 +14,11 @@ builder.queryField('aiLists', (t) =>
     nullable: false,
     resolve: async (query, _source, _args, context) => {
       const user = context.session.user
+      const workspaceId = context.workspaceId
       return prisma.aiList.findMany({
         ...query,
         where: {
+          workspaceId,
           OR: [
             { ownerId: user.id },
             {

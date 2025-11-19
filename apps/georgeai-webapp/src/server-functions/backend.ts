@@ -6,19 +6,25 @@ import request, { RequestDocument, Variables } from 'graphql-request'
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
+import { WORKSPACE_COOKIE_NAME } from './workspace-cookie'
 
 async function backendRequest<T, V extends Variables = Variables>(
   document: RequestDocument | TypedDocumentNode<T, V>,
   variables?: Variables,
 ): Promise<T> {
-  // Get the JWT token from the cookie
+  // Get the JWT token and workspace ID from cookies
   const jwtToken = getCookie?.(KEYCLOAK_TOKEN_COOKIE_NAME)
+  const workspaceId = getCookie?.(WORKSPACE_COOKIE_NAME)
   const headers: Record<string, string> = {
     Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
   }
   if (jwtToken) {
     // Optionally include user JWT for user-specific requests
     headers['x-user-jwt'] = jwtToken
+  }
+  if (workspaceId) {
+    // Include workspace ID for workspace-scoped requests
+    headers['x-workspace-id'] = workspaceId
   }
 
   try {

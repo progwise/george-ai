@@ -2,6 +2,7 @@ import { builder } from './graphql/builder'
 
 import './domain/crawler/cron-jobs'
 import './graphql/ai-service'
+import './graphql/ai-service-provider'
 import './graphql/ai-act-assessment'
 import './graphql/queue-management'
 import './graphql/ai-assistant'
@@ -26,6 +27,7 @@ import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
 import './graphql/version'
+import './graphql/workspace'
 
 const schema = builder.toSchema()
 
@@ -39,6 +41,14 @@ export { canAccessLibraryOrThrow } from './domain/library'
 export { canAccessListOrThrow } from './domain/list'
 export { validateApiKey } from './domain/api-key'
 export type { ApiKeyValidationResult } from './domain/api-key'
+export {
+  getWorkspaceMembership,
+  getLibraryWorkspace,
+  getWorkspaceProviders,
+  initializeWorkspace,
+  SYSTEM_WORKSPACE_ID,
+} from './domain/workspace'
+export type { WorkspaceMembershipInfo } from './domain/workspace'
 
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentProcessingWorker } from './worker-queue/content-processing-worker'

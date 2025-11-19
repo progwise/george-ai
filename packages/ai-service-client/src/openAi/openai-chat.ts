@@ -3,7 +3,7 @@ import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
 import type { AIResponse, ChatOptions } from '../types.js'
 import { OpenAIChatCompletionChunkSchema } from './openai-api.js'
 
-export async function openAIChat(options: ChatOptions): Promise<AIResponse> {
+export async function openAIChat(options: ChatOptions, apiKey: string): Promise<AIResponse> {
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0
@@ -11,8 +11,7 @@ export async function openAIChat(options: ChatOptions): Promise<AIResponse> {
   let promptTokens = 0
   let completionTokens = 0
 
-  const baseUrl = process.env.OPEN_AI_API_URL || 'https://api.openai.com/v1'
-  const apiKey = process.env.OPEN_AI_KEY
+  const baseUrl = 'https://api.openai.com/v1'
 
   if (!apiKey) {
     throw new Error('OPEN_AI_KEY environment variable is not set')

@@ -16,12 +16,18 @@ export interface Context {
   session: { user: AuthUser; userProfile?: UserProfile } | null
   apiKey?: ApiKeyAuth
   jwt?: string
+  workspaceId?: string
+  workspaceRole?: string
 }
 
 export interface LoggedInContext extends Context {
-  session: { user: AuthUser; userProfile?: UserProfile; jwt: string }
+  session: { user: AuthUser; userProfile?: UserProfile }
+  jwt: string
+  workspaceId: string
+  workspaceRole: string
 }
 
 export interface ApiKeyContext extends Context {
   apiKey: ApiKeyAuth
+  workspaceId: string
 }

@@ -1,12 +1,14 @@
 import { SystemMessage } from '@langchain/core/messages'
 
+import type { ServiceProviderType } from '@george-ai/ai-service-client'
+
 import { Library } from './library'
 
 export interface Assistant {
   id: string
   name: string
   description: string | null
-  languageModelProvider: string
+  languageModelProvider: ServiceProviderType
   languageModel: string
   baseCases: Array<{ condition?: string | null; instruction?: string | null }>
 }

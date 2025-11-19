@@ -18,7 +18,7 @@ interface RouterContext {
 }
 
 const RootDocument = () => {
-  const { user } = Route.useRouteContext()
+  const { user, workspaceId } = Route.useRouteContext()
   const { language } = useLanguage()
   const { data: theme } = useQuery(getThemeQueryOptions())
 
@@ -30,7 +30,7 @@ const RootDocument = () => {
       <body className="px-body">
         <AuthProvider>
           <>
-            <TopNavigation user={user ?? undefined} />
+            <TopNavigation user={user} workspaceId={workspaceId} />
             <div className="flex grow flex-col p-4">
               <Outlet />
             </div>
@@ -58,7 +58,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       context.queryClient.ensureQueryData(getThemeQueryOptions()),
     ])
 
-    return { user }
+    const workspaceId = context.queryClient.getQueryData(['selectedWorkspaceId'])?.toString() || null
+
+    return { user, workspaceId }
   },
   head: () => ({
     meta: [

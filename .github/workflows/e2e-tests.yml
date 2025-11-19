@@ -22,6 +22,9 @@ env:
   OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
 
+  # OpenAI API Key (optional)
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
   # Image registry
   # NOTE: Forks must have GitHub Container Registry write access or override IMAGE_PREFIX
   REGISTRY: ghcr.io
@@ -213,6 +216,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
 
       # Typesense vector search
       typesense:
@@ -382,7 +387,9 @@ jobs:
           pnpm test
         env:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME || 'e2e-test-user@example.com' }}
+          E2E_EMAIL: ${{ secrets.E2E_EMAIL || 'e2e-test-user@example.com' }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD || 'E2ETestPassword123!' }}
+          DATABASE_URL: postgresql://chatweb:password@localhost:5432/chatweb?schema=public
           CI: true
           # Service containers expose to localhost (secure context for Web Crypto API)
           BASE_URL: http://localhost:3001

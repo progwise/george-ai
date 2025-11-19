@@ -1,4 +1,9 @@
-import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../domain'
+import {
+  SYSTEM_WORKSPACE_ID,
+  extractAvatarFromToken,
+  getPreferredAvatarUrl,
+  shouldUpdateAvatarFromProvider,
+} from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -17,6 +22,7 @@ builder.prismaObject('User', {
     family_name: t.exposeString('family_name', { nullable: true }),
     avatarUrl: t.exposeString('avatarUrl', { nullable: true }),
     isAdmin: t.exposeBoolean('isAdmin', { nullable: false }),
+    defaultWorkspaceId: t.exposeID('defaultWorkspaceId', { nullable: false }),
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
@@ -163,6 +169,17 @@ builder.mutationField('login', (t) =>
           family_name,
           username: preferred_username,
           avatarUrl: preferredAvatarUrlForNew,
+          defaultWorkspace: {
+            connect: {
+              id: SYSTEM_WORKSPACE_ID,
+            },
+          },
+          workspaceMemberships: {
+            create: {
+              workspaceId: SYSTEM_WORKSPACE_ID,
+              role: 'owner',
+            },
+          },
           profile: {
             create: {
               email,

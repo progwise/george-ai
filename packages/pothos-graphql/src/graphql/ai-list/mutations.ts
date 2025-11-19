@@ -17,12 +17,17 @@ builder.mutationField('createList', (t) =>
     args: {
       data: t.arg({ type: AiListInput, required: true }),
     },
-    resolve: async (query, _source, { data }, { session }) => {
-      const existingList = await prisma.aiList.findFirst({ where: { ownerId: session.user.id, name: data.name } })
+    resolve: async (query, _source, { data }, context) => {
+      const existingList = await prisma.aiList.findFirst({
+        where: { ownerId: context.session.user.id, name: data.name, workspaceId: context.workspaceId },
+      })
       if (existingList) {
         throw new Error(`List for current user with name ${data.name} already exists`)
       }
-      const newList = await prisma.aiList.create({ ...query, data: { name: data.name, ownerId: session.user.id } })
+      const newList = await prisma.aiList.create({
+        ...query,
+        data: { name: data.name, ownerId: context.session.user.id, workspaceId: context.workspaceId },
+      })
       return newList
     },
   }),

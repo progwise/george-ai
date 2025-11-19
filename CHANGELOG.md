@@ -8,11 +8,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Workspace Multi-Tenancy** - Complete workspace isolation for teams and organizations
+  - Multiple workspaces per user with role-based access control (Owner, Admin, Member)
+  - Workspace switcher in top navigation for seamless context switching
+  - All resources (libraries, assistants, lists) automatically scoped to current workspace
+  - Data isolation ensures no cross-workspace access
+- **Workspace-Scoped AI Providers** - AI provider configuration isolated per workspace
+  - Each workspace can configure its own Ollama and OpenAI providers
+  - Provider cache with 60-second TTL for optimal performance
+  - Automatic cache invalidation on provider changes
+  - Admin UI at `/admin/ai-services` for provider management per workspace
+- **Workspace-Filtered Model Selection** - Model dropdowns automatically filtered by workspace
+  - Users only see models from providers configured in their current workspace
+  - Real-time updates when switching between workspaces
+  - Applies to all model selections (embedding, language, OCR models)
+  - Zero configuration required - filtering happens automatically
+- **Secure API Key Management** - Provider credentials never exposed to frontend
+  - API key masking with hints (e.g., `sk-...xy`)
+  - Connection testing without re-entering credentials
+  - Conditional updates preserve existing keys
+- **Provider Connection Testing** - Test Ollama and OpenAI connections before saving
+  - Real-time validation of base URLs and API keys
+  - Clear error messages for troubleshooting
+  - Uses stored credentials for testing existing providers
+- **Default Workspace Migration** - Smooth upgrade path for existing installations
+  - All existing data migrated to "Shared" workspace
+  - First admin user becomes workspace owner
+  - Zero downtime migration with rollback safety
+- **Comprehensive E2E Testing** - Workspace functionality fully tested
+  - Workspace switcher tests verify context switching and data isolation
+  - Model filtering tests verify workspace-scoped model availability
+  - Automated test setup with provider/model discovery
+
 ### Changed
 
 ### Fixed
 
-## [2025-01-16]
+## [2025-11-16]
 
 ### Added
 

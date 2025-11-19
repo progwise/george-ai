@@ -1,0 +1,858 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Open Source Models Reference - George-AI" description="Comprehensive capabilities matrix for prominent open-source and open-weight models">
+  <!-- Breadcrumb -->
+  <div class="text-sm breadcrumbs mb-4">
+    <ul>
+      <li><a href="/docs">Documentation</a></li>
+      <li><a href="/docs/admin/ai-models">AI Models & Providers</a></li>
+      <li>Open Source Models Reference</li>
+    </ul>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold mb-4">Open Source Models Reference</h1>
+    <p class="text-lg text-base-content/70">
+      Best-effort snapshot of ~30 prominent open-source / open-weight models and their native capabilities
+    </p>
+    <p class="text-sm text-base-content/60 mt-2">
+      Includes Llama, Gemma, Qwen, DeepSeek, Phi, Mistral families and more
+    </p>
+  </div>
+
+  <!-- Legend Alert -->
+  <div class="alert mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <div>
+      <div class="font-bold">Legend & Important Notes</div>
+      <div class="text-sm space-y-1">
+        <div>
+          <span class="badge badge-success badge-sm mr-2">✅</span> = Supported
+          <span class="badge badge-error badge-sm mx-2">❌</span> = Not supported
+        </div>
+        <div class="text-xs italic mt-2">
+          <strong>Vision In (OCR):</strong> Model can READ/analyze images (for vision understanding, OCR)
+          <br>
+          <strong>Vision Out (Gen):</strong> Model can GENERATE images
+          <br>
+          <strong>Tools/Function Calls:</strong> Model explicitly documents tool/function-calling (not just JSON prompting)
+          <br>
+          <strong>Embedding:</strong> Only dedicated embedding models marked ✅ (all LLMs can be repurposed from hidden states)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Orientation -->
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Model Families Overview</h2>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Llama (Meta)</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Open Weights</span>
+            <span class="badge badge-sm badge-accent">Tool Calling</span>
+          </div>
+          <p class="text-sm">
+            Llama 3.1 text models (8B/70B/405B), Llama 3.2 vision models (11B/90B), Llama 4 Scout for fast reasoning
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Gemma 2 & 3 (Google)</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Open Weights</span>
+            <span class="badge badge-sm badge-success">Multimodal</span>
+          </div>
+          <p class="text-sm">
+            Gemma 2 (2B/9B/27B) compact text models, Gemma 3 adds native multimodality (text+image, video+audio)
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Qwen2.5 / Qwen3 (Alibaba)</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Open Weights</span>
+            <span class="badge badge-sm badge-warning">Omni</span>
+          </div>
+          <p class="text-sm">
+            Qwen2.5 text + VL, Qwen3-Omni unified text-image-audio-video with real-time voice I/O and agent focus
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">DeepSeek (V3 / R1 / Janus)</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Open Weights</span>
+            <span class="badge badge-sm badge-error">Reasoning</span>
+          </div>
+          <p class="text-sm">
+            V3 MoE text, R1 reasoning with "thinking" traces, Janus-Pro unified text+image understanding AND generation
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Phi-4 (Microsoft)</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Open Weights</span>
+            <span class="badge badge-sm badge-info">Compact</span>
+          </div>
+          <p class="text-sm">
+            Phi-4 compact high-quality text, Phi-4-multimodal adds image+audio input in single network
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title">Mistral / Mixtral / Pixtral</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <span class="badge badge-sm">Apache 2.0</span>
+            <span class="badge badge-sm badge-accent">MoE</span>
+          </div>
+          <p class="text-sm">
+            Mistral-7B with function calling, Mixtral MoE (8x7B/8x22B), Pixtral-12B Apache-2.0 VLM
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Capabilities Table -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Top ~30 Open Source Models - Capabilities Matrix</h2>
+    <p class="text-base-content/70 mb-6">
+      Capabilities shown are for the released base/instruct models. Specific checkpoints and sizes may vary.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Model</th>
+            <th>Type / Family</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th class="text-xs">Vision Out<br/>(Gen)</th>
+            <th>Audio In</th>
+            <th>Audio Out</th>
+            <th>Chat</th>
+            <th>Tools</th>
+            <th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Llama Family -->
+          <tr class="bg-info/5">
+            <td>1</td>
+            <td><code class="text-xs">Llama 4 Scout</code></td>
+            <td><span class="badge badge-sm">Meta, text SLM</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-info/5">
+            <td>2</td>
+            <td><code class="text-xs">Llama 3.2 90B Vision</code></td>
+            <td><span class="badge badge-sm">Meta, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-info/5">
+            <td>3</td>
+            <td><code class="text-xs">Llama 3.1 70B Instruct</code></td>
+            <td><span class="badge badge-sm">Meta, chat</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- Gemma Family -->
+          <tr class="bg-success/5">
+            <td>4</td>
+            <td><code class="text-xs">Gemma 2 27B</code></td>
+            <td><span class="badge badge-sm">Google, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-success/5">
+            <td>5</td>
+            <td><code class="text-xs">Gemma 2 9B</code></td>
+            <td><span class="badge badge-sm">Google, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-success/5">
+            <td>6</td>
+            <td><code class="text-xs">Gemma 3 12B VL</code></td>
+            <td><span class="badge badge-sm">Google, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-success/5">
+            <td>7</td>
+            <td><code class="text-xs">Gemma 3n</code></td>
+            <td><span class="badge badge-sm">Google, multimodal</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- Qwen Family -->
+          <tr class="bg-warning/5">
+            <td>8</td>
+            <td><code class="text-xs">Qwen2.5 72B Instruct</code></td>
+            <td><span class="badge badge-sm">Alibaba, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-warning/5">
+            <td>9</td>
+            <td><code class="text-xs">Qwen2.5-VL 32B</code></td>
+            <td><span class="badge badge-sm">Alibaba, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-warning/5">
+            <td>10</td>
+            <td><code class="text-xs">Qwen2-Audio 7B</code></td>
+            <td><span class="badge badge-sm">Alibaba, audio</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-warning/5">
+            <td>11</td>
+            <td><code class="text-xs">Qwen3 235B</code></td>
+            <td><span class="badge badge-sm">Alibaba, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-warning/5">
+            <td>12</td>
+            <td><code class="text-xs">Qwen3-Omni-30B</code></td>
+            <td><span class="badge badge-sm badge-accent">Alibaba, omni</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Full duplex</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- DeepSeek Family -->
+          <tr class="bg-error/5">
+            <td>13</td>
+            <td><code class="text-xs">DeepSeek-V3</code></td>
+            <td><span class="badge badge-sm">DeepSeek, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-error/5">
+            <td>14</td>
+            <td><code class="text-xs">DeepSeek-R1</code></td>
+            <td><span class="badge badge-sm badge-warning">DeepSeek, reasoning</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Thinking</span></td>
+          </tr>
+          <tr class="bg-error/5">
+            <td>15</td>
+            <td><code class="text-xs">DeepSeek Janus-Pro-7B</code></td>
+            <td><span class="badge badge-sm badge-primary">DeepSeek, vision+gen</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Generate</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- Phi Family -->
+          <tr>
+            <td>16</td>
+            <td><code class="text-xs">Phi-4</code></td>
+            <td><span class="badge badge-sm">Microsoft, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>17</td>
+            <td><code class="text-xs">Phi-4-multimodal</code></td>
+            <td><span class="badge badge-sm badge-accent">Microsoft, multimodal</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- Mistral Family -->
+          <tr>
+            <td>18</td>
+            <td><code class="text-xs">Mistral-7B-Instruct-v0.3</code></td>
+            <td><span class="badge badge-sm">Mistral, chat</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>19</td>
+            <td><code class="text-xs">Mixtral-8x7B-Instruct</code></td>
+            <td><span class="badge badge-sm">Mistral, MoE</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>20</td>
+            <td><code class="text-xs">Mixtral-8x22B-Instruct</code></td>
+            <td><span class="badge badge-sm">Mistral, MoE</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>21</td>
+            <td><code class="text-xs">Pixtral-12B</code></td>
+            <td><span class="badge badge-sm badge-success">Mistral, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+
+          <!-- Other Models -->
+          <tr>
+            <td>22</td>
+            <td><code class="text-xs">Falcon 2 11B</code></td>
+            <td><span class="badge badge-sm">TII, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>23</td>
+            <td><code class="text-xs">Falcon 2 11B VLM</code></td>
+            <td><span class="badge badge-sm">TII, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>24</td>
+            <td><code class="text-xs">Yi-1.5-34B-Chat</code></td>
+            <td><span class="badge badge-sm">01.AI, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>25</td>
+            <td><code class="text-xs">Yi-VL-34B</code></td>
+            <td><span class="badge badge-sm">01.AI, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>26</td>
+            <td><code class="text-xs">GLM-4-9B-Chat</code></td>
+            <td><span class="badge badge-sm">Zhipu, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>27</td>
+            <td><code class="text-xs">GLM-4.1V-9B-Thinking</code></td>
+            <td><span class="badge badge-sm badge-warning">Zhipu, VLM</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Thinking</span></td>
+          </tr>
+          <tr>
+            <td>28</td>
+            <td><code class="text-xs">Nemotron-4-340B-Instruct</code></td>
+            <td><span class="badge badge-sm">NVIDIA, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>29</td>
+            <td><code class="text-xs">GPT-OSS-120B</code></td>
+            <td><span class="badge badge-sm badge-primary">OpenAI, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td>30</td>
+            <td><code class="text-xs">Jamba-1.5-Large</code></td>
+            <td><span class="badge badge-sm">AI21, text</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info mt-4">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="text-sm">
+        <strong>Note:</strong> Only <strong>DeepSeek Janus-Pro-7B</strong> natively supports both Vision In (understanding images) AND Vision Out (generating images) in a unified model. Qwen3-Omni-30B is the standout for full duplex voice (audio in + out).
+      </div>
+    </div>
+  </div>
+
+  <!-- Practical Use Cases -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">How to Read This / Practical Use</h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">🎨 Best OSS Multimodal (Vision)</h3>
+          <p class="text-sm mb-2">Models with Vision In (OCR) capabilities:</p>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li>Llama 3.2 90B Vision</li>
+            <li>Gemma 3 12B VL, Gemma 3n</li>
+            <li>Qwen2.5-VL 32B, Qwen3-Omni-30B</li>
+            <li>DeepSeek Janus-Pro-7B (also generates!)</li>
+            <li>Phi-4-multimodal</li>
+            <li>Pixtral-12B (Apache 2.0)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">🔧 Best for Agents / Tools</h3>
+          <p class="text-sm mb-2">Models with documented function/tool calling:</p>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li>Llama 3.1/4 Scout</li>
+            <li>Gemma 2/3</li>
+            <li>Qwen2.5/Qwen3/Qwen3-Omni</li>
+            <li>GLM-4</li>
+            <li>Mistral/Mixtral</li>
+            <li>Phi-4</li>
+            <li>GPT-OSS-120B</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">🎤 Audio In/Out</h3>
+          <p class="text-sm mb-2">Realistically for fully-open choice:</p>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li><strong>Qwen3-Omni-30B</strong> - Full duplex voice I/O</li>
+            <li>Qwen2-Audio 7B - Speech in, text out</li>
+            <li>Phi-4-multimodal - Audio input focus</li>
+            <li>Gemma 3n - Multimodal with audio+video</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">🧠 Reasoning Models</h3>
+          <p class="text-sm mb-2">Models with explicit reasoning capabilities:</p>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li>DeepSeek-R1 - "Thinking" traces</li>
+            <li>GLM-4.1V-9B-Thinking - VLM with reasoning</li>
+            <li>Llama 4 Scout - Fast long-context reasoning</li>
+            <li>GPT-OSS-120B - High reasoning, tool-use</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations for George AI -->
+  <div class="card bg-primary text-primary-content mb-16">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Recommended Open Source Models for George AI</h2>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div>
+          <h3 class="font-bold mb-2">💬 Chat Assistants</h3>
+          <p class="text-xs mb-1 italic">General purpose chat</p>
+          <ul class="text-sm space-y-1">
+            <li><code>Qwen2.5 72B</code> - Excellent quality</li>
+            <li><code>Llama 3.1 70B</code> - Meta flagship</li>
+            <li><code>Gemma 2 27B</code> - Compact, efficient</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">👁️ Vision In (OCR)</h3>
+          <p class="text-xs mb-1 italic">Reading/analyzing images</p>
+          <ul class="text-sm space-y-1">
+            <li><code>Qwen2.5-VL 32B</code> - Best quality</li>
+            <li><code>Llama 3.2 90B Vision</code> - Meta VLM</li>
+            <li><code>Pixtral-12B</code> - Apache 2.0</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">🎨 Vision Out (Gen)</h3>
+          <p class="text-xs mb-1 italic">Generating images</p>
+          <ul class="text-sm space-y-1">
+            <li><code>Janus-Pro-7B</code> - Only OSS unified model</li>
+            <li class="text-xs italic">Most OSS models don't generate images</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">✨ Function Calling</h3>
+          <p class="text-xs mb-1 italic">Structured data extraction</p>
+          <ul class="text-sm space-y-1">
+            <li><code>Qwen2.5/Qwen3</code> - Best tools support</li>
+            <li><code>Llama 3.1/4</code> - Meta tools</li>
+            <li><code>Gemma 2/3</code> - Compact + tools</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <p class="text-xs italic">
+          💡 Tip: Most open source models focus on Vision In (understanding) rather than Vision Out (generation). For image generation, consider using OpenAI's dall-e-3 or gpt-image-1, or the specialized OSS model DeepSeek Janus-Pro-7B.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other Notable Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Other Notable Models</h2>
+    <p class="text-base-content/70 mb-6">
+      George AI's model classifier automatically detects <strong>100+ open source models</strong> beyond this reference. Below are commonly used models not in the top 30 above.
+    </p>
+
+    <!-- Auto-Detection Note -->
+    <div class="alert alert-warning mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div>
+        <div class="font-bold">Auto-Detection</div>
+        <div class="text-sm">
+          If you have a model in your Ollama instance that's not listed here, George AI will still attempt to classify it automatically based on naming patterns. For the complete list of supported patterns, see the <a href="https://github.com/progwise/george-ai/blob/main/packages/ai-service-client/src/model-classifier.ts" target="_blank" rel="noopener noreferrer" class="link link-primary font-semibold">model-classifier.ts source code</a>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedding Models -->
+    <div class="card bg-base-200 mb-6">
+      <div class="card-body">
+        <h3 class="card-title text-xl">🔍 Embedding Models (OSS)</h3>
+        <p class="text-sm text-base-content/70 mb-4">
+          <strong>Note:</strong> The top 30 table focuses on chat/vision models. Here are popular open source embedding models for semantic search:
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="table table-zebra table-sm">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Provider</th>
+                <th>Typical Size</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>nomic-embed-text</code></td>
+                <td>Nomic AI</td>
+                <td>137M params</td>
+                <td>Very popular for Ollama, efficient</td>
+              </tr>
+              <tr>
+                <td><code>mxbai-embed-large</code></td>
+                <td>MixedBread AI</td>
+                <td>335M params</td>
+                <td>High quality, Apache 2.0</td>
+              </tr>
+              <tr>
+                <td><code>bge-large</code></td>
+                <td>BAAI (Chinese)</td>
+                <td>335M params</td>
+                <td>Excellent quality, widely used</td>
+              </tr>
+              <tr>
+                <td><code>all-minilm-l6-v2</code></td>
+                <td>Sentence Transformers</td>
+                <td>22M params</td>
+                <td>Very fast, good for large-scale</td>
+              </tr>
+              <tr>
+                <td><code>snowflake-arctic-embed</code></td>
+                <td>Snowflake</td>
+                <td>335M params</td>
+                <td>Optimized for retrieval</td>
+              </tr>
+              <tr>
+                <td><code>granite-embedding</code></td>
+                <td>IBM</td>
+                <td>278M params</td>
+                <td>Enterprise-focused</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-xs text-base-content/60 mt-4">
+          💡 <strong>Recommendation:</strong> For George AI, use <code>nomic-embed-text</code> (fastest, good quality) or <code>bge-large</code> (best quality). Avoid tiny models (&lt;100M params) for production.
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Popular Models -->
+    <div class="card bg-base-200">
+      <div class="card-body">
+        <h3 class="card-title text-xl">🌟 Other Popular Models</h3>
+        <p class="text-sm text-base-content/70 mb-4">
+          Additional models commonly used in the open source community:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <!-- Vision Models -->
+          <div>
+            <h4 class="font-bold mb-2">👁️ Vision Models</h4>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <strong>LLaVA</strong> (7B-34B)
+                <br>
+                <span class="text-xs text-base-content/60">First major open VLM, very popular in community. Good quality but now surpassed by newer models like Llama 3.2 Vision.</span>
+              </li>
+              <li>
+                <strong>MiniCPM-V</strong> (8B)
+                <br>
+                <span class="text-xs text-base-content/60">Compact multimodal model from OpenBMB. Efficient for edge deployment.</span>
+              </li>
+              <li>
+                <strong>InternVL</strong> (multiple sizes)
+                <br>
+                <span class="text-xs text-base-content/60">Shanghai AI Lab's vision-language model. Strong performance on VQA tasks.</span>
+              </li>
+              <li>
+                <strong>CogVLM</strong> (17B)
+                <br>
+                <span class="text-xs text-base-content/60">Tsinghua's cognitive VLM with strong reasoning capabilities.</span>
+              </li>
+              <li>
+                <strong>Moondream</strong> (1.6B)
+                <br>
+                <span class="text-xs text-base-content/60">Tiny vision model for resource-constrained environments. Surprisingly capable for its size.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Chat Models -->
+          <div>
+            <h4 class="font-bold mb-2">💬 Chat Models</h4>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <strong>CodeLlama</strong> (7B-70B)
+                <br>
+                <span class="text-xs text-base-content/60">Meta's code-specialized Llama variant. Excellent for code generation and understanding.</span>
+              </li>
+              <li>
+                <strong>TinyLlama</strong> (1.1B)
+                <br>
+                <span class="text-xs text-base-content/60">Compact model trained on 3T tokens. Good for edge devices and testing.</span>
+              </li>
+              <li>
+                <strong>Vicuna</strong> (7B-33B)
+                <br>
+                <span class="text-xs text-base-content/60">UC Berkeley's chat model fine-tuned from Llama. Early popular model, now less common.</span>
+              </li>
+              <li>
+                <strong>Alpaca</strong> (7B-65B)
+                <br>
+                <span class="text-xs text-base-content/60">Stanford's instruction-following model. Historical significance but now superseded.</span>
+              </li>
+              <li>
+                <strong>Dolphin</strong> (multiple sizes)
+                <br>
+                <span class="text-xs text-base-content/60">Fine-tuned models with reduced censorship. Popular in community but use with caution.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-xs text-base-content/60 mt-4">
+          ⚠️ <strong>Note:</strong> Models like Alpaca, Vicuna, and LLaVA were groundbreaking when released but are now superseded by newer models in the top 30 table. They're listed here for reference and because they're still widely deployed.
+        </div>
+      </div>
+    </div>
+
+    <!-- Link to Source -->
+    <div class="mt-6 text-center">
+      <a href="https://github.com/progwise/george-ai/blob/main/packages/ai-service-client/src/model-classifier.ts" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+        </svg>
+        View Full Model Classifier Source Code
+      </a>
+    </div>
+  </div>
+
+  <!-- See Also -->
+  <div class="alert alert-info mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 shrink-0">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+    </svg>
+    <div>
+      <div class="font-bold">See Also</div>
+      <div class="text-sm">
+        Need hosted API access? Check out the <a href="/docs/admin/openai-models" class="link link-primary font-semibold">OpenAI Models Reference</a> for 40+ models including GPT-4o, GPT-5, o-series reasoning models, embeddings, and image generation.
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Navigation -->
+  <div class="flex gap-4">
+    <a href="/docs/admin/ai-models" class="btn btn-outline">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Back to AI Models Guide
+    </a>
+    <a href="/docs" class="btn btn-ghost">Documentation Home</a>
+  </div>
+
+</Layout>

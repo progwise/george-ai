@@ -1,9 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
+import { AssistantNewDialog } from '../components/assistant/assistant-new-dialog'
 import { getDashboardDataQueryOptions } from '../components/dashboard/get-dashboard-data'
+import { NewLibraryDialog } from '../components/library/new-library-dialog'
+import { NewListDialog } from '../components/lists/new-list-dialog'
 import { useTranslation } from '../i18n/use-translation-hook'
+import { PlusIcon } from '../icons/plus-icon'
 
 type TabType = 'libraries' | 'lists' | 'conversations' | 'assistants'
 
@@ -15,6 +19,11 @@ const Home = () => {
 
   const userId = user?.id
   const isAdmin = user?.isAdmin ?? false
+
+  // Dialog refs for creating new resources
+  const newLibraryDialogRef = useRef<HTMLDialogElement>(null)
+  const newListDialogRef = useRef<HTMLDialogElement>(null)
+  const newAssistantDialogRef = useRef<HTMLDialogElement>(null)
 
   return (
     <div className="space-y-8 p-8">
@@ -133,6 +142,19 @@ const Home = () => {
           {/* Libraries Tab */}
           {activeTab === 'libraries' && (
             <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">{t('dashboard.tabs.libraries')}</h2>
+                <button
+                  type="button"
+                  onClick={() => newLibraryDialogRef.current?.showModal()}
+                  className="btn btn-primary btn-sm"
+                  title={t('libraries.addNewButton')}
+                  aria-label={t('libraries.addNewButton')}
+                >
+                  <PlusIcon className="size-4" />
+                  {t('libraries.addNewButton')}
+                </button>
+              </div>
               {data.aiLibraries.length > 0 ? (
                 <ul className="space-y-2">
                   {data.aiLibraries.map((library) => (
@@ -164,6 +186,19 @@ const Home = () => {
           {/* Lists Tab */}
           {activeTab === 'lists' && (
             <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">{t('dashboard.tabs.lists')}</h2>
+                <button
+                  type="button"
+                  onClick={() => newListDialogRef.current?.showModal()}
+                  className="btn btn-primary btn-sm"
+                  title={t('lists.createListButtonText')}
+                  aria-label={t('lists.createListButtonText')}
+                >
+                  <PlusIcon className="size-4" />
+                  {t('lists.createListButtonText')}
+                </button>
+              </div>
               {data.aiLists.length > 0 ? (
                 <ul className="space-y-2">
                   {data.aiLists.map((list) => (
@@ -218,6 +253,19 @@ const Home = () => {
           {/* Assistants Tab */}
           {activeTab === 'assistants' && (
             <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">{t('dashboard.tabs.assistants')}</h2>
+                <button
+                  type="button"
+                  onClick={() => newAssistantDialogRef.current?.showModal()}
+                  className="btn btn-primary btn-sm"
+                  title={t('assistants.addNewButton')}
+                  aria-label={t('assistants.addNewButton')}
+                >
+                  <PlusIcon className="size-4" />
+                  {t('assistants.addNewButton')}
+                </button>
+              </div>
               {data.aiAssistants.length > 0 ? (
                 <ul className="space-y-2">
                   {data.aiAssistants.map((assistant) => (
@@ -239,6 +287,11 @@ const Home = () => {
           )}
         </div>
       </div>
+
+      {/* Dialog components - reused from dedicated routes */}
+      <NewLibraryDialog ref={newLibraryDialogRef} />
+      <NewListDialog ref={newListDialogRef} />
+      <AssistantNewDialog ref={newAssistantDialogRef} />
     </div>
   )
 }

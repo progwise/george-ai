@@ -5,9 +5,12 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
-import { schema } from '@george-ai/pothos-graphql'
-// Import and start workers
-import { startContentProcessingWorker, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
+import {
+  initializeWorkspace,
+  schema,
+  startContentProcessingWorker,
+  startEnrichmentQueueWorker,
+} from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
@@ -17,6 +20,7 @@ import { libraryFiles } from './library-files'
 import { dataUploadMiddleware } from './upload'
 
 console.log('Starting GeorgeAI GraphQL server...')
+
 console.log(`
   Environment: ${process.env.NODE_ENV || 'development'}
   GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}
@@ -26,8 +30,11 @@ console.log(`
   Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
   Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
+  OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '******' : 'not set'}
   `)
 
+// Initialize workspace provider cache
+initializeWorkspace()
 // Start workers
 if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
   console.log('Auto-starting enrichment queue worker...')
@@ -49,10 +56,12 @@ const yoga = createYoga({
         .find((c) => c.trim().startsWith('keycloak-token='))
         ?.split('=')[1]
       const authHeader = request.headers.get('authorization')
+      const workspaceIdHeader = request.headers.get('x-workspace-id')
 
       return {
         jwtToken: jwtTokenHeader || keycloakToken,
         bearerToken: authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null,
+        workspaceId: workspaceIdHeader,
       }
     }),
 })

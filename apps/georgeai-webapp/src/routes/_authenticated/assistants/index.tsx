@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { useRef } from 'react'
 
 import { AssistantCard } from '../../../components/assistant/assistant-card'
 import { AssistantNewDialog } from '../../../components/assistant/assistant-new-dialog'
@@ -15,6 +16,7 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const { data, isLoading } = useQuery(getAiAssistantsQueryOptions())
+  const newAssistantDialogRef = useRef<HTMLDialogElement>(null)
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -26,7 +28,13 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {<AssistantNewDialog />}
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={() => newAssistantDialogRef.current?.showModal()}
+        >
+          {t('assistants.addNewButton')}
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -38,6 +46,8 @@ function RouteComponent() {
           ))
         )}
       </div>
+
+      <AssistantNewDialog ref={newAssistantDialogRef} />
     </article>
   )
 }

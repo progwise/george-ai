@@ -74,6 +74,7 @@ export const EnrichmentMetadataSchema = z.object({
       ),
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
+      libraryEmbeddingModelProvider: z.string().optional(),
       contentQuery: z.string().optional(),
       useVectorStore: z.boolean(),
     })
@@ -137,6 +138,7 @@ export const getEnrichmentTaskInputMetadata = ({
     contextFields,
     dataType: validatedField.type,
     libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
+    libraryEmbeddingModelProvider: file.library.embeddingModel?.provider || undefined,
     contentQuery: validatedField.useVectorStore ? validatedField.contentQuery || undefined : undefined,
     useVectorStore: !!validatedField.useVectorStore,
     fileId: file.id,

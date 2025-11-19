@@ -1,0 +1,660 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="OpenAI Models Reference - George-AI" description="Comprehensive capabilities matrix for OpenAI API models">
+  <!-- Breadcrumb -->
+  <div class="text-sm breadcrumbs mb-4">
+    <ul>
+      <li><a href="/docs">Documentation</a></li>
+      <li><a href="/docs/admin/ai-models">AI Models & Providers</a></li>
+      <li>OpenAI Models Reference</li>
+    </ul>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold mb-4">OpenAI Models Reference</h1>
+    <p class="text-lg text-base-content/70">
+      Complete capabilities matrix for currently documented OpenAI API models (non-deprecated)
+    </p>
+    <p class="text-sm text-base-content/60 mt-2">
+      Last updated: 2025-11-19 | Source: <a href="https://platform.openai.com/docs/models" target="_blank" rel="noopener noreferrer" class="link link-primary">OpenAI Platform Documentation</a>
+    </p>
+  </div>
+
+  <!-- Legend Alert -->
+  <div class="alert mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <div>
+      <div class="font-bold">Legend</div>
+      <div class="text-sm space-y-1">
+        <div>
+          <span class="badge badge-success badge-sm mr-2">✅</span> = Supported
+          <span class="badge badge-error badge-sm mx-2">❌</span> = Not supported
+          <span class="badge badge-warning badge-sm mx-2">Ⓡ</span> = Reasoning model family
+        </div>
+        <div class="text-xs italic">
+          <strong>Vision In (OCR):</strong> Model can READ/analyze images (for OCR, image understanding)
+          <br>
+          <strong>Vision Out (Gen):</strong> Model can GENERATE images/videos
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: General-Purpose GPT + Reasoning Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">General-Purpose GPT + Reasoning Models</h2>
+    <p class="text-base-content/70 mb-6">
+      Main LLMs for chat completions, responses, and agent tools. These are the "brain" models you'd typically use.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Model ID</th>
+            <th>Type</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th class="text-xs">Vision Out<br/>(Gen)</th>
+            <th>Audio In</th>
+            <th>Audio Out</th>
+            <th>Chat/Text</th>
+            <th>Tools</th>
+            <th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="text-xs">gpt-5.1</code></td>
+            <td><span class="badge badge-primary badge-sm">Flagship GPT</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Configurable</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-5</code></td>
+            <td><span class="badge badge-sm">GPT Family</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Oriented</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-5-pro</code></td>
+            <td><span class="badge badge-warning badge-sm">Reasoning GPT</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Advanced</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-5-mini</code></td>
+            <td><span class="badge badge-sm">Smaller GPT-5</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Lighter</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-5.1-codex</code></td>
+            <td><span class="badge badge-info badge-sm">Coding-Optimized</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Strong</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Coding</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-5.1-codex-mini</code></td>
+            <td><span class="badge badge-info badge-sm">Small Codex</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Lighter</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4.1</code></td>
+            <td><span class="badge badge-sm">High-Intelligence</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Excellent</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4.1-mini</code></td>
+            <td><span class="badge badge-sm">Small, Fast</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Optimized</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4.1-nano</code></td>
+            <td><span class="badge badge-sm">Tiny GPT-4.1</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o</code></td>
+            <td><span class="badge badge-accent badge-sm">Omni GPT</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Native</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Native</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-mini</code></td>
+            <td><span class="badge badge-accent badge-sm">Smaller Omni</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Variants</span></td>
+            <td><span class="badge badge-success badge-sm">✅ TTS</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4</code></td>
+            <td><span class="badge badge-ghost badge-sm">Legacy GPT-4</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4-turbo-preview</code></td>
+            <td><span class="badge badge-ghost badge-sm">Legacy Turbo</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr class="bg-warning/10">
+            <td><code class="text-xs">o3</code></td>
+            <td><span class="badge badge-warning badge-sm">Ⓡ Reasoning</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Strong</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Slow/Strong</span></td>
+          </tr>
+          <tr class="bg-warning/10">
+            <td><code class="text-xs">o3-mini</code></td>
+            <td><span class="badge badge-warning badge-sm">Ⓡ Fast</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Cheaper</span></td>
+          </tr>
+          <tr class="bg-warning/10">
+            <td><code class="text-xs">o4-mini</code></td>
+            <td><span class="badge badge-warning badge-sm">Ⓡ Reasoning</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅</span></td>
+          </tr>
+          <tr class="bg-warning/10">
+            <td><code class="text-xs">o3-deep-research</code></td>
+            <td><span class="badge badge-warning badge-sm">Ⓡ Web Research</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Reports</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Web Search</span></td>
+            <td><span class="badge badge-warning badge-sm">✅ Multi-Step</span></td>
+          </tr>
+          <tr class="bg-warning/10">
+            <td><code class="text-xs">o4-mini-deep-research</code></td>
+            <td><span class="badge badge-warning badge-sm">Ⓡ Fast Research</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-warning badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-oss</code></td>
+            <td><span class="badge badge-sm">Small OSS-style</span></td>
+            <td><span class="badge badge-error badge-sm">❌ Text Only</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Standard</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">davinci-002</code></td>
+            <td><span class="badge badge-ghost badge-sm">Legacy Base</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Basic</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info mt-4">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="text-sm">
+        All GPT and reasoning models support <strong>structured JSON output</strong> and <strong>function/tool calling</strong> via standard APIs. Many have multiple snapshots (dated model IDs) and aliases.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Embedding & Moderation Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Embedding & Moderation Models</h2>
+    <p class="text-base-content/70 mb-6">
+      Models for generating vector embeddings and content moderation.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Model ID</th>
+            <th>Type</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th>Embedding</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="text-xs">text-embedding-3-large</code></td>
+            <td><span class="badge badge-primary badge-sm">Embeddings</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td class="text-xs">High-quality, multilingual</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">text-embedding-3-small</code></td>
+            <td><span class="badge badge-primary badge-sm">Embeddings</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td class="text-xs">Cheap, fast</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">text-embedding-ada-002</code></td>
+            <td><span class="badge badge-ghost badge-sm">Legacy</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td class="text-xs">Older, backward-compatible</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">omni-moderation-latest</code></td>
+            <td><span class="badge badge-warning badge-sm">Moderation</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Image</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Text + image moderation</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">text-moderation-latest</code></td>
+            <td><span class="badge badge-warning badge-sm">Moderation</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Text-only moderation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: Audio & Speech Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Audio & Speech Models</h2>
+    <p class="text-base-content/70 mb-6">
+      Models for speech-to-text, text-to-speech, and audio-capable chat via the Audio API.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Model ID</th>
+            <th>Type</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th>Audio In</th>
+            <th>Audio Out</th>
+            <th>Chat</th>
+            <th>Tools</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="text-xs">gpt-audio-mini</code></td>
+            <td><span class="badge badge-sm">General Audio LLM</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-audio-preview</code></td>
+            <td><span class="badge badge-accent badge-sm">4o Audio</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-mini-audio-preview</code></td>
+            <td><span class="badge badge-accent badge-sm">4o Mini Audio</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-mini-tts</code></td>
+            <td><span class="badge badge-info badge-sm">TTS</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ 11+ Voices</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-transcribe</code></td>
+            <td><span class="badge badge-info badge-sm">STT</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Outputs text</td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-mini-transcribe</code></td>
+            <td><span class="badge badge-info badge-sm">Small STT</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Outputs text</td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">gpt-4o-transcribe-diarize</code></td>
+            <td><span class="badge badge-info badge-sm">STT + Diarization</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Text + speakers</td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">whisper-1</code></td>
+            <td><span class="badge badge-ghost badge-sm">Classic STT</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td class="text-xs">Text only</td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 4: Image & Vision Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Image & Vision-Focused Models</h2>
+    <p class="text-base-content/70 mb-6">
+      Models for image generation and manipulation via the Images API. These models GENERATE images (Vision Out), unlike chat models that READ images (Vision In).
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Model ID</th>
+            <th>Type</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th class="text-xs">Vision Out<br/>(Gen)</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="text-xs">gpt-image-1</code></td>
+            <td><span class="badge badge-primary badge-sm">Image Gen LMM</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Text + Image</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Generate</span></td>
+            <td class="text-xs">Multimodal LLM via Images API</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">dall-e-3</code></td>
+            <td><span class="badge badge-ghost badge-sm">Image Gen</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Generate</span></td>
+            <td class="text-xs">Older image generation</td>
+          </tr>
+          <tr>
+            <td><code class="text-xs">dall-e-2</code></td>
+            <td><span class="badge badge-ghost badge-sm">Legacy Image Gen</span></td>
+            <td><span class="badge badge-error badge-sm">❌</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Generate</span></td>
+            <td class="text-xs">Legacy image generation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert mt-4">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="text-sm">
+        <code>gpt-image-1</code> is a multimodal LLM that can both READ images (Vision In) and GENERATE images (Vision Out). You call it via the <strong>Images API / image-tool</strong>, not as a general chat model.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Realtime Models -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">Realtime Models</h2>
+    <p class="text-base-content/70 mb-6">
+      Streaming text + audio models via WebRTC/WebSocket with API key authentication.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Model ID</th>
+            <th>Type</th>
+            <th class="text-xs">Vision In<br/>(OCR)</th>
+            <th>Audio In</th>
+            <th>Audio Out</th>
+            <th>Chat</th>
+            <th>Tools</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="text-xs">gpt-realtime-2025-08-28</code></td>
+            <td><span class="badge badge-accent badge-sm">Realtime GPT</span></td>
+            <td class="text-xs">Check docs</td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Streaming</span></td>
+            <td><span class="badge badge-success badge-sm">✅ Realtime API</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- API Access Information -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-4">API Access</h2>
+    <p class="text-base-content/70 mb-6">
+      All models listed above are accessible via server-side code using an <strong>OpenAI API key</strong>.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">API Endpoints</h3>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li><code>chat</code> or <code>responses</code> - GPT + reasoning + audio</li>
+            <li><code>embeddings</code> - Vector embeddings</li>
+            <li><code>audio</code> - STT/TTS</li>
+            <li><code>images</code> - Image generation</li>
+            <li><code>moderations</code> - Content moderation</li>
+            <li><code>realtime</code> - WebRTC/WebSocket streaming</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">Additional Info</h3>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li>Models listed are <strong>non-deprecated</strong> as of 2025-11-19</li>
+            <li>Many have <strong>snapshot IDs</strong> and <strong>aliases</strong></li>
+            <li>Some eval-only graders not listed for brevity</li>
+            <li>Check <a href="https://platform.openai.com/docs/models" target="_blank" rel="noopener noreferrer" class="link link-primary">live docs</a> for updates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Recommendations -->
+  <div class="card bg-primary text-primary-content mb-16">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Recommended Models for George AI</h2>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div>
+          <h3 class="font-bold mb-2">💬 Chat Assistants</h3>
+          <ul class="text-sm space-y-1">
+            <li><code>gpt-4o-mini</code> - Fast, cheap</li>
+            <li><code>gpt-4.1</code> - High intelligence</li>
+            <li><code>gpt-5.1</code> - Flagship with reasoning</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">🔍 Embeddings</h3>
+          <ul class="text-sm space-y-1">
+            <li><code>text-embedding-3-small</code> - Fast, cheap</li>
+            <li><code>text-embedding-3-large</code> - High quality</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">👁️ Vision In (OCR)</h3>
+          <p class="text-xs mb-1 italic">Reading/analyzing images</p>
+          <ul class="text-sm space-y-1">
+            <li><code>gpt-4o</code> - Native multimodal</li>
+            <li><code>gpt-4.1</code> - Best quality</li>
+            <li><code>gpt-5.1</code> - Latest</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-2">🎨 Vision Out (Gen)</h3>
+          <p class="text-xs mb-1 italic">Generating images</p>
+          <ul class="text-sm space-y-1">
+            <li><code>gpt-image-1</code> - Latest (LMM)</li>
+            <li><code>dall-e-3</code> - High quality</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="font-bold mb-2">✨ Structured Data Extraction</h3>
+        <p class="text-sm">
+          <strong>Recommended:</strong> <code>gpt-4o-mini</code> (fast/cheap), <code>gpt-4.1-mini</code> (optimized for tools), <code>o3-mini</code> (reasoning)
+        </p>
+        <p class="text-xs mt-2 italic">
+          💡 Tip: All OpenAI GPT models support native function calling. Use reasoning models (o-series) for complex extraction tasks requiring multi-step logic.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- See Also -->
+  <div class="alert alert-success mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 shrink-0">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+    </svg>
+    <div>
+      <div class="font-bold">See Also</div>
+      <div class="text-sm">
+        Looking for self-hosted options? Check out the <a href="/docs/admin/opensource-models" class="link link-primary font-semibold">Open Source Models Reference</a> for 30+ OSS models including Llama, Gemma, Qwen, DeepSeek, and more.
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Navigation -->
+  <div class="flex gap-4">
+    <a href="/docs/admin/ai-models" class="btn btn-outline">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Back to AI Models Guide
+    </a>
+    <a href="/docs" class="btn btn-ghost">Documentation Home</a>
+  </div>
+
+</Layout>

@@ -1,3 +1,4 @@
+import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import { getFileChunks, getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
@@ -111,7 +112,8 @@ builder.queryField('aiSimilarFileChunks', (t) =>
         where: { id: file.libraryId },
         select: {
           id: true,
-          embeddingModel: { select: { name: true } },
+          workspaceId: true,
+          embeddingModel: { select: { name: true, provider: true } },
         },
       })
 
@@ -126,8 +128,10 @@ builder.queryField('aiSimilarFileChunks', (t) =>
       }
 
       const result = await getSimilarChunks({
+        workspaceId: library.workspaceId,
         fileId,
         libraryId: file.libraryId,
+        embeddingsModelProvider: library.embeddingModel.provider as ServiceProviderType,
         embeddingsModelName: library.embeddingModel.name,
         term,
         hits: hits || undefined,

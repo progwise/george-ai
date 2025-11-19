@@ -4,8 +4,14 @@ export interface Message {
   images?: string[]
 }
 
+export type ServiceProviderType = 'ollama' | 'openai'
+
+export interface ServiceProviderConfig {
+  provider: ServiceProviderType
+  endpoints: { name: string; apiKey?: string; url?: string; vramGB: number }[]
+}
+
 export interface ChatOptions {
-  modelProvider: string
   modelName: string
   messages: Message[]
   timeout?: number // in milliseconds

@@ -1,20 +1,31 @@
-import { chat } from '@george-ai/ai-service-client'
+import { type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 
 import { transformPdfToImages } from './pdf-to-images.js'
 import { ConverterResult } from './types.js'
 
 // Concurrency is now dynamically managed by OLLAMA resource manager based on GPU memory
 
-export const transformPdfToImageToMarkdown = async (
-  filePath: string,
-  timeoutSignal: AbortSignal,
-  imageScale: number,
-  ocrPrompt: string,
-  ocrModelProvider: string,
-  ocrModelName: string,
-  ocrTimeoutPerPage: number, // in milliseconds
-  ocrMaxConsecutiveRepeats: number = 5, // number of repetitions to trigger abort
-): Promise<ConverterResult> => {
+export const transformPdfToImageToMarkdown = async ({
+  filePath,
+  timeoutSignal,
+  imageScale,
+  ocrPrompt,
+  workspaceId,
+  ocrModelProvider,
+  ocrModelName,
+  ocrTimeoutPerPage,
+  ocrMaxConsecutiveRepeats = 5,
+}: {
+  filePath: string
+  timeoutSignal: AbortSignal
+  imageScale: number
+  ocrPrompt: string
+  workspaceId: string
+  ocrModelProvider: ServiceProviderType
+  ocrModelName: string
+  ocrTimeoutPerPage: number
+  ocrMaxConsecutiveRepeats?: number
+}): Promise<ConverterResult> => {
   const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
   const startTime = Date.now()
@@ -30,8 +41,7 @@ export const transformPdfToImageToMarkdown = async (
     try {
       console.log(`Processing image ${pageNumber} from PDF: ${imageFilePaths[index]}`)
 
-      const response = await chat({
-        modelProvider: ocrModelProvider,
+      const response = await chat(workspaceId, ocrModelProvider, {
         modelName: ocrModelName,
         messages: [
           {

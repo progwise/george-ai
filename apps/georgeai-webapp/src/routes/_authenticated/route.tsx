@@ -2,7 +2,7 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated')({
   component: RouteComponent,
-  beforeLoad: ({ context, location }) => {
+  beforeLoad: async ({ context, location }) => {
     if (!context.user) {
       throw redirect({
         to: '/login',
@@ -10,8 +10,8 @@ export const Route = createFileRoute('/_authenticated')({
       })
     }
 
-    // make user in router context non nullable
-    return { user: context.user }
+    // make user in router context non nullable and add workspaceId
+    return { user: context.user, workspaceId: context.workspaceId }
   },
 })
 
