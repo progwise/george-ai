@@ -16,9 +16,10 @@ async function globalSetup() {
   console.log('🔧 E2E Global Setup: Creating test user and workspaces...')
 
   const client = new Client({ connectionString: DATABASE_URL })
-  await client.connect()
 
   try {
+    await client.connect()
+    console.log('  ✅ Database connected')
     // Step 1: Ensure E2E test user exists (upsert) with admin privileges
     const userResult = await client.query(
       `
@@ -121,11 +122,17 @@ async function globalSetup() {
     // Discover OpenAI models
     if (OPENAI_API_KEY && OPENAI_API_KEY.length > 0) {
       try {
+        console.log('  🔍 Discovering OpenAI models...')
         const response = await fetch('https://api.openai.com/v1/models', {
           headers: {
             Authorization: `Bearer ${OPENAI_API_KEY}`,
           },
         })
+
+        if (!response.ok) {
+          throw new Error(`OpenAI API returned ${response.status}: ${response.statusText}`)
+        }
+
         const data = await response.json()
 
         if (data.data) {
@@ -170,7 +177,13 @@ async function globalSetup() {
     // Discover Ollama models
     if (OLLAMA_BASE_URL && OLLAMA_BASE_URL.length > 0) {
       try {
+        console.log('  🔍 Discovering Ollama models...')
         const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`)
+
+        if (!response.ok) {
+          throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`)
+        }
+
         const data = await response.json()
 
         if (data.models) {
@@ -214,8 +227,16 @@ async function globalSetup() {
     }
 
     console.log('✅ E2E Global Setup completed')
+  } catch (error) {
+    console.error('❌ E2E Global Setup failed:')
+    console.error(error)
+    throw error
   } finally {
-    await client.end()
+    try {
+      await client.end()
+    } catch (error) {
+      console.error('Failed to close database connection:', error)
+    }
   }
 }
 
