@@ -30,6 +30,9 @@ env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-e2e
 
+  # needed for E2E test global setup scripts
+  DATABASE_URL: postgresql://chatweb:password@postgres:5432/chatweb?schema=public
+
 jobs:
   # Job 1: Calculate content-based hashes for each app
   calculate-hashes:
