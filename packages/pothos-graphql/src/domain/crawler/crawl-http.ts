@@ -6,7 +6,7 @@ import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 
-export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
+export const CRAWL4AI_BASE_URL = process.env.CRAWL4AI_URL || 'http://gai-crawl4ai:11245'
 
 // Uncomment the line below to use the local development server
 //export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'

@@ -21,8 +21,6 @@ import { dataUploadMiddleware } from './upload'
 
 console.log('Starting GeorgeAI GraphQL server...')
 
-// Initialize workspace provider cache
-initializeWorkspace()
 console.log(`
   Environment: ${process.env.NODE_ENV || 'development'}
   GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}
@@ -32,8 +30,11 @@ console.log(`
   Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
   Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
+  OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '******' : 'not set'}
   `)
 
+// Initialize workspace provider cache
+initializeWorkspace()
 // Start workers
 if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
   console.log('Auto-starting enrichment queue worker...')

@@ -42,8 +42,8 @@ import Layout from '../../../layouts/Layout.astro'
             </svg>
           </div>
           <div class="stat-title">Supported Providers</div>
-          <div class="stat-value text-primary text-3xl">2+</div>
-          <div class="stat-desc">Ollama, OpenAI (more coming)</div>
+          <div class="stat-value text-primary text-3xl">6+</div>
+          <div class="stat-desc">2 stable, 4 planned (Anthropic, Google, Azure, HF)</div>
         </div>
 
         <div class="stat bg-base-200 rounded-lg">
@@ -85,7 +85,7 @@ import Layout from '../../../layouts/Layout.astro'
             <tr>
               <td>
                 <div class="font-bold">OpenAI</div>
-                <div class="text-sm opacity-70">Cloud models</div>
+                <div class="text-sm opacity-70">API-Key models</div>
               </td>
               <td><span class="badge badge-success">Stable</span></td>
               <td class="text-sm">Chat, Embedding, Vision, Function Calling</td>
@@ -93,12 +93,30 @@ import Layout from '../../../layouts/Layout.astro'
             </tr>
             <tr>
               <td>
-                <div class="font-bold">Anthropic</div>
-                <div class="text-sm opacity-70">Claude models</div>
+                <div class="font-bold">Anthropic (Claude)</div>
+                <div class="text-sm opacity-70">Claude 3.5 Sonnet/Haiku</div>
               </td>
               <td><span class="badge badge-warning">Planned</span></td>
-              <td class="text-sm">Chat, Vision</td>
-              <td class="text-sm">Long context, reasoning</td>
+              <td class="text-sm">Chat, Vision, Function Calling</td>
+              <td class="text-sm">Long context (200K), reasoning</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="font-bold">Google AI (Gemini)</div>
+                <div class="text-sm opacity-70">Gemini 2.0 Flash, 1.5 Pro</div>
+              </td>
+              <td><span class="badge badge-warning">Planned</span></td>
+              <td class="text-sm">Chat, Embedding, Vision, Audio, Video</td>
+              <td class="text-sm">Multimodal, long context (2M), cost-effective</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="font-bold">Hugging Face</div>
+                <div class="text-sm opacity-70">Open model hub</div>
+              </td>
+              <td><span class="badge badge-warning">Planned</span></td>
+              <td class="text-sm">Chat, Embedding, Vision, Specialized</td>
+              <td class="text-sm">Open models, experimentation, custom fine-tuning</td>
             </tr>
             <tr>
               <td>
@@ -106,11 +124,213 @@ import Layout from '../../../layouts/Layout.astro'
                 <div class="text-sm opacity-70">Enterprise cloud</div>
               </td>
               <td><span class="badge badge-warning">Planned</span></td>
-              <td class="text-sm">Chat, Embedding, Vision</td>
-              <td class="text-sm">Enterprise compliance, regional data</td>
+              <td class="text-sm">Chat, Embedding, Vision, Function Calling</td>
+              <td class="text-sm">Enterprise compliance, regional data residency</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- Provider Roadmap -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Provider Support Roadmap</h2>
+      <div class="prose max-w-none mb-6">
+        <p>
+          George AI is expanding support for multiple AI providers to give you flexibility, cost optimization, and access to the best models for your use case.
+        </p>
+      </div>
+
+      <!-- Tier 1: High Priority -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <h3 class="text-2xl font-bold">Tier 1: High Priority</h3>
+          <span class="badge badge-error">P1-high</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <!-- Anthropic -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Anthropic (Claude)
+                <a href="https://github.com/progwise/george-ai/issues/866" target="_blank" class="link link-primary text-sm font-normal">#866</a>
+              </h4>
+              <p class="text-sm opacity-70">Claude 3.5 Sonnet, Claude 3.5 Haiku</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Vision</span>
+                <span class="badge badge-sm">Function Calling</span>
+              </div>
+              <p class="text-sm mt-2">Long context (200K tokens), excellent reasoning, enterprise adoption</p>
+            </div>
+          </div>
+
+          <!-- Google AI -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Google AI (Gemini)
+                <a href="https://github.com/progwise/george-ai/issues/867" target="_blank" class="link link-primary text-sm font-normal">#867</a>
+              </h4>
+              <p class="text-sm opacity-70">Gemini 2.0 Flash, Gemini 1.5 Pro</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Embedding</span>
+                <span class="badge badge-sm">Vision</span>
+                <span class="badge badge-sm badge-accent">Audio</span>
+                <span class="badge badge-sm badge-accent">Video</span>
+              </div>
+              <p class="text-sm mt-2">Multimodal leader, ultra-long context (2M tokens), cost-effective</p>
+            </div>
+          </div>
+
+          <!-- Hugging Face -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Hugging Face
+                <a href="https://github.com/progwise/george-ai/issues/868" target="_blank" class="link link-primary text-sm font-normal">#868</a>
+              </h4>
+              <p class="text-sm opacity-70">500,000+ open models</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Embedding</span>
+                <span class="badge badge-sm">Vision</span>
+                <span class="badge badge-sm badge-accent">Specialized</span>
+              </div>
+              <p class="text-sm mt-2">Open models, custom fine-tuning, domain-specific models (legal, medical, code)</p>
+            </div>
+          </div>
+
+          <!-- Azure OpenAI -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Azure OpenAI
+                <a href="https://github.com/progwise/george-ai/issues/869" target="_blank" class="link link-primary text-sm font-normal">#869</a>
+              </h4>
+              <p class="text-sm opacity-70">GPT-4o, GPT-4 Turbo, GPT-3.5</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Embedding</span>
+                <span class="badge badge-sm">Vision</span>
+                <span class="badge badge-sm">Function Calling</span>
+              </div>
+              <p class="text-sm mt-2">Enterprise compliance (HIPAA, SOC2), regional data residency, Microsoft ecosystem</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 2: Medium Priority -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <h3 class="text-2xl font-bold">Tier 2: Medium Priority</h3>
+          <span class="badge badge-warning">P2-medium</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <!-- Mistral AI -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Mistral AI
+                <a href="https://github.com/progwise/george-ai/issues/870" target="_blank" class="link link-primary text-sm font-normal">#870</a>
+              </h4>
+              <p class="text-sm opacity-70">Mistral Large 2, Mistral Small</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Embedding</span>
+                <span class="badge badge-sm">Function Calling</span>
+              </div>
+              <p class="text-sm mt-2">European provider, GDPR-compliant, high-performance open models</p>
+            </div>
+          </div>
+
+          <!-- Cohere -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Cohere
+                <a href="https://github.com/progwise/george-ai/issues/871" target="_blank" class="link link-primary text-sm font-normal">#871</a>
+              </h4>
+              <p class="text-sm opacity-70">Command R+, Embed v3</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm">Chat</span>
+                <span class="badge badge-sm">Embedding</span>
+                <span class="badge badge-sm badge-accent">Reranking</span>
+              </div>
+              <p class="text-sm mt-2">RAG specialists, multilingual (100+ languages), unique reranking capabilities</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 3: Lower Priority -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <h3 class="text-2xl font-bold">Tier 3: Lower Priority</h3>
+          <span class="badge badge-info">P3-low</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <!-- AWS Bedrock -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                AWS Bedrock
+                <a href="https://github.com/progwise/george-ai/issues/872" target="_blank" class="link link-primary text-sm font-normal">#872</a>
+              </h4>
+              <p class="text-sm opacity-70">Multi-provider platform</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm badge-xs">Chat</span>
+                <span class="badge badge-sm badge-xs">Embedding</span>
+              </div>
+              <p class="text-sm mt-2">AWS-native, unified access to Anthropic, Meta, Cohere</p>
+            </div>
+          </div>
+
+          <!-- Groq -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Groq
+                <a href="https://github.com/progwise/george-ai/issues/873" target="_blank" class="link link-primary text-sm font-normal">#873</a>
+              </h4>
+              <p class="text-sm opacity-70">Ultra-fast inference</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm badge-xs">Chat</span>
+                <span class="badge badge-sm badge-accent badge-xs">Speed</span>
+              </div>
+              <p class="text-sm mt-2">500+ tokens/sec, real-time applications, low latency</p>
+            </div>
+          </div>
+
+          <!-- Together.ai -->
+          <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-lg">
+                Together.ai
+                <a href="https://github.com/progwise/george-ai/issues/874" target="_blank" class="link link-primary text-sm font-normal">#874</a>
+              </h4>
+              <p class="text-sm opacity-70">100+ open models</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm badge-xs">Chat</span>
+                <span class="badge badge-sm badge-xs">Embedding</span>
+                <span class="badge badge-sm badge-accent badge-xs">Fine-tuning</span>
+              </div>
+              <p class="text-sm mt-2">Custom model deployment, bleeding edge releases</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="font-bold">Want to Contribute?</h3>
+          <p class="text-sm">Provider implementation is a great way to contribute to George AI! Check the linked GitHub issues for implementation details, or suggest a new provider we should add.</p>
+        </div>
       </div>
     </section>
 
@@ -221,9 +441,9 @@ import Layout from '../../../layouts/Layout.astro'
             </h3>
             <div class="text-sm space-y-2">
               <p><strong>Workspace A:</strong> Configured with OpenAI</p>
-              <p class="text-xs opacity-70">Users see: GPT-4, GPT-3.5, text-embedding-3-small, etc.</p>
+              <p class="text-xs opacity-70">Users see: gpt-4o, gpt-4o-mini, text-embedding-3-small, etc.</p>
               <p class="mt-3"><strong>Workspace B:</strong> Configured with Ollama</p>
-              <p class="text-xs opacity-70">Users see: llama3, mistral, nomic-embed-text, etc.</p>
+              <p class="text-xs opacity-70">Users see: qwen3, gemma3, nomic-embed-text, etc.</p>
             </div>
           </div>
         </div>
@@ -286,7 +506,7 @@ import Layout from '../../../layouts/Layout.astro'
               Chat Completion
             </h3>
             <p class="text-sm">For Assistants - conversational AI, question answering</p>
-            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4, llama3.2, qwen2.5</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, qwen3, gemma3</p>
           </div>
         </div>
 
@@ -312,7 +532,7 @@ import Layout from '../../../layouts/Layout.astro'
               Vision/OCR
             </h3>
             <p class="text-sm">For Libraries - image processing, document OCR</p>
-            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, llama3.2-vision, qwen2-vl</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: qwen3-vl, gemma3, gpt-4o</p>
           </div>
         </div>
 
@@ -325,7 +545,7 @@ import Layout from '../../../layouts/Layout.astro'
               Function Calling
             </h3>
             <p class="text-sm">For Lists - structured data extraction from documents</p>
-            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, qwen2.5 (experimental)</p>
+            <p class="text-xs text-base-content/70 mt-2">Examples: gpt-4o, qwen3, gemma3</p>
           </div>
         </div>
       </div>
@@ -361,8 +581,9 @@ import Layout from '../../../layouts/Layout.astro'
             <div class="text-sm text-base-content/70 space-y-1">
               <p><strong>Where:</strong> Library Settings → Advanced → OCR Model dropdown</p>
               <p><strong>Required Capability:</strong> Vision</p>
-              <p><strong>Recommended:</strong> gpt-4o (OpenAI), llama3.2-vision (Ollama)</p>
-              <p class="text-xs mt-2 italic">💡 Tip: OCR is only used for image files (PNG, JPG) and scanned PDFs</p>
+              <p><strong>Recommended (Ollama):</strong> qwen2.5-vl (3B/7B/72B), qwen3-vl (2B/32B), gemma3 (1B/4B/12B/27B)</p>
+              <p><strong>Recommended (OpenAI):</strong> gpt-4o-mini (cost-effective), gpt-4o, o3 (reasoning)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: For Ollama models, choose size (e.g., 7B, 32B) based on your GPU memory</p>
             </div>
           </div>
         </div>
@@ -377,8 +598,9 @@ import Layout from '../../../layouts/Layout.astro'
             <div class="text-sm text-base-content/70 space-y-1">
               <p><strong>Where:</strong> Assistant Settings → Language Model dropdown</p>
               <p><strong>Required Capability:</strong> Chat Completion</p>
-              <p><strong>Recommended:</strong> gpt-4o (OpenAI), llama3.2 (Ollama), qwen2.5 (Ollama)</p>
-              <p class="text-xs mt-2 italic">💡 Tip: Larger models provide better answers but are slower</p>
+              <p><strong>Recommended (Ollama):</strong> qwen3 (4B/8B/14B/32B), qwen2.5 (3B/14B/32B), gemma3 (1B/4B/12B/27B)</p>
+              <p><strong>Recommended (OpenAI):</strong> gpt-4o-mini (fast/cheap), gpt-4o, o3 (reasoning)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Larger models (32B, 27B) provide better answers but need more GPU memory</p>
             </div>
           </div>
         </div>
@@ -393,8 +615,9 @@ import Layout from '../../../layouts/Layout.astro'
             <div class="text-sm text-base-content/70 space-y-1">
               <p><strong>Where:</strong> List → Field Settings → Language Model dropdown</p>
               <p><strong>Required Capability:</strong> Function Calling (preferred) or Chat Completion</p>
-              <p><strong>Recommended:</strong> gpt-4o (OpenAI), qwen2.5 (Ollama - experimental)</p>
-              <p class="text-xs mt-2 italic">💡 Tip: Models with function calling provide better structured extraction</p>
+              <p><strong>Recommended (Ollama):</strong> qwen3 (4B/8B/14B/32B), qwen2.5 (3B/14B/32B), gemma3 (1B/4B/12B/27B)</p>
+              <p><strong>Recommended (OpenAI):</strong> gpt-4o-mini (fast/cheap), gpt-4o, o3 (reasoning)</p>
+              <p class="text-xs mt-2 italic">💡 Tip: Larger models provide better structured extraction but need more GPU memory</p>
             </div>
           </div>
         </div>
@@ -434,57 +657,104 @@ import Layout from '../../../layouts/Layout.astro'
       </div>
     </section>
 
-    <!-- Advanced: Multi-Instance Ollama -->
+    <!-- Configuring AI Providers -->
     <section class="mb-12">
-      <h2 class="text-3xl font-bold mb-6">Advanced: Multi-Instance Ollama Load Balancing</h2>
-      <div class="alert alert-warning mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      <h2 class="text-3xl font-bold mb-6">Configuring AI Providers</h2>
+      <div class="alert alert-info mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <div>
-          <h3 class="font-bold">Advanced Configuration</h3>
-          <p class="text-sm">This feature is for self-hosted deployments with multiple GPU servers. Most users can skip this section.</p>
+          <h3 class="font-bold">Required Setup</h3>
+          <p class="text-sm">Every workspace needs at least one AI provider (Ollama or OpenAI) configured to use AI features like embeddings, chat, and enrichments.</p>
         </div>
       </div>
 
-      <div class="prose max-w-none">
-        <p>
-          If you're self-hosting George AI with multiple Ollama instances (e.g., multiple GPU servers), you can configure load balancing
-          to distribute AI processing across all servers automatically.
-        </p>
-        <p>
-          George AI will intelligently route requests based on GPU memory, current load, and model availability.
-        </p>
+      <div class="prose max-w-none mb-6">
+        <p><strong>How to configure providers for your workspace:</strong></p>
+        <ol class="list-decimal list-inside space-y-2">
+          <li>Go to <strong>Settings → AI Services</strong> in your workspace</li>
+          <li>Click <strong>"Add Provider"</strong></li>
+          <li>Configure the provider details (see below)</li>
+          <li>Click <strong>"Save"</strong> and then <strong>"Sync Models"</strong> to discover available models</li>
+        </ol>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-lg">Ollama Configuration</h3>
+            <div class="text-sm space-y-2">
+              <p><strong>Provider:</strong> Select "Ollama"</p>
+              <p><strong>Name:</strong> Descriptive name (e.g., "GPU Server 1")</p>
+              <p><strong>Base URL:</strong> API endpoint (e.g., http://ollama:11434)</p>
+              <p><strong>API Key:</strong> Optional (leave empty if not required)</p>
+              <p><strong>VRAM:</strong> GPU memory in GB (e.g., 32) - used for load balancing</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-lg">OpenAI Configuration</h3>
+            <div class="text-sm space-y-2">
+              <p><strong>Provider:</strong> Select "OpenAI"</p>
+              <p><strong>Name:</strong> Descriptive name (e.g., "OpenAI Production")</p>
+              <p><strong>Base URL:</strong> Optional (defaults to https://api.openai.com/v1)</p>
+              <p><strong>API Key:</strong> Required (your OpenAI API key)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-success mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Pro Tip: Multiple Instances</h3>
+          <p class="text-sm">You can add multiple provider instances to the same workspace for load balancing and high availability. See details below.</p>
+        </div>
       </div>
 
       <div class="collapse collapse-arrow bg-base-100 shadow-lg mt-4">
         <input type="checkbox" />
         <div class="collapse-title text-lg font-medium">
-          View Multi-Instance Configuration Details
+          Advanced: Multiple Instances for Load Balancing
         </div>
         <div class="collapse-content">
-          <div class="text-sm space-y-4">
-            <p><strong>Configuration via Environment Variables:</strong></p>
-            <div class="mockup-code text-xs">
-              <pre data-prefix="$"><code># Primary Ollama instance</code></pre>
-              <pre data-prefix=""><code>OLLAMA_BASE_URL=http://ollama:11434</code></pre>
-              <pre data-prefix=""><code>OLLAMA_API_KEY=</code></pre>
-              <pre data-prefix=""><code>OLLAMA_VRAM_GB=32</code></pre>
-              <pre data-prefix="$"><code></code></pre>
-              <pre data-prefix="$"><code># Additional instances (up to 10)</code></pre>
-              <pre data-prefix=""><code>OLLAMA_BASE_URL_1=http://ollama-gpu-1:11434</code></pre>
-              <pre data-prefix=""><code>OLLAMA_VRAM_GB_1=24</code></pre>
-              <pre data-prefix="$"><code></code></pre>
-              <pre data-prefix=""><code>OLLAMA_BASE_URL_2=http://ollama-gpu-2:11434</code></pre>
-              <pre data-prefix=""><code>OLLAMA_VRAM_GB_2=24</code></pre>
+          <div class="text-sm space-y-6">
+            <div>
+              <p class="mb-2">
+                For high-load scenarios, you can add multiple instances of the same provider type to distribute AI processing across multiple servers.
+              </p>
+              <p class="font-semibold mb-2 mt-4">Benefits of Multiple Instances:</p>
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                <li><strong>Load Distribution:</strong> Spread AI requests across multiple GPU servers</li>
+                <li><strong>High Availability:</strong> Automatic failover if one server goes offline</li>
+                <li><strong>Scalability:</strong> Add more capacity as your workload grows</li>
+              </ul>
             </div>
-            <p class="mt-4"><strong>Features:</strong></p>
-            <ul class="list-disc list-inside space-y-1">
-              <li>Automatic load balancing across instances</li>
-              <li>GPU-aware routing (uses VRAM information)</li>
-              <li>Model availability checking</li>
-              <li>Automatic failover if an instance goes offline</li>
-              <li>Model deduplication (same model across instances counted once)</li>
-            </ul>
-            <p class="mt-4 text-xs italic">Note: After configuring multi-instance Ollama, run "Sync Models" to discover models from all instances.</p>
+
+            <div>
+              <p class="font-semibold mb-2">How to Add Multiple Instances:</p>
+              <ol class="list-decimal list-inside space-y-1 ml-2">
+                <li>Click "Add Provider" for each additional Ollama server you have</li>
+                <li>Give each instance a unique name (e.g., "GPU Server 1", "GPU Server 2")</li>
+                <li>Configure the base URL pointing to each server</li>
+                <li>Set the VRAM value for each instance (used for intelligent routing)</li>
+                <li>After adding all instances, click "Sync Models" to discover available models</li>
+              </ol>
+            </div>
+
+            <div>
+              <p class="font-semibold mb-2">⚙️ Automatic Load Balancing (Ollama Only)</p>
+              <p class="mb-2">When multiple Ollama instances are configured, George AI automatically:</p>
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                <li>Routes requests to the instance with the most available GPU memory</li>
+                <li>Checks which instances have the requested model loaded</li>
+                <li>Performs automatic failover if an instance goes offline</li>
+                <li>Deduplicates models (same model on multiple instances = one entry in dropdowns)</li>
+                <li>Monitors instance health and load in real-time</li>
+              </ul>
+              <p class="text-xs mt-3 italic">💡 Note: Load balancing is Ollama-specific. For OpenAI, you typically only need one provider instance per workspace.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -511,12 +781,12 @@ import Layout from '../../../layouts/Layout.astro'
             <tr>
               <td>Sync fails for OpenAI</td>
               <td>Invalid API key or network issue</td>
-              <td>Verify OPENAI_API_KEY in environment variables. Check logs for error details.</td>
+              <td>Check Settings → AI Services and verify the OpenAI provider's API Key is correct. Check logs for error details.</td>
             </tr>
             <tr>
               <td>Sync fails for Ollama</td>
               <td>Ollama not running or incorrect URL</td>
-              <td>Verify OLLAMA_BASE_URL is correct and Ollama service is running. Check network connectivity.</td>
+              <td>Check Settings → AI Services and verify the Ollama provider's Base URL is correct and accessible. Ensure Ollama service is running.</td>
             </tr>
             <tr>
               <td>Model not available in dropdown</td>

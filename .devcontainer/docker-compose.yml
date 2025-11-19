@@ -148,5 +148,20 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
 
+  gai-crawl4ai:
+    build:
+      context: ..
+      dockerfile: ./apps/webcrawler/Dockerfile
+    container_name: gai-crawl4ai
+    restart: unless-stopped
+    ports:
+      - '11245:11245'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 volumes:
   n8n_data:

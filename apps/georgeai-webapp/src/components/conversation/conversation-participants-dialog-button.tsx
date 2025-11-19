@@ -142,6 +142,12 @@ export const ConversationParticipantsDialogButton = ({
 
   const handleSubmit = async () => {
     if (!conversation) {
+      // Validate at least one participant selected
+      if (selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1) {
+        toastError(t('tooltips.addNoParticipantsSelected'))
+        return
+      }
+
       if (emailChips.length > 0) {
         const { invalidEmails } = validateEmails(emailChips)
 
@@ -180,6 +186,12 @@ export const ConversationParticipantsDialogButton = ({
         toastError(t('conversations.failedToCreateConversation', { error: error.message }))
       }
     } else {
+      // Validate at least one participant selected
+      if (selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1) {
+        toastError(t('tooltips.addNoParticipantsSelected'))
+        return
+      }
+
       if (emailChips.length > 0) {
         const { invalidEmails } = validateEmails(emailChips)
 
@@ -256,9 +268,8 @@ export const ConversationParticipantsDialogButton = ({
         title={title}
         description={description}
         onSubmit={handleSubmit}
-        disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
+        disabledSubmit={isPending}
         submitButtonText={submitButtonText}
-        submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
         className="max-w-5xl"
       >
         <div className="grid grid-cols-3 gap-4 *:flex *:max-h-64 *:flex-col *:gap-2 max-md:grid-cols-1">
