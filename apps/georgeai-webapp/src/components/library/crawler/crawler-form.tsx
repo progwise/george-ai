@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import {
+  API_URI_PATTERN,
   BOX_URI_PATTERN,
   HTTP_URI_PATTERN,
   SHAREPOINT_URI_PATTERN,
@@ -22,6 +23,7 @@ const URI_PATTERNS = {
   http: HTTP_URI_PATTERN,
   sharepoint: SHAREPOINT_URI_PATTERN,
   box: BOX_URI_PATTERN,
+  api: API_URI_PATTERN,
 }
 
 // Base schema for Input component validation
@@ -43,6 +45,7 @@ export const getCrawlerFormSchema = (
     maxFileSize: z.coerce.number().min(0).optional(),
     minFileSize: z.coerce.number().min(0).optional(),
     allowedMimeTypes: z.string().optional(),
+    crawlerConfig: z.string().optional(),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username:
       uriType !== 'smb'
@@ -108,6 +111,7 @@ graphql(`
     maxFileSize
     minFileSize
     allowedMimeTypes
+    crawlerConfig
     cronJob {
       id
       active
@@ -132,7 +136,7 @@ interface CrawlerFormProps {
 export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint' | 'box'>(
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint' | 'box' | 'api'>(
     crawler?.uriType || 'http',
   )
   const [filtersActive, setFiltersActive] = useState(
@@ -218,6 +222,17 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             onChange={() => setSelectedUriType('box')}
           />
           <span>{t('crawlers.uriTypeBox')}</span>
+        </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="api"
+            className="radio radio-sm"
+            checked={selectedUriType === 'api'}
+            onChange={() => setSelectedUriType('api')}
+          />
+          <span>{t('crawlers.uriTypeApi')}</span>
         </label>
       </div>
       <div className="grid gap-2 sm:grid-cols-[4fr_1fr_1fr]">
@@ -377,6 +392,32 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             placeholder={t('crawlers.placeholders.boxToken')}
             schema={crawlerFormSchema}
             required
+          />
+        </div>
+      ) : selectedUriType === 'api' ? (
+        <div className="flex flex-col gap-2">
+          <div className="text-sm font-semibold">{t('crawlers.apiConfiguration')}</div>
+          <div className="text-xs opacity-70">{t('crawlers.apiConfigurationHint')}</div>
+          <textarea
+            name="crawlerConfig"
+            className="textarea textarea-bordered font-mono text-xs"
+            rows={10}
+            placeholder={JSON.stringify(
+              {
+                baseUrl: 'https://api.example.com',
+                endpoint: '/products',
+                method: 'GET',
+                authType: 'bearer',
+                authConfig: { token: 'your-api-key' },
+                paginationType: 'page',
+                paginationConfig: { pageParam: 'page', pageSizeParam: 'limit', defaultPageSize: 50 },
+                dataPath: 'data',
+                fieldMapping: { title: 'name', content: 'description', metadata: { sku: 'id' } },
+              },
+              null,
+              2,
+            )}
+            defaultValue={crawler?.crawlerConfig || ''}
           />
         </div>
       ) : null}

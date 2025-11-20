@@ -336,6 +336,7 @@ type AiLibrary {
 
 type AiLibraryCrawler {
   allowedMimeTypes: String
+  crawlerConfig: String
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
   excludePatterns: String
@@ -396,6 +397,7 @@ input AiLibraryCrawlerCronJobInput {
 
 input AiLibraryCrawlerInput {
   allowedMimeTypes: [String!]
+  crawlerConfig: String
   cronJob: AiLibraryCrawlerCronJobInput
   excludePatterns: [String!]
   includePatterns: [String!]
@@ -871,6 +873,7 @@ enum ConversationSortOrder {
 }
 
 enum CrawlerUriType {
+  api
   box
   http
   sharepoint

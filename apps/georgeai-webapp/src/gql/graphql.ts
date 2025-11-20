@@ -363,6 +363,7 @@ export type AiLibrary = {
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   allowedMimeTypes?: Maybe<Scalars['String']['output']>
+  crawlerConfig?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
   excludePatterns?: Maybe<Scalars['String']['output']>
@@ -429,6 +430,7 @@ export type AiLibraryCrawlerCronJobInput = {
 
 export type AiLibraryCrawlerInput = {
   allowedMimeTypes?: InputMaybe<Array<Scalars['String']['input']>>
+  crawlerConfig?: InputMaybe<Scalars['String']['input']>
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   excludePatterns?: InputMaybe<Array<Scalars['String']['input']>>
   includePatterns?: InputMaybe<Array<Scalars['String']['input']>>
@@ -934,6 +936,7 @@ export enum ConversationSortOrder {
 }
 
 export enum CrawlerUriType {
+  Api = 'api',
   Box = 'box',
   Http = 'http',
   Sharepoint = 'sharepoint',
@@ -3526,6 +3529,7 @@ export type CrawlerForm_CrawlerFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3571,6 +3575,7 @@ export type SelectedCrawler_CrawlerUpdateDialogFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3601,6 +3606,7 @@ export type SelectedCrawler_CrawlersMenuFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3722,6 +3728,7 @@ export type GetCrawlerQuery = {
     maxFileSize?: number | null
     minFileSize?: number | null
     allowedMimeTypes?: string | null
+    crawlerConfig?: string | null
     lastRun?: {
       __typename?: 'AiLibraryCrawlerRun'
       id: string
@@ -8280,6 +8287,7 @@ export const CrawlerForm_CrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -8344,6 +8352,7 @@ export const SelectedCrawler_CrawlerUpdateDialogFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -8405,6 +8414,7 @@ export const SelectedCrawler_CrawlersMenuFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -14231,6 +14241,7 @@ export const GetCrawlerDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
