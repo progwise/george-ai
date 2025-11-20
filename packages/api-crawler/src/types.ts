@@ -61,16 +61,6 @@ export type PaginationConfig = {
 }
 
 /**
- * Field mapping configuration
- * Maps API response fields to George AI document structure
- */
-export type FieldMapping = {
-  title?: string
-  content?: string
-  metadata?: Record<string, string>
-}
-
-/**
  * Complete API crawler configuration
  */
 export type ApiCrawlerConfig = {
@@ -96,9 +86,6 @@ export type ApiCrawlerConfig = {
   hasMorePath?: string
   totalCountPath?: string
 
-  // Field mapping
-  fieldMapping: FieldMapping
-
   // Rate limiting
   requestDelay?: number
   maxConcurrency?: number
@@ -109,12 +96,12 @@ export type ApiCrawlerConfig = {
 }
 
 /**
- * Crawled item (mapped to George AI document format)
+ * Crawled item with raw data
  */
 export type CrawlItem = {
-  title: string
-  content: string
-  metadata: Record<string, unknown>
+  title: string // Auto-extracted from raw data
+  content: string // Simple string representation
+  raw: unknown // Complete raw item - all data preserved
 }
 
 /**

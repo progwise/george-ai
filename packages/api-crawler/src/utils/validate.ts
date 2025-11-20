@@ -46,12 +46,6 @@ export const apiCrawlerConfigSchema = z.object({
   hasMorePath: z.string().optional(),
   totalCountPath: z.string().optional(),
 
-  fieldMapping: z.object({
-    title: z.string().optional(),
-    content: z.string().optional(),
-    metadata: z.record(z.string()).optional(),
-  }),
-
   requestDelay: z.number().nonnegative().optional(),
   maxConcurrency: z.number().positive().optional(),
   retryCount: z.number().nonnegative().optional(),

@@ -2,48 +2,89 @@
  * Main crawl function
  * Orchestrates authentication, pagination, and field mapping
  */
+import { createLogger } from '@george-ai/web-utils'
+
 import { authenticate } from './auth'
 import { mapFieldsMulti } from './field-mapping'
-import { paginateFetch } from './pagination'
-import type { ApiCrawlerConfig, CrawlResult, ValidationResult } from './types'
+import { paginateFetchStream } from './pagination'
+import type { ApiCrawlerConfig, CrawlItem, CrawlResult, ValidationResult } from './types'
 import { fetchJson } from './utils/http'
 import { validateConfig } from './utils/validate'
 
+const logger = createLogger('API Crawler')
+
 /**
- * Crawl an API endpoint and extract data
- * Main entry point for the package
+ * Crawl an API endpoint and extract data (streaming version)
+ * Yields items as they are fetched and processed
+ */
+export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<CrawlItem, void, void> {
+  logger.debug('Starting crawl...')
+
+  // 1. Validate configuration
+  logger.debug('Validating configuration...')
+  const validatedConfig = validateConfig(config)
+  logger.debug('Configuration validated successfully')
+
+  // 2. Authenticate
+  logger.debug('Authenticating with auth type:', validatedConfig.authType)
+  const authHeaders = await authenticate(validatedConfig.authType, validatedConfig.authConfig)
+  logger.debug('Authentication successful, headers:', Object.keys(authHeaders))
+
+  // 3. Fetch pages and yield items as they come
+  logger.debug('Starting pagination fetch...')
+  logger.debug('Pagination type:', validatedConfig.paginationType)
+  logger.debug('Data path:', validatedConfig.dataPath)
+
+  let totalYielded = 0
+
+  for await (const rawItem of paginateFetchStream({
+    baseUrl: validatedConfig.baseUrl,
+    endpoint: validatedConfig.endpoint,
+    method: validatedConfig.method,
+    headers: { ...validatedConfig.headers, ...authHeaders },
+    queryParams: validatedConfig.queryParams,
+    paginationType: validatedConfig.paginationType,
+    paginationConfig: validatedConfig.paginationConfig,
+    dataPath: validatedConfig.dataPath,
+    requestDelay: validatedConfig.requestDelay,
+  })) {
+    // Map each item to George AI document format (auto-extract title/content)
+    const mappedItems = mapFieldsMulti([rawItem])
+
+    if (mappedItems.length > 0) {
+      const mappedItem = mappedItems[0]
+      totalYielded++
+
+      if (totalYielded === 1) {
+        logger.debug('First mapped item sample:', JSON.stringify(mappedItem, null, 2))
+      }
+
+      yield mappedItem
+    }
+  }
+
+  logger.info('Crawl complete. Total items yielded:', totalYielded)
+}
+
+/**
+ * Crawl an API endpoint and extract data (legacy batch version)
+ * @deprecated Use crawlApiStream for better performance
  */
 export async function crawlApi(config: ApiCrawlerConfig): Promise<CrawlResult> {
   try {
-    // 1. Validate configuration
-    const validatedConfig = validateConfig(config)
+    const items: CrawlItem[] = []
 
-    // 2. Authenticate
-    const authHeaders = await authenticate(validatedConfig.authType, validatedConfig.authConfig)
-
-    // 3. Fetch all pages
-    const allItems = await paginateFetch({
-      baseUrl: validatedConfig.baseUrl,
-      endpoint: validatedConfig.endpoint,
-      method: validatedConfig.method,
-      headers: { ...validatedConfig.headers, ...authHeaders },
-      queryParams: validatedConfig.queryParams,
-      paginationType: validatedConfig.paginationType,
-      paginationConfig: validatedConfig.paginationConfig,
-      dataPath: validatedConfig.dataPath,
-      requestDelay: validatedConfig.requestDelay,
-    })
-
-    // 4. Map fields to George AI document format
-    const mappedItems = mapFieldsMulti(allItems, validatedConfig.fieldMapping)
+    for await (const item of crawlApiStream(config)) {
+      items.push(item)
+    }
 
     return {
-      items: mappedItems,
-      totalFetched: mappedItems.length,
+      items,
+      totalFetched: items.length,
       success: true,
     }
   } catch (error) {
-    console.error('Crawl error:', error)
+    logger.error('Crawl error:', error)
 
     return {
       items: [],
@@ -89,7 +130,7 @@ export async function validateApiConnection(config: ApiCrawlerConfig): Promise<V
 
     return { success: true }
   } catch (error) {
-    console.error('Validation error:', error)
+    logger.error('Validation error:', error)
 
     const errorMessage = error instanceof Error ? error.message : String(error)
 

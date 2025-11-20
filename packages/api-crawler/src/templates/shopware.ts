@@ -7,6 +7,7 @@ import type { ApiCrawlerConfig } from '../types'
 /**
  * Shopware API crawler template
  * User must provide: baseUrl, authConfig (clientId, clientSecret, tokenUrl)
+ * Title and content are auto-extracted from the API response
  */
 export const shopwareTemplate: Omit<ApiCrawlerConfig, 'baseUrl' | 'authConfig'> = {
   endpoint: '/api/product',
@@ -20,18 +21,6 @@ export const shopwareTemplate: Omit<ApiCrawlerConfig, 'baseUrl' | 'authConfig'> 
   },
   dataPath: 'data',
   hasMorePath: 'meta.pagination.total',
-  fieldMapping: {
-    title: 'name',
-    content: 'description',
-    metadata: {
-      sku: 'productNumber',
-      manufacturer: 'manufacturer.name',
-      price: 'price[0].net',
-      ean: 'ean',
-      stock: 'stock',
-      active: 'active',
-    },
-  },
   requestDelay: 100,
   maxConcurrency: 3,
 }

@@ -400,7 +400,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           <div className="text-xs opacity-70">{t('crawlers.apiConfigurationHint')}</div>
           <textarea
             name="crawlerConfig"
-            className="textarea textarea-bordered font-mono text-xs"
+            className="textarea textarea-bordered w-full font-mono text-xs"
             rows={10}
             placeholder={JSON.stringify(
               {

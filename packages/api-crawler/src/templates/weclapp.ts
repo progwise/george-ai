@@ -7,6 +7,7 @@ import type { ApiCrawlerConfig } from '../types'
 /**
  * Weclapp API crawler template
  * User must provide: baseUrl (tenant-specific), authConfig (token)
+ * Title and content are auto-extracted from the API response
  */
 export const weclappTemplate: Omit<ApiCrawlerConfig, 'baseUrl' | 'authConfig'> = {
   endpoint: '/webapp/api/v1/article',
@@ -22,17 +23,6 @@ export const weclappTemplate: Omit<ApiCrawlerConfig, 'baseUrl' | 'authConfig'> =
     defaultPageSize: 100,
   },
   dataPath: 'result',
-  fieldMapping: {
-    title: 'name',
-    content: 'description',
-    metadata: {
-      articleNumber: 'articleNumber',
-      ean: 'ean',
-      manufacturer: 'manufacturerName',
-      price: 'salesPrice',
-      active: 'active',
-    },
-  },
   requestDelay: 100,
   maxConcurrency: 3,
 }

@@ -17,6 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@george-ai/web-utils": "workspace:*",
     "zod": "^3.23.8",
     "jsonpath-plus": "^10.2.0"
   },

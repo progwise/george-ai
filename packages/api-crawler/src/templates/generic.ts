@@ -6,7 +6,8 @@ import type { ApiCrawlerConfig } from '../types'
 
 /**
  * Generic REST API crawler template
- * User must configure: baseUrl, endpoint, authType, authConfig, dataPath, fieldMapping
+ * User must configure: baseUrl, endpoint, authType, authConfig, dataPath
+ * Title and content are auto-extracted from the API response
  */
 export const genericRestTemplate: Partial<ApiCrawlerConfig> = {
   method: 'GET',
@@ -14,11 +15,6 @@ export const genericRestTemplate: Partial<ApiCrawlerConfig> = {
   authConfig: {},
   paginationType: 'none',
   paginationConfig: {},
-  fieldMapping: {
-    title: 'name',
-    content: 'description',
-    metadata: {},
-  },
   requestDelay: 100,
   maxConcurrency: 3,
 }

@@ -357,6 +357,9 @@ importers:
 
   packages/api-crawler:
     dependencies:
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../web-utils
       jsonpath-plus:
         specifier: ^10.2.0
         version: 10.3.0

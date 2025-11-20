@@ -1,7 +1,11 @@
 /**
  * HTTP client utilities using native fetch
  */
+import { createLogger } from '@george-ai/web-utils'
+
 import type { HttpRequestParams, HttpResponse } from '../types'
+
+const logger = createLogger('HTTP')
 
 /**
  * Build full URL with query parameters
@@ -26,6 +30,9 @@ function buildUrl(baseUrl: string, endpoint: string, queryParams?: Record<string
 export async function fetchHttp<T = unknown>(params: HttpRequestParams): Promise<HttpResponse<T>> {
   const url = buildUrl(params.baseUrl, params.endpoint, params.queryParams)
 
+  logger.debug('Making request:', params.method, url)
+  logger.debug('Headers:', Object.keys(params.headers || {}))
+
   const controller = new AbortController()
   const timeoutId = params.timeout ? setTimeout(() => controller.abort(), params.timeout) : undefined
 
@@ -41,11 +48,16 @@ export async function fetchHttp<T = unknown>(params: HttpRequestParams): Promise
       clearTimeout(timeoutId)
     }
 
+    logger.debug('Response status:', response.status, response.statusText)
+
     if (!response.ok) {
+      const errorText = await response.text()
+      logger.error('Error response body:', errorText.substring(0, 500))
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
     const data = await response.json()
+    logger.debug('Response data keys:', data && typeof data === 'object' ? Object.keys(data) : typeof data)
 
     // Convert Headers to plain object
     const headers: Record<string, string> = {}
@@ -62,6 +74,8 @@ export async function fetchHttp<T = unknown>(params: HttpRequestParams): Promise
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
+
+    logger.error('Request failed:', error)
 
     if (error instanceof Error) {
       if (error.name === 'AbortError') {

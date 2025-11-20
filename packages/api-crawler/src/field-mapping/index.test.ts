@@ -3,158 +3,124 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import type { FieldMapping } from '../types'
 import { mapFields, mapFieldsMulti } from './index'
 
 describe('mapFields', () => {
-  it('should map simple string fields', () => {
+  it('should auto-extract title from "name" field', () => {
     const item = {
       name: 'Test Product',
       description: 'Product description',
       price: 99.99,
     }
 
-    const mapping: FieldMapping = {
-      title: 'name',
-      content: 'description',
-      metadata: {
-        price: 'price',
-      },
-    }
-
-    const result = mapFields(item, mapping)
+    const result = mapFields(item)
 
     expect(result.title).toBe('Test Product')
-    expect(result.content).toBe('Product description')
-    expect(result.metadata.price).toBe(99.99)
+    expect(result.content).toBe(JSON.stringify(item))
+    expect(result.raw).toBe(item)
   })
 
-  it('should handle nested fields with dot notation', () => {
+  it('should auto-extract title from "title" field', () => {
     const item = {
-      product: {
-        name: 'Nested Product',
-        details: {
-          description: 'Nested description',
-        },
-      },
-    }
-
-    const mapping: FieldMapping = {
-      title: 'product.name',
-      content: 'product.details.description',
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.title).toBe('Nested Product')
-    expect(result.content).toBe('Nested description')
-  })
-
-  it('should handle missing fields gracefully', () => {
-    const item = {
-      name: 'Product',
-    }
-
-    const mapping: FieldMapping = {
-      title: 'name',
-      content: 'nonexistent',
-      metadata: {
-        price: 'missing.field',
-      },
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.title).toBe('Product')
-    expect(result.content).toBe('')
-    expect(result.metadata.price).toBeUndefined()
-  })
-
-  it('should convert numbers to strings', () => {
-    const item = {
-      id: 12345,
-      name: 'Product',
-    }
-
-    const mapping: FieldMapping = {
-      title: 'id',
-      content: 'name',
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.title).toBe('12345')
-    expect(result.content).toBe('Product')
-  })
-
-  it('should convert booleans to strings', () => {
-    const item = {
-      active: true,
-      name: 'Product',
-    }
-
-    const mapping: FieldMapping = {
-      title: 'active',
-      content: 'name',
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.title).toBe('true')
-    expect(result.content).toBe('Product')
-  })
-
-  it('should convert arrays to comma-separated strings', () => {
-    const item = {
-      tags: ['electronics', 'gadgets', 'new'],
-      name: 'Product',
-    }
-
-    const mapping: FieldMapping = {
-      title: 'name',
-      content: 'tags',
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.content).toBe('electronics, gadgets, new')
-  })
-
-  it('should handle null and undefined values', () => {
-    const item = {
-      name: 'Product',
-      description: null,
-      category: undefined,
-    }
-
-    const mapping: FieldMapping = {
-      title: 'name',
-      content: 'description',
-      metadata: {
-        category: 'category',
-      },
-    }
-
-    const result = mapFields(item, mapping)
-
-    expect(result.title).toBe('Product')
-    expect(result.content).toBe('')
-    expect(result.metadata.category).toBeUndefined()
-  })
-
-  it('should handle empty field mapping', () => {
-    const item = {
-      name: 'Product',
+      title: 'Product Title',
       description: 'Description',
     }
 
-    const mapping: FieldMapping = {}
+    const result = mapFields(item)
 
-    const result = mapFields(item, mapping)
+    expect(result.title).toBe('Product Title')
+    expect(result.raw).toBe(item)
+  })
 
-    expect(result.title).toBe('')
-    expect(result.content).toBe('')
-    expect(result.metadata).toEqual({})
+  it('should fallback to "id" field if no common title fields exist', () => {
+    const item = {
+      id: 12345,
+      description: 'Product description',
+    }
+
+    const result = mapFields(item)
+
+    expect(result.title).toBe('Item 12345')
+  })
+
+  it('should fallback to first string field if no common fields exist', () => {
+    const item = {
+      someRandomField: 'Random Value',
+      anotherField: 42,
+    }
+
+    const result = mapFields(item)
+
+    expect(result.title).toBe('Random Value')
+  })
+
+  it('should use "Item" as fallback title for non-object items', () => {
+    const result = mapFields('string value')
+
+    expect(result.title).toBe('Item')
+  })
+
+  it('should use "Item" as fallback title for empty object', () => {
+    const item = {}
+
+    const result = mapFields(item)
+
+    expect(result.title).toBe('Item')
+  })
+
+  it('should preserve raw data', () => {
+    const item = {
+      name: 'Product',
+      nested: {
+        field: 'value',
+      },
+      array: [1, 2, 3],
+    }
+
+    const result = mapFields(item)
+
+    expect(result.raw).toBe(item)
+    expect(result.raw).toEqual({
+      name: 'Product',
+      nested: { field: 'value' },
+      array: [1, 2, 3],
+    })
+  })
+
+  it('should convert entire object to JSON string for content', () => {
+    const item = {
+      name: 'Product',
+      price: 99.99,
+      active: true,
+    }
+
+    const result = mapFields(item)
+
+    expect(result.content).toBe(JSON.stringify(item))
+  })
+
+  it('should handle arrays in content', () => {
+    const item = {
+      name: 'Product',
+      tags: ['tag1', 'tag2'],
+    }
+
+    const result = mapFields(item)
+
+    expect(result.content).toBe(JSON.stringify(item))
+    expect(result.content).toContain('"tags":["tag1","tag2"]')
+  })
+
+  it('should handle null values', () => {
+    const item = {
+      name: 'Product',
+      description: null,
+    }
+
+    const result = mapFields(item)
+
+    expect(result.title).toBe('Product')
+    expect(result.content).toBe(JSON.stringify(item))
   })
 })
 
@@ -166,32 +132,40 @@ describe('mapFieldsMulti', () => {
       { name: 'Product 3', price: 30 },
     ]
 
-    const mapping: FieldMapping = {
-      title: 'name',
-      metadata: {
-        price: 'price',
-      },
-    }
-
-    const results = mapFieldsMulti(items, mapping)
+    const results = mapFieldsMulti(items)
 
     expect(results).toHaveLength(3)
     expect(results[0].title).toBe('Product 1')
     expect(results[1].title).toBe('Product 2')
     expect(results[2].title).toBe('Product 3')
-    expect(results[0].metadata.price).toBe(10)
-    expect(results[1].metadata.price).toBe(20)
-    expect(results[2].metadata.price).toBe(30)
+    expect(results[0].raw).toBe(items[0])
+    expect(results[1].raw).toBe(items[1])
+    expect(results[2].raw).toBe(items[2])
   })
 
   it('should handle empty array', () => {
     const items: unknown[] = []
-    const mapping: FieldMapping = {
-      title: 'name',
-    }
 
-    const results = mapFieldsMulti(items, mapping)
+    const results = mapFieldsMulti(items)
 
     expect(results).toHaveLength(0)
+  })
+
+  it('should auto-extract titles from different field names', () => {
+    const items = [
+      { name: 'Item with name' },
+      { title: 'Item with title' },
+      { label: 'Item with label' },
+      { id: 123 },
+      { someField: 'Fallback string' },
+    ]
+
+    const results = mapFieldsMulti(items)
+
+    expect(results[0].title).toBe('Item with name')
+    expect(results[1].title).toBe('Item with title')
+    expect(results[2].title).toBe('Item with label')
+    expect(results[3].title).toBe('Item 123')
+    expect(results[4].title).toBe('Fallback string')
   })
 })

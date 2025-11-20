@@ -1,9 +1,12 @@
 /**
  * Field mapping utilities
- * Map API response fields to George AI document format
+ * Auto-extract basic info from raw API data
  */
-import type { CrawlItem, FieldMapping } from '../types'
-import { extractJsonPath } from './json-path'
+import { createLogger } from '@george-ai/web-utils'
+
+import type { CrawlItem } from '../types'
+
+const logger = createLogger('Field Mapping')
 
 /**
  * Convert any value to string safely
@@ -33,34 +36,74 @@ function toString(value: unknown): string {
 }
 
 /**
- * Map API response fields to George AI document format
+ * Auto-extract title from raw data by trying common field names
  */
-export function mapFields(item: unknown, fieldMapping: FieldMapping): CrawlItem {
-  const title = fieldMapping.title ? toString(extractJsonPath(item, fieldMapping.title)) : ''
+function extractTitle(item: unknown): string {
+  if (!item || typeof item !== 'object') {
+    return 'Item'
+  }
 
-  const content = fieldMapping.content ? toString(extractJsonPath(item, fieldMapping.content)) : ''
+  const obj = item as Record<string, unknown>
 
-  const metadata: Record<string, unknown> = {}
+  // Try common title field names
+  const titleFields = ['name', 'title', 'label', 'displayName', 'subject', 'heading']
 
-  if (fieldMapping.metadata) {
-    for (const [key, path] of Object.entries(fieldMapping.metadata)) {
-      const value = extractJsonPath(item, path)
-      if (value !== undefined && value !== null) {
-        metadata[key] = value
+  for (const field of titleFields) {
+    if (field in obj && obj[field]) {
+      const value = toString(obj[field])
+      if (value) {
+        return value
       }
     }
   }
 
+  // Fallback to id field if available
+  if ('id' in obj && obj['id']) {
+    return `Item ${toString(obj['id'])}`
+  }
+
+  // Last resort: use first string field
+  for (const value of Object.values(obj)) {
+    if (typeof value === 'string' && value.trim()) {
+      return value
+    }
+  }
+
+  return 'Item'
+}
+
+/**
+ * Map API response item to George AI document format
+ * Auto-extracts title and converts entire object to JSON for content
+ */
+export function mapFields(item: unknown): CrawlItem {
+  logger.debug('Auto-mapping item')
+  logger.debug('Item keys:', item && typeof item === 'object' ? Object.keys(item) : typeof item)
+
+  const title = extractTitle(item)
+  logger.debug('Extracted title:', title)
+
+  // Simple string representation of the entire object
+  const content = toString(item)
+  logger.debug('Generated content length:', content.length)
+
   return {
     title,
     content,
-    metadata,
+    raw: item,
   }
 }
 
 /**
  * Map multiple items
  */
-export function mapFieldsMulti(items: unknown[], fieldMapping: FieldMapping): CrawlItem[] {
-  return items.map((item) => mapFields(item, fieldMapping))
+export function mapFieldsMulti(items: unknown[]): CrawlItem[] {
+  // Log the full structure of the first item to help discover available fields
+  if (items.length > 0 && items[0] && typeof items[0] === 'object') {
+    logger.info('=== FIRST ITEM FULL STRUCTURE (for field discovery) ===')
+    logger.info(JSON.stringify(items[0], null, 2))
+    logger.info('=== END FIRST ITEM ===')
+  }
+
+  return items.map((item) => mapFields(item))
 }

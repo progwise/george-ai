@@ -4,7 +4,7 @@
  */
 
 // Main functions
-export { crawlApi, validateApiConnection } from './crawl'
+export { crawlApi, crawlApiStream, validateApiConnection } from './crawl'
 
 // Types
 export type {
@@ -13,7 +13,6 @@ export type {
   AuthConfig,
   PaginationType,
   PaginationConfig,
-  FieldMapping,
   HttpMethod,
   CrawlItem,
   CrawlResult,
