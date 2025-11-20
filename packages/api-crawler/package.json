@@ -1,0 +1,37 @@
+{
+  "name": "@george-ai/api-crawler",
+  "version": "0.1.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Michael Vogt <info@george-ai.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/progwise/george-ai"
+  },
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "zod": "^3.23.8",
+    "jsonpath-plus": "^10.2.0"
+  },
+  "devDependencies": {
+    "@george-ai/package-configs": "workspace:*",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
