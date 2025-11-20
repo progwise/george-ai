@@ -524,6 +524,9 @@ importers:
       '@george-ai/ai-service-client':
         specifier: workspace:*
         version: link:../ai-service-client
+      '@george-ai/api-crawler':
+        specifier: workspace:*
+        version: link:../api-crawler
       '@george-ai/file-converter':
         specifier: workspace:*
         version: link:../file-converter

@@ -2,6 +2,7 @@ import { canAccessLibraryOrThrow } from '..'
 import { prisma } from '../../prisma'
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { parseFilterConfig } from '../file/file-filter'
+import { crawlApi } from './crawl-api'
 import { crawlBox } from './crawl-box'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
@@ -92,6 +93,7 @@ const startCrawling = async (
     maxFileSize?: number | null
     minFileSize?: number | null
     allowedMimeTypes?: string | null
+    crawlerConfig?: unknown | null
     library: { fileConverterOptions: string | null; autoProcessCrawledFiles: boolean }
   },
   newRun: { id: string; startedAt: Date },
@@ -116,7 +118,9 @@ const startCrawling = async (
           ? crawlSharePoint
           : crawler.uriType === 'box'
             ? crawlBox
-            : null
+            : crawler.uriType === 'api'
+              ? crawlApi
+              : null
 
   if (!crawl) {
     throw new Error(`Crawler for type ${crawler.uriType} not implemented`)
@@ -131,6 +135,7 @@ const startCrawling = async (
       libraryId: crawler.libraryId,
       crawlerRunId: newRun.id,
       filterConfig,
+      crawlerConfig: crawler.crawlerConfig as never,
     })) {
       try {
         const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
