@@ -23,6 +23,7 @@ export function extractJsonPath(data: unknown, path: string): unknown {
 
     const result = JSONPath({
       path: jsonPath,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       json: data as any,
       wrap: false,
     })
@@ -48,6 +49,7 @@ export function extractJsonPathMulti(data: unknown, path: string): unknown[] {
 
     const result = JSONPath({
       path: jsonPath,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       json: data as any,
       wrap: true,
     })
