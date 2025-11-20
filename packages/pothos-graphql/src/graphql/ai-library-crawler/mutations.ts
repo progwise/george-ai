@@ -32,6 +32,7 @@ const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
     maxFileSize: t.int({ required: false }),
     minFileSize: t.int({ required: false }),
     allowedMimeTypes: t.stringList({ required: false }),
+    crawlerConfig: t.string({ required: false }),
     cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
   }),
 })
@@ -48,7 +49,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
     resolve: async (_query, _source, { libraryId, data, credentials }, context) => {
       await canAccessLibraryOrThrow(libraryId, context.session.user.id)
 
-      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
+      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, crawlerConfig, ...input } = data
 
       const crawler = await prisma.aiLibraryCrawler.create({
         include: { cronJob: true },
@@ -58,6 +59,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
+          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
@@ -88,6 +90,12 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
         }
         await updateCrawlerCredentials(crawler.id, credentials)
         await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
+      } else if (data.uriType === 'api') {
+        if (!crawlerConfig) {
+          throw new GraphQLError('Must provide crawlerConfig for uri type API')
+        }
+        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
+        await removeCrawlerCredentials(crawler.id)
       }
 
       if (crawler.cronJob) {
@@ -109,7 +117,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
     resolve: async (query, _source, { id, data, credentials }, context) => {
-      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, ...input } = data
+      const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, crawlerConfig, ...input } = data
       const existingCrawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
         ...query,
         where: { id },
@@ -144,6 +152,12 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
         }
         await updateCrawlerCredentials(id, credentials)
         await ensureCrawlerSmbShareUnmount({ crawlerId: id })
+      } else if (data.uriType === 'api') {
+        if (!crawlerConfig) {
+          throw new GraphQLError('Must provide crawlerConfig for uri type API')
+        }
+        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
+        await removeCrawlerCredentials(id)
       }
 
       const crawler = await prisma.aiLibraryCrawler.update({
@@ -153,6 +167,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
+          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null,
           cronJob: existingCrawler.cronJob
             ? { update: cronJob ?? { active: false } }
             : { create: cronJob ?? undefined },

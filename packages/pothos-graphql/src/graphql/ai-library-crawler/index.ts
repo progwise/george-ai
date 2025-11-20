@@ -114,6 +114,11 @@ builder.prismaObject('AiLibraryCrawler', {
     maxFileSize: t.exposeInt('maxFileSize', { nullable: true }),
     minFileSize: t.exposeInt('minFileSize', { nullable: true }),
     allowedMimeTypes: t.exposeString('allowedMimeTypes', { nullable: true }),
+    crawlerConfig: t.field({
+      type: 'String',
+      nullable: true,
+      resolve: (crawler) => (crawler.crawlerConfig ? JSON.stringify(crawler.crawlerConfig) : null),
+    }),
     lastRun: t.prismaField({
       type: 'AiLibraryCrawlerRun',
       nullable: true,
