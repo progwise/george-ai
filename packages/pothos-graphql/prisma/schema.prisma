@@ -305,6 +305,7 @@ model AiLibraryCrawler {
   includePatterns  String?
   maxFileSize      Int?
   minFileSize      Int?
+  crawlerConfig    Json?
   library          AiLibrary                @relation(fields: [libraryId], references: [id])
   cronJob          AiLibraryCrawlerCronJob?
   runs             AiLibraryCrawlerRun[]
