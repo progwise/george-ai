@@ -28,7 +28,16 @@ export const CrawlerUpdateDialog = ({ crawler, updateDialogRef }: CrawlerUpdateD
   const { updateCrawler, isPending } = useCrawlerActions({ libraryId: crawler.libraryId })
 
   const handleUpdateSubmit = async (formData: FormData) => {
-    updateCrawler({ data: formData })
+    updateCrawler(
+      { data: formData },
+      {
+        onSuccess: () => {
+          if (updateDialogRef.current) {
+            updateDialogRef.current.close()
+          }
+        },
+      },
+    )
   }
   return (
     <DialogForm

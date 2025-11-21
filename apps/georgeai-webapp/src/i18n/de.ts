@@ -421,7 +421,10 @@ export default {
     utcHint: 'UTC-Zeitzone',
     apiConfiguration: 'API-Konfiguration (JSON)',
     apiConfigurationHint:
-      'Authentifizierung, Paginierung und Feldzuordnung als JSON konfigurieren. Siehe Platzhalter für Beispielformat.',
+      'Authentifizierung, Paginierung und Feldzuordnung als JSON konfigurieren. Wählen Sie eine Vorlage oder passen Sie manuell an.',
+    selectTemplate: 'Vorlage',
+    selectTemplatePlaceholder: 'Vorlage auswählen...',
+    apiConfigurationPlaceholder: 'API-Konfiguration als JSON eingeben oder Vorlage oben auswählen',
     validationBoxCustomerIdTooShort: 'Box Kunden ID muss mindestens 10 Zeichen lang sein.',
     validationBoxTokenTooShort: 'Box Token muss mindestens 20 Zeichen lang sein.',
     validationPasswordRequired: 'Passwort braucht mindestens 2 Zeichen.',

@@ -850,6 +850,14 @@ export type AiServiceProviderInput = {
   vramGb?: InputMaybe<Scalars['Int']['input']>
 }
 
+export type ApiCrawlerTemplate = {
+  __typename?: 'ApiCrawlerTemplate'
+  config: Scalars['String']['output']
+  description: Scalars['String']['output']
+  id: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type ApiKey = {
   __typename?: 'ApiKey'
   createdAt: Scalars['DateTime']['output']
@@ -1773,6 +1781,7 @@ export type Query = {
   aiServiceProviders: Array<AiServiceProvider>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
+  apiCrawlerTemplates: Array<ApiCrawlerTemplate>
   apiKeys: Array<ApiKey>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
@@ -3629,6 +3638,19 @@ export type Crawlers_CrawlersMenuFragment = {
   uri: string
   uriType: CrawlerUriType
   isRunning: boolean
+}
+
+export type GetApiCrawlerTemplatesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetApiCrawlerTemplatesQuery = {
+  __typename?: 'Query'
+  apiCrawlerTemplates: Array<{
+    __typename?: 'ApiCrawlerTemplate'
+    id: string
+    name: string
+    description: string
+    config: string
+  }>
 }
 
 export type GetCrawlerRunQueryVariables = Exact<{
@@ -13838,6 +13860,34 @@ export const GetDashboardDataDocument = {
     },
   ],
 } as unknown as DocumentNode<GetDashboardDataQuery, GetDashboardDataQueryVariables>
+export const GetApiCrawlerTemplatesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetApiCrawlerTemplates' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'apiCrawlerTemplates' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'config' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetApiCrawlerTemplatesQuery, GetApiCrawlerTemplatesQueryVariables>
 export const GetCrawlerRunDocument = {
   kind: 'Document',
   definitions: [

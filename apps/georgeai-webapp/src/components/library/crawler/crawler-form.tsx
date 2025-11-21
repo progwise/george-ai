@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+import { useQuery } from '@tanstack/react-query'
+
 import {
   API_URI_PATTERN,
   BOX_URI_PATTERN,
@@ -13,6 +15,7 @@ import {
 } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
+import { getApiCrawlerTemplatesQueryOptions } from './queries/get-api-crawler-templates'
 import { CrawlerForm_CrawlerFragment, CrawlerUriType } from '../../../gql/graphql'
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
@@ -165,6 +168,26 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       crawler?.allowedMimeTypes
     ),
   )
+  const [apiConfigValue, setApiConfigValue] = useState<string>(() => formatJson(crawler?.crawlerConfig) || '')
+  const [uriValue, setUriValue] = useState<string>(crawler?.uri || '')
+  const { data: templatesData } = useQuery(getApiCrawlerTemplatesQueryOptions())
+  const templates = templatesData?.apiCrawlerTemplates
+
+  // Apply URI from form to template config
+  const applyUriToTemplate = (templateConfig: string, uri: string): string => {
+    if (!uri) return templateConfig
+    try {
+      const config = JSON.parse(templateConfig)
+      config.baseUrl = uri
+      // Update tokenUrl for OAuth configs if it references the placeholder baseUrl
+      if (config.authConfig?.tokenUrl?.includes('your-shop') || config.authConfig?.tokenUrl?.includes('your-tenant')) {
+        config.authConfig.tokenUrl = `${uri}/api/oauth/token`
+      }
+      return JSON.stringify(config, null, 2)
+    } catch {
+      return templateConfig
+    }
+  }
 
   // Sync state with crawler prop changes
   useEffect(() => {
@@ -180,6 +203,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           crawler?.allowedMimeTypes
         ),
       )
+      setApiConfigValue(formatJson(crawler?.crawlerConfig) || '')
+      setUriValue(crawler?.uri || '')
     }, 0)
     return () => clearTimeout(timeout)
   }, [crawler])
@@ -255,11 +280,12 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       <div className="grid gap-2 sm:grid-cols-[4fr_1fr_1fr]">
         <Input
           name="uri"
-          value={crawler?.uri || ''}
+          value={uriValue}
           placeholder={t('crawlers.placeholders.uri')}
           label={t('crawlers.uri')}
           schema={crawlerFormSchema}
           required={true}
+          onChange={(e) => setUriValue(e.target.value)}
         />
         <Input
           name="maxDepth"
@@ -415,25 +441,40 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
         <div className="flex flex-col gap-2">
           <div className="text-sm font-semibold">{t('crawlers.apiConfiguration')}</div>
           <div className="text-xs opacity-70">{t('crawlers.apiConfigurationHint')}</div>
+
+          {/* Template Selector */}
+          {templates && templates.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">{t('crawlers.selectTemplate')}</label>
+              <select
+                className="select select-bordered select-sm w-full max-w-xs"
+                onChange={(e) => {
+                  const template = templates.find((tpl) => tpl.id === e.target.value)
+                  if (template) {
+                    setApiConfigValue(applyUriToTemplate(template.config, uriValue))
+                  }
+                }}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {t('crawlers.selectTemplatePlaceholder')}
+                </option>
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id} title={template.description}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <textarea
             name="crawlerConfig"
             className="textarea textarea-bordered w-full font-mono text-xs"
-            rows={10}
-            placeholder={JSON.stringify(
-              {
-                baseUrl: 'https://api.example.com',
-                endpoint: '/products',
-                method: 'GET',
-                authType: 'bearer',
-                authConfig: { token: 'your-api-key' },
-                paginationType: 'page',
-                paginationConfig: { pageParam: 'page', pageSizeParam: 'limit', defaultPageSize: 50 },
-                dataPath: 'data',
-              },
-              null,
-              2,
-            )}
-            defaultValue={formatJson(crawler?.crawlerConfig)}
+            rows={12}
+            placeholder={t('crawlers.apiConfigurationPlaceholder')}
+            value={apiConfigValue}
+            onChange={(e) => setApiConfigValue(e.target.value)}
           />
         </div>
       ) : null}

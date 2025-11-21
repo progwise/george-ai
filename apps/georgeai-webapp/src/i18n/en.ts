@@ -417,7 +417,10 @@ export default {
     utcHint: 'UTC time',
     apiConfiguration: 'API Configuration (JSON)',
     apiConfigurationHint:
-      'Configure authentication, pagination, and field mapping as JSON. See placeholder for example format.',
+      'Configure authentication, pagination, and field mapping as JSON. Select a template below or customize manually.',
+    selectTemplate: 'Template',
+    selectTemplatePlaceholder: 'Choose a template...',
+    apiConfigurationPlaceholder: 'Enter API configuration JSON or select a template above',
     validationBoxCustomerIdTooShort: 'Box Customer ID must be at least 10 characters long.',
     validationBoxTokenTooShort: 'Box Token must be at least 20 characters long.',
     validationPasswordRequired: 'Password must be > 2 characters.',
