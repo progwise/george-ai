@@ -24,7 +24,7 @@
     "@astrojs/sitemap": "^3.6.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.15",
-    "astro": "^5.14.7",
+    "astro": "^5.15.9",
     "daisyui": "^5.1.10",
     "nodemailer": "^6.9.16",
     "reading-time": "^1.5.0",
