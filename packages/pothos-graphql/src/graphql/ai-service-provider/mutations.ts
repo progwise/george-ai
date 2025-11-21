@@ -64,7 +64,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
           name: data.name,
           enabled: shouldEnable,
           baseUrl: data.baseUrl,
-          apiKey: data.apiKey, // TODO: Encrypt before storing
+          apiKey: data.apiKey, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           vramGb: data.vramGb,
           createdBy: userId,
         },
@@ -145,7 +145,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
           enabled: shouldEnable,
           baseUrl: data.baseUrl,
           // Only update apiKey if provided (preserve existing if undefined)
-          ...(data.apiKey !== undefined && { apiKey: data.apiKey }), // TODO: Encrypt before storing
+          ...(data.apiKey !== undefined && { apiKey: data.apiKey }), // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           vramGb: data.vramGb,
           updatedBy: userId,
         },
@@ -376,7 +376,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
             name: providerData.name,
             enabled: true,
             baseUrl: providerData.baseUrl,
-            apiKey: providerData.apiKey, // TODO: Encrypt before storing
+            apiKey: providerData.apiKey, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
             vramGb: providerData.vramGb,
             createdBy: userId,
           },

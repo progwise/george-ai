@@ -8,6 +8,7 @@ import {
   HTTP_URI_PATTERN,
   SHAREPOINT_URI_PATTERN,
   SMB_URI_PATTERN,
+  formatJson,
   jsonArrayToString,
 } from '@george-ai/web-utils'
 
@@ -45,7 +46,23 @@ export const getCrawlerFormSchema = (
     maxFileSize: z.coerce.number().min(0).optional(),
     minFileSize: z.coerce.number().min(0).optional(),
     allowedMimeTypes: z.string().optional(),
-    crawlerConfig: z.string().optional(),
+    crawlerConfig:
+      uriType !== 'api'
+        ? z.string().optional()
+        : z
+            .string()
+            .min(1, translate('crawlers.errors.crawlerConfigRequired', language))
+            .refine(
+              (value) => {
+                try {
+                  JSON.parse(value)
+                  return true
+                } catch {
+                  return false
+                }
+              },
+              { message: translate('crawlers.errors.crawlerConfigInvalidJson', language) },
+            ),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username:
       uriType !== 'smb'
@@ -412,12 +429,11 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
                 paginationType: 'page',
                 paginationConfig: { pageParam: 'page', pageSizeParam: 'limit', defaultPageSize: 50 },
                 dataPath: 'data',
-                fieldMapping: { title: 'name', content: 'description', metadata: { sku: 'id' } },
               },
               null,
               2,
             )}
-            defaultValue={crawler?.crawlerConfig || ''}
+            defaultValue={formatJson(crawler?.crawlerConfig)}
           />
         </div>
       ) : null}

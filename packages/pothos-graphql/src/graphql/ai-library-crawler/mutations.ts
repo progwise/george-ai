@@ -59,7 +59,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
-          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null,
+          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
@@ -167,7 +167,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
-          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null,
+          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           cronJob: existingCrawler.cronJob
             ? { update: cronJob ?? { active: false } }
             : { create: cronJob ?? undefined },

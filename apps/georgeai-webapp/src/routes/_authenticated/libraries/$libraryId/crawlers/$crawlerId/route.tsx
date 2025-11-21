@@ -72,11 +72,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className="flex justify-end">
-        <ul className="menu bg-base-200 menu-horizontal rounded-box items-center gap-2">
-          <li>
-            <CrawlersMenu selectedCrawler={crawler} libraryId={libraryId} />
-          </li>
-        </ul>
+        <CrawlersMenu selectedCrawler={crawler} libraryId={libraryId} />
       </div>
       <div>
         <Outlet />

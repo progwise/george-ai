@@ -365,6 +365,8 @@ export default {
       invalidUri: 'Ungültiges URI-Format für den ausgewählten Typ',
       maxDepth: 'muss > 0 sein',
       maxPages: 'muss > 1 sein',
+      crawlerConfigRequired: 'API-Konfiguration ist erforderlich',
+      crawlerConfigInvalidJson: 'API-Konfiguration muss gültiges JSON sein',
     },
     lastRun: 'Letzter Lauf',
     maxDepth: 'Tiefe',
