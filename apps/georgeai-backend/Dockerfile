@@ -34,6 +34,7 @@ COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
+COPY packages/api-crawler/package.json ./packages/api-crawler/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
 COPY packages/langchain-chat/package.json ./packages/langchain-chat/
@@ -50,6 +51,7 @@ COPY LICENSE ./
 # Copy only the source files for packages that backend depends on
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
+COPY packages/api-crawler ./packages/api-crawler
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
 COPY packages/langchain-chat ./packages/langchain-chat
