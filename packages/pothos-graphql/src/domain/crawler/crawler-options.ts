@@ -1,3 +1,5 @@
+import type { ApiCrawlerConfig } from '@george-ai/api-crawler'
+
 import { FileFilterConfig } from '../file/file-filter'
 
 export interface CrawlOptions {
@@ -8,4 +10,5 @@ export interface CrawlOptions {
   libraryId: string
   crawlerRunId?: string
   filterConfig?: FileFilterConfig
+  crawlerConfig?: ApiCrawlerConfig
 }

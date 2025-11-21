@@ -97,6 +97,7 @@ export const addCrawlerFn = createServerFn({ method: 'POST' })
           maxFileSize: data.maxFileSize,
           minFileSize: data.minFileSize,
           allowedMimeTypes: parseCommaList(data.allowedMimeTypes),
+          crawlerConfig: data.crawlerConfig,
           cronJob: data.cronJob,
         },
         credentials:

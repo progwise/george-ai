@@ -1,6 +1,73 @@
+import { createShopwareConfig, createWeclappConfig, genericRestTemplate } from '@george-ai/api-crawler'
+
 import { canAccessLibraryOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+
+// API Crawler Template type for UI
+const ApiCrawlerTemplate = builder.simpleObject('ApiCrawlerTemplate', {
+  fields: (t) => ({
+    id: t.string({ nullable: false }),
+    name: t.string({ nullable: false }),
+    description: t.string({ nullable: false }),
+    config: t.string({ nullable: false }),
+  }),
+})
+
+builder.queryField('apiCrawlerTemplates', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: [ApiCrawlerTemplate],
+    nullable: { list: false, items: false },
+    resolve: () => [
+      {
+        id: 'shopware',
+        name: 'Shopware 6',
+        description: 'E-commerce platform - fetches products via REST API with OAuth2 authentication',
+        config: JSON.stringify(
+          createShopwareConfig({
+            baseUrl: 'https://your-shop.shopware.store',
+            clientId: 'your-client-id',
+            clientSecret: 'your-client-secret',
+          }),
+          null,
+          2,
+        ),
+      },
+      {
+        id: 'weclapp',
+        name: 'Weclapp ERP',
+        description: 'ERP system - fetches articles via REST API with Bearer token authentication',
+        config: JSON.stringify(
+          createWeclappConfig({
+            baseUrl: 'https://your-tenant.weclapp.com',
+            token: 'your-api-token',
+          }),
+          null,
+          2,
+        ),
+      },
+      {
+        id: 'custom',
+        name: 'Custom REST API',
+        description: 'Generic template for any REST API - customize all settings',
+        config: JSON.stringify(
+          {
+            ...genericRestTemplate,
+            baseUrl: 'https://api.example.com',
+            endpoint: '/items',
+            dataPath: 'data',
+            authType: 'bearer',
+            authConfig: { token: 'your-api-key' },
+            paginationType: 'page',
+            paginationConfig: { pageParam: 'page', pageSizeParam: 'limit', defaultPageSize: 50 },
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  }),
+)
 
 builder.queryField('aiLibraryCrawler', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({

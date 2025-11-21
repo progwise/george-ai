@@ -34,7 +34,7 @@ graphql(`
 interface CrawlersMenuProps {
   libraryId: string
   selectedCrawler?: SelectedCrawler_CrawlersMenuFragment | null
-  crawlers: Crawlers_CrawlersMenuFragment[]
+  crawlers?: Crawlers_CrawlersMenuFragment[]
 }
 
 export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersMenuProps) => {
@@ -68,30 +68,38 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
   return (
     <>
       <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center shadow-lg">
-        <li>
-          <details ref={detailsRef} className="w-90">
-            <summary className="text-sm font-semibold">
-              <span className="overflow-auto overflow-ellipsis text-nowrap">
-                {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'All Crawlers'}
-              </span>
-            </summary>
-            <ul className="z-40">
-              <li>
-                <Link to="." search={{ crawlerId: undefined }}>
-                  All
-                </Link>
-              </li>
-              {crawlers.map((crawler) => (
-                <li key={crawler.id} className={crawler.id === selectedCrawler?.id ? 'active' : ''}>
-                  <Link to="." search={{ crawlerId: crawler.id }} className="flex flex-col items-start gap-1">
-                    <span className="text-base-content/70 italic">{crawler.uriType}:</span>
-                    <span className="ml-2">{crawler.uri}</span>
+        {crawlers ? (
+          <li>
+            <details ref={detailsRef} className="w-90">
+              <summary className="text-sm font-semibold">
+                <span className="overflow-auto overflow-ellipsis text-nowrap">
+                  {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'All Crawlers'}
+                </span>
+              </summary>
+              <ul className="z-40">
+                <li>
+                  <Link to="." search={{ crawlerId: undefined }}>
+                    All
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </details>
-        </li>
+                {crawlers.map((crawler) => (
+                  <li key={crawler.id} className={crawler.id === selectedCrawler?.id ? 'active' : ''}>
+                    <Link to="." search={{ crawlerId: crawler.id }} className="flex flex-col items-start gap-1">
+                      <span className="text-base-content/70 italic">{crawler.uriType}:</span>
+                      <span className="ml-2">{crawler.uri}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        ) : (
+          <li>
+            <span className="overflow-auto overflow-ellipsis text-nowrap font-bold">
+              {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'no crawler selected'}
+            </span>
+          </li>
+        )}
         <li>
           {selectedCrawler?.isRunning && (
             <span className="badge badge-primary gap-1">
@@ -100,7 +108,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
             </span>
           )}
         </li>
-        <li className="grow-1 items-end">
+        <li className="grow items-end">
           <button
             type="button"
             className="btn btn-ghost"

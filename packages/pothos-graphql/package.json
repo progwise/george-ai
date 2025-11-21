@@ -22,6 +22,7 @@
   "dependencies": {
     "@george-ai/ai-act": "workspace:*",
     "@george-ai/ai-service-client": "workspace:*",
+    "@george-ai/api-crawler": "workspace:*",
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
     "@george-ai/langchain-chat": "workspace:*",

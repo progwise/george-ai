@@ -3,8 +3,8 @@ import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { dateString, timeString } from '@george-ai/web-utils'
 
+import { CrawlersMenu } from '../../../../../../components/library/crawler/crawlers-menu'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
-import { RunCrawlerButton } from '../../../../../../components/library/crawler/run-crawler-button'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
 import { WarnIcon } from '../../../../../../icons/warn-icon'
@@ -18,7 +18,6 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 
 function RouteComponent() {
   const { t, language } = useTranslation()
-  const navigate = Route.useNavigate()
 
   const { libraryId, crawlerId } = Route.useParams()
   const {
@@ -73,20 +72,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className="flex justify-end">
-        <ul className="menu bg-base-200 menu-horizontal rounded-box items-center gap-2">
-          <li>
-            <RunCrawlerButton
-              crawler={crawler}
-              className="btn-sm"
-              afterStart={(crawlerRunId) => {
-                navigate({
-                  to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId',
-                  params: { crawlerRunId },
-                })
-              }}
-            />
-          </li>
-        </ul>
+        <CrawlersMenu selectedCrawler={crawler} libraryId={libraryId} />
       </div>
       <div>
         <Outlet />

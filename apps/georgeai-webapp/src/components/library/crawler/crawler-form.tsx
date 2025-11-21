@@ -1,12 +1,15 @@
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import {
+  API_URI_PATTERN,
   BOX_URI_PATTERN,
   HTTP_URI_PATTERN,
   SHAREPOINT_URI_PATTERN,
   SMB_URI_PATTERN,
+  formatJson,
   jsonArrayToString,
 } from '@george-ai/web-utils'
 
@@ -16,12 +19,14 @@ import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
+import { getApiCrawlerTemplatesQueryOptions } from './queries/get-api-crawler-templates'
 
 const URI_PATTERNS = {
   smb: SMB_URI_PATTERN,
   http: HTTP_URI_PATTERN,
   sharepoint: SHAREPOINT_URI_PATTERN,
   box: BOX_URI_PATTERN,
+  api: API_URI_PATTERN,
 }
 
 // Base schema for Input component validation
@@ -43,6 +48,23 @@ export const getCrawlerFormSchema = (
     maxFileSize: z.coerce.number().min(0).optional(),
     minFileSize: z.coerce.number().min(0).optional(),
     allowedMimeTypes: z.string().optional(),
+    crawlerConfig:
+      uriType !== 'api'
+        ? z.string().optional()
+        : z
+            .string()
+            .min(1, translate('crawlers.errors.crawlerConfigRequired', language))
+            .refine(
+              (value) => {
+                try {
+                  JSON.parse(value)
+                  return true
+                } catch {
+                  return false
+                }
+              },
+              { message: translate('crawlers.errors.crawlerConfigInvalidJson', language) },
+            ),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username:
       uriType !== 'smb'
@@ -108,6 +130,7 @@ graphql(`
     maxFileSize
     minFileSize
     allowedMimeTypes
+    crawlerConfig
     cronJob {
       id
       active
@@ -132,7 +155,7 @@ interface CrawlerFormProps {
 export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint' | 'box'>(
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint' | 'box' | 'api'>(
     crawler?.uriType || 'http',
   )
   const [filtersActive, setFiltersActive] = useState(
@@ -144,6 +167,31 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       crawler?.allowedMimeTypes
     ),
   )
+  const [apiConfigValue, setApiConfigValue] = useState<string>(() => formatJson(crawler?.crawlerConfig) || '')
+  const [uriValue, setUriValue] = useState<string>(crawler?.uri || '')
+  const { data: templatesData } = useQuery(getApiCrawlerTemplatesQueryOptions())
+  const templates = templatesData?.apiCrawlerTemplates
+
+  // Apply URI from form to template config
+  const applyUriToTemplate = (templateConfig: string, uri: string): string => {
+    if (!uri) return templateConfig
+    try {
+      const config = JSON.parse(templateConfig)
+      const originalBaseUrl = config.baseUrl
+      config.baseUrl = uri
+      // Update tokenUrl for OAuth configs if it references the original placeholder baseUrl
+      if (
+        config.authConfig?.tokenUrl &&
+        typeof originalBaseUrl === 'string' &&
+        config.authConfig.tokenUrl.startsWith(originalBaseUrl)
+      ) {
+        config.authConfig.tokenUrl = uri + config.authConfig.tokenUrl.slice(originalBaseUrl.length)
+      }
+      return JSON.stringify(config, null, 2)
+    } catch {
+      return templateConfig
+    }
+  }
 
   // Sync state with crawler prop changes
   useEffect(() => {
@@ -159,6 +207,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           crawler?.allowedMimeTypes
         ),
       )
+      setApiConfigValue(formatJson(crawler?.crawlerConfig) || '')
+      setUriValue(crawler?.uri || '')
     }, 0)
     return () => clearTimeout(timeout)
   }, [crawler])
@@ -219,15 +269,27 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
           />
           <span>{t('crawlers.uriTypeBox')}</span>
         </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="api"
+            className="radio radio-sm"
+            checked={selectedUriType === 'api'}
+            onChange={() => setSelectedUriType('api')}
+          />
+          <span>{t('crawlers.uriTypeApi')}</span>
+        </label>
       </div>
       <div className="grid gap-2 sm:grid-cols-[4fr_1fr_1fr]">
         <Input
           name="uri"
-          value={crawler?.uri || ''}
+          value={uriValue}
           placeholder={t('crawlers.placeholders.uri')}
           label={t('crawlers.uri')}
           schema={crawlerFormSchema}
           required={true}
+          onChange={(e) => setUriValue(e.target.value)}
         />
         <Input
           name="maxDepth"
@@ -377,6 +439,46 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             placeholder={t('crawlers.placeholders.boxToken')}
             schema={crawlerFormSchema}
             required
+          />
+        </div>
+      ) : selectedUriType === 'api' ? (
+        <div className="flex flex-col gap-2">
+          <div className="text-sm font-semibold">{t('crawlers.apiConfiguration')}</div>
+          <div className="text-xs opacity-70">{t('crawlers.apiConfigurationHint')}</div>
+
+          {/* Template Selector */}
+          {templates && templates.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">{t('crawlers.selectTemplate')}</label>
+              <select
+                className="select select-bordered select-sm w-full max-w-xs"
+                onChange={(e) => {
+                  const template = templates.find((tpl) => tpl.id === e.target.value)
+                  if (template) {
+                    setApiConfigValue(applyUriToTemplate(template.config, uriValue))
+                  }
+                }}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {t('crawlers.selectTemplatePlaceholder')}
+                </option>
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id} title={template.description}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <textarea
+            name="crawlerConfig"
+            className="textarea textarea-bordered w-full font-mono text-xs"
+            rows={12}
+            placeholder={t('crawlers.apiConfigurationPlaceholder')}
+            value={apiConfigValue}
+            onChange={(e) => setApiConfigValue(e.target.value)}
           />
         </div>
       ) : null}

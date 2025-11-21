@@ -137,6 +137,7 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
 export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
   return z.object({
     allowedMimeTypes: z.array(z.string()).nullish(),
+    crawlerConfig: z.string().nullish(),
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
     excludePatterns: z.array(z.string()).nullish(),
     includePatterns: z.array(z.string()).nullish(),

@@ -11,6 +11,21 @@ export const safeJsonParse = (
   }
 }
 
+/**
+ * Format a JSON string with indentation (pretty-print)
+ * Returns the original string if parsing fails
+ */
+export const formatJson = (str?: string | null, indent = 2): string | undefined => {
+  if (!str) {
+    return undefined
+  }
+  try {
+    return JSON.stringify(JSON.parse(str), null, indent)
+  } catch {
+    return str
+  }
+}
+
 export const mergeObjectToJsonString = (originalJson?: string | null, newData?: object | null): string | null => {
   if (!newData) {
     return originalJson ?? null

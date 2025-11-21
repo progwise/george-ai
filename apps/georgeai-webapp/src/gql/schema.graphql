@@ -336,6 +336,7 @@ type AiLibrary {
 
 type AiLibraryCrawler {
   allowedMimeTypes: String
+  crawlerConfig: String
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
   excludePatterns: String
@@ -396,6 +397,7 @@ input AiLibraryCrawlerCronJobInput {
 
 input AiLibraryCrawlerInput {
   allowedMimeTypes: [String!]
+  crawlerConfig: String
   cronJob: AiLibraryCrawlerCronJobInput
   excludePatterns: [String!]
   includePatterns: [String!]
@@ -786,6 +788,13 @@ input AiServiceProviderInput {
   vramGb: Int
 }
 
+type ApiCrawlerTemplate {
+  config: String!
+  description: String!
+  id: String!
+  name: String!
+}
+
 type ApiKey {
   createdAt: DateTime!
   id: ID!
@@ -871,6 +880,7 @@ enum ConversationSortOrder {
 }
 
 enum CrawlerUriType {
+  api
   box
   http
   sharepoint
@@ -1396,6 +1406,7 @@ type Query {
   aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
+  apiCrawlerTemplates: [ApiCrawlerTemplate!]!
   apiKeys(libraryId: String!): [ApiKey!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!

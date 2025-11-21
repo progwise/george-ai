@@ -47,8 +47,9 @@ builder.mutationField('updateLibrary', (t) =>
           fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
           embeddingTimeoutMs: restData.embeddingTimeoutMs,
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
-          embeddingModelId: embeddingModelId ?? undefined,
-          ocrModelId: ocrModelId ?? undefined,
+          // Convert empty strings to null for foreign key fields
+          embeddingModelId: embeddingModelId || null,
+          ocrModelId: ocrModelId || null,
         },
       })
     },
@@ -78,8 +79,9 @@ builder.mutationField('createLibrary', (t) =>
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           ownerId: userId,
           workspaceId: context.workspaceId,
-          embeddingModelId: embeddingModelId ?? undefined,
-          ocrModelId: ocrModelId ?? undefined,
+          // Convert empty strings to null for foreign key fields
+          embeddingModelId: embeddingModelId || null,
+          ocrModelId: ocrModelId || null,
         },
       })
     },

@@ -363,6 +363,7 @@ export type AiLibrary = {
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   allowedMimeTypes?: Maybe<Scalars['String']['output']>
+  crawlerConfig?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
   excludePatterns?: Maybe<Scalars['String']['output']>
@@ -429,6 +430,7 @@ export type AiLibraryCrawlerCronJobInput = {
 
 export type AiLibraryCrawlerInput = {
   allowedMimeTypes?: InputMaybe<Array<Scalars['String']['input']>>
+  crawlerConfig?: InputMaybe<Scalars['String']['input']>
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   excludePatterns?: InputMaybe<Array<Scalars['String']['input']>>
   includePatterns?: InputMaybe<Array<Scalars['String']['input']>>
@@ -848,6 +850,14 @@ export type AiServiceProviderInput = {
   vramGb?: InputMaybe<Scalars['Int']['input']>
 }
 
+export type ApiCrawlerTemplate = {
+  __typename?: 'ApiCrawlerTemplate'
+  config: Scalars['String']['output']
+  description: Scalars['String']['output']
+  id: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type ApiKey = {
   __typename?: 'ApiKey'
   createdAt: Scalars['DateTime']['output']
@@ -934,6 +944,7 @@ export enum ConversationSortOrder {
 }
 
 export enum CrawlerUriType {
+  Api = 'api',
   Box = 'box',
   Http = 'http',
   Sharepoint = 'sharepoint',
@@ -1770,6 +1781,7 @@ export type Query = {
   aiServiceProviders: Array<AiServiceProvider>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
+  apiCrawlerTemplates: Array<ApiCrawlerTemplate>
   apiKeys: Array<ApiKey>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
@@ -3526,6 +3538,7 @@ export type CrawlerForm_CrawlerFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3571,6 +3584,7 @@ export type SelectedCrawler_CrawlerUpdateDialogFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3601,6 +3615,7 @@ export type SelectedCrawler_CrawlersMenuFragment = {
   maxFileSize?: number | null
   minFileSize?: number | null
   allowedMimeTypes?: string | null
+  crawlerConfig?: string | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     id: string
@@ -3623,6 +3638,19 @@ export type Crawlers_CrawlersMenuFragment = {
   uri: string
   uriType: CrawlerUriType
   isRunning: boolean
+}
+
+export type GetApiCrawlerTemplatesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetApiCrawlerTemplatesQuery = {
+  __typename?: 'Query'
+  apiCrawlerTemplates: Array<{
+    __typename?: 'ApiCrawlerTemplate'
+    id: string
+    name: string
+    description: string
+    config: string
+  }>
 }
 
 export type GetCrawlerRunQueryVariables = Exact<{
@@ -3722,6 +3750,7 @@ export type GetCrawlerQuery = {
     maxFileSize?: number | null
     minFileSize?: number | null
     allowedMimeTypes?: string | null
+    crawlerConfig?: string | null
     lastRun?: {
       __typename?: 'AiLibraryCrawlerRun'
       id: string
@@ -8280,6 +8309,7 @@ export const CrawlerForm_CrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -8344,6 +8374,7 @@ export const SelectedCrawler_CrawlerUpdateDialogFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -8405,6 +8436,7 @@ export const SelectedCrawler_CrawlersMenuFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -13828,6 +13860,34 @@ export const GetDashboardDataDocument = {
     },
   ],
 } as unknown as DocumentNode<GetDashboardDataQuery, GetDashboardDataQueryVariables>
+export const GetApiCrawlerTemplatesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetApiCrawlerTemplates' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'apiCrawlerTemplates' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'config' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetApiCrawlerTemplatesQuery, GetApiCrawlerTemplatesQueryVariables>
 export const GetCrawlerRunDocument = {
   kind: 'Document',
   definitions: [
@@ -14231,6 +14291,7 @@ export const GetCrawlerDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'maxFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'minFileSize' } },
           { kind: 'Field', name: { kind: 'Name', value: 'allowedMimeTypes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerConfig' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
