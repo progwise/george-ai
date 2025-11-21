@@ -435,13 +435,16 @@ model AiListField {
 }
 
 model AiListFieldContext {
-  fieldId        String
-  contextFieldId String
-  createdAt      DateTime    @default(now())
-  contextField   AiListField @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
-  field          AiListField @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
+  id               String       @id @default(cuid())
+  fieldId          String
+  contextFieldId   String?
+  contextQuery     Json?
+  maxContentTokens Int?
+  createdAt        DateTime     @default(now())
+  contextField     AiListField? @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
+  field            AiListField  @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
 
-  @@id([fieldId, contextFieldId])
+  @@unique([fieldId, contextFieldId])
 }
 
 model AiListItemCache {

@@ -669,16 +669,25 @@ export type AiListField = {
 
 export type AiListFieldContext = {
   __typename?: 'AiListFieldContext'
-  contextField: AiListField
-  contextFieldId: Scalars['String']['output']
+  contextField?: Maybe<AiListField>
+  contextFieldId?: Maybe<Scalars['String']['output']>
+  contextQuery?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   field: AiListField
   fieldId: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  maxContentTokens?: Maybe<Scalars['Int']['output']>
+}
+
+export type AiListFieldContextInput = {
+  contextFieldId?: InputMaybe<Scalars['String']['input']>
+  contextQuery?: InputMaybe<Scalars['String']['input']>
+  maxContentTokens?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type AiListFieldInput = {
   contentQuery?: InputMaybe<Scalars['String']['input']>
-  context?: InputMaybe<Array<Scalars['String']['input']>>
+  contextSources?: InputMaybe<Array<AiListFieldContextInput>>
   failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
   languageModelId?: InputMaybe<Scalars['String']['input']>
@@ -4859,7 +4868,13 @@ export type FieldModal_FieldFragment = {
   useVectorStore?: boolean | null
   order: number
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+  context: Array<{
+    __typename?: 'AiListFieldContext'
+    id: string
+    contextFieldId?: string | null
+    contextQuery?: string | null
+    maxContentTokens?: number | null
+  }>
 }
 
 export type ListExport_FieldFragment = {
@@ -4912,7 +4927,13 @@ export type ListFieldsTableMenu_FieldFragment = {
   contentQuery?: string | null
   useVectorStore?: boolean | null
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+  context: Array<{
+    __typename?: 'AiListFieldContext'
+    id: string
+    contextFieldId?: string | null
+    contextQuery?: string | null
+    maxContentTokens?: number | null
+  }>
 }
 
 export type ListFilesTable_FilesQueryResultFragment = {
@@ -4961,7 +4982,13 @@ export type ListFieldsTable_ListFragment = {
     useVectorStore?: boolean | null
     order: number
     languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-    context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+    context: Array<{
+      __typename?: 'AiListFieldContext'
+      id: string
+      contextFieldId?: string | null
+      contextQuery?: string | null
+      maxContentTokens?: number | null
+    }>
   }>
 }
 
@@ -4981,7 +5008,13 @@ export type ListFieldsTable_FieldFragment = {
   useVectorStore?: boolean | null
   order: number
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+  context: Array<{
+    __typename?: 'AiListFieldContext'
+    id: string
+    contextFieldId?: string | null
+    contextQuery?: string | null
+    maxContentTokens?: number | null
+  }>
 }
 
 export type ListMenu_AiListFragment = {
@@ -5228,7 +5261,13 @@ export type GetListQuery = {
       useVectorStore?: boolean | null
       order: number
       languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-      context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+      context: Array<{
+        __typename?: 'AiListFieldContext'
+        id: string
+        contextFieldId?: string | null
+        contextQuery?: string | null
+        maxContentTokens?: number | null
+      }>
     }>
     sources: Array<{
       __typename?: 'AiListSource'
@@ -5581,7 +5620,13 @@ export type ListFieldSettings_FieldFragment = {
   contentQuery?: string | null
   useVectorStore?: boolean | null
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
-  context: Array<{ __typename?: 'AiListFieldContext'; contextFieldId: string }>
+  context: Array<{
+    __typename?: 'AiListFieldContext'
+    id: string
+    contextFieldId?: string | null
+    contextQuery?: string | null
+    maxContentTokens?: number | null
+  }>
 }
 
 export type AiLanguageModelsForEmbeddingQueryVariables = Exact<{
@@ -9642,7 +9687,12 @@ export const FieldModal_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],
@@ -9702,7 +9752,12 @@ export const ListFieldsTable_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],
@@ -9758,7 +9813,12 @@ export const ListFieldSettings_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],
@@ -9832,7 +9892,12 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],
@@ -10010,7 +10075,12 @@ export const ListFieldsTable_ListFragmentDoc = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],
@@ -17418,7 +17488,12 @@ export const GetListDocument = {
             name: { kind: 'Name', value: 'context' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextFieldId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+              ],
             },
           },
         ],

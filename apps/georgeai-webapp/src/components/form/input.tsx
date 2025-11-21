@@ -98,7 +98,7 @@ export const Input = <T extends ZodRawShape>({
 
   return (
     <fieldset className={twMerge('fieldset group', type === 'textarea' && 'flex flex-col', className)}>
-      <div className="fieldset-legend flex w-full justify-between">
+      <legend className="fieldset-legend flex w-full justify-between">
         <label
           htmlFor={uniqueId}
           className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
@@ -107,7 +107,7 @@ export const Input = <T extends ZodRawShape>({
         </label>
         <span className="text-error">{errors.join(', ')}</span>
         {required && <span className="text-error">*</span>}
-      </div>
+      </legend>
 
       {type === 'textarea' ? (
         <textarea

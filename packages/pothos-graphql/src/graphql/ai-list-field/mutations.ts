@@ -2,6 +2,15 @@ import { canAccessListOrThrow } from './../../domain'
 import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
+// Context source input for field references or external context
+const AiListFieldContextInput = builder.inputType('AiListFieldContextInput', {
+  fields: (t) => ({
+    contextFieldId: t.string({ required: false }),
+    contextQuery: t.string({ required: false }),
+    maxContentTokens: t.int({ required: false }),
+  }),
+})
+
 // List Field mutations
 const AiListFieldInput = builder.inputType('AiListFieldInput', {
   fields: (t) => ({
@@ -23,7 +32,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     contentQuery: t.string({ required: false }),
     languageModelId: t.string({ required: false }),
     useVectorStore: t.boolean({ required: false }),
-    context: t.stringList({ required: false }),
+    contextSources: t.field({ type: [AiListFieldContextInput], required: false }),
   }),
 })
 
@@ -58,11 +67,13 @@ builder.mutationField('addListField', (t) =>
         },
       })
 
-      // Create context relations if context field IDs are provided
-      if (data.context && data.context.length > 0) {
-        const contextData = data.context.map((contextFieldId) => ({
+      // Create context sources if provided
+      if (data.contextSources && data.contextSources.length > 0) {
+        const contextData = data.contextSources.map((source) => ({
           fieldId: newField.id,
-          contextFieldId,
+          contextFieldId: source.contextFieldId || null,
+          contextQuery: source.contextQuery ? JSON.parse(source.contextQuery) : null,
+          maxContentTokens: source.maxContentTokens || null,
         }))
 
         await prisma.aiListFieldContext.createMany({
@@ -106,17 +117,19 @@ builder.mutationField('updateListField', (t) =>
         },
       })
 
-      // Update context relations
-      // First, delete existing context relations
+      // Update context sources
+      // First, delete existing context sources
       await prisma.aiListFieldContext.deleteMany({
         where: { fieldId: id },
       })
 
-      // Then create new context relations if provided
-      if (data.context && data.context.length > 0) {
-        const contextData = data.context.map((contextFieldId) => ({
+      // Then create new context sources if provided
+      if (data.contextSources && data.contextSources.length > 0) {
+        const contextData = data.contextSources.map((source) => ({
           fieldId: id,
-          contextFieldId,
+          contextFieldId: source.contextFieldId || null,
+          contextQuery: source.contextQuery ? JSON.parse(source.contextQuery) : null,
+          maxContentTokens: source.maxContentTokens || null,
         }))
 
         await prisma.aiListFieldContext.createMany({

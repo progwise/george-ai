@@ -11,6 +11,7 @@ import {
   AiLibraryFileInput,
   AiLibraryFileSortOrder,
   AiLibraryInput,
+  AiListFieldContextInput,
   AiListFieldInput,
   AiListFilterInput,
   AiListFilterType,
@@ -174,10 +175,18 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   })
 }
 
+export function AiListFieldContextInputSchema(): z.ZodObject<Properties<AiListFieldContextInput>> {
+  return z.object({
+    contextFieldId: z.string().nullish(),
+    contextQuery: z.string().nullish(),
+    maxContentTokens: z.number().nullish(),
+  })
+}
+
 export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
   return z.object({
     contentQuery: z.string().nullish(),
-    context: z.array(z.string()).nullish(),
+    contextSources: z.array(z.lazy(() => AiListFieldContextInputSchema())).nullish(),
     failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
     languageModelId: z.string().nullish(),

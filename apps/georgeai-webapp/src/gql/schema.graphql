@@ -613,16 +613,25 @@ type AiListField {
 }
 
 type AiListFieldContext {
-  contextField: AiListField!
-  contextFieldId: String!
+  contextField: AiListField
+  contextFieldId: String
+  contextQuery: String
   createdAt: DateTime!
   field: AiListField!
   fieldId: String!
+  id: ID!
+  maxContentTokens: Int
+}
+
+input AiListFieldContextInput {
+  contextFieldId: String
+  contextQuery: String
+  maxContentTokens: Int
 }
 
 input AiListFieldInput {
   contentQuery: String
-  context: [String!]
+  contextSources: [AiListFieldContextInput!]
   failureTerms: String
   fileProperty: String
   languageModelId: String

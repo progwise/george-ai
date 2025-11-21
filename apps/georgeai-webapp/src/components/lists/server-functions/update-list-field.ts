@@ -47,7 +47,7 @@ export const updateListFieldFn = createServerFn({ method: 'POST' })
           order: data.order ? parseInt(data.order) : undefined,
           fileProperty: data.fileProperty || null,
           useVectorStore: data.useVectorStore,
-          context: data.context || null,
+          contextSources: data.contextSources || null,
         },
       },
     )

@@ -65,11 +65,13 @@ export const getListFieldFormSchema = (
       .string()
       .optional()
       .transform((val) => val === 'on'),
-    context: z
+    contextSources: z
       .string()
       .optional()
-      .transform((commaSeparatedList) => commaSeparatedList && commaSeparatedList.split(','))
-      .pipe(z.array(z.string()).optional()),
+      .transform((commaSeparatedList) =>
+        commaSeparatedList ? commaSeparatedList.split(',').map((contextFieldId) => ({ contextFieldId })) : undefined,
+      )
+      .pipe(z.array(z.object({ contextFieldId: z.string() })).optional()),
   })
 
 // Infer TypeScript type from schema
@@ -103,7 +105,10 @@ graphql(`
     useVectorStore
     order
     context {
+      id
       contextFieldId
+      contextQuery
+      maxContentTokens
     }
   }
 `)
@@ -122,8 +127,11 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
   const availableFields = list.fields || []
 
-  // Get current context field IDs for edit mode
-  const currentContextIds = useMemo(() => editField?.context?.map((c) => c.contextFieldId) || [], [editField])
+  // Get current context field IDs for edit mode (only field-based contexts)
+  const currentContextIds = useMemo(
+    () => editField?.context?.filter((c) => c.contextFieldId).map((c) => c.contextFieldId as string) || [],
+    [editField],
+  )
 
   const isEditMode = useMemo(() => !!editField, [editField])
 
@@ -214,7 +222,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
           {/* Grid Layout for Form Fields */}
           <div className="items-start gap-4">
-            <div className="flex items-baseline gap-2">
+            <div className="flex gap-2">
               <Input
                 label={t('lists.fields.fieldName')}
                 type="text"
@@ -317,7 +325,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                     <label key={field.id} className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
-                        name="context"
+                        name="contextSources"
                         value={field.id}
                         className="checkbox checkbox-sm"
                         defaultChecked={currentContextIds.includes(field.id)}
