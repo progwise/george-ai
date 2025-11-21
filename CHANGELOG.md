@@ -39,6 +39,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Workspace switcher tests verify context switching and data isolation
   - Model filtering tests verify workspace-scoped model availability
   - Automated test setup with provider/model discovery
+- **API Crawler Package** - New `@george-ai/api-crawler` for REST/GraphQL API integration
+  - Multiple authentication methods: `none`, `apiKey`, `oauth2`, `basic`, `bearer`
+  - Multiple pagination strategies: `offset`, `page`, `cursor`, `none`
+  - Streaming architecture for memory-efficient crawling
+  - Auto-extraction of titles from common field names (no configuration needed)
+  - Pre-configured templates for Shopware 6 and Weclapp ERP
+  - Configurable logging system with LOG_LEVEL support
+  - Async transformation functions for filename and markdown generation
+  - Complete UI integration with JSON configuration editor
+- **formatJson Helper** - New utility in `@george-ai/web-utils` for pretty-printing JSON
 
 ### Changed
 
