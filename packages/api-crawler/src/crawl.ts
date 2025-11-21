@@ -5,7 +5,7 @@
 import { createLogger } from '@george-ai/web-utils'
 
 import { authenticate } from './auth'
-import { mapFieldsMulti } from './field-mapping'
+import { mapFields } from './field-mapping'
 import { paginateFetchStream } from './pagination'
 import type { ApiCrawlerConfig, CrawlItem, CrawlResult, ValidationResult } from './types'
 import { fetchJson } from './utils/http'
@@ -48,19 +48,15 @@ export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<
     dataPath: validatedConfig.dataPath,
     requestDelay: validatedConfig.requestDelay,
   })) {
-    // Map each item to George AI document format (auto-extract title/content)
-    const mappedItems = mapFieldsMulti([rawItem])
+    // Map item to George AI document format (auto-extract title/content)
+    const mappedItem = mapFields(rawItem)
+    totalYielded++
 
-    if (mappedItems.length > 0) {
-      const mappedItem = mappedItems[0]
-      totalYielded++
-
-      if (totalYielded === 1) {
-        logger.debug('First mapped item sample:', JSON.stringify(mappedItem, null, 2))
-      }
-
-      yield mappedItem
+    if (totalYielded === 1) {
+      logger.debug('First mapped item sample:', JSON.stringify(mappedItem, null, 2))
     }
+
+    yield mappedItem
   }
 
   logger.info('Crawl complete. Total items yielded:', totalYielded)

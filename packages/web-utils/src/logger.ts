@@ -32,10 +32,9 @@ function shouldLog(messageLevel: LogLevel): boolean {
 /**
  * Format log message with timestamp and level
  */
-function formatMessage(level: LogLevel, context: string, message: string, ...args: unknown[]): string {
+function formatMessage(level: LogLevel, context: string, message: string): string {
   const timestamp = new Date().toISOString()
-  const prefix = `[${timestamp}] [${level}] [${context}]`
-  return args.length > 0 ? `${prefix} ${message}` : `${prefix} ${message}`
+  return `[${timestamp}] [${level}] [${context}] ${message}`
 }
 
 /**

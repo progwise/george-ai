@@ -177,10 +177,15 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
     if (!uri) return templateConfig
     try {
       const config = JSON.parse(templateConfig)
+      const originalBaseUrl = config.baseUrl
       config.baseUrl = uri
-      // Update tokenUrl for OAuth configs if it references the placeholder baseUrl
-      if (config.authConfig?.tokenUrl?.includes('your-shop') || config.authConfig?.tokenUrl?.includes('your-tenant')) {
-        config.authConfig.tokenUrl = `${uri}/api/oauth/token`
+      // Update tokenUrl for OAuth configs if it references the original placeholder baseUrl
+      if (
+        config.authConfig?.tokenUrl &&
+        typeof originalBaseUrl === 'string' &&
+        config.authConfig.tokenUrl.startsWith(originalBaseUrl)
+      ) {
+        config.authConfig.tokenUrl = uri + config.authConfig.tokenUrl.slice(originalBaseUrl.length)
       }
       return JSON.stringify(config, null, 2)
     } catch {

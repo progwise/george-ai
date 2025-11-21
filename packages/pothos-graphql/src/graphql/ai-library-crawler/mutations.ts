@@ -51,6 +51,16 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 
       const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, crawlerConfig, ...input } = data
 
+      // Parse crawlerConfig JSON with error handling
+      let parsedCrawlerConfig = null
+      if (crawlerConfig) {
+        try {
+          parsedCrawlerConfig = JSON.parse(crawlerConfig)
+        } catch {
+          throw new GraphQLError('Invalid JSON in crawlerConfig')
+        }
+      }
+
       const crawler = await prisma.aiLibraryCrawler.create({
         include: { cronJob: true },
         data: {
@@ -59,7 +69,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
-          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
+          crawlerConfig: parsedCrawlerConfig, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
@@ -160,6 +170,16 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
         await removeCrawlerCredentials(id)
       }
 
+      // Parse crawlerConfig JSON with error handling
+      let parsedCrawlerConfig = null
+      if (crawlerConfig) {
+        try {
+          parsedCrawlerConfig = JSON.parse(crawlerConfig)
+        } catch {
+          throw new GraphQLError('Invalid JSON in crawlerConfig')
+        }
+      }
+
       const crawler = await prisma.aiLibraryCrawler.update({
         where: { id },
         data: {
@@ -167,7 +187,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
           includePatterns: includePatterns ? JSON.stringify(includePatterns) : null,
           excludePatterns: excludePatterns ? JSON.stringify(excludePatterns) : null,
           allowedMimeTypes: allowedMimeTypes ? JSON.stringify(allowedMimeTypes) : null,
-          crawlerConfig: crawlerConfig ? JSON.parse(crawlerConfig) : null, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
+          crawlerConfig: parsedCrawlerConfig, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
           cronJob: existingCrawler.cronJob
             ? { update: cronJob ?? { active: false } }
             : { create: cronJob ?? undefined },
