@@ -1,10 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import {
   FieldModal_FieldFragment,
+  ListFieldSourceType,
   ListFieldsTable_ListFragment,
   ListFilesTable_FilesQueryResultFragment,
 } from '../../gql/graphql'
@@ -74,7 +75,7 @@ interface ListFieldsTableProps {
 
 export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { t } = useTranslation()
-
+  const fieldModalDialogRef = useRef<HTMLDialogElement>(null)
   const {
     visibleFields,
     isResizing,
@@ -90,7 +91,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { getSortingDirection, toggleSorting } = useListSettings(list.id)
   const { reorderFields } = useListActions(list.id)
 
-  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
@@ -124,18 +124,34 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
 
   const handleAddField = () => {
     setEditField(null)
-    setIsFieldModalOpen(true)
   }
 
   const handleEditField = (fieldData: FieldModal_FieldFragment) => {
     setEditField(fieldData)
-    setIsFieldModalOpen(true)
   }
 
-  const handleCloseModal = () => {
-    setIsFieldModalOpen(false)
-    setEditField(null)
-  }
+  // For Development Only: Auto-open the field modal for the first LLM Computed field
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const file = listItems.items[0]
+      if (!file) return
+
+      const firstField = visibleFields.find((field) => field.sourceType === ListFieldSourceType.LlmComputed)
+      if (!firstField) return
+      setEditField(firstField)
+    }, 100)
+    return () => clearTimeout(timeout)
+  }, [listItems, visibleFields])
+
+  useEffect(() => {
+    if (!fieldModalDialogRef.current) return
+
+    if (editField) {
+      fieldModalDialogRef.current.showModal()
+    } else {
+      fieldModalDialogRef.current.close()
+    }
+  }, [fieldModalDialogRef, editField])
 
   const handleFieldReorder = (targetFieldId: string, event: React.DragEvent) => {
     const dropResult = handleDrop(targetFieldId, event)
@@ -402,8 +418,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
       {/* Field Modal (Add/Edit) */}
       <FieldModal
         list={list}
-        isOpen={isFieldModalOpen}
-        onClose={handleCloseModal}
+        ref={fieldModalDialogRef}
         maxOrder={Math.max(0, ...visibleFields.map((f) => f.order))}
         editField={editField}
       />

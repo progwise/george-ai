@@ -2,8 +2,6 @@ import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
-import { Listbox } from '../listbox'
-
 export interface SelectItem {
   id: string
   name: string
@@ -63,7 +61,7 @@ export const Select = <T extends ZodRawShape>({
     onBlur?.(selectedOption)
   }
   return (
-    <fieldset className={twMerge('fieldset group', className)}>
+    <fieldset className={twMerge('fieldset group z-50', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
         <span
           className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
@@ -75,17 +73,26 @@ export const Select = <T extends ZodRawShape>({
       </legend>
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenInputRef} value={selectedItem?.id || ''} />
-        <Listbox
-          className="input"
-          disabled={disabled || readonly}
-          required={required}
-          items={options}
-          selectedItem={selectedItem}
-          onChange={(selectedOption) => {
+        <select
+          defaultValue="Pick a color"
+          className="select"
+          onChange={(event) => {
+            const selectedOption = options.find((option) => option.id === event.target.value) || null
             handleChange(selectedOption)
           }}
-          placeholder={placeholder}
-        />
+          aria-placeholder={placeholder}
+        >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
+          {options.map((option) => (
+            <option key={option.id} value={option.id} selected={option.id === selectedItem?.id}>
+              {option.name}
+            </option>
+          ))}
+        </select>
       </div>
     </fieldset>
   )

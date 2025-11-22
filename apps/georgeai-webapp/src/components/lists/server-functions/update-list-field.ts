@@ -1,11 +1,17 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
+import { AiListFieldContextInput } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 import { ListFieldFormInput } from '../field-modal'
 
+// Extend form input with contextSources (handled via state, not form schema)
+type UpdateListFieldInput = ListFieldFormInput & {
+  contextSources?: AiListFieldContextInput[]
+}
+
 export const updateListFieldFn = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: ListFieldFormInput) => {
+  .inputValidator(async (data: UpdateListFieldInput) => {
     // Data is already validated and transformed on the client side
     // Server-side validation is for security - just verify the structure
     return data

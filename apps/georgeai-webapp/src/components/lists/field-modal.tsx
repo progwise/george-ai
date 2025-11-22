@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useId, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -18,6 +18,12 @@ import { Input } from '../form/input'
 import { ModelSelect } from '../form/model-select'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
+import {
+  ContextSource,
+  ContextSourceList,
+  apiFormatToContextSources,
+  contextSourcesToApiFormat,
+} from './context-source-list'
 import { addListFieldFn, updateListFieldFn } from './server-functions'
 
 export const getListFieldFormSchema = (
@@ -65,13 +71,6 @@ export const getListFieldFormSchema = (
       .string()
       .optional()
       .transform((val) => val === 'on'),
-    contextSources: z
-      .string()
-      .optional()
-      .transform((commaSeparatedList) =>
-        commaSeparatedList ? commaSeparatedList.split(',').map((contextFieldId) => ({ contextFieldId })) : undefined,
-      )
-      .pipe(z.array(z.object({ contextFieldId: z.string() })).optional()),
   })
 
 // Infer TypeScript type from schema
@@ -115,25 +114,40 @@ graphql(`
 
 interface FieldModalProps {
   list: FieldModal_ListFragment
-  isOpen: boolean
-  onClose: () => void
   maxOrder: number
   editField?: FieldModal_FieldFragment | null
+  ref: React.RefObject<HTMLDialogElement | null>
 }
 
-export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
+export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
 
-  const availableFields = list.fields || []
-
-  // Get current context field IDs for edit mode (only field-based contexts)
-  const currentContextIds = useMemo(
-    () => editField?.context?.filter((c) => c.contextFieldId).map((c) => c.contextFieldId as string) || [],
-    [editField],
-  )
+  const tablistName = useId()
+  const [activeTab, setActiveTab] = useState<'value' | 'context' | 'missing'>('value')
+  const availableFields = useMemo(() => list.fields || [], [list.fields])
 
   const isEditMode = useMemo(() => !!editField, [editField])
+
+  const handleCloseModal = () => {
+    setActiveTab('value')
+    ref.current?.close()
+  }
+
+  // State for context sources
+  const [contextSources, setContextSources] = useState<ContextSource[]>([])
+
+  // Initialize context sources from editField
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (editField?.context && editField.context.length > 0) {
+        setContextSources(apiFormatToContextSources(editField.context, availableFields))
+      } else {
+        setContextSources([])
+      }
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [editField, availableFields])
 
   // State for vector store checkbox
   const [contentQueryEnabled, setContentQueryEnabled] = useState(false)
@@ -160,7 +174,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
       // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
-      onClose()
+      handleCloseModal()
     },
   })
 
@@ -174,7 +188,7 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
 
       // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
-      onClose()
+      handleCloseModal()
     },
   })
 
@@ -185,10 +199,15 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
+    // Add context sources from state
+    const dataWithContextSources = {
+      ...data,
+      contextSources: contextSources.length > 0 ? contextSourcesToApiFormat(contextSources) : undefined,
+    }
     if (isEditMode) {
-      updateFieldMutation.mutate(data)
+      updateFieldMutation.mutate(dataWithContextSources)
     } else {
-      addFieldMutation.mutate(data)
+      addFieldMutation.mutate(dataWithContextSources)
     }
   }
 
@@ -206,152 +225,191 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
     [dataTypeOptions],
   )
 
-  if (!isOpen) return null
+  //DEV ONLY
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setActiveTab('context')
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [])
 
   return (
-    <div className="modal modal-open">
-      <div className="modal-box w-11/12 max-w-2xl">
-        <h3 className="mb-4 text-lg font-bold">{t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}</h3>
+    <dialog ref={ref} className="modal">
+      <div className="modal-box flex h-[80vh] max-h-[800px] w-11/12 max-w-3xl flex-col">
+        <h3 className="mb-4 shrink-0 text-lg font-bold">
+          {t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}
+        </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           {/* Hidden Fields */}
           <input type="hidden" name="id" value={editField?.id || ''} />
           <input type="hidden" name="listId" value={list.id} />
           <input type="hidden" name="sourceType" value="llm_computed" />
           <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
 
-          {/* Grid Layout for Form Fields */}
-          <div className="items-start gap-4">
-            <div className="flex gap-2">
-              <Input
-                label={t('lists.fields.fieldName')}
-                type="text"
-                name="name"
-                placeholder={t('lists.fields.fieldNamePlaceholder')}
-                value={editField?.name}
-                schema={schema}
-                className="flex-1"
-              />
-              <Select
-                label={t('lists.fields.dataType')}
-                name="type"
-                options={dataTypeOptions}
-                value={dataTypeOptions.find((option) => option.id === editField?.type) || dataTypeDefaultOptions}
-                schema={schema}
-                required
-              />
-
-              <ModelSelect
-                label={t('lists.fields.aiModel')}
-                name="languageModelId"
-                value={editField?.languageModel || null}
-                placeholder={t('lists.fields.selectAiModel')}
-                capability="chat"
-                schema={schema}
-                required
-              />
-            </div>
-
-            <div className="md:col-span-4">
-              <Input
-                label={t('lists.fields.aiPrompt')}
-                type="textarea"
-                name="prompt"
-                placeholder={t('lists.fields.aiPromptPlaceholder')}
-                value={editField?.prompt}
-                schema={schema}
-                required
-                className="h-44"
-              />
-              <div className="mt-1">
-                <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
+          <div className="flex min-h-0 flex-1 flex-col gap-4">
+            {/* Field Name - Always Visible */}
+            <div className="flex shrink-0 gap-2">
+              <div className="grow">
+                <Input
+                  label={t('lists.fields.fieldName')}
+                  type="text"
+                  name="name"
+                  placeholder={t('lists.fields.fieldNamePlaceholder')}
+                  value={editField?.name}
+                  schema={schema}
+                  required
+                />
+              </div>
+              <div className="z-50 w-48 shrink-0">
+                <Select
+                  label={t('lists.fields.dataType')}
+                  name="type"
+                  options={dataTypeOptions}
+                  value={dataTypeOptions.find((option) => option.id === editField?.type) || dataTypeDefaultOptions}
+                  schema={schema}
+                  required
+                />
               </div>
             </div>
 
-            <div className="md:col-span-4">
-              <Input
-                label={t('lists.fields.failureTerms')}
-                type="text"
-                name="failureTerms"
-                placeholder={t('lists.fields.failureTermsPlaceholder')}
-                value={editField?.failureTerms || ''}
-                schema={schema}
-                required
-              />
-            </div>
-
-            {/* Context Fields */}
-            <div className="fieldset-legend mb-2 flex w-full justify-between">
-              <span className="text-xs">{t('lists.fields.contextFields')}</span>
-            </div>
-            <div className="md:col-span-3">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <div className="sm:col-span-2">
-                    <span className="text-base-content/60 text-xs">{t('lists.fields.contentQueryHelp')}</span>
-                  </div>
-                  <div className="flex w-full items-center gap-2">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="useVectorStore"
-                        value="on"
-                        className="checkbox checkbox-sm"
-                        defaultChecked={editField?.useVectorStore || false}
-                        onChange={(e) => setContentQueryEnabled(e.target.checked)}
-                      />
-                      <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
-                        {t('lists.fields.vectorStoreLabel')}
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      name="contentQuery"
-                      className={twMerge(
-                        'input input-sm flex-1',
-                        !contentQueryEnabled && 'bg-base-300 text-base-content/50',
-                      )}
-                      placeholder={t('lists.fields.contentQueryPlaceholder')}
-                      defaultValue={editField?.contentQuery || ''}
-                      readOnly={!contentQueryEnabled}
-                      required={contentQueryEnabled}
-                      aria-label={t('lists.fields.contentQueryPlaceholder')}
+            <div className="flex min-h-0 flex-1 flex-col">
+              {/* Tabs - Horizontal with Radio Controls */}
+              <div role="tablist" className="tabs tabs-border min-h-0 shrink-0">
+                <input
+                  type="radio"
+                  name={tablistName}
+                  className="tab"
+                  aria-label={t('lists.fields.stepWhat')}
+                  checked={activeTab === 'value'}
+                  onClick={() => setActiveTab('value')}
+                />
+                <input
+                  type="radio"
+                  name={tablistName}
+                  className="tab"
+                  checked={activeTab === 'context'}
+                  aria-label={t('lists.fields.stepWhere')}
+                  onClick={() => setActiveTab('context')}
+                />
+                <input
+                  type="radio"
+                  name={tablistName}
+                  className="tab"
+                  checked={activeTab === 'missing'}
+                  aria-label={t('lists.fields.stepFailure')}
+                  onClick={() => setActiveTab('missing')}
+                />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className={twMerge('border-base-300 bg-base-100 p-6', activeTab !== 'value' && 'hidden')}>
+                  <div className="flex flex-col gap-4">
+                    <ModelSelect
+                      name="languageModelId"
+                      value={editField?.languageModel || null}
+                      placeholder={t('lists.fields.selectAiModel')}
+                      capability="chat"
+                      className="[&_summary.btn]:btn-sm w-full text-sm"
+                      schema={schema}
+                      required
                     />
+
+                    <div>
+                      <Input
+                        label={t('lists.fields.aiPrompt')}
+                        type="textarea"
+                        name="prompt"
+                        placeholder={t('lists.fields.aiPromptPlaceholder')}
+                        value={editField?.prompt}
+                        schema={schema}
+                        required
+                        className="h-40"
+                      />
+                      <div className="mt-1">
+                        <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
+                      </div>
+                    </div>
+
+                    {/* Vector Store Search */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t('lists.fields.searchInDocuments')}</label>
+                      <div>
+                        <span className="text-base-content/60 mb-2 block text-xs">
+                          {t('lists.fields.contentQueryHelp')}
+                        </span>
+                      </div>
+                      <div className="flex w-full items-center gap-2">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            name="useVectorStore"
+                            value="on"
+                            className="checkbox checkbox-sm"
+                            defaultChecked={editField?.useVectorStore || false}
+                            onChange={(e) => setContentQueryEnabled(e.target.checked)}
+                          />
+                          <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
+                            {t('lists.fields.vectorStoreLabel')}
+                          </span>
+                        </label>
+                        <input
+                          type="text"
+                          name="contentQuery"
+                          className={twMerge(
+                            'input input-sm flex-1',
+                            !contentQueryEnabled && 'bg-base-300 text-base-content/50',
+                          )}
+                          placeholder={t('lists.fields.contentQueryPlaceholder')}
+                          defaultValue={editField?.contentQuery || ''}
+                          readOnly={!contentQueryEnabled}
+                          required={contentQueryEnabled}
+                          aria-label={t('lists.fields.contentQueryPlaceholder')}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {availableFields
-                  .filter((field) => field.id !== editField?.id) // Don't allow self-reference
-                  .map((field) => (
-                    <label key={field.id} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="contextSources"
-                        value={field.id}
-                        className="checkbox checkbox-sm"
-                        defaultChecked={currentContextIds.includes(field.id)}
+
+                <div className={twMerge('border-base-300 bg-base-100 p-6', activeTab !== 'context' && 'hidden')}>
+                  <div className="flex h-full min-h-0 flex-col gap-4">
+                    {/* Context Sources */}
+                    <div className="flex min-h-0 flex-1 flex-col gap-2">
+                      <label className="shrink-0 text-sm font-medium">{t('lists.fields.addContextSources')}</label>
+                      <ContextSourceList
+                        value={contextSources}
+                        onChange={setContextSources}
+                        availableFields={availableFields}
+                        excludeFieldId={editField?.id}
                       />
-                      <span className="truncate text-xs" title={field.name}>
-                        {field.name} (
-                        {field.sourceType === 'file_property'
-                          ? t('lists.fields.fileProperty')
-                          : t('lists.fields.computed')}
-                        )
-                      </span>
-                    </label>
-                  ))}
-              </div>
-              <div className="mt-1">
-                <span className="text-base-content/60 text-xs">{t('lists.fields.contextFieldsHelp')}</span>
+                      <span className="text-base-content/60 shrink-0 text-xs">{t('lists.contextSources.help')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={twMerge('border-base-300 bg-base-100 p-6', activeTab !== 'missing' && 'hidden')}>
+                  <Input
+                    label={t('lists.fields.failureTerms')}
+                    type="text"
+                    name="failureTerms"
+                    placeholder={t('lists.fields.failureTermsPlaceholder')}
+                    value={editField?.failureTerms || ''}
+                    schema={schema}
+                    required={false}
+                  />
+                  <div className="mt-1">
+                    <span className="text-base-content/60 text-xs">{t('lists.fields.failureTermsHelp')}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="modal-action">
+          <div className="modal-action shrink-0">
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={onClose}
+              onClick={() => handleCloseModal()}
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
               {t('actions.cancel')}
@@ -381,6 +439,6 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
           </div>
         )}
       </div>
-    </div>
+    </dialog>
   )
 }
