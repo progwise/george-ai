@@ -124,13 +124,13 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
   const { t, language } = useTranslation()
 
   const tablistName = useId()
-  const [activeTab, setActiveTab] = useState<'value' | 'context' | 'missing'>('value')
+  const [activeTab, setActiveTab] = useState<'instruction' | 'context' | 'missing'>('value')
   const availableFields = useMemo(() => list.fields || [], [list.fields])
 
   const isEditMode = useMemo(() => !!editField, [editField])
 
   const handleCloseModal = () => {
-    setActiveTab('value')
+    setActiveTab('instruction')
     ref.current?.close()
   }
 
@@ -281,8 +281,8 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                   name={tablistName}
                   className="tab"
                   aria-label={t('lists.fields.stepWhat')}
-                  checked={activeTab === 'value'}
-                  onClick={() => setActiveTab('value')}
+                  checked={activeTab === 'instruction'}
+                  onClick={() => setActiveTab('instruction')}
                 />
                 <input
                   type="radio"
@@ -302,7 +302,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                 />
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto">
-                <div className={twMerge('border-base-300 bg-base-100 p-6', activeTab !== 'value' && 'hidden')}>
+                <div className={twMerge('border-base-300 bg-base-100 p-6', activeTab !== 'instruction' && 'hidden')}>
                   <div className="flex flex-col gap-4">
                     <ModelSelect
                       name="languageModelId"

@@ -797,7 +797,7 @@ export default {
       searchInDocuments: 'Datei nach relevanten Informationen durchsuchen',
       defineFailureDetection: 'Fehlererkennung definieren',
       failureTermsHelp: 'Optional: Begriffe, die anzeigen, dass die KI die Information nicht extrahieren konnte',
-      stepWhat: 'Wert',
+      stepWhat: 'Anweisung',
       stepWhere: 'Kontext',
       stepFailure: 'Fehlend',
     },

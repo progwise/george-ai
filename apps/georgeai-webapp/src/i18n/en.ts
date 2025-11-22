@@ -787,7 +787,7 @@ export default {
       searchInDocuments: 'Query file for relevant information',
       defineFailureDetection: 'Define failure detection terms',
       failureTermsHelp: 'Optional: Terms that indicate the AI could not extract the information',
-      stepWhat: 'Value',
+      stepWhat: 'Instruction',
       stepWhere: 'Context',
       stepFailure: 'Missing',
     },
