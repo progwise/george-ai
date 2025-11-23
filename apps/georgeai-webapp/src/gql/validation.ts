@@ -189,7 +189,6 @@ export function AiListFieldContextInputSchema(): z.ZodObject<Properties<AiListFi
 
 export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
   return z.object({
-    contentQuery: z.string().nullish(),
     contextSources: z.array(z.lazy(() => AiListFieldContextInputSchema())).nullish(),
     failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
@@ -199,7 +198,6 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     prompt: z.string().nullish(),
     sourceType: ListFieldSourceTypeSchema,
     type: ListFieldTypeSchema,
-    useVectorStore: z.boolean().nullish(),
   })
 }
 

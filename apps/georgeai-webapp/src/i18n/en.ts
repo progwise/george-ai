@@ -820,6 +820,7 @@ export default {
       similarContentHelp: 'Search for similar content in the knowledge base to provide context.',
       webFetchHelp: 'Fetch content from external URLs to provide context.',
       addVectorSearch: 'Add Vector Search',
+      addWebFetch: 'Add Web Fetch',
       noVectorSearches: 'No vector searches configured yet.',
       noWebFetches: 'No web fetches configured yet.',
       noQuerySet: 'No query configured',

@@ -41,8 +41,6 @@ graphql(`
         }
         dataType
         libraryEmbeddingModel
-        contentQuery
-        useVectorStore
       }
       output {
         similarChunks {

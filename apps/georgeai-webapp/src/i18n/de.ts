@@ -831,6 +831,7 @@ export default {
       similarContentHelp: 'Suchen Sie nach ähnlichen Inhalten in der Wissensdatenbank, um Kontext bereitzustellen.',
       webFetchHelp: 'Rufen Sie Inhalte von externen URLs ab, um Kontext bereitzustellen.',
       addVectorSearch: 'Vektor-Suche hinzufügen',
+      addWebFetch: 'Web-Abruf hinzufügen',
       noVectorSearches: 'Noch keine Vektor-Suchen konfiguriert.',
       noWebFetches: 'Noch keine Web-Abrufe konfiguriert.',
       noQuerySet: 'Keine Abfrage konfiguriert',

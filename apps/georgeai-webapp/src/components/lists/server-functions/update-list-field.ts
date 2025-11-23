@@ -30,8 +30,6 @@ export const updateListFieldFn = createServerFn({ method: 'POST' })
             fileProperty
             prompt
             failureTerms
-            useVectorStore
-            contentQuery
             languageModel {
               id
               provider

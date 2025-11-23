@@ -263,7 +263,6 @@ type AiEnrichmentTaskProcessingDataInput {
   aiGenerationPrompt: String!
   aiModelName: String!
   aiModelProvider: String
-  contentQuery: String
   contextFields: [EnrichmentTaskContextField!]!
   dataType: ListFieldType!
   fileId: String!
@@ -272,7 +271,6 @@ type AiEnrichmentTaskProcessingDataInput {
   libraryEmbeddingModelProvider: String
   libraryId: String!
   libraryName: String!
-  useVectorStore: Boolean!
 }
 
 type AiEnrichmentTaskProcessingDataOutput {
@@ -594,7 +592,6 @@ type AiList {
 }
 
 type AiListField {
-  contentQuery: String
   context: [AiListFieldContext!]!
   contextFieldReferences: [AiListFieldContext!]!
   contextVectorSearches: [AiListFieldContext!]!
@@ -612,7 +609,6 @@ type AiListField {
   prompt: String
   sourceType: ListFieldSourceType!
   type: ListFieldType!
-  useVectorStore: Boolean
 }
 
 type AiListFieldContext {
@@ -635,7 +631,6 @@ input AiListFieldContextInput {
 }
 
 input AiListFieldInput {
-  contentQuery: String
   contextSources: [AiListFieldContextInput!]
   failureTerms: String
   fileProperty: String
@@ -651,7 +646,6 @@ input AiListFieldInput {
   Field type: string, text, number, date, datetime, boolean
   """
   type: ListFieldType!
-  useVectorStore: Boolean
 }
 
 type AiListFieldStatistics {
@@ -876,6 +870,7 @@ type ContentQueryResult {
   contentQuery: String
   fieldId: String!
   fieldName: String!
+  id: String!
   listId: String!
   listName: String!
 }

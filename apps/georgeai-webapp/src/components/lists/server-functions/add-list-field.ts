@@ -30,7 +30,6 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
             fileProperty
             prompt
             failureTerms
-            contentQuery
             languageModel {
               name
             }

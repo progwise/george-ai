@@ -287,7 +287,6 @@ export type AiEnrichmentTaskProcessingDataInput = {
   aiGenerationPrompt: Scalars['String']['output']
   aiModelName: Scalars['String']['output']
   aiModelProvider?: Maybe<Scalars['String']['output']>
-  contentQuery?: Maybe<Scalars['String']['output']>
   contextFields: Array<EnrichmentTaskContextField>
   dataType: ListFieldType
   fileId: Scalars['String']['output']
@@ -296,7 +295,6 @@ export type AiEnrichmentTaskProcessingDataInput = {
   libraryEmbeddingModelProvider?: Maybe<Scalars['String']['output']>
   libraryId: Scalars['String']['output']
   libraryName: Scalars['String']['output']
-  useVectorStore: Scalars['Boolean']['output']
 }
 
 export type AiEnrichmentTaskProcessingDataOutput = {
@@ -649,7 +647,6 @@ export type AiList = {
 
 export type AiListField = {
   __typename?: 'AiListField'
-  contentQuery?: Maybe<Scalars['String']['output']>
   context: Array<AiListFieldContext>
   contextFieldReferences: Array<AiListFieldContext>
   contextVectorSearches: Array<AiListFieldContext>
@@ -667,7 +664,6 @@ export type AiListField = {
   prompt?: Maybe<Scalars['String']['output']>
   sourceType: ListFieldSourceType
   type: ListFieldType
-  useVectorStore?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type AiListFieldContext = {
@@ -691,7 +687,6 @@ export type AiListFieldContextInput = {
 }
 
 export type AiListFieldInput = {
-  contentQuery?: InputMaybe<Scalars['String']['input']>
   contextSources?: InputMaybe<Array<AiListFieldContextInput>>
   failureTerms?: InputMaybe<Scalars['String']['input']>
   fileProperty?: InputMaybe<Scalars['String']['input']>
@@ -703,7 +698,6 @@ export type AiListFieldInput = {
   sourceType: ListFieldSourceType
   /** Field type: string, text, number, date, datetime, boolean */
   type: ListFieldType
-  useVectorStore?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type AiListFieldStatistics = {
@@ -940,6 +934,7 @@ export type ContentQueryResult = {
   contentQuery?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
+  id: Scalars['String']['output']
   listId: Scalars['String']['output']
   listName: Scalars['String']['output']
 }
@@ -4847,8 +4842,6 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
       aiGenerationPrompt: string
       dataType: ListFieldType
       libraryEmbeddingModel?: string | null
-      contentQuery?: string | null
-      useVectorStore: boolean
       contextFields: Array<{
         __typename?: 'EnrichmentTaskContextField'
         fieldId: string
@@ -4902,8 +4895,6 @@ export type FieldModal_FieldFragment = {
   type: ListFieldType
   prompt?: string | null
   failureTerms?: string | null
-  contentQuery?: string | null
-  useVectorStore?: boolean | null
   order: number
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   contextFieldReferences: Array<{
@@ -4979,8 +4970,6 @@ export type ListFieldsTableMenu_FieldFragment = {
   fileProperty?: string | null
   prompt?: string | null
   failureTerms?: string | null
-  contentQuery?: string | null
-  useVectorStore?: boolean | null
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   contextFieldReferences: Array<{
     __typename?: 'AiListFieldContext'
@@ -5050,8 +5039,6 @@ export type ListFieldsTable_ListFragment = {
     fileProperty?: string | null
     prompt?: string | null
     failureTerms?: string | null
-    contentQuery?: string | null
-    useVectorStore?: boolean | null
     order: number
     languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     contextFieldReferences: Array<{
@@ -5093,8 +5080,6 @@ export type ListFieldsTable_FieldFragment = {
   type: ListFieldType
   prompt?: string | null
   failureTerms?: string | null
-  contentQuery?: string | null
-  useVectorStore?: boolean | null
   order: number
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   contextFieldReferences: Array<{
@@ -5260,8 +5245,6 @@ export type GetEnrichmentsQuery = {
           aiGenerationPrompt: string
           dataType: ListFieldType
           libraryEmbeddingModel?: string | null
-          contentQuery?: string | null
-          useVectorStore: boolean
           contextFields: Array<{
             __typename?: 'EnrichmentTaskContextField'
             fieldId: string
@@ -5363,8 +5346,6 @@ export type GetListQuery = {
       fileProperty?: string | null
       prompt?: string | null
       failureTerms?: string | null
-      contentQuery?: string | null
-      useVectorStore?: boolean | null
       order: number
       languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
       contextFieldReferences: Array<{
@@ -5471,7 +5452,6 @@ export type AddListFieldMutation = {
     fileProperty?: string | null
     prompt?: string | null
     failureTerms?: string | null
-    contentQuery?: string | null
     languageModel?: { __typename?: 'AiLanguageModel'; name: string } | null
   }
 }
@@ -5714,8 +5694,6 @@ export type UpdateListFieldMutation = {
     fileProperty?: string | null
     prompt?: string | null
     failureTerms?: string | null
-    useVectorStore?: boolean | null
-    contentQuery?: string | null
     languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   }
 }
@@ -5740,8 +5718,6 @@ export type ListFieldSettings_FieldFragment = {
   type: ListFieldType
   prompt?: string | null
   failureTerms?: string | null
-  contentQuery?: string | null
-  useVectorStore?: boolean | null
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
   contextFieldReferences: Array<{
     __typename?: 'AiListFieldContext'
@@ -9600,8 +9576,6 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'dataType' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryEmbeddingModel' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                     ],
                   },
                 },
@@ -9873,7 +9847,6 @@ export const FieldModal_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -9886,7 +9859,6 @@ export const FieldModal_FieldFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -10053,7 +10025,6 @@ export const ListFieldsTable_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -10066,7 +10037,6 @@ export const ListFieldsTable_FieldFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -10178,7 +10148,6 @@ export const ListFieldSettings_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -10191,7 +10160,6 @@ export const ListFieldSettings_FieldFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -10321,7 +10289,6 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -10334,7 +10301,6 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -10568,7 +10534,6 @@ export const ListFieldsTable_ListFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -10581,7 +10546,6 @@ export const ListFieldsTable_ListFragmentDoc = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -17671,8 +17635,6 @@ export const GetEnrichmentsDocument = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'dataType' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryEmbeddingModel' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
                     ],
                   },
                 },
@@ -18045,7 +18007,6 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -18058,7 +18019,6 @@ export const GetListDocument = {
               ],
             },
           },
-          { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
           { kind: 'Field', name: { kind: 'Name', value: 'order' } },
           {
             kind: 'Field',
@@ -18430,7 +18390,6 @@ export const AddListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'languageModel' },
@@ -19416,8 +19375,6 @@ export const UpdateListFieldDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'failureTerms' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'useVectorStore' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'contentQuery' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'languageModel' },

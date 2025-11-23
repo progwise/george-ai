@@ -158,45 +158,116 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
 
     // Extract context sources from form
     const formData = new FormData(e.currentTarget)
-    const contextSources: Array<{
-      contextType: string
-      contextFieldId?: string
-      contextQuery?: string
-      maxContentTokens?: number
+    const contextFieldReferences: Array<{
+      id?: string
+      contextFieldId: string
+    }> = []
+    const contextVectorSearches: Array<{
+      id?: string
+      contextQuery: string
+      maxContentTokens: number
+    }> = []
+    const contextWebFetches: Array<{
+      id?: string
+      contextQuery: string
+      maxContentTokens: number
     }> = []
 
-    // Add selected field references
+    // Extract field references (checkboxes)
     for (const [key, value] of formData.entries()) {
       if (key.startsWith('contextFieldReference_') && value) {
-        contextSources.push({
-          contextType: 'fieldReference',
+        contextFieldReferences.push({
           contextFieldId: value as string,
         })
       }
     }
 
-    // Add existing vector searches (unless marked for deletion)
-    editField?.contextVectorSearches?.forEach((search) => {
-      const deleteValue = formData.get(`deleteVectorSearch_${search.id}`)
-      if (deleteValue !== 'delete') {
-        contextSources.push({
-          contextType: 'vectorSearch',
-          contextQuery: search.contextQuery || undefined,
-          maxContentTokens: search.maxContentTokens || undefined,
+    // Extract existing vector searches (with IDs)
+    let vectorSearchIndex = 0
+    while (formData.has(`vectorSearch_id_${vectorSearchIndex}`)) {
+      const id = formData.get(`vectorSearch_id_${vectorSearchIndex}`) as string
+      const queryTemplate = formData.get(`vectorSearch_queryTemplate_${vectorSearchIndex}`) as string
+      const maxTokens = formData.get(`vectorSearch_maxTokens_${vectorSearchIndex}`) as string
+
+      if (queryTemplate?.trim()) {
+        contextVectorSearches.push({
+          id,
+          contextQuery: JSON.stringify({ queryTemplate: queryTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
         })
       }
-    })
-
-    // Add new vector search if configured
-    const vectorSearchQuery = formData.get('vectorSearch_queryTemplate_new') as string
-    const vectorSearchMaxTokens = formData.get('vectorSearch_maxTokens_new') as string
-    if (vectorSearchQuery && vectorSearchQuery.trim()) {
-      contextSources.push({
-        contextType: 'vectorSearch',
-        contextQuery: JSON.stringify({ queryTemplate: vectorSearchQuery.trim() }),
-        maxContentTokens: vectorSearchMaxTokens ? parseInt(vectorSearchMaxTokens, 10) : 1000,
-      })
+      vectorSearchIndex++
     }
+
+    // Add new vector searches (indexed)
+    let newVectorSearchIndex = 0
+    while (formData.has(`vectorSearch_queryTemplate_new_${newVectorSearchIndex}`)) {
+      const queryTemplate = formData.get(`vectorSearch_queryTemplate_new_${newVectorSearchIndex}`) as string
+      const maxTokens = formData.get(`vectorSearch_maxTokens_new_${newVectorSearchIndex}`) as string
+
+      if (queryTemplate?.trim()) {
+        contextVectorSearches.push({
+          contextQuery: JSON.stringify({ queryTemplate: queryTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      newVectorSearchIndex++
+    }
+
+    // Extract existing web fetches (with IDs)
+    let webFetchIndex = 0
+    while (formData.has(`webFetch_id_${webFetchIndex}`)) {
+      const id = formData.get(`webFetch_id_${webFetchIndex}`) as string
+      const urlTemplate = formData.get(`webFetch_urlTemplate_${webFetchIndex}`) as string
+      const maxTokens = formData.get(`webFetch_maxTokens_${webFetchIndex}`) as string
+
+      if (urlTemplate?.trim()) {
+        contextWebFetches.push({
+          id,
+          contextQuery: JSON.stringify({ urlTemplate: urlTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      webFetchIndex++
+    }
+
+    // Add new web fetches (indexed)
+    let newWebFetchIndex = 0
+    while (formData.has(`webFetch_urlTemplate_new_${newWebFetchIndex}`)) {
+      const urlTemplate = formData.get(`webFetch_urlTemplate_new_${newWebFetchIndex}`) as string
+      const maxTokens = formData.get(`webFetch_maxTokens_new_${newWebFetchIndex}`) as string
+
+      if (urlTemplate?.trim()) {
+        contextWebFetches.push({
+          contextQuery: JSON.stringify({ urlTemplate: urlTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      newWebFetchIndex++
+    }
+
+    // Merge all context sources into a single array with proper structure
+    const contextSources: Array<{
+      contextType: string
+      contextFieldId?: string
+      contextQuery?: string
+      maxContentTokens?: number
+    }> = [
+      ...contextFieldReferences.map((ref) => ({
+        contextType: 'fieldReference',
+        contextFieldId: ref.contextFieldId,
+      })),
+      ...contextVectorSearches.map((search) => ({
+        contextType: 'vectorSearch',
+        contextQuery: search.contextQuery,
+        maxContentTokens: search.maxContentTokens,
+      })),
+      ...contextWebFetches.map((fetch) => ({
+        contextType: 'webFetch',
+        contextQuery: fetch.contextQuery,
+        maxContentTokens: fetch.maxContentTokens,
+      })),
+    ]
 
     const dataWithContextSources = {
       ...data,
