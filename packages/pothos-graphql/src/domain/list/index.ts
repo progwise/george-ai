@@ -22,6 +22,9 @@ export const LIST_FIELD_FILE_PROPERTIES = [
 ] as const
 export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
 
+export const LIST_FIELD_CONTEXT_TYPES = ['fieldReference', 'vectorSearch', 'webFetch'] as const
+export type FieldContextType = (typeof LIST_FIELD_CONTEXT_TYPES)[number]
+
 export const canAccessListOrThrow = async (
   listId: string,
   userId: string,

@@ -52,6 +52,13 @@ export const ModelSelect = <T extends ZodRawShape>({
   const [page, setPage] = useState(1)
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSelectedItem(value || null)
+    }, 100)
+    return () => clearTimeout(timeout)
+  }, [value])
+
   const capabilityFilters = useMemo(
     () => ({
       ...(capability === 'chat' && { canDoChatCompletion: true }),
@@ -122,7 +129,7 @@ export const ModelSelect = <T extends ZodRawShape>({
       >
         <summary
           className={twMerge(
-            'btn btn-outline/50 flex justify-between border bg-transparent font-normal',
+            'input flex w-full cursor-pointer justify-between bg-transparent font-normal',
             readonly && 'text-base-content/50',
             errors.length > 0 && 'border-error',
             (disabled || readonly) && 'pointer-events-none',

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
@@ -39,6 +39,13 @@ export const Select = <T extends ZodRawShape>({
   const [errors, setErrors] = useState<string[]>([])
   const [selectedItem, setSelectedItem] = useState<SelectItem | null>(value || null)
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSelectedItem(value || null)
+    }, 100)
+    return () => clearTimeout(timeout)
+  }, [value])
+
   const validate = (newValue: string | null | undefined) => {
     if (!schema) return
     const partialSchema = schema.partial()
@@ -74,7 +81,7 @@ export const Select = <T extends ZodRawShape>({
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenInputRef} value={selectedItem?.id || ''} />
         <select
-          defaultValue="Pick a color"
+          value={selectedItem ? selectedItem.id : ''}
           className="select"
           onChange={(event) => {
             const selectedOption = options.find((option) => option.id === event.target.value) || null
@@ -88,7 +95,7 @@ export const Select = <T extends ZodRawShape>({
             </option>
           )}
           {options.map((option) => (
-            <option key={option.id} value={option.id} selected={option.id === selectedItem?.id}>
+            <option key={option.id} value={option.id}>
               {option.name}
             </option>
           ))}

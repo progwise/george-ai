@@ -27,6 +27,7 @@ import {
   EnrichmentStatus,
   ExtractionStatus,
   LibrarySortOrder,
+  ListFieldContextType,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
@@ -65,6 +66,8 @@ export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
 
 export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
+
+export const ListFieldContextTypeSchema = z.nativeEnum(ListFieldContextType)
 
 export const ListFieldFilePropertySchema = z.nativeEnum(ListFieldFileProperty)
 
@@ -179,6 +182,7 @@ export function AiListFieldContextInputSchema(): z.ZodObject<Properties<AiListFi
   return z.object({
     contextFieldId: z.string().nullish(),
     contextQuery: z.string().nullish(),
+    contextType: ListFieldContextTypeSchema,
     maxContentTokens: z.number().nullish(),
   })
 }

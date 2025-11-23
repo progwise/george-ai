@@ -151,7 +151,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         success: fieldValidationSuccess,
         data: validatedField,
         error: fieldValidationError,
-      } = getFieldEnrichmentValidationSchema({ useVectorStore: listField.useVectorStore }).safeParse(fieldForValidation)
+      } = getFieldEnrichmentValidationSchema().safeParse(fieldForValidation)
 
       if (!fieldValidationSuccess) {
         throw new Error(

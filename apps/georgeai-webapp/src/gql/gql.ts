@@ -144,10 +144,13 @@ type Documents = {
   '\n  fragment AiContentProcessingTask_Timeline on AiContentProcessingTask {\n    createdAt\n    processingCancelled\n    processingStartedAt\n    processingFinishedAt\n    processingFailedAt\n    processingTimeout\n    extractionStartedAt\n    extractionFinishedAt\n    extractionFailedAt\n    extractionTimeMs\n    extractionTimeout\n    embeddingStartedAt\n    embeddingFinishedAt\n    embeddingFailedAt\n    embeddingTimeMs\n    embeddingTimeout\n    embeddingModel {\n      id\n      provider\n      name\n    }\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_TimelineFragmentDoc
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
+  '\n  fragment ReferencedFields_FieldReferences on AiListFieldContext {\n    id\n    contextFieldId\n    contextField {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.ReferencedFields_FieldReferencesFragmentDoc
+  '\n  fragment SimilarContent_VectorSearches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n': typeof types.SimilarContent_VectorSearchesFragmentDoc
+  '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n': typeof types.WebFetch_WebFetchesFragmentDoc
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n        contentQuery\n        useVectorStore\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
-  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    context {\n      id\n      contextFieldId\n      contextQuery\n      maxContentTokens\n    }\n  }\n': typeof types.FieldModal_FieldFragmentDoc
+  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n': typeof types.FieldModal_FieldFragmentDoc
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n': typeof types.ListExport_FieldFragmentDoc
   '\n  fragment ListExport_List on AiList {\n    id\n    name\n    fields {\n      ...ListExport_Field\n    }\n  }\n': typeof types.ListExport_ListFragmentDoc
   '\n  fragment ListFieldsTableFilters_AiListField on AiListField {\n    id\n    name\n    type\n  }\n': typeof types.ListFieldsTableFilters_AiListFieldFragmentDoc
@@ -477,13 +480,19 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
+  '\n  fragment ReferencedFields_FieldReferences on AiListFieldContext {\n    id\n    contextFieldId\n    contextField {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n':
+    types.ReferencedFields_FieldReferencesFragmentDoc,
+  '\n  fragment SimilarContent_VectorSearches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n':
+    types.SimilarContent_VectorSearchesFragmentDoc,
+  '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n':
+    types.WebFetch_WebFetchesFragmentDoc,
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n        contentQuery\n        useVectorStore\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
     types.EnrichmentAccordionItem_EnrichmentFragmentDoc,
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n':
     types.FieldModal_ListFragmentDoc,
-  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    context {\n      id\n      contextFieldId\n      contextQuery\n      maxContentTokens\n    }\n  }\n':
+  '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n':
     types.FieldModal_FieldFragmentDoc,
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n':
     types.ListExport_FieldFragmentDoc,
@@ -1419,6 +1428,24 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  fragment ReferencedFields_FieldReferences on AiListFieldContext {\n    id\n    contextFieldId\n    contextField {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n',
+): (typeof documents)['\n  fragment ReferencedFields_FieldReferences on AiListFieldContext {\n    id\n    contextFieldId\n    contextField {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment SimilarContent_VectorSearches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n',
+): (typeof documents)['\n  fragment SimilarContent_VectorSearches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n',
+): (typeof documents)['\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n',
 ): (typeof documents)['\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n']
 /**
@@ -1437,8 +1464,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    context {\n      id\n      contextFieldId\n      contextQuery\n      maxContentTokens\n    }\n  }\n',
-): (typeof documents)['\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    context {\n      id\n      contextFieldId\n      contextQuery\n      maxContentTokens\n    }\n  }\n']
+  source: '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n',
+): (typeof documents)['\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    contentQuery\n    languageModel {\n      id\n      provider\n      name\n    }\n    useVectorStore\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

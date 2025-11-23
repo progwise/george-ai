@@ -1,5 +1,4 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
-import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
@@ -84,41 +83,8 @@ async function processQueueItem({
         })),
       )
 
-      if (metadata.input.useVectorStore) {
-        if (
-          !metadata.input.contentQuery ||
-          !metadata.input.libraryEmbeddingModel ||
-          !metadata.input.libraryEmbeddingModelProvider
-        ) {
-          throw new Error(
-            `Content query, library embedding model, and provider are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
-          )
-        }
-        const similarChunks = await getSimilarChunks({
-          workspaceId,
-          libraryId: metadata.input.libraryId,
-          fileId: metadata.input.fileId,
-          term: metadata.input.contentQuery,
-          embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
-          embeddingsModelName: metadata.input.libraryEmbeddingModel,
-          hits: 3,
-        })
-
-        outputMetaData.similarChunks = similarChunks.map((chunk) => ({
-          id: chunk.id,
-          fileName: chunk.fileName,
-          fileId: chunk.fileId,
-          text: chunk.text,
-          distance: chunk.distance,
-        }))
-
-        messages.push({
-          role: 'user',
-          content: `Here is the search result in the vector store:\n${similarChunks
-            .map((chunk) => chunk.text)
-            .join('\n\n')}`,
-        })
-      }
+      // TODO: Vector search context will be implemented via context sources (contextVectorSearches)
+      // The old useVectorStore/contentQuery approach has been removed
 
       outputMetaData.messages = messages
 

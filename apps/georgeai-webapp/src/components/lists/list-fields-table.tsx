@@ -1,11 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import {
   FieldModal_FieldFragment,
-  ListFieldSourceType,
   ListFieldsTable_ListFragment,
   ListFilesTable_FilesQueryResultFragment,
 } from '../../gql/graphql'
@@ -124,34 +123,13 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
 
   const handleAddField = () => {
     setEditField(null)
+    fieldModalDialogRef.current?.showModal()
   }
 
   const handleEditField = (fieldData: FieldModal_FieldFragment) => {
     setEditField(fieldData)
+    fieldModalDialogRef.current?.showModal()
   }
-
-  // For Development Only: Auto-open the field modal for the first LLM Computed field
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const file = listItems.items[0]
-      if (!file) return
-
-      const firstField = visibleFields.find((field) => field.sourceType === ListFieldSourceType.LlmComputed)
-      if (!firstField) return
-      setEditField(firstField)
-    }, 100)
-    return () => clearTimeout(timeout)
-  }, [listItems, visibleFields])
-
-  useEffect(() => {
-    if (!fieldModalDialogRef.current) return
-
-    if (editField) {
-      fieldModalDialogRef.current.showModal()
-    } else {
-      fieldModalDialogRef.current.close()
-    }
-  }, [fieldModalDialogRef, editField])
 
   const handleFieldReorder = (targetFieldId: string, event: React.DragEvent) => {
     const dropResult = handleDrop(targetFieldId, event)

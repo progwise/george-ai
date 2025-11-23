@@ -5,6 +5,7 @@ import { builder } from './../builder'
 // Context source input for field references or external context
 const AiListFieldContextInput = builder.inputType('AiListFieldContextInput', {
   fields: (t) => ({
+    contextType: t.field({ type: 'ListFieldContextType', required: true }),
     contextFieldId: t.string({ required: false }),
     contextQuery: t.string({ required: false }),
     maxContentTokens: t.int({ required: false }),
@@ -29,9 +30,7 @@ const AiListFieldInput = builder.inputType('AiListFieldInput', {
     fileProperty: t.string({ required: false }),
     prompt: t.string({ required: false }),
     failureTerms: t.string({ required: false }),
-    contentQuery: t.string({ required: false }),
     languageModelId: t.string({ required: false }),
-    useVectorStore: t.boolean({ required: false }),
     contextSources: t.field({ type: [AiListFieldContextInput], required: false }),
   }),
 })
@@ -60,9 +59,7 @@ builder.mutationField('addListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           failureTerms: data.failureTerms,
-          contentQuery: data.contentQuery,
           languageModelId: data.languageModelId || null,
-          useVectorStore: data.useVectorStore,
           listId: existingList.id,
         },
       })
@@ -71,6 +68,7 @@ builder.mutationField('addListField', (t) =>
       if (data.contextSources && data.contextSources.length > 0) {
         const contextData = data.contextSources.map((source) => ({
           fieldId: newField.id,
+          contextType: source.contextType,
           contextFieldId: source.contextFieldId || null,
           contextQuery: source.contextQuery ? JSON.parse(source.contextQuery) : null,
           maxContentTokens: source.maxContentTokens || null,
@@ -111,9 +109,7 @@ builder.mutationField('updateListField', (t) =>
           fileProperty: data.fileProperty,
           prompt: data.prompt,
           failureTerms: data.failureTerms,
-          contentQuery: data.contentQuery,
           languageModelId: data.languageModelId || null,
-          useVectorStore: data.useVectorStore,
         },
       })
 
@@ -127,6 +123,7 @@ builder.mutationField('updateListField', (t) =>
       if (data.contextSources && data.contextSources.length > 0) {
         const contextData = data.contextSources.map((source) => ({
           fieldId: id,
+          contextType: source.contextType,
           contextFieldId: source.contextFieldId || null,
           contextQuery: source.contextQuery ? JSON.parse(source.contextQuery) : null,
           maxContentTokens: source.maxContentTokens || null,

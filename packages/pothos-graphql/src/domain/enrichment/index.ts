@@ -28,7 +28,7 @@ export const ContextFieldSchema = z.object({
   }),
 })
 
-export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVectorStore?: boolean | null }) =>
+export const getFieldEnrichmentValidationSchema = () =>
   z.object({
     id: z.string(),
     name: z.string(),
@@ -39,10 +39,6 @@ export const getFieldEnrichmentValidationSchema = ({ useVectorStore }: { useVect
     type: z.enum(LIST_FIELD_TYPES),
     fileProperty: z.null(),
     sourceType: z.literal('llm_computed'),
-    contentQuery: useVectorStore
-      ? z.string().min(1, 'Content query is required when using vector store')
-      : z.string().nullable().optional(),
-    useVectorStore: z.boolean(),
     failureTerms: z.string().nullable(),
     listId: z.string(),
     context: z.array(ContextFieldSchema),
@@ -75,8 +71,6 @@ export const EnrichmentMetadataSchema = z.object({
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
       libraryEmbeddingModelProvider: z.string().optional(),
-      contentQuery: z.string().optional(),
-      useVectorStore: z.boolean(),
     })
     .optional(),
   output: z
@@ -139,8 +133,6 @@ export const getEnrichmentTaskInputMetadata = ({
     dataType: validatedField.type,
     libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
     libraryEmbeddingModelProvider: file.library.embeddingModel?.provider || undefined,
-    contentQuery: validatedField.useVectorStore ? validatedField.contentQuery || undefined : undefined,
-    useVectorStore: !!validatedField.useVectorStore,
     fileId: file.id,
     fileName: file.name,
     fieldId: validatedField.id,

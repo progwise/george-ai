@@ -4,7 +4,7 @@ import { builder } from './../builder'
 import './queries'
 import './mutations'
 
-import { FieldSourceType, FieldType } from '../../domain/list'
+import { FieldContextType, FieldSourceType, FieldType } from '../../domain/list'
 
 console.log('Setting up: AiListField')
 
@@ -25,10 +25,41 @@ builder.prismaObject('AiListField', {
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
     failureTerms: t.exposeString('failureTerms'),
-    contentQuery: t.exposeString('contentQuery'),
     languageModel: t.relation('languageModel'),
-    useVectorStore: t.exposeBoolean('useVectorStore'),
     context: t.relation('context', { nullable: false }),
+    contextFieldReferences: t.prismaField({
+      type: ['AiListFieldContext'],
+      nullable: false,
+      resolve: async (query, parent) => {
+        return await prisma.aiListFieldContext.findMany({
+          ...query,
+          where: { fieldId: parent.id, contextType: 'fieldReference' },
+          orderBy: { createdAt: 'asc' },
+        })
+      },
+    }),
+    contextVectorSearches: t.prismaField({
+      type: ['AiListFieldContext'],
+      nullable: false,
+      resolve: async (query, parent) => {
+        return await prisma.aiListFieldContext.findMany({
+          ...query,
+          where: { fieldId: parent.id, contextType: 'vectorSearch' },
+          orderBy: { createdAt: 'asc' },
+        })
+      },
+    }),
+    contextWebFetches: t.prismaField({
+      type: ['AiListFieldContext'],
+      nullable: false,
+      resolve: async (query, parent) => {
+        return await prisma.aiListFieldContext.findMany({
+          ...query,
+          where: { fieldId: parent.id, contextType: 'webFetch' },
+          orderBy: { createdAt: 'asc' },
+        })
+      },
+    }),
     pendingItemsCount: t.field({
       type: 'Int',
       nullable: false,
@@ -59,6 +90,11 @@ builder.prismaObject('AiListFieldContext', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     fieldId: t.exposeString('fieldId', { nullable: false }),
     field: t.relation('field', { nullable: false }),
+    contextType: t.field({
+      type: 'ListFieldContextType',
+      nullable: false,
+      resolve: (context) => context.contextType as FieldContextType,
+    }),
     contextFieldId: t.exposeString('contextFieldId'),
     contextField: t.relation('contextField'),
     contextQuery: t.string({

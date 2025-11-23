@@ -596,6 +596,9 @@ type AiList {
 type AiListField {
   contentQuery: String
   context: [AiListFieldContext!]!
+  contextFieldReferences: [AiListFieldContext!]!
+  contextVectorSearches: [AiListFieldContext!]!
+  contextWebFetches: [AiListFieldContext!]!
   failureTerms: String
   fileProperty: String
   id: ID!
@@ -616,6 +619,7 @@ type AiListFieldContext {
   contextField: AiListField
   contextFieldId: String
   contextQuery: String
+  contextType: ListFieldContextType!
   createdAt: DateTime!
   field: AiListField!
   fieldId: String!
@@ -626,6 +630,7 @@ type AiListFieldContext {
 input AiListFieldContextInput {
   contextFieldId: String
   contextQuery: String
+  contextType: ListFieldContextType!
   maxContentTokens: Int
 }
 
@@ -1037,6 +1042,12 @@ enum LibrarySortOrder {
   nameDesc
   updatedAtAsc
   updatedAtDesc
+}
+
+enum ListFieldContextType {
+  fieldReference
+  vectorSearch
+  webFetch
 }
 
 enum ListFieldFileProperty {
