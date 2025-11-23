@@ -58,6 +58,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                     },
                   },
                 },
+                orderBy: { createdAt: 'asc' },
               },
             },
           },

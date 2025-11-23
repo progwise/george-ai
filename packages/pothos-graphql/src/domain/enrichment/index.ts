@@ -8,24 +8,30 @@ export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'er
 export type EnrichmentStatusType = (typeof EnrichmentStatusValues)[number]
 
 export const ContextFieldSchema = z.object({
-  contextField: z.object({
-    id: z.string(),
-    name: z.string(),
-    sourceType: z.enum(LIST_FIELD_SOURCE_TYPES),
-    type: z.enum(LIST_FIELD_TYPES),
-    fileProperty: z.string().nullable(),
-    cachedValues: z.array(
-      z.object({
-        fileId: z.string(),
-        valueString: z.string().nullable(),
-        valueNumber: z.number().nullable(),
-        valueBoolean: z.boolean().nullable(),
-        valueDate: z.date().nullable(),
-        valueDatetime: z.date().nullable(),
-        enrichmentErrorMessage: z.string().nullable(),
-      }),
-    ),
-  }),
+  contextType: z.enum(['fieldReference', 'vectorSearch', 'webFetch']),
+  contextQuery: z.any().nullable().optional(),
+  maxContentTokens: z.number().nullable().optional(),
+  contextField: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      sourceType: z.enum(LIST_FIELD_SOURCE_TYPES),
+      type: z.enum(LIST_FIELD_TYPES),
+      fileProperty: z.string().nullable(),
+      cachedValues: z.array(
+        z.object({
+          fileId: z.string(),
+          valueString: z.string().nullable(),
+          valueNumber: z.number().nullable(),
+          valueBoolean: z.boolean().nullable(),
+          valueDate: z.date().nullable(),
+          valueDatetime: z.date().nullable(),
+          enrichmentErrorMessage: z.string().nullable(),
+        }),
+      ),
+    })
+    .nullable()
+    .optional(),
 })
 
 export const getFieldEnrichmentValidationSchema = () =>
@@ -68,6 +74,22 @@ export const EnrichmentMetadataSchema = z.object({
           errorMessage: z.string().nullable(),
         }),
       ),
+      contextVectorSearches: z
+        .array(
+          z.object({
+            queryTemplate: z.string(),
+            maxContentTokens: z.number().optional(),
+          }),
+        )
+        .optional(),
+      contextWebFetches: z
+        .array(
+          z.object({
+            urlTemplate: z.string(),
+            maxContentTokens: z.number().optional(),
+          }),
+        )
+        .optional(),
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
       libraryEmbeddingModelProvider: z.string().optional(),
@@ -115,21 +137,51 @@ export const getEnrichmentTaskInputMetadata = ({
     }
   }>
 }): EnrichmentMetadata['input'] => {
-  const contextFields = validatedField.context.map((contextField) => {
-    const { value, errorMessage } = getFieldValue(file, contextField.contextField)
-    return {
-      fieldId: contextField.contextField.id,
-      fieldName: contextField.contextField.name,
-      value,
-      errorMessage,
-    }
-  })
+  // Process field reference context sources
+  const contextFields = validatedField.context
+    .filter((ctx) => ctx.contextField !== null && ctx.contextField !== undefined)
+    .map((contextField) => {
+      // TypeScript needs the assertion because filter doesn't narrow the type
+      const field = contextField.contextField!
+      const { value, errorMessage } = getFieldValue(file, field)
+      return {
+        fieldId: field.id,
+        fieldName: field.name,
+        value,
+        errorMessage,
+      }
+    })
+
+  // Process vector search context sources
+  const contextVectorSearches = validatedField.context
+    .filter((ctx) => ctx.contextType === 'vectorSearch' && ctx.contextQuery)
+    .map((ctx) => {
+      const query = ctx.contextQuery as { queryTemplate?: string }
+      return {
+        queryTemplate: query.queryTemplate || '',
+        maxContentTokens: ctx.maxContentTokens || undefined,
+      }
+    })
+
+  // Process web fetch context sources
+  const contextWebFetches = validatedField.context
+    .filter((ctx) => ctx.contextType === 'webFetch' && ctx.contextQuery)
+    .map((ctx) => {
+      const query = ctx.contextQuery as { urlTemplate?: string }
+      return {
+        urlTemplate: query.urlTemplate || '',
+        maxContentTokens: ctx.maxContentTokens || undefined,
+      }
+    })
+
   return {
     aiModelId: validatedField.languageModelId,
     aiModelProvider: validatedField.languageProvider,
     aiModelName: validatedField.languageModelName,
     aiGenerationPrompt: validatedField.prompt,
     contextFields,
+    contextVectorSearches: contextVectorSearches.length > 0 ? contextVectorSearches : undefined,
+    contextWebFetches: contextWebFetches.length > 0 ? contextWebFetches : undefined,
     dataType: validatedField.type,
     libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
     libraryEmbeddingModelProvider: file.library.embeddingModel?.provider || undefined,
@@ -147,4 +199,37 @@ export const validateEnrichmentTaskForProcessing = (enrichmentTask: Prisma.AiEnr
   const metadata = JSON.parse(enrichmentTask.metadata || '{}')
   const parsed = EnrichmentMetadataSchema.safeParse(metadata)
   return parsed
+}
+
+/**
+ * Substitutes {fieldName} placeholders in a template string with actual field values
+ * @param template - Template string with {fieldName} placeholders
+ * @param contextFields - Array of context fields with their values
+ * @returns Substituted string, or null if any required field is missing
+ */
+export function substituteTemplate(
+  template: string,
+  contextFields: Array<{ fieldName: string; value: string | null }>,
+): string | null {
+  let result = template
+  const fieldMap = new Map(contextFields.map((f) => [f.fieldName.toLowerCase(), f.value]))
+
+  // Find all {fieldName} placeholders
+  const placeholderRegex = /\{([^}]+)\}/g
+  const matches = [...template.matchAll(placeholderRegex)]
+
+  for (const match of matches) {
+    const fieldName = match[1].trim()
+    const value = fieldMap.get(fieldName.toLowerCase())
+
+    // If any required field is null/missing, return null
+    if (value === null || value === undefined) {
+      console.warn(`⚠️ Template substitution failed: field "${fieldName}" has no value`)
+      return null
+    }
+
+    result = result.replace(match[0], value)
+  }
+
+  return result
 }

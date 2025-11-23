@@ -1,7 +1,8 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
+import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
-import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
+import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
@@ -76,6 +77,7 @@ async function processQueueItem({
     })
 
     try {
+      // Add field reference context sources
       messages.push(
         ...metadata.input.contextFields.map((ctx) => ({
           role: 'user' as const,
@@ -83,8 +85,114 @@ async function processQueueItem({
         })),
       )
 
-      // TODO: Vector search context will be implemented via context sources (contextVectorSearches)
-      // The old useVectorStore/contentQuery approach has been removed
+      // Process vector search context sources
+      if (metadata.input.contextVectorSearches && metadata.input.contextVectorSearches.length > 0) {
+        for (const vectorSearch of metadata.input.contextVectorSearches) {
+          try {
+            // Substitute {fieldName} placeholders in query template
+            const query = substituteTemplate(vectorSearch.queryTemplate, metadata.input.contextFields)
+
+            if (!query) {
+              const issue = `vectorSearchSkipped: template substitution failed for "${vectorSearch.queryTemplate}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // Check if library has embedding model configured
+            if (!metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
+              const issue = `vectorSearchSkipped: library has no embedding model configured`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // Execute vector search
+            const chunks = await getSimilarChunks({
+              workspaceId,
+              libraryId: metadata.input.libraryId,
+              fileId: metadata.input.fileId,
+              term: query,
+              embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
+              embeddingsModelName: metadata.input.libraryEmbeddingModel,
+              hits: 5, // Get top 5 similar chunks
+            })
+
+            if (chunks.length > 0) {
+              // Truncate content if maxContentTokens is specified
+              // Rough estimate: 1 token ≈ 4 characters
+              const maxChars = vectorSearch.maxContentTokens ? vectorSearch.maxContentTokens * 4 : undefined
+              const content = chunks.map((chunk) => chunk.text).join('\n\n')
+              const truncatedContent = maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
+
+              messages.push({
+                role: 'user' as const,
+                content: `Here is relevant context from vector search (query: "${query}"):\n${truncatedContent}`,
+              })
+
+              // Store chunks in output metadata
+              outputMetaData.similarChunks?.push(
+                ...chunks.map((chunk) => ({
+                  id: chunk.id,
+                  fileName: chunk.fileName,
+                  fileId: chunk.fileId,
+                  text: chunk.text,
+                  distance: chunk.distance,
+                })),
+              )
+            } else {
+              const issue = `vectorSearchNoResults: no similar chunks found for query "${query}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+            }
+          } catch (error) {
+            const issue = `vectorSearchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            console.warn(`⚠️ ${issue}`)
+            outputMetaData.issues.push(issue)
+          }
+        }
+      }
+
+      // Process web fetch context sources
+      if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
+        for (const webFetch of metadata.input.contextWebFetches) {
+          try {
+            // Substitute {fieldName} placeholders in URL template
+            const url = substituteTemplate(webFetch.urlTemplate, metadata.input.contextFields)
+
+            if (!url) {
+              const issue = `webFetchSkipped: template substitution failed for "${webFetch.urlTemplate}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // Fetch content from URL
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            }
+
+            let content = await response.text()
+
+            // Truncate content if maxContentTokens is specified
+            // Rough estimate: 1 token ≈ 4 characters
+            const maxChars = webFetch.maxContentTokens ? webFetch.maxContentTokens * 4 : undefined
+            if (maxChars && content.length > maxChars) {
+              content = content.slice(0, maxChars) + '...'
+            }
+
+            messages.push({
+              role: 'user' as const,
+              content: `Here is context from web fetch (URL: "${url}"):\n${content}`,
+            })
+          } catch (error) {
+            const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            console.warn(`⚠️ ${issue}`)
+            outputMetaData.issues.push(issue)
+          }
+        }
+      }
 
       outputMetaData.messages = messages
 
