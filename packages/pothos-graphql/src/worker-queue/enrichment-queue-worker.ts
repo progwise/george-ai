@@ -164,6 +164,9 @@ async function processQueueItem({
       }
 
       // Process web fetch context sources
+      // TODO(#886): Replace simple fetch() with web crawler integration
+      // Current implementation uses raw HTML which provides poor quality context.
+      // Should trigger crawler to get semantic markdown from library files instead.
       if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
         for (const webFetch of metadata.input.contextWebFetches) {
           try {
@@ -177,7 +180,8 @@ async function processQueueItem({
               continue
             }
 
-            // Fetch content from URL
+            // TEMPORARY: Simple fetch() - returns raw HTML (low quality)
+            // See issue #886 for proper crawler integration
             const response = await fetch(url)
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`)
