@@ -78,6 +78,8 @@ export const EnrichmentMetadataSchema = z.object({
         .array(
           z.object({
             queryTemplate: z.string(),
+            maxChunks: z.number().optional(),
+            maxDistance: z.number().optional(),
             maxContentTokens: z.number().optional(),
           }),
         )
@@ -156,9 +158,11 @@ export const getEnrichmentTaskInputMetadata = ({
   const contextVectorSearches = validatedField.context
     .filter((ctx) => ctx.contextType === 'vectorSearch' && ctx.contextQuery)
     .map((ctx) => {
-      const query = ctx.contextQuery as { queryTemplate?: string }
+      const query = ctx.contextQuery as { queryTemplate?: string; maxChunks?: number; maxDistance?: number }
       return {
         queryTemplate: query.queryTemplate || '',
+        maxChunks: query.maxChunks || undefined,
+        maxDistance: query.maxDistance || undefined,
         maxContentTokens: ctx.maxContentTokens || undefined,
       }
     })

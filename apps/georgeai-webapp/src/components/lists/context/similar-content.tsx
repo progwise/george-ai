@@ -74,6 +74,32 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                       placeholder={t('lists.contextSources.queryTemplatePlaceholder')}
                     />
                   </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.maxChunks')}</label>
+                      <input
+                        type="number"
+                        name={`vectorSearch_maxChunks_${index}`}
+                        className="input input-sm w-full"
+                        defaultValue={query.maxChunks || 5}
+                        min="1"
+                        max="20"
+                        step="1"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.maxDistance')}</label>
+                      <input
+                        type="number"
+                        name={`vectorSearch_maxDistance_${index}`}
+                        className="input input-sm w-full"
+                        defaultValue={query.maxDistance || 0.5}
+                        min="0"
+                        max="1"
+                        step="0.05"
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.maxTokens')}</label>
                     <input
@@ -127,6 +153,36 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                 {newIndex === 0 && (
                   <p className="text-base-content/60 mt-1 text-xs">{t('lists.contextSources.templateHelp')}</p>
                 )}
+              </div>
+
+              {/* Max Chunks and Max Distance */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.maxChunks')}</label>
+                  <input
+                    type="number"
+                    name={`vectorSearch_maxChunks_new_${newIndex}`}
+                    className="input input-sm w-full"
+                    placeholder="5"
+                    min="1"
+                    max="20"
+                    step="1"
+                    defaultValue="5"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.maxDistance')}</label>
+                  <input
+                    type="number"
+                    name={`vectorSearch_maxDistance_new_${newIndex}`}
+                    className="input input-sm w-full"
+                    placeholder="0.5"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    defaultValue="0.5"
+                  />
+                </div>
               </div>
 
               {/* Max Tokens */}

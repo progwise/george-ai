@@ -823,6 +823,8 @@ export default {
       queryTemplatePlaceholder: '{name} {hersteller} Spezifikationen',
       templateHelp: 'Verwenden Sie {feldName} um Feldwerte einzufügen',
       query: 'Abfrage',
+      maxChunks: 'Max. Chunks',
+      maxDistance: 'Max. Distanz',
       empty: 'Keine Kontextquellen hinzugefügt. Es wird nur der Dateiinhalt verwendet.',
       noFieldsAvailable: 'Keine weiteren Felder zum Referenzieren verfügbar.',
       contextExplanation:

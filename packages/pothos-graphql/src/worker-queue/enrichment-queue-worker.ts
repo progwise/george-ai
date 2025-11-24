@@ -108,22 +108,29 @@ async function processQueueItem({
             }
 
             // Execute vector search
-            const chunks = await getSimilarChunks({
+            const maxChunks = vectorSearch.maxChunks || 5
+            const maxDistance = vectorSearch.maxDistance || 0.5
+
+            const allChunks = await getSimilarChunks({
               workspaceId,
               libraryId: metadata.input.libraryId,
               fileId: metadata.input.fileId,
               term: query,
               embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
               embeddingsModelName: metadata.input.libraryEmbeddingModel,
-              hits: 5, // Get top 5 similar chunks
+              hits: maxChunks,
             })
+
+            // Filter chunks by distance threshold
+            const chunks = allChunks.filter((chunk) => chunk.distance <= maxDistance)
 
             if (chunks.length > 0) {
               // Truncate content if maxContentTokens is specified
               // Rough estimate: 1 token ≈ 4 characters
               const maxChars = vectorSearch.maxContentTokens ? vectorSearch.maxContentTokens * 4 : undefined
               const content = chunks.map((chunk) => chunk.text).join('\n\n')
-              const truncatedContent = maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
+              const truncatedContent =
+                maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
 
               messages.push({
                 role: 'user' as const,
@@ -141,7 +148,10 @@ async function processQueueItem({
                 })),
               )
             } else {
-              const issue = `vectorSearchNoResults: no similar chunks found for query "${query}"`
+              const issue =
+                allChunks.length > 0
+                  ? `vectorSearchNoResults: found ${allChunks.length} chunks but all exceeded maxDistance ${maxDistance}`
+                  : `vectorSearchNoResults: no similar chunks found for query "${query}"`
               console.warn(`⚠️ ${issue}`)
               outputMetaData.issues.push(issue)
             }

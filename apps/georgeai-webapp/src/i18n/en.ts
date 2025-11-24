@@ -813,6 +813,8 @@ export default {
       queryTemplatePlaceholder: '{name} {manufacturer} specifications',
       templateHelp: 'Use {fieldName} to insert field values',
       query: 'Query',
+      maxChunks: 'Max Chunks',
+      maxDistance: 'Max Distance',
       empty: 'No context sources added. Only file content will be used.',
       noFieldsAvailable: 'No other fields available to reference.',
       contextExplanation: 'Context sources provide additional information to the AI when enriching this field.',

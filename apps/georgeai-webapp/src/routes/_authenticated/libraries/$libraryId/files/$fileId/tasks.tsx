@@ -53,7 +53,7 @@ function RouteComponent() {
   const count = aiContentProcessingTasks.count
 
   return (
-    <div className="space-y-4">
+    <div className="bg-base-100 flex h-full flex-col gap-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base-content/80 text-xl font-bold">Content Extraction Tasks</h2>
         <div className="flex items-end gap-4">
@@ -89,19 +89,21 @@ function RouteComponent() {
         </div>
       </div>
 
-      {tasks.length === 0 ? (
-        <div className="card bg-base-200">
-          <div className="card-body text-center">
-            <p className="text-base-content/60">No tasks found</p>
+      <div className="overflow-auto">
+        {tasks.length === 0 ? (
+          <div className="card bg-base-200 w-full">
+            <div className="card-body text-center">
+              <p className="text-base-content/60">No tasks found</p>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="join join-vertical bg-base-100 w-full">
-          {tasks.map((task, index) => (
-            <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={true} />
-          ))}
-        </div>
-      )}
+        ) : (
+          <div className="join join-vertical bg-base-100 w-full">
+            {tasks.map((task, index) => (
+              <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={true} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
