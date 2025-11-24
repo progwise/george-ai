@@ -206,8 +206,8 @@ export const validateEnrichmentTaskForProcessing = (enrichmentTask: Prisma.AiEnr
 }
 
 /**
- * Substitutes {fieldName} placeholders in a template string with actual field values
- * @param template - Template string with {fieldName} placeholders
+ * Substitutes {{fieldName}} placeholders in a template string with actual field values
+ * @param template - Template string with {{fieldName}} placeholders
  * @param contextFields - Array of context fields with their values
  * @returns Substituted string, or null if any required field is missing
  */
@@ -218,8 +218,8 @@ export function substituteTemplate(
   let result = template
   const fieldMap = new Map(contextFields.map((f) => [f.fieldName.toLowerCase(), f.value]))
 
-  // Find all {fieldName} placeholders
-  const placeholderRegex = /\{([^}]+)\}/g
+  // Find all {{fieldName}} placeholders
+  const placeholderRegex = /\{\{([^}]+)\}\}/g
   const matches = [...template.matchAll(placeholderRegex)]
 
   for (const match of matches) {
