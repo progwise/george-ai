@@ -21,12 +21,12 @@ export const ContextFieldSchema = z.object({
       cachedValues: z.array(
         z.object({
           fileId: z.string(),
-          valueString: z.string().nullable(),
-          valueNumber: z.number().nullable(),
-          valueBoolean: z.boolean().nullable(),
-          valueDate: z.date().nullable(),
-          valueDatetime: z.date().nullable(),
-          enrichmentErrorMessage: z.string().nullable(),
+          valueString: z.string().nullable().optional(),
+          valueNumber: z.number().nullable().optional(),
+          valueBoolean: z.boolean().nullable().optional(),
+          valueDate: z.date().nullable().optional(),
+          valueDatetime: z.date().nullable().optional(),
+          enrichmentErrorMessage: z.string().nullable().optional(),
         }),
       ),
     })
