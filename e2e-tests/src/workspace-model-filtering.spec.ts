@@ -61,36 +61,28 @@ test.describe('Workspace Model Filtering', () => {
     // Wait for navigation to settings page (library creation navigates directly to settings)
     await expect(page).toHaveURL(/\/libraries\/.*\/settings$/)
 
-    // Open "Library Processing Options" accordion by clicking the checkbox
-    await page
-      .locator('div.collapse')
-      .filter({ hasText: 'Library Processing Options' })
-      .locator('input[type="checkbox"]')
-      .first()
-      .click()
+    // No need to open accordion - it's now always visible as a card
+    // Click embedding model dropdown
+    // Scope to the embedding model fieldset to avoid selecting OCR model dropdown
+    const embeddingFieldset = page.locator('fieldset').filter({ hasText: 'AI Model for Embeddings' })
+    const embeddingModelLabel = embeddingFieldset.getByText('AI Model for Embeddings')
+    await embeddingModelLabel.scrollIntoViewIfNeeded()
+    await embeddingModelLabel.click()
 
-    // Wait for accordion to expand and click embedding model dropdown
-    const embeddingModelDropdown = page
-      .locator('fieldset')
-      .filter({ hasText: /AI Model for Embeddings/i })
-      .locator('div.input')
-    await embeddingModelDropdown.scrollIntoViewIfNeeded()
-    await embeddingModelDropdown.click()
+    // Wait for dropdown menu to appear - verify by checking for the listbox
+    const modelListbox = embeddingFieldset.getByRole('listbox', { name: 'Available models' })
+    await expect(modelListbox).toBeVisible()
 
-    // Wait for dropdown menu to appear
-    const dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
-    await expect(dropdown).toBeVisible()
-
-    // Get all model options
-    const modelOptions = dropdown.locator('li button')
-    const count = await modelOptions.count()
+    // Get all model option buttons in the dropdown
+    const modelButtons = modelListbox.getByRole('option')
+    const count = await modelButtons.count()
 
     // Verify all visible models are OpenAI models
     let openaiModelCount = 0
     let ollamaModelCount = 0
 
     for (let i = 0; i < count; i++) {
-      const modelText = await modelOptions.nth(i).textContent()
+      const modelText = await modelButtons.nth(i).textContent()
       if (
         modelText?.includes('openai') ||
         modelText?.toLowerCase().includes('gpt') ||
@@ -143,36 +135,28 @@ test.describe('Workspace Model Filtering', () => {
     // Wait for navigation to settings page (library creation navigates directly to settings)
     await expect(page).toHaveURL(/\/libraries\/.*\/settings$/)
 
-    // Open "Library Processing Options" accordion by clicking the checkbox
-    await page
-      .locator('div.collapse')
-      .filter({ hasText: 'Library Processing Options' })
-      .locator('input[type="checkbox"]')
-      .first()
-      .click()
+    // No need to open accordion - it's now always visible as a card
+    // Click embedding model dropdown
+    // Scope to the embedding model fieldset to avoid selecting OCR model dropdown
+    const embeddingFieldset = page.locator('fieldset').filter({ hasText: 'AI Model for Embeddings' })
+    const embeddingModelLabel = embeddingFieldset.getByText('AI Model for Embeddings')
+    await embeddingModelLabel.scrollIntoViewIfNeeded()
+    await embeddingModelLabel.click()
 
-    // Wait for accordion to expand and click embedding model dropdown
-    const embeddingModelDropdown = page
-      .locator('fieldset')
-      .filter({ hasText: /AI Model for Embeddings/i })
-      .locator('div.input')
-    await embeddingModelDropdown.scrollIntoViewIfNeeded()
-    await embeddingModelDropdown.click()
+    // Wait for dropdown menu to appear - verify by checking for the listbox
+    const modelListbox = embeddingFieldset.getByRole('listbox', { name: 'Available models' })
+    await expect(modelListbox).toBeVisible()
 
-    // Wait for dropdown menu to appear
-    const dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
-    await expect(dropdown).toBeVisible()
-
-    // Get all model options
-    const modelOptions = dropdown.locator('li button')
-    const count = await modelOptions.count()
+    // Get all model option buttons in the dropdown
+    const modelButtons = modelListbox.getByRole('option')
+    const count = await modelButtons.count()
 
     // Verify all visible models are Ollama models
     let openaiModelCount = 0
     let ollamaModelCount = 0
 
     for (let i = 0; i < count; i++) {
-      const modelText = await modelOptions.nth(i).textContent()
+      const modelText = await modelButtons.nth(i).textContent()
       if (
         modelText?.includes('openai') ||
         modelText?.toLowerCase().includes('gpt') ||
@@ -229,25 +213,24 @@ test.describe('Workspace Model Filtering', () => {
     await expect(page).toHaveURL(/\/assistants\/[^/]+$/)
 
     // Click language model dropdown
-    const languageModelDropdown = page
-      .locator('fieldset')
-      .filter({ hasText: /language model/i })
-      .locator('div.input')
-    await languageModelDropdown.scrollIntoViewIfNeeded()
-    await languageModelDropdown.click()
+    const languageModelFieldset = page.locator('fieldset').filter({ hasText: /language model/i })
+    const languageModelButton = languageModelFieldset.getByRole('button', { name: /language model:/i })
+    await languageModelButton.scrollIntoViewIfNeeded()
+    await languageModelButton.click()
 
-    // Get ALL models in first workspace (OpenAI)
-    let dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
-    await expect(dropdown).toBeVisible()
+    // Wait for dropdown menu to appear - verify by checking for the listbox
+    let modelListbox = languageModelFieldset.getByRole('listbox', { name: 'Available models' })
+    await expect(modelListbox).toBeVisible()
 
-    const firstWorkspaceModels = dropdown.locator('li button')
+    // Get all model option buttons in the dropdown
+    const firstWorkspaceModels = modelListbox.getByRole('option')
     const firstCount = await firstWorkspaceModels.count()
 
     let firstOpenaiCount = 0
     let firstOllamaCount = 0
 
     for (let i = 0; i < firstCount; i++) {
-      const modelText = await firstWorkspaceModels.nth(i).textContent()
+      const modelText = await firstWorkspaceModels.nth(i).getAttribute('aria-label')
       if (
         modelText?.includes('openai') ||
         modelText?.toLowerCase().includes('gpt') ||
@@ -294,25 +277,24 @@ test.describe('Workspace Model Filtering', () => {
     await expect(page).toHaveURL(/\/assistants\/[^/]+$/)
 
     // Click language model dropdown
-    const languageModelDropdown2 = page
-      .locator('fieldset')
-      .filter({ hasText: /language model/i })
-      .locator('div.input')
-    await languageModelDropdown2.scrollIntoViewIfNeeded()
-    await languageModelDropdown2.click()
+    const languageModelFieldset2 = page.locator('fieldset').filter({ hasText: /language model/i })
+    const languageModelButton2 = languageModelFieldset2.getByRole('button', { name: /language model:/i })
+    await languageModelButton2.scrollIntoViewIfNeeded()
+    await languageModelButton2.click()
 
-    // Get ALL models in second workspace (Ollama)
-    dropdown = page.locator('div.absolute.rounded-lg.shadow-lg')
-    await expect(dropdown).toBeVisible()
+    // Wait for dropdown menu to appear - verify by checking for the listbox
+    modelListbox = languageModelFieldset2.getByRole('listbox', { name: 'Available models' })
+    await expect(modelListbox).toBeVisible()
 
-    const secondWorkspaceModels = dropdown.locator('li button')
+    // Get all model option buttons in the dropdown
+    const secondWorkspaceModels = modelListbox.getByRole('option')
     const secondCount = await secondWorkspaceModels.count()
 
     let secondOpenaiCount = 0
     let secondOllamaCount = 0
 
     for (let i = 0; i < secondCount; i++) {
-      const modelText = await secondWorkspaceModels.nth(i).textContent()
+      const modelText = await secondWorkspaceModels.nth(i).getAttribute('aria-label')
       if (
         modelText?.includes('openai') ||
         modelText?.toLowerCase().includes('gpt') ||

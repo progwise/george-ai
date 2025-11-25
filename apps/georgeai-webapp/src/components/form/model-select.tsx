@@ -110,7 +110,15 @@ export const ModelSelect = <T extends ZodRawShape>({
       {label && (
         <legend className="fieldset-legend flex w-full justify-between">
           <label
-            className={twMerge('group-has-aria-invalid:text-error', (disabled || readonly) && 'text-base-content/50')}
+            className={twMerge(
+              'group-has-aria-invalid:text-error cursor-pointer',
+              (disabled || readonly) && 'text-base-content/50 cursor-default',
+            )}
+            onClick={() => {
+              if (!disabled && !readonly && detailsRef.current) {
+                detailsRef.current.open = !detailsRef.current.open
+              }
+            }}
           >
             {label}
           </label>
@@ -128,6 +136,8 @@ export const ModelSelect = <T extends ZodRawShape>({
         className={twMerge('dropdown w-full', disabled && 'cursor-not-allowed opacity-50')}
       >
         <summary
+          role="button"
+          aria-label={`${label || 'Model'}: ${selectedItem?.name || 'Not selected'}`}
           className={twMerge(
             'input flex w-full cursor-pointer justify-between bg-transparent font-normal',
             readonly && 'text-base-content/50',
@@ -148,7 +158,11 @@ export const ModelSelect = <T extends ZodRawShape>({
           <ChevronDownIcon className="size-4 shrink-0" />
         </summary>
 
-        <div className="dropdown-content fixed! bg-base-100 z-50 mr-4 flex max-h-96 shrink-0 flex-col shadow-md">
+        <div
+          className="dropdown-content bg-base-100 mr-4 flex max-h-96 shrink-0 flex-col shadow-md"
+          role="listbox"
+          aria-label="Available models"
+        >
           <div className="bg-base-200 flex shrink-0 items-center gap-2 p-2">
             <div className="grow">
               <input
@@ -192,6 +206,9 @@ export const ModelSelect = <T extends ZodRawShape>({
                 <div key={model.id}>
                   <button
                     type="button"
+                    role="option"
+                    aria-label={`${model.name} (${model.provider})`}
+                    aria-selected={selectedItem?.id === model.id}
                     className={twMerge(
                       'btn btn-dash btn-xs flex items-center gap-2',
                       selectedItem?.id === model.id && 'btn-active',

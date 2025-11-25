@@ -149,10 +149,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           />
 
           {/* Basic Information Card */}
-          <div className="collapse-arrow bg-base-100 collapse shadow-md">
-            <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-xl font-medium">{t('labels.basicInformation')}</div>
-            <div className="collapse-content">
+          <div className="card bg-base-100 shadow-md">
+            <div className="card-body">
+              <h2 className="card-title">{t('labels.basicInformation')}</h2>
               <div className="space-y-4">
                 {/* Library Name */}
                 <Input
@@ -178,10 +177,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </div>
 
           {/* Embedding Model Configuration Card */}
-          <div className="collapse-arrow bg-base-100 collapse shadow-md">
-            <input type="checkbox" />
-            <div className="collapse-title text-xl font-medium">{t('labels.libraryProcessingOptions')}</div>
-            <div className="collapse-content">
+          <div className="card bg-base-100 shadow-md">
+            <div className="card-body">
+              <h2 className="card-title">{t('labels.libraryProcessingOptions')}</h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <ModelSelect
@@ -228,10 +226,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             </div>
           </div>
           {/* File Processing Options Card */}
-          <div className="collapse-arrow bg-base-100 collapse shadow-md">
-            <input type="checkbox" />
-            <div className="collapse-title text-xl font-medium">{t('labels.fileConverterOptions')}</div>
-            <div className="collapse-content">
+          <div className="card bg-base-100 shadow-md">
+            <div className="card-body">
+              <h2 className="card-title">{t('labels.fileProcessingOptions')}</h2>
               <div className="space-y-6">
                 {/* PDF Processing Options */}
                 <div className="space-y-4">
@@ -359,10 +356,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             </div>
           </div>
         </form>
-        <div className="collapse-arrow bg-base-100 collapse mb-2 mt-4 shadow-md">
-          <input type="checkbox" />
-          <div className="collapse-title text-xl font-medium">{t('apiKeys.title')}</div>
-          <div className="collapse-content">
+        <div className="card bg-base-100 mb-2 mt-4 shadow-md">
+          <div className="card-body">
+            <h2 className="card-title">{t('apiKeys.title')}</h2>
             <ApiKeysCard libraryId={library.id} />
           </div>
         </div>
