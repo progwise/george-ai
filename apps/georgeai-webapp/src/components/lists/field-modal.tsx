@@ -95,7 +95,7 @@ graphql(`
 interface FieldModalProps {
   list: FieldModal_ListFragment
   maxOrder: number
-  editField?: FieldModal_FieldFragment | null
+  editField?: FieldModal_FieldFragment | null // Null for adding new field
   ref: React.RefObject<HTMLDialogElement | null>
 }
 
@@ -130,10 +130,8 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       return await addListFieldFn({ data })
     },
     onSuccess: (data) => {
-      // Show success toast with field name
       toastSuccess(t('lists.fields.addSuccess', { name: data.addListField.name }))
 
-      // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
       handleCloseModal()
     },
@@ -144,10 +142,8 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       return await updateListFieldFn({ data })
     },
     onSuccess: ({ updateListField }) => {
-      // Show success toast with field name
       toastSuccess(t('lists.fields.updateSuccess', { name: updateListField.name }))
 
-      // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
       handleCloseModal()
     },

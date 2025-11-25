@@ -8,7 +8,6 @@ import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
 import { ModelSelect } from '../form/model-select'
-import { LoadingSpinner } from '../loading-spinner'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -120,7 +119,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   }
 
   return (
-    <div className="grid h-full w-full grid-rows-[auto_1fr] gap-4">
+    <div className="grid h-full w-full grid-rows-[auto_1fr] gap-2">
       <div className="flex justify-end">
         <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap shadow-lg">
           <li>
@@ -137,10 +136,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </li>
         </ul>
       </div>
-      <div className="h-full w-full overflow-auto">
+      <div className="overflow-auto">
         <form id={library.id} ref={formRef} onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-4">
-          <LoadingSpinner isLoading={isPending} />
-          <input type="hidden" name="id" value={library.id || ''} />
+          <input type="hidden" name="id" value={library.id} />
           <input
             ref={fileConverterOptionsRef}
             type="hidden"
@@ -149,9 +147,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           />
 
           {/* Basic Information Card */}
-          <div className="card bg-base-100 shadow-md">
+          <div className="card bg-base-100 border-base-300 border shadow-md">
             <div className="card-body">
-              <h2 className="card-title">{t('labels.basicInformation')}</h2>
+              <h2 className="card-title text-base-content/80">{t('labels.basicInformation')}</h2>
               <div className="space-y-4">
                 {/* Library Name */}
                 <Input
@@ -177,9 +175,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </div>
 
           {/* Embedding Model Configuration Card */}
-          <div className="card bg-base-100 shadow-md">
+          <div className="card bg-base-100 border-base-300 border shadow-md">
             <div className="card-body">
-              <h2 className="card-title">{t('labels.libraryProcessingOptions')}</h2>
+              <h2 className="card-title text-base-content/80">{t('labels.libraryProcessingOptions')}</h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <ModelSelect
@@ -204,7 +202,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                 </div>
 
                 {/* Auto-process crawled files option */}
-                <div className="mt-4">
+                <div className="mt-2">
                   <label className="label cursor-pointer justify-start">
                     <input
                       name="autoProcessCrawledFiles"
@@ -214,7 +212,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     />
                     <div>
                       <span className="text-sm font-medium">Auto-process hash-skipped crawled files</span>
-                      <p className="mt-1 whitespace-normal break-words text-xs text-gray-600">
+                      <p className="text-base-content/80 wrap-break-word mt-1 whitespace-normal text-xs">
                         Automatically create content extraction tasks for files skipped during crawling due to unchanged
                         content (hash equality), but only if they have no successful or pending processing task. Note:
                         Uploaded files and new/updated crawled files always get tasks automatically.
@@ -226,9 +224,9 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             </div>
           </div>
           {/* File Processing Options Card */}
-          <div className="card bg-base-100 shadow-md">
+          <div className="card bg-base-100 border-base-300 border shadow-md">
             <div className="card-body">
-              <h2 className="card-title">{t('labels.fileProcessingOptions')}</h2>
+              <h2 className="card-title text-base-content/80">{t('labels.fileProcessingOptions')}</h2>
               <div className="space-y-6">
                 {/* PDF Processing Options */}
                 <div className="space-y-4">
@@ -356,9 +354,10 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             </div>
           </div>
         </form>
-        <div className="card bg-base-100 mb-2 mt-4 shadow-md">
+
+        <div className="card bg-base-100 border-base-300 mt-4 border shadow-md">
           <div className="card-body">
-            <h2 className="card-title">{t('apiKeys.title')}</h2>
+            <h2 className="card-title text-base-content/80">{t('apiKeys.title')}</h2>
             <ApiKeysCard libraryId={library.id} />
           </div>
         </div>

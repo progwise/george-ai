@@ -24,20 +24,14 @@ interface ReferencedFieldsProps {
 export const ReferencedFields = ({ list, fieldId, fieldReferences }: ReferencedFieldsProps) => {
   const { t } = useTranslation()
 
-  if (list.fields?.length === 0) {
-    return (
-      <div className="text-base-content/50 py-4 text-center text-sm">{t('lists.contextSources.noFieldsAvailable')}</div>
-    )
-  }
-
   return (
     <div className="space-y-4">
       <p className="text-base-content/60 text-sm">{t('lists.contextSources.referencedFieldsHelp')}</p>
 
       {/* Checkboxes for all available fields */}
       <div className="space-y-1">
-        {(list.fields || [])
-          .filter((field) => field.id !== fieldId) // ← Add this line
+        {list.fields
+          .filter((field) => field.id !== fieldId) // No self-referencing
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((referencedField) => (
             <label
