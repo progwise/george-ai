@@ -187,6 +187,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                           <button
                             type="button"
                             className="hover:text-primary flex items-center gap-1"
+                            aria-label={`Sort by ${field.name}`}
                             onClick={() => toggleSorting(field.id)}
                           >
                             {field.name}
@@ -195,7 +196,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             </span>
                           </button>
                         ) : (
-                          <span>{field.name}</span>
+                          <span aria-label={`Field column ${field.name}`}>{field.name}</span>
                         )}
 
                         {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) && (
@@ -210,6 +211,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                         <button
                           type="button"
                           className="btn btn-ghost btn-xs opacity-100"
+                          aria-label={`Field actions for ${field.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
                             setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)

@@ -72,6 +72,7 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                       className="input input-sm w-full"
                       defaultValue={query.urlTemplate || ''}
                       placeholder={t('lists.contextSources.urlTemplatePlaceholder')}
+                      aria-label={t('lists.contextSources.urlTemplate')}
                     />
                   </div>
                   <div>
@@ -84,6 +85,7 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                       min="100"
                       max="10000"
                       step="100"
+                      aria-label={t('lists.contextSources.webFetchMaxTokens')}
                     />
                   </div>
                 </div>
@@ -123,6 +125,7 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                   name={`webFetch_urlTemplate_new_${newIndex}`}
                   className="input input-sm w-full"
                   placeholder={t('lists.contextSources.urlTemplatePlaceholder')}
+                  aria-label={t('lists.contextSources.urlTemplate')}
                 />
                 {newIndex === 0 && (
                   <p className="text-base-content/60 mt-1 text-xs">{t('lists.contextSources.templateHelp')}</p>
@@ -137,6 +140,7 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                   name={`webFetch_maxTokens_new_${newIndex}`}
                   className="input input-sm w-full"
                   placeholder="1000"
+                  aria-label={t('lists.contextSources.webFetchMaxTokens')}
                   min="100"
                   max="10000"
                   step="100"

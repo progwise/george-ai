@@ -107,6 +107,11 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
   const [activeTab, setActiveTab] = useState<'instruction' | 'context'>('instruction')
   const [contextSubTab, setContextSubTab] = useState<'fields' | 'similarity' | 'webFetch'>('fields')
 
+  const fieldId = useMemo(() => editField?.id || '', [editField])
+  const fieldReferences = useMemo(() => editField?.contextFieldReferences || [], [editField])
+  const vectorSearches = useMemo(() => editField?.contextVectorSearches || [], [editField])
+  const webFetches = useMemo(() => editField?.contextWebFetches || [], [editField])
+
   const isEditMode = useMemo(() => !!editField, [editField])
 
   const handleCloseModal = () => {
@@ -308,10 +313,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
   )
 
   // Calculate total context sources count
-  const totalContextCount =
-    (editField?.contextFieldReferences?.length || 0) +
-    (editField?.contextVectorSearches?.length || 0) +
-    (editField?.contextWebFetches?.length || 0)
+  const totalContextCount = (fieldReferences.length || 0) + (vectorSearches.length || 0) + (webFetches.length || 0)
 
   return (
     <dialog ref={ref} className="modal">
@@ -322,7 +324,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           {/* Hidden Fields */}
-          <input type="hidden" name="id" value={editField?.id || ''} />
+          <input type="hidden" name="id" value={fieldId} />
           <input type="hidden" name="listId" value={list.id} />
           <input type="hidden" name="sourceType" value="llm_computed" />
           <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
@@ -348,6 +350,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                   type="radio"
                   name={tablistName}
                   className="tab"
+                  role="tab"
                   aria-label={t('lists.fields.stepWhat')}
                   checked={activeTab === 'instruction'}
                   onChange={() => setActiveTab('instruction')}
@@ -356,6 +359,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                   type="radio"
                   name={tablistName}
                   className="tab"
+                  role="tab"
                   checked={activeTab === 'context'}
                   aria-label={
                     totalContextCount > 0
@@ -470,17 +474,13 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                     {/* Sub-Tab Content */}
                     <div className="flex-1 overflow-y-auto p-6">
                       <div className={twMerge('', contextSubTab !== 'fields' && 'hidden')}>
-                        <ReferencedFields
-                          list={list}
-                          fieldId={editField ? editField.id : ''}
-                          fieldReferences={editField?.contextFieldReferences || []}
-                        />
+                        <ReferencedFields list={list} fieldId={fieldId} fieldReferences={fieldReferences} />
                       </div>
                       <div className={twMerge(contextSubTab !== 'similarity' && 'hidden')}>
-                        <SimilarContent vectorSearches={editField?.contextVectorSearches || []} />
+                        <SimilarContent vectorSearches={vectorSearches} />
                       </div>
                       <div className={twMerge(contextSubTab !== 'webFetch' && 'hidden')}>
-                        <WebFetch webFetches={editField?.contextWebFetches || []} />
+                        <WebFetch webFetches={webFetches} />
                       </div>
                     </div>
                   </div>

@@ -49,6 +49,7 @@ export const ReferencedFields = ({ list, fieldId, fieldReferences }: ReferencedF
                 name={`contextFieldReference_${referencedField.id}`}
                 value={referencedField.id}
                 className="checkbox checkbox-sm"
+                aria-label={`Reference field: ${referencedField.name}`}
                 defaultChecked={fieldReferences.some((ref) => ref.contextFieldId === referencedField.id)}
               />
               <span className="flex-1 text-sm">{referencedField.name}</span>

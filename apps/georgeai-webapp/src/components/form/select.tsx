@@ -87,7 +87,11 @@ export const Select = <T extends ZodRawShape>({
             const selectedOption = options.find((option) => option.id === event.target.value) || null
             handleChange(selectedOption)
           }}
+          aria-label={label}
           aria-placeholder={placeholder}
+          disabled={disabled}
+          aria-readonly={readonly}
+          aria-required={required}
         >
           {placeholder && (
             <option value="" disabled>

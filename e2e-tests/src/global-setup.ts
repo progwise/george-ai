@@ -26,7 +26,7 @@ async function globalSetup() {
       INSERT INTO "User" (id, email, username, "isAdmin", "defaultWorkspaceId", "createdAt", "updatedAt")
       VALUES (gen_random_uuid(), $1, $2, true, $3, NOW(), NOW())
       ON CONFLICT (email)
-      DO UPDATE SET username = $2, "isAdmin" = true, "updatedAt" = NOW()
+      DO UPDATE SET username = $2, "isAdmin" = true, "updatedAt" = NOW(), "defaultWorkspaceId" = $3
       RETURNING id
     `,
       [E2E_EMAIL, E2E_USERNAME, SHARED_WORKSPACE_ID],
@@ -225,6 +225,111 @@ async function globalSetup() {
         console.log(`  ⚠️  Failed to discover Ollama models:`, error)
       }
     }
+
+    // Step 5: Create test library with files for list field modal tests
+    console.log('  📚 Creating test library with sample files...')
+    const workspace1Id = '00000000-0000-0000-0000-000000000002'
+
+    // Create the test library (with ownerId from the E2E user created above)
+    const libraryResult = await client.query(
+      `
+      INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, $2, 'E2E Test Library - Field Modal', 'Test library for enrichment field E2E tests', NOW(), NOW())
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `,
+      [workspace1Id, userId],
+    )
+
+    let libraryId: string
+    if (libraryResult.rows.length > 0) {
+      libraryId = libraryResult.rows[0].id
+      console.log(`  ✅ Created test library: E2E Test Library - Field Modal`)
+    } else {
+      // Library already exists, fetch its ID
+      const existingLibrary = await client.query('SELECT id FROM "AiLibrary" WHERE name = $1 AND "workspaceId" = $2', [
+        'E2E Test Library - Field Modal',
+        workspace1Id,
+      ])
+      libraryId = existingLibrary.rows[0].id
+      console.log(`  ℹ️  Test library already exists: E2E Test Library - Field Modal`)
+    }
+
+    // Add a few sample files to the library (use correct table name: AiLibraryFile)
+    const sampleFiles = [
+      { name: 'E2E Test Document 1.txt', markdown: '# Document 1\n\nThis is test document 1 content.' },
+      { name: 'E2E Test Document 2.txt', markdown: '# Document 2\n\nThis is test document 2 content.' },
+      { name: 'E2E Test Document 3.txt', markdown: '# Document 3\n\nThis is test document 3 content.' },
+    ]
+
+    for (const file of sampleFiles) {
+      await client.query(
+        `
+        INSERT INTO "AiLibraryFile" (id, "libraryId", name, "docPath", "mimeType", size, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, 'text/plain', 100, NOW(), NOW())
+        ON CONFLICT DO NOTHING
+      `,
+        [libraryId, file.name, `/tmp/e2e/${file.name}`],
+      )
+    }
+    console.log(`  ✅ Added ${sampleFiles.length} sample files to test library`)
+
+    // Delete any existing test lists (to ensure clean state)
+    // First delete list sources (due to foreign key constraint)
+    await client.query(
+      `
+      DELETE FROM "AiListSource"
+      WHERE "listId" IN (
+        SELECT id FROM "AiList"
+        WHERE name = $1 AND "workspaceId" = $2
+      )
+    `,
+      ['E2E Test List - Field Modal', workspace1Id],
+    )
+    // Then delete the list itself
+    await client.query(`DELETE FROM "AiList" WHERE name = $1 AND "workspaceId" = $2`, [
+      'E2E Test List - Field Modal',
+      workspace1Id,
+    ])
+
+    // Create the test list (with ownerId)
+    const listResult = await client.query(
+      `
+      INSERT INTO "AiList" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, $2, 'E2E Test List - Field Modal', NOW(), NOW())
+      RETURNING id
+    `,
+      [workspace1Id, userId],
+    )
+    const listId = listResult.rows[0].id
+    console.log(`  ✅ Created test list: E2E Test List - Field Modal`)
+
+    // Add a list source (correct table name: AiListSource)
+    // This tells the list to pull items from this library
+    // Items are computed at query time by joining AiLibraryFile with AiListSource
+    await client.query(
+      `
+      INSERT INTO "AiListSource" (
+        id, "listId", "libraryId", "createdAt"
+      )
+      VALUES (gen_random_uuid(), $1, $2, NOW())
+    `,
+      [listId, libraryId],
+    )
+    console.log(`  ✅ Added library source to test list`)
+    console.log(`  📝 List items will be computed from library files at query time`)
+
+    // Add a simple field to the list so tests can reference it
+    await client.query(
+      `
+      INSERT INTO "AiListField" (
+        id, "listId", name, type, "sourceType", "fileProperty", "order", "createdAt"
+      )
+      VALUES (gen_random_uuid(), $1, 'Name', 'string', 'file_property', 'name', 0, NOW())
+    `,
+      [listId],
+    )
+    console.log(`  ✅ Added initial field (Name) to test list for field references`)
 
     console.log('✅ E2E Global Setup completed')
   } catch (error) {

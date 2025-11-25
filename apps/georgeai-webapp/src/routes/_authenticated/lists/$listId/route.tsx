@@ -80,7 +80,7 @@ function RouteComponent() {
         </Link>
         <input type="radio" className="tab hidden" defaultChecked />
         <div className="tab-content bg-base-100 border-base-300 border p-3">
-          <div className="max-w-dvw relative max-h-[100dvh] overflow-scroll">
+          <div className="relative overflow-scroll">
             <Outlet />
           </div>
         </div>

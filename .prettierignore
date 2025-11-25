@@ -16,3 +16,4 @@ routeTree.gen.ts
 .astro
 .nitro
 playwright-report
+test-results
