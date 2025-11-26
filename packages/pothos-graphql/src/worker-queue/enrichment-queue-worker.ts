@@ -2,7 +2,7 @@ import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-c
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
-import { EnrichmentMetadata, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
+import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
@@ -77,6 +77,7 @@ async function processQueueItem({
     })
 
     try {
+      // Add field reference context sources
       messages.push(
         ...metadata.input.contextFields.map((ctx) => ({
           role: 'user' as const,
@@ -84,40 +85,127 @@ async function processQueueItem({
         })),
       )
 
-      if (metadata.input.useVectorStore) {
-        if (
-          !metadata.input.contentQuery ||
-          !metadata.input.libraryEmbeddingModel ||
-          !metadata.input.libraryEmbeddingModelProvider
-        ) {
-          throw new Error(
-            `Content query, library embedding model, and provider are required when using vector store. Validation should have caught this. Enrichment Task ID: ${enrichmentTask.id}`,
-          )
+      // Process vector search context sources
+      if (metadata.input.contextVectorSearches && metadata.input.contextVectorSearches.length > 0) {
+        for (const vectorSearch of metadata.input.contextVectorSearches) {
+          try {
+            // Substitute {fieldName} placeholders in query template
+            const query = substituteTemplate(vectorSearch.queryTemplate, metadata.input.contextFields)
+
+            if (!query) {
+              const issue = `vectorSearchSkipped: template substitution failed for "${vectorSearch.queryTemplate}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // Check if library has embedding model configured
+            if (!metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
+              const issue = `vectorSearchSkipped: library has no embedding model configured`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // Execute vector search
+            const maxChunks = vectorSearch.maxChunks || 5
+            const maxDistance = vectorSearch.maxDistance || 0.5
+
+            const allChunks = await getSimilarChunks({
+              workspaceId,
+              libraryId: metadata.input.libraryId,
+              fileId: metadata.input.fileId,
+              term: query,
+              embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
+              embeddingsModelName: metadata.input.libraryEmbeddingModel,
+              hits: maxChunks,
+            })
+
+            // Filter chunks by distance threshold
+            const chunks = allChunks.filter((chunk) => chunk.distance <= maxDistance)
+
+            if (chunks.length > 0) {
+              // Truncate content if maxContentTokens is specified
+              // Rough estimate: 1 token ≈ 4 characters
+              const maxChars = vectorSearch.maxContentTokens ? vectorSearch.maxContentTokens * 4 : undefined
+              const content = chunks.map((chunk) => chunk.text).join('\n\n')
+              const truncatedContent =
+                maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
+
+              messages.push({
+                role: 'user' as const,
+                content: `Here is relevant context from vector search (query: "${query}"):\n${truncatedContent}`,
+              })
+
+              // Store chunks in output metadata
+              outputMetaData.similarChunks?.push(
+                ...chunks.map((chunk) => ({
+                  id: chunk.id,
+                  fileName: chunk.fileName,
+                  fileId: chunk.fileId,
+                  text: chunk.text,
+                  distance: chunk.distance,
+                })),
+              )
+            } else {
+              const issue =
+                allChunks.length > 0
+                  ? `vectorSearchNoResults: found ${allChunks.length} chunks but all exceeded maxDistance ${maxDistance}`
+                  : `vectorSearchNoResults: no similar chunks found for query "${query}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+            }
+          } catch (error) {
+            const issue = `vectorSearchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            console.warn(`⚠️ ${issue}`)
+            outputMetaData.issues.push(issue)
+          }
         }
-        const similarChunks = await getSimilarChunks({
-          workspaceId,
-          libraryId: metadata.input.libraryId,
-          fileId: metadata.input.fileId,
-          term: metadata.input.contentQuery,
-          embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
-          embeddingsModelName: metadata.input.libraryEmbeddingModel,
-          hits: 3,
-        })
+      }
 
-        outputMetaData.similarChunks = similarChunks.map((chunk) => ({
-          id: chunk.id,
-          fileName: chunk.fileName,
-          fileId: chunk.fileId,
-          text: chunk.text,
-          distance: chunk.distance,
-        }))
+      // Process web fetch context sources
+      // TODO(#886): Replace simple fetch() with web crawler integration
+      // Current implementation uses raw HTML which provides poor quality context.
+      // Should trigger crawler to get semantic markdown from library files instead.
+      if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
+        for (const webFetch of metadata.input.contextWebFetches) {
+          try {
+            // Substitute {fieldName} placeholders in URL template
+            const url = substituteTemplate(webFetch.urlTemplate, metadata.input.contextFields)
 
-        messages.push({
-          role: 'user',
-          content: `Here is the search result in the vector store:\n${similarChunks
-            .map((chunk) => chunk.text)
-            .join('\n\n')}`,
-        })
+            if (!url) {
+              const issue = `webFetchSkipped: template substitution failed for "${webFetch.urlTemplate}"`
+              console.warn(`⚠️ ${issue}`)
+              outputMetaData.issues.push(issue)
+              continue
+            }
+
+            // TEMPORARY: Simple fetch() - returns raw HTML (low quality)
+            // See issue #886 for proper crawler integration
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            }
+
+            let content = await response.text()
+
+            // Truncate content if maxContentTokens is specified
+            // Rough estimate: 1 token ≈ 4 characters
+            const maxChars = webFetch.maxContentTokens ? webFetch.maxContentTokens * 4 : undefined
+            if (maxChars && content.length > maxChars) {
+              content = content.slice(0, maxChars) + '...'
+            }
+
+            messages.push({
+              role: 'user' as const,
+              content: `Here is context from web fetch (URL: "${url}"):\n${content}`,
+            })
+          } catch (error) {
+            const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            console.warn(`⚠️ ${issue}`)
+            outputMetaData.issues.push(issue)
+          }
+        }
       }
 
       outputMetaData.messages = messages

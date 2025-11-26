@@ -422,8 +422,6 @@ model AiListField {
   sourceType      String
   fileProperty    String?
   prompt          String?
-  useVectorStore  Boolean?
-  contentQuery    String?
   failureTerms    String?
   languageModelId String?
   enrichmentTasks AiEnrichmentTask[]
@@ -435,13 +433,23 @@ model AiListField {
 }
 
 model AiListFieldContext {
-  fieldId        String
-  contextFieldId String
-  createdAt      DateTime    @default(now())
-  contextField   AiListField @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
-  field          AiListField @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
+  id               String                     @id @default(cuid())
+  fieldId          String
+  contextType      AiListFieldContextType     @default(fieldReference)
+  contextFieldId   String?
+  contextQuery     Json?
+  maxContentTokens Int?
+  createdAt        DateTime                   @default(now())
+  contextField     AiListField?               @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
+  field            AiListField                @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
 
-  @@id([fieldId, contextFieldId])
+  @@unique([fieldId, contextFieldId])
+}
+
+enum AiListFieldContextType {
+  fieldReference
+  vectorSearch
+  webFetch
 }
 
 model AiListItemCache {

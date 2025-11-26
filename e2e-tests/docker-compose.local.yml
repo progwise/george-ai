@@ -1,0 +1,155 @@
+# E2E Test Environment - Docker Compose
+# WARNING: Hardcoded passwords are for LOCAL TESTING ONLY
+# NEVER use these credentials in production environments
+
+services:
+  # Main PostgreSQL database for backend
+  gai-e2e-backend-db:
+    image: postgres:16
+    container_name: gai-e2e-backend-db
+    environment:
+      POSTGRES_DB: chatweb
+      POSTGRES_USER: chatweb
+      POSTGRES_PASSWORD: password # LOCAL TESTING ONLY
+    ports:
+      - '5442:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U chatweb']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - george-ai-e2e
+
+  # Typesense vector search
+  gai-e2e-typesense:
+    image: typesense/typesense:27.1
+    container_name: gai-e2e-typesense
+    environment:
+      - TYPESENSE_API_HOST=gai-e2e-typesense
+      - TYPESENSE_API_PORT=8108
+      - TYPESENSE_API_PROTOCOL=http
+      - TYPESENSE_API_KEY=xyz-test-key
+    volumes:
+      - typesense-data-local:/tmp/typesense
+    ports:
+      - '8118:8108'
+    command: '--data-dir /tmp/typesense --api-key=xyz-test-key --enable-cors'
+    networks:
+      - george-ai-e2e
+
+  # Backend API
+  gai-e2e-backend:
+    build:
+      context: ..
+      dockerfile: apps/georgeai-backend/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    container_name: gai-e2e-backend
+    environment:
+      # Node environment
+      NODE_ENV: production
+
+      # Database
+      DATABASE_URL: postgresql://chatweb:password@gai-e2e-backend-db:5432/chatweb?schema=public
+
+      # Typesense
+      TYPESENSE_API_HOST: gai-e2e-typesense
+      TYPESENSE_API_PORT: 8118
+      TYPESENSE_API_PROTOCOL: http
+      TYPESENSE_API_KEY: xyz-test-key
+
+      # Keycloak (shared production instance with test realm)
+      KEYCLOAK_URL: https://keycloak.george-ai.net
+      KEYCLOAK_REALM: george-ai-e2e-test
+      KEYCLOAK_CLIENT_ID: george-ai-e2e
+      KEYCLOAK_REDIRECT_URL: http://localhost:3011
+
+      # Backend config
+      GRAPHQL_API_KEY: TestKey
+      BACKEND_URL: http://gai-e2e-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3013
+      PUBLIC_APP_URL: http://localhost:3011
+
+      # File uploads
+      UPLOADS_PATH: /tmp/uploads
+
+      # Workers (disabled for e2e tests)
+      AUTOSTART_ENRICHMENT_WORKER: true
+      AUTOSTART_CONTENT_PROCESSING_WORKER: true
+
+      # Ollama (shared remote instance, optional)
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      OLLAMA_VRAM_GB: 16
+
+      # OPENAI_API_KEY
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+      # Git
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    ports:
+      - '3013:3003'
+    depends_on:
+      gai-e2e-backend-db:
+        condition: service_healthy
+      gai-e2e-typesense:
+        condition: service_started
+    networks:
+      - george-ai-e2e
+
+  # Frontend web application (React + TanStack)
+  gai-e2e-webapp:
+    build:
+      context: ..
+      dockerfile: apps/georgeai-webapp/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    container_name: gai-e2e-webapp
+    environment:
+      # Node environment
+      NODE_ENV: production
+
+      # Backend API
+      BACKEND_URL: http://gai-e2e-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3013
+
+      # Keycloak (shared production instance with test realm)
+      KEYCLOAK_URL: https://keycloak.george-ai.net
+      KEYCLOAK_REALM: george-ai-e2e-test
+      KEYCLOAK_CLIENT_ID: george-ai-e2e
+      KEYCLOAK_REDIRECT_URL: http://localhost:3011
+
+      # Frontend config
+      PUBLIC_APP_URL: http://localhost:3011
+
+      # Git
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    ports:
+      - '3011:3000'
+    depends_on:
+      gai-e2e-backend:
+        condition: service_started
+    networks:
+      - george-ai-e2e
+
+  # Marketing website (Astro)
+  gai-e2e-web:
+    build:
+      context: ..
+      dockerfile: apps/georgeai-web/Dockerfile
+    container_name: gai-e2e-web
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4331
+    ports:
+      - '4331:4331'
+    networks:
+      - george-ai-e2e
+
+networks:
+  george-ai-e2e:
+    driver: bridge
+
+volumes:
+  typesense-data-local:

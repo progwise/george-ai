@@ -11,6 +11,7 @@ import {
   AiLibraryFileInput,
   AiLibraryFileSortOrder,
   AiLibraryInput,
+  AiListFieldContextInput,
   AiListFieldInput,
   AiListFilterInput,
   AiListFilterType,
@@ -26,6 +27,7 @@ import {
   EnrichmentStatus,
   ExtractionStatus,
   LibrarySortOrder,
+  ListFieldContextType,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
@@ -64,6 +66,8 @@ export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
 
 export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
+
+export const ListFieldContextTypeSchema = z.nativeEnum(ListFieldContextType)
 
 export const ListFieldFilePropertySchema = z.nativeEnum(ListFieldFileProperty)
 
@@ -174,10 +178,18 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   })
 }
 
+export function AiListFieldContextInputSchema(): z.ZodObject<Properties<AiListFieldContextInput>> {
+  return z.object({
+    contextFieldId: z.string().nullish(),
+    contextQuery: z.string().nullish(),
+    contextType: ListFieldContextTypeSchema,
+    maxContentTokens: z.number().nullish(),
+  })
+}
+
 export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
   return z.object({
-    contentQuery: z.string().nullish(),
-    context: z.array(z.string()).nullish(),
+    contextSources: z.array(z.lazy(() => AiListFieldContextInputSchema())).nullish(),
     failureTerms: z.string().nullish(),
     fileProperty: z.string().nullish(),
     languageModelId: z.string().nullish(),
@@ -186,7 +198,6 @@ export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInpu
     prompt: z.string().nullish(),
     sourceType: ListFieldSourceTypeSchema,
     type: ListFieldTypeSchema,
-    useVectorStore: z.boolean().nullish(),
   })
 }
 

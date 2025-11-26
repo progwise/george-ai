@@ -85,7 +85,7 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className="min-h-0 min-w-0">
+      <div className="overflow-auto">
         <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
       </div>
     </div>

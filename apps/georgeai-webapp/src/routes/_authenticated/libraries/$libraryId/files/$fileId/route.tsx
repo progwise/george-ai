@@ -19,9 +19,11 @@ function RouteComponent() {
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: params.fileId }))
 
   return (
-    <div className="flex flex-col gap-5">
-      <FileCaptionCard file={aiLibraryFile} />
-      <div role="tabpanel">
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div className="flex flex-col gap-2">
+        <FileCaptionCard file={aiLibraryFile} />
+      </div>
+      <div className="min-h-0 min-w-0">
         <Outlet />
       </div>
     </div>

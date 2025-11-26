@@ -6,7 +6,12 @@ import { Decimal } from '@prisma/client/runtime/library'
 
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { CRAWLER_URI_TYPES } from '../domain/crawler/crawler-uri-types'
-import { LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../domain/list'
+import {
+  LIST_FIELD_CONTEXT_TYPES,
+  LIST_FIELD_FILE_PROPERTIES,
+  LIST_FIELD_SOURCE_TYPES,
+  LIST_FIELD_TYPES,
+} from '../domain/list'
 import { prisma } from '../prisma'
 import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
@@ -33,6 +38,10 @@ const builder = new SchemaBuilder<{
     ListFieldFileProperty: {
       Input: (typeof LIST_FIELD_FILE_PROPERTIES)[number]
       Output: (typeof LIST_FIELD_FILE_PROPERTIES)[number]
+    }
+    ListFieldContextType: {
+      Input: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
+      Output: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
     }
     ProcessingStatus: {
       Input: (typeof PROCESSING_STATUS)[number]

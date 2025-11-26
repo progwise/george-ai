@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
@@ -74,7 +74,7 @@ interface ListFieldsTableProps {
 
 export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { t } = useTranslation()
-
+  const fieldModalDialogRef = useRef<HTMLDialogElement>(null)
   const {
     visibleFields,
     isResizing,
@@ -90,7 +90,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { getSortingDirection, toggleSorting } = useListSettings(list.id)
   const { reorderFields } = useListActions(list.id)
 
-  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false)
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
@@ -124,17 +123,12 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
 
   const handleAddField = () => {
     setEditField(null)
-    setIsFieldModalOpen(true)
+    fieldModalDialogRef.current?.showModal()
   }
 
   const handleEditField = (fieldData: FieldModal_FieldFragment) => {
     setEditField(fieldData)
-    setIsFieldModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsFieldModalOpen(false)
-    setEditField(null)
+    fieldModalDialogRef.current?.showModal()
   }
 
   const handleFieldReorder = (targetFieldId: string, event: React.DragEvent) => {
@@ -193,6 +187,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                           <button
                             type="button"
                             className="hover:text-primary flex items-center gap-1"
+                            aria-label={`Sort by ${field.name}`}
                             onClick={() => toggleSorting(field.id)}
                           >
                             {field.name}
@@ -201,7 +196,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             </span>
                           </button>
                         ) : (
-                          <span>{field.name}</span>
+                          <span aria-label={`Field column ${field.name}`}>{field.name}</span>
                         )}
 
                         {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) && (
@@ -216,6 +211,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                         <button
                           type="button"
                           className="btn btn-ghost btn-xs opacity-100"
+                          aria-label={`Field actions for ${field.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
                             setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
@@ -402,8 +398,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
       {/* Field Modal (Add/Edit) */}
       <FieldModal
         list={list}
-        isOpen={isFieldModalOpen}
-        onClose={handleCloseModal}
+        ref={fieldModalDialogRef}
         maxOrder={Math.max(0, ...visibleFields.map((f) => f.order))}
         editField={editField}
       />

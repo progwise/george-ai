@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useId, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -18,13 +18,12 @@ import { Input } from '../form/input'
 import { ModelSelect } from '../form/model-select'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { ReferencedFields } from './context/referenced-fields'
+import { SimilarContent } from './context/similar-content'
+import { WebFetch } from './context/web-fetch'
 import { addListFieldFn, updateListFieldFn } from './server-functions'
 
-export const getListFieldFormSchema = (
-  editMode: 'update' | 'create',
-  language: Language,
-  contentQueryEnabled: boolean,
-) =>
+export const getListFieldFormSchema = (editMode: 'update' | 'create', language: Language) =>
   z.object({
     id:
       editMode === 'update'
@@ -49,27 +48,8 @@ export const getListFieldFormSchema = (
       .string()
       .optional()
       .transform((val) => val?.trim() || null),
-    contentQuery: contentQueryEnabled
-      ? z
-          .string()
-          .transform((val) => val?.trim() || '')
-          .refine((val) => val.length >= 2, translate('lists.fields.contentQueryTooShort', language))
-          .refine((val) => val.length <= 100, translate('lists.fields.contentQueryTooLong', language))
-      : z
-          .string()
-          .optional()
-          .transform((val) => val?.trim() || null),
     order: z.string().optional(),
     fileProperty: z.string().optional(),
-    useVectorStore: z
-      .string()
-      .optional()
-      .transform((val) => val === 'on'),
-    context: z
-      .string()
-      .optional()
-      .transform((commaSeparatedList) => commaSeparatedList && commaSeparatedList.split(','))
-      .pipe(z.array(z.string()).optional()),
   })
 
 // Infer TypeScript type from schema
@@ -94,52 +74,55 @@ graphql(`
     type
     prompt
     failureTerms
-    contentQuery
     languageModel {
       id
       provider
       name
     }
-    useVectorStore
     order
-    context {
-      contextFieldId
+    contextFieldReferences {
+      ...ReferencedFields_FieldReferences
+    }
+    contextVectorSearches {
+      ...SimilarContent_VectorSearches
+    }
+    contextWebFetches {
+      ...WebFetch_WebFetches
     }
   }
 `)
 
 interface FieldModalProps {
   list: FieldModal_ListFragment
-  isOpen: boolean
-  onClose: () => void
   maxOrder: number
-  editField?: FieldModal_FieldFragment | null
+  editField?: FieldModal_FieldFragment | null // Null for adding new field
+  ref: React.RefObject<HTMLDialogElement | null>
 }
 
-export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: FieldModalProps) => {
+export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
 
-  const availableFields = list.fields || []
+  const tablistName = useId()
+  const [activeTab, setActiveTab] = useState<'instruction' | 'context'>('instruction')
+  const [contextSubTab, setContextSubTab] = useState<'fields' | 'similarity' | 'webFetch'>('fields')
 
-  // Get current context field IDs for edit mode
-  const currentContextIds = useMemo(() => editField?.context?.map((c) => c.contextFieldId) || [], [editField])
+  const fieldId = useMemo(() => editField?.id || '', [editField])
+  const fieldReferences = useMemo(() => editField?.contextFieldReferences || [], [editField])
+  const vectorSearches = useMemo(() => editField?.contextVectorSearches || [], [editField])
+  const webFetches = useMemo(() => editField?.contextWebFetches || [], [editField])
 
   const isEditMode = useMemo(() => !!editField, [editField])
 
-  // State for vector store checkbox
-  const [contentQueryEnabled, setContentQueryEnabled] = useState(false)
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setContentQueryEnabled(!!editField?.useVectorStore)
-    }, 100) // slight delay to ensure checkbox state updates correctly when modal opens in edit mode
-    return () => clearTimeout(timeout)
-  }, [editField])
+  const handleCloseModal = () => {
+    setActiveTab('instruction')
+    setContextSubTab('fields')
+    ref.current?.close()
+  }
 
   const schema = useMemo(
-    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language, contentQueryEnabled),
-    [isEditMode, language, contentQueryEnabled],
+    () => getListFieldFormSchema(isEditMode ? 'update' : 'create', language),
+    [isEditMode, language],
   )
 
   const addFieldMutation = useMutation({
@@ -147,12 +130,10 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
       return await addListFieldFn({ data })
     },
     onSuccess: (data) => {
-      // Show success toast with field name
       toastSuccess(t('lists.fields.addSuccess', { name: data.addListField.name }))
 
-      // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
-      onClose()
+      handleCloseModal()
     },
   })
 
@@ -161,12 +142,10 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
       return await updateListFieldFn({ data })
     },
     onSuccess: ({ updateListField }) => {
-      // Show success toast with field name
       toastSuccess(t('lists.fields.updateSuccess', { name: updateListField.name }))
 
-      // Invalidate queries to refetch list data
       queryClient.invalidateQueries({ queryKey: ['AiList', { listId: list.id }] })
-      onClose()
+      handleCloseModal()
     },
   })
 
@@ -177,10 +156,141 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
       toastError(errors.map((error) => <div key={error}>{error}</div>))
       return
     }
+
+    // Extract context sources from form
+    const formData = new FormData(e.currentTarget)
+    const contextFieldReferences: Array<{
+      id?: string
+      contextFieldId: string
+    }> = []
+    const contextVectorSearches: Array<{
+      id?: string
+      contextQuery: string
+      maxContentTokens: number
+    }> = []
+    const contextWebFetches: Array<{
+      id?: string
+      contextQuery: string
+      maxContentTokens: number
+    }> = []
+
+    // Extract field references (checkboxes)
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('contextFieldReference_') && value) {
+        contextFieldReferences.push({
+          contextFieldId: value as string,
+        })
+      }
+    }
+
+    // Extract existing vector searches (with IDs)
+    let vectorSearchIndex = 0
+    while (formData.has(`vectorSearch_id_${vectorSearchIndex}`)) {
+      const id = formData.get(`vectorSearch_id_${vectorSearchIndex}`) as string
+      const queryTemplate = formData.get(`vectorSearch_queryTemplate_${vectorSearchIndex}`) as string
+      const maxTokens = formData.get(`vectorSearch_maxTokens_${vectorSearchIndex}`) as string
+      const maxChunks = formData.get(`vectorSearch_maxChunks_${vectorSearchIndex}`) as string
+      const maxDistance = formData.get(`vectorSearch_maxDistance_${vectorSearchIndex}`) as string
+
+      if (queryTemplate?.trim()) {
+        contextVectorSearches.push({
+          id,
+          contextQuery: JSON.stringify({
+            queryTemplate: queryTemplate.trim(),
+            maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
+            maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+          }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      vectorSearchIndex++
+    }
+
+    // Add new vector searches (indexed)
+    let newVectorSearchIndex = 0
+    while (formData.has(`vectorSearch_queryTemplate_new_${newVectorSearchIndex}`)) {
+      const queryTemplate = formData.get(`vectorSearch_queryTemplate_new_${newVectorSearchIndex}`) as string
+      const maxTokens = formData.get(`vectorSearch_maxTokens_new_${newVectorSearchIndex}`) as string
+      const maxChunks = formData.get(`vectorSearch_maxChunks_new_${newVectorSearchIndex}`) as string
+      const maxDistance = formData.get(`vectorSearch_maxDistance_new_${newVectorSearchIndex}`) as string
+
+      if (queryTemplate?.trim()) {
+        contextVectorSearches.push({
+          contextQuery: JSON.stringify({
+            queryTemplate: queryTemplate.trim(),
+            maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
+            maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+          }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      newVectorSearchIndex++
+    }
+
+    // Extract existing web fetches (with IDs)
+    let webFetchIndex = 0
+    while (formData.has(`webFetch_id_${webFetchIndex}`)) {
+      const id = formData.get(`webFetch_id_${webFetchIndex}`) as string
+      const urlTemplate = formData.get(`webFetch_urlTemplate_${webFetchIndex}`) as string
+      const maxTokens = formData.get(`webFetch_maxTokens_${webFetchIndex}`) as string
+
+      if (urlTemplate?.trim()) {
+        contextWebFetches.push({
+          id,
+          contextQuery: JSON.stringify({ urlTemplate: urlTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      webFetchIndex++
+    }
+
+    // Add new web fetches (indexed)
+    let newWebFetchIndex = 0
+    while (formData.has(`webFetch_urlTemplate_new_${newWebFetchIndex}`)) {
+      const urlTemplate = formData.get(`webFetch_urlTemplate_new_${newWebFetchIndex}`) as string
+      const maxTokens = formData.get(`webFetch_maxTokens_new_${newWebFetchIndex}`) as string
+
+      if (urlTemplate?.trim()) {
+        contextWebFetches.push({
+          contextQuery: JSON.stringify({ urlTemplate: urlTemplate.trim() }),
+          maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
+        })
+      }
+      newWebFetchIndex++
+    }
+
+    // Merge all context sources into a single array with proper structure
+    const contextSources: Array<{
+      contextType: string
+      contextFieldId?: string
+      contextQuery?: string
+      maxContentTokens?: number
+    }> = [
+      ...contextFieldReferences.map((ref) => ({
+        contextType: 'fieldReference',
+        contextFieldId: ref.contextFieldId,
+      })),
+      ...contextVectorSearches.map((search) => ({
+        contextType: 'vectorSearch',
+        contextQuery: search.contextQuery,
+        maxContentTokens: search.maxContentTokens,
+      })),
+      ...contextWebFetches.map((fetch) => ({
+        contextType: 'webFetch',
+        contextQuery: fetch.contextQuery,
+        maxContentTokens: fetch.maxContentTokens,
+      })),
+    ]
+
+    const dataWithContextSources = {
+      ...data,
+      contextSources: contextSources.length > 0 ? contextSources : undefined,
+    }
+
     if (isEditMode) {
-      updateFieldMutation.mutate(data)
+      updateFieldMutation.mutate(dataWithContextSources)
     } else {
-      addFieldMutation.mutate(data)
+      addFieldMutation.mutate(dataWithContextSources)
     }
   }
 
@@ -198,23 +308,26 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
     [dataTypeOptions],
   )
 
-  if (!isOpen) return null
+  // Calculate total context sources count
+  const totalContextCount = (fieldReferences.length || 0) + (vectorSearches.length || 0) + (webFetches.length || 0)
 
   return (
-    <div className="modal modal-open">
-      <div className="modal-box w-11/12 max-w-2xl">
-        <h3 className="mb-4 text-lg font-bold">{t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}</h3>
+    <dialog ref={ref} className="modal">
+      <div className="modal-box flex h-[80vh] max-h-[800px] w-11/12 max-w-3xl flex-col">
+        <h3 className="mb-4 shrink-0 text-lg font-bold">
+          {t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}
+        </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           {/* Hidden Fields */}
-          <input type="hidden" name="id" value={editField?.id || ''} />
+          <input type="hidden" name="id" value={fieldId} />
           <input type="hidden" name="listId" value={list.id} />
           <input type="hidden" name="sourceType" value="llm_computed" />
           <input type="hidden" name="order" value={editField?.order?.toString() || (maxOrder + 1).toString()} />
 
-          {/* Grid Layout for Form Fields */}
-          <div className="items-start gap-4">
-            <div className="flex items-baseline gap-2">
+          <div className="flex min-h-0 flex-1 flex-col gap-4">
+            {/* Field Name - Always Visible */}
+            <div className="shrink-0">
               <Input
                 label={t('lists.fields.fieldName')}
                 type="text"
@@ -222,128 +335,162 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
                 placeholder={t('lists.fields.fieldNamePlaceholder')}
                 value={editField?.name}
                 schema={schema}
-                className="flex-1"
-              />
-              <Select
-                label={t('lists.fields.dataType')}
-                name="type"
-                options={dataTypeOptions}
-                value={dataTypeOptions.find((option) => option.id === editField?.type) || dataTypeDefaultOptions}
-                schema={schema}
-                required
-              />
-
-              <ModelSelect
-                label={t('lists.fields.aiModel')}
-                name="languageModelId"
-                value={editField?.languageModel || null}
-                placeholder={t('lists.fields.selectAiModel')}
-                capability="chat"
-                schema={schema}
                 required
               />
             </div>
 
-            <div className="md:col-span-4">
-              <Input
-                label={t('lists.fields.aiPrompt')}
-                type="textarea"
-                name="prompt"
-                placeholder={t('lists.fields.aiPromptPlaceholder')}
-                value={editField?.prompt}
-                schema={schema}
-                required
-                className="h-44"
-              />
-              <div className="mt-1">
-                <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
+            <div className="flex min-h-0 flex-1 flex-col">
+              {/* Tabs - Horizontal with Radio Controls */}
+              <div role="tablist" className="tabs tabs-border min-h-0 shrink-0">
+                <input
+                  type="radio"
+                  name={tablistName}
+                  className="tab"
+                  role="tab"
+                  aria-label={t('lists.fields.stepWhat')}
+                  checked={activeTab === 'instruction'}
+                  onChange={() => setActiveTab('instruction')}
+                />
+                <input
+                  type="radio"
+                  name={tablistName}
+                  className="tab"
+                  role="tab"
+                  checked={activeTab === 'context'}
+                  aria-label={
+                    totalContextCount > 0
+                      ? `${t('lists.fields.stepWhere')} (${totalContextCount})`
+                      : t('lists.fields.stepWhere')
+                  }
+                  onChange={() => setActiveTab('context')}
+                />
               </div>
-            </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <div className={twMerge('border-base-300 bg-base-100', activeTab !== 'instruction' && 'hidden')}>
+                  <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Select
+                          label={t('lists.fields.dataType')}
+                          name="type"
+                          options={dataTypeOptions}
+                          value={
+                            dataTypeOptions.find((option) => option.id === editField?.type) || dataTypeDefaultOptions
+                          }
+                          schema={schema}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          label={t('lists.fields.failureTerms')}
+                          type="text"
+                          name="failureTerms"
+                          placeholder={t('lists.fields.failureTermsPlaceholder')}
+                          value={editField?.failureTerms || ''}
+                          schema={schema}
+                          required={false}
+                        />
+                      </div>
+                    </div>
 
-            <div className="md:col-span-4">
-              <Input
-                label={t('lists.fields.failureTerms')}
-                type="text"
-                name="failureTerms"
-                placeholder={t('lists.fields.failureTermsPlaceholder')}
-                value={editField?.failureTerms || ''}
-                schema={schema}
-                required
-              />
-            </div>
+                    <div></div>
 
-            {/* Context Fields */}
-            <div className="fieldset-legend mb-2 flex w-full justify-between">
-              <span className="text-xs">{t('lists.fields.contextFields')}</span>
-            </div>
-            <div className="md:col-span-3">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <div className="sm:col-span-2">
-                    <span className="text-base-content/60 text-xs">{t('lists.fields.contentQueryHelp')}</span>
-                  </div>
-                  <div className="flex w-full items-center gap-2">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="useVectorStore"
-                        value="on"
-                        className="checkbox checkbox-sm"
-                        defaultChecked={editField?.useVectorStore || false}
-                        onChange={(e) => setContentQueryEnabled(e.target.checked)}
-                      />
-                      <span className="truncate text-xs" title={t('lists.fields.useVectorStoreHelp')}>
-                        {t('lists.fields.vectorStoreLabel')}
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      name="contentQuery"
-                      className={twMerge(
-                        'input input-sm flex-1',
-                        !contentQueryEnabled && 'bg-base-300 text-base-content/50',
-                      )}
-                      placeholder={t('lists.fields.contentQueryPlaceholder')}
-                      defaultValue={editField?.contentQuery || ''}
-                      readOnly={!contentQueryEnabled}
-                      required={contentQueryEnabled}
-                      aria-label={t('lists.fields.contentQueryPlaceholder')}
+                    <ModelSelect
+                      label={t('lists.fields.aiModel')}
+                      name="languageModelId"
+                      value={editField?.languageModel || null}
+                      placeholder={t('lists.fields.selectAiModel')}
+                      capability="chat"
+                      className="w-full"
+                      schema={schema}
+                      required
                     />
+
+                    <div>
+                      <Input
+                        label={t('lists.fields.aiPrompt')}
+                        type="textarea"
+                        name="prompt"
+                        placeholder={t('lists.fields.aiPromptPlaceholder')}
+                        value={editField?.prompt}
+                        schema={schema}
+                        required
+                        className="h-40"
+                      />
+                      <div className="mt-1">
+                        <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {availableFields
-                  .filter((field) => field.id !== editField?.id) // Don't allow self-reference
-                  .map((field) => (
-                    <label key={field.id} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="context"
-                        value={field.id}
-                        className="checkbox checkbox-sm"
-                        defaultChecked={currentContextIds.includes(field.id)}
-                      />
-                      <span className="truncate text-xs" title={field.name}>
-                        {field.name} (
-                        {field.sourceType === 'file_property'
-                          ? t('lists.fields.fileProperty')
-                          : t('lists.fields.computed')}
-                        )
-                      </span>
-                    </label>
-                  ))}
-              </div>
-              <div className="mt-1">
-                <span className="text-base-content/60 text-xs">{t('lists.fields.contextFieldsHelp')}</span>
+
+                {/* Context Tab with Nested Sub-Navigation */}
+                <div
+                  className={twMerge(
+                    'border-base-300 bg-base-100 flex h-full flex-col',
+                    activeTab !== 'context' && 'hidden',
+                  )}
+                >
+                  <div className="border-base-300 flex min-h-0 flex-1 border-t">
+                    {/* Vertical Sub-Navigation */}
+                    <nav className="border-base-300 flex w-48 shrink-0 flex-col overflow-y-auto border-r">
+                      <button
+                        type="button"
+                        className={twMerge(
+                          'btn btn-ghost justify-start rounded-none text-sm',
+                          contextSubTab === 'fields' && 'btn-active',
+                        )}
+                        onClick={() => setContextSubTab('fields')}
+                      >
+                        {t('lists.contextSources.referencedFields')}
+                      </button>
+                      <button
+                        type="button"
+                        className={twMerge(
+                          'btn btn-ghost justify-start rounded-none text-sm',
+                          contextSubTab === 'similarity' && 'btn-active',
+                        )}
+                        onClick={() => setContextSubTab('similarity')}
+                      >
+                        {t('lists.contextSources.similarContent')}
+                      </button>
+                      <button
+                        type="button"
+                        className={twMerge(
+                          'btn btn-ghost justify-start rounded-none text-sm',
+                          contextSubTab === 'webFetch' && 'btn-active',
+                        )}
+                        onClick={() => setContextSubTab('webFetch')}
+                      >
+                        {t('lists.contextSources.webFetch')}
+                      </button>
+                    </nav>
+
+                    {/* Sub-Tab Content */}
+                    <div className="flex-1 overflow-y-auto p-6">
+                      <div className={twMerge('', contextSubTab !== 'fields' && 'hidden')}>
+                        <ReferencedFields list={list} fieldId={fieldId} fieldReferences={fieldReferences} />
+                      </div>
+                      <div className={twMerge(contextSubTab !== 'similarity' && 'hidden')}>
+                        <SimilarContent vectorSearches={vectorSearches} />
+                      </div>
+                      <div className={twMerge(contextSubTab !== 'webFetch' && 'hidden')}>
+                        <WebFetch webFetches={webFetches} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="modal-action">
+          <div className="modal-action shrink-0">
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={onClose}
+              onClick={() => handleCloseModal()}
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
               {t('actions.cancel')}
@@ -373,6 +520,6 @@ export const FieldModal = ({ list, isOpen, onClose, maxOrder, editField }: Field
           </div>
         )}
       </div>
-    </div>
+    </dialog>
   )
 }

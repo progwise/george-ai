@@ -4,6 +4,7 @@ import { builder } from '../builder'
 
 const ContentQueryResult = builder.simpleObject('ContentQueryResult', {
   fields: (t) => ({
+    id: t.string({ nullable: false }),
     fieldId: t.string({ nullable: false }),
     fieldName: t.string({ nullable: false }),
     listId: t.string({ nullable: false }),
@@ -24,27 +25,38 @@ builder.queryField('aiContentQueries', (t) =>
       const listAccessWhere = getCanAccessListWhere(context.session.user.id)
       const libraryAccessWhere = getAccessLibraryWhere(context.session.user.id)
 
-      const fields = await prisma.aiListField.findMany({
-        select: { id: true, name: true, listId: true, list: { select: { name: true } }, contentQuery: true },
+      const fieldContextItems = await prisma.aiListFieldContext.findMany({
+        select: {
+          id: true,
+          contextQuery: true,
+          field: { select: { id: true, name: true, listId: true, list: { select: { name: true } } } },
+        },
         where: {
           AND: [
-            { list: listAccessWhere },
-            { list: { sources: { some: { library: libraryAccessWhere } } } },
-            { contentQuery: { not: null } },
-            args.listId ? { listId: args.listId } : {},
-            args.libraryId ? { list: { sources: { some: { libraryId: { equals: args.libraryId } } } } } : {},
+            { contextType: 'vectorSearch' },
+            { field: { list: listAccessWhere } },
+            { field: { list: { sources: { some: { library: libraryAccessWhere } } } } },
+            args.listId ? { field: { listId: args.listId } } : {},
+            args.libraryId ? { field: { list: { sources: { some: { libraryId: { equals: args.libraryId } } } } } } : {},
           ],
         },
-        orderBy: [{ list: { name: 'asc' } }, { name: 'asc' }],
+        orderBy: [{ field: { list: { name: 'asc' } } }, { field: { name: 'asc' } }],
       })
 
-      return fields.map((field) => ({
-        fieldId: field.id,
-        fieldName: field.name,
-        listId: field.listId,
-        listName: field.list.name,
-        contentQuery: field.contentQuery!,
-      }))
+      return fieldContextItems.map((item) => {
+        // Parse contextQuery JSON to extract queryTemplate
+        const contextQuery = item.contextQuery as { queryTemplate?: string } | null
+        const queryTemplate = contextQuery?.queryTemplate || null
+
+        return {
+          id: item.id,
+          fieldId: item.field.id,
+          fieldName: item.field.name,
+          listId: item.field.listId,
+          listName: item.field.list.name,
+          contentQuery: queryTemplate,
+        }
+      })
     },
   }),
 )

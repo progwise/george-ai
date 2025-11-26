@@ -26,11 +26,14 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-full grid-rows-[auto_1fr] gap-4">
+    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div>
         <LibraryMenu library={aiLibrary} selectableLibraries={aiLibraries} />
       </div>
-      <div role="tablist" className="tabs tabs-lift min-h-0 w-full justify-end">
+      <div role="tablist" className="tabs tabs-lift justify-end">
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
         <Link
           to="/libraries/$libraryId/files"
           params={{ libraryId }}
@@ -101,11 +104,9 @@ function RouteComponent() {
         >
           {t('labels.postprocess')}
         </Link>
-
-        <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content bg-base-100 border-base-300 flex min-h-0 w-full flex-col border p-3">
-          <Outlet />
-        </div>
+      </div>
+      <div className="bg-base-100 min-h-0 w-full p-3">
+        <Outlet />
       </div>
     </div>
   )

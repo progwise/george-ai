@@ -113,6 +113,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
           <button
             type="button"
             className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+            aria-label={`Edit field ${field.name}`}
             onClick={handleEdit}
           >
             <EditIcon className="mr-2" />
@@ -126,6 +127,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
             className={`flex w-full items-center px-4 py-2 text-sm transition-colors ${
               isConfirmingDelete ? 'text-error bg-error/10 hover:bg-error/20' : 'hover:bg-base-200 text-base-content'
             }`}
+            aria-label={isConfirmingDelete ? `Confirm delete field ${field.name}` : `Delete field ${field.name}`}
             onClick={handleDelete}
             disabled={removeFieldMutation.isPending}
           >

@@ -58,6 +58,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                     },
                   },
                 },
+                orderBy: { createdAt: 'asc' },
               },
             },
           },
@@ -78,6 +79,18 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         .map((source) => source.libraryId)
         .filter((libraryId) => libraryId !== null) as string[]
 
+      // Collect all field IDs we need cache data for (enriched field + all referenced context fields)
+      const fieldWithContext = listField as typeof listField & {
+        context: Array<{
+          contextType: string
+          contextField: { id: string } | null
+        }>
+      }
+      const contextFieldIds = fieldWithContext.context
+        .filter((ctx) => ctx.contextType === 'fieldReference' && ctx.contextField?.id)
+        .map((ctx) => ctx.contextField!.id)
+      const allFieldIds = [fieldId, ...contextFieldIds]
+
       const filterConditions = await getListFiltersWhere(filters || [])
       const files = await prisma.aiLibraryFile.findMany({
         include: {
@@ -85,7 +98,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
           library: {
             select: { id: true, name: true, embeddingModel: { select: { id: true, provider: true, name: true } } },
           },
-          cache: { where: { fieldId } },
+          cache: { where: { fieldId: { in: allFieldIds } } },
           contentExtractionTasks: {
             where: { processingFinishedAt: { not: null } },
             orderBy: { processingFinishedAt: 'desc' },
@@ -151,7 +164,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         success: fieldValidationSuccess,
         data: validatedField,
         error: fieldValidationError,
-      } = getFieldEnrichmentValidationSchema({ useVectorStore: listField.useVectorStore }).safeParse(fieldForValidation)
+      } = getFieldEnrichmentValidationSchema().safeParse(fieldForValidation)
 
       if (!fieldValidationSuccess) {
         throw new Error(

@@ -25,7 +25,7 @@ export const FormattedMarkdown = ({
       ref={ref}
       id={id}
       className={twMerge(
-        'prose marker:text-base-100 contents [&_*]:w-full [&_img]:max-w-xs [&_img]:object-fill',
+        'prose prose-sm [&_img]:max-w-xs [&_img]:object-fill [&_pre]:overflow-x-auto [&_table]:max-w-full',
         className,
       )}
     ></div>

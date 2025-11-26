@@ -437,6 +437,64 @@ test.describe('Workspace Switcher', () => {
     await expect(page.getByText(`Workspace 2 List ${uniqueId}`)).not.toBeVisible()
   })
 
+  test.skip('should clear list detail view when switching workspaces', async ({ page }) => {
+    // Skipped: Known bug tracked in issue #888
+    // https://github.com/progwise/george-ai/issues/888
+    const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
+
+    // Step 1: Switch to E2E Test Workspace 1
+    await workspaceSwitcher.click()
+    let dropdown = page.locator('details[open] > ul').first()
+    await expect(dropdown).toBeVisible()
+    await dropdown.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
+    await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
+    await page.waitForLoadState('networkidle')
+
+    // Step 2: Go to lists and open "E2E Test List - Field Modal"
+    await page.goto('/lists')
+    await page.waitForLoadState('networkidle')
+
+    // Open the list selector and select our test list
+    await page.getByRole('button', { name: /select list/i }).click()
+    await page.waitForSelector('details[open]')
+    await page.getByRole('link', { name: 'E2E Test List - Field Modal', exact: true }).click()
+    await page.waitForLoadState('networkidle')
+
+    // Verify we're viewing the list detail page (should see field headers like "Name")
+    await expect(page.getByRole('button', { name: /sort by name/i })).toBeVisible()
+
+    // Store the current URL to verify it changes
+    const listDetailUrl = page.url()
+    expect(listDetailUrl).toContain('/lists/')
+
+    // Step 3: Switch to E2E Test Workspace 2 while viewing the list detail
+    await workspaceSwitcher.click()
+    dropdown = page.locator('details[open] > ul').first()
+    await expect(dropdown).toBeVisible()
+    await dropdown.getByRole('button', { name: 'E2E Test Workspace 2', exact: true }).click()
+    await expect(workspaceSwitcher).toContainText('E2E Test Workspace 2')
+    await page.waitForLoadState('networkidle')
+
+    // Step 4: Verify the list detail view is cleared/redirected
+    // BUG: Currently the list from Workspace 1 stays visible when switching to Workspace 2
+    // EXPECTED: Should redirect to /lists (overview) or show error that list doesn't exist
+    const currentUrl = page.url()
+
+    // The list from Workspace 1 should NOT be visible in Workspace 2
+    // This test will FAIL until the bug is fixed
+    expect(currentUrl).not.toBe(listDetailUrl)
+
+    // Should either be redirected to lists overview OR show an error
+    // Option 1: Redirect to /lists overview
+    if (currentUrl.endsWith('/lists')) {
+      await expect(page.getByRole('button', { name: /sort by name/i })).not.toBeVisible()
+    }
+    // Option 2: Show error message that list doesn't exist
+    else {
+      await expect(page.getByText(/not found|does not exist/i)).toBeVisible()
+    }
+  })
+
   test.describe('Create Workspace', () => {
     test('should show create workspace button in navigation', async ({ page }) => {
       // Create button should be visible in navigation (not inside dropdown anymore)

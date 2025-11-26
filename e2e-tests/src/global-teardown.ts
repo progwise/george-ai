@@ -15,8 +15,69 @@ async function globalTeardown() {
     await client.connect()
     console.log('  ✅ Database connected')
 
+    // Delete test list sources first (foreign key constraint)
+    await client.query(
+      `
+      DELETE FROM "AiListSource"
+      WHERE "listId" IN (
+        SELECT id FROM "AiList"
+        WHERE name LIKE 'E2E Test List%'
+      )
+    `,
+    )
+
+    // Delete test lists created during tests (CASCADE will delete fields, context sources, etc.)
+    const listResult = await client.query(
+      `
+      DELETE FROM "AiList"
+      WHERE name LIKE 'E2E Test List%'
+      RETURNING name
+    `,
+    )
+
+    if (listResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${listResult.rows.length} test lists:`)
+      listResult.rows.forEach((row) => console.log(`     - ${row.name}`))
+    } else {
+      console.log('  ✅ No test lists to clean up')
+    }
+
+    // Delete library files first (foreign key constraint)
+    await client.query(
+      `
+      DELETE FROM "AiLibraryFile"
+      WHERE "libraryId" IN (
+        SELECT id FROM "AiLibrary"
+        WHERE "workspaceId" IN (
+          '00000000-0000-0000-0000-000000000002',
+          '00000000-0000-0000-0000-000000000003'
+        )
+      )
+    `,
+    )
+
+    // Delete ALL libraries in test workspaces
+    // These are recreated fresh in global-setup.ts, so safe to delete everything
+    const libraryResult = await client.query(
+      `
+      DELETE FROM "AiLibrary"
+      WHERE "workspaceId" IN (
+        '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000003'
+      )
+      RETURNING name
+    `,
+    )
+
+    if (libraryResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${libraryResult.rows.length} test libraries:`)
+      libraryResult.rows.forEach((row) => console.log(`     - ${row.name}`))
+    } else {
+      console.log('  ✅ No test libraries to clean up')
+    }
+
     // Delete workspaces created during tests (but NOT the permanent E2E Test Workspace 1 and 2)
-    const result = await client.query(
+    const wsResult = await client.query(
       `
       DELETE FROM "Workspace"
       WHERE (
@@ -25,6 +86,7 @@ async function globalTeardown() {
         OR name LIKE 'Delete Test WS%'
         OR name LIKE 'Empty WS%'
         OR name LIKE 'Auto Switch%'
+        OR name LIKE 'E2E Test Workspace%'
       )
       AND id NOT IN (
         '00000000-0000-0000-0000-000000000002',
@@ -34,9 +96,9 @@ async function globalTeardown() {
     `,
     )
 
-    if (result.rows.length > 0) {
-      console.log(`  ✅ Deleted ${result.rows.length} test workspaces:`)
-      result.rows.forEach((row) => console.log(`     - ${row.name}`))
+    if (wsResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${wsResult.rows.length} test workspaces:`)
+      wsResult.rows.forEach((row) => console.log(`     - ${row.name}`))
     } else {
       console.log('  ✅ No test workspaces to clean up')
     }

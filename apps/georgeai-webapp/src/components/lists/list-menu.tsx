@@ -85,8 +85,12 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
           <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('lists.title')}</span>
         </li>
         <li>
-          <details ref={listSelectorDetailsRef} className="z-50">
-            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
+          <details title={t('lists.title')} ref={listSelectorDetailsRef} className="z-50">
+            <summary
+              role="button"
+              aria-label={t('lists.selectList')}
+              className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold"
+            >
               {list.name}
             </summary>
             <ul className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
