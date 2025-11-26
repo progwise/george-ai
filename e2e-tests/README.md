@@ -72,9 +72,80 @@ The tests will connect to the services running in your devcontainer via `localho
 
 Without this, authentication will fail with "Invalid redirect_uri" error.
 
-### Running Standalone (Without Devcontainer)
+### Running Against Local Docker Environment (Simulates CI/CD)
 
-If you're not using the devcontainer:
+Use `docker-compose.local.yml` to spin up a completely isolated, fresh environment - perfect for simulating CI/CD locally without affecting your devcontainer setup.
+
+**Step 1: Start the isolated environment**
+
+```bash
+cd e2e-tests
+docker compose -f docker-compose.local.yml up --build
+```
+
+This starts fresh containers on different ports:
+
+- Webapp: `localhost:3011`
+- Backend: `localhost:3013`
+- Database: `localhost:5442`
+- Typesense: `localhost:8118`
+- Marketing site: `localhost:4331`
+
+**Step 2: Configure .env for isolated environment**
+
+```bash
+# .env
+BASE_URL=http://localhost:3011
+DATABASE_URL=postgresql://chatweb:password@localhost:5442/chatweb
+E2E_USERNAME=e2e-test-user@example.com
+E2E_EMAIL=e2e-test-user@example.com
+E2E_PASSWORD=E2ETestPassword123!
+```
+
+**Step 3: Run tests**
+
+```bash
+pnpm install
+pnpm playwright install
+pnpm test
+```
+
+**Clean up:**
+
+```bash
+# Stop and remove containers + volumes (fresh start)
+docker compose -f docker-compose.local.yml down -v
+```
+
+### Running Against Devcontainer Environment
+
+If you prefer to test against your running devcontainer (where `pnpm dev` is running):
+
+**Step 1: Ensure devcontainer is running with `pnpm dev`**
+
+**Step 2: Configure .env for devcontainer**
+
+```bash
+# .env
+DATABASE_URL=postgresql://chatweb:password@localhost:5434/chatweb
+E2E_USERNAME=test
+E2E_EMAIL=playwright@test.de
+E2E_PASSWORD=Test123!
+# BASE_URL defaults to http://localhost:3001
+```
+
+**Step 3: Run tests from host machine** (NOT from inside devcontainer)
+
+```bash
+cd e2e-tests
+pnpm install
+pnpm playwright install
+pnpm test:ui
+```
+
+### Running Standalone (Without Devcontainer) - Legacy
+
+If you're not using the devcontainer and have your own setup:
 
 ```bash
 # 1. Configure credentials

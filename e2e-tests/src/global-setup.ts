@@ -35,6 +35,25 @@ async function globalSetup() {
     const userId = userResult.rows[0].id
     console.log(`  ✅ E2E user ready: ${E2E_EMAIL}`)
 
+    // Ensure user is a member of the Shared workspace (their default)
+    const sharedMemberResult = await client.query(
+      'SELECT id FROM "WorkspaceMember" WHERE "workspaceId" = $1 AND "userId" = $2',
+      [SHARED_WORKSPACE_ID, userId],
+    )
+
+    if (sharedMemberResult.rows.length === 0) {
+      await client.query(
+        `
+        INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
+      `,
+        [SHARED_WORKSPACE_ID, userId],
+      )
+      console.log(`  ✅ Added user to Shared workspace`)
+    } else {
+      console.log(`  ℹ️  User already member of Shared workspace`)
+    }
+
     // Create test workspaces
     const testWorkspaces = [
       {
