@@ -43,6 +43,11 @@ pnpm install
 # Install Playwright browsers (one time)
 pnpm playwright install
 
+# Configure test environment (one time)
+cp .env.example .env
+# Edit .env and set credentials (E2E_USERNAME, E2E_PASSWORD)
+# Optionally set BASE_URL if webapp runs on different host/port
+
 # Run tests with UI
 pnpm test:ui
 
@@ -50,9 +55,22 @@ pnpm test:ui
 pnpm test
 ```
 
-The tests will connect to the services running in your devcontainer via `localhost:3001` and `localhost:3003`.
+The tests will connect to the services running in your devcontainer via `localhost:3001` and `localhost:3003` (or the URL specified in `BASE_URL`).
 
 **Note:** If you encounter Keycloak errors with Firefox during local development, use Chromium or WebKit instead: `pnpm test:ui --project=chromium`. Firefox blocks third-party cookies on localhost ([issue #23018](https://github.com/keycloak/keycloak/issues/23018)). In CI there are no Firefox issues.
+
+**Important - Custom BASE_URL:** If you set a custom `BASE_URL` in `.env` (different from `http://localhost:3001`), you **must** add the redirect URL to your Keycloak configuration:
+
+1. Check which Keycloak instance your webapp uses (see `KEYCLOAK_URL` in `apps/georgeai-webapp/.env`)
+   - Local: `http://localhost:8180` (george-ai realm)
+   - Production: `https://keycloak.george-ai.net` (e2e realm)
+2. Go to Keycloak Admin Console → Clients → george-ai (or e2e-test) → Settings
+3. Add your BASE_URL to "Valid redirect URIs": `<BASE_URL>/*`
+   - Example: `http://localhost:8080/*`
+   - Example: `http://192.168.1.100:3001/*`
+4. Save changes
+
+Without this, authentication will fail with "Invalid redirect_uri" error.
 
 ### Running Standalone (Without Devcontainer)
 
