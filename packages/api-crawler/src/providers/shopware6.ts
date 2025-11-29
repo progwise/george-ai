@@ -77,15 +77,15 @@ function buildAssociationsObject(associations?: string[]): Record<string, object
   const result: Record<string, object> = {}
   for (const assoc of associations) {
     // Support nested associations like 'cover.media'
-    const parts = assoc.split('.')
+    const segments = assoc.split('.')
     let current = result
-    for (let index = 0; index < parts.length; index++) {
-      const part = parts[index]
-      if (!current[part]) {
-        current[part] = {}
+    for (let index = 0; index < segments.length; index++) {
+      const segment = segments[index]
+      if (!current[segment]) {
+        current[segment] = {}
       }
-      if (index < parts.length - 1) {
-        current = current[part] as Record<string, object>
+      if (index < segments.length - 1) {
+        current = current[segment] as Record<string, object>
       }
     }
   }

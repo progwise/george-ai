@@ -463,6 +463,18 @@ export default {
       tags: 'Product tags',
     },
     shopwareAssociationsHint: 'Add or remove associations in the JSON config to customize which data is fetched.',
+    // Custom API Help
+    customApiHelpTitle: 'Custom API Configuration',
+    customApiHelpDescription: 'Configure a custom REST API to fetch data:',
+    customApiHelp: {
+      baseUrl: 'Base URL of the API (e.g., https://api.example.com)',
+      endpoint: 'API endpoint path (e.g., /v1/products)',
+      authType: 'Authentication type: none, basic, bearer, oauth2, apiKey',
+      authConfig: 'Authentication credentials (token, username/password, etc.)',
+      identifierField: 'Field name for unique item ID (default: id)',
+      titleField: 'Field name for item title (default: name or title)',
+    },
+    customApiHelpHint: 'Use providerConfig to customize field mappings for your API response structure.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar deletion failed',

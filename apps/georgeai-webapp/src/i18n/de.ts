@@ -470,6 +470,19 @@ export default {
     },
     shopwareAssociationsHint:
       'Fügen Sie Assoziationen in der JSON-Konfiguration hinzu oder entfernen Sie sie, um anzupassen, welche Daten abgerufen werden.',
+    // Custom API Help
+    customApiHelpTitle: 'Benutzerdefinierte API-Konfiguration',
+    customApiHelpDescription: 'Konfigurieren Sie eine benutzerdefinierte REST-API zum Abrufen von Daten:',
+    customApiHelp: {
+      baseUrl: 'Basis-URL der API (z.B. https://api.example.com)',
+      endpoint: 'API-Endpunktpfad (z.B. /v1/products)',
+      authType: 'Authentifizierungstyp: none, basic, bearer, oauth2, apiKey',
+      authConfig: 'Authentifizierungsdaten (Token, Benutzername/Passwort, etc.)',
+      identifierField: 'Feldname für eindeutige Element-ID (Standard: id)',
+      titleField: 'Feldname für Elementtitel (Standard: name oder title)',
+    },
+    customApiHelpHint:
+      'Verwenden Sie providerConfig, um Feldzuordnungen für Ihre API-Antwortstruktur anzupassen.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',

@@ -172,7 +172,8 @@ const saveApiCrawlerFile = async ({
   }
 
   // Determine if this is an update or new file
-  const wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== contentHash)
+  // Treat missing hash (from old crawls before hashing was implemented) as an update
+  const wasUpdated = !!existingFile && (!existingFile.originFileHash || existingFile.originFileHash !== contentHash)
 
   const fileUpdateData = {
     name: fileName,
