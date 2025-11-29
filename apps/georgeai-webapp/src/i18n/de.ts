@@ -481,8 +481,7 @@ export default {
       identifierField: 'Feldname für eindeutige Element-ID (Standard: id)',
       titleField: 'Feldname für Elementtitel (Standard: name oder title)',
     },
-    customApiHelpHint:
-      'Verwenden Sie providerConfig, um Feldzuordnungen für Ihre API-Antwortstruktur anzupassen.',
+    customApiHelpHint: 'Verwenden Sie providerConfig, um Feldzuordnungen für Ihre API-Antwortstruktur anzupassen.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',
