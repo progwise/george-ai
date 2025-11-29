@@ -9,16 +9,6 @@
 export type AuthType = 'none' | 'apiKey' | 'oauth2' | 'basic' | 'bearer'
 
 /**
- * Pagination strategies supported
- */
-export type PaginationType = 'offset' | 'page' | 'cursor' | 'none'
-
-/**
- * HTTP methods supported
- */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-
-/**
  * Authentication configuration (type-specific)
  */
 export type AuthConfig = {
@@ -42,32 +32,39 @@ export type AuthConfig = {
 }
 
 /**
- * Pagination configuration (type-specific)
+ * Provider types supported
  */
-export type PaginationConfig = {
-  // Offset-based
-  limitParam?: string
-  offsetParam?: string
-  defaultLimit?: number
+export type ProviderType = 'shopware6' | 'shopware5' | 'weclapp' | 'jtl' | 'custom'
 
-  // Page-based
-  pageParam?: string
-  pageSizeParam?: string
-  defaultPageSize?: number
+/**
+ * Custom provider configuration
+ * Used when provider is 'custom' - user configures how to extract data
+ */
+export type CustomProviderConfig = {
+  /**
+   * Field path to use as unique identifier (e.g., 'id', 'productNumber', 'sku')
+   * If not set, common fields will be tried automatically
+   */
+  identifierField?: string
 
-  // Cursor-based
-  cursorParam?: string
-  nextCursorPath?: string
+  /**
+   * Field path to extract title from (e.g., 'name', 'translated.name')
+   * If not set, common fields will be tried automatically
+   */
+  titleField?: string
 }
 
 /**
  * Complete API crawler configuration
  */
 export type ApiCrawlerConfig = {
+  // Provider type - determines how to extract data
+  provider?: ProviderType
+  providerConfig?: CustomProviderConfig
+
   // API endpoint
   baseUrl: string
   endpoint: string
-  method: HttpMethod
 
   // Authentication
   authType: AuthType
@@ -76,15 +73,6 @@ export type ApiCrawlerConfig = {
   // Request configuration
   headers?: Record<string, string>
   queryParams?: Record<string, string>
-
-  // Pagination
-  paginationType: PaginationType
-  paginationConfig: PaginationConfig
-
-  // Response parsing
-  dataPath: string
-  hasMorePath?: string
-  totalCountPath?: string
 
   // Rate limiting
   requestDelay?: number
@@ -98,49 +86,9 @@ export type ApiCrawlerConfig = {
 /**
  * Crawled item with raw data
  */
-export type CrawlItem = {
+export type ApiCrawlItem = {
   title: string // Auto-extracted from raw data
   content: string // Simple string representation
   raw: unknown // Complete raw item - all data preserved
-}
-
-/**
- * Result from crawling operation
- */
-export type CrawlResult = {
-  items: CrawlItem[]
-  totalFetched: number
-  success: boolean
-  error?: string
-}
-
-/**
- * Result from connection validation
- */
-export type ValidationResult = {
-  success: boolean
-  error?: string
-  errorType?: 'AUTHENTICATION_ERROR' | 'NETWORK_ERROR' | 'NOT_FOUND' | 'INVALID_CONFIG' | 'UNKNOWN_ERROR'
-}
-
-/**
- * HTTP request parameters
- */
-export type HttpRequestParams = {
-  baseUrl: string
-  endpoint: string
-  method: HttpMethod
-  headers: Record<string, string>
-  queryParams?: Record<string, string>
-  body?: unknown
-  timeout?: number
-}
-
-/**
- * HTTP response
- */
-export type HttpResponse<T = unknown> = {
-  data: T
-  status: number
-  headers: Record<string, string>
+  originUri: string // The URI that was fetched to retrieve this item
 }

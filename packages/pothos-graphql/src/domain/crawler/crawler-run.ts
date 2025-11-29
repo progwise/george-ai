@@ -7,12 +7,31 @@ import { crawlBox } from './crawl-box'
 import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
+import { CrawledFileInfo } from './crawled-file-info'
+import { CrawlerConfig } from './crawler-options'
 
 interface RunOptions {
   crawlerId: string
   userId: string
   runByCronJob?: boolean
 }
+
+type CrawlFunction = (options: {
+  uri: string
+  maxDepth: number
+  maxPages: number
+  crawlerId: string
+  libraryId: string
+  crawlerRunId: string
+  filterConfig: {
+    includePatterns?: string[]
+    excludePatterns?: string[]
+    maxFileSize?: number
+    minFileSize?: number
+    allowedMimeTypes?: string[]
+  }
+  crawlerConfig?: CrawlerConfig | null
+}) => AsyncGenerator<CrawledFileInfo, void, void>
 
 export const stopCrawler = async ({ crawlerId, userId }: RunOptions) => {
   const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
@@ -109,7 +128,7 @@ const startCrawling = async (
   const filterConfig = parseFilterConfig(crawler)
   console.log('Filter configuration:', filterConfig)
 
-  const crawl =
+  const crawl: CrawlFunction | null =
     crawler.uriType === 'http'
       ? crawlHttp
       : crawler.uriType === 'smb'
@@ -135,7 +154,7 @@ const startCrawling = async (
       libraryId: crawler.libraryId,
       crawlerRunId: newRun.id,
       filterConfig,
-      crawlerConfig: crawler.crawlerConfig as never,
+      crawlerConfig: crawler.crawlerConfig as never, // TODO: improve typing
     })) {
       try {
         const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
