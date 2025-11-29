@@ -7,22 +7,15 @@ import type { ApiCrawlerConfig } from '../types'
 /**
  * Weclapp API crawler template
  * User must provide: baseUrl (tenant-specific), authConfig (token)
- * Title and content are auto-extracted from the API response
+ * Provider handles pagination, title extraction, markdown generation, and origin URIs
  */
 export const weclappTemplate: Omit<ApiCrawlerConfig, 'baseUrl' | 'authConfig'> = {
+  provider: 'weclapp',
   endpoint: '/webapp/api/v1/article',
-  method: 'GET',
   authType: 'bearer',
   headers: {
     Accept: 'application/json',
   },
-  paginationType: 'page',
-  paginationConfig: {
-    pageParam: 'page',
-    pageSizeParam: 'pageSize',
-    defaultPageSize: 100,
-  },
-  dataPath: 'result',
   requestDelay: 100,
   maxConcurrency: 3,
 }

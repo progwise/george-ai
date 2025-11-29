@@ -1,4 +1,6 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 
 import { type ApiCrawlerConfig, crawlApiStream } from '@george-ai/api-crawler'
 import { getUploadFilePath } from '@george-ai/file-management'
@@ -7,133 +9,19 @@ import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 
-interface ApiCrawlOptions extends CrawlOptions {
-  crawlerConfig: ApiCrawlerConfig
-}
-
 /**
- * Type for filename generator function
- * Takes a CrawlItem and returns a sanitized filename (without extension)
+ * Calculate SHA-256 hash of a string (for markdown content)
  */
-type FilenameGenerator = (item: { title: string; content: string; raw: unknown }) => Promise<string>
-
-/**
- * Type for markdown generator function
- * Takes a CrawlItem and returns formatted markdown content
- */
-type MarkdownGenerator = (item: { title: string; content: string; raw: unknown }) => Promise<string>
-
-/**
- * Default filename generator
- * Sanitizes the title for safe file system usage
- * Handles special characters, German umlauts, and limits length
- */
-const defaultFilenameGenerator: FilenameGenerator = async (item) => {
-  const filename = item.title || 'untitled'
-
-  return (
-    filename
-      // Replace German umlauts
-      .replace(/ä/g, 'ae')
-      .replace(/ö/g, 'oe')
-      .replace(/ü/g, 'ue')
-      .replace(/Ä/g, 'Ae')
-      .replace(/Ö/g, 'Oe')
-      .replace(/Ü/g, 'Ue')
-      .replace(/ß/g, 'ss')
-      // Replace spaces and special chars with dashes
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-      // Remove leading/trailing dashes
-      .replace(/^-+|-+$/g, '')
-      // Limit length
-      .slice(0, 200)
-      // Convert to lowercase
-      .toLowerCase()
-  )
-}
-
-/**
- * Default markdown generator
- * Formats the item as structured markdown with title and raw data
- */
-const defaultMarkdownGenerator: MarkdownGenerator = async (item) => {
-  // Convert raw object to markdown-friendly format
-  let dataSection = ''
-
-  if (item.raw && typeof item.raw === 'object') {
-    const entries = Object.entries(item.raw)
-      .filter(([, value]) => value !== null && value !== undefined)
-      .map(([key, value]) => {
-        // Format complex values nicely
-        if (typeof value === 'object') {
-          return `- **${key}**: ${JSON.stringify(value, null, 2)}`
-        }
-        return `- **${key}**: ${String(value)}`
-      })
-
-    if (entries.length > 0) {
-      dataSection = `---\n\n## Data\n\n${entries.join('\n')}`
-    }
-  }
-
-  return `# ${item.title}
-
-${item.content || 'No description available'}
-
-${dataSection}
-`
-}
-
-const saveApiCrawlerFile = async ({
-  fileName,
-  markdownContent,
-  libraryId,
-  crawlerId,
-  originUri,
-}: {
-  fileName: string
-  markdownContent: string
-  libraryId: string
-  crawlerId: string
-  originUri: string
-}) => {
-  const fileUpdateData = {
-    name: fileName,
-    mimeType: 'text/markdown',
-    libraryId,
-  }
-
-  const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri,
-      },
-    },
-    create: {
-      ...fileUpdateData,
-      originUri,
-      crawledByCrawlerId: crawlerId,
-    },
-    update: fileUpdateData,
-  })
-
-  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-  await fs.promises.writeFile(uploadedFilePath, markdownContent)
-
-  return file
+function calculateContentHash(content: string): string {
+  return crypto.createHash('sha256').update(content, 'utf8').digest('hex')
 }
 
 export async function* crawlApi({
   libraryId,
   crawlerId,
   crawlerConfig,
-  generateFilename = defaultFilenameGenerator,
-  generateMarkdown = defaultMarkdownGenerator,
-}: ApiCrawlOptions & {
-  generateFilename?: FilenameGenerator
-  generateMarkdown?: MarkdownGenerator
-}): AsyncGenerator<CrawledFileInfo, void, void> {
+  maxPages,
+}: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start API crawling for crawler ${crawlerId}`)
 
   try {
@@ -152,43 +40,70 @@ export async function* crawlApi({
     console.log(`API Config:`, JSON.stringify(config, null, 2))
 
     let itemCount = 0
+    let skippedCount = 0
+    let updatedCount = 0
+    let newCount = 0
 
     // Stream items as they are fetched
     for await (const item of crawlApiStream(config)) {
       try {
         itemCount++
-
-        // Use transformation functions to generate filename and markdown
-        const sanitizedFilename = await generateFilename(item)
-        const fileNameWithExt = `${sanitizedFilename}.md`
-        const markdownContent = await generateMarkdown(item)
-
-        // Extract originUri from raw data (try common URL/ID fields)
-        let originUri = item.title || `item-${itemCount}`
-        if (item.raw && typeof item.raw === 'object') {
-          const rawObj = item.raw as Record<string, unknown>
-          originUri =
-            (rawObj.url as string | undefined) ||
-            (rawObj.id as string | undefined) ||
-            (rawObj.sku as string | undefined) ||
-            item.title ||
-            `item-${itemCount}`
+        if (itemCount > maxPages) {
+          console.log(`Reached maxPages limit of ${maxPages}, stopping crawl.`)
+          break
         }
 
-        const file = await saveApiCrawlerFile({
+        console.log(`Processing API crawled item ${itemCount}: ${item.title}`)
+
+        // Use provider-generated markdown content directly
+        const markdownContent = item.content || `# ${item.title}\n\nNo content available`
+
+        const safeFileName = item.title
+          .replace(/[^a-z0-9]/gi, '_')
+          .toLowerCase()
+          .slice(0, 50)
+        const fileNameWithExt = `${safeFileName || 'api_item_' + itemCount}.md`
+
+        const fileResult = await saveApiCrawlerFile({
           fileName: fileNameWithExt,
           markdownContent,
           libraryId,
           crawlerId,
-          originUri: String(originUri),
+          originUri: item.originUri,
         })
 
-        yield {
-          ...file,
-          hints: `API Crawler ${crawlerId} successfully crawled item ${file.id}`,
-        }
+        // Track statistics
+        if (fileResult.skipProcessing) {
+          skippedCount++
+          console.log(`Skipping API item ${item.title} - content unchanged`)
 
-        console.log(`Successfully saved API crawled item ${itemCount}: ${fileNameWithExt}`)
+          yield {
+            id: fileResult.id,
+            name: fileResult.name,
+            originUri: fileResult.originUri,
+            mimeType: fileResult.mimeType,
+            skipProcessing: true,
+            hints: `API Crawler - item ${fileResult.name} skipped (content unchanged)`,
+          }
+        } else {
+          if (fileResult.wasUpdated) {
+            updatedCount++
+            console.log(`Updated API item ${itemCount}: ${fileNameWithExt}`)
+          } else {
+            newCount++
+            console.log(`Created new API item ${itemCount}: ${fileNameWithExt}`)
+          }
+
+          yield {
+            id: fileResult.id,
+            name: fileResult.name,
+            originUri: fileResult.originUri,
+            mimeType: fileResult.mimeType,
+            skipProcessing: false,
+            wasUpdated: fileResult.wasUpdated,
+            hints: `API Crawler ${crawlerId} ${fileResult.wasUpdated ? 'updated' : 'created'} item ${fileResult.name}`,
+          }
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         console.error(`Error saving API crawled item:`, errorMessage)
@@ -198,10 +113,103 @@ export async function* crawlApi({
       }
     }
 
-    console.log(`Finished API crawling for crawler ${crawlerId}. Total items: ${itemCount}`)
+    console.log(
+      `Finished API crawling for crawler ${crawlerId}. Total: ${itemCount}, New: ${newCount}, Updated: ${updatedCount}, Skipped: ${skippedCount}`,
+    )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('Error in API crawler:', errorMessage)
     yield { errorMessage }
+  }
+}
+
+const saveApiCrawlerFile = async ({
+  fileName,
+  markdownContent,
+  libraryId,
+  crawlerId,
+  originUri,
+}: {
+  fileName: string
+  markdownContent: string
+  libraryId: string
+  crawlerId: string
+  originUri: string
+}) => {
+  // Calculate hash of the markdown content
+  const contentHash = calculateContentHash(markdownContent)
+
+  // Check if file already exists with the same originUri
+  const existingFile = await prisma.aiLibraryFile.findUnique({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      originUri: true,
+      mimeType: true,
+      originFileHash: true,
+    },
+  })
+
+  // If file exists and hash matches, skip processing
+  if (existingFile && existingFile.originFileHash === contentHash) {
+    // Update the updatedAt timestamp even when skipping
+    await prisma.aiLibraryFile.update({
+      where: { id: existingFile.id },
+      data: { updatedAt: new Date() },
+    })
+
+    return {
+      ...existingFile,
+      skipProcessing: true,
+      wasUpdated: false,
+    }
+  }
+
+  // Determine if this is an update or new file
+  // Treat missing hash (from old crawls before hashing was implemented) as an update
+  const wasUpdated = !!existingFile && (!existingFile.originFileHash || existingFile.originFileHash !== contentHash)
+
+  const fileUpdateData = {
+    name: fileName,
+    mimeType: 'text/markdown',
+    libraryId,
+    size: Buffer.byteLength(markdownContent, 'utf8'),
+    originFileHash: contentHash,
+    originModificationDate: new Date(),
+  }
+
+  const file = await prisma.aiLibraryFile.upsert({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri,
+      },
+    },
+    create: {
+      ...fileUpdateData,
+      originUri,
+      crawledByCrawlerId: crawlerId,
+    },
+    update: fileUpdateData,
+  })
+
+  // Write the file to disk
+  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+  await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
+  await fs.promises.writeFile(uploadedFilePath, markdownContent, 'utf8')
+
+  return {
+    id: file.id,
+    name: file.name,
+    originUri: file.originUri,
+    mimeType: file.mimeType,
+    skipProcessing: false,
+    wasUpdated,
   }
 }

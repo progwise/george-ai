@@ -20,7 +20,7 @@ pnpm add @george-ai/api-crawler
 ## Usage
 
 ```typescript
-import { crawlApi, shopwareTemplate } from '@george-ai/api-crawler'
+import { crawlApiStream, shopwareTemplate } from '@george-ai/api-crawler'
 
 const config = {
   ...shopwareTemplate,
@@ -32,19 +32,22 @@ const config = {
   },
 }
 
-const result = await crawlApi(config)
-console.log(`Fetched ${result.totalFetched} items`)
+// Stream items as they are fetched
+for await (const item of crawlApiStream(config)) {
+  console.log(`Fetched: ${item.title} from ${item.originUri}`)
+}
 ```
 
 ## API
 
-### `crawlApi(config: ApiCrawlerConfig): Promise<CrawlResult>`
+### `crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<CrawlItem>`
 
-Main function to crawl an API endpoint.
+Stream items from an API endpoint. Each item includes:
 
-### `validateApiConnection(config: ApiCrawlerConfig): Promise<ValidationResult>`
-
-Validate API connection before crawling.
+- `title` - Auto-extracted from common field names (name, title, label, etc.)
+- `content` - JSON string representation of the item
+- `raw` - Complete raw item data
+- `originUri` - The URI that was fetched to retrieve this item
 
 ### Templates
 
