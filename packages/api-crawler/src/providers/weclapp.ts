@@ -194,11 +194,13 @@ export const weclappProvider: ApiProvider = {
     }
 
     // Article prices (more detailed pricing)
-    const articlePrices = item.articlePrices as Array<{
-      price?: number
-      priceScaleType?: string
-      currencyId?: string
-    }> | undefined
+    const articlePrices = item.articlePrices as
+      | Array<{
+          price?: number
+          priceScaleType?: string
+          currencyId?: string
+        }>
+      | undefined
     if (articlePrices && articlePrices.length > 0) {
       sections.push('')
       sections.push('## Price List')
@@ -234,13 +236,15 @@ export const weclappProvider: ApiProvider = {
     }
 
     // Custom attributes
-    const customAttributes = item.customAttributes as Array<{
-      attributeDefinitionId?: string
-      stringValue?: string
-      numberValue?: number
-      booleanValue?: boolean
-      dateValue?: number
-    }> | undefined
+    const customAttributes = item.customAttributes as
+      | Array<{
+          attributeDefinitionId?: string
+          stringValue?: string
+          numberValue?: number
+          booleanValue?: boolean
+          dateValue?: number
+        }>
+      | undefined
     if (customAttributes && customAttributes.length > 0) {
       sections.push('')
       sections.push('## Custom Attributes')
@@ -259,6 +263,14 @@ export const weclappProvider: ApiProvider = {
       sections.push('## Status')
       sections.push(`- **Active:** ${active ? 'Yes' : 'No'}`)
     }
+
+    // Raw JSON data
+    sections.push('')
+    sections.push('## Raw Data')
+    sections.push('')
+    sections.push('```json')
+    sections.push(JSON.stringify(item, null, 2))
+    sections.push('```')
 
     return sections.join('\n')
   },

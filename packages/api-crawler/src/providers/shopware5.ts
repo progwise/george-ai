@@ -193,12 +193,14 @@ export const shopware5Provider: ApiProvider = {
     }
 
     // Prices from mainDetail
-    const prices = getNestedValue(item, 'mainDetail.prices') as Array<{
-      price?: number
-      pseudoPrice?: number
-      customerGroupKey?: string
-      from?: number
-    }> | undefined
+    const prices = getNestedValue(item, 'mainDetail.prices') as
+      | Array<{
+          price?: number
+          pseudoPrice?: number
+          customerGroupKey?: string
+          from?: number
+        }>
+      | undefined
     if (prices && prices.length > 0) {
       sections.push('')
       sections.push('## Pricing')
@@ -291,6 +293,14 @@ export const shopware5Provider: ApiProvider = {
         sections.push(`- **Highlight:** ${highlight ? 'Yes' : 'No'}`)
       }
     }
+
+    // Raw JSON data
+    sections.push('')
+    sections.push('## Raw Data')
+    sections.push('')
+    sections.push('```json')
+    sections.push(JSON.stringify(item, null, 2))
+    sections.push('```')
 
     return sections.join('\n')
   },

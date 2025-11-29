@@ -60,11 +60,7 @@ function toString(value: unknown): string {
 /**
  * Create a custom provider with user configuration
  */
-export function createCustomProvider(
-  baseUrl: string,
-  endpoint: string,
-  config?: CustomProviderConfig,
-): ApiProvider {
+export function createCustomProvider(baseUrl: string, endpoint: string, config?: CustomProviderConfig): ApiProvider {
   return {
     id: 'custom',
     name: 'Custom API',
@@ -192,8 +188,7 @@ export function createCustomProvider(
       sections.push('')
 
       // Format all fields as a list
-      const entries = Object.entries(item)
-        .filter(([, value]) => value !== null && value !== undefined)
+      const entries = Object.entries(item).filter(([, value]) => value !== null && value !== undefined)
 
       for (const [key, value] of entries) {
         if (typeof value === 'object') {
@@ -205,6 +200,14 @@ export function createCustomProvider(
           sections.push(`- **${key}:** ${toString(value)}`)
         }
       }
+
+      // Raw JSON data
+      sections.push('')
+      sections.push('## Raw Data')
+      sections.push('')
+      sections.push('```json')
+      sections.push(JSON.stringify(item, null, 2))
+      sections.push('```')
 
       return sections.join('\n')
     },

@@ -43,6 +43,7 @@ for await (const item of crawlApiStream(config)) {
 ### `crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<CrawlItem>`
 
 Stream items from an API endpoint. Each item includes:
+
 - `title` - Auto-extracted from common field names (name, title, label, etc.)
 - `content` - JSON string representation of the item
 - `raw` - Complete raw item data

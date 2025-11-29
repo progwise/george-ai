@@ -243,6 +243,14 @@ export const jtlProvider: ApiProvider = {
       sections.push(`- **Active:** ${isActive ? 'Yes' : 'No'}`)
     }
 
+    // Raw JSON data
+    sections.push('')
+    sections.push('## Raw Data')
+    sections.push('')
+    sections.push('```json')
+    sections.push(JSON.stringify(item, null, 2))
+    sections.push('```')
+
     return sections.join('\n')
   },
 }

@@ -110,7 +110,8 @@ export const shopware6Provider: ApiProvider = {
       }
 
       // Check if there are more pages
-      hasMore = items.length === limit && page * limit < total
+      // If we got a full page of items, there might be more
+      hasMore = items.length === limit
       page++
 
       // Rate limiting
@@ -169,8 +170,8 @@ export const shopware6Provider: ApiProvider = {
     }
 
     // Manufacturer
-    const manufacturerName = getNestedValue(item, 'manufacturer.translated.name') ||
-      getNestedValue(item, 'manufacturer.name')
+    const manufacturerName =
+      getNestedValue(item, 'manufacturer.translated.name') || getNestedValue(item, 'manufacturer.name')
     if (manufacturerName) {
       sections.push(`**Manufacturer:** ${manufacturerName}`)
     }
@@ -190,8 +191,7 @@ export const shopware6Provider: ApiProvider = {
     }
 
     // Description
-    const description = getNestedValue(item, 'translated.description') ||
-      item.description
+    const description = getNestedValue(item, 'translated.description') || item.description
     if (typeof description === 'string' && description) {
       sections.push('')
       sections.push('## Description')
@@ -201,9 +201,7 @@ export const shopware6Provider: ApiProvider = {
     // Categories
     const categories = item.categories as Array<{ translated?: { name?: string }; name?: string }> | undefined
     if (categories && categories.length > 0) {
-      const categoryNames = categories
-        .map((c) => c.translated?.name || c.name)
-        .filter(Boolean)
+      const categoryNames = categories.map((c) => c.translated?.name || c.name).filter(Boolean)
       if (categoryNames.length > 0) {
         sections.push('')
         sections.push('## Categories')
@@ -214,11 +212,13 @@ export const shopware6Provider: ApiProvider = {
     }
 
     // Properties
-    const properties = item.properties as Array<{
-      group?: { translated?: { name?: string }; name?: string }
-      translated?: { name?: string }
-      name?: string
-    }> | undefined
+    const properties = item.properties as
+      | Array<{
+          group?: { translated?: { name?: string }; name?: string }
+          translated?: { name?: string }
+          name?: string
+        }>
+      | undefined
     if (properties && properties.length > 0) {
       sections.push('')
       sections.push('## Properties')
@@ -245,6 +245,14 @@ export const shopware6Provider: ApiProvider = {
         sections.push(`- **Active:** ${active ? 'Yes' : 'No'}`)
       }
     }
+
+    // Raw JSON data
+    sections.push('')
+    sections.push('## Raw Data')
+    sections.push('')
+    sections.push('```json')
+    sections.push(JSON.stringify(item, null, 2))
+    sections.push('```')
 
     return sections.join('\n')
   },
