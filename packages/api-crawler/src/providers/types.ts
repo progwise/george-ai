@@ -4,7 +4,7 @@
  */
 
 // Re-export from main types
-export type { CustomProviderConfig } from '../types'
+export type { AssociationsConfig, CustomProviderConfig } from '../types'
 
 /**
  * Raw item from API response
@@ -19,6 +19,7 @@ export type FetchConfig = {
   endpoint: string
   headers: Record<string, string>
   requestDelay?: number
+  associations?: string[]
 }
 
 /**

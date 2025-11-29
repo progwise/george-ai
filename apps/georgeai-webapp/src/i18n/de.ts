@@ -449,6 +449,27 @@ export default {
     minFileSize: 'Min. Dateigröße (MB)',
     maxFileSize: 'Max. Dateigröße (MB)',
     allowedMimeTypes: 'Erlaubte MIME-Typen',
+    shopwareAssociationsTitle: 'Shopware 6 Assoziationen (Verknüpfte Daten)',
+    shopwareAssociationsDescription:
+      'Assoziationen definieren, welche verknüpften Daten mit jedem Produkt abgerufen werden. Bearbeiten Sie das "associations" Array in der JSON-Konfiguration unten:',
+    shopwareAssociations: {
+      manufacturer: 'Produkthersteller mit Name und Link',
+      categories: 'Produktkategorien mit Breadcrumb-Pfaden',
+      coverMedia: 'Haupt-Produktbild',
+      mediaMedia: 'Alle Produktbilder',
+      propertiesGroup: 'Produkteigenschaften mit Gruppennamen',
+      unit: 'Verkaufseinheit (z.B. "Stück", "kg")',
+      tax: 'Steuerinformationen',
+      deliveryTime: 'Lieferzeitinformationen',
+      prices: 'Erweiterte Preisregeln',
+      options: 'Variantenoptionen',
+      configuratorSettings: 'Variantenkonfigurator-Einstellungen',
+      crossSellings: 'Cross-Selling-Produkte',
+      seoUrls: 'SEO-URLs',
+      tags: 'Produkt-Tags',
+    },
+    shopwareAssociationsHint:
+      'Fügen Sie Assoziationen in der JSON-Konfiguration hinzu oder entfernen Sie sie, um anzupassen, welche Daten abgerufen werden.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',

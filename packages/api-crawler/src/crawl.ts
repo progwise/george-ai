@@ -39,6 +39,7 @@ export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<
     endpoint: config.endpoint,
     headers,
     requestDelay: config.requestDelay,
+    associations: config.associationsConfig?.associations,
   })) {
     // Build origin URI using provider
     const originUri = provider.buildOriginUri(config.baseUrl, item)

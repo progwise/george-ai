@@ -20,6 +20,7 @@ import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 import { getApiCrawlerTemplatesQueryOptions } from './queries/get-api-crawler-templates'
+import { CustomApiHelp, ShopwareHelp, WeclappHelp } from './template-help'
 
 const URI_PATTERNS = {
   smb: SMB_URI_PATTERN,
@@ -172,6 +173,28 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { data: templatesData } = useQuery(getApiCrawlerTemplatesQueryOptions())
   const templates = templatesData?.apiCrawlerTemplates
 
+  // Detect template/provider from JSON config
+  const detectTemplateFromConfig = (configJson: string | undefined | null): string => {
+    if (!configJson) return ''
+    try {
+      const config = JSON.parse(configJson)
+      // Map provider values to template IDs
+      if (config.provider === 'shopware6') return 'shopware'
+      if (config.provider === 'weclapp') return 'weclapp'
+      if (config.provider === 'custom') return 'custom'
+      // Fallback: check if it looks like a known template by authType
+      if (config.authType === 'oauth2' && config.endpoint?.includes('product')) return 'shopware'
+      if (config.authType === 'bearer' && config.endpoint?.includes('article')) return 'weclapp'
+      return 'custom'
+    } catch {
+      return ''
+    }
+  }
+
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(() =>
+    detectTemplateFromConfig(crawler?.crawlerConfig),
+  )
+
   // Apply URI from form to template config
   const applyUriToTemplate = (templateConfig: string, uri: string): string => {
     if (!uri) return templateConfig
@@ -209,6 +232,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       )
       setApiConfigValue(formatJson(crawler?.crawlerConfig) || '')
       setUriValue(crawler?.uri || '')
+      setSelectedTemplate(detectTemplateFromConfig(crawler?.crawlerConfig))
     }, 0)
     return () => clearTimeout(timeout)
   }, [crawler])
@@ -452,13 +476,14 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
               <label className="text-xs font-medium">{t('crawlers.selectTemplate')}</label>
               <select
                 className="select select-bordered select-sm w-full max-w-xs"
+                value={selectedTemplate}
                 onChange={(e) => {
                   const template = templates.find((tpl) => tpl.id === e.target.value)
                   if (template) {
+                    setSelectedTemplate(template.id)
                     setApiConfigValue(applyUriToTemplate(template.config, uriValue))
                   }
                 }}
-                defaultValue=""
               >
                 <option value="" disabled>
                   {t('crawlers.selectTemplatePlaceholder')}
@@ -472,14 +497,22 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </div>
           )}
 
-          <textarea
-            name="crawlerConfig"
-            className="textarea textarea-bordered w-full font-mono text-xs"
-            rows={12}
-            placeholder={t('crawlers.apiConfigurationPlaceholder')}
-            value={apiConfigValue}
-            onChange={(e) => setApiConfigValue(e.target.value)}
-          />
+          <div className={twMerge('grid gap-4', selectedTemplate ? 'grid-cols-2' : 'grid-cols-1')}>
+            {/* Template-specific Help */}
+            {selectedTemplate === 'shopware' && <ShopwareHelp />}
+            {selectedTemplate === 'weclapp' && <WeclappHelp />}
+            {selectedTemplate === 'custom' && <CustomApiHelp />}
+
+            <textarea
+              name="crawlerConfig"
+              className="textarea textarea-bordered w-full overflow-x-auto whitespace-pre font-mono text-xs"
+              rows={12}
+              wrap="off"
+              placeholder={t('crawlers.apiConfigurationPlaceholder')}
+              value={apiConfigValue}
+              onChange={(e) => setApiConfigValue(e.target.value)}
+            />
+          </div>
         </div>
       ) : null}
       <div className="flex flex-col gap-2">

@@ -64,31 +64,95 @@ function formatPrice(price: unknown): string {
   return String(price)
 }
 
+/**
+ * Build associations object for Shopware 6 Search API
+ * Converts array of association names to nested object structure
+ * Example: ['manufacturer', 'categories'] -> { manufacturer: {}, categories: {} }
+ */
+function buildAssociationsObject(associations?: string[]): Record<string, object> | undefined {
+  if (!associations || associations.length === 0) {
+    return undefined
+  }
+
+  const result: Record<string, object> = {}
+  for (const assoc of associations) {
+    // Support nested associations like 'cover.media'
+    const parts = assoc.split('.')
+    let current = result
+    for (let index = 0; index < parts.length; index++) {
+      const part = parts[index]
+      if (!current[part]) {
+        current[part] = {}
+      }
+      if (index < parts.length - 1) {
+        current = current[part] as Record<string, object>
+      }
+    }
+  }
+  return result
+}
+
+/**
+ * Convert endpoint to search endpoint
+ * /api/product -> /api/search/product
+ * /api/category -> /api/search/category
+ */
+function toSearchEndpoint(endpoint: string): string {
+  // If already a search endpoint, return as-is
+  if (endpoint.includes('/search/')) {
+    return endpoint
+  }
+
+  // Convert /api/{entity} to /api/search/{entity}
+  return endpoint.replace(/^\/api\//, '/api/search/')
+}
+
 export const shopware6Provider: ApiProvider = {
   id: 'shopware6',
   name: 'Shopware 6',
 
   async *fetchItems(config: FetchConfig): AsyncGenerator<RawApiItem, void, void> {
-    const { baseUrl, endpoint, headers, requestDelay } = config
+    const { baseUrl, endpoint, headers, requestDelay, associations } = config
     const base = baseUrl.replace(/\/$/, '')
+
+    // Use Search API endpoint for POST with associations
+    const searchEndpoint = toSearchEndpoint(endpoint)
+    const url = `${base}${searchEndpoint}`
 
     let page = 1
     const limit = 50
     let hasMore = true
 
-    logger.debug('Starting Shopware 6 fetch from:', `${base}${endpoint}`)
+    // Build associations object from array
+    const associationsObject = buildAssociationsObject(associations)
+
+    logger.debug('Starting Shopware 6 fetch from:', url)
+    if (associations && associations.length > 0) {
+      logger.debug('With associations:', associations.join(', '))
+    }
 
     while (hasMore) {
-      // Shopware 6 uses GET with query parameters for pagination
-      const url = `${base}${endpoint}?page=${page}&limit=${limit}`
-      logger.debug(`Fetching page ${page}...`, url)
+      logger.debug(`Fetching page ${page}...`)
+
+      // Build request body for Search API
+      const body: Record<string, unknown> = {
+        page,
+        limit,
+      }
+
+      // Add associations if configured
+      if (associationsObject) {
+        body.associations = associationsObject
+      }
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           Accept: 'application/json',
+          'Content-Type': 'application/json',
           ...headers,
         },
+        body: JSON.stringify(body),
       })
 
       if (!response.ok) {
@@ -157,36 +221,84 @@ export const shopware6Provider: ApiProvider = {
     const title = this.extractTitle(item) || 'Product'
     sections.push(`# ${title}`)
 
+    // Basic product info section
+    sections.push('')
+    sections.push('## Product Information')
+
     // Product number
     const productNumber = item.productNumber as string | undefined
     if (productNumber) {
-      sections.push(`**Product Number:** ${productNumber}`)
+      sections.push(`- **Product Number:** ${productNumber}`)
     }
 
     // EAN
     const ean = item.ean as string | undefined
     if (ean) {
-      sections.push(`**EAN:** ${ean}`)
+      sections.push(`- **EAN:** ${ean}`)
+    }
+
+    // Manufacturer number
+    const manufacturerNumber = item.manufacturerNumber as string | undefined
+    if (manufacturerNumber) {
+      sections.push(`- **Manufacturer Number:** ${manufacturerNumber}`)
     }
 
     // Manufacturer
     const manufacturerName =
       getNestedValue(item, 'manufacturer.translated.name') || getNestedValue(item, 'manufacturer.name')
     if (manufacturerName) {
-      sections.push(`**Manufacturer:** ${manufacturerName}`)
+      sections.push(`- **Manufacturer:** ${manufacturerName}`)
     }
 
-    // Price
-    const prices = item.price as Array<{ gross?: number; net?: number; currencyId?: string }> | undefined
-    if (prices && prices.length > 0) {
-      const price = prices[0]
-      sections.push('')
-      sections.push('## Price')
-      if (price.gross !== undefined) {
-        sections.push(`- **Gross:** ${formatPrice(price.gross)} EUR`)
+    // Manufacturer link
+    const manufacturerLink = getNestedValue(item, 'manufacturer.link') as string | undefined
+    if (manufacturerLink) {
+      sections.push(`- **Manufacturer Link:** ${manufacturerLink}`)
+    }
+
+    // Unit (if loaded via associations)
+    const unit = item.unit as
+      | {
+          translated?: { name?: string; shortCode?: string }
+          name?: string
+          shortCode?: string
+        }
+      | undefined
+    if (unit) {
+      const unitName = unit.translated?.name || unit.name
+      const unitShort = unit.translated?.shortCode || unit.shortCode
+      if (unitName || unitShort) {
+        sections.push(`- **Unit:** ${unitName || ''}${unitShort ? ` (${unitShort})` : ''}`)
       }
-      if (price.net !== undefined) {
-        sections.push(`- **Net:** ${formatPrice(price.net)} EUR`)
+    }
+
+    // Tax rate
+    const taxRate = getNestedValue(item, 'tax.taxRate') as number | undefined
+    const taxName = getNestedValue(item, 'tax.name') as string | undefined
+    if (taxRate !== undefined) {
+      sections.push(`- **Tax Rate:** ${taxRate}%${taxName ? ` (${taxName})` : ''}`)
+    }
+
+    // Price section
+    const prices = item.price as Array<{ gross?: number; net?: number; currencyId?: string }> | undefined
+    const purchasePrices = item.purchasePrices as Array<{ gross?: number; net?: number }> | undefined
+    if ((prices && prices.length > 0) || (purchasePrices && purchasePrices.length > 0)) {
+      sections.push('')
+      sections.push('## Pricing')
+      if (prices && prices.length > 0) {
+        const price = prices[0]
+        if (price.gross !== undefined) {
+          sections.push(`- **Gross Price:** ${formatPrice(price.gross)} EUR`)
+        }
+        if (price.net !== undefined) {
+          sections.push(`- **Net Price:** ${formatPrice(price.net)} EUR`)
+        }
+      }
+      if (purchasePrices && purchasePrices.length > 0) {
+        const purchasePrice = purchasePrices[0]
+        if (purchasePrice.net !== undefined && purchasePrice.net > 0) {
+          sections.push(`- **Purchase Price (Net):** ${formatPrice(purchasePrice.net)} EUR`)
+        }
       }
     }
 
@@ -198,15 +310,26 @@ export const shopware6Provider: ApiProvider = {
       sections.push(htmlToText(description))
     }
 
-    // Categories
-    const categories = item.categories as Array<{ translated?: { name?: string }; name?: string }> | undefined
+    // Categories with breadcrumbs
+    const categories = item.categories as
+      | Array<{
+          translated?: { name?: string; breadcrumb?: string[] }
+          name?: string
+          breadcrumb?: string[]
+        }>
+      | undefined
     if (categories && categories.length > 0) {
-      const categoryNames = categories.map((c) => c.translated?.name || c.name).filter(Boolean)
-      if (categoryNames.length > 0) {
-        sections.push('')
-        sections.push('## Categories')
-        for (const name of categoryNames) {
-          sections.push(`- ${name}`)
+      sections.push('')
+      sections.push('## Categories')
+      for (const cat of categories) {
+        const breadcrumb = cat.translated?.breadcrumb || cat.breadcrumb
+        if (breadcrumb && breadcrumb.length > 0) {
+          sections.push(`- ${breadcrumb.join(' > ')}`)
+        } else {
+          const catName = cat.translated?.name || cat.name
+          if (catName) {
+            sections.push(`- ${catName}`)
+          }
         }
       }
     }
@@ -232,17 +355,138 @@ export const shopware6Provider: ApiProvider = {
       }
     }
 
-    // Stock
-    const stock = item.stock as number | undefined
-    const active = item.active as boolean | undefined
-    if (stock !== undefined || active !== undefined) {
+    // Physical dimensions and weight
+    const weight = item.weight as number | undefined
+    const width = item.width as number | undefined
+    const height = item.height as number | undefined
+    const length = item.length as number | undefined
+    if (weight !== undefined || width !== undefined || height !== undefined || length !== undefined) {
       sections.push('')
-      sections.push('## Availability')
-      if (stock !== undefined) {
-        sections.push(`- **Stock:** ${stock}`)
+      sections.push('## Dimensions & Weight')
+      if (weight !== undefined) {
+        sections.push(`- **Weight:** ${weight} kg`)
       }
-      if (active !== undefined) {
-        sections.push(`- **Active:** ${active ? 'Yes' : 'No'}`)
+      if (length !== undefined) {
+        sections.push(`- **Length:** ${length} mm`)
+      }
+      if (width !== undefined) {
+        sections.push(`- **Width:** ${width} mm`)
+      }
+      if (height !== undefined) {
+        sections.push(`- **Height:** ${height} mm`)
+      }
+    }
+
+    // Availability and stock
+    const stock = item.stock as number | undefined
+    const availableStock = item.availableStock as number | undefined
+    const available = item.available as boolean | undefined
+    const active = item.active as boolean | undefined
+    const shippingFree = item.shippingFree as boolean | undefined
+    const isCloseout = item.isCloseout as boolean | undefined
+    const minPurchase = item.minPurchase as number | undefined
+    const maxPurchase = item.maxPurchase as number | undefined
+    const purchaseSteps = item.purchaseSteps as number | undefined
+
+    sections.push('')
+    sections.push('## Availability & Stock')
+    if (active !== undefined) {
+      sections.push(`- **Active:** ${active ? 'Yes' : 'No'}`)
+    }
+    if (available !== undefined) {
+      sections.push(`- **Available:** ${available ? 'Yes' : 'No'}`)
+    }
+    if (stock !== undefined) {
+      sections.push(`- **Stock:** ${stock}`)
+    }
+    if (availableStock !== undefined && availableStock !== stock) {
+      sections.push(`- **Available Stock:** ${availableStock}`)
+    }
+    if (isCloseout !== undefined && isCloseout) {
+      sections.push(`- **Closeout:** Yes (sell until stock is 0)`)
+    }
+    if (shippingFree !== undefined && shippingFree) {
+      sections.push(`- **Shipping Free:** Yes`)
+    }
+
+    // Purchase settings
+    if (minPurchase !== undefined && minPurchase > 1) {
+      sections.push(`- **Minimum Purchase:** ${minPurchase}`)
+    }
+    if (maxPurchase !== undefined) {
+      sections.push(`- **Maximum Purchase:** ${maxPurchase}`)
+    }
+    if (purchaseSteps !== undefined && purchaseSteps > 1) {
+      sections.push(`- **Purchase Steps:** ${purchaseSteps}`)
+    }
+
+    // Cover image (if loaded via associations)
+    const cover = item.cover as
+      | { media?: { url?: string; alt?: string; title?: string; fileName?: string } }
+      | undefined
+    if (cover?.media?.url) {
+      sections.push('')
+      sections.push('## Cover Image')
+      const alt = cover.media.alt || cover.media.title || cover.media.fileName || 'Product image'
+      sections.push(`![${alt}](${cover.media.url})`)
+    }
+
+    // Media gallery (if loaded via associations)
+    const media = item.media as
+      | Array<{
+          media?: { url?: string; alt?: string; title?: string; fileName?: string }
+        }>
+      | undefined
+    if (media && media.length > 0) {
+      const mediaUrls = media.filter((m) => m.media?.url).map((m) => m.media!)
+      if (mediaUrls.length > 0) {
+        sections.push('')
+        sections.push('## Product Images')
+        for (const m of mediaUrls) {
+          const alt = m.alt || m.title || m.fileName || 'Product image'
+          sections.push(`- ![${alt}](${m.url})`)
+        }
+      }
+    }
+
+    // Custom fields
+    const customFields = (getNestedValue(item, 'translated.customFields') || item.customFields) as
+      | Record<string, unknown>
+      | undefined
+    if (customFields && Object.keys(customFields).length > 0) {
+      const nonEmptyFields = Object.entries(customFields).filter(
+        ([, value]) => value !== null && value !== undefined && value !== '',
+      )
+      if (nonEmptyFields.length > 0) {
+        sections.push('')
+        sections.push('## Custom Fields')
+        for (const [key, value] of nonEmptyFields) {
+          if (typeof value === 'boolean') {
+            sections.push(`- **${key}:** ${value ? 'Yes' : 'No'}`)
+          } else if (typeof value === 'object') {
+            sections.push(`- **${key}:** ${JSON.stringify(value)}`)
+          } else {
+            sections.push(`- **${key}:** ${value}`)
+          }
+        }
+      }
+    }
+
+    // Metadata
+    const createdAt = item.createdAt as string | undefined
+    const updatedAt = item.updatedAt as string | undefined
+    const releaseDate = item.releaseDate as string | undefined
+    if (createdAt || updatedAt || releaseDate) {
+      sections.push('')
+      sections.push('## Metadata')
+      if (releaseDate) {
+        sections.push(`- **Release Date:** ${releaseDate}`)
+      }
+      if (createdAt) {
+        sections.push(`- **Created:** ${createdAt}`)
+      }
+      if (updatedAt) {
+        sections.push(`- **Last Updated:** ${updatedAt}`)
       }
     }
 

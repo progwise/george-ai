@@ -55,6 +55,18 @@ export type CustomProviderConfig = {
 }
 
 /**
+ * Associations configuration for loading related data
+ * Used by providers that support fetching related entities (e.g., Shopware 6)
+ */
+export type AssociationsConfig = {
+  /**
+   * List of association names to load (e.g., 'manufacturer', 'categories', 'media')
+   * Provider-specific - check provider documentation for available associations
+   */
+  associations?: string[]
+}
+
+/**
  * Complete API crawler configuration
  */
 export type ApiCrawlerConfig = {
@@ -73,6 +85,9 @@ export type ApiCrawlerConfig = {
   // Request configuration
   headers?: Record<string, string>
   queryParams?: Record<string, string>
+
+  // Associations - related data to fetch (provider-specific)
+  associationsConfig?: AssociationsConfig
 
   // Rate limiting
   requestDelay?: number
