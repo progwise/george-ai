@@ -1,22 +1,10 @@
 import json
 import asyncio
-from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
+from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.content_scraping_strategy import LXMLWebScrapingStrategy
-from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
-from crawl4ai.content_filter_strategy import PruningContentFilter
 
-
-md_generator = DefaultMarkdownGenerator(
-    content_filter=PruningContentFilter(threshold=0.4, threshold_type="fixed")
-)
-
-# Browser config with stealth mode to bypass bot detection
-browser_config = BrowserConfig(
-    headless=True,
-    enable_stealth=True,
-    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-)
+from config import md_generator, browser_config
 
 
 async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_event: asyncio.Event):

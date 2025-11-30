@@ -460,13 +460,6 @@ importers:
         version: 8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
 
   packages/html-crawler:
-    dependencies:
-      '@george-ai/web-utils':
-        specifier: workspace:*
-        version: link:../web-utils
-      zod:
-        specifier: ^3.23.8
-        version: 3.25.76
     devDependencies:
       '@george-ai/package-configs':
         specifier: workspace:*

@@ -22,10 +22,11 @@ export async function* crawlHtmlStream(
 
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
   let controller: AbortController | undefined
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
 
   try {
     controller = new AbortController()
-    const timeoutId = setTimeout(() => controller!.abort(), timeoutMs)
+    timeoutId = setTimeout(() => controller!.abort(), timeoutMs)
 
     try {
       const response = await fetch(
