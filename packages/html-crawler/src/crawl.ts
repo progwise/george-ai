@@ -10,10 +10,7 @@ import { CrawlError, CrawlOptions, CrawlResult } from './types'
  * @yields CrawlResult objects containing url, title, and markdown
  * @throws CrawlError if crawling fails
  */
-export async function* crawlHtmlStream(
-  url: string,
-  options?: CrawlOptions,
-): AsyncGenerator<CrawlResult, void, void> {
+export async function* crawlHtmlStream(url: string, options?: CrawlOptions): AsyncGenerator<CrawlResult, void, void> {
   const maxDepth = options?.maxDepth ?? 2
   const maxPages = options?.maxPages ?? 10
   const timeoutMs = options?.timeoutMs ?? DEFAULT_CRAWL_TIMEOUT_MS
