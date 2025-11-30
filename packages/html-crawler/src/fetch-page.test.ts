@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchPageAsMarkdown } from './fetch-page'
-import { CrawlError } from './types'
+import { HtmlCrawlError } from './types'
 
 // Mock fetch globally
 const mockFetch = vi.fn()
@@ -43,7 +43,7 @@ describe('fetchPageAsMarkdown', () => {
     )
   })
 
-  it('should throw CrawlError when response is not ok', async () => {
+  it('should throw HtmlCrawlError when response is not ok', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -51,11 +51,11 @@ describe('fetchPageAsMarkdown', () => {
     })
 
     await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow(
-      new CrawlError('Crawl4AI HTTP 500: Internal Server Error', 'https://example.com'),
+      new HtmlCrawlError('Crawl4AI HTTP 500: Internal Server Error', 'https://example.com'),
     )
   })
 
-  it('should throw CrawlError when crawl fails', async () => {
+  it('should throw HtmlCrawlError when crawl fails', async () => {
     const mockResponse = {
       success: false,
       error: 'Page blocked by robots.txt',
@@ -67,11 +67,11 @@ describe('fetchPageAsMarkdown', () => {
     })
 
     await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow(
-      new CrawlError('Page blocked by robots.txt', 'https://example.com'),
+      new HtmlCrawlError('Page blocked by robots.txt', 'https://example.com'),
     )
   })
 
-  it('should throw CrawlError when markdown is empty', async () => {
+  it('should throw HtmlCrawlError when markdown is empty', async () => {
     const mockResponse = {
       success: true,
       url: 'https://example.com',
@@ -85,19 +85,19 @@ describe('fetchPageAsMarkdown', () => {
     })
 
     await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow(
-      new CrawlError('Crawl4AI returned empty markdown', 'https://example.com'),
+      new HtmlCrawlError('Crawl4AI returned empty markdown', 'https://example.com'),
     )
   })
 
-  it('should throw CrawlError on connection refused', async () => {
+  it('should throw HtmlCrawlError on connection refused', async () => {
     mockFetch.mockRejectedValueOnce(new Error('fetch failed: ECONNREFUSED'))
 
     await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow(
-      new CrawlError('Crawl4AI service unavailable', 'https://example.com'),
+      new HtmlCrawlError('Crawl4AI service unavailable', 'https://example.com'),
     )
   })
 
-  it('should throw CrawlError on timeout', async () => {
+  it('should throw HtmlCrawlError on timeout', async () => {
     // Create a promise that never resolves
     mockFetch.mockImplementationOnce(
       () =>
@@ -113,7 +113,7 @@ describe('fetchPageAsMarkdown', () => {
     const promise = fetchPageAsMarkdown('https://example.com', 50)
     vi.advanceTimersByTime(100)
 
-    await expect(promise).rejects.toThrow(CrawlError)
+    await expect(promise).rejects.toThrow(HtmlCrawlError)
   })
 
   it('should use custom timeout when provided', async () => {

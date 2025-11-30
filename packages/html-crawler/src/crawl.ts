@@ -1,16 +1,19 @@
 import { CRAWL4AI_BASE_URL, DEFAULT_CRAWL_TIMEOUT_MS } from './client'
-import { CrawlError, CrawlOptions, CrawlResult } from './types'
+import { HtmlCrawlError, HtmlCrawlOptions, HtmlCrawlResult } from './types'
 
 /**
  * Stream HTML pages from a URL using Crawl4AI.
- * Yields CrawlResult objects as pages are crawled.
+ * Yields HtmlCrawlResult objects as pages are crawled.
  *
  * @param url - The URL to start crawling from
  * @param options - Crawl options (maxDepth, maxPages, timeoutMs)
- * @yields CrawlResult objects containing url, title, and markdown
- * @throws CrawlError if crawling fails
+ * @yields HtmlCrawlResult objects containing url, title, and markdown
+ * @throws HtmlCrawlError if crawling fails
  */
-export async function* crawlHtmlStream(url: string, options?: CrawlOptions): AsyncGenerator<CrawlResult, void, void> {
+export async function* crawlHtmlStream(
+  url: string,
+  options?: HtmlCrawlOptions,
+): AsyncGenerator<HtmlCrawlResult, void, void> {
   const maxDepth = options?.maxDepth ?? 2
   const maxPages = options?.maxPages ?? 10
   const timeoutMs = options?.timeoutMs ?? DEFAULT_CRAWL_TIMEOUT_MS
@@ -39,12 +42,12 @@ export async function* crawlHtmlStream(url: string, options?: CrawlOptions): Asy
       clearTimeout(timeoutId)
 
       if (!response.ok) {
-        throw new CrawlError(`Crawl4AI HTTP ${response.status}: ${response.statusText}`, url)
+        throw new HtmlCrawlError(`Crawl4AI HTTP ${response.status}: ${response.statusText}`, url)
       }
 
       reader = response.body?.getReader()
       if (!reader) {
-        throw new CrawlError('Failed to get response body reader', url)
+        throw new HtmlCrawlError('Failed to get response body reader', url)
       }
 
       let readMode: 'read-metadata' | 'read-markdown' | null = null
@@ -108,17 +111,17 @@ export async function* crawlHtmlStream(url: string, options?: CrawlOptions): Asy
       clearTimeout(timeoutId)
     }
   } catch (error) {
-    if (error instanceof CrawlError) {
+    if (error instanceof HtmlCrawlError) {
       throw error
     }
 
     const message = error instanceof Error ? error.message : String(error)
 
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new CrawlError(`Crawl4AI timeout after ${timeoutMs}ms`, url, error)
+      throw new HtmlCrawlError(`Crawl4AI timeout after ${timeoutMs}ms`, url, error)
     }
 
-    throw new CrawlError(`Crawl4AI error: ${message}`, url, error instanceof Error ? error : undefined)
+    throw new HtmlCrawlError(`Crawl4AI error: ${message}`, url, error instanceof Error ? error : undefined)
   } finally {
     if (reader) {
       try {

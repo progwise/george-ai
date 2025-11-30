@@ -1,7 +1,7 @@
 /**
  * Result from crawling a single HTML page
  */
-export interface CrawlResult {
+export interface HtmlCrawlResult {
   /** The URL that was crawled */
   url: string
   /** Page title extracted from the HTML */
@@ -13,7 +13,7 @@ export interface CrawlResult {
 /**
  * Options for HTML crawling
  */
-export interface CrawlOptions {
+export interface HtmlCrawlOptions {
   /** Maximum depth for recursive crawling (0 = single page only) */
   maxDepth?: number
   /** Maximum number of pages to crawl */
@@ -23,15 +23,15 @@ export interface CrawlOptions {
 }
 
 /**
- * Error thrown when crawling fails
+ * Error thrown when HTML crawling fails
  */
-export class CrawlError extends Error {
+export class HtmlCrawlError extends Error {
   constructor(
     message: string,
     public readonly url: string,
     public readonly cause?: Error,
   ) {
     super(message)
-    this.name = 'CrawlError'
+    this.name = 'HtmlCrawlError'
   }
 }

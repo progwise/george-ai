@@ -1,5 +1,5 @@
 import { CRAWL4AI_BASE_URL, DEFAULT_FETCH_TIMEOUT_MS } from './client'
-import { CrawlError } from './types'
+import { HtmlCrawlError } from './types'
 
 /**
  * Response from the /markdown endpoint (non-streaming single page fetch)
@@ -19,7 +19,7 @@ interface SinglePageMarkdownResponse {
  * @param url - The URL to fetch
  * @param timeoutMs - Timeout in milliseconds (default: 30 seconds)
  * @returns The page content as markdown
- * @throws CrawlError if fetching fails
+ * @throws HtmlCrawlError if fetching fails
  */
 export async function fetchPageAsMarkdown(url: string, timeoutMs?: number): Promise<string> {
   const timeout = timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS
@@ -39,38 +39,38 @@ export async function fetchPageAsMarkdown(url: string, timeoutMs?: number): Prom
     })
 
     if (!response.ok) {
-      throw new CrawlError(`Crawl4AI HTTP ${response.status}: ${response.statusText}`, url)
+      throw new HtmlCrawlError(`Crawl4AI HTTP ${response.status}: ${response.statusText}`, url)
     }
 
     const data: SinglePageMarkdownResponse = await response.json()
 
     if (!data.success) {
-      throw new CrawlError(data.error || 'Crawl4AI crawl failed', url)
+      throw new HtmlCrawlError(data.error || 'Crawl4AI crawl failed', url)
     }
 
     if (!data.markdown) {
-      throw new CrawlError('Crawl4AI returned empty markdown', url)
+      throw new HtmlCrawlError('Crawl4AI returned empty markdown', url)
     }
 
     console.log(`[html-crawler] Successfully fetched markdown (${data.markdown.length} chars)`)
     return data.markdown
   } catch (error) {
-    if (error instanceof CrawlError) {
+    if (error instanceof HtmlCrawlError) {
       throw error
     }
 
     const message = error instanceof Error ? error.message : String(error)
 
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new CrawlError(`Crawl4AI timeout after ${timeout}ms`, url, error)
+      throw new HtmlCrawlError(`Crawl4AI timeout after ${timeout}ms`, url, error)
     }
 
     // Check for connection errors
     if (message.includes('ECONNREFUSED') || message.includes('fetch failed')) {
-      throw new CrawlError('Crawl4AI service unavailable', url, error instanceof Error ? error : undefined)
+      throw new HtmlCrawlError('Crawl4AI service unavailable', url, error instanceof Error ? error : undefined)
     }
 
-    throw new CrawlError(`Crawl4AI error: ${message}`, url, error instanceof Error ? error : undefined)
+    throw new HtmlCrawlError(`Crawl4AI error: ${message}`, url, error instanceof Error ? error : undefined)
   } finally {
     clearTimeout(timeoutId)
     controller.abort()

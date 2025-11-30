@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
-import { CrawlError } from './types'
+import { HtmlCrawlError } from './types'
 
-describe('CrawlError', () => {
+describe('HtmlCrawlError', () => {
   it('should create error with message and url', () => {
-    const error = new CrawlError('Something went wrong', 'https://example.com')
+    const error = new HtmlCrawlError('Something went wrong', 'https://example.com')
 
     expect(error.message).toBe('Something went wrong')
     expect(error.url).toBe('https://example.com')
-    expect(error.name).toBe('CrawlError')
+    expect(error.name).toBe('HtmlCrawlError')
     expect(error.cause).toBeUndefined()
   })
 
   it('should create error with cause', () => {
     const cause = new Error('Network failure')
-    const error = new CrawlError('Crawl failed', 'https://example.com', cause)
+    const error = new HtmlCrawlError('Crawl failed', 'https://example.com', cause)
 
     expect(error.message).toBe('Crawl failed')
     expect(error.url).toBe('https://example.com')
@@ -22,16 +22,16 @@ describe('CrawlError', () => {
   })
 
   it('should be instance of Error', () => {
-    const error = new CrawlError('Test error', 'https://example.com')
+    const error = new HtmlCrawlError('Test error', 'https://example.com')
 
     expect(error).toBeInstanceOf(Error)
-    expect(error).toBeInstanceOf(CrawlError)
+    expect(error).toBeInstanceOf(HtmlCrawlError)
   })
 
   it('should have correct stack trace', () => {
-    const error = new CrawlError('Test error', 'https://example.com')
+    const error = new HtmlCrawlError('Test error', 'https://example.com')
 
     expect(error.stack).toBeDefined()
-    expect(error.stack).toContain('CrawlError')
+    expect(error.stack).toContain('HtmlCrawlError')
   })
 })
