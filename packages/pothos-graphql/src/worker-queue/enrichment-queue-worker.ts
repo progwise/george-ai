@@ -1,4 +1,5 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
+import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { Prisma } from '../../prisma/generated/client'
@@ -164,9 +165,6 @@ async function processQueueItem({
       }
 
       // Process web fetch context sources
-      // TODO(#886): Replace simple fetch() with web crawler integration
-      // Current implementation uses raw HTML which provides poor quality context.
-      // Should trigger crawler to get semantic markdown from library files instead.
       if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
         for (const webFetch of metadata.input.contextWebFetches) {
           try {
@@ -180,14 +178,8 @@ async function processQueueItem({
               continue
             }
 
-            // TEMPORARY: Simple fetch() - returns raw HTML (low quality)
-            // See issue #886 for proper crawler integration
-            const response = await fetch(url)
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-            }
-
-            let content = await response.text()
+            // Fetch page as markdown using Crawl4AI
+            let content = await fetchPageAsMarkdown(url)
 
             // Truncate content if maxContentTokens is specified
             // Rough estimate: 1 token ≈ 4 characters

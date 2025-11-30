@@ -5,6 +5,7 @@ from fastapi import FastAPI, Query, Request
 from fastapi.responses import StreamingResponse
 
 from crawl import deepCrawlSingleUrl
+from single_page import fetch_single_page
 
 app = FastAPI()
 
@@ -60,4 +61,14 @@ async def crawl(
             yield json.dumps({"error": "Crawl failed: " + str(e)})
 
     return StreamingResponse(safeCrawledFiles())
-    # You can also return the results if needed
+
+
+@app.get("/markdown")
+async def markdown(url: str):
+    """
+    Fetch a single page and return its markdown content as JSON.
+
+    Returns JSON with keys: success, url, title, markdown (or error if failed)
+    """
+    print(f"Received request to fetch markdown: {url}")
+    return await fetch_single_page(url)

@@ -37,6 +37,7 @@ COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
+COPY packages/html-crawler/package.json ./packages/html-crawler/
 COPY packages/langchain-chat/package.json ./packages/langchain-chat/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
@@ -54,6 +55,7 @@ COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
+COPY packages/html-crawler ./packages/html-crawler
 COPY packages/langchain-chat ./packages/langchain-chat
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql

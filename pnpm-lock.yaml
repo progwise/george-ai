@@ -459,6 +459,21 @@ importers:
         specifier: ^8.18.0
         version: 8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
 
+  packages/html-crawler:
+    devDependencies:
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.18.6
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.18.6)(lightningcss@1.30.2)(terser@5.44.0)
+
   packages/langchain-chat:
     dependencies:
       '@aws-sdk/client-s3':
@@ -536,6 +551,9 @@ importers:
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../file-management
+      '@george-ai/html-crawler':
+        specifier: workspace:*
+        version: link:../html-crawler
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat
