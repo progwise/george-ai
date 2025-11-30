@@ -25,6 +25,7 @@
     "@george-ai/api-crawler": "workspace:*",
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
+    "@george-ai/html-crawler": "workspace:*",
     "@george-ai/langchain-chat": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
     "@pothos/core": "^4.9.0",
