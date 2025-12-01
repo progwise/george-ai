@@ -1,24 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 
-import { debounce, getMimeTypeFromFileName } from '@george-ai/web-utils'
+import { debounce } from '@george-ai/web-utils'
 
-import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 import { queryKeys } from '../../query-keys'
-import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { getProfileQueryOptions } from '../../server-functions/users'
 import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { GoogleDriveFile, GoogleFilesTable } from './google-files-table'
+import { uploadGoogleDriveFiles } from './server-functions/upload-google-drive-files'
 
 export interface GoogleDriveFilesProps {
   libraryId: string
@@ -34,9 +32,13 @@ export const googleDriveResponseSchema = z.object({
       size: z.string().optional(),
       iconLink: z.string().optional(),
       mimeType: z.string(),
+      modifiedTime: z.string().optional(),
     }),
   ),
+  nextPageToken: z.string().optional(),
 })
+
+const PAGE_SIZE = 50
 
 export const getHighResIconUrl = (iconLink: string): string => {
   if (!iconLink) return ''
@@ -50,107 +52,6 @@ export const getHighResIconUrl = (iconLink: string): string => {
 
   return resolutionPattern.test(iconLink) ? iconLink.replace(resolutionPattern, '/32/') : iconLink
 }
-
-const embedFiles = createServerFn({ method: 'GET' })
-  .inputValidator((data: { libraryId: string; files: Array<GoogleDriveFile>; access_token: string }) =>
-    z
-      .object({
-        libraryId: z.string().nonempty(),
-        files: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string(),
-            size: z.number(),
-            mimeType: z.string(),
-            iconLink: z.string().optional(),
-          }),
-        ),
-        access_token: z.string().nonempty(),
-      })
-      .parse(data),
-  )
-  .handler(async (ctx) => {
-    const processFiles = ctx.data.files.map(async (file) => {
-      let isPdfExport = true
-      const googleDownloadResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
-        {
-          headers: {
-            Authorization: `Bearer ${ctx.data.access_token}`,
-          },
-        },
-      ).then(async (response) => {
-        if (response.ok) {
-          return response
-        }
-
-        isPdfExport = false
-        return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${ctx.data.access_token}`,
-          },
-        })
-      })
-
-      if (!googleDownloadResponse.ok) {
-        console.error('Failed to download file from Google Drive', file)
-        const body = await googleDownloadResponse.text()
-        console.error('Response', body)
-        throw new Error(`Failed to download file from Google Drive: ${file.id}`)
-      }
-
-      const blob = await googleDownloadResponse.blob()
-
-      const response = await backendRequest(
-        graphql(`
-          mutation prepareFile($file: AiLibraryFileInput!) {
-            prepareFileUpload(data: $file) {
-              id
-            }
-          }
-        `),
-        {
-          file: {
-            // Add .pdf extension if exported as PDF and name doesn't already have it
-            name: isPdfExport && !file.name.toLowerCase().endsWith('.pdf') ? `${file.name}.pdf` : file.name,
-            originUri: `https://drive.google.com/file/d/${file.id}/view`,
-            mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
-            libraryId: ctx.data.libraryId,
-            size: file.size || blob.size,
-            originModificationDate: new Date().toISOString(),
-          },
-        },
-      )
-
-      const uploadResponse = await backendUpload(blob, response.prepareFileUpload.id)
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file')
-      }
-
-      return await backendRequest(
-        graphql(`
-          mutation processFile($fileId: String!) {
-            createContentProcessingTask(fileId: $fileId) {
-              id
-            }
-          }
-        `),
-        {
-          fileId: response.prepareFileUpload.id,
-        },
-      )
-    })
-
-    const results = await Promise.allSettled(processFiles)
-    const errors = results
-      .filter((result) => result.status === 'rejected')
-      .map((result) => (result as PromiseRejectedResult).reason)
-    if (errors.length > 0) {
-      throw new Error(`Failed to process some files:\n${errors.join('\n')}`)
-    }
-  })
 
 interface FolderPath {
   id: string
@@ -174,27 +75,42 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSetSearchQuery = useMemo(() => debounce(setSearchQuery, 300), [])
 
+  // Pagination state
+  const [pageToken, setPageToken] = useState<string | undefined>(undefined)
+  const [pageTokenHistory, setPageTokenHistory] = useState<string[]>([]) // For going back
+
   // Folder navigation state
   const rootFolder: FolderPath = { id: 'root', name: t('googleDriveRootFolder') }
   const [folderPath, setFolderPath] = useState<FolderPath[]>([rootFolder])
   const currentFolderId = folderPath[folderPath.length - 1].id
 
-  // Reset folder path when search query changes
+  // Reset folder path and pagination when search query changes
   useEffect(() => {
-    if (searchQuery.trim()) {
-      const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
         setFolderPath([rootFolder])
-      }, 0)
-      return () => clearTimeout(timeoutId)
-    }
+      }
+      // Always reset pagination when search changes
+      setPageToken(undefined)
+      setPageTokenHistory([])
+    }, 0)
+    return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery])
 
   // Build Google Drive API URL
   const googleDriveApiUrl = useMemo(() => {
     const baseUrl = 'https://www.googleapis.com/drive/v3/files'
-    const fields = 'files(id,name,size,iconLink,mimeType)'
-    const params = new URLSearchParams({ fields })
+    const fields = 'nextPageToken,files(id,name,size,iconLink,mimeType,modifiedTime)'
+    const params = new URLSearchParams({
+      fields,
+      pageSize: PAGE_SIZE.toString(),
+    })
+
+    // Add page token if we're on a subsequent page
+    if (pageToken) {
+      params.set('pageToken', pageToken)
+    }
 
     const queryConditions: string[] = ['trashed=false']
 
@@ -209,10 +125,10 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
 
     params.set('q', queryConditions.join(' and '))
     return `${baseUrl}?${params.toString()}`
-  }, [searchQuery, currentFolderId])
+  }, [searchQuery, currentFolderId, pageToken])
 
   // Fetch files
-  const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } = useQuery({
+  const { data: googleDriveData, isLoading: googleDriveFilesIsLoading } = useQuery({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token, googleDriveApiUrl],
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
@@ -220,19 +136,27 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
         headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
       })
       const responseJson = googleDriveResponseSchema.parse(await response.json())
-      return responseJson.files.map((file) => ({
-        id: file.id,
-        name: file.name,
-        size: file.size ? parseInt(file.size) : 0,
-        iconLink: getHighResIconUrl(file.iconLink ?? ''),
-        mimeType: file.mimeType,
-      }))
+      return {
+        files: responseJson.files.map((file) => ({
+          id: file.id,
+          name: file.name,
+          size: file.size ? parseInt(file.size) : 0,
+          iconLink: getHighResIconUrl(file.iconLink ?? ''),
+          mimeType: file.mimeType,
+          modifiedTime: file.modifiedTime,
+        })),
+        nextPageToken: responseJson.nextPageToken,
+      }
     },
   })
 
-  // Embed files mutation
-  const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
-    mutationFn: (data: { libraryId: string; files: GoogleDriveFile[]; access_token: string }) => embedFiles({ data }),
+  const googleDriveFilesData = googleDriveData?.files
+  const nextPageToken = googleDriveData?.nextPageToken
+
+  // Upload files mutation
+  const { mutate: uploadFilesMutation, isPending: uploadFilesIsPending } = useMutation({
+    mutationFn: (data: { libraryId: string; files: GoogleDriveFile[]; access_token: string }) =>
+      uploadGoogleDriveFiles({ data }),
     onSuccess: () => {
       toastSuccess(t('libraries.filesEmbeddedSuccess'))
       setSelectedFiles([])
@@ -275,8 +199,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     window.location.href = `/libraries/auth-google?prompt=select_account&redirectAfterAuth=${encodeURIComponent(window.location.href)}`
   }
 
-  const handleEmbedFiles = () => {
-    embedFilesMutation({
+  const handleUploadFiles = () => {
+    uploadFilesMutation({
       libraryId,
       files: selectedFiles,
       access_token: googleDriveAccessToken.access_token!,
@@ -291,14 +215,41 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
 
   const handleOpenFolder = useCallback((id: string, name: string) => {
     setFolderPath((prev) => [...prev, { id, name }])
+    // Reset pagination when entering a folder
+    setPageToken(undefined)
+    setPageTokenHistory([])
   }, [])
 
   const handleNavigateToFolder = (folderId: string) => {
     const index = folderPath.findIndex((f) => f.id === folderId)
     if (index !== -1) {
       setFolderPath(folderPath.slice(0, index + 1))
+      // Reset pagination when navigating via breadcrumb
+      setPageToken(undefined)
+      setPageTokenHistory([])
     }
   }
+
+  // Pagination handlers
+  const handleNextPage = () => {
+    if (nextPageToken) {
+      setPageTokenHistory((prev) => [...prev, pageToken || ''])
+      setPageToken(nextPageToken)
+    }
+  }
+
+  const handlePreviousPage = () => {
+    if (pageTokenHistory.length > 0) {
+      const newHistory = [...pageTokenHistory]
+      const previousToken = newHistory.pop()
+      setPageTokenHistory(newHistory)
+      setPageToken(previousToken || undefined)
+    }
+  }
+
+  const currentPage = pageTokenHistory.length + 1
+  const hasNextPage = !!nextPageToken
+  const hasPreviousPage = pageTokenHistory.length > 0
 
   const getAddFilesLabel = (count: number) => {
     return count === 1 ? t('libraries.addSingleFile') : t('libraries.addMultipleFiles', { count })
@@ -312,7 +263,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
 
   return (
     <div className="flex h-full flex-col">
-      <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
+      <LoadingSpinner isLoading={uploadFilesIsPending || googleDriveFilesIsLoading} />
 
       {/* Header */}
       <div className="bg-base-100 sticky top-0 z-20 flex flex-col gap-2 p-2 shadow-md">
@@ -339,9 +290,9 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
               </button>
               <button
                 type="button"
-                disabled={!selectedFiles.length || embedFilesIsPending || disabled}
+                disabled={!selectedFiles.length || uploadFilesIsPending || disabled}
                 className="btn btn-primary btn-sm"
-                onClick={handleEmbedFiles}
+                onClick={handleUploadFiles}
               >
                 {getAddFilesLabel(selectedFiles.length)}
               </button>
@@ -434,6 +385,33 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
           )
         )}
       </div>
+
+      {/* Pagination - only show when there are pages to navigate */}
+      {(hasPreviousPage || hasNextPage) && (
+        <div className="bg-base-100 border-base-300 flex items-center justify-between border-t p-2">
+          <span className="text-sm text-gray-500">
+            {t('labels.page')} {currentPage}
+          </span>
+          <div className="join">
+            <button
+              type="button"
+              className="btn btn-sm join-item"
+              onClick={handlePreviousPage}
+              disabled={!hasPreviousPage || googleDriveFilesIsLoading}
+            >
+              «
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm join-item"
+              onClick={handleNextPage}
+              disabled={!hasNextPage || googleDriveFilesIsLoading}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
