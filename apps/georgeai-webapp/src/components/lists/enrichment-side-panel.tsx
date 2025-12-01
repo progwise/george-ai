@@ -103,8 +103,7 @@ export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origi
   }
 
   const handleClear = () => {
-    clearEnrichments({ fieldId, fileId })
-    onClose()
+    clearEnrichments({ fieldId, fileId }, { onSuccess: () => onClose() })
   }
 
   // Determine display value
