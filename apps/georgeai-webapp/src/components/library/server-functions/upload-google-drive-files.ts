@@ -19,7 +19,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
   .inputValidator((data: { libraryId: string; files: Array<GoogleDriveFileInput>; access_token: string }) =>
     z
       .object({
-        libraryId: z.string().nonempty(),
+        libraryId: z.string().min(1),
         files: z.array(
           z.object({
             id: z.string(),
@@ -30,7 +30,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
             modifiedTime: z.string().optional(),
           }),
         ),
-        access_token: z.string().nonempty(),
+        access_token: z.string().min(1),
       })
       .parse(data),
   )
@@ -92,7 +92,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
       const uploadResponse = await backendUpload(blob, response.prepareFileUpload.id)
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file')
+        throw new Error(`Failed to upload file: ${file.name} (ID: ${file.id})`)
       }
 
       return await backendRequest(

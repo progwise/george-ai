@@ -691,7 +691,6 @@ export default {
     dropFileError: 'Failed to delete file',
     dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',
-    googleDriveRootFolder: 'My Drive',
     searchGoogleDrive: 'Search files...',
     searchingAllFiles: 'Searching all files',
     noFilesFoundSearch: 'No files match your search',

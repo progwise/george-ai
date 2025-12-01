@@ -75,12 +75,19 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSetSearchQuery = useMemo(() => debounce(setSearchQuery, 300), [])
 
+  // Cleanup debounced function on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      debouncedSetSearchQuery.cancel()
+    }
+  }, [debouncedSetSearchQuery])
+
   // Pagination state
   const [pageToken, setPageToken] = useState<string | undefined>(undefined)
   const [pageTokenHistory, setPageTokenHistory] = useState<string[]>([]) // For going back
 
-  // Folder navigation state
-  const rootFolder: FolderPath = { id: 'root', name: t('googleDriveRootFolder') }
+  // Folder navigation state - memoize rootFolder to maintain stable reference
+  const rootFolder: FolderPath = useMemo(() => ({ id: 'root', name: t('googleDriveRootFolder') }), [t])
   const [folderPath, setFolderPath] = useState<FolderPath[]>([rootFolder])
   const currentFolderId = folderPath[folderPath.length - 1].id
 

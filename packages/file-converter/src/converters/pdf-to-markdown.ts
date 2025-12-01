@@ -110,15 +110,15 @@ export async function transformPdfToMarkdown(
 
         let lineText = ''
         let prevX: number | null = null
-        let usesHeadingFont = false
         let avgHeight = 0
 
+        // Determine if line uses heading font:
+        // Check if any item has bold in font name OR uses a different font than body text
+        const usesHeadingFont = line.items.some(
+          (item) => item.fontName && (/bold/i.test(item.fontName) || item.fontName !== bodyFont),
+        )
+
         for (const item of line.items) {
-          // Check if line uses a different font than body text (likely bold/heading font)
-          // Also check for explicit "bold" in font name
-          if (item.fontName && (item.fontName !== bodyFont || /bold/i.test(item.fontName))) {
-            usesHeadingFont = true
-          }
           avgHeight += item.height
 
           // Add spacing based on gap size
@@ -147,6 +147,10 @@ export async function transformPdfToMarkdown(
         lineText = lineText.trim()
 
         if (lineText) {
+          // Add blank line before paragraphs with extra vertical space (preserves paragraph breaks)
+          if (hasExtraSpaceAbove && prevLineY !== null) {
+            fullMarkdown += '\n'
+          }
           const processedLine = processLineForMarkdown(lineText, { isBold: usesHeadingFont, hasExtraSpaceAbove })
           fullMarkdown += processedLine + '\n'
         }

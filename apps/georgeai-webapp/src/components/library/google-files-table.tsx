@@ -60,12 +60,13 @@ export const GoogleFilesTable = ({
                   className={`hover:bg-base-200 cursor-pointer ${isSelected ? 'bg-primary/10' : ''}`}
                   onClick={() => (isFolder ? onOpenFolder(file.id, file.name) : onToggleFile(file))}
                 >
-                  <td onClick={(e) => e.stopPropagation()}>
+                  <td>
                     <input
                       type="checkbox"
                       className="checkbox checkbox-sm"
                       checked={isSelected}
                       onChange={() => onToggleFile(file)}
+                      onClick={(e) => e.stopPropagation()}
                       aria-label={`Select ${file.name}`}
                     />
                   </td>
@@ -121,6 +122,8 @@ export const GoogleFilesTable = ({
             tabIndex={0}
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') {
+                // Prevent Space key from scrolling the page
+                event.preventDefault()
                 if (isFolder) {
                   onOpenFolder(file.id, file.name)
                 } else {
@@ -135,12 +138,13 @@ export const GoogleFilesTable = ({
             }`}
           >
             {/* Checkbox in top-left corner */}
-            <div className="absolute left-1 top-1" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute left-1 top-1">
               <input
                 type="checkbox"
                 className="checkbox checkbox-xs"
                 checked={isSelected}
                 onChange={() => onToggleFile(file)}
+                onClick={(e) => e.stopPropagation()}
                 aria-label={`Select ${file.name}`}
               />
             </div>

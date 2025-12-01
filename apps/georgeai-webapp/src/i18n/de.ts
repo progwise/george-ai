@@ -701,7 +701,6 @@ export default {
     dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
-    googleDriveRootFolder: 'Meine Ablage',
     searchGoogleDrive: 'Dateien suchen...',
     searchingAllFiles: 'Durchsuche alle Dateien',
     noFilesFoundSearch: 'Keine Dateien gefunden',
