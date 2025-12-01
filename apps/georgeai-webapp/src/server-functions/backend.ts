@@ -44,6 +44,10 @@ async function backendRequest<T, V extends Variables = Variables>(
 }
 
 async function backendUpload(content: Blob, fileId: string) {
+  const jwtToken = getCookie?.(KEYCLOAK_TOKEN_COOKIE_NAME)
+  if (!jwtToken) {
+    throw new Error('User token not found in cookies')
+  }
   const data = await content.arrayBuffer()
   const buffer = Buffer.from(data)
   return fetch(BACKEND_URL + '/upload', {
@@ -51,6 +55,7 @@ async function backendUpload(content: Blob, fileId: string) {
     headers: {
       Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
       'x-upload-token': fileId,
+      'x-user-jwt': jwtToken,
     },
     body: buffer,
   })

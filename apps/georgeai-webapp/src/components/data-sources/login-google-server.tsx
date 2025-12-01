@@ -3,6 +3,12 @@ import { z } from 'zod'
 
 import { GOOGLE_DRIVE_CLIENT_ID, GOOGLE_DRIVE_CLIENT_SECRET } from '../../constants'
 
+export const isGoogleDriveConfigured = createServerFn({
+  method: 'GET',
+}).handler(() => {
+  return GOOGLE_DRIVE_CLIENT_ID.length > 0 && GOOGLE_DRIVE_CLIENT_SECRET.length > 0
+})
+
 export const getGoogleLoginUrl = createServerFn({
   method: 'GET',
 })

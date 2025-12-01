@@ -5,6 +5,7 @@ export const PDF_LAYOUT = {
   LARGE_GAP_THRESHOLD: 20, // Large spacing (likely column separator)
   MIN_FONT_SIZE: 6, // Minimum font size to consider
   MAX_FONT_SIZE: 72, // Maximum reasonable font size
+  HEADING_SPACE_MULTIPLIER: 1.5, // Line gap > 1.5x font height = extra space above (likely heading)
 } as const
 
 // Supported MIME types
