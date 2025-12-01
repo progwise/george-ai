@@ -105,6 +105,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     const params = new URLSearchParams({
       fields,
       pageSize: PAGE_SIZE.toString(),
+      // Sort folders first, then by name alphabetically
+      orderBy: 'folder,name',
     })
 
     // Add page token if we're on a subsequent page

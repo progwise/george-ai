@@ -107,7 +107,7 @@ export const GoogleFilesTable = ({
 
   // Grid view
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 p-2">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2 p-2">
       {files.map((file) => {
         const isSelected = selectedIds.has(file.id)
         const sizeValue = file.size ?? 0
@@ -128,47 +128,49 @@ export const GoogleFilesTable = ({
                 }
               }
             }}
-            className={`card card-compact bg-base-100 border transition-all ${
+            className={`relative rounded-lg border p-2 transition-all ${
               isSelected
-                ? 'border-primary bg-primary/10 shadow-md'
-                : 'border-base-300 hover:border-base-content/20 hover:shadow-sm'
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 hover:border-base-content/20 hover:bg-base-100'
             }`}
           >
-            <div className="card-body items-center text-center">
-              {/* Checkbox in top-left corner */}
-              <div className="absolute left-2 top-2" onClick={(e) => e.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  checked={isSelected}
-                  onChange={() => onToggleFile(file)}
-                  aria-label={`Select ${file.name}`}
-                />
-              </div>
+            {/* Checkbox in top-left corner */}
+            <div className="absolute left-1 top-1" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="checkbox"
+                className="checkbox checkbox-xs"
+                checked={isSelected}
+                onChange={() => onToggleFile(file)}
+                aria-label={`Select ${file.name}`}
+              />
+            </div>
 
+            {/* Content */}
+            <div className="flex flex-col items-center pt-3">
               {/* Icon */}
-              <div className="pt-4">
-                {file.iconLink ? (
-                  <img src={file.iconLink} alt="" className="h-10 w-10 object-contain" />
-                ) : isFolder ? (
-                  <FolderIcon className="h-10 w-10" />
-                ) : (
-                  <FileIcon className="h-10 w-10" />
-                )}
-              </div>
+              {file.iconLink ? (
+                <img src={file.iconLink} alt="" className="h-8 w-8 object-contain" />
+              ) : isFolder ? (
+                <FolderIcon className="h-8 w-8" />
+              ) : (
+                <FileIcon className="h-8 w-8" />
+              )}
 
               {/* File name */}
-              <p className="w-full truncate text-sm font-medium" title={file.name}>
-                {file.name}
-              </p>
-
-              {/* Type and size */}
-              <div className="flex flex-wrap justify-center gap-1">
-                <span className="badge badge-ghost badge-xs">{isFolder ? t('labels.folder') : t('labels.file')}</span>
-                {!isFolder && sizeValue > 0 && (
-                  <span className="badge badge-ghost badge-xs">{formatBytes(sizeValue)}</span>
-                )}
+              <div className="tooltip tooltip-bottom w-full" data-tip={file.name}>
+                <p className={`mt-1 w-full truncate text-center text-xs ${isFolder ? 'text-primary font-medium' : ''}`}>
+                  {file.name}
+                </p>
               </div>
+
+              {/* Size and date - only for files */}
+              {!isFolder && (
+                <div className="text-base-content/50 mt-0.5 text-center text-[10px]">
+                  {sizeValue > 0 && <span>{formatBytes(sizeValue)}</span>}
+                  {sizeValue > 0 && file.modifiedTime && <span> · </span>}
+                  {file.modifiedTime && <span>{dateTimeString(file.modifiedTime, language)}</span>}
+                </div>
+              )}
             </div>
           </div>
         )
