@@ -1,5 +1,5 @@
 {$HOST_NAME} {
-	reverse_proxy frontend:3001
+	reverse_proxy frontend:3000
 	tls internal
 }
 

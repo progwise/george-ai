@@ -85,13 +85,15 @@ The setup uses subdomains for each service. You need to configure DNS so these r
 Add entries to `/etc/hosts` (Linux/Mac) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
 
 ```
-192.168.1.100  george-ai.local
-192.168.1.100  api.george-ai.local
-192.168.1.100  auth.george-ai.local
-192.168.1.100  n8n.george-ai.local
+127.0.0.1  george-ai.local
+127.0.0.1  api.george-ai.local
+127.0.0.1  auth.george-ai.local
+127.0.0.1  n8n.george-ai.local
 ```
 
-Replace `192.168.1.100` with your server's IP address.
+Use `127.0.0.1` when running Docker on your local machine. For network-accessible deployments, replace with your server's IP address (e.g., `192.168.1.100`).
+
+> **Note for Windows users:** Editing `C:\Windows\System32\drivers\etc\hosts` requires administrative privileges. Open your text editor as Administrator to save changes.
 
 #### Option B: Pi-hole (Recommended for Home Networks)
 
@@ -109,10 +111,10 @@ If you have Pi-hole as your network DNS:
 Add to `/etc/dnsmasq.conf`:
 
 ```
-address=/george-ai.local/192.168.1.100
+address=/.george-ai.local/192.168.1.100
 ```
 
-This creates a wildcard entry that resolves `*.george-ai.local` to your server.
+This creates a wildcard entry that resolves `george-ai.local` and all subdomains (`*.george-ai.local`) to your server.
 
 #### Option D: Router DNS (Network-Wide)
 
@@ -165,6 +167,8 @@ docker compose exec backend sh -c "cd /app/node_modules/@george-ai/pothos-graphq
 - **n8n**: https://n8n.george-ai.local
 
 > **Note**: Your browser will show a certificate warning because Caddy generates self-signed certificates for local domains. This is expected and safe for internal use. Click "Advanced" and proceed to accept the certificate.
+>
+> **Important:** You'll need to accept the certificate for **each subdomain separately** (`george-ai.local`, `api.george-ai.local`, `auth.george-ai.local`, `n8n.george-ai.local`). During initial setup, your browser may prompt you multiple times as you access different services.
 
 ---
 
