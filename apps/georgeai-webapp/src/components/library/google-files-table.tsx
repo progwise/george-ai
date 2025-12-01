@@ -66,10 +66,7 @@ export const GoogleFilesTable = ({
                   readOnly
                 />
               </div>
-              <div
-                className={contentDesign}
-                onClick={isFolder ? () => onOpenFolder(file.id, file.name) : undefined}
-              >
+              <div className={contentDesign} onClick={isFolder ? () => onOpenFolder(file.id, file.name) : undefined}>
                 {file.iconLink ? (
                   <img src={file.iconLink} alt="" className={iconDesign + 'object-contain'} />
                 ) : isFolder ? (
@@ -119,12 +116,8 @@ export const GoogleFilesTable = ({
               isSelected ? 'bg-primary/20 border-primary' : 'hover:bg-base-100 border-transparent'
             }`}
           >
-            {file.iconLink && (
-              <img src={file.iconLink} alt={`${file.name} icon`} className="size-12 object-contain" />
-            )}
-            <span className="text-base-content block w-full max-w-full truncate text-center text-sm">
-              {file.name}
-            </span>
+            {file.iconLink && <img src={file.iconLink} alt={`${file.name} icon`} className="size-12 object-contain" />}
+            <span className="text-base-content block w-full max-w-full truncate text-center text-sm">{file.name}</span>
             <span className="text-base-content mt-1 text-xs">{isFolder ? 'Folder' : 'File'}</span>
             <span className="text-base-content mt-1 hidden text-xs md:block">{formatBytes(sizeValue)}</span>
           </div>
