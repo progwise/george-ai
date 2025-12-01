@@ -143,8 +143,9 @@ For complete Keycloak configuration instructions, see **[Keycloak Configuration 
 
 1. Access Keycloak at `https://auth.george-ai.local` (admin / your KEYCLOAK_ADMIN_PASSWORD)
 2. Import realm: Upload `keycloak-george-ai-realm.json`
-3. Update client redirect URIs to match your domain
-4. Create a user account
+3. Create a user account
+
+> **Note**: The realm JSON is pre-configured for `george-ai.local`. If using a different hostname, update the redirect URIs in **Clients** → **george-ai-client** → **Access settings** to match your domain (e.g., `https://your-domain.local/*`).
 
 For detailed production configuration including OAuth providers and security considerations, refer to the full [Keycloak guide](./keycloak.md).
 
