@@ -1,9 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { FileIcon } from '../../../icons/file-icon'
+import { isGoogleDriveConfigured } from '../../data-sources/login-google-server'
 import { toastError } from '../../georgeToaster'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { FileUploadProgressDialog, PreparedUploadFile } from './file-upload-progress-dialog'
@@ -24,6 +26,12 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
   const [preparedUploadFiles, setPreparedUploadFiles] = useState<PreparedUploadFile[]>([])
   const navigate = useNavigate({ from: '/libraries/$libraryId/files' })
   const { prepareDesktopFileUploads, fileActionPending } = useFileActions({ libraryId })
+
+  const { data: googleDriveEnabled } = useQuery({
+    queryKey: ['isGoogleDriveConfigured'],
+    queryFn: () => isGoogleDriveConfigured(),
+    staleTime: Infinity, // Config won't change at runtime
+  })
 
   const handlePrepareUploadFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files ? Array.from(event.target.files) : []
@@ -85,9 +93,11 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
             disabled={fileActionPending}
           />
         </li>
-        <li>
-          <GoogleFileUploadButton libraryId={libraryId} disabled={false} />
-        </li>
+        {googleDriveEnabled && (
+          <li>
+            <GoogleFileUploadButton libraryId={libraryId} disabled={false} />
+          </li>
+        )}
         <li>
           <DropAllFilesDialog libraryId={libraryId} disabled={false} totalItems={totalItems} />
         </li>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { debounce } from '@george-ai/web-utils'
 
@@ -9,9 +9,20 @@ interface LibraryQueryInputProps {
 }
 
 export const LibraryQueryInput = ({ libraryName, onSearchTermChange, defaultSearchTerm }: LibraryQueryInputProps) => {
-  const debounceInput = debounce((value: string) => {
-    onSearchTermChange(value)
-  }, 1000)
+  const debounceInput = useMemo(
+    () =>
+      debounce((value: string) => {
+        onSearchTermChange(value)
+      }, 1000),
+    [onSearchTermChange],
+  )
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debounceInput.cancel()
+    }
+  }, [debounceInput])
 
   useEffect(() => {
     console.log('LibraryQueryInput mounted', defaultSearchTerm)
