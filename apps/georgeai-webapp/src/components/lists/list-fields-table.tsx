@@ -4,14 +4,18 @@ import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import {
+  EnrichmentSidePanel_FieldValueFragment,
+  EnrichmentSidePanel_OriginFragment,
   FieldModal_FieldFragment,
   ListFieldsTable_ListFragment,
   ListFilesTable_FilesQueryResultFragment,
 } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { EyeIcon } from '../../icons/eye-icon'
 import { MenuEllipsisIcon } from '../../icons/menu-ellipsis-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { SortingIcon } from '../../icons/sorting-icon'
+import { EnrichmentSidePanel } from './enrichment-side-panel'
 import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
@@ -36,6 +40,7 @@ graphql(`
       values {
         fieldId
         fieldName
+        fieldType
         displayValue
         enrichmentErrorMessage
         failedEnrichmentValue
@@ -93,6 +98,10 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
+  const [sidePanelData, setSidePanelData] = useState<{
+    fieldValue: EnrichmentSidePanel_FieldValueFragment
+    origin: EnrichmentSidePanel_OriginFragment
+  } | null>(null)
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
@@ -261,6 +270,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                   .map((field) => {
                     const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.origin.id, field.id)
                     const displayValue = value?.toString() || '-'
+                    const fieldValueData = item.values.find((v) => v.fieldId === field.id)
 
                     return (
                       <div
@@ -311,9 +321,27 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                                         ? `⚠️ ${t('lists.enrichment.failedTerm')}`
                                         : t('lists.enrichment.notEnriched')}
                             </span>
+                            {fieldValueData && (value || error || failedEnrichmentValue) && (
+                              <button
+                                type="button"
+                                className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                                aria-label={t('lists.enrichment.sidePanel.viewDetails')}
+                                title={t('lists.enrichment.sidePanel.viewDetails')}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSidePanelData({
+                                    fieldValue: fieldValueData,
+                                    origin: item.origin,
+                                  })
+                                }}
+                              >
+                                <EyeIcon className="size-4" />
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                              aria-label={`Actions for ${field.name} in ${item.origin.name}`}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 const itemKey = `${item.origin.id}-${field.id}`
@@ -402,6 +430,17 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
         maxOrder={Math.max(0, ...visibleFields.map((f) => f.order))}
         editField={editField}
       />
+
+      {/* Enrichment Side Panel */}
+      {sidePanelData && (
+        <EnrichmentSidePanel
+          isOpen={!!sidePanelData}
+          onClose={() => setSidePanelData(null)}
+          listId={list.id}
+          fieldValue={sidePanelData.fieldValue}
+          origin={sidePanelData.origin}
+        />
+      )}
     </div>
   )
 }

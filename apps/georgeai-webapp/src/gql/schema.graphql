@@ -984,6 +984,7 @@ type FieldValueResult {
   failedEnrichmentValue: String
   fieldId: String!
   fieldName: String!
+  fieldType: String!
   queueStatus: String
 }
 
@@ -1066,6 +1067,7 @@ enum ListFieldType {
   boolean
   date
   datetime
+  markdown
   number
   string
   text

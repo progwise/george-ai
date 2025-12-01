@@ -38,6 +38,7 @@ export const FieldValueResult = builder
   .objectRef<{
     fieldId: string
     fieldName: string
+    fieldType: string
     displayValue: string | null
     enrichmentErrorMessage: string | null
     failedEnrichmentValue: string | null
@@ -47,6 +48,7 @@ export const FieldValueResult = builder
     fields: (t) => ({
       fieldId: t.exposeString('fieldId', { nullable: false }),
       fieldName: t.exposeString('fieldName', { nullable: false }),
+      fieldType: t.exposeString('fieldType', { nullable: false }),
       displayValue: t.exposeString('displayValue', { nullable: true }),
       enrichmentErrorMessage: t.exposeString('enrichmentErrorMessage', { nullable: true }),
       failedEnrichmentValue: t.exposeString('failedEnrichmentValue', { nullable: true }),
@@ -135,6 +137,7 @@ export const ListItemQueryResult = builder
           return fields.map((field) => ({
             fieldId: field.id,
             fieldName: field.name,
+            fieldType: field.type,
             ...(() => {
               const { value, errorMessage, failedEnrichmentValue } = getFieldValue(file, field)
               const fieldTask = file.enrichmentTasks.find((task) => task.fieldId === field.id)

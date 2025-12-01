@@ -67,10 +67,17 @@ async function processQueueItem({
       content: metadata.input.aiGenerationPrompt,
     })
 
-    messages.push({
-      role: 'user',
-      content: `The data type you must return is: ${metadata.input.dataType}`,
-    })
+    if (metadata.input.dataType === 'markdown') {
+      messages.push({
+        role: 'user',
+        content: `Output your response in Markdown format. Use appropriate headings, lists, code blocks, and formatting as needed. Return only the Markdown content without any wrapper or explanation.`,
+      })
+    } else {
+      messages.push({
+        role: 'user',
+        content: `The data type you must return is: ${metadata.input.dataType}`,
+      })
+    }
 
     messages.push({
       role: 'user',

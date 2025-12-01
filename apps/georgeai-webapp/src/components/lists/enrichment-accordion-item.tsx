@@ -9,6 +9,7 @@ import { EnrichmentAccordionItem_EnrichmentFragment, EnrichmentStatus } from '..
 import { useTranslation } from '../../i18n/use-translation-hook'
 import ErrorIcon from '../../icons/error-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { FormattedMarkdown } from '../formatted-markdown'
 import { JsonModal } from '../json-modal'
 import { useEnrichmentActions } from './use-enrichment-actions'
 
@@ -92,6 +93,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
   const processingData = enrichment.processingData ?? {
     input: {
       aiModelName: 'unknown',
+      dataType: 'string',
     },
     output: {
       similarChunks: [],
@@ -217,7 +219,13 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
             <div className="bg-base-200 rounded-lg p-3">
               <div className="flex items-start gap-2">
                 <span className="text-base-content/60 min-w-fit font-semibold">Enriched Value:</span>
-                <span className="text-base-content">{processingData.output.enrichedValue}</span>
+                {processingData.input?.dataType === 'markdown' ? (
+                  <div className="prose prose-sm max-w-none">
+                    <FormattedMarkdown markdown={processingData.output.enrichedValue} />
+                  </div>
+                ) : (
+                  <span className="text-base-content">{processingData.output.enrichedValue}</span>
+                )}
               </div>
             </div>
           )}

@@ -1043,6 +1043,7 @@ export type FieldValueResult = {
   failedEnrichmentValue?: Maybe<Scalars['String']['output']>
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
+  fieldType: Scalars['String']['output']
   queueStatus?: Maybe<Scalars['String']['output']>
 }
 
@@ -1129,6 +1130,7 @@ export enum ListFieldType {
   Boolean = 'boolean',
   Date = 'date',
   Datetime = 'datetime',
+  Markdown = 'markdown',
   Number = 'number',
   String = 'string',
   Text = 'text',
@@ -4220,24 +4222,6 @@ export type AiLibraryFile_MarkdownFileSelectorFragment = {
   availableExtractionMarkdownFileNames: Array<string>
 }
 
-export type PrepareFileMutationVariables = Exact<{
-  file: AiLibraryFileInput
-}>
-
-export type PrepareFileMutation = {
-  __typename?: 'Mutation'
-  prepareFileUpload: { __typename?: 'AiLibraryFile'; id: string }
-}
-
-export type ProcessFileMutationVariables = Exact<{
-  fileId: Scalars['String']['input']
-}>
-
-export type ProcessFileMutation = {
-  __typename?: 'Mutation'
-  createContentProcessingTask: { __typename?: 'AiContentProcessingTask'; id: string }
-}
-
 export type AiLibraryForm_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -4568,6 +4552,24 @@ export type ChangeLibraryMutation = {
   }
 }
 
+export type PrepareFileMutationVariables = Exact<{
+  file: AiLibraryFileInput
+}>
+
+export type PrepareFileMutation = {
+  __typename?: 'Mutation'
+  prepareFileUpload: { __typename?: 'AiLibraryFile'; id: string }
+}
+
+export type ProcessFileMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type ProcessFileMutation = {
+  __typename?: 'Mutation'
+  createContentProcessingTask: { __typename?: 'AiContentProcessingTask'; id: string }
+}
+
 export type GetContentProcessingTasksQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
   fileId?: InputMaybe<Scalars['String']['input']>
@@ -4876,6 +4878,25 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
   list: { __typename?: 'AiList'; id: string; name: string }
 }
 
+export type EnrichmentSidePanel_FieldValueFragment = {
+  __typename?: 'FieldValueResult'
+  fieldId: string
+  fieldName: string
+  fieldType: string
+  displayValue?: string | null
+  enrichmentErrorMessage?: string | null
+  failedEnrichmentValue?: string | null
+  queueStatus?: string | null
+}
+
+export type EnrichmentSidePanel_OriginFragment = {
+  __typename?: 'ListItemResult'
+  id: string
+  name: string
+  libraryId: string
+  libraryName: string
+}
+
 export type FieldModal_ListFragment = {
   __typename?: 'AiList'
   id: string
@@ -5016,6 +5037,7 @@ export type ListFilesTable_FilesQueryResultFragment = {
       __typename?: 'FieldValueResult'
       fieldId: string
       fieldName: string
+      fieldType: string
       displayValue?: string | null
       enrichmentErrorMessage?: string | null
       failedEnrichmentValue?: string | null
@@ -5312,6 +5334,7 @@ export type GetListItemsQuery = {
         __typename?: 'FieldValueResult'
         fieldId: string
         fieldName: string
+        fieldType: string
         displayValue?: string | null
         enrichmentErrorMessage?: string | null
         failedEnrichmentValue?: string | null
@@ -9669,6 +9692,47 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<EnrichmentAccordionItem_EnrichmentFragment, unknown>
+export const EnrichmentSidePanel_FieldValueFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EnrichmentSidePanel_FieldValue' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'FieldValueResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fieldType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'failedEnrichmentValue' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'queueStatus' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnrichmentSidePanel_FieldValueFragment, unknown>
+export const EnrichmentSidePanel_OriginFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'EnrichmentSidePanel_Origin' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ListItemResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnrichmentSidePanel_OriginFragment, unknown>
 export const ListExport_FieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10404,6 +10468,7 @@ export const ListFilesTable_FilesQueryResultFragmentDoc = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldType' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'failedEnrichmentValue' } },
@@ -15860,83 +15925,6 @@ export const GetMarkdownDocument = {
     },
   ],
 } as unknown as DocumentNode<GetMarkdownQuery, GetMarkdownQueryVariables>
-export const PrepareFileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'prepareFile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileInput' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'prepareFileUpload' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<PrepareFileMutation, PrepareFileMutationVariables>
-export const ProcessFileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'processFile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createContentProcessingTask' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
 export const GetApiKeysDocument = {
   kind: 'Document',
   definitions: [
@@ -17008,6 +16996,83 @@ export const ChangeLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangeLibraryMutation, ChangeLibraryMutationVariables>
+export const PrepareFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'prepareFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'prepareFileUpload' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PrepareFileMutation, PrepareFileMutationVariables>
+export const ProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createContentProcessingTask' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
 export const GetContentProcessingTasksDocument = {
   kind: 'Document',
   definitions: [
@@ -17876,6 +17941,7 @@ export const GetListItemsDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldType' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'displayValue' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'enrichmentErrorMessage' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'failedEnrichmentValue' } },
