@@ -30,65 +30,95 @@ This guide covers deploying George AI in your own infrastructure.
 
 - **Docker**: 24.0+ with Docker Compose
 - **Operating System**: Linux (Ubuntu 22.04+, Debian 12+, RHEL 9+)
-- **Ports**: 3001 (frontend), 3003 (backend), 8180 (Keycloak), 8108 (Typesense), 5432 (PostgreSQL)
+- **Ports**: 80 (HTTP), 443 (HTTPS) - Caddy handles all routing internally
 
 ### Optional Components
 
 - **GPU**: NVIDIA GPU with Docker runtime for Ollama acceleration
-- **Reverse Proxy**: Nginx, Traefik, or Caddy for SSL/TLS termination
 - **SMTP Server**: For email notifications and contact forms
 
 ---
 
 ## Quick Start with Docker Compose
 
-> **Reference Implementation**: A complete docker-compose example is available at [`docs/examples/docker-compose.yml`](./examples/docker-compose.yml). This is a reference configuration for self-hosters to copy and customize.
+> **Reference Implementation**: A complete docker-compose example is available at [`docs/examples/docker-compose.yml`](./examples/docker-compose.yml). This includes Caddy as reverse proxy for automatic HTTPS.
 
-### 1. Clone the Repository
+### 1. Copy the Example Files
 
 ```bash
-git clone https://github.com/progwise/george-ai.git
-cd george-ai
+# Create a directory for George AI
+mkdir george-ai && cd george-ai
+
+# Download the example files
+curl -O https://raw.githubusercontent.com/progwise/george-ai/main/docs/examples/docker-compose.yml
+curl -O https://raw.githubusercontent.com/progwise/george-ai/main/docs/examples/.env.example
+curl -O https://raw.githubusercontent.com/progwise/george-ai/main/docs/examples/Caddyfile
+curl -O https://raw.githubusercontent.com/progwise/george-ai/main/docs/examples/keycloak-george-ai-realm.json
 ```
 
-### 2. Copy Docker Compose Template
+### 2. Configure Environment
 
 ```bash
-cp docs/examples/docker-compose.yml docker-compose.yml
+cp .env.example .env
 ```
 
-### 3. Create Environment File
+Edit `.env` and set your hostname:
 
 ```bash
-cp docs/examples/.env.example .env
-```
-
-Edit `.env` and set at minimum:
-
-```bash
-# Database
-DB_USER=george
+HOST_NAME=george-ai.local
 DB_PASSWORD=your_secure_password_here
-DB_NAME=georgeai
-
-# Keycloak
 KEYCLOAK_ADMIN_PASSWORD=your_admin_password_here
-KEYCLOAK_DB_PASSWORD=your_keycloak_db_password_here
-KEYCLOAK_REALM=george-ai
-KEYCLOAK_CLIENT_ID=george-ai-client
-
-# Typesense
 TYPESENSE_API_KEY=your_typesense_api_key_here
-
-# URLs (adjust for your domain)
-KEYCLOAK_URL=http://localhost:8180
-BACKEND_PUBLIC_URL=http://localhost:3003
-PUBLIC_APP_URL=http://localhost:3001
-KEYCLOAK_REDIRECT_URL=http://localhost:3001
-
-# GraphQL API Key (for internal service communication)
-GRAPHQL_API_KEY=your_graphql_api_key_here
 ```
+
+### 3. Configure DNS Resolution
+
+The setup uses subdomains for each service. You need to configure DNS so these resolve to your server:
+
+- `george-ai.local` → Frontend
+- `api.george-ai.local` → Backend API
+- `auth.george-ai.local` → Keycloak
+- `n8n.george-ai.local` → n8n (workflow automation)
+
+#### Option A: Local Hosts File (Single Machine)
+
+Add entries to `/etc/hosts` (Linux/Mac) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
+
+```
+127.0.0.1  george-ai.local
+127.0.0.1  api.george-ai.local
+127.0.0.1  auth.george-ai.local
+127.0.0.1  n8n.george-ai.local
+```
+
+Use `127.0.0.1` when running Docker on your local machine. For network-accessible deployments, replace with your server's IP address (e.g., `192.168.1.100`).
+
+> **Note for Windows users:** Editing `C:\Windows\System32\drivers\etc\hosts` requires administrative privileges. Open your text editor as Administrator to save changes.
+
+#### Option B: Pi-hole (Recommended for Home Networks)
+
+If you have Pi-hole as your network DNS:
+
+1. Go to **Local DNS** → **DNS Records**
+2. Add records for each subdomain:
+   - `george-ai.local` → `192.168.1.100`
+   - `api.george-ai.local` → `192.168.1.100`
+   - `auth.george-ai.local` → `192.168.1.100`
+   - `n8n.george-ai.local` → `192.168.1.100`
+
+#### Option C: dnsmasq (Linux Server)
+
+Add to `/etc/dnsmasq.conf`:
+
+```
+address=/.george-ai.local/192.168.1.100
+```
+
+This creates a wildcard entry that resolves `george-ai.local` and all subdomains (`*.george-ai.local`) to your server.
+
+#### Option D: Router DNS (Network-Wide)
+
+Many routers support custom DNS entries. Check your router's admin interface for "DNS" or "Local DNS" settings.
 
 ### 4. Start All Services
 
@@ -98,12 +128,14 @@ docker compose up -d
 
 This starts:
 
-- PostgreSQL (main database)
-- Keycloak (authentication)
-- Typesense (vector search)
-- Backend (GraphQL API)
-- Frontend (React web app)
-- Ollama (optional local AI)
+- **Caddy** - Reverse proxy with automatic HTTPS (self-signed certificates)
+- **PostgreSQL** - Main database
+- **Keycloak** - Authentication
+- **Typesense** - Vector search
+- **Backend** - GraphQL API
+- **Frontend** - React web app
+- **Webcrawler** - Web page crawling
+- **n8n** - Workflow automation
 
 ### 5. Configure Keycloak
 
@@ -111,27 +143,32 @@ For complete Keycloak configuration instructions, see **[Keycloak Configuration 
 
 **Quick start:**
 
-1. Access Keycloak at your `KEYCLOAK_URL` (admin/[KEYCLOAK_ADMIN_PASSWORD from .env])
-2. Import realm: `docs/examples/keycloak-george-ai-realm.json`
-3. Update client redirect URIs to match your domain
-4. Create a user account
+1. Access Keycloak at `https://auth.george-ai.local` (admin / your KEYCLOAK_ADMIN_PASSWORD)
+2. Import realm: Upload `keycloak-george-ai-realm.json`
+3. Create a user account
 
-For detailed production configuration including HTTPS setup, OAuth providers, and security considerations, refer to the full [Keycloak guide](./keycloak.md)
+> **Note**: The realm JSON is pre-configured for `george-ai.local`. If using a different hostname, update the redirect URIs in **Clients** → **george-ai-client** → **Access settings** to match your domain (e.g., `https://your-domain.local/*`).
+
+For detailed production configuration including OAuth providers and security considerations, refer to the full [Keycloak guide](./keycloak.md).
 
 ### 6. Run Database Migrations
 
 Initialize the database schema:
 
 ```bash
-# Using Docker Compose
 docker compose exec backend sh -c "cd /app/node_modules/@george-ai/pothos-graphql && npx prisma migrate deploy"
 ```
 
 ### 7. Access George AI
 
-- **Frontend**: http://localhost:3001
-- **Backend GraphQL API**: http://localhost:3003/graphql
-- **Keycloak Admin**: http://localhost:8180
+- **Frontend**: https://george-ai.local
+- **Backend GraphQL API**: https://api.george-ai.local/graphql
+- **Keycloak Admin**: https://auth.george-ai.local
+- **n8n**: https://n8n.george-ai.local
+
+> **Note**: Your browser will show a certificate warning because Caddy generates self-signed certificates for local domains. This is expected and safe for internal use. Click "Advanced" and proceed to accept the certificate.
+>
+> **Important:** You'll need to accept the certificate for **each subdomain separately** (`george-ai.local`, `api.george-ai.local`, `auth.george-ai.local`, `n8n.george-ai.local`). During initial setup, your browser may prompt you multiple times as you access different services.
 
 ---
 

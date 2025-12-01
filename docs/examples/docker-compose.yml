@@ -1,7 +1,20 @@
 # George AI - Quick Start
 # Set HOST_NAME in .env, then: docker compose up -d
+# Access via https://${HOST_NAME}
 
 services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      HOST_NAME: ${HOST_NAME}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
   postgres:
     image: postgres:16
     environment:
@@ -28,16 +41,12 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: ${DB_PASSWORD}
-      KC_HOSTNAME: ${HOST_NAME}
-      KC_HOSTNAME_PORT: 8180
-      KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HOSTNAME: auth.${HOST_NAME}
+      KC_HOSTNAME_STRICT: true
       KC_PROXY: edge
       KC_HTTP_ENABLED: true
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-    ports:
-      - '8180:8080'
     depends_on:
       - keycloak-db
 
@@ -50,15 +59,13 @@ services:
       - typesense_data:/data
 
   webcrawler:
-    image: ghcr.io/progwise/george-ai-webcrawler:latest
-    ports:
-      - '11245:11245'
+    image: ghcr.io/progwise/george-ai/webcrawler:latest
 
   backend:
-    image: ghcr.io/progwise/george-ai-backend:latest
+    image: ghcr.io/progwise/george-ai/backend:latest
     environment:
       DATABASE_URL: postgresql://george:${DB_PASSWORD}@postgres:5432/georgeai?schema=public
-      KEYCLOAK_URL: http://${HOST_NAME}:8180
+      KEYCLOAK_URL: https://auth.${HOST_NAME}
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_CLIENT_ID: george-ai-client
       TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
@@ -69,40 +76,36 @@ services:
       FILE_STORAGE_PATH: /app/storage
     volumes:
       - backend_storage:/app/storage
-    ports:
-      - '3003:3003'
     depends_on:
       - postgres
       - typesense
       - webcrawler
 
   frontend:
-    image: ghcr.io/progwise/george-ai-frontend:latest
+    image: ghcr.io/progwise/george-ai/webapp:latest
     environment:
       BACKEND_URL: http://backend:3003
-      BACKEND_PUBLIC_URL: http://${HOST_NAME}:3003
-      KEYCLOAK_URL: http://${HOST_NAME}:8180
+      BACKEND_PUBLIC_URL: https://api.${HOST_NAME}
+      KEYCLOAK_URL: https://auth.${HOST_NAME}
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_CLIENT_ID: george-ai-client
-      KEYCLOAK_REDIRECT_URL: http://${HOST_NAME}:3001
-      PUBLIC_APP_URL: http://${HOST_NAME}:3001
-    ports:
-      - '3001:3001'
+      KEYCLOAK_REDIRECT_URL: https://${HOST_NAME}
+      PUBLIC_APP_URL: https://${HOST_NAME}
     depends_on:
       - backend
 
   n8n:
     image: n8nio/n8n
     environment:
-      WEBHOOK_TUNNEL_URL: http://${HOST_NAME}:5678/
+      WEBHOOK_TUNNEL_URL: https://n8n.${HOST_NAME}/
       GENERIC_TIMEZONE: utc
       TZ: utc
-    ports:
-      - '5678:5678'
     volumes:
       - n8n_data:/home/node/.n8n
 
 volumes:
+  caddy_data:
+  caddy_config:
   n8n_data:
   postgres_data:
   keycloak_db_data:
