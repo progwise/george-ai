@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
 import { FolderIcon } from '../../../icons/folder-icon'
+import { PortalDialog } from '../../portal-dialog'
 import { GoogleDriveFiles } from '../google-drive-files'
 
 interface GoogleFileUploadButtonProps {
@@ -48,26 +49,23 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
         <FolderIcon className="h-5 w-5" />
         {t('libraries.googleDrive')}
       </button>
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box relative flex w-full min-w-[400px] max-w-screen-lg flex-col">
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm absolute right-2 top-2"
-            onClick={() => dialogRef.current?.close()}
-          >
-            <CrossIcon />
-          </button>
-          <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
-          <div className="flex-grow overflow-auto">
-            <GoogleDriveFiles libraryId={libraryId} disabled={disabled} dialogRef={dialogRef} />
-          </div>
+      <PortalDialog
+        ref={dialogRef}
+        className="relative flex h-[80vh] w-[90vw] max-w-4xl flex-col"
+        onClose={() => dialogRef.current?.close()}
+      >
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm absolute right-2 top-2"
+          onClick={() => dialogRef.current?.close()}
+        >
+          <CrossIcon />
+        </button>
+        <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
+        <div className="grow overflow-auto">
+          <GoogleDriveFiles libraryId={libraryId} disabled={disabled} dialogRef={dialogRef} />
         </div>
-        <form method="dialog" className="modal-backdrop" onClick={() => dialogRef.current?.close()}>
-          <button type="button" onClick={() => dialogRef.current?.close()}>
-            Close
-          </button>
-        </form>
-      </dialog>
+      </PortalDialog>
     </>
   )
 }

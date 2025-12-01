@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { debounce } from '@george-ai/web-utils'
 
@@ -57,9 +57,20 @@ export const UserFilters = ({
     [pageSize, pageSizeOptions],
   )
 
-  const handleFilterChange = debounce((newTerm: string) => {
-    onFilterChange(newTerm.trim())
-  }, 1000)
+  const handleFilterChange = useMemo(
+    () =>
+      debounce((newTerm: string) => {
+        onFilterChange(newTerm.trim())
+      }, 1000),
+    [onFilterChange],
+  )
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      handleFilterChange.cancel()
+    }
+  }, [handleFilterChange])
 
   return (
     <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
