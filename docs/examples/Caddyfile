@@ -1,0 +1,19 @@
+{$HOST_NAME} {
+	reverse_proxy frontend:3001
+	tls internal
+}
+
+api.{$HOST_NAME} {
+	reverse_proxy backend:3003
+	tls internal
+}
+
+auth.{$HOST_NAME} {
+	reverse_proxy keycloak:8080
+	tls internal
+}
+
+n8n.{$HOST_NAME} {
+	reverse_proxy n8n:5678
+	tls internal
+}
