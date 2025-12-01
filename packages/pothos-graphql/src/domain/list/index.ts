@@ -3,7 +3,7 @@ import { prisma } from '../../prisma'
 
 export * from './filter'
 
-export const LIST_FIELD_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean'] as const
+export const LIST_FIELD_TYPES = ['string', 'text', 'markdown', 'number', 'date', 'datetime', 'boolean'] as const
 export type FieldType = (typeof LIST_FIELD_TYPES)[number]
 
 export const LIST_FIELD_SOURCE_TYPES = ['file_property', 'llm_computed'] as const
@@ -117,6 +117,7 @@ export function getFieldValue(
   const failedEnrichmentValue = cache.failedEnrichmentValue || null
 
   switch (field.type) {
+    case 'markdown':
     case 'text':
     case 'string':
       return { value: cache.valueString, errorMessage, failedEnrichmentValue }

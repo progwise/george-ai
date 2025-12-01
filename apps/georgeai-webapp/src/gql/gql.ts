@@ -112,8 +112,6 @@ type Documents = {
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {\n            ...TaskMenu_FilesQueryResult\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            showArchived\n            count\n            archivedCount\n            missingChunksCount\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n        query getMarkdown($fileId: String!, $markdownFileName: String) {\n          aiLibraryFile(fileId: $fileId) {\n            markdown(markdownFileName: $markdownFileName) {\n              fileName\n              content\n            }\n          }\n        }\n      ': typeof types.GetMarkdownDocument
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    id\n    libraryId\n    latestExtractionMarkdownFileNames\n    availableExtractionMarkdownFileNames\n  }\n': typeof types.AiLibraryFile_MarkdownFileSelectorFragmentDoc
-  '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
-  '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ': typeof types.ProcessFileDocument
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibraries on AiLibrary {\n    id\n    name\n  }\n': typeof types.LibraryMenu_AiLibrariesFragmentDoc
@@ -138,6 +136,8 @@ type Documents = {
   '\n        mutation dropPendingTasks($libraryId: String!) {\n          dropPendingTasks(libraryId: $libraryId)\n        }\n      ': typeof types.DropPendingTasksDocument
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
+  '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
+  '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ': typeof types.ProcessFileDocument
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ': typeof types.GetContentProcessingTasksDocument
   '\n  fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {\n    id\n    ...AiContentProcessingTask_Timeline\n    file {\n      id\n      name\n      libraryId\n      library {\n        fileConverterOptions\n      }\n    }\n    createdAt\n    timeoutMs\n    metadata\n    extractionOptions\n    extractionStatus\n    embeddingStatus\n    processingTimeMs\n    processingStatus\n    chunksCount\n    chunksSize\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n': typeof types.AiContentProcessingTask_AccordionItemFragmentDoc
   '\n  fragment TaskMenu_FilesQueryResult on AiLibraryFileQueryResult {\n    count\n    missingChunksCount\n    missingContentExtractionTasksCount\n  }\n': typeof types.TaskMenu_FilesQueryResultFragmentDoc
@@ -149,6 +149,8 @@ type Documents = {
   '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n': typeof types.WebFetch_WebFetchesFragmentDoc
   '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
+  '\n  fragment EnrichmentSidePanel_FieldValue on FieldValueResult {\n    fieldId\n    fieldName\n    fieldType\n    displayValue\n    enrichmentErrorMessage\n    failedEnrichmentValue\n    queueStatus\n  }\n': typeof types.EnrichmentSidePanel_FieldValueFragmentDoc
+  '\n  fragment EnrichmentSidePanel_Origin on ListItemResult {\n    id\n    name\n    libraryId\n    libraryName\n  }\n': typeof types.EnrichmentSidePanel_OriginFragmentDoc
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.FieldModal_ListFragmentDoc
   '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    languageModel {\n      id\n      provider\n      name\n    }\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n': typeof types.FieldModal_FieldFragmentDoc
   '\n  fragment ListExport_Field on AiListField {\n    id\n    name\n    type\n    order\n    sourceType\n    fileProperty\n  }\n': typeof types.ListExport_FieldFragmentDoc
@@ -156,7 +158,7 @@ type Documents = {
   '\n  fragment ListFieldsTableFilters_AiListField on AiListField {\n    id\n    name\n    type\n  }\n': typeof types.ListFieldsTableFilters_AiListFieldFragmentDoc
   '\n  fragment ListFieldsTableMenu_AiList on AiList {\n    id\n    name\n  }\n': typeof types.ListFieldsTableMenu_AiListFragmentDoc
   '\n  fragment ListFieldsTableMenu_Field on AiListField {\n    id\n    name\n    type\n    ...ListFieldSettings_Field\n  }\n': typeof types.ListFieldsTableMenu_FieldFragmentDoc
-  '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
+  '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        fieldType\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n    ...FieldModal_List\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
   '\n  fragment ListFieldsTable_Field on AiListField {\n    listId\n    processingItemsCount\n    pendingItemsCount\n    id\n    sourceType\n    fileProperty\n    ...FieldModal_Field\n  }\n': typeof types.ListFieldsTable_FieldFragmentDoc
   '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n': typeof types.ListMenu_AiListFragmentDoc
@@ -418,10 +420,6 @@ const documents: Documents = {
     types.GetMarkdownDocument,
   '\n  fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {\n    id\n    libraryId\n    latestExtractionMarkdownFileNames\n    availableExtractionMarkdownFileNames\n  }\n':
     types.AiLibraryFile_MarkdownFileSelectorFragmentDoc,
-  '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ':
-    types.PrepareFileDocument,
-  '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ':
-    types.ProcessFileDocument,
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n':
     types.AiLibraryForm_LibraryFragmentDoc,
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n    ownerId\n    owner {\n      ...User_EntityParticipantsDialog\n    }\n    participants {\n      id\n      user {\n        ...User_EntityParticipantsDialog\n      }\n    }\n  }\n':
@@ -468,6 +466,10 @@ const documents: Documents = {
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
+  '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ':
+    types.PrepareFileDocument,
+  '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ':
+    types.ProcessFileDocument,
   '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ':
     types.GetContentProcessingTasksDocument,
   '\n  fragment AiContentProcessingTask_AccordionItem on AiContentProcessingTask {\n    id\n    ...AiContentProcessingTask_Timeline\n    file {\n      id\n      name\n      libraryId\n      library {\n        fileConverterOptions\n      }\n    }\n    createdAt\n    timeoutMs\n    metadata\n    extractionOptions\n    extractionStatus\n    embeddingStatus\n    processingTimeMs\n    processingStatus\n    chunksCount\n    chunksSize\n    extractionSubTasks {\n      id\n      extractionMethod\n      markdownFileName\n      startedAt\n      finishedAt\n      failedAt\n    }\n  }\n':
@@ -490,6 +492,10 @@ const documents: Documents = {
     types.ListEditForm_ListFragmentDoc,
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    fileId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    file {\n      id\n      name\n      library {\n        id\n        name\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
     types.EnrichmentAccordionItem_EnrichmentFragmentDoc,
+  '\n  fragment EnrichmentSidePanel_FieldValue on FieldValueResult {\n    fieldId\n    fieldName\n    fieldType\n    displayValue\n    enrichmentErrorMessage\n    failedEnrichmentValue\n    queueStatus\n  }\n':
+    types.EnrichmentSidePanel_FieldValueFragmentDoc,
+  '\n  fragment EnrichmentSidePanel_Origin on ListItemResult {\n    id\n    name\n    libraryId\n    libraryName\n  }\n':
+    types.EnrichmentSidePanel_OriginFragmentDoc,
   '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n':
     types.FieldModal_ListFragmentDoc,
   '\n  fragment FieldModal_Field on AiListField {\n    id\n    name\n    type\n    prompt\n    failureTerms\n    languageModel {\n      id\n      provider\n      name\n    }\n    order\n    contextFieldReferences {\n      ...ReferencedFields_FieldReferences\n    }\n    contextVectorSearches {\n      ...SimilarContent_VectorSearches\n    }\n    contextWebFetches {\n      ...WebFetch_WebFetches\n    }\n  }\n':
@@ -504,7 +510,7 @@ const documents: Documents = {
     types.ListFieldsTableMenu_AiListFragmentDoc,
   '\n  fragment ListFieldsTableMenu_Field on AiListField {\n    id\n    name\n    type\n    ...ListFieldSettings_Field\n  }\n':
     types.ListFieldsTableMenu_FieldFragmentDoc,
-  '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n':
+  '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        fieldType\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n':
     types.ListFilesTable_FilesQueryResultFragmentDoc,
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n    ...FieldModal_List\n  }\n':
     types.ListFieldsTable_ListFragmentDoc,
@@ -1236,18 +1242,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n',
 ): (typeof documents)['\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    ownerId\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n']
 /**
@@ -1392,6 +1386,18 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation processFile($fileId: String!) {\n            createContentProcessingTask(fileId: $fileId) {\n              id\n            }\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        query GetContentProcessingTasks(\n          $libraryId: String!\n          $fileId: String\n          $status: ProcessingStatus\n          $skip: Int\n          $take: Int\n        ) {\n          aiContentProcessingTasks(libraryId: $libraryId, fileId: $fileId, status: $status, skip: $skip, take: $take) {\n            count\n            statusCounts {\n              status\n              count\n            }\n            tasks {\n              ...AiContentProcessingTask_AccordionItem\n            }\n          }\n        }\n      ']
 /**
@@ -1458,6 +1464,18 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  fragment EnrichmentSidePanel_FieldValue on FieldValueResult {\n    fieldId\n    fieldName\n    fieldType\n    displayValue\n    enrichmentErrorMessage\n    failedEnrichmentValue\n    queueStatus\n  }\n',
+): (typeof documents)['\n  fragment EnrichmentSidePanel_FieldValue on FieldValueResult {\n    fieldId\n    fieldName\n    fieldType\n    displayValue\n    enrichmentErrorMessage\n    failedEnrichmentValue\n    queueStatus\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment EnrichmentSidePanel_Origin on ListItemResult {\n    id\n    name\n    libraryId\n    libraryName\n  }\n',
+): (typeof documents)['\n  fragment EnrichmentSidePanel_Origin on ListItemResult {\n    id\n    name\n    libraryId\n    libraryName\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n',
 ): (typeof documents)['\n  fragment FieldModal_List on AiList {\n    id\n    fields {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n']
 /**
@@ -1500,8 +1518,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n']
+  source: '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        fieldType\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        fieldType\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
