@@ -1,8 +1,10 @@
+import { GIT_COMMIT_SHA } from '../../global-config'
 import { builder } from '../builder'
 
-console.log('process.env.GIT_COMMIT_SHA', process.env.GIT_COMMIT_SHA)
+console.log('GIT_COMMIT_SHA', GIT_COMMIT_SHA)
+
 builder.queryField('version', (t) =>
   t.string({
-    resolve: () => process.env.GIT_COMMIT_SHA,
+    resolve: () => GIT_COMMIT_SHA,
   }),
 )

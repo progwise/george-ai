@@ -7,8 +7,10 @@ import { useWorkspace } from '../hooks/use-workspace'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { FolderPlusIcon } from '../icons/folder-plus'
 import { TrashIcon } from '../icons/trash-icon'
+import { UsersIcon } from '../icons/users-icon'
 import { CreateWorkspaceDialog } from './workspace/create-workspace-dialog'
 import { DeleteWorkspaceDialog } from './workspace/delete-workspace-dialog'
+import { WorkspaceMembersDialog } from './workspace/members/workspace-members-dialog'
 
 export const WorkspaceSwitcher = () => {
   const queryClient = useQueryClient()
@@ -17,6 +19,7 @@ export const WorkspaceSwitcher = () => {
   const { workspaces, currentWorkspace, setWorkspace, isLoading } = useWorkspace()
   const createDialogRef = useRef<HTMLDialogElement>(null)
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
+  const membersDialogRef = useRef<HTMLDialogElement>(null)
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const [workspaceToDelete, setWorkspaceToDelete] = useState<string | null>(null)
 
@@ -27,25 +30,17 @@ export const WorkspaceSwitcher = () => {
     // Always set the workspace cookie to ensure it's synchronized
     await setWorkspace(workspaceId)
 
-    // If workspace hasn't changed, just close dropdown without navigation/invalidation
+    // Close the dropdown first
+    if (detailsRef.current) {
+      detailsRef.current.open = false
+    }
+
+    // If workspace hasn't changed, no need for navigation/invalidation
     if (!isChangingWorkspace) {
-      if (detailsRef.current) {
-        detailsRef.current.open = false
-      }
       return
     }
 
-    // If currently viewing a workspace-scoped resource, navigate to list view
-    const currentPath = window.location.pathname
-    if (currentPath.startsWith('/libraries/')) {
-      navigate({ to: '/libraries' })
-    } else if (currentPath.startsWith('/assistants/')) {
-      navigate({ to: '/assistants' })
-    } else if (currentPath.startsWith('/lists/')) {
-      navigate({ to: '/lists' })
-    }
-
-    // Invalidate workspace-scoped data queries, but NOT localStorage state or workspaces list
+    // Invalidate workspace-scoped data queries first
     await queryClient.invalidateQueries({
       predicate: (query) => {
         const key = query.queryKey[0]
@@ -53,9 +48,17 @@ export const WorkspaceSwitcher = () => {
         return typeof key === 'string' && key !== 'selectedWorkspaceId' && key !== 'workspaces'
       },
     })
-    // Close the dropdown
-    if (detailsRef.current) {
-      detailsRef.current.open = false
+
+    // If currently viewing a workspace-scoped resource, navigate to list view
+    const currentPath = window.location.pathname
+    if (currentPath.startsWith('/libraries/')) {
+      await navigate({ to: '/libraries' })
+    } else if (currentPath.startsWith('/assistants/')) {
+      await navigate({ to: '/assistants' })
+    } else if (currentPath.startsWith('/lists/')) {
+      await navigate({ to: '/lists' })
+    } else if (currentPath.startsWith('/conversations/')) {
+      await navigate({ to: '/conversations' })
     }
   }
 
@@ -95,6 +98,19 @@ export const WorkspaceSwitcher = () => {
     setWorkspaceToDelete(workspaceId)
   }
 
+  const handleMembersLeave = async () => {
+    // Invalidate and refetch workspaces query
+    await queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+    const updatedWorkspaces = await queryClient.fetchQuery({ queryKey: ['workspaces'] })
+
+    // Switch to another workspace from the updated list
+    const otherWorkspace = (updatedWorkspaces as typeof workspaces)?.find((w) => w.id !== currentWorkspace?.id)
+    if (otherWorkspace) {
+      await handleWorkspaceChange(otherWorkspace.id)
+    }
+    membersDialogRef.current?.close()
+  }
+
   useEffect(() => {
     // Reset workspace to delete when dialog is closed
     if (!deleteDialogRef.current) return
@@ -118,6 +134,17 @@ export const WorkspaceSwitcher = () => {
   return (
     <>
       <ul className="menu menu-horizontal items-center gap-2">
+        <li>
+          <button
+            type="button"
+            onClick={() => membersDialogRef.current?.showModal()}
+            className="btn btn-xs btn-square btn-ghost tooltip tooltip-bottom"
+            data-tip={t('workspace.members.title')}
+            aria-label={t('workspace.members.title')}
+          >
+            <UsersIcon className="size-5" />
+          </button>
+        </li>
         <li>
           <button
             type="button"
@@ -182,6 +209,16 @@ export const WorkspaceSwitcher = () => {
           workspaceId={workspaceToDelete}
           workspaceName={workspaces.find((w) => w.id === workspaceToDelete)?.name ?? ''}
           onWorkspaceDeleted={handleWorkspaceDeleted}
+        />
+      )}
+
+      {/* Workspace members dialog */}
+      {currentWorkspace && (
+        <WorkspaceMembersDialog
+          ref={membersDialogRef}
+          workspaceId={currentWorkspace.id}
+          workspaceName={currentWorkspace.name}
+          onLeaveSuccess={handleMembersLeave}
         />
       )}
     </>

@@ -4,6 +4,7 @@ import path from 'path'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 import { getFileDir } from '@george-ai/file-management'
 
+import { BACKEND_PUBLIC_URL } from '../../global-config'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -63,7 +64,7 @@ builder.prismaObject('AiLibraryFile', {
         const files = await fs.promises.readdir(dir)
         return files.map((fileName) => ({
           fileName,
-          url: process.env.BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileName}`,
+          url: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileName}`,
         }))
       },
     }),

@@ -1,9 +1,10 @@
 import { sendMail } from '../../domain/mailer'
+import { PUBLIC_APP_URL } from '../../global-config'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 const generateInvitationLink = (conversationId: string, invitationId: string): string => {
-  return `${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
+  return `${PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
 }
 
 const conversationInvitationInput = builder.inputType('ConversationInvitationInput', {

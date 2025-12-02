@@ -1,5 +1,6 @@
 import fs from 'fs'
 
+import { UPLOADS_PATH } from '../../global-config'
 import { prisma } from '../../prisma'
 
 export const checkAssistant = async (assistantId: string) => {
@@ -10,8 +11,7 @@ export const checkAssistant = async (assistantId: string) => {
 }
 
 export const getAssistantIconsPath = () => {
-  const uploadsPath = process.env.UPLOADS_PATH || './uploads'
-  const dir = `${uploadsPath}/assistant-icons`
+  const dir = `${UPLOADS_PATH}/assistant-icons`
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
   }

@@ -17,7 +17,7 @@
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "cleanup:cache": "find ./apps ./packages -type d \\( -name node_modules \\) -prune -o -type d -name '.turbo' -exec rm -rfv {} +",
+    "cleanup:cache": "find ./apps ./packages -type d \\( -name node_modules \\) -prune -o -type d -name '.turbo' -exec rm -rfv {} + && rm -rf .turbo",
     "prisma:generate": "turbo run prisma:generate",
     "prisma:migrate": "turbo run prisma:migrate"
   },

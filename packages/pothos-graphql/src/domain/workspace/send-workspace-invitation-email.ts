@@ -1,5 +1,4 @@
-import { GraphQLError } from 'graphql'
-
+import { PUBLIC_APP_URL } from '../../global-config'
 import { prisma } from '../../prisma'
 import { sendMail } from '../mailer'
 
@@ -19,11 +18,6 @@ export async function sendWorkspaceInvitationEmail(
   inviterId: string,
   recipientEmail: string,
 ) {
-  const webappUrl = process.env.WEBAPP_URL
-  if (!webappUrl) {
-    throw new GraphQLError('WEBAPP_URL environment variable is not configured')
-  }
-
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
     select: { name: true },
@@ -34,7 +28,7 @@ export async function sendWorkspaceInvitationEmail(
     select: { name: true, email: true },
   })
 
-  const inviteLink = `${webappUrl}/accept-invitation/${invitationId}`
+  const inviteLink = `${PUBLIC_APP_URL}/accept-invitation/${invitationId}`
   const inviterName = inviter?.name || inviter?.email || 'Someone'
 
   await sendMail(

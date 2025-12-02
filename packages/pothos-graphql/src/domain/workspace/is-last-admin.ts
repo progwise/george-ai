@@ -8,10 +8,11 @@ import { prisma } from '../../prisma'
  * @returns True if the user is the only admin
  */
 export async function isLastAdmin(workspaceId: string, userId: string): Promise<boolean> {
+  // Count all members with admin privileges (admin or owner)
   const adminCount = await prisma.workspaceMember.count({
     where: {
       workspaceId,
-      role: 'ADMIN',
+      role: { in: ['admin', 'owner'] },
     },
   })
 
@@ -21,7 +22,7 @@ export async function isLastAdmin(workspaceId: string, userId: string): Promise<
         workspaceId_userId: { workspaceId, userId },
       },
     })
-    return member?.role === 'ADMIN'
+    return member?.role === 'admin' || member?.role === 'owner'
   }
 
   return false

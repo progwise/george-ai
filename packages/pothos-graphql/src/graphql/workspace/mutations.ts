@@ -48,7 +48,7 @@ builder.mutationField('createWorkspace', (t) =>
             members: {
               create: {
                 userId,
-                role: 'ADMIN',
+                role: 'admin',
               },
             },
           },
@@ -95,7 +95,7 @@ builder.mutationField('validateWorkspaceDeletion', (t) =>
         prisma.aiList.count({ where: { workspaceId } }),
       ])
 
-      if (!member || member.role !== 'ADMIN') {
+      if (!member || (member.role !== 'admin' && member.role !== 'owner')) {
         return {
           canDelete: false,
           libraryCount,
@@ -156,7 +156,7 @@ builder.mutationField('deleteWorkspace', (t) =>
         },
       })
 
-      if (!member || member.role !== 'ADMIN') {
+      if (!member || (member.role !== 'admin' && member.role !== 'owner')) {
         throw new GraphQLError('Only workspace admins can delete workspaces')
       }
 
@@ -361,8 +361,8 @@ builder.mutationField('updateWorkspaceMemberRole', (t) =>
       const currentUserId = ctx.session.user.id
 
       // Validate role
-      if (role !== 'ADMIN' && role !== 'member') {
-        throw new GraphQLError('Invalid role. Must be "ADMIN" or "member"')
+      if (role !== 'admin' && role !== 'member') {
+        throw new GraphQLError('Invalid role. Must be "admin" or "member"')
       }
 
       // Check if current user is admin
@@ -380,7 +380,7 @@ builder.mutationField('updateWorkspaceMemberRole', (t) =>
       }
 
       // Prevent demoting the last admin
-      if (targetMembership.role === 'ADMIN' && role === 'member') {
+      if ((targetMembership.role === 'admin' || targetMembership.role === 'owner') && role === 'member') {
         const isLast = await isLastAdmin(workspaceId, targetUserId)
         if (isLast) {
           throw new GraphQLError('Cannot demote the last admin. Promote another member first.')
@@ -421,6 +421,11 @@ builder.mutationField('leaveWorkspace', (t) =>
         throw new GraphQLError('You are not a member of this workspace')
       }
 
+      // Owners cannot leave the workspace - they must transfer ownership or delete it
+      if (membership.role === 'owner') {
+        throw new GraphQLError('Owners cannot leave the workspace. Transfer ownership or delete the workspace.')
+      }
+
       // Check if this is the user's default workspace
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -429,14 +434,6 @@ builder.mutationField('leaveWorkspace', (t) =>
 
       if (user?.defaultWorkspaceId === workspaceId) {
         throw new GraphQLError('Cannot leave your default workspace. Set another workspace as default first.')
-      }
-
-      // Prevent last admin from leaving
-      if (membership.role === 'ADMIN') {
-        const isLast = await isLastAdmin(workspaceId, userId)
-        if (isLast) {
-          throw new GraphQLError('Cannot leave as the last admin. Transfer admin role first or delete the workspace.')
-        }
       }
 
       // Remove membership

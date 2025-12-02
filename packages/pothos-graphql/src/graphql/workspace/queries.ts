@@ -107,7 +107,7 @@ builder.queryField('workspaceInvitations', (t) =>
         },
       })
 
-      if (!membership || membership.role !== 'ADMIN') {
+      if (!membership || (membership.role !== 'admin' && membership.role !== 'owner')) {
         throw new GraphQLError('Only workspace admins can view invitations')
       }
 
@@ -139,6 +139,24 @@ builder.queryField('myWorkspaceInvitations', (t) =>
           expiresAt: { gt: new Date() }, // Not expired
         },
         orderBy: { createdAt: 'desc' },
+      })
+    },
+  }),
+)
+
+// Query to get a single invitation by ID (for accept-invitation page)
+// Returns the invitation regardless of email match - frontend handles the different states
+builder.queryField('workspaceInvitation', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'WorkspaceInvitation',
+    nullable: true,
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _root, args) => {
+      return prisma.workspaceInvitation.findUnique({
+        ...query,
+        where: { id: args.id },
       })
     },
   }),

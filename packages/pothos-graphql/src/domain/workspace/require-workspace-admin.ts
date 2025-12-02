@@ -17,7 +17,7 @@ export async function requireWorkspaceAdmin(workspaceId: string, userId: string)
     },
   })
 
-  if (!membership || membership.role !== 'ADMIN') {
+  if (!membership || (membership.role !== 'admin' && membership.role !== 'owner')) {
     throw new GraphQLError('Only workspace admins can perform this action')
   }
 

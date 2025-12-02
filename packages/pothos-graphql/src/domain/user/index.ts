@@ -1,5 +1,6 @@
 import fs from 'fs'
 
+import { UPLOADS_PATH } from '../../global-config'
 import { prisma } from '../../prisma'
 
 export const checkUser = async (userId: string) => {
@@ -34,11 +35,11 @@ export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: strin
 }
 
 export const getUserAvatarsPath = () => {
-  const path = `${process.env.UPLOADS_PATH}/user-avatars`
+  const path = `${UPLOADS_PATH}/user-avatars`
 
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true })
   }
 
-  return `${path}`
+  return path
 }

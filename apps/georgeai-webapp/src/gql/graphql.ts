@@ -1229,6 +1229,7 @@ export type ModelUsageStats = {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  acceptWorkspaceInvitation: WorkspaceMember
   activateUserProfile?: Maybe<UserProfile>
   addAssistantParticipants: Array<User>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
@@ -1276,8 +1277,10 @@ export type Mutation = {
   ensureUserProfile?: Maybe<UserProfile>
   generateApiKey: ApiKeyWithSecret
   hideMessage?: Maybe<AiConversationMessage>
+  inviteWorkspaceMember: WorkspaceInvitation
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
+  leaveWorkspace: Scalars['Boolean']['output']
   login: User
   prepareFileUpload: AiLibraryFile
   removeAssistantParticipant: User
@@ -1287,11 +1290,13 @@ export type Mutation = {
   removeListField: AiListField
   removeListParticipant: Scalars['Boolean']['output']
   removeListSource: AiListSource
+  removeWorkspaceMember: Scalars['Boolean']['output']
   reorderListFields: Array<AiListField>
   resetAssessmentAnswers: Scalars['DateTime']['output']
   restoreDefaultProviders: RestoreDefaultProvidersResult
   retryFailedTasks: QueueOperationResult
   revokeApiKey: Scalars['Boolean']['output']
+  revokeWorkspaceInvitation: Scalars['Boolean']['output']
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
@@ -1319,9 +1324,14 @@ export type Mutation = {
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
+  updateWorkspaceMemberRole: WorkspaceMember
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
   validateSharePointConnection: SharePointValidationResult
   validateWorkspaceDeletion: WorkspaceDeletionValidation
+}
+
+export type MutationAcceptWorkspaceInvitationArgs = {
+  invitationId: Scalars['ID']['input']
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -1537,12 +1547,21 @@ export type MutationHideMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationInviteWorkspaceMemberArgs = {
+  email: Scalars['String']['input']
+  workspaceId: Scalars['ID']['input']
+}
+
 export type MutationLeaveAiConversationArgs = {
   participantId: Scalars['String']['input']
 }
 
 export type MutationLeaveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
+}
+
+export type MutationLeaveWorkspaceArgs = {
+  workspaceId: Scalars['ID']['input']
 }
 
 export type MutationLoginArgs = {
@@ -1585,6 +1604,11 @@ export type MutationRemoveListSourceArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationRemoveWorkspaceMemberArgs = {
+  userId: Scalars['ID']['input']
+  workspaceId: Scalars['ID']['input']
+}
+
 export type MutationReorderListFieldsArgs = {
   fieldId: Scalars['String']['input']
   newPlace: Scalars['Int']['input']
@@ -1601,6 +1625,10 @@ export type MutationRetryFailedTasksArgs = {
 
 export type MutationRevokeApiKeyArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationRevokeWorkspaceInvitationArgs = {
+  invitationId: Scalars['ID']['input']
 }
 
 export type MutationRunAiLibraryCrawlerArgs = {
@@ -1717,6 +1745,12 @@ export type MutationUpdateUserProfileArgs = {
   profileId: Scalars['String']['input']
 }
 
+export type MutationUpdateWorkspaceMemberRoleArgs = {
+  role: Scalars['String']['input']
+  userId: Scalars['ID']['input']
+  workspaceId: Scalars['ID']['input']
+}
+
 export type MutationUpsertAiBaseCasesArgs = {
   assistantId: Scalars['String']['input']
   baseCases: Array<AiBaseCaseInputType>
@@ -1802,6 +1836,7 @@ export type Query = {
   apiKeys: Array<ApiKey>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   managedUsers: ManagedUsersResponse
+  myWorkspaceInvitations: Array<WorkspaceInvitation>
   queryAiLibraryFiles: AiLibraryQueryResult
   queueSystemStatus: QueueSystemStatus
   user?: Maybe<User>
@@ -1809,6 +1844,9 @@ export type Query = {
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
   workspace?: Maybe<Workspace>
+  workspaceInvitation?: Maybe<WorkspaceInvitation>
+  workspaceInvitations: Array<WorkspaceInvitation>
+  workspaceMembers: Array<WorkspaceMember>
   workspaces: Array<Workspace>
 }
 
@@ -2003,6 +2041,18 @@ export type QueryWorkspaceArgs = {
   id: Scalars['ID']['input']
 }
 
+export type QueryWorkspaceInvitationArgs = {
+  id: Scalars['ID']['input']
+}
+
+export type QueryWorkspaceInvitationsArgs = {
+  workspaceId: Scalars['ID']['input']
+}
+
+export type QueryWorkspaceMembersArgs = {
+  workspaceId: Scalars['ID']['input']
+}
+
 export type QueueOperationResult = {
   __typename?: 'QueueOperationResult'
   affectedCount?: Maybe<Scalars['Int']['output']>
@@ -2172,6 +2222,7 @@ export type Workspace = {
   assistants: Array<AiAssistant>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
+  invitations: Array<WorkspaceInvitation>
   isDefault: Scalars['Boolean']['output']
   libraries: Array<AiLibrary>
   lists: Array<AiList>
@@ -2188,6 +2239,17 @@ export type WorkspaceDeletionValidation = {
   libraryCount: Scalars['Int']['output']
   listCount: Scalars['Int']['output']
   message: Scalars['String']['output']
+}
+
+export type WorkspaceInvitation = {
+  __typename?: 'WorkspaceInvitation'
+  acceptedAt?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
+  email: Scalars['String']['output']
+  expiresAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  inviter: User
+  workspace: Workspace
 }
 
 export type WorkspaceMember = {
@@ -5870,6 +5932,90 @@ export type SaveUserProfileMutation = {
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
+export type GetWorkspaceInvitationsQueryVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+}>
+
+export type GetWorkspaceInvitationsQuery = {
+  __typename?: 'Query'
+  workspaceInvitations: Array<{
+    __typename?: 'WorkspaceInvitation'
+    id: string
+    email: string
+    createdAt: string
+    expiresAt: string
+    inviter: { __typename?: 'User'; id: string; name?: string | null; email: string }
+  }>
+}
+
+export type GetWorkspaceMembersQueryVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+}>
+
+export type GetWorkspaceMembersQuery = {
+  __typename?: 'Query'
+  workspaceMembers: Array<{
+    __typename?: 'WorkspaceMember'
+    id: string
+    role: string
+    createdAt: string
+    user: {
+      __typename?: 'User'
+      id: string
+      name?: string | null
+      email: string
+      username: string
+      avatarUrl?: string | null
+    }
+  }>
+}
+
+export type InviteWorkspaceMemberMutationVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+  email: Scalars['String']['input']
+}>
+
+export type InviteWorkspaceMemberMutation = {
+  __typename?: 'Mutation'
+  inviteWorkspaceMember: {
+    __typename?: 'WorkspaceInvitation'
+    id: string
+    email: string
+    createdAt: string
+    expiresAt: string
+  }
+}
+
+export type LeaveWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+}>
+
+export type LeaveWorkspaceMutation = { __typename?: 'Mutation'; leaveWorkspace: boolean }
+
+export type RemoveWorkspaceMemberMutationVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+  userId: Scalars['ID']['input']
+}>
+
+export type RemoveWorkspaceMemberMutation = { __typename?: 'Mutation'; removeWorkspaceMember: boolean }
+
+export type RevokeWorkspaceInvitationMutationVariables = Exact<{
+  invitationId: Scalars['ID']['input']
+}>
+
+export type RevokeWorkspaceInvitationMutation = { __typename?: 'Mutation'; revokeWorkspaceInvitation: boolean }
+
+export type UpdateWorkspaceMemberRoleMutationVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+  userId: Scalars['ID']['input']
+  role: Scalars['String']['input']
+}>
+
+export type UpdateWorkspaceMemberRoleMutation = {
+  __typename?: 'Mutation'
+  updateWorkspaceMemberRole: { __typename?: 'WorkspaceMember'; id: string; role: string }
+}
+
 export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWorkspacesQuery = {
@@ -5914,6 +6060,36 @@ export type ValidateWorkspaceDeletionMutation = {
     assistantCount: number
     listCount: number
     message: string
+  }
+}
+
+export type WorkspaceInvitationQueryVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type WorkspaceInvitationQuery = {
+  __typename?: 'Query'
+  workspaceInvitation?: {
+    __typename?: 'WorkspaceInvitation'
+    id: string
+    email: string
+    expiresAt: string
+    acceptedAt?: string | null
+    workspace: { __typename?: 'Workspace'; id: string; name: string }
+    inviter: { __typename?: 'User'; name?: string | null; email: string }
+  } | null
+}
+
+export type AcceptWorkspaceInvitationMutationVariables = Exact<{
+  invitationId: Scalars['ID']['input']
+}>
+
+export type AcceptWorkspaceInvitationMutation = {
+  __typename?: 'Mutation'
+  acceptWorkspaceInvitation: {
+    __typename?: 'WorkspaceMember'
+    id: string
+    workspace: { __typename?: 'Workspace'; id: string; name: string }
   }
 }
 
@@ -19774,6 +19950,336 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetWorkspaceInvitationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaceInvitations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceInvitations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'inviter' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceInvitationsQuery, GetWorkspaceInvitationsQueryVariables>
+export const GetWorkspaceMembersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaceMembers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceMembers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'user' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceMembersQuery, GetWorkspaceMembersQueryVariables>
+export const InviteWorkspaceMemberDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'InviteWorkspaceMember' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'inviteWorkspaceMember' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'email' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InviteWorkspaceMemberMutation, InviteWorkspaceMemberMutationVariables>
+export const LeaveWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'LeaveWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'leaveWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LeaveWorkspaceMutation, LeaveWorkspaceMutationVariables>
+export const RemoveWorkspaceMemberDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RemoveWorkspaceMember' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeWorkspaceMember' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveWorkspaceMemberMutation, RemoveWorkspaceMemberMutationVariables>
+export const RevokeWorkspaceInvitationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RevokeWorkspaceInvitation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'invitationId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'revokeWorkspaceInvitation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'invitationId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'invitationId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RevokeWorkspaceInvitationMutation, RevokeWorkspaceInvitationMutationVariables>
+export const UpdateWorkspaceMemberRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateWorkspaceMemberRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateWorkspaceMemberRole' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'role' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateWorkspaceMemberRoleMutation, UpdateWorkspaceMemberRoleMutationVariables>
 export const GetWorkspacesDocument = {
   kind: 'Document',
   definitions: [
@@ -19932,6 +20438,120 @@ export const ValidateWorkspaceDeletionDocument = {
     },
   ],
 } as unknown as DocumentNode<ValidateWorkspaceDeletionMutation, ValidateWorkspaceDeletionMutationVariables>
+export const WorkspaceInvitationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'WorkspaceInvitation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceInvitation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'acceptedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'workspace' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'inviter' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WorkspaceInvitationQuery, WorkspaceInvitationQueryVariables>
+export const AcceptWorkspaceInvitationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'AcceptWorkspaceInvitation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'invitationId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'acceptWorkspaceInvitation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'invitationId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'invitationId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'workspace' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AcceptWorkspaceInvitationMutation, AcceptWorkspaceInvitationMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

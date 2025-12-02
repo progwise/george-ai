@@ -1159,6 +1159,7 @@ type ModelUsageStats {
 }
 
 type Mutation {
+  acceptWorkspaceInvitation(invitationId: ID!): WorkspaceMember!
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
   addConversationParticipants(
@@ -1255,8 +1256,10 @@ type Mutation {
   ensureUserProfile(userId: String!): UserProfile
   generateApiKey(libraryId: String!, name: String!): ApiKeyWithSecret!
   hideMessage(messageId: String!): AiConversationMessage
+  inviteWorkspaceMember(email: String!, workspaceId: ID!): WorkspaceInvitation!
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
+  leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): User!
   prepareFileUpload(data: AiLibraryFileInput!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
@@ -1266,11 +1269,13 @@ type Mutation {
   removeListField(id: String!): AiListField!
   removeListParticipant(listId: String!, participantId: String!): Boolean!
   removeListSource(id: String!): AiListSource!
+  removeWorkspaceMember(userId: ID!, workspaceId: ID!): Boolean!
   reorderListFields(fieldId: String!, newPlace: Int!): [AiListField!]!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   restoreDefaultProviders: RestoreDefaultProvidersResult!
   retryFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   revokeApiKey(id: String!): Boolean!
+  revokeWorkspaceInvitation(invitationId: ID!): Boolean!
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
@@ -1302,6 +1307,7 @@ type Mutation {
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
+  updateWorkspaceMemberRole(role: String!, userId: ID!, workspaceId: ID!): WorkspaceMember!
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
   validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
@@ -1427,6 +1433,7 @@ type Query {
   apiKeys(libraryId: String!): [ApiKey!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
+  myWorkspaceInvitations: [WorkspaceInvitation!]!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   queueSystemStatus: QueueSystemStatus!
   user(email: String!): User
@@ -1434,6 +1441,9 @@ type Query {
   users: [User!]!
   version: String
   workspace(id: ID!): Workspace
+  workspaceInvitation(id: ID!): WorkspaceInvitation
+  workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
+  workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaces: [Workspace!]!
 }
 
@@ -1591,6 +1601,7 @@ type Workspace {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
   id: ID!
+  invitations: [WorkspaceInvitation!]!
   isDefault: Boolean!
   libraries: [AiLibrary!]!
   lists: [AiList!]!
@@ -1606,6 +1617,16 @@ type WorkspaceDeletionValidation {
   libraryCount: Int!
   listCount: Int!
   message: String!
+}
+
+type WorkspaceInvitation {
+  acceptedAt: DateTime
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime!
+  id: ID!
+  inviter: User!
+  workspace: Workspace!
 }
 
 type WorkspaceMember {

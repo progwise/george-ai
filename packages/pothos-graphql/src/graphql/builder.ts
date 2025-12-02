@@ -12,6 +12,7 @@ import {
   LIST_FIELD_SOURCE_TYPES,
   LIST_FIELD_TYPES,
 } from '../domain/list'
+import { IS_PRODUCTION } from '../global-config'
 import { prisma } from '../prisma'
 import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
@@ -83,7 +84,7 @@ const builder = new SchemaBuilder<{
     client: prisma,
     exposeDescriptions: true,
     filterConnectionTotalCount: true,
-    onUnusedQuery: process.env.NODE_ENV === 'production' ? null : 'warn',
+    onUnusedQuery: IS_PRODUCTION ? null : 'warn',
   },
   scopeAuth: {
     authScopes: async (context) => ({
