@@ -42,6 +42,7 @@ model User {
   profile                    UserProfile?
   defaultWorkspace           Workspace                   @relation("DefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: Restrict)
   workspaceMemberships       WorkspaceMember[]
+  workspaceInvitations       WorkspaceInvitation[]
 
   @@index([defaultWorkspaceId])
 }
@@ -65,17 +66,18 @@ model UserProfile {
 }
 
 model Workspace {
-  id              String              @id @default(cuid())
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id              String                @id @default(cuid())
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
   name            String
-  slug            String              @unique
+  slug            String                @unique
   aiProviders     AiServiceProvider[]
   libraries       AiLibrary[]
   assistants      AiAssistant[]
   lists           AiList[]
   members         WorkspaceMember[]
-  defaultForUsers User[]              @relation("DefaultWorkspace")
+  invitations     WorkspaceInvitation[]
+  defaultForUsers User[]                @relation("DefaultWorkspace")
 }
 
 model WorkspaceMember {
@@ -90,6 +92,21 @@ model WorkspaceMember {
 
   @@unique([workspaceId, userId])
   @@index([userId])
+}
+
+model WorkspaceInvitation {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  workspaceId String
+  email       String
+  inviterId   String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter     User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@index([email])
 }
 
 model AiServiceProvider {

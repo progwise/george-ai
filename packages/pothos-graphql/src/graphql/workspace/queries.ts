@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -50,6 +52,94 @@ builder.queryField('workspace', (t) =>
       })
 
       return workspace
+    },
+  }),
+)
+
+// Query to get all members of a workspace
+builder.queryField('workspaceMembers', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['WorkspaceMember'],
+    nullable: false,
+    args: {
+      workspaceId: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _root, args, ctx) => {
+      // First verify the user is a member of this workspace
+      const membership = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: args.workspaceId,
+            userId: ctx.session.user.id,
+          },
+        },
+      })
+
+      if (!membership) {
+        throw new GraphQLError('You are not a member of this workspace')
+      }
+
+      return prisma.workspaceMember.findMany({
+        ...query,
+        where: { workspaceId: args.workspaceId },
+        orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+      })
+    },
+  }),
+)
+
+// Query to get pending invitations for a workspace (admin only)
+builder.queryField('workspaceInvitations', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['WorkspaceInvitation'],
+    nullable: false,
+    args: {
+      workspaceId: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _root, args, ctx) => {
+      // Verify the user is an admin of this workspace
+      const membership = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: args.workspaceId,
+            userId: ctx.session.user.id,
+          },
+        },
+      })
+
+      if (!membership || membership.role !== 'ADMIN') {
+        throw new GraphQLError('Only workspace admins can view invitations')
+      }
+
+      return prisma.workspaceInvitation.findMany({
+        ...query,
+        where: {
+          workspaceId: args.workspaceId,
+          acceptedAt: null, // Only pending invitations
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+    },
+  }),
+)
+
+// Query to get pending invitations for the current user
+builder.queryField('myWorkspaceInvitations', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['WorkspaceInvitation'],
+    nullable: false,
+    resolve: async (query, _root, _args, ctx) => {
+      const userEmail = ctx.session.user.email
+
+      return prisma.workspaceInvitation.findMany({
+        ...query,
+        where: {
+          email: userEmail,
+          acceptedAt: null,
+          expiresAt: { gt: new Date() }, // Not expired
+        },
+        orderBy: { createdAt: 'desc' },
+      })
     },
   }),
 )
