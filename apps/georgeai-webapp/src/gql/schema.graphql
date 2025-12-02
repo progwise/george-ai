@@ -195,6 +195,8 @@ type AiConversation {
   ownerId: String!
   participants: [AiConversationParticipant!]!
   updatedAt: DateTime
+  workspace: Workspace!
+  workspaceId: String!
 }
 
 input AiConversationCreateInput {

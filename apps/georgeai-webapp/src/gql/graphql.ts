@@ -215,6 +215,8 @@ export type AiConversation = {
   ownerId: Scalars['String']['output']
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
+  workspace: Workspace
+  workspaceId: Scalars['String']['output']
 }
 
 export type AiConversationCreateInput = {

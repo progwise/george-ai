@@ -75,6 +75,7 @@ model Workspace {
   libraries       AiLibrary[]
   assistants      AiAssistant[]
   lists           AiList[]
+  conversations   AiConversation[]
   members         WorkspaceMember[]
   invitations     WorkspaceInvitation[]
   defaultForUsers User[]                @relation("DefaultWorkspace")
@@ -516,10 +517,14 @@ model AiConversation {
   createdAt               DateTime                    @default(now())
   updatedAt               DateTime                    @updatedAt
   ownerId                 String
+  workspaceId             String
   owner                   User                        @relation(fields: [ownerId], references: [id])
+  workspace               Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   conversationInvitations AiConversationInvitation[]
   messages                AiConversationMessage[]
   participants            AiConversationParticipant[]
+
+  @@index([workspaceId])
 }
 
 model AiConversationParticipant {

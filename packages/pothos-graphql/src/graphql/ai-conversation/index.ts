@@ -80,6 +80,8 @@ builder.prismaObject('AiConversation', {
     }),
     owner: t.relation('owner', { nullable: false }),
     ownerId: t.exposeString('ownerId', { nullable: false }),
+    workspace: t.relation('workspace', { nullable: false }),
+    workspaceId: t.exposeString('workspaceId', { nullable: false }),
   }),
 })
 
@@ -136,7 +138,10 @@ builder.queryField('aiConversations', (t) =>
 
       return prisma.aiConversation.findMany({
         ...query,
-        where: { participants: { some: { userId: context.session.user.id } } },
+        where: {
+          workspaceId: context.workspaceId,
+          participants: { some: { userId: context.session.user.id } },
+        },
         orderBy: orderByClause,
       })
     },
@@ -169,6 +174,7 @@ builder.mutationField('createAiConversation', (t) =>
             ],
           },
           ownerId: user.id,
+          workspaceId: context.workspaceId,
         },
       })
 
