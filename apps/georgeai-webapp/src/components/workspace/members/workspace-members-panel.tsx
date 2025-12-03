@@ -10,9 +10,10 @@ import { InviteMemberDialog } from './invite-member-dialog'
 
 interface WorkspaceMembersPanelProps {
   user: UserFragment
+  onLeaveSuccess?: () => void
 }
 
-export const WorkspaceMembersPanel = ({ user }: WorkspaceMembersPanelProps) => {
+export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembersPanelProps) => {
   const { t } = useTranslation()
 
   const inviteDialogRef = useRef<HTMLDialogElement>(null)
@@ -264,7 +265,15 @@ export const WorkspaceMembersPanel = ({ user }: WorkspaceMembersPanelProps) => {
         ref={removeDialogRef}
         title={t('workspace.members.removeTitle')}
         description={t('workspace.members.removeConfirmation', { name: memberToRemove?.name || '' })}
-        onSubmit={() => memberToRemove && removeMember({ userId: memberToRemove.userId })}
+        onSubmit={() =>
+          memberToRemove &&
+          removeMember(
+            { userId: memberToRemove.userId },
+            {
+              onSuccess: () => removeDialogRef.current?.close(),
+            },
+          )
+        }
         submitButtonText={t('workspace.members.remove')}
         disabledSubmit={isPending}
       />
@@ -274,7 +283,14 @@ export const WorkspaceMembersPanel = ({ user }: WorkspaceMembersPanelProps) => {
         ref={leaveDialogRef}
         title={t('workspace.members.leaveTitle')}
         description={t('workspace.members.leaveConfirmation')}
-        onSubmit={() => leaveWorkspace()}
+        onSubmit={() =>
+          leaveWorkspace(undefined, {
+            onSuccess: () => {
+              leaveDialogRef.current?.close()
+              onLeaveSuccess?.()
+            },
+          })
+        }
         submitButtonText={t('workspace.members.leave')}
         disabledSubmit={isPending}
       />
@@ -284,7 +300,15 @@ export const WorkspaceMembersPanel = ({ user }: WorkspaceMembersPanelProps) => {
         ref={revokeDialogRef}
         title={t('workspace.members.revokeTitle')}
         description={t('workspace.members.revokeConfirmation', { email: invitationToRevoke?.email || '' })}
-        onSubmit={() => invitationToRevoke && revokeInvitation({ invitationId: invitationToRevoke.id })}
+        onSubmit={() =>
+          invitationToRevoke &&
+          revokeInvitation(
+            { invitationId: invitationToRevoke.id },
+            {
+              onSuccess: () => revokeDialogRef.current?.close(),
+            },
+          )
+        }
         submitButtonText={t('workspace.members.revoke')}
         disabledSubmit={isPending}
       />

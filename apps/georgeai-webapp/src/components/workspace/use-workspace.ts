@@ -137,6 +137,8 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: () => {
       toastSuccess(t('workspace.members.leaveSuccess'))
+      setWorkspace(user.defaultWorkspaceId)
+
       queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
       queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] })
     },
@@ -151,6 +153,7 @@ export const useWorkspace = (user: UserFragment) => {
       return await inviteWorkspaceMemberFn({ data: { workspaceId: currentWorkspace.id, email } })
     },
     onSuccess: (_, email) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceInvitations] })
       toastSuccess(t('workspace.members.inviteSuccess', { email }))
     },
     onError: (error) => {

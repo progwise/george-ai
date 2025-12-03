@@ -70,7 +70,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [])
+  }, [isLoading])
 
   const handleWorkspaceCreated = async (workspaceId: string) => {
     // Switch to the newly created workspace

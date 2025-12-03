@@ -29,7 +29,7 @@ export const WorkspaceMembersDialog = ({ user, ref }: WorkspaceMembersDialogProp
           </button>
         </form>
 
-        <WorkspaceMembersPanel user={user} />
+        <WorkspaceMembersPanel user={user} onLeaveSuccess={handleClose} />
       </div>
       <form method="dialog" className="modal-backdrop">
         <button type="submit" onClick={handleClose}>
