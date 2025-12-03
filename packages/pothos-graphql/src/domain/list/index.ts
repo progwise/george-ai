@@ -25,20 +25,55 @@ export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
 export const LIST_FIELD_CONTEXT_TYPES = ['fieldReference', 'vectorSearch', 'webFetch'] as const
 export type FieldContextType = (typeof LIST_FIELD_CONTEXT_TYPES)[number]
 
+/**
+ * Check if user can access a list.
+ * Access is granted if the user is a member of the workspace that owns the list.
+ */
 export const canAccessListOrThrow = async (
   listId: string,
   userId: string,
   options?: { include: Prisma.AiListInclude },
 ) => {
-  const list = await prisma.aiList.findFirstOrThrow({
-    include: { participants: true, ...(options?.include || {}) },
-    where: { AND: [{ id: listId }, getCanAccessListWhere(userId)] },
+  const list = await prisma.aiList.findUniqueOrThrow({
+    include: options?.include || {},
+    where: { id: listId },
   })
+
+  // Check if user is a member of the list's workspace
+  const isMember = await prisma.workspaceMember.findFirst({
+    where: {
+      workspaceId: list.workspaceId,
+      userId,
+    },
+  })
+
+  if (!isMember) {
+    throw new Error(`You do not have permission to access this list`)
+  }
+
   return list
 }
 
-export const getCanAccessListWhere = (userId: string): Prisma.AiListWhereInput => ({
-  OR: [{ ownerId: userId }, { participants: { some: { userId } } }],
+/**
+ * Check if user is the owner of a list (for delete operations).
+ */
+export const isListOwnerOrThrow = async (listId: string, userId: string) => {
+  const list = await prisma.aiList.findUniqueOrThrow({
+    where: { id: listId },
+    select: {
+      ownerId: true,
+    },
+  })
+
+  if (list.ownerId !== userId) {
+    throw new Error(`Only the owner can delete this list`)
+  }
+
+  return list
+}
+
+export const getCanAccessListWhere = (workspaceId: string): Prisma.AiListWhereInput => ({
+  workspaceId,
 })
 
 export function getFieldValue(

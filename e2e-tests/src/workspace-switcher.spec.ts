@@ -49,8 +49,7 @@ test.describe('Workspace Switcher', () => {
     await expect(dropdown).toBeVisible()
 
     // Should have at least 2 workspace options (E2E Test Workspace 1 and 2)
-    // Only count workspace name buttons (first button in each li), not delete buttons
-    const workspaceOptions = dropdown.locator('li > div > button:first-child')
+    const workspaceOptions = dropdown.locator('li > button')
     const count = await workspaceOptions.count()
     expect(count).toBeGreaterThanOrEqual(2)
   })
@@ -63,12 +62,11 @@ test.describe('Workspace Switcher', () => {
     // Open dropdown
     await workspaceSwitcher.click()
 
-    // Find the active workspace in dropdown (should have menu-active class)
-    const activeWorkspaceDiv = page.locator('details[open] > ul li div.menu-active')
-    await expect(activeWorkspaceDiv).toBeVisible()
+    // Find the active workspace in dropdown (should have menu-active class on the button)
+    const activeWorkspaceButton = page.locator('details[open] > ul li button.menu-active')
+    await expect(activeWorkspaceButton).toBeVisible()
 
-    // Get the workspace name button inside the active div
-    const activeWorkspaceButton = activeWorkspaceDiv.locator('button:first-child')
+    // Verify the active workspace name matches the current workspace
     const activeWorkspaceName = await activeWorkspaceButton.textContent()
     expect(activeWorkspaceName?.trim()).toBe(currentWorkspaceName?.trim())
   })
@@ -81,8 +79,8 @@ test.describe('Workspace Switcher', () => {
     // Get initial workspace name
     const initialWorkspace = await workspaceSwitcher.textContent()
 
-    // Get workspace name buttons (exclude delete buttons by filtering out those with aria-label)
-    const workspaceOptions = page.locator('details[open] > ul li > div > button:first-child')
+    // Get workspace buttons (now directly li > button, no wrapper div)
+    const workspaceOptions = page.locator('details[open] > ul li > button')
     const secondWorkspaceName = await workspaceOptions.nth(1).textContent()
     await workspaceOptions.nth(1).click()
 
@@ -600,49 +598,46 @@ test.describe('Workspace Switcher', () => {
   })
 
   test.describe('Delete Workspace', () => {
-    test('should show delete button for workspaces when multiple exist', async ({ page }) => {
-      // Open workspace dropdown
+    test('should show delete button in navbar for non-default workspaces when user is owner', async ({ page }) => {
+      // Switch to E2E Test Workspace 1 (non-default workspace where user is owner)
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
       await workspaceSwitcher.click()
+      const dropdown = page.locator('details[open] > ul').first()
+      await expect(dropdown).toBeVisible()
+      await dropdown.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
+      await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
+      await page.waitForLoadState('networkidle')
 
-      // Count workspaces
-      const workspaceButtons = page.locator('details[open] > ul li button').filter({ hasText: /E2E|Shared/ })
-      const count = await workspaceButtons.count()
-
-      // Should have delete buttons visible (trash icons) when >1 workspace
-      if (count > 1) {
-        const deleteButtons = page.locator('details[open] > ul button[aria-label*="Delete"]')
-        await expect(deleteButtons.first()).toBeVisible()
-      }
+      // Delete button should be visible in navbar (outside dropdown) for non-default workspaces
+      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
+      await expect(deleteButton).toBeVisible()
     })
 
     test('should open delete workspace dialog when clicking delete button', async ({ page }) => {
-      // Open workspace dropdown
+      // Switch to E2E Test Workspace 1 (non-default workspace where user is owner)
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
       await workspaceSwitcher.click()
+      const dropdown = page.locator('details[open] > ul').first()
+      await expect(dropdown).toBeVisible()
+      await dropdown.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
+      await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
+      await page.waitForLoadState('networkidle')
 
-      // Click delete button for E2E Test Workspace 2 (trash icon)
-      const deleteButton = page
-        .locator('details[open] > ul li')
-        .filter({ hasText: 'E2E Test Workspace 2' })
-        .locator('button[aria-label*="Delete"]')
+      // Click delete button in navbar
+      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
+      await deleteButton.click()
 
-      // Only run if delete button exists (when >1 workspace)
-      const isVisible = await deleteButton.isVisible().catch(() => false)
-      if (isVisible) {
-        await deleteButton.click()
-
-        // Delete dialog should be visible
-        const dialog = page.getByRole('dialog')
-        await expect(dialog).toBeVisible()
-        await expect(dialog.getByRole('heading', { name: /delete workspace/i })).toBeVisible()
-      }
+      // Delete dialog should be visible
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible()
+      await expect(dialog.getByRole('heading', { name: /delete workspace/i })).toBeVisible()
     })
 
     test('should block deletion if workspace contains libraries', async ({ page }) => {
       const uniqueId = Date.now()
       const workspaceName = `Delete Test WS ${uniqueId}`
       const workspaceSlug = `delete-test-ws-${uniqueId}`
+      const libraryName = `Test Library ${uniqueId}`
 
       // Scroll to top to ensure button is in viewport
       await page.evaluate(() => window.scrollTo(0, 0))
@@ -659,14 +654,16 @@ test.describe('Workspace Switcher', () => {
       let createDialog = page.getByRole('dialog')
       await createDialog.getByRole('button', { name: /^create$/i }).click()
 
-      // Wait for Create Workspace dialog to close
+      // Wait for Create Workspace dialog to close and verify we switched to new workspace
       await expect(createDialog).not.toBeVisible()
+      await expect(workspaceSwitcher).toContainText(workspaceName)
       await page.waitForLoadState('networkidle')
 
       // Create a library in the new workspace
       await page.getByRole('tab', { name: /libraries/i }).click()
+      await page.waitForLoadState('networkidle')
       await page.getByRole('button', { name: /create library/i }).click()
-      await page.getByLabel('Library Name').fill(`Test Library ${uniqueId}`)
+      await page.getByLabel('Library Name').fill(libraryName)
 
       createDialog = page.getByRole('dialog')
       await createDialog.getByRole('button', { name: /^create$/i }).click()
@@ -675,12 +672,14 @@ test.describe('Workspace Switcher', () => {
       await expect(createDialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
 
-      // Try to delete the workspace
-      await workspaceSwitcher.click()
-      const deleteButton = page
-        .locator('details[open] > ul li')
-        .filter({ hasText: workspaceName })
-        .locator('button[aria-label*="Delete"]')
+      // Verify library was created and is visible (use first() since name appears in multiple places)
+      await expect(page.getByText(libraryName).first()).toBeVisible()
+
+      // Verify we're still in the correct workspace before trying to delete
+      await expect(workspaceSwitcher).toContainText(workspaceName)
+
+      // Click delete button in navbar (deletes current workspace)
+      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
       await deleteButton.click()
 
       // Should show error message with item counts
@@ -713,12 +712,11 @@ test.describe('Workspace Switcher', () => {
       await expect(createDialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
 
-      // Delete the empty workspace
-      await workspaceSwitcher.click()
-      const deleteButton = page
-        .locator('details[open] > ul li')
-        .filter({ hasText: workspaceName })
-        .locator('button[aria-label*="Delete"]')
+      // Verify we're now on the new workspace
+      await expect(workspaceSwitcher).toContainText(workspaceName)
+
+      // Click delete button in navbar (deletes current workspace)
+      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
       await deleteButton.click()
 
       // Should show confirmation dialog with workspace name (workspace is empty)
@@ -766,12 +764,8 @@ test.describe('Workspace Switcher', () => {
       // Verify we switched to new workspace
       await expect(workspaceSwitcher).toContainText(workspaceName)
 
-      // Delete the new workspace
-      await workspaceSwitcher.click()
-      const deleteButton = page
-        .locator('details[open] > ul li')
-        .filter({ hasText: workspaceName })
-        .locator('button[aria-label*="Delete"]')
+      // Click delete button in navbar (deletes current workspace)
+      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
       await deleteButton.click()
 
       // Confirm deletion

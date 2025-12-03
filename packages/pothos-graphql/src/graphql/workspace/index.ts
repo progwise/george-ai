@@ -21,6 +21,7 @@ builder.prismaObject('Workspace', {
       },
     }),
     members: t.relation('members', { nullable: false }),
+    invitations: t.relation('invitations', { nullable: false }),
     libraries: t.relation('libraries', { nullable: false }),
     assistants: t.relation('assistants', { nullable: false }),
     lists: t.relation('lists', { nullable: false }),
@@ -35,5 +36,18 @@ builder.prismaObject('WorkspaceMember', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     workspace: t.relation('workspace', { nullable: false }),
     user: t.relation('user', { nullable: false }),
+  }),
+})
+
+builder.prismaObject('WorkspaceInvitation', {
+  name: 'WorkspaceInvitation',
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    email: t.exposeString('email', { nullable: false }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+    expiresAt: t.expose('expiresAt', { type: 'DateTime', nullable: false }),
+    acceptedAt: t.expose('acceptedAt', { type: 'DateTime', nullable: true }),
+    workspace: t.relation('workspace', { nullable: false }),
+    inviter: t.relation('inviter', { nullable: false }),
   }),
 })

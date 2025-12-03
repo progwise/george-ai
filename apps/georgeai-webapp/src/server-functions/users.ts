@@ -13,8 +13,11 @@ graphql(`
     name
     createdAt
     email
+    given_name
+    family_name
     avatarUrl
     isAdmin
+    defaultWorkspaceId
     profile {
       firstName
       lastName

@@ -8,7 +8,6 @@ import { getLibrariesQueryOptions } from './queries/get-libraries'
 import { getLibraryQueryOptions } from './queries/get-library'
 import { deleteLibraryFn } from './server-functions/delete-library'
 import { generateApiKeyFn } from './server-functions/generate-api-key'
-import { removeLibraryParticipantFn, updateLibraryParticipantsFn } from './server-functions/participants'
 import { revokeApiKeyFn } from './server-functions/revoke-api-key'
 import { updateLibraryFn } from './server-functions/update-library'
 
@@ -27,40 +26,6 @@ export const useLibraryActions = (libraryId: string) => {
       await Promise.all([
         queryClient.invalidateQueries(getLibrariesQueryOptions()),
         queryClient.invalidateQueries(getLibraryQueryOptions(libraryId)),
-      ])
-    },
-  })
-
-  const removeParticipantsMutation = useMutation({
-    mutationFn: (data: { participantId: string }) => removeLibraryParticipantFn({ data: { libraryId, ...data } }),
-    onError: (error) => {
-      toastError(t('errors.removeParticipantFailed', { error: error.message }))
-    },
-    onSuccess: async () => {
-      toastSuccess(t('libraries.removeParticipantSuccess'))
-    },
-    onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries(getLibraryQueryOptions(libraryId)),
-        queryClient.invalidateQueries(getLibrariesQueryOptions()),
-      ])
-    },
-  })
-
-  const updateParticipantsMutation = useMutation({
-    mutationFn: async ({ userIds }: { userIds: string[] }) => {
-      return await updateLibraryParticipantsFn({ data: { libraryId, userIds } })
-    },
-    onError: (error) => {
-      toastError(t('errors.updateParticipantsFailed', { error: error.message }))
-    },
-    onSuccess: async (data) => {
-      toastSuccess(t('libraries.updateParticipantsSuccess', data.updateLibraryParticipants))
-    },
-    onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries(getLibraryQueryOptions(libraryId)),
-        queryClient.invalidateQueries(getLibrariesQueryOptions()),
       ])
     },
   })
@@ -107,14 +72,10 @@ export const useLibraryActions = (libraryId: string) => {
   return {
     updateLibrary: updateLibraryMutation.mutate,
     deleteLibrary: deleteLibraryMutation.mutate,
-    updateParticipants: updateParticipantsMutation.mutate,
-    removeParticipant: removeParticipantsMutation.mutate,
     generateApiKey: generateApiKeyMutation.mutate,
     revokeApiKey: revokeApiKeyMutation.mutate,
     isPending:
       updateLibraryMutation.isPending ||
-      updateParticipantsMutation.isPending ||
-      removeParticipantsMutation.isPending ||
       deleteLibraryMutation.isPending ||
       generateApiKeyMutation.isPending ||
       revokeApiKeyMutation.isPending,

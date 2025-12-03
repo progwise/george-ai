@@ -5,17 +5,6 @@ import './mutations'
 
 console.log('Setting up: AiList')
 
-builder.prismaObject('AiListParticipant', {
-  name: 'AiListParticipant',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    listId: t.exposeString('listId', { nullable: false }),
-    list: t.relation('list', { nullable: false }),
-    userId: t.exposeString('userId', { nullable: false }),
-    user: t.relation('user', { nullable: false }),
-  }),
-})
-
 builder.prismaObject('AiListSource', {
   name: 'AiListSource',
   fields: (t) => ({
@@ -36,7 +25,6 @@ builder.prismaObject('AiList', {
     ownerId: t.exposeString('ownerId', { nullable: false }),
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
-    participants: t.relation('participants', { nullable: false }),
     fields: t.relation('fields', { nullable: false, query: { orderBy: { order: 'asc' } } }),
     sources: t.relation('sources', { nullable: false }),
     enrichmentTasks: t.relation('enrichmentTasks', { nullable: false }),

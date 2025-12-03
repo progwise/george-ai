@@ -1,76 +1,44 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-
-import { useWorkspace } from '../../hooks/use-workspace'
+import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
-import { toastError, toastSuccess } from '../georgeToaster'
-import { deleteWorkspaceFn } from './server-functions/delete-workspace'
-import { validateWorkspaceDeletionFn } from './server-functions/validate-workspace-deletion'
+import { useWorkspace } from './use-workspace'
 
 interface DeleteWorkspaceDialogProps {
-  workspaceId: string
-  workspaceName: string
-  onWorkspaceDeleted?: () => void
+  user: UserFragment
   ref: React.RefObject<HTMLDialogElement | null>
 }
 
-export const DeleteWorkspaceDialog = ({
-  workspaceId,
-  workspaceName,
-  onWorkspaceDeleted,
-  ref,
-}: DeleteWorkspaceDialogProps) => {
+export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const { workspaces, setWorkspace } = useWorkspace()
 
-  // Validate deletion when dialog opens
-  const { data: validation } = useQuery({
-    queryKey: ['validateWorkspaceDeletion', workspaceId],
-    queryFn: () => validateWorkspaceDeletionFn({ data: { workspaceId } }),
-    enabled: !!workspaceId,
-    staleTime: 0, // Always re-fetch when dialog opens
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      return await deleteWorkspaceFn({ data: { workspaceId } })
-    },
-    onSuccess: async () => {
-      toastSuccess(t('workspace.deleteSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-      ref.current?.close()
-
-      // Switch to another workspace if available
-      const otherWorkspace = workspaces.find((w) => w.id !== workspaceId)
-      if (otherWorkspace) {
-        await setWorkspace(otherWorkspace.id)
-      }
-
-      onWorkspaceDeleted?.()
-    },
-    onError: (error) => {
-      toastError(error.message)
-    },
-  })
+  const { currentWorkspace, workspaces, validation, deleteWorkspace, setWorkspace, isPending, isLoading } =
+    useWorkspace(user)
 
   const handleSubmit = () => {
-    if (!validation?.canDelete) {
-      toastError(t('workspace.cannotDelete'))
-      return
-    }
+    if (!validation?.canDelete || !currentWorkspace) return
 
-    deleteMutation.mutate()
+    deleteWorkspace(currentWorkspace.id, {
+      onSuccess: async () => {
+        ref.current?.close()
+        // Switch to another workspace if available
+        const otherWorkspace = workspaces.find((w) => w.id !== currentWorkspace.id)
+        if (otherWorkspace) {
+          await setWorkspace(otherWorkspace.id)
+        }
+      },
+    })
   }
+
+  if (!currentWorkspace) return null
 
   return (
     <DialogForm
       ref={ref}
-      title={`${t('workspace.deleteTitle')}: ${workspaceName}`}
+      title={`${t('workspace.deleteTitle')}: ${currentWorkspace.name}`}
       description={validation?.canDelete ? t('workspace.deleteDescription') : t('workspace.deleteBlockedDescription')}
       onSubmit={handleSubmit}
       submitButtonText={t('workspace.delete')}
-      disabledSubmit={deleteMutation.isPending}
+      disabledSubmit={isPending || isLoading}
       buttonOptions={validation?.canDelete ? 'cancelAndConfirm' : 'onlyClose'}
     >
       {/* Show item counts */}

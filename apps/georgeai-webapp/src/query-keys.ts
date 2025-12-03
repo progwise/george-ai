@@ -1,8 +1,11 @@
 export const queryKeys = {
+  UserDashboard: 'UserDashboard',
   AiAssistant: 'AiAssistant',
   AiAssistants: 'AiAssistants',
   AiLibrary: 'AiLibrary',
   AiLibraries: 'AiLibraries',
+  AiList: 'AiList',
+  AiLists: 'AiLists',
   AiLibraryFiles: 'AiLibraryFiles',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
@@ -14,4 +17,8 @@ export const queryKeys = {
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',
   UserProfile: 'UserProfile',
+  Workspaces: 'Workspaces',
+  WorkspaceMembers: 'WorkspaceMembers',
+  WorkspaceInvitations: 'WorkspaceInvitations',
+  WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
 }

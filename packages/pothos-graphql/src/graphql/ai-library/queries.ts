@@ -1,4 +1,3 @@
-import { canAccessLibraryOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -14,11 +13,11 @@ builder.queryField('aiLibrary', (t) =>
     },
     nullable: false,
     resolve: async (query, _source, { libraryId }, context) => {
+      // Any workspace member can access libraries in their workspace
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
-        where: { id: libraryId },
+        where: { id: libraryId, workspaceId: context.workspaceId },
       })
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
       return library
     },
   }),
@@ -32,7 +31,6 @@ builder.queryField('aiLibraries', (t) =>
       orderBy: t.arg({ type: LibrarySortOrder, required: false }),
     },
     resolve: (query, _source, args, context) => {
-      const user = context.session.user
       const workspaceId = context.workspaceId
       const orderBy = args.orderBy || 'updatedAtDesc'
       const orderByClause =
@@ -48,16 +46,11 @@ builder.queryField('aiLibraries', (t) =>
                   ? { updatedAt: 'asc' as const }
                   : { updatedAt: 'desc' as const }
 
+      // Any workspace member can access all libraries in the workspace
       return prisma.aiLibrary.findMany({
         ...query,
         where: {
           workspaceId,
-          OR: [
-            { ownerId: user.id },
-            {
-              participants: { some: { userId: user.id } },
-            },
-          ],
         },
         orderBy: orderByClause,
       })

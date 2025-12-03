@@ -14,26 +14,16 @@ builder.queryField('queueSystemStatus', (t) =>
     authScopes: {
       isLoggedIn: true,
     },
-    resolve: async (_, __, { session }) => {
-      const userId = session?.user?.id
+    resolve: async (_, __, { session, workspaceId }) => {
       const isAdmin = session?.user?.isAdmin ?? false
 
       // Build WHERE clauses based on user access
-      // Admins see all tasks, non-admins see tasks from libraries/lists they own OR participate in
+      // Admins see all tasks, non-admins see tasks from libraries/lists in their workspace
       const contentProcessingAccessFilter = isAdmin
         ? {}
         : {
             library: {
-              OR: [
-                { ownerId: userId },
-                {
-                  participants: {
-                    some: {
-                      userId,
-                    },
-                  },
-                },
-              ],
+              workspaceId,
             },
           }
 
@@ -41,16 +31,7 @@ builder.queryField('queueSystemStatus', (t) =>
         ? {}
         : {
             list: {
-              OR: [
-                { ownerId: userId },
-                {
-                  participants: {
-                    some: {
-                      userId,
-                    },
-                  },
-                },
-              ],
+              workspaceId,
             },
           }
 

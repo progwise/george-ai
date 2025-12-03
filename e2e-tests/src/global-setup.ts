@@ -90,7 +90,7 @@ async function globalSetup() {
         await client.query(
           `
           INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
-          VALUES (gen_random_uuid(), $1, $2, 'ADMIN', NOW(), NOW())
+          VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
         `,
           [workspace.id, userId],
         )

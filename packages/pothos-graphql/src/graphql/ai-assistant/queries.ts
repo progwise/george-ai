@@ -10,20 +10,11 @@ builder.queryField('aiAssistant', (t) =>
       assistantId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { assistantId }, context) => {
-      const user = context.session.user
+      // Any workspace member can access assistants in their workspace
       const assistant = await prisma.aiAssistant.findUnique({
         ...query,
-        where: { id: assistantId },
-        include: { participants: { include: { user: true } } },
+        where: { id: assistantId, workspaceId: context.workspaceId },
       })
-      if (!assistant) return null
-
-      const isAuthorized =
-        user.isAdmin ||
-        assistant.ownerId === user.id ||
-        (await prisma.aiAssistantParticipant.findFirst({ where: { assistantId, userId: user.id } })) != null
-
-      if (!isAuthorized) return null
       return assistant
     },
   }),
@@ -37,11 +28,11 @@ builder.queryField('aiAssistants', (t) =>
       items: false,
     },
     resolve: (query, _source, _args, context) => {
+      // Any workspace member can access all assistants in the workspace
       return prisma.aiAssistant.findMany({
         ...query,
         where: {
           workspaceId: context.workspaceId,
-          OR: [{ ownerId: context.session.user.id }, { participants: { some: { userId: context.session.user.id } } }],
         },
       })
     },

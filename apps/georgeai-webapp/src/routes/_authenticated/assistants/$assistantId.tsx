@@ -5,13 +5,11 @@ import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-ac
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
-import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
 import { getAssistantQueryOptions } from '../../../components/assistant/get-assistant'
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { getLibrariesQueryOptions } from '../../../components/library/queries/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
   component: RouteComponent,
@@ -33,7 +31,6 @@ function RouteComponent() {
     data: { aiAssistant, aiLibraryUsage },
   } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 
-  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiLibraries },
   } = useSuspenseQuery(getLibrariesQueryOptions())
@@ -50,9 +47,6 @@ function RouteComponent() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:w-64">
           <AssistantSelector assistants={aiAssistants} selectedAssistant={aiAssistant!} />
-        </div>
-        <div className="flex min-w-0 items-center justify-end gap-2">
-          <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">

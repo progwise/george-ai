@@ -2,6 +2,7 @@ import { GraphQLError } from 'graphql'
 
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 
+import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -300,38 +301,24 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       }> = []
 
       // Import OpenAI if configured
-      if (process.env.OPENAI_API_KEY) {
+      if (OPENAI_API_KEY) {
         providersToCreate.push({
           provider: 'openai',
           name: 'OpenAI',
-          apiKey: process.env.OPENAI_API_KEY,
-          baseUrl: process.env.OPENAI_BASE_URL,
+          apiKey: OPENAI_API_KEY,
+          baseUrl: OPENAI_BASE_URL,
         })
       }
 
-      // Import primary Ollama instance
-      if (process.env.OLLAMA_BASE_URL) {
+      // Import all configured Ollama instances
+      for (const instance of OLLAMA_INSTANCES) {
         providersToCreate.push({
           provider: 'ollama',
-          name: 'Primary Ollama',
-          baseUrl: process.env.OLLAMA_BASE_URL,
-          apiKey: process.env.OLLAMA_API_KEY,
-          vramGb: process.env.OLLAMA_VRAM_GB ? parseInt(process.env.OLLAMA_VRAM_GB) : 16,
+          name: instance.name,
+          baseUrl: instance.baseUrl,
+          apiKey: instance.apiKey,
+          vramGb: instance.vramGb,
         })
-      }
-
-      // Import additional Ollama instances (OLLAMA_BASE_URL_1 through OLLAMA_BASE_URL_9)
-      for (let i = 1; i <= 9; i++) {
-        const baseUrl = process.env[`OLLAMA_BASE_URL_${i}`]
-        if (baseUrl) {
-          providersToCreate.push({
-            provider: 'ollama',
-            name: `Ollama Instance ${i + 1}`,
-            baseUrl,
-            apiKey: process.env[`OLLAMA_API_KEY_${i}`],
-            vramGb: process.env[`OLLAMA_VRAM_GB_${i}`] ? parseInt(process.env[`OLLAMA_VRAM_GB_${i}`]!) : 16,
-          })
-        }
       }
 
       // Create providers, skipping duplicates

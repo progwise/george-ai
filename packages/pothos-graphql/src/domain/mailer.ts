@@ -1,23 +1,29 @@
-import { createTransport } from 'nodemailer'
+import { Transporter, createTransport } from 'nodemailer'
+import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 
-const smtp_hostname = process.env.SMTP_HOSTNAME || ''
-const smtp_port = process.env.SMTP_PORT || '587'
-const smtp_user = process.env.SMTP_USER || ''
-const smtp_password = process.env.SMTP_PASSWORD || ''
+import { SMTP_HOSTNAME, SMTP_PASSWORD, SMTP_PORT, SMTP_USER } from '../global-config'
 
-const transporter = createTransport({
-  host: smtp_hostname,
-  port: parseInt(smtp_port),
-  secure: false,
-  auth: {
-    user: smtp_user,
-    pass: smtp_password,
-  },
-})
+// Lazy-initialized transporter - only created when first email is sent
+let transporter: Transporter<SMTPTransport.SentMessageInfo> | null = null
+
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = createTransport({
+      host: SMTP_HOSTNAME,
+      port: SMTP_PORT,
+      secure: false,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASSWORD,
+      },
+    })
+  }
+  return transporter
+}
 
 export const sendMail = async (to: string, subject: string, text: string, html: string) => {
   try {
-    return await transporter.sendMail({
+    return await getTransporter().sendMail({
       from: 'into@george-ai.net',
       to,
       subject,

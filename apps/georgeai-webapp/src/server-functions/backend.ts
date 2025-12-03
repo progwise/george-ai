@@ -4,9 +4,9 @@ import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
+import { WORKSPACE_COOKIE_NAME } from '../components/workspace/server-functions/workspace-cookie'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
-import { WORKSPACE_COOKIE_NAME } from './workspace-cookie'
 
 async function backendRequest<T, V extends Variables = Variables>(
   document: RequestDocument | TypedDocumentNode<T, V>,

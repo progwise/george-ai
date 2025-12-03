@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-import { canAccessListOrThrow } from '../../domain'
 import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -13,18 +12,12 @@ builder.queryField('aiLists', (t) =>
     type: ['AiList'],
     nullable: false,
     resolve: async (query, _source, _args, context) => {
-      const user = context.session.user
       const workspaceId = context.workspaceId
+      // Any workspace member can access all lists in the workspace
       return prisma.aiList.findMany({
         ...query,
         where: {
           workspaceId,
-          OR: [
-            { ownerId: user.id },
-            {
-              participants: { some: { userId: user.id } },
-            },
-          ],
         },
         orderBy: { name: 'asc' },
       })
@@ -40,9 +33,10 @@ builder.queryField('aiList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      const list = await canAccessListOrThrow(id, context.session.user.id, {
+      // Any workspace member can access lists in their workspace
+      const list = await prisma.aiList.findUniqueOrThrow({
         ...query,
-        include: { participants: true },
+        where: { id, workspaceId: context.workspaceId },
       })
       return list
     },
@@ -63,7 +57,11 @@ builder.queryField('aiListItems', (t) =>
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: async (_root, args, context) => {
-      const list = await canAccessListOrThrow(args.listId, context.session.user.id, { include: { sources: true } })
+      // Any workspace member can access lists in their workspace
+      const list = await prisma.aiList.findUniqueOrThrow({
+        where: { id: args.listId, workspaceId: context.workspaceId },
+        include: { sources: true },
+      })
       const fields = await prisma.aiListField.findMany({
         select: {
           id: true,
