@@ -18,13 +18,13 @@
   },
   "dependencies": {
     "@george-ai/web-utils": "workspace:*",
-    "zod": "^3.23.8",
+    "zod": "^4.1.13",
     "jsonpath-plus": "^10.2.0"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.8"
   }
 }
