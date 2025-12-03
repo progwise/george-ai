@@ -5,6 +5,7 @@ import {
   INVITATION_EXPIRY_DAYS,
   isLastAdmin,
   requireWorkspaceAdmin,
+  requireWorkspaceOwner,
   sendWorkspaceInvitationEmail,
 } from '../../domain/workspace'
 import { prisma } from '../../prisma'
@@ -48,7 +49,7 @@ builder.mutationField('createWorkspace', (t) =>
             members: {
               create: {
                 userId,
-                role: 'admin',
+                role: 'owner',
               },
             },
           },
@@ -78,7 +79,7 @@ builder.mutationField('validateWorkspaceDeletion', (t) =>
     resolve: async (_root, { workspaceId }, ctx) => {
       const user = ctx.session.user
 
-      // Check if user is workspace admin
+      // Check if user is workspace owner
       const member = await prisma.workspaceMember.findUnique({
         where: {
           workspaceId_userId: {
@@ -95,13 +96,13 @@ builder.mutationField('validateWorkspaceDeletion', (t) =>
         prisma.aiList.count({ where: { workspaceId } }),
       ])
 
-      if (!member || (member.role !== 'admin' && member.role !== 'owner')) {
+      if (!member || member.role !== 'owner') {
         return {
           canDelete: false,
           libraryCount,
           assistantCount,
           listCount,
-          message: 'Only workspace admins can delete workspaces',
+          message: 'Only workspace owners can delete workspaces',
         }
       }
 
@@ -146,19 +147,8 @@ builder.mutationField('deleteWorkspace', (t) =>
     resolve: async (_root, { workspaceId }, ctx) => {
       const userId = ctx.session.user.id
 
-      // Check if user is workspace admin
-      const member = await prisma.workspaceMember.findUnique({
-        where: {
-          workspaceId_userId: {
-            workspaceId,
-            userId,
-          },
-        },
-      })
-
-      if (!member || (member.role !== 'admin' && member.role !== 'owner')) {
-        throw new GraphQLError('Only workspace admins can delete workspaces')
-      }
+      // Check if user is workspace owner
+      await requireWorkspaceOwner(workspaceId, userId)
 
       // Verify workspace is empty
       const [libraryCount, assistantCount, listCount] = await Promise.all([
@@ -306,14 +296,14 @@ builder.mutationField('revokeWorkspaceInvitation', (t) =>
 
 // Remove a member from workspace (admin only, cannot remove self)
 builder.mutationField('removeWorkspaceMember', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: 'Boolean',
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'WorkspaceMember',
     nullable: false,
     args: {
       workspaceId: t.arg.id({ required: true }),
       userId: t.arg.id({ required: true }),
     },
-    resolve: async (_root, { workspaceId, userId: targetUserId }, ctx) => {
+    resolve: async (query, _root, { workspaceId, userId: targetUserId }, ctx) => {
       const currentUserId = ctx.session.user.id
 
       // Cannot remove yourself (use leaveWorkspace instead)
@@ -326,6 +316,7 @@ builder.mutationField('removeWorkspaceMember', (t) =>
 
       // Check if target is a member
       const targetMembership = await prisma.workspaceMember.findUnique({
+        ...query,
         where: {
           workspaceId_userId: { workspaceId, userId: targetUserId },
         },
@@ -342,12 +333,12 @@ builder.mutationField('removeWorkspaceMember', (t) =>
         },
       })
 
-      return true
+      return targetMembership
     },
   }),
 )
 
-// Update a member's role (admin only)
+// Update a member's role (admin only, owner role requires current user to be owner)
 builder.mutationField('updateWorkspaceMemberRole', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'WorkspaceMember',
@@ -361,12 +352,16 @@ builder.mutationField('updateWorkspaceMemberRole', (t) =>
       const currentUserId = ctx.session.user.id
 
       // Validate role
-      if (role !== 'admin' && role !== 'member') {
-        throw new GraphQLError('Invalid role. Must be "admin" or "member"')
+      if (role !== 'admin' && role !== 'member' && role !== 'owner') {
+        throw new GraphQLError('Invalid role. Must be "admin" or "member" or "owner".')
       }
 
-      // Check if current user is admin
-      await requireWorkspaceAdmin(workspaceId, currentUserId)
+      // Only owners can promote to owner, otherwise admin is sufficient
+      if (role === 'owner') {
+        await requireWorkspaceOwner(workspaceId, currentUserId)
+      } else {
+        await requireWorkspaceAdmin(workspaceId, currentUserId)
+      }
 
       // Check if target is a member
       const targetMembership = await prisma.workspaceMember.findUnique({

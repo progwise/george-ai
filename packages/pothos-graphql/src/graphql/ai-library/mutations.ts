@@ -4,7 +4,7 @@ import { validateFileConverterOptionsString } from '@george-ai/file-converter'
 import { getLibraryDir } from '@george-ai/file-management'
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow } from '../../domain'
+import { canAccessLibraryOrThrow, isLibraryOwnerOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -89,18 +89,20 @@ builder.mutationField('createLibrary', (t) =>
 )
 
 builder.mutationField('deleteLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
       id: t.arg.string({ required: true }),
     },
     nullable: false,
-    resolve: async (query, _source, { id }) => {
+    resolve: async (query, _source, { id }, context) => {
+      // Only owner can delete a library
+      await isLibraryOwnerOrThrow(id, context.session.user.id)
+
       const result = await prisma.$transaction(
         [
           prisma.aiLibraryFile.deleteMany({ where: { libraryId: id } }),
           prisma.aiLibraryCrawler.deleteMany({ where: { libraryId: id } }),
-          prisma.aiLibraryParticipant.deleteMany({ where: { libraryId: id } }),
           prisma.aiLibrary.delete({
             ...query,
             where: { id },
@@ -108,98 +110,7 @@ builder.mutationField('deleteLibrary', (t) =>
         ],
         {},
       )
-      return result[3]
-    },
-  }),
-)
-
-const UpdateLibraryParticipantsResult = builder.simpleObject('UpdateLibraryParticipantsResult', {
-  fields: (t) => ({
-    addedParticipants: t.int({ nullable: false }),
-    removedParticipants: t.int({ nullable: false }),
-    totalParticipants: t.int({ nullable: false }),
-  }),
-})
-
-builder.mutationField('updateLibraryParticipants', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: UpdateLibraryParticipantsResult,
-    nullable: false,
-    args: {
-      libraryId: t.arg.string({ required: true }),
-      userIds: t.arg.stringList({ required: true }),
-    },
-    resolve: async (_source, { libraryId, userIds }, context) => {
-      const library = await canAccessLibraryOrThrow(libraryId, context.session.user.id)
-      if (library.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can update participants')
-      }
-      const existingParticipants = await prisma.aiLibraryParticipant.findMany({
-        where: { libraryId },
-      })
-
-      const newUserIds = userIds.filter(
-        (userId) => !existingParticipants.some((participant) => participant.userId === userId),
-      )
-
-      const removedUserIds = existingParticipants
-        .map((participant) => participant.userId)
-        .filter((userId) => !userIds.includes(userId))
-
-      const newParticipants = await prisma.aiLibraryParticipant.createMany({
-        data: newUserIds.map((userId) => ({
-          libraryId,
-          userId,
-        })),
-      })
-
-      const removedParticipants = await prisma.aiLibraryParticipant.deleteMany({
-        where: {
-          libraryId,
-          userId: { in: removedUserIds },
-        },
-      })
-
-      const totalParticipants = await prisma.aiLibraryParticipant.count({
-        where: { libraryId },
-      })
-
-      return {
-        addedParticipants: newParticipants.count,
-        removedParticipants: removedParticipants.count,
-        totalParticipants,
-      }
-    },
-  }),
-)
-
-builder.mutationField('removeLibraryParticipant', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: 'Boolean',
-    nullable: false,
-    args: {
-      libraryId: t.arg.string({ required: true }),
-      participantId: t.arg.string({ required: true }),
-    },
-    resolve: async (_source, { libraryId, participantId }, context) => {
-      const currentUserId = context.session.user.id
-      const participant = await prisma.aiLibraryParticipant.findUniqueOrThrow({
-        where: { id: participantId, libraryId },
-        select: { libraryId: true, userId: true, library: { select: { ownerId: true } } },
-      })
-
-      const isOwner = participant.library.ownerId === currentUserId
-      const isSelf = participant.userId === currentUserId
-
-      if (!isOwner && !isSelf) {
-        throw new Error('Only the owner can remove other participants')
-      }
-
-      await prisma.aiLibraryParticipant.delete({
-        where: { id: participantId },
-      })
-
-      return true
+      return result[2]
     },
   }),
 )

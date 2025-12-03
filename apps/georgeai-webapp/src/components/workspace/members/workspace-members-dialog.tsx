@@ -1,21 +1,15 @@
 import { RefObject } from 'react'
 
+import { UserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { WorkspaceMembersPanel } from './workspace-members-panel'
 
 interface WorkspaceMembersDialogProps {
+  user: UserFragment
   ref: RefObject<HTMLDialogElement | null>
-  workspaceId: string
-  workspaceName: string
-  onLeaveSuccess?: () => void
 }
 
-export const WorkspaceMembersDialog = ({
-  ref,
-  workspaceId,
-  workspaceName,
-  onLeaveSuccess,
-}: WorkspaceMembersDialogProps) => {
+export const WorkspaceMembersDialog = ({ user, ref }: WorkspaceMembersDialogProps) => {
   const { t } = useTranslation()
 
   const handleClose = () => {
@@ -35,11 +29,7 @@ export const WorkspaceMembersDialog = ({
           </button>
         </form>
 
-        <h3 className="mb-4 text-lg font-bold">
-          {t('workspace.members.title')}: {workspaceName}
-        </h3>
-
-        <WorkspaceMembersPanel workspaceId={workspaceId} onLeaveSuccess={onLeaveSuccess} />
+        <WorkspaceMembersPanel user={user} />
       </div>
       <form method="dialog" className="modal-backdrop">
         <button type="submit" onClick={handleClose}>

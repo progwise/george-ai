@@ -20,16 +20,7 @@ export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(() =>
 const loginDocument = graphql(`
   mutation login($jwtToken: String!) {
     login(jwtToken: $jwtToken) {
-      id
-      username
-      email
-      name
-      given_name
-      family_name
-      avatarUrl
-      createdAt
-      isAdmin
-      defaultWorkspaceId
+      ...User
     }
   }
 `)

@@ -8,6 +8,11 @@ const updateWorkspaceMemberRoleMutationDocument = graphql(`
     updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {
       id
       role
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `)

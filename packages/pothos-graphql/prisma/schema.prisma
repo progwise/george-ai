@@ -28,15 +28,12 @@ model User {
   avatarUrl                  String?
   defaultWorkspaceId         String
   assistants                 AiAssistant[]
-  assistantParticipations    AiAssistantParticipant[]
   conversations              AiConversation[]
   conversationInvitation     AiConversationInvitation[]
   conversationParticipations AiConversationParticipant[]
   libraries                  AiLibrary[]
   crawlerRuns                AiLibraryCrawlerRun[]
-  libraryParticipations      AiLibraryParticipant[]
   lists                      AiList[]
-  listParticipations         AiListParticipant[]
   modelUsageLogs             AiModelUsage[]
   apiKeys                    ApiKey[]
   profile                    UserProfile?
@@ -145,7 +142,6 @@ model AiAssistant {
   workspace                  Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   baseCases                  AiAssistantBaseCase[]
   euActAnswers               AiAssistantEUActAnswers[]
-  participants               AiAssistantParticipant[]
   conversationParticipations AiConversationParticipant[]
   usages                     AiLibraryUsage[]
   modelUsageLogs             AiModelUsage[]
@@ -176,17 +172,6 @@ model AiAssistantEUActAnswers {
   @@id([assistantId, questionId])
 }
 
-model AiAssistantParticipant {
-  id          String      @id @default(cuid())
-  createdAt   DateTime    @default(now())
-  assistantId String
-  userId      String
-  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([assistantId, userId])
-}
-
 model AiLibrary {
   id                      String                    @id @default(cuid())
   createdAt               DateTime                  @default(now())
@@ -211,7 +196,6 @@ model AiLibrary {
   workspace               Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   crawlers                AiLibraryCrawler[]
   files                   AiLibraryFile[]
-  participants            AiLibraryParticipant[]
   updates                 AiLibraryUpdate[]
   usages                  AiLibraryUsage[]
   listSources             AiListSource[]
@@ -381,29 +365,17 @@ model AiLibraryUpdate {
   library      AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
 }
 
-model AiLibraryParticipant {
-  id        String    @id @default(cuid())
-  createdAt DateTime  @default(now())
-  libraryId String
-  userId    String
-  library   AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([libraryId, userId])
-}
-
 model AiList {
-  id              String              @id @default(cuid())
+  id              String             @id @default(cuid())
   ownerId         String
   workspaceId     String
   name            String
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
   enrichmentTasks AiEnrichmentTask[]
-  owner           User                @relation(fields: [ownerId], references: [id])
-  workspace       Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner           User               @relation(fields: [ownerId], references: [id])
+  workspace       Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   fields          AiListField[]
-  participants    AiListParticipant[]
   sources         AiListSource[]
   modelUsageLogs  AiModelUsage[]
 
@@ -417,17 +389,6 @@ model AiListSource {
   libraryId String?
   library   AiLibrary? @relation(fields: [libraryId], references: [id])
   list      AiList     @relation(fields: [listId], references: [id])
-}
-
-model AiListParticipant {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  listId    String
-  userId    String
-  list      AiList   @relation(fields: [listId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([listId, userId])
 }
 
 model AiListField {

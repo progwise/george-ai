@@ -3,8 +3,8 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
 import { toastError, toastSuccess } from '../../components/georgeToaster'
+import { useWorkspace } from '../../components/workspace/use-workspace'
 import { graphql } from '../../gql'
-import { useWorkspace } from '../../hooks/use-workspace'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -72,7 +72,7 @@ function AcceptInvitationPage() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { setWorkspace } = useWorkspace()
+  const { setWorkspace } = useWorkspace(user)
 
   const { data: invitation } = useSuspenseQuery(getWorkspaceInvitationQueryOptions(invitationId))
 

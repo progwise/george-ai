@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
-import { User_EntityParticipantsDialogFragment } from '../../gql/graphql'
+import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { UserAvatar } from '../user-avatar'
 
 interface UsersSelectorProps {
-  users: User_EntityParticipantsDialogFragment[]
+  users: UserFragment[]
   selectedUserIds: string[]
   setSelectedUserIds: Dispatch<SetStateAction<string[]>>
   className?: string
@@ -24,8 +24,6 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
         user.username.toLowerCase().includes(search) ||
         user.name?.toLowerCase().includes(search) ||
         user.email?.toLowerCase().includes(search) ||
-        user.given_name?.toLowerCase().includes(search) ||
-        user.family_name?.toLowerCase().includes(search) ||
         user.profile?.business?.toLowerCase().includes(search) ||
         user.profile?.position?.toLowerCase().includes(search) ||
         false

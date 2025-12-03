@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
@@ -8,11 +7,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { DownloadIcon } from '../../icons/download-icon'
 import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { UserPlusIcon } from '../../icons/user-plus-icon'
-import { getUsersQueryOptions } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
-import { EntityParticipants } from '../participant/entity-participants'
-import { EntityParticipantsDialog } from '../participant/entity-participants-dialog'
 import { ListExportDialog } from './list-export-dialog'
 import { NewListDialog } from './new-list-dialog'
 import { useListActions } from './use-list-actions'
@@ -22,15 +17,6 @@ graphql(`
     id
     name
     ownerId
-    owner {
-      ...User_EntityParticipantsDialog
-    }
-    participants {
-      id
-      user {
-        ...User_EntityParticipantsDialog
-      }
-    }
   }
 `)
 
@@ -50,14 +36,11 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
   const newListDialogRef = useRef<HTMLDialogElement | null>(null)
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const listSelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
-  const entityParticipantsDialogRef = useRef<HTMLDialogElement | null>(null)
   const exportListDialogRef = useRef<HTMLDialogElement | null>(null)
   const { t } = useTranslation()
   const { user } = useRouteContext({ strict: false })
 
-  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
-
-  const { deleteList, updateParticipants, removeParticipant, isPending } = useListActions(list.id)
+  const { deleteList, isPending } = useListActions(list.id)
 
   useEffect(() => {
     if (!listSelectorDetailsRef.current) return
@@ -146,37 +129,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
             <span className="max-lg:hidden">{t('lists.delete')}</span>
           </button>
         </li>
-        <li>
-          <EntityParticipants
-            entityName={list.name}
-            disabled={isPending}
-            owner={list.owner}
-            participants={list.participants}
-            onRemoveParticipant={(participantId) => participantId && removeParticipant({ participantId })}
-          />
-        </li>
-        {list.ownerId === user.id && (
-          <>
-            <li>
-              <button
-                type="button"
-                className="btn btn-circle border-base-content/20 btn-sm tooltip tooltip-bottom tooltip-info hover:animate-pulse"
-                onClick={() => entityParticipantsDialogRef.current?.showModal()}
-                title={t('lists.manageParticipants')}
-                data-tip={t('lists.manageParticipants')}
-              >
-                <UserPlusIcon className="size-5" />
-              </button>
-            </li>
-          </>
-        )}
       </ul>
-      <EntityParticipantsDialog
-        ref={entityParticipantsDialogRef}
-        users={usersData.users}
-        participants={list.participants}
-        onUpdateParticipants={({ userIds }) => userIds && updateParticipants({ userIds })}
-      />
       <NewListDialog ref={newListDialogRef} />
       <DialogForm ref={deleteDialogRef} title={t('lists.deleteDialogTitle')} onSubmit={() => deleteList()}>
         {t('lists.deleteDialogConfirmation', { name: list.name })}

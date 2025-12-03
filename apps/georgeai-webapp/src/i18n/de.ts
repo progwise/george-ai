@@ -1176,6 +1176,7 @@ export default {
       removeError: 'Mitglied konnte nicht entfernt werden: {message}',
       makeAdmin: 'Zum Admin machen',
       makeMember: 'Zum Mitglied machen',
+      makeOwner: 'Zum Besitzer machen',
       roleUpdateSuccess: '{name} ist jetzt {role}',
       roleUpdateError: 'Rolle konnte nicht aktualisiert werden: {message}',
       leave: 'Arbeitsbereich verlassen',

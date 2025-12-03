@@ -14,12 +14,22 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
 })
 
 builder.mutationField('deleteAiAssistant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
       assistantId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { assistantId }) => {
+    resolve: async (query, _source, { assistantId }, context) => {
+      // Only owner can delete an assistant
+      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
+        where: { id: assistantId },
+        select: { ownerId: true },
+      })
+
+      if (assistant.ownerId !== context.session.user.id) {
+        throw new Error('Only the owner can delete this assistant')
+      }
+
       return prisma.aiAssistant.delete({
         ...query,
         where: { id: assistantId },

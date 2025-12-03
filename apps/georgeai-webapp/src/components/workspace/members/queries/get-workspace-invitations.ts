@@ -29,9 +29,9 @@ const getWorkspaceInvitations = createServerFn({ method: 'GET' })
     return workspaceInvitations
   })
 
-export const getWorkspaceInvitationsQueryOptions = (workspaceId: string) =>
+export const getWorkspaceInvitationsQueryOptions = (workspaceId?: string) =>
   queryOptions({
     queryKey: ['workspaceInvitations', workspaceId],
-    queryFn: () => getWorkspaceInvitations({ data: { workspaceId } }),
+    queryFn: () => (!workspaceId ? null : getWorkspaceInvitations({ data: { workspaceId } })),
     enabled: !!workspaceId,
   })

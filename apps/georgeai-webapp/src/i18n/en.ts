@@ -1158,6 +1158,7 @@ export default {
       removeError: 'Failed to remove member: {message}',
       makeAdmin: 'Make Admin',
       makeMember: 'Make Member',
+      makeOwner: 'Make Owner',
       roleUpdateSuccess: '{name} is now {role}',
       roleUpdateError: 'Failed to update role: {message}',
       leave: 'Leave Workspace',

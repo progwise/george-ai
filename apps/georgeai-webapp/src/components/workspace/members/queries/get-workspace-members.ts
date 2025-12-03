@@ -30,9 +30,9 @@ const getWorkspaceMembers = createServerFn({ method: 'GET' })
     return workspaceMembers
   })
 
-export const getWorkspaceMembersQueryOptions = (workspaceId: string) =>
+export const getWorkspaceMembersQueryOptions = (workspaceId?: string) =>
   queryOptions({
     queryKey: ['workspaceMembers', workspaceId],
-    queryFn: () => getWorkspaceMembers({ data: { workspaceId } }),
+    queryFn: () => (workspaceId ? getWorkspaceMembers({ data: { workspaceId } }) : null),
     enabled: !!workspaceId,
   })

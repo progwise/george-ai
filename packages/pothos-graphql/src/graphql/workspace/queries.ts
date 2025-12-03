@@ -1,5 +1,6 @@
 import { GraphQLError } from 'graphql'
 
+import { requireWorkspaceAdmin } from '../../domain/workspace'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -98,18 +99,7 @@ builder.queryField('workspaceInvitations', (t) =>
     },
     resolve: async (query, _root, args, ctx) => {
       // Verify the user is an admin of this workspace
-      const membership = await prisma.workspaceMember.findUnique({
-        where: {
-          workspaceId_userId: {
-            workspaceId: args.workspaceId,
-            userId: ctx.session.user.id,
-          },
-        },
-      })
-
-      if (!membership || (membership.role !== 'admin' && membership.role !== 'owner')) {
-        throw new GraphQLError('Only workspace admins can view invitations')
-      }
+      await requireWorkspaceAdmin(args.workspaceId, ctx.session.user.id)
 
       return prisma.workspaceInvitation.findMany({
         ...query,

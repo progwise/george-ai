@@ -8,6 +8,7 @@ export interface DialogFormProps {
   title: string
   description?: React.ReactNode
   onSubmit: (data: FormData) => void
+  onClose?: () => void
   children?: React.ReactNode
   disabledSubmit?: boolean
   submitButtonText?: string
@@ -21,6 +22,7 @@ export const DialogForm = ({
   title,
   description,
   onSubmit,
+  onClose,
   children,
   disabledSubmit,
   submitButtonText,
@@ -43,12 +45,16 @@ export const DialogForm = ({
 
     ref.current?.close()
     formRef.current?.reset()
+    onClose?.()
   }
 
   const handleCancel = (event: React.SyntheticEvent<HTMLDialogElement>) => {
     // Prevent ESC key from closing dialog during async operations
     if (disabledSubmit) {
       event.preventDefault()
+    } else {
+      formRef.current?.reset()
+      onClose?.()
     }
   }
 

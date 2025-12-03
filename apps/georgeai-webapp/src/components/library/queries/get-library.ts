@@ -11,15 +11,6 @@ const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {
     aiLibrary(libraryId: $libraryId) {
       id
-      owner {
-        ...User_EntityParticipantsDialog
-      }
-      participants {
-        id
-        user {
-          ...User_EntityParticipantsDialog
-        }
-      }
       ...AiLibraryBase
       ...AiLibraryForm_Library
     }

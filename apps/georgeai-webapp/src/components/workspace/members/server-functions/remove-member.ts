@@ -5,7 +5,14 @@ import { backendRequest } from '../../../../server-functions/backend'
 
 const removeWorkspaceMemberMutationDocument = graphql(`
   mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {
-    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId)
+    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {
+      id
+      user {
+        id
+        name
+        email
+      }
+    }
   }
 `)
 

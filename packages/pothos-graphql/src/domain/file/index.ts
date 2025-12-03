@@ -18,8 +18,8 @@ export const canAccessFileOrThrow = async (fileId: string, userId: string) => {
   return file
 }
 
-export const getCanAccessFileWhere = (userId: string): PrismaType.AiLibraryFileWhereInput => ({
-  library: { OR: [{ ownerId: userId }, { participants: { some: { userId } } }] },
+export const getCanAccessFileWhere = (workspaceId: string): PrismaType.AiLibraryFileWhereInput => ({
+  library: { workspaceId },
 })
 
 export const getFileInfo = async (fileId: string, userId: string) => {

@@ -1,49 +1,25 @@
-import { useMutation } from '@tanstack/react-query'
 import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
+import { UserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { Input } from '../../form/input'
-import { toastError, toastSuccess } from '../../georgeToaster'
-import { inviteWorkspaceMemberFn } from './server-functions/invite-member'
+import { useWorkspace } from '../use-workspace'
 
 interface InviteMemberDialogProps {
+  user: UserFragment
   ref: RefObject<HTMLDialogElement | null>
-  workspaceId: string
-  onSuccess?: () => void
 }
 
-export const InviteMemberDialog = ({ ref, workspaceId, onSuccess }: InviteMemberDialogProps) => {
+export const InviteMemberDialog = ({ user, ref }: InviteMemberDialogProps) => {
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
 
+  const { inviteMember, isPending } = useWorkspace(user)
+
   const schema = z.object({
     email: z.string().email(t('workspace.members.emailInvalid')),
-  })
-
-  const inviteMutation = useMutation({
-    mutationFn: async (email: string) => {
-      return await inviteWorkspaceMemberFn({ data: { workspaceId, email } })
-    },
-    onSuccess: (_, email) => {
-      toastSuccess(t('workspace.members.inviteSuccess', { email }))
-      setError(null)
-
-      ref.current?.close()
-
-      // Reset form after dialog close animation completes
-      setTimeout(() => {
-        const form = ref.current?.querySelector('form')
-        form?.reset()
-      }, 200)
-
-      onSuccess?.()
-    },
-    onError: (error) => {
-      setError(error.message)
-      toastError(t('workspace.members.inviteError', { message: error.message }))
-    },
   })
 
   const handleSubmit = (formData: FormData) => {
@@ -62,7 +38,15 @@ export const InviteMemberDialog = ({ ref, workspaceId, onSuccess }: InviteMember
       return
     }
 
-    inviteMutation.mutate(email.trim())
+    inviteMember(email.trim(), {
+      onSuccess: () => {
+        setError(null)
+        ref.current?.close()
+      },
+      onError: (error: Error) => {
+        setError(error.message)
+      },
+    })
   }
 
   return (
@@ -72,7 +56,7 @@ export const InviteMemberDialog = ({ ref, workspaceId, onSuccess }: InviteMember
       description={t('workspace.members.inviteDescription')}
       onSubmit={handleSubmit}
       submitButtonText={t('workspace.members.invite')}
-      disabledSubmit={inviteMutation.isPending}
+      disabledSubmit={isPending}
     >
       {error && (
         <div className="alert alert-error mb-4">
@@ -99,7 +83,7 @@ export const InviteMemberDialog = ({ ref, workspaceId, onSuccess }: InviteMember
         label={t('workspace.members.emailLabel')}
         placeholder={t('workspace.members.emailPlaceholder')}
         required
-        disabled={inviteMutation.isPending}
+        disabled={isPending}
         schema={schema}
         onChange={() => error && setError(null)}
       />

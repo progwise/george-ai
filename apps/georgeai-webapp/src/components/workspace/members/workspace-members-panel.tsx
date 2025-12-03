@@ -1,29 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRouteContext } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { UserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
-import { toastError, toastSuccess } from '../../georgeToaster'
 import { UserAvatar } from '../../user-avatar'
+import { useWorkspace } from '../use-workspace'
 import { InviteMemberDialog } from './invite-member-dialog'
-import { getWorkspaceInvitationsQueryOptions } from './queries/get-workspace-invitations'
-import { getWorkspaceMembersQueryOptions } from './queries/get-workspace-members'
-import { leaveWorkspaceFn } from './server-functions/leave-workspace'
-import { removeWorkspaceMemberFn } from './server-functions/remove-member'
-import { revokeWorkspaceInvitationFn } from './server-functions/revoke-invitation'
-import { updateWorkspaceMemberRoleFn } from './server-functions/update-member-role'
 
 interface WorkspaceMembersPanelProps {
-  workspaceId: string
-  onLeaveSuccess?: () => void
+  user: UserFragment
 }
 
-export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: WorkspaceMembersPanelProps) => {
+export const WorkspaceMembersPanel = ({ user }: WorkspaceMembersPanelProps) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const { user } = useRouteContext({ strict: false })
 
   const inviteDialogRef = useRef<HTMLDialogElement>(null)
   const removeDialogRef = useRef<HTMLDialogElement>(null)
@@ -33,80 +23,21 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
   const [memberToRemove, setMemberToRemove] = useState<{ userId: string; name: string } | null>(null)
   const [invitationToRevoke, setInvitationToRevoke] = useState<{ id: string; email: string } | null>(null)
 
-  const { data: members = [], isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(workspaceId))
+  const {
+    members,
+    updateRole,
+    invitations,
+    leaveWorkspace,
+    removeMember,
+    revokeInvitation,
+    isDefaultWorkspace,
+    currentUserCanManage,
+    currentUserRole,
+    isLoading,
+    isPending,
+  } = useWorkspace(user)
 
-  // Find current user's membership to check admin status
-  const currentUserMembership = members.find((m) => m.user.id === user?.id)
-  const isAdmin = currentUserMembership?.role === 'admin' || currentUserMembership?.role === 'owner'
-  const isDefaultWorkspace = user?.defaultWorkspaceId === workspaceId
-
-  // Only admins can view invitations
-  const { data: invitations = [] } = useQuery({
-    ...getWorkspaceInvitationsQueryOptions(workspaceId),
-    enabled: isAdmin,
-  })
-
-  const removeMemberMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      return await removeWorkspaceMemberFn({ data: { workspaceId, userId } })
-    },
-    onSuccess: () => {
-      const name = memberToRemove?.name || 'Member'
-      toastSuccess(t('workspace.members.removeSuccess', { name }))
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers', workspaceId] })
-      removeDialogRef.current?.close()
-      setMemberToRemove(null)
-    },
-    onError: (error) => {
-      toastError(t('workspace.members.removeError', { message: error.message }))
-    },
-  })
-
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      return await updateWorkspaceMemberRoleFn({ data: { workspaceId, userId, role } })
-    },
-    onSuccess: (_, variables) => {
-      const member = members.find((m) => m.user.id === variables.userId)
-      const roleName = variables.role === 'admin' ? t('workspace.members.roleAdmin') : t('workspace.members.roleMember')
-      toastSuccess(t('workspace.members.roleUpdateSuccess', { name: member?.user.name || 'Member', role: roleName }))
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers', workspaceId] })
-    },
-    onError: (error) => {
-      toastError(t('workspace.members.roleUpdateError', { message: error.message }))
-    },
-  })
-
-  const leaveMutation = useMutation({
-    mutationFn: async () => {
-      return await leaveWorkspaceFn({ data: { workspaceId } })
-    },
-    onSuccess: () => {
-      toastSuccess(t('workspace.members.leaveSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers', workspaceId] })
-      leaveDialogRef.current?.close()
-      onLeaveSuccess?.()
-    },
-    onError: (error) => {
-      toastError(t('workspace.members.leaveError', { message: error.message }))
-    },
-  })
-
-  const revokeInvitationMutation = useMutation({
-    mutationFn: async ({ invitationId }: { invitationId: string }) => {
-      return await revokeWorkspaceInvitationFn({ data: { invitationId } })
-    },
-    onSuccess: () => {
-      toastSuccess(t('workspace.members.revokeSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaceInvitations', workspaceId] })
-      revokeDialogRef.current?.close()
-      setInvitationToRevoke(null)
-    },
-    onError: (error) => {
-      toastError(t('workspace.members.revokeError', { message: error.message }))
-    },
-  })
+  const currentUserIsOwner = currentUserRole === 'owner'
 
   const handleRemoveClick = (userId: string, name: string) => {
     setMemberToRemove({ userId, name })
@@ -130,7 +61,7 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
     return date.toLocaleDateString()
   }
 
-  if (isLoadingMembers) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <span className="loading loading-spinner loading-md" />
@@ -147,7 +78,7 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
           <h3 className="text-lg font-semibold">{t('workspace.members.title')}</h3>
           <p className="text-base-content/70 text-sm">{t('workspace.members.description')}</p>
         </div>
-        {isAdmin && (
+        {currentUserCanManage && (
           <button type="button" className="btn btn-primary btn-sm" onClick={() => inviteDialogRef.current?.showModal()}>
             {t('workspace.members.invite')}
           </button>
@@ -156,10 +87,10 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
 
       {/* Members List */}
       <div className="divide-base-300 divide-y rounded-lg border">
-        {members.length === 0 ? (
+        {members && members?.length === 0 ? (
           <div className="text-base-content/70 p-4 text-center">{t('workspace.members.noMembers')}</div>
         ) : (
-          members.map((member) => {
+          members?.map((member) => {
             const isCurrentUser = member.user.id === user?.id
             const isMemberAdmin = member.role === 'admin' || member.role === 'owner'
 
@@ -210,22 +141,56 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
                         </button>
                       )
                     : /* Admins can manage other members */
-                      isAdmin && (
+                      currentUserCanManage && (
                         <div className="flex gap-1">
-                          {/* Toggle role button - only show for non-owners (owners can't be demoted) */}
+                          {/* Toggle role button for non-owners */}
                           {member.role !== 'owner' && (
                             <button
                               type="button"
                               className="btn btn-ghost btn-xs"
                               onClick={() =>
-                                updateRoleMutation.mutate({
+                                updateRole({
                                   userId: member.user.id,
                                   role: isMemberAdmin ? 'member' : 'admin',
                                 })
                               }
-                              disabled={updateRoleMutation.isPending}
+                              disabled={isPending}
                             >
                               {isMemberAdmin ? t('workspace.members.makeMember') : t('workspace.members.makeAdmin')}
+                            </button>
+                          )}
+
+                          {/* Demote owner button - only owners can demote other owners */}
+                          {currentUserIsOwner && member.role === 'owner' && (
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs"
+                              onClick={() =>
+                                updateRole({
+                                  userId: member.user.id,
+                                  role: 'admin',
+                                })
+                              }
+                              disabled={isPending}
+                            >
+                              {t('workspace.members.makeAdmin')}
+                            </button>
+                          )}
+
+                          {/* Make Owner button - only owners can promote to owner */}
+                          {currentUserIsOwner && member.role !== 'owner' && (
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs"
+                              onClick={() =>
+                                updateRole({
+                                  userId: member.user.id,
+                                  role: 'owner',
+                                })
+                              }
+                              disabled={isPending}
+                            >
+                              {t('workspace.members.makeOwner')}
                             </button>
                           )}
 
@@ -249,16 +214,16 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
       </div>
 
       {/* Pending Invitations (Admin only) */}
-      {isAdmin && (
+      {currentUserCanManage && (
         <div className="mt-4">
           <h4 className="mb-2 font-medium">{t('workspace.members.pendingInvitations')}</h4>
           <div className="divide-base-300 divide-y rounded-lg border">
-            {invitations.length === 0 ? (
+            {invitations && invitations.length === 0 ? (
               <div className="text-base-content/70 p-4 text-center text-sm">
                 {t('workspace.members.noPendingInvitations')}
               </div>
             ) : (
-              invitations.map((invitation) => (
+              invitations?.map((invitation) => (
                 <div key={invitation.id} className="flex items-center justify-between gap-4 p-3">
                   <div className="flex items-center gap-3">
                     <div className="bg-base-300 flex size-10 items-center justify-center rounded-full">
@@ -287,25 +252,21 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
       )}
 
       {/* Non-admin notice */}
-      {!isAdmin && <div className="text-base-content/60 text-center text-sm">{t('workspace.members.adminOnly')}</div>}
+      {!currentUserCanManage && (
+        <div className="text-base-content/60 text-center text-sm">{t('workspace.members.adminOnly')}</div>
+      )}
 
       {/* Invite Dialog */}
-      <InviteMemberDialog
-        ref={inviteDialogRef}
-        workspaceId={workspaceId}
-        onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ['workspaceInvitations', workspaceId] })
-        }}
-      />
+      <InviteMemberDialog ref={inviteDialogRef} user={user} />
 
       {/* Remove Member Confirmation Dialog */}
       <DialogForm
         ref={removeDialogRef}
         title={t('workspace.members.removeTitle')}
         description={t('workspace.members.removeConfirmation', { name: memberToRemove?.name || '' })}
-        onSubmit={() => memberToRemove && removeMemberMutation.mutate({ userId: memberToRemove.userId })}
+        onSubmit={() => memberToRemove && removeMember({ userId: memberToRemove.userId })}
         submitButtonText={t('workspace.members.remove')}
-        disabledSubmit={removeMemberMutation.isPending}
+        disabledSubmit={isPending}
       />
 
       {/* Leave Workspace Confirmation Dialog */}
@@ -313,9 +274,9 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
         ref={leaveDialogRef}
         title={t('workspace.members.leaveTitle')}
         description={t('workspace.members.leaveConfirmation')}
-        onSubmit={() => leaveMutation.mutate()}
+        onSubmit={() => leaveWorkspace()}
         submitButtonText={t('workspace.members.leave')}
-        disabledSubmit={leaveMutation.isPending}
+        disabledSubmit={isPending}
       />
 
       {/* Revoke Invitation Confirmation Dialog */}
@@ -323,9 +284,9 @@ export const WorkspaceMembersPanel = ({ workspaceId, onLeaveSuccess }: Workspace
         ref={revokeDialogRef}
         title={t('workspace.members.revokeTitle')}
         description={t('workspace.members.revokeConfirmation', { email: invitationToRevoke?.email || '' })}
-        onSubmit={() => invitationToRevoke && revokeInvitationMutation.mutate({ invitationId: invitationToRevoke.id })}
+        onSubmit={() => invitationToRevoke && revokeInvitation({ invitationId: invitationToRevoke.id })}
         submitButtonText={t('workspace.members.revoke')}
-        disabledSubmit={revokeInvitationMutation.isPending}
+        disabledSubmit={isPending}
       />
     </div>
   )

@@ -7,18 +7,6 @@ import './mutations'
 
 console.log('Setting up: AiLibrary')
 
-builder.prismaObject('AiLibraryParticipant', {
-  name: 'AiLibraryParticipant',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    user: t.relation('user', { nullable: false }),
-    userId: t.exposeString('userId', { nullable: false }),
-    library: t.relation('library', { nullable: false }),
-    libraryId: t.exposeString('libraryId', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-  }),
-})
-
 builder.prismaObject('AiLibrary', {
   name: 'AiLibrary',
   fields: (t) => ({
@@ -45,6 +33,5 @@ builder.prismaObject('AiLibrary', {
     ocrModel: t.relation('ocrModel'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
     autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),
-    participants: t.relation('participants', { nullable: false }),
   }),
 })

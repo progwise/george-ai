@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../gql'
+import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 const dashboardDataDocument = graphql(`
@@ -61,6 +62,6 @@ const getDashboardData = createServerFn({ method: 'GET' }).handler(() => backend
 
 export const getDashboardDataQueryOptions = () =>
   queryOptions({
-    queryKey: ['dashboard'],
+    queryKey: [queryKeys.UserDashboard],
     queryFn: () => getDashboardData(),
   })
