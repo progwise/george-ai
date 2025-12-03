@@ -15,7 +15,7 @@ import { revokeWorkspaceInvitationFn } from './members/server-functions/revoke-i
 import { updateWorkspaceMemberRoleFn } from './members/server-functions/update-member-role'
 import { getWorkspacesQueryOptions } from './queries/get-workspaces'
 import { deleteWorkspaceFn } from './server-functions/delete-workspace'
-import { validateWorkspaceDeletionFn } from './server-functions/validate-workspace-deletion'
+import { workspaceDeleteValidationQueryOptions } from './server-functions/validate-workspace-deletion'
 import { setWorkspaceCookie } from './server-functions/workspace-cookie'
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
@@ -55,6 +55,10 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),
       ])
     },
     [setSelectedWorkspaceId, queryClient],
@@ -62,9 +66,12 @@ export const useWorkspace = (user: UserFragment) => {
 
   const { data: members, isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(currentWorkspace?.id))
 
+  const { data: validation, isLoading: isLoadingValidation } = useQuery(
+    workspaceDeleteValidationQueryOptions(currentWorkspace?.id),
+  )
+
   const currentUserRole = useMemo(() => {
     const membership = members?.find((m) => m.user.id === user.id)
-    console.log('currentUserRole calc', membership?.role)
     return !membership?.role
       ? null
       : membership.role === 'admin'
@@ -101,7 +108,7 @@ export const useWorkspace = (user: UserFragment) => {
     onSuccess: (result) => {
       const name = result.user.name || result.user.email
       toastSuccess(t('workspace.members.removeSuccess', { name }))
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] })
     },
     onError: (error) => {
       toastError(t('workspace.members.removeError', { message: error.message }))
@@ -116,7 +123,7 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: (result) => {
       toastSuccess(t('workspace.members.roleUpdateSuccess', { name: result.user.name || 'Member', role: result.role }))
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] })
     },
     onError: (error) => {
       toastError(t('workspace.members.roleUpdateError', { message: error.message }))
@@ -130,8 +137,8 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: () => {
       toastSuccess(t('workspace.members.leaveSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-      queryClient.invalidateQueries({ queryKey: ['workspaceMembers'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] })
     },
     onError: (error) => {
       toastError(t('workspace.members.leaveError', { message: error.message }))
@@ -157,17 +164,10 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: () => {
       toastSuccess(t('workspace.members.revokeSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaceInvitations'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceInvitations] })
     },
     onError: (error) => {
       toastError(t('workspace.members.revokeError', { message: error.message }))
-    },
-  })
-
-  const validateWorkspaceDeletionMutation = useMutation({
-    mutationFn: (workspaceId: string) => validateWorkspaceDeletionFn({ data: { workspaceId } }),
-    onError: (error) => {
-      toastError(t('workspace.validationError', { message: error.message }))
     },
   })
 
@@ -177,12 +177,18 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: async () => {
       toastSuccess(t('workspace.deleteSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
     },
     onError: (error) => {
       toastError(error.message)
     },
   })
+
+  const reValidate = useCallback(() => {
+    if (currentWorkspace?.id) {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation, currentWorkspace.id] })
+    }
+  }, [currentWorkspace?.id, queryClient])
 
   return {
     workspaces: workspaces ?? [],
@@ -200,16 +206,16 @@ export const useWorkspace = (user: UserFragment) => {
     removeMember: removeMemberMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
-    validateWorkspaceDeletion: validateWorkspaceDeletionMutation.mutate,
+    validation,
+    reValidate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
-    isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations,
+    isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation,
     isPending:
       leaveWorkspaceMutation.isPending ||
       removeMemberMutation.isPending ||
       revokeInvitationMutation.isPending ||
       updateRoleMutation.isPending ||
       inviteMutation.isPending ||
-      deleteWorkspaceMutation.isPending ||
-      validateWorkspaceDeletionMutation.isPending,
+      deleteWorkspaceMutation.isPending,
   }
 }

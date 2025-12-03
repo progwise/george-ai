@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../../gql'
+import { queryKeys } from '../../../../query-keys'
 import { backendRequest } from '../../../../server-functions/backend'
 
 const workspaceInvitationsQueryDocument = graphql(`
@@ -31,7 +32,7 @@ const getWorkspaceInvitations = createServerFn({ method: 'GET' })
 
 export const getWorkspaceInvitationsQueryOptions = (workspaceId?: string) =>
   queryOptions({
-    queryKey: ['workspaceInvitations', workspaceId],
+    queryKey: [queryKeys.WorkspaceInvitations, workspaceId],
     queryFn: () => (!workspaceId ? null : getWorkspaceInvitations({ data: { workspaceId } })),
     enabled: !!workspaceId,
   })

@@ -15,7 +15,7 @@ import { useWorkspace } from './use-workspace'
 export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { workspaces, currentWorkspace, setWorkspace, isLoading, isDefaultWorkspace, currentUserRole } =
+  const { workspaces, currentWorkspace, setWorkspace, isLoading, isDefaultWorkspace, currentUserRole, reValidate } =
     useWorkspace(user)
   const createDialogRef = useRef<HTMLDialogElement>(null)
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
@@ -87,6 +87,11 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
     return null
   }
 
+  const handleDeleteWorkspaceClick = () => {
+    reValidate()
+    deleteDialogRef.current?.showModal()
+  }
+
   return (
     <>
       <ul className="menu menu-horizontal items-center gap-2">
@@ -144,7 +149,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
           <li>
             <button
               type="button"
-              onClick={() => deleteDialogRef.current?.showModal()}
+              onClick={handleDeleteWorkspaceClick}
               className="btn btn-xs btn-square btn-ghost tooltip tooltip-bottom text-error hover:bg-error hover:text-error-content"
               data-tip={t('workspace.delete')}
               aria-label={t('workspace.delete')}

@@ -17,4 +17,8 @@ export const queryKeys = {
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',
   UserProfile: 'UserProfile',
+  Workspaces: 'Workspaces',
+  WorkspaceMembers: 'WorkspaceMembers',
+  WorkspaceInvitations: 'WorkspaceInvitations',
+  WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
 }

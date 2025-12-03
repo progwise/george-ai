@@ -18,11 +18,11 @@ import { createConversation } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { UsersSelector } from './users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 import { getConversationQueryOptions } from './get-conversation'
 import { getConversationsQueryOptions } from './get-conversations'
+import { UsersSelector } from './users-selector'
 
 graphql(`
   fragment ConversationParticipantsDialogButton_Conversation on AiConversation {

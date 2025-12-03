@@ -3,6 +3,7 @@ import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 import { toastSuccess } from '../georgeToaster'
@@ -24,7 +25,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
     },
     onSuccess: (workspace) => {
       toastSuccess(t('workspace.createSuccess'))
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
       setError(null)
 
       dialogRef.current?.close()

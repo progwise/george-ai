@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
@@ -12,32 +10,9 @@ interface DeleteWorkspaceDialogProps {
 
 export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps) => {
   const { t } = useTranslation()
-  const [validation, setValidation] = useState<{
-    canDelete: boolean
-    message: string
-    libraryCount: number
-    assistantCount: number
-    listCount: number
-  } | null>(null)
 
-  const { currentWorkspace, workspaces, validateWorkspaceDeletion, deleteWorkspace, setWorkspace, isPending } =
+  const { currentWorkspace, workspaces, validation, deleteWorkspace, setWorkspace, isPending, isLoading } =
     useWorkspace(user)
-
-  // Validate deletion when dialog opens
-  useEffect(() => {
-    if (!currentWorkspace?.id) return
-
-    const timeoutId = setTimeout(() => {
-      setValidation(null)
-      validateWorkspaceDeletion(currentWorkspace.id, {
-        onSuccess: (result) => {
-          setValidation(result)
-        },
-      })
-    }, 0)
-
-    return () => clearTimeout(timeoutId)
-  }, [currentWorkspace?.id, validateWorkspaceDeletion])
 
   const handleSubmit = () => {
     if (!validation?.canDelete || !currentWorkspace) return
@@ -63,7 +38,7 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
       description={validation?.canDelete ? t('workspace.deleteDescription') : t('workspace.deleteBlockedDescription')}
       onSubmit={handleSubmit}
       submitButtonText={t('workspace.delete')}
-      disabledSubmit={isPending || !validation?.canDelete}
+      disabledSubmit={isPending || isLoading}
       buttonOptions={validation?.canDelete ? 'cancelAndConfirm' : 'onlyClose'}
     >
       {/* Show item counts */}

@@ -6,6 +6,7 @@ import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { useWorkspace } from '../../components/workspace/use-workspace'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 const workspaceInvitationQueryDocument = graphql(`
@@ -56,7 +57,7 @@ const acceptWorkspaceInvitation = createServerFn({ method: 'POST' })
   })
 
 const getWorkspaceInvitationQueryOptions = (invitationId: string) => ({
-  queryKey: ['workspaceInvitation', invitationId],
+  queryKey: [queryKeys.WorkspaceInvitations, invitationId],
   queryFn: () => getWorkspaceInvitation({ data: { invitationId } }),
 })
 
