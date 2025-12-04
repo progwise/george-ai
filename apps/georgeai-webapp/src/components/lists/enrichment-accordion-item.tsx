@@ -17,7 +17,7 @@ graphql(`
   fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {
     id
     listId
-    fileId
+    itemId
     fieldId
     status
     priority
@@ -65,12 +65,15 @@ graphql(`
       id
       name
     }
-    file {
+    item {
       id
-      name
-      library {
+      sourceFile {
         id
         name
+        library {
+          id
+          name
+        }
       }
     }
     list {
@@ -113,7 +116,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-base-content/60">File:</span>
-              <span className="text-base-content font-mono">{enrichment.file.name}</span>
+              <span className="text-base-content font-mono">{enrichment.item.sourceFile.name}</span>
               <span className="text-base-content/40">→</span>
               <span className="text-primary">{enrichment.field.name}</span>
             </div>
@@ -239,16 +242,16 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               </div>
               <div className="flex gap-2">
                 <span className="text-base-content/60 min-w-[80px]">Library:</span>
-                <span className="font-medium">{enrichment.file.library.name}</span>
+                <span className="font-medium">{enrichment.item.sourceFile.library.name}</span>
               </div>
               <div className="flex gap-2">
                 <span className="text-base-content/60 min-w-[80px]">File:</span>
                 <Link
                   to="/libraries/$libraryId/files/$fileId"
-                  params={{ libraryId: enrichment.file.library.id, fileId: enrichment.file.id }}
+                  params={{ libraryId: enrichment.item.sourceFile.library.id, fileId: enrichment.item.sourceFile.id }}
                   className="link link-primary"
                 >
-                  {enrichment.file.name}
+                  {enrichment.item.sourceFile.name}
                 </Link>
               </div>
             </div>
@@ -330,7 +333,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 className="btn btn-sm btn-ghost text-error tooltip"
                 data-tip="Clear Enrichment"
                 disabled={actionsPending}
-                onClick={() => clearEnrichments({ fieldId: enrichment.fieldId, fileId: enrichment.fileId })}
+                onClick={() => clearEnrichments({ fieldId: enrichment.fieldId, itemId: enrichment.itemId })}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -357,7 +360,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                   className="btn btn-sm btn-primary tooltip"
                   data-tip="Retry Enrichment"
                   disabled={actionsPending}
-                  onClick={() => startEnrichment({ fieldId: enrichment.fieldId, fileId: enrichment.fileId })}
+                  onClick={() => startEnrichment({ fieldId: enrichment.fieldId, itemId: enrichment.itemId })}
                 >
                   <ReprocessIcon className="size-4" />
                   <span>Retry</span>

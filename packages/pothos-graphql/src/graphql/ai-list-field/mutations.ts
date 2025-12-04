@@ -179,9 +179,9 @@ builder.mutationField('computeFieldValue', (t) =>
     type: ComputeFieldValueResult,
     args: {
       fieldId: t.arg.string({ required: true }),
-      fileId: t.arg.string({ required: true }),
+      itemId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { fieldId, fileId }, { session }) => {
+    resolve: async (_source, { fieldId, itemId }, { session }) => {
       try {
         // Get the field
         const field = await prisma.aiListField.findFirst({
@@ -197,29 +197,29 @@ builder.mutationField('computeFieldValue', (t) =>
           throw new Error('Can only compute values for LLM computed fields')
         }
 
-        // Get the file
-        const file = await prisma.aiLibraryFile.findFirstOrThrow({
-          where: { id: fileId },
-          include: { library: true },
+        // Get the item with its source file
+        const item = await prisma.aiListItem.findFirstOrThrow({
+          where: { id: itemId },
+          include: { sourceFile: { include: { library: true } } },
         })
 
-        // Check access to the library
+        // Check access to the list
         await canAccessListOrThrow(field.listId, session.user.id)
 
         // TODO: Read the converted.md file content and use LLM to compute the value
         // For now, return a placeholder
-        const mockValue = `[${field.type}] Computed value for ${file.name}`
+        const mockValue = `[${field.type}] Computed value for ${item.sourceFile.name}`
 
         // Cache the computed value
         await prisma.aiListItemCache.upsert({
           where: {
-            fileId_fieldId: {
-              fileId: fileId,
+            itemId_fieldId: {
+              itemId: itemId,
               fieldId: fieldId,
             },
           },
           create: {
-            fileId: fileId,
+            itemId: itemId,
             fieldId: fieldId,
             valueString: field.type === 'string' ? mockValue : null,
             valueNumber: field.type === 'number' ? 42 : null,

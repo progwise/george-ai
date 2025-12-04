@@ -325,30 +325,47 @@ async function globalSetup() {
 
     // Add a list source (correct table name: AiListSource)
     // This tells the list to pull items from this library
-    // Items are computed at query time by joining AiLibraryFile with AiListSource
-    await client.query(
+    const sourceResult = await client.query(
       `
       INSERT INTO "AiListSource" (
         id, "listId", "libraryId", "createdAt"
       )
       VALUES (gen_random_uuid(), $1, $2, NOW())
+      RETURNING id
     `,
       [listId, libraryId],
     )
+    const sourceId = sourceResult.rows[0].id
     console.log(`  ✅ Added library source to test list`)
-    console.log(`  📝 List items will be computed from library files at query time`)
 
-    // Add a simple field to the list so tests can reference it
+    // Create AiListItem records for each file (required since PR #920)
+    // Items are now stored in AiListItem table, not computed at query time
+    const filesResult = await client.query(`SELECT id, name FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
+    for (const file of filesResult.rows) {
+      await client.query(
+        `
+        INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "itemName", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
+        ON CONFLICT DO NOTHING
+      `,
+        [listId, sourceId, file.id, file.name],
+      )
+    }
+    console.log(`  ✅ Created ${filesResult.rows.length} list items from library files`)
+
+    // Add standard file property fields to the list
     await client.query(
       `
       INSERT INTO "AiListField" (
         id, "listId", name, type, "sourceType", "fileProperty", "order", "createdAt"
       )
-      VALUES (gen_random_uuid(), $1, 'Name', 'string', 'file_property', 'name', 0, NOW())
+      VALUES
+        (gen_random_uuid(), $1, 'Item Name', 'string', 'file_property', 'itemName', 0, NOW()),
+        (gen_random_uuid(), $1, 'Filename', 'string', 'file_property', 'name', 1, NOW())
     `,
       [listId],
     )
-    console.log(`  ✅ Added initial field (Name) to test list for field references`)
+    console.log(`  ✅ Added standard fields (Item Name, Filename) to test list`)
 
     console.log('✅ E2E Global Setup completed')
   } catch (error) {

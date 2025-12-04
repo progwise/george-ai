@@ -59,7 +59,7 @@ export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origi
     enrichmentErrorMessage: error,
     failedEnrichmentValue,
   } = fieldValue
-  const { id: fileId, name: fileName } = origin
+  const { id: itemId, name: fileName } = origin
   const { t, language } = useTranslation()
   const [copied, setCopied] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
@@ -68,7 +68,7 @@ export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origi
   const { data, isLoading } = useQuery({
     ...getEnrichmentsQueryOptions({
       listId,
-      fileId,
+      itemId,
       fieldId,
       take: 1,
       skip: 0,
@@ -99,11 +99,11 @@ export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origi
   }
 
   const handleRetry = () => {
-    startEnrichment({ fieldId, fileId })
+    startEnrichment({ fieldId, itemId })
   }
 
   const handleClear = () => {
-    clearEnrichments({ fieldId, fileId }, { onSuccess: () => onClose() })
+    clearEnrichments({ fieldId, itemId }, { onSuccess: () => onClose() })
   }
 
   // Determine display value

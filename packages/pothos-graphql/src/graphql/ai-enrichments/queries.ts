@@ -1,6 +1,6 @@
 import { EnrichmentStatus } from '.'
 import { getListStatistics } from '../../../prisma/generated/sql'
-import { canAccessListOrThrow, getCanAccessFileWhere, getCanAccessListWhere } from '../../domain'
+import { canAccessListOrThrow, getCanAccessListWhere } from '../../domain'
 import { EnrichmentStatusType } from '../../domain/enrichment'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -9,7 +9,7 @@ const EnrichmentQueueResult = builder
   .objectRef<{
     userId: string
     listId?: string | null
-    fileId?: string | null
+    itemId?: string | null
     fieldId?: string | null
     take: number
     skip: number
@@ -18,7 +18,7 @@ const EnrichmentQueueResult = builder
   .implement({
     fields: (t) => ({
       listId: t.exposeString('listId', { nullable: true }),
-      fileId: t.exposeString('fileId', { nullable: true }),
+      itemId: t.exposeString('itemId', { nullable: true }),
       fieldId: t.exposeString('fieldId', { nullable: true }),
       take: t.exposeInt('take'),
       skip: t.exposeInt('skip'),
@@ -26,20 +26,18 @@ const EnrichmentQueueResult = builder
       enrichments: t.prismaField({
         type: ['AiEnrichmentTask'],
         nullable: { list: false, items: false },
-        resolve: async (query, { userId, listId, fileId, fieldId, take, skip, status }) => {
+        resolve: async (query, { userId, listId, itemId, fieldId, take, skip, status }) => {
           const listWhere = getCanAccessListWhere(userId)
-          const fileWhere = getCanAccessFileWhere(userId)
 
           return prisma.aiEnrichmentTask.findMany({
             ...query,
             where: {
               AND: [
                 listId ? { listId } : {},
-                fileId ? { fileId } : {},
+                itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
                 status ? { status } : {},
                 { list: listWhere },
-                { file: fileWhere },
               ],
             },
             take,
@@ -50,19 +48,17 @@ const EnrichmentQueueResult = builder
       }),
       totalCount: t.int({
         nullable: false,
-        resolve: async ({ userId, listId, fileId, fieldId, status }) => {
+        resolve: async ({ userId, listId, itemId, fieldId, status }) => {
           const listWhere = getCanAccessListWhere(userId)
-          const fileWhere = getCanAccessFileWhere(userId)
 
           return prisma.aiEnrichmentTask.count({
             where: {
               AND: [
                 listId ? { listId } : {},
-                fileId ? { fileId } : {},
+                itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
                 status ? { status } : {},
                 { list: listWhere },
-                { file: fileWhere },
               ],
             },
           })
@@ -83,19 +79,17 @@ const EnrichmentQueueResult = builder
             }),
         ],
         nullable: false,
-        resolve: async ({ userId, listId, fileId, fieldId }) => {
+        resolve: async ({ userId, listId, itemId, fieldId }) => {
           const listWhere = getCanAccessListWhere(userId)
-          const fileWhere = getCanAccessFileWhere(userId)
 
           const counts = await prisma.aiEnrichmentTask.groupBy({
             by: ['status'],
             where: {
               AND: [
                 listId ? { listId } : {},
-                fileId ? { fileId } : {},
+                itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
                 { list: listWhere },
-                { file: fileWhere },
               ],
             },
             _count: {
@@ -118,17 +112,17 @@ builder.queryField('aiListEnrichments', (t) =>
     nullable: false,
     args: {
       listId: t.arg.string({ required: false }),
-      fileId: t.arg.string({ required: false }),
+      itemId: t.arg.string({ required: false }),
       fieldId: t.arg.string({ required: false }),
       take: t.arg.int({ required: false, defaultValue: 20 }),
       skip: t.arg.int({ required: false, defaultValue: 0 }),
       status: t.arg({ type: EnrichmentStatus, required: false }),
     },
-    resolve: async (_source, { listId, fileId, fieldId, take, skip, status }, context) => {
+    resolve: async (_source, { listId, itemId, fieldId, take, skip, status }, context) => {
       return {
         userId: context.session.user.id,
         listId,
-        fileId,
+        itemId,
         fieldId,
         take: take!,
         skip: skip!,

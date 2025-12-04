@@ -8,7 +8,7 @@ import { backendRequest } from '../../../server-functions/backend'
 
 export const QueryEnrichmentsArgsSchema = z.object({
   listId: z.string().optional(),
-  fileId: z.string().optional(),
+  itemId: z.string().optional(),
   fieldId: z.string().optional(),
   take: z.number().min(0).max(100).default(20),
   skip: z.number().min(0).default(0),
@@ -22,7 +22,7 @@ const getEnrichments = createServerFn({ method: 'GET' })
       graphql(`
         query getEnrichments(
           $listId: String
-          $fileId: String
+          $itemId: String
           $fieldId: String
           $take: Int!
           $skip: Int!
@@ -30,14 +30,14 @@ const getEnrichments = createServerFn({ method: 'GET' })
         ) {
           aiListEnrichments(
             listId: $listId
-            fileId: $fileId
+            itemId: $itemId
             fieldId: $fieldId
             take: $take
             skip: $skip
             status: $status
           ) {
             listId
-            fileId
+            itemId
             fieldId
             take
             skip
@@ -60,7 +60,7 @@ const getEnrichments = createServerFn({ method: 'GET' })
 
 export const getEnrichmentsQueryOptions = (args: {
   listId?: string
-  fileId?: string
+  itemId?: string
   fieldId?: string
   take: number
   skip: number

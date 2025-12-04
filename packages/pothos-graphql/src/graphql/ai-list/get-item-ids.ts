@@ -5,6 +5,7 @@ const getValueFieldName = (fieldType: FieldType) => {
   switch (fieldType) {
     case 'string':
     case 'text':
+    case 'markdown':
       return 'valueString'
     case 'number':
       return 'valueNumber'
@@ -18,7 +19,7 @@ const getValueFieldName = (fieldType: FieldType) => {
   }
 }
 
-interface GetFileIdsForListOptions {
+interface GetItemIdsForListOptions {
   listId: string
   fields: { id: string; type: FieldType; sourceType: FieldSourceType; fileProperty: FieldFileProperty | null }[]
   sorting: { fieldId: string; direction: 'asc' | 'desc' }[]
@@ -46,6 +47,7 @@ const buildFilterCondition = (
   switch (field.type) {
     case 'string':
     case 'text':
+    case 'markdown':
       switch (filterType) {
         case 'equals':
           return `${columnRef} = ${addParam(filterValue)}`
@@ -132,10 +134,12 @@ const buildFilterCondition = (
 }
 
 /**
- * Get the proper column reference for a file property
+ * Get the proper column reference for a file property (accessed via sourceFile)
  */
 const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string; column: string } => {
   switch (fileProperty) {
+    case 'itemName':
+      return { table: 'AiListItem', column: 'itemName' }
     case 'name':
       return { table: 'AiLibraryFile', column: 'name' }
     case 'originUri':
@@ -146,8 +150,8 @@ const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string
       return { table: 'AiLibraryFile', column: 'size' }
     case 'originModificationDate':
       return { table: 'AiLibraryFile', column: 'originModificationDate' }
-    case 'processedAt':
-      return { table: 'AiContentProcessingTask', column: 'processingFinishedAt' }
+    case 'extractedAt':
+      return { table: 'AiContentProcessingTask', column: 'extractionFinishedAt' }
     case 'source':
       return { table: 'AiLibrary', column: 'name' }
     case 'crawlerUrl':
@@ -159,7 +163,11 @@ const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string
   }
 }
 
-export const getFileIdsForListItems = async ({
+/**
+ * Get item IDs for list items with sorting and filtering
+ * Now queries AiListItem table instead of directly querying AiLibraryFile
+ */
+export const getItemIdsForListItems = async ({
   listId,
   fields,
   sorting,
@@ -167,26 +175,26 @@ export const getFileIdsForListItems = async ({
   showArchived,
   skip,
   take,
-}: GetFileIdsForListOptions) => {
+}: GetItemIdsForListOptions) => {
   const params: (string | number | boolean | Date | null)[] = []
   const sqlParts: string[] = []
 
-  // Build base query
+  // Build base query - start from AiListItem and join to files
   sqlParts.push(`
-    SELECT "AiLibraryFile"."id" AS "fileId"
-    FROM "AiLibraryFile"
-    INNER JOIN "AiListSource" ON "AiLibraryFile"."libraryId" = "AiListSource"."libraryId"
+    SELECT "AiListItem"."id" AS "itemId"
+    FROM "AiListItem"
+    INNER JOIN "AiLibraryFile" ON "AiListItem"."sourceFileId" = "AiLibraryFile"."id"
     LEFT JOIN "AiLibrary" ON "AiLibraryFile"."libraryId" = "AiLibrary"."id"
     LEFT JOIN "AiLibraryCrawler" ON "AiLibraryFile"."crawledByCrawlerId" = "AiLibraryCrawler"."id"
     LEFT JOIN "AiContentProcessingTask" ON "AiLibraryFile"."id" = "AiContentProcessingTask"."fileId"
-      AND "AiContentProcessingTask"."processingFinishedAt" = (SELECT MAX("processingFinishedAt") FROM "AiContentProcessingTask" AS "cet" WHERE "cet"."fileId" = "AiLibraryFile"."id")
+      AND "AiContentProcessingTask"."extractionFinishedAt" = (SELECT MAX("extractionFinishedAt") FROM "AiContentProcessingTask" AS "cet" WHERE "cet"."fileId" = "AiLibraryFile"."id")
   `)
 
   // Track cache table aliases for computed fields
   const cacheAliases = new Map<string, string>()
   const computedFields = fields.filter((f) => f.sourceType === 'llm_computed')
 
-  // Add joins for computed fields
+  // Add joins for computed fields - now join on itemId instead of fileId
   computedFields.forEach((field) => {
     const alias = `cache_${cacheAliases.size + 1}`
     cacheAliases.set(field.id, alias)
@@ -194,7 +202,7 @@ export const getFileIdsForListItems = async ({
     params.push(field.id)
     sqlParts.push(`
     LEFT JOIN "AiListItemCache" AS "${alias}"
-      ON "${alias}"."fileId" = "AiLibraryFile"."id"
+      ON "${alias}"."itemId" = "AiListItem"."id"
       AND "${alias}"."fieldId" = $${params.length}
     `)
   })
@@ -204,9 +212,9 @@ export const getFileIdsForListItems = async ({
 
   // Add list filter
   params.push(listId)
-  whereConditions.push(`"AiListSource"."listId" = $${params.length}`)
+  whereConditions.push(`"AiListItem"."listId" = $${params.length}`)
 
-  // Add archive filter
+  // Add archive filter (on the source file)
   if (!showArchived) {
     whereConditions.push(`"AiLibraryFile"."archivedAt" IS NULL`)
   }
@@ -260,7 +268,7 @@ export const getFileIdsForListItems = async ({
   })
 
   // Always add ID for stable sorting
-  orderByParts.push(`"AiLibraryFile"."id" ASC`)
+  orderByParts.push(`"AiListItem"."id" ASC`)
 
   if (orderByParts.length > 0) {
     sqlParts.push(`
@@ -279,7 +287,7 @@ export const getFileIdsForListItems = async ({
 
   // Execute query
   const sql = sqlParts.join('')
-  const result = await prisma.$queryRawUnsafe<{ fileId: string }[]>(sql, ...params)
+  const result = await prisma.$queryRawUnsafe<{ itemId: string }[]>(sql, ...params)
 
-  return result.map((r) => r.fileId)
+  return result.map((r) => r.itemId)
 }

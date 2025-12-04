@@ -189,9 +189,11 @@ model AiLibrary {
   autoProcessCrawledFiles Boolean                   @default(true)
   embeddingModelId        String?
   ocrModelId              String?
+  extractionModelId       String?
   contentExtractionTasks  AiContentProcessingTask[]
   embeddingModel          AiLanguageModel?          @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
   ocrModel                AiLanguageModel?          @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
+  extractionModel         AiLanguageModel?          @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
   owner                   User                      @relation(fields: [ownerId], references: [id])
   workspace               Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   crawlers                AiLibraryCrawler[]
@@ -235,11 +237,11 @@ model AiLibraryFile {
   originModificationDate DateTime?
   archivedAt             DateTime?
   contentExtractionTasks AiContentProcessingTask[]
-  enrichmentTasks        AiEnrichmentTask[]
   crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
   library                AiLibrary                 @relation(fields: [libraryId], references: [id])
   updates                AiLibraryUpdate[]
-  cache                  AiListItemCache[]
+  listItems              AiListItem[]
+  extractions            AiFileExtraction[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
@@ -377,18 +379,63 @@ model AiList {
   workspace       Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   fields          AiListField[]
   sources         AiListSource[]
+  items           AiListItem[]
   modelUsageLogs  AiModelUsage[]
 
   @@index([workspaceId])
 }
 
 model AiListSource {
-  id        String     @id @default(cuid())
-  createdAt DateTime   @default(now())
-  listId    String
-  libraryId String?
-  library   AiLibrary? @relation(fields: [libraryId], references: [id])
-  list      AiList     @relation(fields: [listId], references: [id])
+  id                 String             @id @default(cuid())
+  createdAt          DateTime           @default(now())
+  listId             String
+  libraryId          String?
+  extractionStrategy String             @default("per_file") // per_file, per_row, per_column, llm_prompt
+  extractionConfig   Json? // Strategy-specific config (column for naming, LLM prompt, etc.)
+  library            AiLibrary?         @relation(fields: [libraryId], references: [id])
+  list               AiList             @relation(fields: [listId], references: [id])
+  items              AiListItem[]
+  extractions        AiFileExtraction[]
+}
+
+model AiListItem {
+  id              String        @id @default(cuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  listId          String
+  sourceId        String // Which AiListSource this item came from
+  sourceFileId    String // Which file this item was extracted from
+  extractionIndex Int? // Row number, column index, or LLM extraction index (null for per_file)
+  itemName        String // Display name for the item (first column for per_row, column name for per_column, etc.)
+  metadata        Json? // Extraction metadata (headers, original row data, etc.)
+  // Content stored on file system, path calculated by @george-ai/file-management getListItemContentPath()
+  list            AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  source          AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceFile      AiLibraryFile @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
+  cache           AiListItemCache[]
+  enrichmentTasks AiEnrichmentTask[]
+
+  @@unique([sourceId, sourceFileId, extractionIndex])
+  @@index([listId])
+  @@index([sourceFileId])
+  @@index([itemName])
+}
+
+model AiFileExtraction {
+  id               String        @id @default(cuid())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  sourceId         String
+  fileId           String
+  extractionInput  Json? // Input context sent to extraction (strategy, prompt, file content preview)
+  extractionOutput Json? // Output from extraction (parsed items, raw LLM response for llm_prompt)
+  error            String? // Error message if extraction failed
+  itemsCreated     Int           @default(0) // Number of items created from this extraction
+  source           AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  file             AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, fileId])
+  @@index([fileId])
 }
 
 model AiListField {
@@ -432,10 +479,10 @@ enum AiListFieldContextType {
 }
 
 model AiListItemCache {
-  id                     String        @id @default(cuid())
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-  fileId                 String
+  id                     String      @id @default(cuid())
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  itemId                 String
   fieldId                String
   valueString            String?
   valueNumber            Float?
@@ -443,34 +490,31 @@ model AiListItemCache {
   valueBoolean           Boolean?
   enrichmentErrorMessage String?
   failedEnrichmentValue  String?
-  field                  AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  file                   AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  field                  AiListField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  item                   AiListItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  @@unique([fileId, fieldId])
+  @@unique([itemId, fieldId])
 }
 
 model AiEnrichmentTask {
-  id          String        @id @default(cuid())
+  id          String      @id @default(cuid())
   listId      String
   fieldId     String
-  fileId      String
+  itemId      String
   status      String
-  priority    Int           @default(0)
-  requestedAt DateTime      @default(now())
+  priority    Int         @default(0)
+  requestedAt DateTime    @default(now())
   startedAt   DateTime?
   completedAt DateTime?
   error       String?
   metadata    String?
-  field       AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  file        AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  list        AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  field       AiListField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  item        AiListItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  list        AiList      @relation(fields: [listId], references: [id], onDelete: Cascade)
 
-  @@unique([listId, fieldId, fileId])
-  @@unique([listId, fieldId, fileId], map: "AiListEnrichmentQueue_listId_fieldId_fileId_key")
+  @@unique([listId, fieldId, itemId])
   @@index([listId, status])
   @@index([status, priority, requestedAt])
-  @@index([listId, status], map: "AiListEnrichmentQueue_listId_status_idx")
-  @@index([status, priority, requestedAt], map: "AiListEnrichmentQueue_status_priority_requestedAt_idx")
 }
 
 model AiConversation {
@@ -558,10 +602,11 @@ model AiLanguageModel {
   enabled                    Boolean                   @default(true)
   adminNotes                 String?
   lastUsedAt                 DateTime?
-  assistantsUsing            AiAssistant[]             @relation("LanguageModel")
-  librariesUsingForEmbedding AiLibrary[]               @relation("EmbeddingModel")
-  librariesUsingForOcr       AiLibrary[]               @relation("OcrModel")
-  listFieldsUsing            AiListField[]             @relation("ListFieldLanguageModel")
+  assistantsUsing              AiAssistant[]             @relation("LanguageModel")
+  librariesUsingForEmbedding   AiLibrary[]               @relation("EmbeddingModel")
+  librariesUsingForOcr         AiLibrary[]               @relation("OcrModel")
+  librariesUsingForExtraction  AiLibrary[]               @relation("ExtractionModel")
+  listFieldsUsing              AiListField[]             @relation("ListFieldLanguageModel")
   contentProcessingTasks     AiContentProcessingTask[] @relation("ContentProcessingEmbeddingModel")
   usageLogs                  AiModelUsage[]
 

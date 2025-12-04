@@ -386,11 +386,16 @@ test.describe('Workspace Switcher', () => {
       .click()
     await page.waitForLoadState('networkidle')
 
+    // Wait for the list to be created - the app redirects to the list page
+    // The list name appears in multiple places (selector, nav link), so use .first()
+    await expect(page.getByText(`Workspace 1 List ${uniqueId}`).first()).toBeVisible({ timeout: 10000 })
+
     // Step 4: Navigate back to dashboard and verify list appears in Workspace 1
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await page.getByRole('tab', { name: /lists/i }).click()
-    await expect(page.getByText(`Workspace 1 List ${uniqueId}`)).toBeVisible()
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByText(`Workspace 1 List ${uniqueId}`).first()).toBeVisible({ timeout: 10000 })
 
     // Step 5: Switch to E2E Test Workspace 2
     await page.waitForTimeout(200)
@@ -402,7 +407,7 @@ test.describe('Workspace Switcher', () => {
     await page.waitForLoadState('networkidle')
 
     // Step 6: Verify Workspace 1 list is NOT visible in Workspace 2
-    await expect(page.getByText(`Workspace 1 List ${uniqueId}`)).not.toBeVisible()
+    await expect(page.getByText(`Workspace 1 List ${uniqueId}`).first()).not.toBeVisible()
 
     // Step 7: Create a list in Workspace 2
     await page.getByRole('button', { name: /create list/i }).click()
@@ -417,7 +422,7 @@ test.describe('Workspace Switcher', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await page.getByRole('tab', { name: /lists/i }).click()
-    await expect(page.getByText(`Workspace 2 List ${uniqueId}`)).toBeVisible()
+    await expect(page.getByText(`Workspace 2 List ${uniqueId}`).first()).toBeVisible()
 
     // Step 9: Switch back to Workspace 1
     await page.waitForTimeout(200)
@@ -431,8 +436,8 @@ test.describe('Workspace Switcher', () => {
     await page.waitForLoadState('networkidle')
 
     // Step 10: Verify Workspace 1 list is visible, but Workspace 2 list is NOT
-    await expect(page.getByText(`Workspace 1 List ${uniqueId}`)).toBeVisible()
-    await expect(page.getByText(`Workspace 2 List ${uniqueId}`)).not.toBeVisible()
+    await expect(page.getByText(`Workspace 1 List ${uniqueId}`).first()).toBeVisible()
+    await expect(page.getByText(`Workspace 2 List ${uniqueId}`).first()).not.toBeVisible()
   })
 
   test.skip('should clear list detail view when switching workspaces', async ({ page }) => {
@@ -731,8 +736,12 @@ test.describe('Workspace Switcher', () => {
       await expect(dialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
 
+      // Wait for workspace switcher to be visible after navigation/reload
+      // The app may redirect after deletion, so allow extra time
+      await expect(workspaceSwitcher).toBeVisible({ timeout: 10000 })
+
       // Workspace should be deleted and switched to another workspace
-      await expect(workspaceSwitcher).not.toContainText(workspaceName)
+      await expect(workspaceSwitcher).not.toContainText(workspaceName, { timeout: 10000 })
 
       // Note: Skipping dropdown verification due to application issue where
       // dropdown may not open immediately after workspace deletion
@@ -775,6 +784,10 @@ test.describe('Workspace Switcher', () => {
       // Wait for dialog to close (confirms deletion completed)
       await expect(dialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
+
+      // Wait for workspace switcher to be visible after navigation/reload
+      // The app may redirect after deletion, so allow extra time
+      await expect(workspaceSwitcher).toBeVisible({ timeout: 10000 })
 
       // Should automatically switch to another workspace (not the deleted one)
       const currentWorkspace = await workspaceSwitcher.textContent()

@@ -10,12 +10,12 @@ export const getStopEnrichmentSchema = (language: Language) =>
   z.object({
     listId: z.string().nonempty(translate('lists.idRequired', language)),
     fieldId: z.string().nonempty(translate('lists.fields.fieldIdRequired', language)),
-    fileId: z.string().nonempty(translate('lists.files.fileIdRequired', language)),
+    itemId: z.string().nonempty(translate('lists.items.itemIdRequired', language)),
   })
 
 // Server function using FormData
 export const stopEnrichmentFn = createServerFn({ method: 'POST' })
-  .inputValidator(async (data: { listId: string; fieldId: string; fileId: string }) => {
+  .inputValidator(async (data: { listId: string; fieldId: string; itemId: string }) => {
     const language = getLanguage()
     return getStopEnrichmentSchema(language).parse(data)
   })
@@ -23,15 +23,15 @@ export const stopEnrichmentFn = createServerFn({ method: 'POST' })
     const data = await ctx.data
     const result = await backendRequest(
       graphql(`
-        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $fileId: String!) {
-          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, fileId: $fileId) {
+        mutation removeFromEnrichmentQueue($listId: String!, $fieldId: String!, $itemId: String!) {
+          deletePendingEnrichmentTasks(listId: $listId, fieldId: $fieldId, itemId: $itemId) {
             createdTasksCount
             cleanedUpTasksCount
             cleanedUpEnrichmentsCount
           }
         }
       `),
-      { listId: data.listId, fieldId: data.fieldId, fileId: data.fileId },
+      { listId: data.listId, fieldId: data.fieldId, itemId: data.itemId },
     )
     return result.deletePendingEnrichmentTasks
   })

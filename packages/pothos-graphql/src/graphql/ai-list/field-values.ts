@@ -10,7 +10,7 @@ import {
 } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { getFileIdsForListItems } from './get-file-ids'
+import { getItemIdsForListItems } from './get-item-ids'
 
 export const AiListFilterEnumType = builder.enumType('AiListFilterType', {
   values: AiListFilterTypeValues,
@@ -56,6 +56,7 @@ export const FieldValueResult = builder
     }),
   })
 
+// ListItemResult represents the source file origin of an item
 export const ListItemResult = builder
   .objectRef<
     Prisma.AiLibraryFileGetPayload<{
@@ -95,18 +96,23 @@ export const ListItemResult = builder
     }),
   })
 
+// ListItemQueryResult now wraps an AiListItem instead of AiLibraryFile
 export const ListItemQueryResult = builder
   .objectRef<{
-    file: Prisma.AiLibraryFileGetPayload<{
+    item: Prisma.AiListItemGetPayload<{
       include: {
-        library: true
-        crawledByCrawler: true
+        sourceFile: {
+          include: {
+            library: true
+            crawledByCrawler: true
+            contentExtractionTasks: {
+              select: { extractionFinishedAt: true }
+            }
+          }
+        }
         cache: true
         enrichmentTasks: {
           select: { fieldId: true; status: true }
-        }
-        contentExtractionTasks: {
-          select: { processingFinishedAt: true }
         }
       }
     }>
@@ -123,24 +129,29 @@ export const ListItemQueryResult = builder
   }>('ListItemQueryResult')
   .implement({
     fields: (t) => ({
+      id: t.field({
+        type: 'ID',
+        nullable: false,
+        resolve: (root) => root.item.id,
+      }),
       origin: t.field({
         type: ListItemResult,
         nullable: false,
         resolve: (root) => {
-          return root.file
+          return root.item.sourceFile
         },
       }),
       values: t.field({
         type: [FieldValueResult],
         nullable: { list: false, items: false },
-        resolve: ({ fields, file }) => {
+        resolve: ({ fields, item }) => {
           return fields.map((field) => ({
             fieldId: field.id,
             fieldName: field.name,
             fieldType: field.type,
             ...(() => {
-              const { value, errorMessage, failedEnrichmentValue } = getFieldValue(file, field)
-              const fieldTask = file.enrichmentTasks.find((task) => task.fieldId === field.id)
+              const { value, errorMessage, failedEnrichmentValue } = getFieldValue(item, field)
+              const fieldTask = item.enrichmentTasks.find((task) => task.fieldId === field.id)
               return {
                 displayValue: value ? value : errorMessage,
                 queueStatus: fieldTask ? fieldTask.status : 'done',
@@ -172,13 +183,13 @@ export const ListItemsQueryResult = builder
     showArchived?: boolean
   }>('ListItemsQueryResult')
   .implement({
-    description: 'Query result for AI list files from all source libraries',
+    description: 'Query result for AI list items from all source libraries',
     fields: (t) => ({
       items: t.field({
         type: [ListItemQueryResult],
         nullable: { list: false, items: false },
         resolve: async ({ list, fields, skip, take, sorting, filters, showArchived }) => {
-          const fileIds = await getFileIdsForListItems({
+          const itemIds = await getItemIdsForListItems({
             listId: list.id,
             fields,
             sorting,
@@ -188,10 +199,19 @@ export const ListItemsQueryResult = builder
             take,
           })
 
-          const files = await prisma.aiLibraryFile.findMany({
+          const items = await prisma.aiListItem.findMany({
             include: {
-              library: true,
-              crawledByCrawler: true,
+              sourceFile: {
+                include: {
+                  library: true,
+                  crawledByCrawler: true,
+                  contentExtractionTasks: {
+                    where: { extractionFinishedAt: { not: null } },
+                    orderBy: { extractionFinishedAt: 'desc' },
+                    take: 1,
+                  },
+                },
+              },
               cache: {
                 where: { fieldId: { in: fields.map((field) => field.id) } },
               },
@@ -199,21 +219,16 @@ export const ListItemsQueryResult = builder
                 where: { completedAt: null, listId: list.id },
                 select: { fieldId: true, status: true },
               },
-              contentExtractionTasks: {
-                where: { processingFinishedAt: { not: null } },
-                orderBy: { processingFinishedAt: 'desc' },
-                take: 1,
-              },
             },
-            where: { id: { in: fileIds } },
+            where: { id: { in: itemIds } },
           })
 
           // preserve order and map to ListItemQueryResult structure
-          const result = fileIds
-            .map((fileId) => files.find((f) => f.id === fileId))
-            .filter((file): file is NonNullable<typeof file> => !!file)
-            .map((file) => ({
-              file,
+          const result = itemIds
+            .map((itemId) => items.find((i) => i.id === itemId))
+            .filter((item): item is NonNullable<typeof item> => !!item)
+            .map((item) => ({
+              item,
               list,
               fields,
             }))
@@ -227,16 +242,14 @@ export const ListItemsQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async ({ list, filters, showArchived }) => {
-          const fitersWhere = await getListFiltersWhere(filters)
+          const filtersWhere = await getListFiltersWhere(filters)
 
-          const where: Prisma.AiLibraryFileWhereInput = {
-            libraryId: {
-              in: list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null),
-            },
-            ...(showArchived ? {} : { archivedAt: null }),
-            ...fitersWhere,
+          const where: Prisma.AiListItemWhereInput = {
+            listId: list.id,
+            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
+            ...filtersWhere,
           }
-          return prisma.aiLibraryFile.count({
+          return prisma.aiListItem.count({
             where,
           })
         },
@@ -245,13 +258,11 @@ export const ListItemsQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async ({ list, showArchived }) => {
-          const where: Prisma.AiLibraryFileWhereInput = {
-            libraryId: {
-              in: list.sources.map((source) => source.libraryId).filter((id): id is string => id !== null),
-            },
-            ...(showArchived ? {} : { archivedAt: null }),
+          const where: Prisma.AiListItemWhereInput = {
+            listId: list.id,
+            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
           }
-          return prisma.aiLibraryFile.count({
+          return prisma.aiListItem.count({
             where,
           })
         },

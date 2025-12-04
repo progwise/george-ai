@@ -38,45 +38,52 @@ const getFieldPropertyFilterExpression = (filter: { filterType: AiListFilterType
   }
 }
 
-const getFilePropertyFilterWhere = (
+const getItemPropertyFilterWhere = (
   field: Prisma.AiListFieldGetPayload<object>,
   filter: { filterType: AiListFilterType; value: string },
-): Prisma.AiLibraryFileWhereInput => {
+): Prisma.AiListItemWhereInput => {
   if (!field.fileProperty) {
     throw new Error(`Field is not a file property field: ${field.id}`)
   }
 
+  // File property filters go through the sourceFile relation
   switch (field.fileProperty) {
     case 'name':
     case 'originUri':
     case 'mimeType':
-      return { [field.fileProperty]: getFieldPropertyFilterExpression(filter) }
+      return { sourceFile: { [field.fileProperty]: getFieldPropertyFilterExpression(filter) } }
     case 'source':
       return {
-        library: {
-          name: getFieldPropertyFilterExpression(filter),
+        sourceFile: {
+          library: {
+            name: getFieldPropertyFilterExpression(filter),
+          },
         },
       }
     case 'crawlerUrl':
       return {
-        crawledByCrawler: {
-          uri: getFieldPropertyFilterExpression(filter),
+        sourceFile: {
+          crawledByCrawler: {
+            uri: getFieldPropertyFilterExpression(filter),
+          },
         },
       }
-    case 'processedAt':
+    case 'extractedAt':
       return {
-        contentExtractionTasks: {
-          every: {
-            processingFinishedAt:
-              filter.filterType === 'is_empty'
-                ? null
-                : filter.filterType === 'is_not_empty'
-                  ? { not: null }
-                  : filter.filterType === 'equals'
-                    ? { equals: new Date(filter.value) }
-                    : filter.filterType === 'not_equals'
-                      ? { not: new Date(filter.value) }
-                      : undefined,
+        sourceFile: {
+          contentExtractionTasks: {
+            every: {
+              extractionFinishedAt:
+                filter.filterType === 'is_empty'
+                  ? null
+                  : filter.filterType === 'is_not_empty'
+                    ? { not: null }
+                    : filter.filterType === 'equals'
+                      ? { equals: new Date(filter.value) }
+                      : filter.filterType === 'not_equals'
+                        ? { not: new Date(filter.value) }
+                        : undefined,
+            },
           },
         },
       }
@@ -86,16 +93,18 @@ const getFilePropertyFilterWhere = (
         throw new Error(`Invalid size value for filter: ${filter.value}`)
       }
       return {
-        size:
-          filter.filterType === 'is_empty'
-            ? null
-            : filter.filterType === 'is_not_empty'
-              ? { not: null }
-              : filter.filterType === 'equals'
-                ? { equals: sizeValue }
-                : filter.filterType === 'not_equals'
-                  ? { not: sizeValue }
-                  : undefined,
+        sourceFile: {
+          size:
+            filter.filterType === 'is_empty'
+              ? null
+              : filter.filterType === 'is_not_empty'
+                ? { not: null }
+                : filter.filterType === 'equals'
+                  ? { equals: sizeValue }
+                  : filter.filterType === 'not_equals'
+                    ? { not: sizeValue }
+                    : undefined,
+        },
       }
     }
     case 'originModificationDate': {
@@ -104,27 +113,32 @@ const getFilePropertyFilterWhere = (
         throw new Error(`Invalid date value for filter: ${filter.value}`)
       }
       return {
-        originModificationDate:
-          filter.filterType === 'is_empty'
-            ? null
-            : filter.filterType === 'is_not_empty'
-              ? { not: null }
-              : filter.filterType === 'equals'
-                ? { equals: dateValue }
-                : filter.filterType === 'not_equals'
-                  ? { not: dateValue }
-                  : undefined,
+        sourceFile: {
+          originModificationDate:
+            filter.filterType === 'is_empty'
+              ? null
+              : filter.filterType === 'is_not_empty'
+                ? { not: null }
+                : filter.filterType === 'equals'
+                  ? { equals: dateValue }
+                  : filter.filterType === 'not_equals'
+                    ? { not: dateValue }
+                    : undefined,
+        },
       }
     }
+    case 'itemName':
+      // itemName is on AiListItem directly, not on sourceFile
+      return { itemName: getFieldPropertyFilterExpression(filter) }
     default:
       throw new Error(`Unsupported file property filter: ${field.fileProperty}`)
   }
 }
 
-const getFileCachePropertyFilterWhere = (
+const getItemCachePropertyFilterWhere = (
   field: Prisma.AiListFieldGetPayload<object>,
   filter: { filterType: AiListFilterType; value: string },
-): Prisma.AiLibraryFileWhereInput => {
+): Prisma.AiListItemWhereInput => {
   return {
     cache: {
       some: {
@@ -142,7 +156,7 @@ export const getListFiltersWhere = async (
     where: { id: { in: filters.map((f) => f.fieldId) } },
   })
 
-  const fieldFilters: Array<Prisma.AiLibraryFileWhereInput> = []
+  const fieldFilters: Array<Prisma.AiListItemWhereInput> = []
 
   for (const filter of filters) {
     const field = fields.find((f) => f.id === filter.fieldId)
@@ -150,14 +164,14 @@ export const getListFiltersWhere = async (
       throw new Error(`Field not found: ${filter.fieldId}`)
     }
     if (field?.sourceType !== 'llm_computed') {
-      const fileFilterWhere = getFilePropertyFilterWhere(field, filter)
-      fieldFilters.push(fileFilterWhere)
+      const itemFilterWhere = getItemPropertyFilterWhere(field, filter)
+      fieldFilters.push(itemFilterWhere)
       continue
     }
 
     if (field.sourceType === 'llm_computed') {
-      const fileCacheFilterWhere = getFileCachePropertyFilterWhere(field, filter)
-      fieldFilters.push(fileCacheFilterWhere)
+      const itemCacheFilterWhere = getItemCachePropertyFilterWhere(field, filter)
+      fieldFilters.push(itemCacheFilterWhere)
       continue
     }
 

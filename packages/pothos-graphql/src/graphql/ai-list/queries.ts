@@ -43,6 +43,32 @@ builder.queryField('aiList', (t) =>
   }),
 )
 
+builder.queryField('aiListItem', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListItem',
+    nullable: true,
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { id }, context) => {
+      // Any workspace member can access items in lists in their workspace
+      const item = await prisma.aiListItem.findUnique({
+        ...query,
+        where: { id },
+      })
+      if (!item) return null
+
+      // Verify the item belongs to a list in the user's workspace
+      const list = await prisma.aiList.findFirst({
+        where: { id: item.listId, workspaceId: context.workspaceId },
+      })
+      if (!list) return null
+
+      return item
+    },
+  }),
+)
+
 builder.queryField('aiListItems', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: ListItemsQueryResult,

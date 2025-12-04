@@ -264,9 +264,9 @@ export type AiEnrichmentTask = {
   error?: Maybe<Scalars['String']['output']>
   field: AiListField
   fieldId: Scalars['String']['output']
-  file: AiLibraryFile
-  fileId: Scalars['String']['output']
   id: Scalars['ID']['output']
+  item: AiListItem
+  itemId: Scalars['String']['output']
   list: AiList
   listId: Scalars['String']['output']
   metadata?: Maybe<Scalars['String']['output']>
@@ -305,6 +305,21 @@ export type AiEnrichmentTaskProcessingDataOutput = {
   issues: Array<Scalars['String']['output']>
   messages: Array<EnrichmentTaskMessage>
   similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
+}
+
+export type AiFileExtraction = {
+  __typename?: 'AiFileExtraction'
+  createdAt: Scalars['DateTime']['output']
+  error?: Maybe<Scalars['String']['output']>
+  extractionInput?: Maybe<Scalars['String']['output']>
+  extractionOutput?: Maybe<Scalars['String']['output']>
+  file: AiLibraryFile
+  fileId: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  itemsCreated: Scalars['Int']['output']
+  source: AiListSource
+  sourceId: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
 }
 
 export type AiLanguageModel = {
@@ -472,7 +487,6 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   archivedAt?: Maybe<Scalars['DateTime']['output']>
   availableExtractionMarkdownFileNames: Array<Scalars['String']['output']>
-  cache: Array<AiListItemCache>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
   crawler?: Maybe<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
@@ -725,6 +739,24 @@ export type AiListInput = {
   name: Scalars['String']['input']
 }
 
+export type AiListItem = {
+  __typename?: 'AiListItem'
+  content?: Maybe<Scalars['String']['output']>
+  createdAt: Scalars['DateTime']['output']
+  extraction?: Maybe<AiFileExtraction>
+  extractionIndex?: Maybe<Scalars['Int']['output']>
+  id: Scalars['ID']['output']
+  itemName: Scalars['String']['output']
+  list: AiList
+  listId: Scalars['String']['output']
+  metadata?: Maybe<Scalars['String']['output']>
+  source: AiListSource
+  sourceFile: AiLibraryFile
+  sourceFileId: Scalars['String']['output']
+  sourceId: Scalars['String']['output']
+  updatedAt: Scalars['DateTime']['output']
+}
+
 export type AiListItemCache = {
   __typename?: 'AiListItemCache'
   enrichmentErrorMessage?: Maybe<Scalars['String']['output']>
@@ -749,6 +781,9 @@ export type AiListSortingInput = {
 export type AiListSource = {
   __typename?: 'AiListSource'
   createdAt: Scalars['DateTime']['output']
+  extractionConfig?: Maybe<Scalars['String']['output']>
+  extractionStrategy: Scalars['String']['output']
+  extractions: Array<AiFileExtraction>
   id: Scalars['ID']['output']
   library?: Maybe<AiLibrary>
   libraryId?: Maybe<Scalars['String']['output']>
@@ -953,7 +988,7 @@ export type EnrichmentQueueResult = {
   __typename?: 'EnrichmentQueueResult'
   enrichments: Array<AiEnrichmentTask>
   fieldId?: Maybe<Scalars['String']['output']>
-  fileId?: Maybe<Scalars['String']['output']>
+  itemId?: Maybe<Scalars['String']['output']>
   listId?: Maybe<Scalars['String']['output']>
   skip?: Maybe<Scalars['Int']['output']>
   status?: Maybe<EnrichmentStatus>
@@ -1014,6 +1049,12 @@ export enum ExtractionStatus {
   Pending = 'pending',
   Running = 'running',
   Skipped = 'skipped',
+}
+
+export type ExtractionStrategyInput = {
+  /** JSON configuration for the extraction strategy */
+  extractionConfig?: InputMaybe<Scalars['String']['input']>
+  extractionStrategy: Scalars['String']['input']
 }
 
 export type FieldValueResult = {
@@ -1091,12 +1132,13 @@ export enum ListFieldContextType {
 
 export enum ListFieldFileProperty {
   CrawlerUrl = 'crawlerUrl',
+  ExtractedAt = 'extractedAt',
+  ItemName = 'itemName',
   LastUpdate = 'lastUpdate',
   MimeType = 'mimeType',
   Name = 'name',
   OriginModificationDate = 'originModificationDate',
   OriginUri = 'originUri',
-  ProcessedAt = 'processedAt',
   Size = 'size',
   Source = 'source',
 }
@@ -1118,6 +1160,7 @@ export enum ListFieldType {
 
 export type ListItemQueryResult = {
   __typename?: 'ListItemQueryResult'
+  id: Scalars['ID']['output']
   origin: ListItemResult
   values: Array<FieldValueResult>
 }
@@ -1141,7 +1184,7 @@ export type ListItemResult = {
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
-/** Query result for AI list files from all source libraries */
+/** Query result for AI list items from all source libraries */
 export type ListItemsQueryResult = {
   __typename?: 'ListItemsQueryResult'
   count: Scalars['Int']['output']
@@ -1294,6 +1337,7 @@ export type Mutation = {
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
   updateListField: AiListField
+  updateListSourceExtractionStrategy: AiListSource
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
@@ -1356,7 +1400,7 @@ export type MutationClearFailedTasksArgs = {
 
 export type MutationClearListEnrichmentsArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
 }
 
@@ -1367,7 +1411,7 @@ export type MutationClearPendingTasksArgs = {
 
 export type MutationComputeFieldValueArgs = {
   fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  itemId: Scalars['String']['input']
 }
 
 export type MutationConfirmConversationInvitationArgs = {
@@ -1413,8 +1457,8 @@ export type MutationCreateEmbeddingTaskArgs = {
 
 export type MutationCreateEnrichmentTasksArgs = {
   fieldId: Scalars['String']['input']
-  fileId?: InputMaybe<Scalars['String']['input']>
   filters?: InputMaybe<Array<AiListFilterInput>>
+  itemId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
   onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -1478,7 +1522,7 @@ export type MutationDeleteMessageArgs = {
 
 export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
 }
 
@@ -1670,6 +1714,11 @@ export type MutationUpdateListFieldArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationUpdateListSourceExtractionStrategyArgs = {
+  data: ExtractionStrategyInput
+  sourceId: Scalars['String']['input']
+}
+
 export type MutationUpdateMessageArgs = {
   content: Scalars['String']['input']
   messageId: Scalars['String']['input']
@@ -1763,6 +1812,7 @@ export type Query = {
   aiList: AiList
   aiListEnrichments: EnrichmentQueueResult
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
+  aiListItem?: Maybe<AiListItem>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
@@ -1896,7 +1946,7 @@ export type QueryAiListArgs = {
 
 export type QueryAiListEnrichmentsArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
   listId?: InputMaybe<Scalars['String']['input']>
   skip?: InputMaybe<Scalars['Int']['input']>
   status?: InputMaybe<EnrichmentStatus>
@@ -1905,6 +1955,10 @@ export type QueryAiListEnrichmentsArgs = {
 
 export type QueryAiListEnrichmentsStatisticsArgs = {
   listId: Scalars['String']['input']
+}
+
+export type QueryAiListItemArgs = {
+  id: Scalars['String']['input']
 }
 
 export type QueryAiListItemsArgs = {
@@ -4730,7 +4784,7 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
   __typename?: 'AiEnrichmentTask'
   id: string
   listId: string
-  fileId: string
+  itemId: string
   fieldId: string
   status: EnrichmentStatus
   priority: number
@@ -4777,11 +4831,15 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
     } | null
   } | null
   field: { __typename?: 'AiListField'; id: string; name: string }
-  file: {
-    __typename?: 'AiLibraryFile'
+  item: {
+    __typename?: 'AiListItem'
     id: string
-    name: string
-    library: { __typename?: 'AiLibrary'; id: string; name: string }
+    sourceFile: {
+      __typename?: 'AiLibraryFile'
+      id: string
+      name: string
+      library: { __typename?: 'AiLibrary'; id: string; name: string }
+    }
   }
   list: { __typename?: 'AiList'; id: string; name: string }
 }
@@ -4933,6 +4991,7 @@ export type ListFilesTable_FilesQueryResultFragment = {
   skip: number
   items: Array<{
     __typename?: 'ListItemQueryResult'
+    id: string
     origin: {
       __typename?: 'ListItemResult'
       id: string
@@ -5050,6 +5109,8 @@ export type ListSourcesManager_ListFragment = {
     __typename?: 'AiListSource'
     id: string
     libraryId?: string | null
+    extractionStrategy: string
+    extractionConfig?: string | null
     library?: {
       __typename?: 'AiLibrary'
       id: string
@@ -5099,7 +5160,7 @@ export type GetEnrichmentsStatisticsQuery = {
 
 export type GetEnrichmentsQueryVariables = Exact<{
   listId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
   fieldId?: InputMaybe<Scalars['String']['input']>
   take: Scalars['Int']['input']
   skip: Scalars['Int']['input']
@@ -5111,7 +5172,7 @@ export type GetEnrichmentsQuery = {
   aiListEnrichments: {
     __typename?: 'EnrichmentQueueResult'
     listId?: string | null
-    fileId?: string | null
+    itemId?: string | null
     fieldId?: string | null
     take?: number | null
     skip?: number | null
@@ -5122,7 +5183,7 @@ export type GetEnrichmentsQuery = {
       __typename?: 'AiEnrichmentTask'
       id: string
       listId: string
-      fileId: string
+      itemId: string
       fieldId: string
       status: EnrichmentStatus
       priority: number
@@ -5169,15 +5230,45 @@ export type GetEnrichmentsQuery = {
         } | null
       } | null
       field: { __typename?: 'AiListField'; id: string; name: string }
-      file: {
-        __typename?: 'AiLibraryFile'
+      item: {
+        __typename?: 'AiListItem'
         id: string
-        name: string
-        library: { __typename?: 'AiLibrary'; id: string; name: string }
+        sourceFile: {
+          __typename?: 'AiLibraryFile'
+          id: string
+          name: string
+          library: { __typename?: 'AiLibrary'; id: string; name: string }
+        }
       }
       list: { __typename?: 'AiList'; id: string; name: string }
     }>
   }
+}
+
+export type GetItemDetailQueryVariables = Exact<{
+  itemId: Scalars['String']['input']
+}>
+
+export type GetItemDetailQuery = {
+  __typename?: 'Query'
+  aiListItem?: {
+    __typename?: 'AiListItem'
+    id: string
+    itemName: string
+    extractionIndex?: number | null
+    content?: string | null
+    metadata?: string | null
+    sourceFileId: string
+    sourceFile: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
+    extraction?: {
+      __typename?: 'AiFileExtraction'
+      id: string
+      extractionInput?: string | null
+      extractionOutput?: string | null
+      error?: string | null
+      itemsCreated: number
+    } | null
+  } | null
 }
 
 export type GetListItemsQueryVariables = Exact<{
@@ -5199,6 +5290,7 @@ export type GetListItemsQuery = {
     skip: number
     items: Array<{
       __typename?: 'ListItemQueryResult'
+      id: string
       origin: {
         __typename?: 'ListItemResult'
         id: string
@@ -5277,6 +5369,8 @@ export type GetListQuery = {
       __typename?: 'AiListSource'
       id: string
       libraryId?: string | null
+      extractionStrategy: string
+      extractionConfig?: string | null
       library?: {
         __typename?: 'AiLibrary'
         id: string
@@ -5353,7 +5447,7 @@ export type AddListSourceMutation = {
 export type ClearEnrichmentMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  itemId: Scalars['String']['input']
 }>
 
 export type ClearEnrichmentMutation = {
@@ -5369,7 +5463,7 @@ export type ClearEnrichmentMutation = {
 export type ClearEnrichmentsMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type ClearEnrichmentsMutation = {
@@ -5467,7 +5561,7 @@ export type ReorderListFieldsMutation = {
 export type StartSingleEnrichmentMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  itemId: Scalars['String']['input']
 }>
 
 export type StartSingleEnrichmentMutation = {
@@ -5483,7 +5577,7 @@ export type StartSingleEnrichmentMutation = {
 export type CreateListEnrichmentTasksMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
-  fileId?: InputMaybe<Scalars['String']['input']>
+  itemId?: InputMaybe<Scalars['String']['input']>
   onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
   filters?: InputMaybe<Array<AiListFilterInput> | AiListFilterInput>
 }>
@@ -5501,7 +5595,7 @@ export type CreateListEnrichmentTasksMutation = {
 export type RemoveFromEnrichmentQueueMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  itemId: Scalars['String']['input']
 }>
 
 export type RemoveFromEnrichmentQueueMutation = {
@@ -5526,6 +5620,21 @@ export type StopListEnrichmentMutation = {
     cleanedUpTasksCount?: number | null
     cleanedUpEnrichmentsCount?: number | null
     createdTasksCount?: number | null
+  }
+}
+
+export type UpdateListSourceExtractionStrategyMutationVariables = Exact<{
+  sourceId: Scalars['String']['input']
+  data: ExtractionStrategyInput
+}>
+
+export type UpdateListSourceExtractionStrategyMutation = {
+  __typename?: 'Mutation'
+  updateListSourceExtractionStrategy: {
+    __typename?: 'AiListSource'
+    id: string
+    extractionStrategy: string
+    extractionConfig?: string | null
   }
 }
 
@@ -9306,7 +9415,7 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'itemId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'priority' } },
@@ -9405,20 +9514,30 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
           },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'file' },
+            name: { kind: 'Name', value: 'item' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'library' },
+                  name: { kind: 'Name', value: 'sourceFile' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'library' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -10195,6 +10314,7 @@ export const ListFilesTable_FilesQueryResultFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'origin' },
@@ -10488,6 +10608,8 @@ export const ListSourcesManager_ListFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },
@@ -17044,7 +17166,7 @@ export const GetEnrichmentsDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
         {
@@ -17082,8 +17204,8 @@ export const GetEnrichmentsDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
               {
                 kind: 'Argument',
@@ -17110,7 +17232,7 @@ export const GetEnrichmentsDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
@@ -17153,7 +17275,7 @@ export const GetEnrichmentsDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'itemId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'priority' } },
@@ -17252,20 +17374,30 @@ export const GetEnrichmentsDocument = {
           },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'file' },
+            name: { kind: 'Name', value: 'item' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'library' },
+                  name: { kind: 'Name', value: 'sourceFile' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'library' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -17288,6 +17420,76 @@ export const GetEnrichmentsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEnrichmentsQuery, GetEnrichmentsQueryVariables>
+export const GetItemDetailDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getItemDetail' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiListItem' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceFileId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sourceFile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'extraction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionInput' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionOutput' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'itemsCreated' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetItemDetailQuery, GetItemDetailQueryVariables>
 export const GetListItemsDocument = {
   kind: 'Document',
   definitions: [
@@ -17414,6 +17616,7 @@ export const GetListItemsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'origin' },
@@ -17697,6 +17900,8 @@ export const GetListDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },
@@ -18003,7 +18208,7 @@ export const ClearEnrichmentDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -18026,8 +18231,8 @@ export const ClearEnrichmentDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
             ],
             selectionSet: {
@@ -18064,7 +18269,7 @@ export const ClearEnrichmentsDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
       ],
@@ -18087,8 +18292,8 @@ export const ClearEnrichmentsDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
             ],
             selectionSet: {
@@ -18487,7 +18692,7 @@ export const StartSingleEnrichmentDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -18510,8 +18715,8 @@ export const StartSingleEnrichmentDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
               {
                 kind: 'Argument',
@@ -18553,7 +18758,7 @@ export const CreateListEnrichmentTasksDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
         {
@@ -18592,8 +18797,8 @@ export const CreateListEnrichmentTasksDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
               {
                 kind: 'Argument',
@@ -18640,7 +18845,7 @@ export const RemoveFromEnrichmentQueueDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -18663,8 +18868,8 @@ export const RemoveFromEnrichmentQueueDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'itemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
               },
             ],
             selectionSet: {
@@ -18732,6 +18937,63 @@ export const StopListEnrichmentDocument = {
     },
   ],
 } as unknown as DocumentNode<StopListEnrichmentMutation, StopListEnrichmentMutationVariables>
+export const UpdateListSourceExtractionStrategyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateListSourceExtractionStrategy' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sourceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionStrategyInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateListSourceExtractionStrategy' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sourceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sourceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateListSourceExtractionStrategyMutation,
+  UpdateListSourceExtractionStrategyMutationVariables
+>
 export const UpdateListFieldDocument = {
   kind: 'Document',
   definitions: [
