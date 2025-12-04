@@ -26,18 +26,18 @@ builder.mutationField('createEnrichmentTasks', (t) =>
     args: {
       listId: t.arg.string({ required: true }),
       fieldId: t.arg.string({ required: true, description: 'Field ID to enrich' }),
-      fileId: t.arg.string({
+      itemId: t.arg.string({
         required: false,
-        description: 'Optional File ID to only create task for a specific file',
+        description: 'Optional Item ID to only create task for a specific item',
       }),
       onlyMissingValues: t.arg.boolean({
         required: false,
         defaultValue: true,
-        description: 'Only create tasks for files that do not yet have a cached value for this field',
+        description: 'Only create tasks for items that do not yet have a cached value for this field',
       }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, fileId, onlyMissingValues, filters }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { session }) => {
       console.log('🔍 Starting enrichment for listId:', listId, 'fieldId:', fieldId)
       const list = await canAccessListOrThrow(listId, session.user.id, {
         include: {
@@ -75,10 +75,6 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         throw new Error(`Cannot create enrichment tasks for field ${fieldId}: Field is not enrichable`)
       }
 
-      const libraryIds = list.sources
-        .map((source) => source.libraryId)
-        .filter((libraryId) => libraryId !== null) as string[]
-
       // Collect all field IDs we need cache data for (enriched field + all referenced context fields)
       const fieldWithContext = listField as typeof listField & {
         context: Array<{
@@ -92,34 +88,44 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       const allFieldIds = [fieldId, ...contextFieldIds]
 
       const filterConditions = await getListFiltersWhere(filters || [])
-      const files = await prisma.aiLibraryFile.findMany({
+
+      // Query items instead of files
+      const items = await prisma.aiListItem.findMany({
         include: {
-          crawledByCrawler: { select: { id: true, uri: true } },
-          library: {
-            select: { id: true, name: true, embeddingModel: { select: { id: true, provider: true, name: true } } },
-          },
           cache: { where: { fieldId: { in: allFieldIds } } },
-          contentExtractionTasks: {
-            where: { processingFinishedAt: { not: null } },
-            orderBy: { processingFinishedAt: 'desc' },
-            take: 1,
+          sourceFile: {
+            include: {
+              crawledByCrawler: { select: { id: true, uri: true } },
+              library: {
+                select: {
+                  id: true,
+                  name: true,
+                  embeddingModel: { select: { id: true, provider: true, name: true } },
+                },
+              },
+              contentExtractionTasks: {
+                where: { processingFinishedAt: { not: null } },
+                orderBy: { processingFinishedAt: 'desc' },
+                take: 1,
+              },
+            },
           },
         },
         where: {
+          listId,
           ...filterConditions,
-          ...(fileId ? { id: fileId } : {}),
-          libraryId: { in: libraryIds },
-          archivedAt: null,
+          ...(itemId ? { id: itemId } : {}),
+          sourceFile: { archivedAt: null },
           ...(onlyMissingValues
             ? {
                 OR: [
-                  // Files with no cache entry for this field at all
+                  // Items with no cache entry for this field at all
                   {
                     cache: {
                       none: { fieldId },
                     },
                   },
-                  // Files with cache entry but no valid value (all value fields are null)
+                  // Items with cache entry but no valid value (all value fields are null)
                   {
                     cache: {
                       some: {
@@ -133,7 +139,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
                       },
                     },
                   },
-                  // Files where enrichment returned a failure term (stored in failedEnrichmentValue)
+                  // Items where enrichment returned a failure term (stored in failedEnrichmentValue)
                   {
                     cache: {
                       some: {
@@ -147,7 +153,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         },
       })
 
-      console.log('found files for enrichment:', files.length)
+      console.log('found items for enrichment:', items.length)
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
@@ -172,12 +178,12 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         )
       }
 
-      if (files.length === 0) {
+      if (items.length === 0) {
         return {
           success: true,
           createdTasksCount: 0,
           cleanedUpTasksCount: 0,
-          error: 'No files to process for this list',
+          error: 'No items to process for this list',
         }
       }
 
@@ -192,12 +198,13 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         })
 
         const createTasksResult = await tx.aiEnrichmentTask.createMany({
-          data: files.map((file) => {
-            const metadata = getEnrichmentTaskInputMetadata({ validatedField, file })
+          data: items.map((item) => {
+            // Pass the sourceFile to getEnrichmentTaskInputMetadata (expects file-like object)
+            const metadata = getEnrichmentTaskInputMetadata({ validatedField, file: item.sourceFile })
             return {
               listId,
               fieldId,
-              fileId: file.id,
+              itemId: item.id,
               status: 'pending',
               priority: 0,
               metadata: JSON.stringify({ input: metadata }),
@@ -223,14 +230,14 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
     args: {
       listId: t.arg.string({ required: true, description: 'List ID to stop enrichment for' }),
       fieldId: t.arg.string({ required: false, description: 'Field ID to stop enrichment for' }),
-      fileId: t.arg.string({ required: false, description: 'File ID to stop enrichment for' }),
+      itemId: t.arg.string({ required: false, description: 'Item ID to stop enrichment for' }),
     },
-    resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
 
       const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
         where: {
-          AND: [{ status: 'pending' }, { listId }, fieldId ? { fieldId } : {}, fileId ? { fileId } : {}],
+          AND: [{ status: 'pending' }, { listId }, fieldId ? { fieldId } : {}, itemId ? { itemId } : {}],
         },
       })
 
@@ -256,12 +263,12 @@ builder.mutationField('clearListEnrichments', (t) =>
         required: false,
         description: 'Optional Field ID to only clean enrichments for a specific field',
       }),
-      fileId: t.arg.string({
+      itemId: t.arg.string({
         required: false,
-        description: 'Optional File ID to only clean enrichments for a specific file',
+        description: 'Optional Item ID to only clean enrichments for a specific item',
       }),
     },
-    resolve: async (_source, { listId, fieldId, fileId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
 
       const transactionResult = await prisma.$transaction(async (tx) => {
@@ -271,16 +278,14 @@ builder.mutationField('clearListEnrichments', (t) =>
               {
                 field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
               },
-              {
-                fileId: fileId || undefined,
-              },
+              itemId ? { itemId } : {},
             ],
           },
         })
         const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
           where: {
             AND: [
-              fileId ? { fileId } : {},
+              itemId ? { itemId } : {},
               fieldId ? { fieldId } : {},
               { listId },
               { status: { in: ['pending', 'failed', 'canceled'] } },

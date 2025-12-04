@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { AiListItemCache, Prisma } from '../../../prisma/generated/client'
-import { LIST_FIELD_TYPES, getFieldValue } from './index'
+import { AiListItemCache } from '../../../prisma/generated/client'
+import { LIST_FIELD_TYPES, ListItemWithRelations, getFieldValue } from './index'
 
 describe('LIST_FIELD_TYPES', () => {
   it('should include markdown type', () => {
@@ -14,45 +14,44 @@ describe('LIST_FIELD_TYPES', () => {
 })
 
 describe('getFieldValue', () => {
-  // Helper to create mock file object
-  const createMockFile = (
-    cacheOverrides?: Partial<AiListItemCache>,
-  ): Prisma.AiLibraryFileGetPayload<{
-    include: {
-      contentExtractionTasks: { select: { processingFinishedAt: true } }
-      crawledByCrawler: { select: { uri: true } }
-      library: { select: { name: true } }
-      cache: true
-    }
-  }> => {
-    const baseMockFile = {
-      id: 'file1',
-      name: 'test-document.pdf',
-      createdAt: new Date('2024-01-14'),
-      updatedAt: new Date('2024-01-17'),
-      libraryId: 'library1',
-      originUri: 'https://example.com/doc.pdf',
-      originModificationDate: new Date('2024-01-15'),
-      uploadedAt: new Date('2024-01-15'),
-      dropError: null,
-      dropPath: null,
-      dropStatus: null,
-      archivedAt: null,
-      size: 1024,
-      mimeType: 'application/pdf',
-      // Add missing properties with mock values
-      crawledByCrawlerId: 'crawler1',
-      docPath: '/mock/path/to/doc.pdf',
-      originFileHash: 'mockhash123',
-      library: { name: 'Test Library' },
-      crawledByCrawler: { uri: 'https://crawler.example.com/source' },
-      contentExtractionTasks: [{ processingFinishedAt: new Date('2024-01-16') }],
+  // Helper to create mock item object
+  const createMockItem = (cacheOverrides?: Partial<AiListItemCache>): ListItemWithRelations => {
+    const baseMockItem: ListItemWithRelations = {
+      id: 'item1',
+      createdAt: new Date('2024-01-18'),
+      updatedAt: new Date('2024-01-18'),
+      listId: 'list1',
+      sourceId: 'source1',
+      sourceFileId: 'file1',
+      extractionIndex: null,
+      content: null,
+      metadata: null,
+      sourceFile: {
+        id: 'file1',
+        name: 'test-document.pdf',
+        createdAt: new Date('2024-01-14'),
+        updatedAt: new Date('2024-01-17'),
+        libraryId: 'library1',
+        originUri: 'https://example.com/doc.pdf',
+        originModificationDate: new Date('2024-01-15'),
+        uploadedAt: new Date('2024-01-15'),
+        dropError: null,
+        archivedAt: null,
+        size: 1024,
+        mimeType: 'application/pdf',
+        crawledByCrawlerId: 'crawler1',
+        docPath: '/mock/path/to/doc.pdf',
+        originFileHash: 'mockhash123',
+        library: { name: 'Test Library' },
+        crawledByCrawler: { uri: 'https://crawler.example.com/source' },
+        contentExtractionTasks: [{ processingFinishedAt: new Date('2024-01-16') }],
+      },
       cache: [
         {
           id: 'cache1',
           createdAt: new Date('2024-01-18'),
           updatedAt: new Date('2024-01-18'),
-          fileId: 'file1',
+          itemId: 'item1',
           fieldId: 'field1',
           valueString: 'test string value',
           valueNumber: null,
@@ -64,7 +63,7 @@ describe('getFieldValue', () => {
         },
       ],
     }
-    return baseMockFile
+    return baseMockItem
   }
 
   // Helper to create mock field object
@@ -85,12 +84,12 @@ describe('getFieldValue', () => {
 
   describe('markdown type', () => {
     it('should return markdown value from cache', () => {
-      const file = createMockFile({
+      const item = createMockItem({
         valueString: '# Heading\n\nThis is **bold** and *italic* text.\n\n- List item 1\n- List item 2',
       })
       const field = createMockField({ type: 'markdown' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('# Heading\n\nThis is **bold** and *italic* text.\n\n- List item 1\n- List item 2')
       expect(result.errorMessage).toBeNull()
@@ -98,36 +97,36 @@ describe('getFieldValue', () => {
     })
 
     it('should return null value when cache has no value', () => {
-      const file = createMockFile({ valueString: null })
+      const item = createMockItem({ valueString: null })
       const field = createMockField({ type: 'markdown' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
       expect(result.errorMessage).toBeNull()
     })
 
     it('should return error message for markdown field', () => {
-      const file = createMockFile({
+      const item = createMockItem({
         valueString: null,
         enrichmentErrorMessage: 'AI model failed to generate markdown',
       })
       const field = createMockField({ type: 'markdown' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
       expect(result.errorMessage).toBe('AI model failed to generate markdown')
     })
 
     it('should return failedEnrichmentValue for markdown field with failure term', () => {
-      const file = createMockFile({
+      const item = createMockItem({
         valueString: null,
         failedEnrichmentValue: 'N/A',
       })
       const field = createMockField({ type: 'markdown' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
       expect(result.failedEnrichmentValue).toBe('N/A')
@@ -158,10 +157,10 @@ const example = 'code';
 
 [Link](https://example.com)`
 
-      const file = createMockFile({ valueString: complexMarkdown })
+      const item = createMockItem({ valueString: complexMarkdown })
       const field = createMockField({ type: 'markdown' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe(complexMarkdown)
     })
@@ -169,10 +168,10 @@ const example = 'code';
 
   describe('text type (same behavior as markdown)', () => {
     it('should return text value from cache', () => {
-      const file = createMockFile({ valueString: 'plain text value' })
+      const item = createMockItem({ valueString: 'plain text value' })
       const field = createMockField({ type: 'text' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('plain text value')
     })
@@ -180,10 +179,10 @@ const example = 'code';
 
   describe('string type (same behavior as markdown)', () => {
     it('should return string value from cache', () => {
-      const file = createMockFile({ valueString: 'short string' })
+      const item = createMockItem({ valueString: 'short string' })
       const field = createMockField({ type: 'string' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('short string')
     })
@@ -191,19 +190,19 @@ const example = 'code';
 
   describe('number type', () => {
     it('should return number value as string', () => {
-      const file = createMockFile({ valueNumber: 42.5 })
+      const item = createMockItem({ valueNumber: 42.5 })
       const field = createMockField({ type: 'number' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('42.5')
     })
 
     it('should return null for null number value', () => {
-      const file = createMockFile({ valueNumber: null })
+      const item = createMockItem({ valueNumber: null })
       const field = createMockField({ type: 'number' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
     })
@@ -211,28 +210,28 @@ const example = 'code';
 
   describe('boolean type', () => {
     it('should return Yes for true boolean', () => {
-      const file = createMockFile({ valueBoolean: true })
+      const item = createMockItem({ valueBoolean: true })
       const field = createMockField({ type: 'boolean' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('Yes')
     })
 
     it('should return No for false boolean', () => {
-      const file = createMockFile({ valueBoolean: false })
+      const item = createMockItem({ valueBoolean: false })
       const field = createMockField({ type: 'boolean' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('No')
     })
 
     it('should return null for null boolean', () => {
-      const file = createMockFile({ valueBoolean: null })
+      const item = createMockItem({ valueBoolean: null })
       const field = createMockField({ type: 'boolean' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
     })
@@ -240,19 +239,19 @@ const example = 'code';
 
   describe('date and datetime types', () => {
     it('should return date value as ISO string', () => {
-      const file = createMockFile({ valueDate: new Date('2024-06-15T10:30:00Z') })
+      const item = createMockItem({ valueDate: new Date('2024-06-15T10:30:00Z') })
       const field = createMockField({ type: 'date' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('2024-06-15T10:30:00.000Z')
     })
 
     it('should return datetime value as ISO string', () => {
-      const file = createMockFile({ valueDate: new Date('2024-06-15T10:30:00Z') })
+      const item = createMockItem({ valueDate: new Date('2024-06-15T10:30:00Z') })
       const field = createMockField({ type: 'datetime' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('2024-06-15T10:30:00.000Z')
     })
@@ -260,10 +259,10 @@ const example = 'code';
 
   describe('file_property source type', () => {
     it('should return file name', () => {
-      const file = createMockFile()
+      const item = createMockItem()
       const field = createMockField({ sourceType: 'file_property', fileProperty: 'name' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('test-document.pdf')
       expect(result.errorMessage).toBeNull()
@@ -271,10 +270,10 @@ const example = 'code';
     })
 
     it('should return library name for source property', () => {
-      const file = createMockFile()
+      const item = createMockItem()
       const field = createMockField({ sourceType: 'file_property', fileProperty: 'source' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('Test Library')
     })
@@ -282,23 +281,23 @@ const example = 'code';
 
   describe('edge cases', () => {
     it('should return error message for unknown field type', () => {
-      const file = createMockFile()
+      const item = createMockItem()
       const field = createMockField({ type: 'unknown_type' })
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBeNull()
       expect(result.errorMessage).toBe('unknown field type')
     })
 
     it('should return dash when no cache exists', () => {
-      const file = {
-        ...createMockFile(),
+      const item = {
+        ...createMockItem(),
         cache: [],
       }
       const field = createMockField()
 
-      const result = getFieldValue(file, field)
+      const result = getFieldValue(item, field)
 
       expect(result.value).toBe('-')
       expect(result.errorMessage).toBeNull()

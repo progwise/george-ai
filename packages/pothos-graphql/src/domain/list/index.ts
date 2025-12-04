@@ -76,15 +76,24 @@ export const getCanAccessListWhere = (workspaceId: string): Prisma.AiListWhereIn
   workspaceId,
 })
 
-export function getFieldValue(
-  file: Prisma.AiLibraryFileGetPayload<{
-    include: {
-      contentExtractionTasks: { select: { processingFinishedAt: true } }
-      crawledByCrawler: { select: { uri: true } }
-      library: { select: { name: true } }
-      cache: true
+/**
+ * Type for an AiListItem with its sourceFile and cache included
+ */
+export type ListItemWithRelations = Prisma.AiListItemGetPayload<{
+  include: {
+    cache: true
+    sourceFile: {
+      include: {
+        contentExtractionTasks: { select: { processingFinishedAt: true } }
+        crawledByCrawler: { select: { uri: true } }
+        library: { select: { name: true } }
+      }
     }
-  }>,
+  }
+}>
+
+export function getFieldValue(
+  item: ListItemWithRelations,
   field: Prisma.AiListFieldGetPayload<{
     select: {
       id: true
@@ -95,6 +104,8 @@ export function getFieldValue(
     }
   }>,
 ): { value: string | null; errorMessage: string | null; failedEnrichmentValue: string | null } {
+  const file = item.sourceFile
+
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {
     let value: string | null = null
@@ -133,10 +144,10 @@ export function getFieldValue(
     return { value, errorMessage: null, failedEnrichmentValue: null }
   }
 
-  const caches = file.cache.filter((cache) => cache.fieldId === field.id)
+  const caches = item.cache.filter((cache) => cache.fieldId === field.id)
 
   if (caches.length > 1) {
-    throw new Error(`Multiple cached values found for field ${field.id} and file ${file.id}. Check your query.`)
+    throw new Error(`Multiple cached values found for field ${field.id} and item ${item.id}. Check your query.`)
   }
 
   const cache = caches.length === 1 ? caches[0] : null
@@ -173,15 +184,15 @@ export function getFieldValue(
 }
 
 /**
- * Finds the cached value for a specific field and file combination
+ * Finds the cached value for a specific field and item combination
  */
 export function findCacheValue(
-  file: Prisma.AiLibraryFileGetPayload<{
+  item: Prisma.AiListItemGetPayload<{
     include: {
       cache: true
     }
   }>,
   fieldId: string,
 ): Prisma.AiListItemCacheGetPayload<object> | null {
-  return file.cache.find((cache) => cache.fieldId === fieldId) || null
+  return item.cache.find((cache) => cache.fieldId === fieldId) || null
 }

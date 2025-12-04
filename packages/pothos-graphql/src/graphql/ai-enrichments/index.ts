@@ -18,7 +18,7 @@ builder.prismaObject('AiEnrichmentTask', {
     id: t.exposeID('id', { nullable: false }),
     listId: t.exposeString('listId', { nullable: false }),
     fieldId: t.exposeString('fieldId', { nullable: false }),
-    fileId: t.exposeString('fileId', { nullable: false }),
+    itemId: t.exposeString('itemId', { nullable: false }),
     status: t.expose('status', { type: EnrichmentStatus, nullable: false }),
     priority: t.exposeInt('priority', { nullable: false }),
     requestedAt: t.expose('requestedAt', { type: 'DateTime', nullable: false }),
@@ -27,7 +27,7 @@ builder.prismaObject('AiEnrichmentTask', {
     error: t.exposeString('error'),
     list: t.relation('list', { nullable: false }),
     field: t.relation('field', { nullable: false }),
-    file: t.relation('file', { nullable: false }),
+    item: t.relation('item', { nullable: false }),
     processingData: t.field({
       type: AiEnrichmentTaskProcessingData,
       nullable: true,
