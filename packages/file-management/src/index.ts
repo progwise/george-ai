@@ -125,3 +125,117 @@ export const readMarkdownContent = async (
   const latestFilePath = path.join(fileDir, markdownFiles[0])
   return fs.promises.readFile(latestFilePath, 'utf-8')
 }
+
+// List item content storage
+// Structure: <root>/<libraryId>/<fileId>/listItems/<listId>/<itemId>.md
+
+export const getListItemDir = ({
+  fileId,
+  libraryId,
+  listId,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+}) => {
+  const fileDir = getFileDir({ fileId, libraryId })
+  return path.join(fileDir, 'listItems', listId)
+}
+
+export const getListItemContentPath = ({
+  fileId,
+  libraryId,
+  listId,
+  itemId,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+  itemId: string
+}) => {
+  const listItemDir = getListItemDir({ fileId, libraryId, listId })
+  return path.join(listItemDir, `${itemId}.md`)
+}
+
+export const saveListItemContent = async ({
+  fileId,
+  libraryId,
+  listId,
+  itemId,
+  content,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+  itemId: string
+  content: string
+}): Promise<string> => {
+  const listItemDir = getListItemDir({ fileId, libraryId, listId })
+
+  if (!fs.existsSync(listItemDir)) {
+    fs.mkdirSync(listItemDir, { recursive: true })
+  }
+
+  const filePath = getListItemContentPath({ fileId, libraryId, listId, itemId })
+  await fs.promises.writeFile(filePath, content, 'utf-8')
+
+  return filePath
+}
+
+export const readListItemContent = async ({
+  fileId,
+  libraryId,
+  listId,
+  itemId,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+  itemId: string
+}): Promise<string | null> => {
+  const filePath = getListItemContentPath({ fileId, libraryId, listId, itemId })
+
+  try {
+    return await fs.promises.readFile(filePath, 'utf-8')
+  } catch {
+    return null
+  }
+}
+
+export const deleteListItemContent = async ({
+  fileId,
+  libraryId,
+  listId,
+  itemId,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+  itemId: string
+}): Promise<void> => {
+  const filePath = getListItemContentPath({ fileId, libraryId, listId, itemId })
+
+  try {
+    await fs.promises.unlink(filePath)
+  } catch {
+    // File doesn't exist, ignore
+  }
+}
+
+export const deleteListItemDir = async ({
+  fileId,
+  libraryId,
+  listId,
+}: {
+  fileId: string
+  libraryId: string
+  listId: string
+}): Promise<void> => {
+  const listItemDir = getListItemDir({ fileId, libraryId, listId })
+
+  try {
+    await fs.promises.rm(listItemDir, { recursive: true, force: true })
+  } catch {
+    // Directory doesn't exist, ignore
+  }
+}

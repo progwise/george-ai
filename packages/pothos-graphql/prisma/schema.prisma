@@ -402,8 +402,8 @@ model AiListItem {
   sourceId        String // Which AiListSource this item came from
   sourceFileId    String // Which file this item was extracted from
   extractionIndex Int? // Row number, column index, or LLM extraction index (null for per_file)
-  content         String? // Extracted content as markdown (null for per_file, uses file content)
   metadata        Json? // Extraction metadata (headers, original row data, etc.)
+  // Content stored on file system, path calculated by @george-ai/file-management getListItemContentPath()
   list            AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
   source          AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   sourceFile      AiLibraryFile @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)

@@ -2,12 +2,16 @@
  * List item extraction logic.
  *
  * Handles creating AiListItem records from library files based on extraction strategy:
- * - per_file: 1 file → 1 item (default)
- * - per_row: 1 file → N items (one per table row)
+ * - per_file: 1 file → 1 item (default, uses file markdown directly)
+ * - per_row: 1 file → N items (one per table row, content stored as .md files)
+ *
+ * Content storage:
+ * - per_file: No .md file, content comes from file's markdown
+ * - per_row: <fileDir>/listItems/<listId>/<itemId>.md
  */
 import fs from 'fs'
 
-import { getFileDir } from '@george-ai/file-management'
+import { deleteListItemDir, getFileDir, saveListItemContent } from '@george-ai/file-management'
 
 import { prisma } from '../../prisma'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
@@ -146,6 +150,10 @@ export async function getFileMarkdownContent(fileId: string, libraryId: string):
 
 /**
  * Create list items for a file based on extraction strategy.
+ *
+ * Behavior on re-processing:
+ * - per_file: Skip if item exists (item is just a reference to file markdown)
+ * - per_row: Delete existing items and .md files, recreate (content must reflect changes)
  */
 export async function createListItemsForFile({
   sourceId,
@@ -159,28 +167,39 @@ export async function createListItemsForFile({
   listId: string
   libraryId: string
   extractionStrategy: ExtractionStrategy
-}): Promise<{ created: number; strategy: ExtractionStrategy }> {
+}): Promise<{ created: number; deleted: number; strategy: ExtractionStrategy }> {
   // Check if items already exist for this file/source combination
-  const existingItems = await prisma.aiListItem.count({
+  const existingItemCount = await prisma.aiListItem.count({
     where: { sourceId, sourceFileId: fileId },
   })
 
-  if (existingItems > 0) {
-    // Items already exist, skip
-    return { created: 0, strategy: extractionStrategy }
+  // For per_file: skip if item exists (it's just a reference)
+  // For per_row: delete existing and recreate (content stored in .md files)
+  if (existingItemCount > 0) {
+    if (extractionStrategy === 'per_file') {
+      return { created: 0, deleted: 0, strategy: extractionStrategy }
+    }
+
+    // per_row: delete existing items and their .md files
+    await prisma.aiListItem.deleteMany({
+      where: { sourceId, sourceFileId: fileId },
+    })
+    // Delete the listItems/<listId>/ directory for this file
+    await deleteListItemDir({ fileId, libraryId, listId })
   }
 
+  const deletedCount = extractionStrategy === 'per_row' ? existingItemCount : 0
+
   if (extractionStrategy === 'per_file') {
-    // Simple: 1 file = 1 item
+    // Simple: 1 file = 1 item (no .md file, uses file markdown directly)
     await prisma.aiListItem.create({
       data: {
         listId,
         sourceId,
         sourceFileId: fileId,
-        // extractionIndex, content, metadata are null for per_file (uses file markdown directly)
       },
     })
-    return { created: 1, strategy: 'per_file' }
+    return { created: 1, deleted: deletedCount, strategy: 'per_file' }
   }
 
   if (extractionStrategy === 'per_row') {
@@ -196,7 +215,7 @@ export async function createListItemsForFile({
           metadata: { fallback: 'no_markdown_content' },
         },
       })
-      return { created: 1, strategy: 'per_file' }
+      return { created: 1, deleted: deletedCount, strategy: 'per_file' }
     }
 
     const rows = extractRowsFromMarkdownTable(markdown)
@@ -211,22 +230,32 @@ export async function createListItemsForFile({
           metadata: { fallback: 'no_table_rows' },
         },
       })
-      return { created: 1, strategy: 'per_file' }
+      return { created: 1, deleted: deletedCount, strategy: 'per_file' }
     }
 
-    // Create one item per row
-    await prisma.aiListItem.createMany({
-      data: rows.map((row) => ({
-        listId,
-        sourceId,
-        sourceFileId: fileId,
-        extractionIndex: row.rowIndex,
-        content: row.markdown,
-        metadata: { headers: row.headers, values: row.values },
-      })),
-    })
+    // Create items one by one to get IDs for .md file names
+    for (const row of rows) {
+      const item = await prisma.aiListItem.create({
+        data: {
+          listId,
+          sourceId,
+          sourceFileId: fileId,
+          extractionIndex: row.rowIndex,
+          metadata: { headers: row.headers, values: row.values },
+        },
+      })
 
-    return { created: rows.length, strategy: 'per_row' }
+      // Write .md file with row content
+      await saveListItemContent({
+        fileId,
+        libraryId,
+        listId,
+        itemId: item.id,
+        content: row.markdown,
+      })
+    }
+
+    return { created: rows.length, deleted: deletedCount, strategy: 'per_row' }
   }
 
   // Unknown strategy, default to per_file
@@ -237,7 +266,7 @@ export async function createListItemsForFile({
       sourceFileId: fileId,
     },
   })
-  return { created: 1, strategy: 'per_file' }
+  return { created: 1, deleted: deletedCount, strategy: 'per_file' }
 }
 
 /**
@@ -282,9 +311,29 @@ export async function createListItemsForSource(sourceId: string): Promise<{ crea
 
 /**
  * Refresh list items for a source (delete existing and recreate).
+ * Also cleans up .md files for per_row items.
  */
 export async function refreshListItemsForSource(sourceId: string): Promise<{ created: number; deleted: number }> {
-  // Delete existing items for this source
+  const source = await prisma.aiListSource.findUniqueOrThrow({
+    where: { id: sourceId },
+    include: {
+      items: { select: { sourceFileId: true } },
+    },
+  })
+
+  if (!source.libraryId) {
+    return { created: 0, deleted: 0 }
+  }
+
+  // Get unique file IDs for cleanup
+  const fileIds = [...new Set(source.items.map((item) => item.sourceFileId))]
+
+  // Delete .md files for each file's listItems/<listId>/ directory
+  for (const fileId of fileIds) {
+    await deleteListItemDir({ fileId, libraryId: source.libraryId, listId: source.listId })
+  }
+
+  // Delete existing items from database
   const deleted = await prisma.aiListItem.deleteMany({
     where: { sourceId },
   })

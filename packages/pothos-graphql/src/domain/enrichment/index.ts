@@ -95,8 +95,7 @@ export const EnrichmentMetadataSchema = z.object({
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
       libraryEmbeddingModelProvider: z.string().optional(),
-      // For per_row extracted items, contains the row content
-      itemContent: z.string().optional(),
+      // Item content loaded from file system at enrichment time (see readListItemContent)
       itemMetadata: z.any().optional(),
     })
     .optional(),
@@ -249,8 +248,7 @@ export const getEnrichmentTaskInputMetadata = ({
     failureTerms: validatedField.failureTerms,
     libraryId: item.sourceFile.library.id,
     libraryName: item.sourceFile.library.name,
-    // Include item content for per_row extracted items
-    itemContent: item.content || undefined,
+    // Item content loaded from file system at enrichment time (see readListItemContent)
     itemMetadata: item.metadata || undefined,
   }
 }
