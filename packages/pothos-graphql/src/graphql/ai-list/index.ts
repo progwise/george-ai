@@ -17,6 +17,35 @@ builder.prismaObject('AiListSource', {
     listId: t.exposeString('listId', { nullable: false }),
     libraryId: t.exposeString('libraryId'),
     library: t.relation('library', { nullable: true }),
+    extractionStrategy: t.exposeString('extractionStrategy', { nullable: false }),
+    extractionConfig: t.string({
+      nullable: true,
+      resolve: (source) => (source.extractionConfig ? JSON.stringify(source.extractionConfig) : null),
+    }),
+    extractions: t.relation('extractions', { nullable: false }),
+  }),
+})
+
+builder.prismaObject('AiFileExtraction', {
+  name: 'AiFileExtraction',
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    sourceId: t.exposeString('sourceId', { nullable: false }),
+    fileId: t.exposeString('fileId', { nullable: false }),
+    extractionInput: t.string({
+      nullable: true,
+      resolve: (extraction) => (extraction.extractionInput ? JSON.stringify(extraction.extractionInput) : null),
+    }),
+    extractionOutput: t.string({
+      nullable: true,
+      resolve: (extraction) => (extraction.extractionOutput ? JSON.stringify(extraction.extractionOutput) : null),
+    }),
+    error: t.exposeString('error'),
+    itemsCreated: t.exposeInt('itemsCreated', { nullable: false }),
+    source: t.relation('source', { nullable: false }),
+    file: t.relation('file', { nullable: false }),
   }),
 })
 

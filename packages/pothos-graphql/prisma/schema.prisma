@@ -189,9 +189,11 @@ model AiLibrary {
   autoProcessCrawledFiles Boolean                   @default(true)
   embeddingModelId        String?
   ocrModelId              String?
+  extractionModelId       String?
   contentExtractionTasks  AiContentProcessingTask[]
   embeddingModel          AiLanguageModel?          @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
   ocrModel                AiLanguageModel?          @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
+  extractionModel         AiLanguageModel?          @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
   owner                   User                      @relation(fields: [ownerId], references: [id])
   workspace               Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   crawlers                AiLibraryCrawler[]
@@ -239,6 +241,7 @@ model AiLibraryFile {
   library                AiLibrary                 @relation(fields: [libraryId], references: [id])
   updates                AiLibraryUpdate[]
   listItems              AiListItem[]
+  extractions            AiFileExtraction[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
@@ -383,15 +386,16 @@ model AiList {
 }
 
 model AiListSource {
-  id                 String       @id @default(cuid())
-  createdAt          DateTime     @default(now())
+  id                 String             @id @default(cuid())
+  createdAt          DateTime           @default(now())
   listId             String
   libraryId          String?
-  extractionStrategy String       @default("per_file") // per_file, per_row, per_column, llm_prompt
+  extractionStrategy String             @default("per_file") // per_file, per_row, per_column, llm_prompt
   extractionConfig   Json? // Strategy-specific config (column for naming, LLM prompt, etc.)
-  library            AiLibrary?   @relation(fields: [libraryId], references: [id])
-  list               AiList       @relation(fields: [listId], references: [id])
+  library            AiLibrary?         @relation(fields: [libraryId], references: [id])
+  list               AiList             @relation(fields: [listId], references: [id])
   items              AiListItem[]
+  extractions        AiFileExtraction[]
 }
 
 model AiListItem {
@@ -413,6 +417,23 @@ model AiListItem {
   @@unique([sourceId, sourceFileId, extractionIndex])
   @@index([listId])
   @@index([sourceFileId])
+}
+
+model AiFileExtraction {
+  id               String        @id @default(cuid())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  sourceId         String
+  fileId           String
+  extractionInput  Json? // Input context sent to extraction (strategy, prompt, file content preview)
+  extractionOutput Json? // Output from extraction (parsed items, raw LLM response for llm_prompt)
+  error            String? // Error message if extraction failed
+  itemsCreated     Int           @default(0) // Number of items created from this extraction
+  source           AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  file             AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, fileId])
+  @@index([fileId])
 }
 
 model AiListField {
@@ -579,10 +600,11 @@ model AiLanguageModel {
   enabled                    Boolean                   @default(true)
   adminNotes                 String?
   lastUsedAt                 DateTime?
-  assistantsUsing            AiAssistant[]             @relation("LanguageModel")
-  librariesUsingForEmbedding AiLibrary[]               @relation("EmbeddingModel")
-  librariesUsingForOcr       AiLibrary[]               @relation("OcrModel")
-  listFieldsUsing            AiListField[]             @relation("ListFieldLanguageModel")
+  assistantsUsing              AiAssistant[]             @relation("LanguageModel")
+  librariesUsingForEmbedding   AiLibrary[]               @relation("EmbeddingModel")
+  librariesUsingForOcr         AiLibrary[]               @relation("OcrModel")
+  librariesUsingForExtraction  AiLibrary[]               @relation("ExtractionModel")
+  listFieldsUsing              AiListField[]             @relation("ListFieldLanguageModel")
   contentProcessingTasks     AiContentProcessingTask[] @relation("ContentProcessingEmbeddingModel")
   usageLogs                  AiModelUsage[]
 
