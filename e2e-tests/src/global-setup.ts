@@ -340,10 +340,7 @@ async function globalSetup() {
 
     // Create AiListItem records for each file (required since PR #920)
     // Items are now stored in AiListItem table, not computed at query time
-    const filesResult = await client.query(
-      `SELECT id FROM "AiLibraryFile" WHERE "libraryId" = $1`,
-      [libraryId],
-    )
+    const filesResult = await client.query(`SELECT id FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
     for (const file of filesResult.rows) {
       await client.query(
         `

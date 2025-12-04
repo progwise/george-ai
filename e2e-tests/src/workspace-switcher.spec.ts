@@ -731,6 +731,9 @@ test.describe('Workspace Switcher', () => {
       await expect(dialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
 
+      // Wait for workspace switcher to be visible after navigation/reload
+      await expect(workspaceSwitcher).toBeVisible()
+
       // Workspace should be deleted and switched to another workspace
       await expect(workspaceSwitcher).not.toContainText(workspaceName)
 
@@ -775,6 +778,9 @@ test.describe('Workspace Switcher', () => {
       // Wait for dialog to close (confirms deletion completed)
       await expect(dialog).not.toBeVisible()
       await page.waitForLoadState('networkidle')
+
+      // Wait for workspace switcher to be visible after navigation/reload
+      await expect(workspaceSwitcher).toBeVisible()
 
       // Should automatically switch to another workspace (not the deleted one)
       const currentWorkspace = await workspaceSwitcher.textContent()
