@@ -9,6 +9,7 @@
 ## Article 2: Scope of Services
 
 The Service Provider agrees to provide the following services:
+
 - Custom software development as specified in the project requirements
 - Technical consulting for system architecture
 - Monthly maintenance and support
@@ -17,6 +18,7 @@ The Service Provider agrees to provide the following services:
 ## Article 3: Payment Terms
 
 Client agrees to pay Service Provider as follows:
+
 - Initial deposit: 30% upon signing
 - Progress payment: 40% upon milestone completion
 - Final payment: 30% upon project completion

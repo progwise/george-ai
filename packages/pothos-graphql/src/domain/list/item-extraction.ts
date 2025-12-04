@@ -20,9 +20,9 @@ import { deleteListItemDir, getFileDir, saveListItemContent } from '@george-ai/f
 
 import { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
+import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 import { logModelUsage } from '../languageModel'
 import { getLibraryWorkspace } from '../workspace'
-import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 
 export const EXTRACTION_STRATEGIES = ['per_file', 'per_row', 'per_column', 'llm_prompt'] as const
 export type ExtractionStrategy = (typeof EXTRACTION_STRATEGIES)[number]
@@ -501,7 +501,11 @@ export async function createListItemsForFile({
       sourceId,
       fileId,
       extractionInput,
-      extractionOutput: { itemsFound: 1, itemNames: [fileName], warnings: ['no_markdown_content, fell back to per_file'] },
+      extractionOutput: {
+        itemsFound: 1,
+        itemNames: [fileName],
+        warnings: ['no_markdown_content, fell back to per_file'],
+      },
       itemsCreated: 1,
     })
     return { created: 1, deleted: deletedCount, strategy: 'per_file' }
@@ -562,7 +566,11 @@ export async function createListItemsForFile({
         sourceId,
         fileId,
         extractionInput,
-        extractionOutput: { itemsFound: 1, itemNames: [fileName], warnings: ['no_table_columns, fell back to per_file'] },
+        extractionOutput: {
+          itemsFound: 1,
+          itemNames: [fileName],
+          warnings: ['no_table_columns, fell back to per_file'],
+        },
         itemsCreated: 1,
       })
       return { created: 1, deleted: deletedCount, strategy: 'per_file' }
@@ -615,7 +623,12 @@ export async function createListItemsForFile({
         error: 'No extraction model configured on library',
         itemsCreated: 0,
       })
-      return { created: 0, deleted: deletedCount, strategy: 'llm_prompt', error: 'No extraction model configured on library' }
+      return {
+        created: 0,
+        deleted: deletedCount,
+        strategy: 'llm_prompt',
+        error: 'No extraction model configured on library',
+      }
     }
 
     // Get workspace for LLM call
