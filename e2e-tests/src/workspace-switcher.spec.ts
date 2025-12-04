@@ -390,6 +390,7 @@ test.describe('Workspace Switcher', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await page.getByRole('tab', { name: /lists/i }).click()
+    await page.waitForLoadState('networkidle')
     await expect(page.getByText(`Workspace 1 List ${uniqueId}`)).toBeVisible()
 
     // Step 5: Switch to E2E Test Workspace 2
