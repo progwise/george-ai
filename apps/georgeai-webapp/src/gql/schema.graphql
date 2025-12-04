@@ -1069,12 +1069,12 @@ enum ListFieldContextType {
 
 enum ListFieldFileProperty {
   crawlerUrl
+  extractedAt
   lastUpdate
   mimeType
   name
   originModificationDate
   originUri
-  processedAt
   size
   source
 }

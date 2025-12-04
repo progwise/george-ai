@@ -148,8 +148,8 @@ const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string
       return { table: 'AiLibraryFile', column: 'size' }
     case 'originModificationDate':
       return { table: 'AiLibraryFile', column: 'originModificationDate' }
-    case 'processedAt':
-      return { table: 'AiContentProcessingTask', column: 'processingFinishedAt' }
+    case 'extractedAt':
+      return { table: 'AiContentProcessingTask', column: 'extractionFinishedAt' }
     case 'source':
       return { table: 'AiLibrary', column: 'name' }
     case 'crawlerUrl':
@@ -185,7 +185,7 @@ export const getItemIdsForListItems = async ({
     LEFT JOIN "AiLibrary" ON "AiLibraryFile"."libraryId" = "AiLibrary"."id"
     LEFT JOIN "AiLibraryCrawler" ON "AiLibraryFile"."crawledByCrawlerId" = "AiLibraryCrawler"."id"
     LEFT JOIN "AiContentProcessingTask" ON "AiLibraryFile"."id" = "AiContentProcessingTask"."fileId"
-      AND "AiContentProcessingTask"."processingFinishedAt" = (SELECT MAX("processingFinishedAt") FROM "AiContentProcessingTask" AS "cet" WHERE "cet"."fileId" = "AiLibraryFile"."id")
+      AND "AiContentProcessingTask"."extractionFinishedAt" = (SELECT MAX("extractionFinishedAt") FROM "AiContentProcessingTask" AS "cet" WHERE "cet"."fileId" = "AiLibraryFile"."id")
   `)
 
   // Track cache table aliases for computed fields

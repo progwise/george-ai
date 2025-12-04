@@ -9,7 +9,6 @@ export {
   findCacheValue,
   getCanAccessListWhere,
   getFieldValue,
-  isListOwnerOrThrow,
 } from './list'
 export { createContentProcessingTask, createEmbeddingOnlyTask } from './content-extraction/content-extraction-task'
 export { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from './user/avatar-provider'

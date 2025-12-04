@@ -18,7 +18,7 @@ export const LIST_FIELD_FILE_PROPERTIES = [
   'size',
   'mimeType',
   'source',
-  'processedAt',
+  'extractedAt',
   'lastUpdate',
 ] as const
 export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
@@ -55,24 +55,6 @@ export const canAccessListOrThrow = async (
   return list
 }
 
-/**
- * Check if user is the owner of a list (for delete operations).
- */
-export const isListOwnerOrThrow = async (listId: string, userId: string) => {
-  const list = await prisma.aiList.findUniqueOrThrow({
-    where: { id: listId },
-    select: {
-      ownerId: true,
-    },
-  })
-
-  if (list.ownerId !== userId) {
-    throw new Error(`Only the owner can delete this list`)
-  }
-
-  return list
-}
-
 export const getCanAccessListWhere = (workspaceId: string): Prisma.AiListWhereInput => ({
   workspaceId,
 })
@@ -85,7 +67,7 @@ export type ListItemWithRelations = Prisma.AiListItemGetPayload<{
     cache: true
     sourceFile: {
       include: {
-        contentExtractionTasks: { select: { processingFinishedAt: true } }
+        contentExtractionTasks: { select: { extractionFinishedAt: true } }
         crawledByCrawler: { select: { uri: true } }
         library: { select: { name: true } }
       }
@@ -133,8 +115,8 @@ export function getFieldValue(
       case 'source':
         value = file.library.name
         break
-      case 'processedAt':
-        value = file.contentExtractionTasks?.[0]?.processingFinishedAt?.toISOString() || null
+      case 'extractedAt':
+        value = file.contentExtractionTasks?.[0]?.extractionFinishedAt?.toISOString() || null
         break
       case 'lastUpdate':
         value = file.updatedAt.toISOString()

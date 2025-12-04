@@ -106,7 +106,7 @@ export const ListItemQueryResult = builder
             library: true
             crawledByCrawler: true
             contentExtractionTasks: {
-              select: { processingFinishedAt: true }
+              select: { extractionFinishedAt: true }
             }
           }
         }
@@ -206,8 +206,8 @@ export const ListItemsQueryResult = builder
                   library: true,
                   crawledByCrawler: true,
                   contentExtractionTasks: {
-                    where: { processingFinishedAt: { not: null } },
-                    orderBy: { processingFinishedAt: 'desc' },
+                    where: { extractionFinishedAt: { not: null } },
+                    orderBy: { extractionFinishedAt: 'desc' },
                     take: 1,
                   },
                 },

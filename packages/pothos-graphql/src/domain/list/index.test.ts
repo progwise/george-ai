@@ -43,7 +43,7 @@ describe('getFieldValue', () => {
         originFileHash: 'mockhash123',
         library: { name: 'Test Library' },
         crawledByCrawler: { uri: 'https://crawler.example.com/source' },
-        contentExtractionTasks: [{ processingFinishedAt: new Date('2024-01-16') }],
+        contentExtractionTasks: [{ extractionFinishedAt: new Date('2024-01-16') }],
       },
       cache: [
         {

@@ -68,12 +68,12 @@ const getItemPropertyFilterWhere = (
           },
         },
       }
-    case 'processedAt':
+    case 'extractedAt':
       return {
         sourceFile: {
           contentExtractionTasks: {
             every: {
-              processingFinishedAt:
+              extractionFinishedAt:
                 filter.filterType === 'is_empty'
                   ? null
                   : filter.filterType === 'is_not_empty'

@@ -1,4 +1,5 @@
-import { canAccessListOrThrow, createListItemsForSource, isListOwnerOrThrow } from './../../domain'
+import { requireWorkspaceAdmin } from '../../domain/workspace'
+import { canAccessListOrThrow, createListItemsForSource } from './../../domain'
 import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
@@ -61,9 +62,9 @@ builder.mutationField('deleteList', (t) =>
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { id }, { session }) => {
+    resolve: async (query, _source, { id }, { session, workspaceId }) => {
       // Only owner can delete a list
-      await isListOwnerOrThrow(id, session.user.id)
+      await requireWorkspaceAdmin(workspaceId, session.user.id)
 
       const result = await prisma.$transaction(async (prisma) => {
         // Delete related data first due to foreign key constraints
@@ -134,7 +135,7 @@ builder.mutationField('addListSource', (t) =>
         { property: 'name', name: 'Filename', type: 'string' },
         { property: 'originUri', name: 'Origin URI', type: 'string' },
         { property: 'crawlerUrl', name: 'Crawler URL', type: 'string' },
-        { property: 'processedAt', name: 'Processed At', type: 'datetime' },
+        { property: 'extractedAt', name: 'Extracted At', type: 'datetime' },
         { property: 'originModificationDate', name: 'Last Update', type: 'datetime' },
         { property: 'size', name: 'File Size', type: 'number' },
         { property: 'mimeType', name: 'MIME Type', type: 'string' },

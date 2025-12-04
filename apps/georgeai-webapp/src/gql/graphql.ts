@@ -1130,12 +1130,12 @@ export enum ListFieldContextType {
 
 export enum ListFieldFileProperty {
   CrawlerUrl = 'crawlerUrl',
+  ExtractedAt = 'extractedAt',
   LastUpdate = 'lastUpdate',
   MimeType = 'mimeType',
   Name = 'name',
   OriginModificationDate = 'originModificationDate',
   OriginUri = 'originUri',
-  ProcessedAt = 'processedAt',
   Size = 'size',
   Source = 'source',
 }
