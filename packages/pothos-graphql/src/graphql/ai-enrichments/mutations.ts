@@ -199,8 +199,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
         const createTasksResult = await tx.aiEnrichmentTask.createMany({
           data: items.map((item) => {
-            // Pass the sourceFile to getEnrichmentTaskInputMetadata (expects file-like object)
-            const metadata = getEnrichmentTaskInputMetadata({ validatedField, file: item.sourceFile })
+            const metadata = getEnrichmentTaskInputMetadata({ validatedField, item })
             return {
               listId,
               fieldId,

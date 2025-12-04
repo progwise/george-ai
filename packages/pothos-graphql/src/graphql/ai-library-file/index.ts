@@ -278,7 +278,5 @@ builder.prismaObject('AiLibraryFile', {
       },
     }),
 
-    cache: t.relation('cache', { nullable: false }),
-    //TODO: Move it to aiList and remove it here from the file
   }),
 })

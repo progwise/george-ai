@@ -170,7 +170,9 @@ builder.mutationField('retryFailedTasks', (t) =>
         let updateResult: { count: number }
 
         if (queueType === 'ENRICHMENT') {
-          const where = libraryId ? { status: 'failed' as const, file: { libraryId } } : { status: 'failed' as const }
+          const where = libraryId
+            ? { status: 'failed' as const, item: { sourceFile: { libraryId } } }
+            : { status: 'failed' as const }
 
           updateResult = await prisma.aiEnrichmentTask.updateMany({
             where,
@@ -262,7 +264,9 @@ builder.mutationField('clearFailedTasks', (t) =>
         let deleteResult: { count: number }
 
         if (queueType === 'ENRICHMENT') {
-          const where = libraryId ? { status: 'failed' as const, file: { libraryId } } : { status: 'failed' as const }
+          const where = libraryId
+            ? { status: 'failed' as const, item: { sourceFile: { libraryId } } }
+            : { status: 'failed' as const }
 
           deleteResult = await prisma.aiEnrichmentTask.deleteMany({
             where,
@@ -321,7 +325,7 @@ builder.mutationField('clearPendingTasks', (t) =>
 
         if (queueType === 'ENRICHMENT') {
           deleteResult = await prisma.aiEnrichmentTask.deleteMany({
-            where: { startedAt: null, file: libraryId ? { libraryId } : undefined },
+            where: { startedAt: null, item: libraryId ? { sourceFile: { libraryId } } : undefined },
           })
         } else if (queueType === 'CONTENT_PROCESSING') {
           deleteResult = await prisma.aiContentProcessingTask.deleteMany({

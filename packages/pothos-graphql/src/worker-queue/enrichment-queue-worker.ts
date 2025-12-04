@@ -294,13 +294,13 @@ async function processQueueItem({
     // Store the computed value or error in cache
     await prisma.aiListItemCache.upsert({
       where: {
-        fileId_fieldId: {
-          fileId: enrichmentTask.fileId,
+        itemId_fieldId: {
+          itemId: enrichmentTask.itemId,
           fieldId: enrichmentTask.fieldId,
         },
       },
       create: {
-        fileId: enrichmentTask.fileId,
+        itemId: enrichmentTask.itemId,
         fieldId: enrichmentTask.fieldId,
         enrichmentErrorMessage: enrichmentError,
         ...enrichedValues,

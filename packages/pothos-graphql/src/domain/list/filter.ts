@@ -38,7 +38,7 @@ const getFieldPropertyFilterExpression = (filter: { filterType: AiListFilterType
   }
 }
 
-const getFilePropertyFilterWhere = (
+const getItemPropertyFilterWhere = (
   field: Prisma.AiListFieldGetPayload<object>,
   filter: { filterType: AiListFilterType; value: string },
 ): Prisma.AiListItemWhereInput => {
@@ -161,7 +161,7 @@ export const getListFiltersWhere = async (
       throw new Error(`Field not found: ${filter.fieldId}`)
     }
     if (field?.sourceType !== 'llm_computed') {
-      const itemFilterWhere = getFilePropertyFilterWhere(field, filter)
+      const itemFilterWhere = getItemPropertyFilterWhere(field, filter)
       fieldFilters.push(itemFilterWhere)
       continue
     }

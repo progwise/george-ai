@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { Prisma } from '../../../prisma/generated/client'
-import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES, getFieldValue } from '../list'
+import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../list'
 
 export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'error', 'failed', 'canceled']
 
@@ -20,7 +20,7 @@ export const ContextFieldSchema = z.object({
       fileProperty: z.string().nullable(),
       cachedValues: z.array(
         z.object({
-          fileId: z.string(),
+          itemId: z.string(),
           valueString: z.string().nullable().optional(),
           valueNumber: z.number().nullable().optional(),
           valueBoolean: z.boolean().nullable().optional(),
@@ -127,15 +127,18 @@ export type EnrichmentMetadata = z.infer<typeof EnrichmentMetadataSchema>
 
 export const getEnrichmentTaskInputMetadata = ({
   validatedField,
-  file,
+  item,
 }: {
   validatedField: ValidatedListField
-  file: Prisma.AiLibraryFileGetPayload<{
+  item: Prisma.AiListItemGetPayload<{
     include: {
-      crawledByCrawler: { select: { id: true; uri: true } }
-      library: { select: { id: true; name: true; embeddingModel: { select: { provider: true; name: true } } } }
-      cache: true
-      contentExtractionTasks: { select: { processingFinishedAt: true } }
+      sourceFile: {
+        include: {
+          crawledByCrawler: { select: { id: true; uri: true } }
+          library: { select: { id: true; name: true; embeddingModel: { select: { provider: true; name: true } } } }
+          contentExtractionTasks: { select: { processingFinishedAt: true } }
+        }
+      }
     }
   }>
 }): EnrichmentMetadata['input'] => {
@@ -145,7 +148,54 @@ export const getEnrichmentTaskInputMetadata = ({
     .map((contextField) => {
       // TypeScript needs the assertion because filter doesn't narrow the type
       const field = contextField.contextField!
-      const { value, errorMessage } = getFieldValue(file, field)
+
+      // Find the cached value for this specific item
+      const cachedValue = field.cachedValues?.find((cv) => cv.itemId === item.id)
+
+      let value: string | null = null
+      let errorMessage: string | null = cachedValue?.enrichmentErrorMessage ?? null
+
+      if (field.sourceType === 'file_property') {
+        // Get value from file property
+        switch (field.fileProperty) {
+          case 'name':
+            value = item.sourceFile.name
+            break
+          case 'originUri':
+            value = item.sourceFile.originUri ?? null
+            break
+          case 'source':
+            value = item.sourceFile.library.name
+            break
+          case 'crawlerUri':
+            value = item.sourceFile.crawledByCrawler?.uri ?? null
+            break
+          default:
+            errorMessage = `Unknown file property: ${field.fileProperty}`
+        }
+      } else if (cachedValue) {
+        // Get value from cached value based on field type
+        switch (field.type) {
+          case 'string':
+          case 'text':
+          case 'markdown':
+            value = cachedValue.valueString ?? null
+            break
+          case 'number':
+            value = cachedValue.valueNumber?.toString() ?? null
+            break
+          case 'boolean':
+            value = cachedValue.valueBoolean === null ? null : cachedValue.valueBoolean ? 'Yes' : 'No'
+            break
+          case 'date':
+          case 'datetime':
+            value = cachedValue.valueDate?.toISOString() ?? cachedValue.valueDatetime?.toISOString() ?? null
+            break
+          default:
+            errorMessage = `Unknown field type: ${field.type}`
+        }
+      }
+
       return {
         fieldId: field.id,
         fieldName: field.name,
@@ -187,15 +237,15 @@ export const getEnrichmentTaskInputMetadata = ({
     contextVectorSearches: contextVectorSearches.length > 0 ? contextVectorSearches : undefined,
     contextWebFetches: contextWebFetches.length > 0 ? contextWebFetches : undefined,
     dataType: validatedField.type,
-    libraryEmbeddingModel: file.library.embeddingModel?.name || undefined,
-    libraryEmbeddingModelProvider: file.library.embeddingModel?.provider || undefined,
-    fileId: file.id,
-    fileName: file.name,
+    libraryEmbeddingModel: item.sourceFile.library.embeddingModel?.name || undefined,
+    libraryEmbeddingModelProvider: item.sourceFile.library.embeddingModel?.provider || undefined,
+    fileId: item.sourceFile.id,
+    fileName: item.sourceFile.name,
     fieldId: validatedField.id,
     fieldName: validatedField.name,
     failureTerms: validatedField.failureTerms,
-    libraryId: file.library.id,
-    libraryName: file.library.name,
+    libraryId: item.sourceFile.library.id,
+    libraryName: item.sourceFile.library.name,
   }
 }
 
