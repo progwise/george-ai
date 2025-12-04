@@ -923,6 +923,16 @@ export default {
       },
       llmPromptPlaceholder: 'Beschreiben Sie, welche Elemente aus jeder Datei extrahiert werden sollen...',
       llmPromptHelp: 'Die KI analysiert jede Datei und extrahiert Elemente entsprechend Ihrer Beschreibung.',
+      warningTitle: 'Warnung: Anreicherungen werden gelöscht',
+      warningDescription:
+        'Das Ändern der Extraktionsstrategie löscht alle bestehenden Listenelemente und deren Anreicherungen. Diese Aktion kann nicht rückgängig gemacht werden.',
+      warningFieldsAffected: 'Die folgenden Anreicherungen werden dauerhaft gelöscht:',
+      warningSuggestion:
+        'Erwägen Sie, eine neue Liste zu erstellen, wenn Sie die bestehenden Anreicherungen behalten möchten.',
+      warningConfirm: 'Verstanden, Anreicherungen löschen',
+      warningCancel: 'Abbrechen',
+      noEnrichmentsToDelete: 'Keine Anreicherungen zum Löschen',
+      enrichmentsCount: '{count} angereicherte Werte',
     },
     files: {
       title: 'Dateien',

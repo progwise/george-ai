@@ -46,11 +46,19 @@ interface EnrichmentSidePanelProps {
   isOpen: boolean
   onClose: () => void
   listId: string
+  itemId: string
   fieldValue: EnrichmentSidePanel_FieldValueFragment
   origin: EnrichmentSidePanel_OriginFragment
 }
 
-export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origin }: EnrichmentSidePanelProps) => {
+export const EnrichmentSidePanel = ({
+  isOpen,
+  onClose,
+  listId,
+  itemId,
+  fieldValue,
+  origin,
+}: EnrichmentSidePanelProps) => {
   const {
     fieldId,
     fieldName,
@@ -59,7 +67,7 @@ export const EnrichmentSidePanel = ({ isOpen, onClose, listId, fieldValue, origi
     enrichmentErrorMessage: error,
     failedEnrichmentValue,
   } = fieldValue
-  const { id: itemId, name: fileName } = origin
+  const { name: fileName } = origin
   const { t, language } = useTranslation()
   const [copied, setCopied] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
