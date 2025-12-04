@@ -277,6 +277,5 @@ builder.prismaObject('AiLibraryFile', {
         return { fileName: markdownFileName, content }
       },
     }),
-
   }),
 })

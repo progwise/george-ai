@@ -1,4 +1,4 @@
-import { canAccessListOrThrow, isListOwnerOrThrow } from './../../domain'
+import { canAccessListOrThrow, createListItemsForSource, isListOwnerOrThrow } from './../../domain'
 import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
@@ -172,6 +172,9 @@ builder.mutationField('addListSource', (t) =>
           })),
         })
       }
+
+      // Create list items for all files in the library based on extraction strategy
+      await createListItemsForSource(newSource.id)
 
       return newSource
     },

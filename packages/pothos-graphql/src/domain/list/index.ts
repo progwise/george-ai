@@ -2,6 +2,7 @@ import type { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 
 export * from './filter'
+export * from './item-extraction'
 
 export const LIST_FIELD_TYPES = ['string', 'text', 'markdown', 'number', 'date', 'datetime', 'boolean'] as const
 export type FieldType = (typeof LIST_FIELD_TYPES)[number]

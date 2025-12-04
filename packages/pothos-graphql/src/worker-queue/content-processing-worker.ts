@@ -25,6 +25,7 @@ import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-uti
 
 import { Prisma } from '../../prisma/generated/client'
 import { logModelUsage } from '../domain/languageModel'
+import { createListItemsForProcessedFile } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
 
@@ -426,6 +427,19 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       console.log(`✅ Embedding phase completed successfully for task ${task.id}`)
     }
     console.log(`✅ Completed embedding phase for task ${task.id}`)
+
+    // Create list items for any lists that link to this library
+    try {
+      const itemResult = await createListItemsForProcessedFile(task.fileId, task.file.libraryId)
+      if (itemResult.created > 0) {
+        console.log(
+          `✅ Created ${itemResult.created} list items for file ${task.fileId} across ${itemResult.sources} sources`,
+        )
+      }
+    } catch (error) {
+      console.error(`⚠️ Failed to create list items for file ${task.fileId}:`, error)
+      // Don't fail the task - list item creation is secondary to file processing
+    }
   } catch (error) {
     if (error instanceof ProcessingTaskAbortError) {
       const failedTask = await prisma.aiContentProcessingTask.findUniqueOrThrow({ where: { id: task.id } })
