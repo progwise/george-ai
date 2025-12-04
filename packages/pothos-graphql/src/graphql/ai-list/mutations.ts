@@ -201,6 +201,63 @@ builder.mutationField('removeListSource', (t) =>
   }),
 )
 
+const ExtractionStrategyInput = builder.inputType('ExtractionStrategyInput', {
+  fields: (t) => ({
+    extractionStrategy: t.string({ required: true }),
+    extractionConfig: t.string({ required: false, description: 'JSON configuration for the extraction strategy' }),
+  }),
+})
+
+builder.mutationField('updateListSourceExtractionStrategy', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListSource',
+    nullable: false,
+    args: {
+      sourceId: t.arg.string({ required: true }),
+      data: t.arg({ type: ExtractionStrategyInput, required: true }),
+    },
+    resolve: async (query, _source, { sourceId, data }, { session }) => {
+      const existingSource = await prisma.aiListSource.findFirstOrThrow({
+        where: { id: sourceId },
+      })
+      await canAccessListOrThrow(existingSource.listId, session.user.id)
+
+      // Validate extraction strategy
+      const validStrategies = ['per_file', 'per_row', 'per_column', 'llm_prompt']
+      if (!validStrategies.includes(data.extractionStrategy)) {
+        throw new Error(
+          `Invalid extraction strategy: ${data.extractionStrategy}. Must be one of: ${validStrategies.join(', ')}`,
+        )
+      }
+
+      // Parse and validate extraction config if provided
+      let extractionConfig = null
+      if (data.extractionConfig) {
+        try {
+          extractionConfig = JSON.parse(data.extractionConfig)
+        } catch {
+          throw new Error('Invalid extraction config: must be valid JSON')
+        }
+      }
+
+      // Update the source with new extraction strategy
+      const updatedSource = await prisma.aiListSource.update({
+        ...query,
+        where: { id: sourceId },
+        data: {
+          extractionStrategy: data.extractionStrategy,
+          extractionConfig,
+        },
+      })
+
+      // Re-create list items for this source based on new extraction strategy
+      await createListItemsForSource(sourceId)
+
+      return updatedSource
+    },
+  }),
+)
+
 builder.mutationField('reorderListFields', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiListField'],

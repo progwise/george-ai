@@ -13,7 +13,7 @@ export const useEnrichmentActions = (listId: string) => {
   const { mutate: startEnrichment, isPending: startEnrichmentIsPending } = useMutation({
     mutationFn: async (args: {
       fieldId: string
-      fileId?: string
+      itemId?: string
       onlyMissingValues?: boolean
       filters?: FieldFilter[]
     }) => {
@@ -21,7 +21,7 @@ export const useEnrichmentActions = (listId: string) => {
         data: {
           listId,
           fieldId: args.fieldId,
-          fileId: args.fileId,
+          itemId: args.itemId,
           onlyMissingValues: args.onlyMissingValues,
           filters: args.filters,
         },
@@ -73,8 +73,8 @@ export const useEnrichmentActions = (listId: string) => {
   })
 
   const { mutate: clearEnrichments, isPending: clearEnrichmentsIsPending } = useMutation({
-    mutationFn: async (args: { fieldId: string; fileId?: string }) =>
-      clearEnrichmentsFn({ data: { listId, fieldId: args.fieldId, fileId: args.fileId } }),
+    mutationFn: async (args: { fieldId: string; itemId?: string }) =>
+      clearEnrichmentsFn({ data: { listId, fieldId: args.fieldId, itemId: args.itemId } }),
     onSuccess: async (data) => {
       if (data.cleanedUpEnrichmentsCount !== undefined) {
         toastSuccess(

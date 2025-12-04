@@ -242,9 +242,9 @@ type AiEnrichmentTask {
   error: String
   field: AiListField!
   fieldId: String!
-  file: AiLibraryFile!
-  fileId: String!
   id: ID!
+  item: AiListItem!
+  itemId: String!
   list: AiList!
   listId: String!
   metadata: String
@@ -280,6 +280,20 @@ type AiEnrichmentTaskProcessingDataOutput {
   issues: [String!]!
   messages: [EnrichmentTaskMessage!]!
   similarChunks: [EnrichmentTaskSimilarChunk!]
+}
+
+type AiFileExtraction {
+  createdAt: DateTime!
+  error: String
+  extractionInput: String
+  extractionOutput: String
+  file: AiLibraryFile!
+  fileId: String!
+  id: ID!
+  itemsCreated: Int!
+  source: AiListSource!
+  sourceId: String!
+  updatedAt: DateTime!
 }
 
 type AiLanguageModel {
@@ -427,7 +441,6 @@ type AiLibraryCrawlerRun {
 type AiLibraryFile {
   archivedAt: DateTime
   availableExtractionMarkdownFileNames: [String!]!
-  cache: [AiListItemCache!]!
   crawledByCrawler: AiLibraryCrawler
   crawler: AiLibraryCrawler
   createdAt: DateTime!
@@ -673,6 +686,21 @@ input AiListInput {
   name: String!
 }
 
+type AiListItem {
+  content: String
+  createdAt: DateTime!
+  extractionIndex: Int
+  id: ID!
+  list: AiList!
+  listId: String!
+  metadata: String
+  source: AiListSource!
+  sourceFile: AiLibraryFile!
+  sourceFileId: String!
+  sourceId: String!
+  updatedAt: DateTime!
+}
+
 type AiListItemCache {
   enrichmentErrorMessage: String
   fieldId: String!
@@ -695,6 +723,9 @@ input AiListSortingInput {
 
 type AiListSource {
   createdAt: DateTime!
+  extractionConfig: String
+  extractionStrategy: String!
+  extractions: [AiFileExtraction!]!
   id: ID!
   library: AiLibrary
   libraryId: String
@@ -902,7 +933,7 @@ enum EmbeddingStatus {
 type EnrichmentQueueResult {
   enrichments: [AiEnrichmentTask!]!
   fieldId: String
-  fileId: String
+  itemId: String
   listId: String
   skip: Int
   status: EnrichmentStatus
@@ -958,6 +989,14 @@ enum ExtractionStatus {
   pending
   running
   skipped
+}
+
+input ExtractionStrategyInput {
+  """
+  JSON configuration for the extraction strategy
+  """
+  extractionConfig: String
+  extractionStrategy: String!
 }
 
 type FieldValueResult {
@@ -1056,6 +1095,7 @@ enum ListFieldType {
 }
 
 type ListItemQueryResult {
+  id: ID!
   origin: ListItemResult!
   values: [FieldValueResult!]!
 }
@@ -1079,7 +1119,7 @@ type ListItemResult {
 }
 
 """
-Query result for AI list files from all source libraries
+Query result for AI list items from all source libraries
 """
 type ListItemsQueryResult {
   count: Int!
@@ -1162,16 +1202,16 @@ type Mutation {
     """
     fieldId: String
     """
-    Optional File ID to only clean enrichments for a specific file
+    Optional Item ID to only clean enrichments for a specific item
     """
-    fileId: String
+    itemId: String
     """
     List ID to clean enrichments for. Without additional arguments it will clean all enriched values from all fields and items in the list
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
   clearPendingTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
-  computeFieldValue(fieldId: String!, fileId: String!): ComputeFieldValueResult
+  computeFieldValue(fieldId: String!, itemId: String!): ComputeFieldValueResult
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!): AiAssistant
@@ -1190,14 +1230,14 @@ type Mutation {
     Field ID to enrich
     """
     fieldId: String!
-    """
-    Optional File ID to only create task for a specific file
-    """
-    fileId: String
     filters: [AiListFilterInput!]
+    """
+    Optional Item ID to only create task for a specific item
+    """
+    itemId: String
     listId: String!
     """
-    Only create tasks for files that do not yet have a cached value for this field
+    Only create tasks for items that do not yet have a cached value for this field
     """
     onlyMissingValues: Boolean = true
   ): EnrichmentQueueTasksMutationResult!
@@ -1221,9 +1261,9 @@ type Mutation {
     """
     fieldId: String
     """
-    File ID to stop enrichment for
+    Item ID to stop enrichment for
     """
-    fileId: String
+    itemId: String
     """
     List ID to stop enrichment for
     """
@@ -1279,6 +1319,7 @@ type Mutation {
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
+  updateListSourceExtractionStrategy(data: ExtractionStrategyInput!, sourceId: String!): AiListSource!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
@@ -1372,7 +1413,7 @@ type Query {
   aiList(id: String!): AiList!
   aiListEnrichments(
     fieldId: String
-    fileId: String
+    itemId: String
     listId: String
     skip: Int = 0
     status: EnrichmentStatus

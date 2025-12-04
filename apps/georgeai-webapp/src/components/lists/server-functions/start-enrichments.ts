@@ -9,7 +9,7 @@ import { FieldFilter } from '../use-list-settings'
 const startEnrichmentsSchema = z.object({
   listId: z.string().nonempty(),
   fieldId: z.string().nonempty(),
-  fileId: z.string().nonempty().optional(),
+  itemId: z.string().nonempty().optional(),
   onlyMissingValues: z.boolean().optional(),
   filters: z
     .array(
@@ -27,7 +27,7 @@ export const startEnrichmentsFn = createServerFn({ method: 'POST' })
     (data: {
       listId: string
       fieldId: string
-      fileId?: string
+      itemId?: string
       onlyMissingValues?: boolean
       filters?: FieldFilter[]
     }) => {
@@ -36,20 +36,20 @@ export const startEnrichmentsFn = createServerFn({ method: 'POST' })
   )
   .handler(async (ctx) => {
     const data = ctx.data
-    const onlyMissingValues = !data.fileId
+    const onlyMissingValues = !data.itemId
     const result = await backendRequest(
       graphql(`
         mutation CreateListEnrichmentTasks(
           $listId: String!
           $fieldId: String!
-          $fileId: String
+          $itemId: String
           $onlyMissingValues: Boolean
           $filters: [AiListFilterInput!]
         ) {
           createEnrichmentTasks(
             listId: $listId
             fieldId: $fieldId
-            fileId: $fileId
+            itemId: $itemId
             onlyMissingValues: $onlyMissingValues
             filters: $filters
           ) {
@@ -62,7 +62,7 @@ export const startEnrichmentsFn = createServerFn({ method: 'POST' })
       {
         listId: data.listId,
         fieldId: data.fieldId,
-        fileId: data.fileId,
+        itemId: data.itemId,
         onlyMissingValues,
         filters: data.filters,
       },

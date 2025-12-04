@@ -30,6 +30,7 @@ graphql(`
     take
     skip
     items {
+      id
       origin {
         id
         type
@@ -353,7 +354,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             <FieldItemDropdown
                               listId={list.id}
                               fieldId={field.id}
-                              fileId={item.origin.id}
+                              itemId={item.id}
                               fieldName={field.name}
                               fileName={item.origin.name}
                               isOpen={itemDropdownOpen === `${item.origin.id}-${field.id}`}

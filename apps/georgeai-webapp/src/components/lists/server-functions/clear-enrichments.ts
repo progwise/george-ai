@@ -7,20 +7,20 @@ import { backendRequest } from '../../../server-functions/backend'
 const clearEnrichmentsSchema = z.object({
   listId: z.string().min(1),
   fieldId: z.string().min(1),
-  fileId: z.string().min(1).optional(),
+  itemId: z.string().min(1).optional(),
 })
 
 export const clearEnrichmentsFn = createServerFn({
   method: 'POST',
 })
-  .inputValidator((data: { listId: string; fieldId: string; fileId?: string }) => {
+  .inputValidator((data: { listId: string; fieldId: string; itemId?: string }) => {
     return clearEnrichmentsSchema.parse(data)
   })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        mutation ClearEnrichments($listId: String!, $fieldId: String!, $fileId: String) {
-          clearListEnrichments(listId: $listId, fieldId: $fieldId, fileId: $fileId) {
+        mutation ClearEnrichments($listId: String!, $fieldId: String!, $itemId: String) {
+          clearListEnrichments(listId: $listId, fieldId: $fieldId, itemId: $itemId) {
             createdTasksCount
             cleanedUpTasksCount
             cleanedUpEnrichmentsCount
@@ -30,7 +30,7 @@ export const clearEnrichmentsFn = createServerFn({
       {
         listId: data.listId,
         fieldId: data.fieldId,
-        fileId: data.fileId,
+        itemId: data.itemId,
       },
     )
 

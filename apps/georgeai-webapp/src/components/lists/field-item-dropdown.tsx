@@ -12,7 +12,7 @@ import { clearEnrichmentFn, startEnrichmentFn, stopEnrichmentFn } from './server
 interface FieldItemDropdownProps {
   listId: string
   fieldId: string
-  fileId: string
+  itemId: string
   fieldName: string
   fileName: string
   isOpen: boolean
@@ -26,7 +26,7 @@ interface FieldItemDropdownProps {
 export const FieldItemDropdown = ({
   listId,
   fieldId,
-  fileId,
+  itemId,
   fieldName,
   fileName,
   isOpen,
@@ -59,7 +59,7 @@ export const FieldItemDropdown = ({
 
   const enrichSingleMutation = useMutation({
     mutationFn: async () => {
-      return await startEnrichmentFn({ data: { listId, fileId, fieldId } })
+      return await startEnrichmentFn({ data: { listId, itemId, fieldId } })
     },
     onSuccess: async (data) => {
       if (data.createdTasksCount === 1) {
@@ -80,7 +80,7 @@ export const FieldItemDropdown = ({
 
   const clearEnrichmentMutation = useMutation({
     mutationFn: async () => {
-      return await clearEnrichmentFn({ data: { listId, fieldId, fileId } })
+      return await clearEnrichmentFn({ data: { listId, fieldId, itemId } })
     },
     onSuccess: async (data) => {
       if (data.cleanedUpEnrichmentsCount !== undefined) {
@@ -100,7 +100,7 @@ export const FieldItemDropdown = ({
 
   const stopEnrichmentMutation = useMutation({
     mutationFn: async () => {
-      return await stopEnrichmentFn({ data: { listId, fieldId, fileId } })
+      return await stopEnrichmentFn({ data: { listId, fieldId, itemId } })
     },
     onSuccess: async (data) => {
       if (data.cleanedUpTasksCount !== undefined) {
