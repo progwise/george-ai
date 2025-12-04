@@ -325,18 +325,36 @@ async function globalSetup() {
 
     // Add a list source (correct table name: AiListSource)
     // This tells the list to pull items from this library
-    // Items are computed at query time by joining AiLibraryFile with AiListSource
-    await client.query(
+    const sourceResult = await client.query(
       `
       INSERT INTO "AiListSource" (
         id, "listId", "libraryId", "createdAt"
       )
       VALUES (gen_random_uuid(), $1, $2, NOW())
+      RETURNING id
     `,
       [listId, libraryId],
     )
+    const sourceId = sourceResult.rows[0].id
     console.log(`  ✅ Added library source to test list`)
-    console.log(`  📝 List items will be computed from library files at query time`)
+
+    // Create AiListItem records for each file (required since PR #920)
+    // Items are now stored in AiListItem table, not computed at query time
+    const filesResult = await client.query(
+      `SELECT id FROM "AiLibraryFile" WHERE "libraryId" = $1`,
+      [libraryId],
+    )
+    for (const file of filesResult.rows) {
+      await client.query(
+        `
+        INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+        ON CONFLICT DO NOTHING
+      `,
+        [listId, sourceId, file.id],
+      )
+    }
+    console.log(`  ✅ Created ${filesResult.rows.length} list items from library files`)
 
     // Add a simple field to the list so tests can reference it
     await client.query(

@@ -15,7 +15,18 @@ async function globalTeardown() {
     await client.connect()
     console.log('  ✅ Database connected')
 
-    // Delete test list sources first (foreign key constraint)
+    // Delete test list items first (foreign key constraint)
+    await client.query(
+      `
+      DELETE FROM "AiListItem"
+      WHERE "listId" IN (
+        SELECT id FROM "AiList"
+        WHERE name LIKE 'E2E Test List%'
+      )
+    `,
+    )
+
+    // Delete test list sources (foreign key constraint)
     await client.query(
       `
       DELETE FROM "AiListSource"
