@@ -743,8 +743,10 @@ export type AiListItem = {
   __typename?: 'AiListItem'
   content?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
+  extraction?: Maybe<AiFileExtraction>
   extractionIndex?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
+  itemName: Scalars['String']['output']
   list: AiList
   listId: Scalars['String']['output']
   metadata?: Maybe<Scalars['String']['output']>
@@ -1131,6 +1133,7 @@ export enum ListFieldContextType {
 export enum ListFieldFileProperty {
   CrawlerUrl = 'crawlerUrl',
   ExtractedAt = 'extractedAt',
+  ItemName = 'itemName',
   LastUpdate = 'lastUpdate',
   MimeType = 'mimeType',
   Name = 'name',
@@ -1809,6 +1812,7 @@ export type Query = {
   aiList: AiList
   aiListEnrichments: EnrichmentQueueResult
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
+  aiListItem?: Maybe<AiListItem>
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
@@ -1951,6 +1955,10 @@ export type QueryAiListEnrichmentsArgs = {
 
 export type QueryAiListEnrichmentsStatisticsArgs = {
   listId: Scalars['String']['input']
+}
+
+export type QueryAiListItemArgs = {
+  id: Scalars['String']['input']
 }
 
 export type QueryAiListItemsArgs = {
@@ -5235,6 +5243,32 @@ export type GetEnrichmentsQuery = {
       list: { __typename?: 'AiList'; id: string; name: string }
     }>
   }
+}
+
+export type GetItemDetailQueryVariables = Exact<{
+  itemId: Scalars['String']['input']
+}>
+
+export type GetItemDetailQuery = {
+  __typename?: 'Query'
+  aiListItem?: {
+    __typename?: 'AiListItem'
+    id: string
+    itemName: string
+    extractionIndex?: number | null
+    content?: string | null
+    metadata?: string | null
+    sourceFileId: string
+    sourceFile: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
+    extraction?: {
+      __typename?: 'AiFileExtraction'
+      id: string
+      extractionInput?: string | null
+      extractionOutput?: string | null
+      error?: string | null
+      itemsCreated: number
+    } | null
+  } | null
 }
 
 export type GetListItemsQueryVariables = Exact<{
@@ -17386,6 +17420,76 @@ export const GetEnrichmentsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEnrichmentsQuery, GetEnrichmentsQueryVariables>
+export const GetItemDetailDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getItemDetail' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiListItem' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceFileId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sourceFile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'extraction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionInput' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionOutput' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'itemsCreated' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetItemDetailQuery, GetItemDetailQueryVariables>
 export const GetListItemsDocument = {
   kind: 'Document',
   definitions: [

@@ -24,6 +24,7 @@ describe('getFieldValue', () => {
       sourceId: 'source1',
       sourceFileId: 'file1',
       extractionIndex: null,
+      itemName: 'test-document.pdf',
       metadata: null,
       sourceFile: {
         id: 'file1',

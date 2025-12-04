@@ -689,8 +689,10 @@ input AiListInput {
 type AiListItem {
   content: String
   createdAt: DateTime!
+  extraction: AiFileExtraction
   extractionIndex: Int
   id: ID!
+  itemName: String!
   list: AiList!
   listId: String!
   metadata: String
@@ -1070,6 +1072,7 @@ enum ListFieldContextType {
 enum ListFieldFileProperty {
   crawlerUrl
   extractedAt
+  itemName
   lastUpdate
   mimeType
   name
@@ -1420,6 +1423,7 @@ type Query {
     take: Int = 20
   ): EnrichmentQueueResult!
   aiListEnrichmentsStatistics(listId: String!): [AiListFieldStatistics!]!
+  aiListItem(id: String!): AiListItem
   aiListItems(
     fieldIds: [String!]!
     filters: [AiListFilterInput!]

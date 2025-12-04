@@ -406,6 +406,7 @@ model AiListItem {
   sourceId        String // Which AiListSource this item came from
   sourceFileId    String // Which file this item was extracted from
   extractionIndex Int? // Row number, column index, or LLM extraction index (null for per_file)
+  itemName        String // Display name for the item (first column for per_row, column name for per_column, etc.)
   metadata        Json? // Extraction metadata (headers, original row data, etc.)
   // Content stored on file system, path calculated by @george-ai/file-management getListItemContentPath()
   list            AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
@@ -417,6 +418,7 @@ model AiListItem {
   @@unique([sourceId, sourceFileId, extractionIndex])
   @@index([listId])
   @@index([sourceFileId])
+  @@index([itemName])
 }
 
 model AiFileExtraction {

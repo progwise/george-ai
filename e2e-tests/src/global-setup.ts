@@ -340,30 +340,32 @@ async function globalSetup() {
 
     // Create AiListItem records for each file (required since PR #920)
     // Items are now stored in AiListItem table, not computed at query time
-    const filesResult = await client.query(`SELECT id FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
+    const filesResult = await client.query(`SELECT id, name FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
     for (const file of filesResult.rows) {
       await client.query(
         `
-        INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "createdAt", "updatedAt")
-        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+        INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "itemName", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
         ON CONFLICT DO NOTHING
       `,
-        [listId, sourceId, file.id],
+        [listId, sourceId, file.id, file.name],
       )
     }
     console.log(`  ✅ Created ${filesResult.rows.length} list items from library files`)
 
-    // Add a simple field to the list so tests can reference it
+    // Add standard file property fields to the list
     await client.query(
       `
       INSERT INTO "AiListField" (
         id, "listId", name, type, "sourceType", "fileProperty", "order", "createdAt"
       )
-      VALUES (gen_random_uuid(), $1, 'Name', 'string', 'file_property', 'name', 0, NOW())
+      VALUES
+        (gen_random_uuid(), $1, 'Item Name', 'string', 'file_property', 'itemName', 0, NOW()),
+        (gen_random_uuid(), $1, 'Filename', 'string', 'file_property', 'name', 1, NOW())
     `,
       [listId],
     )
-    console.log(`  ✅ Added initial field (Name) to test list for field references`)
+    console.log(`  ✅ Added standard fields (Item Name, Filename) to test list`)
 
     console.log('✅ E2E Global Setup completed')
   } catch (error) {

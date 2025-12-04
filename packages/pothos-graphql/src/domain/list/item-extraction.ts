@@ -103,52 +103,101 @@ function formatRowAsMarkdown(headers: string[], values: string[]): string {
 }
 
 /**
+ * Find contiguous table blocks in markdown.
+ * A valid table must have:
+ * 1. A header row with |
+ * 2. A separator row with |---| pattern
+ * 3. At least one data row with |
+ */
+function findTableBlocks(markdown: string): string[][] {
+  const lines = markdown.split('\n')
+  const tableBlocks: string[][] = []
+  let currentBlock: string[] = []
+  let foundSeparator = false
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    const hasTable = trimmed.includes('|')
+
+    if (hasTable) {
+      currentBlock.push(trimmed)
+      if (isSeparatorRow(trimmed)) {
+        foundSeparator = true
+      }
+    } else if (currentBlock.length > 0) {
+      // Non-table line encountered, check if we have a valid table
+      if (foundSeparator && currentBlock.length >= 3) {
+        tableBlocks.push([...currentBlock])
+      }
+      currentBlock = []
+      foundSeparator = false
+    }
+  }
+
+  // Check final block
+  if (foundSeparator && currentBlock.length >= 3) {
+    tableBlocks.push(currentBlock)
+  }
+
+  return tableBlocks
+}
+
+/**
  * Extract rows from a markdown table.
+ * Requires proper markdown table format:
+ * | Header1 | Header2 |
+ * |---------|---------|
+ * | Value1  | Value2  |
  */
 function extractRowsFromMarkdownTable(markdown: string): ExtractedRow[] {
   if (!markdown || typeof markdown !== 'string') {
     return []
   }
 
-  const lines = markdown.split('\n').filter((line) => line.trim().length > 0)
-  const tableLines = lines.filter((line) => line.includes('|'))
-
-  if (tableLines.length < 2) {
+  const tableBlocks = findTableBlocks(markdown)
+  if (tableBlocks.length === 0) {
     return []
   }
 
-  const headers = parseTableRow(tableLines[0])
-  if (headers.length === 0) {
-    return []
-  }
+  // Process all table blocks and combine rows
+  const allRows: ExtractedRow[] = []
 
-  let dataStartIndex = 1
-  if (tableLines.length > 1 && isSeparatorRow(tableLines[1])) {
-    dataStartIndex = 2
-  }
+  for (const tableLines of tableBlocks) {
+    // First line is headers
+    const headers = parseTableRow(tableLines[0])
+    if (headers.length === 0) continue
 
-  const rows: ExtractedRow[] = []
-
-  for (let i = dataStartIndex; i < tableLines.length; i++) {
-    const line = tableLines[i]
-    if (isSeparatorRow(line)) continue
-
-    const values = parseTableRow(line)
-    const data: Record<string, string> = {}
-    for (let j = 0; j < headers.length; j++) {
-      data[headers[j]] = values[j] || ''
+    // Find separator row index
+    let dataStartIndex = 1
+    for (let i = 1; i < tableLines.length; i++) {
+      if (isSeparatorRow(tableLines[i])) {
+        dataStartIndex = i + 1
+        break
+      }
     }
 
-    rows.push({
-      rowIndex: rows.length,
-      headers,
-      values,
-      data,
-      markdown: formatRowAsMarkdown(headers, values),
-    })
+    // Extract data rows
+    for (let i = dataStartIndex; i < tableLines.length; i++) {
+      const line = tableLines[i]
+      if (isSeparatorRow(line)) continue
+
+      const values = parseTableRow(line)
+      const data: Record<string, string> = {}
+      for (let j = 0; j < headers.length; j++) {
+        data[headers[j]] = values[j] || ''
+      }
+
+      allRows.push({
+        rowIndex: allRows.length,
+        headers,
+        values,
+        data,
+        markdown: formatRowAsMarkdown(headers, values),
+      })
+    }
   }
 
-  return rows
+  return allRows
 }
 
 /**
@@ -173,60 +222,66 @@ function formatColumnAsMarkdown(columnName: string, rowTitles: string[], values:
  * First row = column headers (become item names)
  * First column = row titles (become labels for each value)
  * Each column (except first) becomes one item.
+ * Requires proper markdown table format with separator row.
  */
 function extractColumnsFromMarkdownTable(markdown: string): ExtractedColumn[] {
   if (!markdown || typeof markdown !== 'string') {
     return []
   }
 
-  const lines = markdown.split('\n').filter((line) => line.trim().length > 0)
-  const tableLines = lines.filter((line) => line.includes('|'))
-
-  if (tableLines.length < 2) {
+  const tableBlocks = findTableBlocks(markdown)
+  if (tableBlocks.length === 0) {
     return []
   }
 
-  const headers = parseTableRow(tableLines[0])
-  if (headers.length < 2) {
-    // Need at least 2 columns (first for row titles, rest for items)
-    return []
+  // Process all table blocks and combine columns
+  const allColumns: ExtractedColumn[] = []
+
+  for (const tableLines of tableBlocks) {
+    const headers = parseTableRow(tableLines[0])
+    if (headers.length < 2) {
+      // Need at least 2 columns (first for row titles, rest for items)
+      continue
+    }
+
+    // Find separator row index
+    let dataStartIndex = 1
+    for (let i = 1; i < tableLines.length; i++) {
+      if (isSeparatorRow(tableLines[i])) {
+        dataStartIndex = i + 1
+        break
+      }
+    }
+
+    // Collect all row data
+    const rowTitles: string[] = []
+    const rowData: string[][] = []
+
+    for (let i = dataStartIndex; i < tableLines.length; i++) {
+      const line = tableLines[i]
+      if (isSeparatorRow(line)) continue
+
+      const values = parseTableRow(line)
+      rowTitles.push(values[0] || `Row ${rowData.length + 1}`)
+      rowData.push(values)
+    }
+
+    // Create columns (skip first column which contains row titles)
+    for (let colIndex = 1; colIndex < headers.length; colIndex++) {
+      const columnName = headers[colIndex]
+      const values = rowData.map((row) => row[colIndex] || '')
+
+      allColumns.push({
+        columnIndex: allColumns.length,
+        columnName,
+        rowTitles,
+        values,
+        markdown: formatColumnAsMarkdown(columnName, rowTitles, values),
+      })
+    }
   }
 
-  let dataStartIndex = 1
-  if (tableLines.length > 1 && isSeparatorRow(tableLines[1])) {
-    dataStartIndex = 2
-  }
-
-  // Collect all row data
-  const rowTitles: string[] = []
-  const rowData: string[][] = []
-
-  for (let i = dataStartIndex; i < tableLines.length; i++) {
-    const line = tableLines[i]
-    if (isSeparatorRow(line)) continue
-
-    const values = parseTableRow(line)
-    rowTitles.push(values[0] || `Row ${rowData.length + 1}`)
-    rowData.push(values)
-  }
-
-  // Create columns (skip first column which contains row titles)
-  const columns: ExtractedColumn[] = []
-
-  for (let colIndex = 1; colIndex < headers.length; colIndex++) {
-    const columnName = headers[colIndex]
-    const values = rowData.map((row) => row[colIndex] || '')
-
-    columns.push({
-      columnIndex: colIndex - 1, // 0-based index excluding the title column
-      columnName,
-      rowTitles,
-      values,
-      markdown: formatColumnAsMarkdown(columnName, rowTitles, values),
-    })
-  }
-
-  return columns
+  return allColumns
 }
 
 /**
@@ -480,7 +535,7 @@ export async function createListItemsForFile({
   // === per_file strategy ===
   if (extractionStrategy === 'per_file') {
     await prisma.aiListItem.create({
-      data: { listId, sourceId, sourceFileId: fileId },
+      data: { listId, sourceId, sourceFileId: fileId, itemName: fileName },
     })
     await saveFileExtraction({
       sourceId,
@@ -495,7 +550,13 @@ export async function createListItemsForFile({
   // For other strategies, we need markdown content
   if (!markdown) {
     await prisma.aiListItem.create({
-      data: { listId, sourceId, sourceFileId: fileId, metadata: { fallback: 'no_markdown_content' } },
+      data: {
+        listId,
+        sourceId,
+        sourceFileId: fileId,
+        itemName: fileName,
+        metadata: { fallback: 'no_markdown_content' },
+      },
     })
     await saveFileExtraction({
       sourceId,
@@ -517,7 +578,7 @@ export async function createListItemsForFile({
 
     if (rows.length === 0) {
       await prisma.aiListItem.create({
-        data: { listId, sourceId, sourceFileId: fileId, metadata: { fallback: 'no_table_rows' } },
+        data: { listId, sourceId, sourceFileId: fileId, itemName: fileName, metadata: { fallback: 'no_table_rows' } },
       })
       await saveFileExtraction({
         sourceId,
@@ -531,17 +592,19 @@ export async function createListItemsForFile({
 
     const itemNames: string[] = []
     for (const row of rows) {
+      const itemName = row.values[0] || `Row ${row.rowIndex + 1}`
       const item = await prisma.aiListItem.create({
         data: {
           listId,
           sourceId,
           sourceFileId: fileId,
           extractionIndex: row.rowIndex,
+          itemName,
           metadata: { headers: row.headers, values: row.values },
         },
       })
       await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: row.markdown })
-      itemNames.push(row.values[0] || `Row ${row.rowIndex + 1}`)
+      itemNames.push(itemName)
     }
 
     await saveFileExtraction({
@@ -560,7 +623,13 @@ export async function createListItemsForFile({
 
     if (columns.length === 0) {
       await prisma.aiListItem.create({
-        data: { listId, sourceId, sourceFileId: fileId, metadata: { fallback: 'no_table_columns' } },
+        data: {
+          listId,
+          sourceId,
+          sourceFileId: fileId,
+          itemName: fileName,
+          metadata: { fallback: 'no_table_columns' },
+        },
       })
       await saveFileExtraction({
         sourceId,
@@ -578,17 +647,19 @@ export async function createListItemsForFile({
 
     const itemNames: string[] = []
     for (const column of columns) {
+      const itemName = column.columnName
       const item = await prisma.aiListItem.create({
         data: {
           listId,
           sourceId,
           sourceFileId: fileId,
           extractionIndex: column.columnIndex,
+          itemName,
           metadata: { columnName: column.columnName, rowTitles: column.rowTitles, values: column.values },
         },
       })
       await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: column.markdown })
-      itemNames.push(column.columnName)
+      itemNames.push(itemName)
     }
 
     await saveFileExtraction({
@@ -673,17 +744,19 @@ export async function createListItemsForFile({
 
       const itemNames: string[] = []
       for (const llmItem of llmResult.items) {
+        const itemName = llmItem.itemName
         const item = await prisma.aiListItem.create({
           data: {
             listId,
             sourceId,
             sourceFileId: fileId,
             extractionIndex: llmItem.itemIndex,
+            itemName,
             metadata: { itemName: llmItem.itemName },
           },
         })
         await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: llmItem.content })
-        itemNames.push(llmItem.itemName)
+        itemNames.push(itemName)
       }
 
       await saveFileExtraction({
@@ -715,7 +788,7 @@ export async function createListItemsForFile({
 
   // Unknown strategy, default to per_file
   await prisma.aiListItem.create({
-    data: { listId, sourceId, sourceFileId: fileId },
+    data: { listId, sourceId, sourceFileId: fileId, itemName: fileName },
   })
   await saveFileExtraction({
     sourceId,

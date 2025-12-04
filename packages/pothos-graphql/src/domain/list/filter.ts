@@ -127,6 +127,9 @@ const getItemPropertyFilterWhere = (
         },
       }
     }
+    case 'itemName':
+      // itemName is on AiListItem directly, not on sourceFile
+      return { itemName: getFieldPropertyFilterExpression(filter) }
     default:
       throw new Error(`Unsupported file property filter: ${field.fileProperty}`)
   }

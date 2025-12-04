@@ -19,6 +19,7 @@ import { EnrichmentSidePanel } from './enrichment-side-panel'
 import { FieldHeaderDropdown } from './field-header-dropdown'
 import { FieldItemDropdown } from './field-item-dropdown'
 import { FieldModal } from './field-modal'
+import { ItemDetailSidePanel } from './item-detail-side-panel'
 import { useFieldSettings } from './use-field-settings'
 import { useListActions } from './use-list-actions'
 import { useListSettings } from './use-list-settings'
@@ -103,11 +104,18 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     fieldValue: EnrichmentSidePanel_FieldValueFragment
     origin: EnrichmentSidePanel_OriginFragment
   } | null>(null)
+  const [itemDetailData, setItemDetailData] = useState<{
+    itemId: string
+    itemName: string
+    fileName: string
+    libraryId: string
+    fileId: string
+  } | null>(null)
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
     (
-      fileId: string,
+      itemId: string,
       fieldId: string,
     ): {
       value: string | null
@@ -117,7 +125,9 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     } => {
       if (!listItems) return { value: null, error: null, failedEnrichmentValue: null, queueStatus: null }
 
-      const items = listItems.items.find((item) => item.origin.id === fileId)
+      // Use item.id (list item ID), not origin.id (file ID) - important for per_row extraction
+      // where multiple items share the same source file
+      const items = listItems.items.find((item) => item.id === itemId)
       if (!items) return { value: null, error: null, failedEnrichmentValue: null, queueStatus: null }
 
       const fieldValue = items.values.find((fv: { fieldId: string }) => fv.fieldId === fieldId)
@@ -269,7 +279,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
               {listItems.items.map((item) =>
                 visibleFields
                   .map((field) => {
-                    const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.origin.id, field.id)
+                    const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.id, field.id)
                     const displayValue = value?.toString() || '-'
                     const fieldValueData = item.values.find((v) => v.fieldId === field.id)
 
@@ -398,6 +408,30 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                           >
                             {displayValue}
                           </Link>
+                        ) : field.fileProperty === 'itemName' ? (
+                          <div className="group flex items-center gap-1">
+                            <span className="flex-1 overflow-hidden text-nowrap" title={displayValue}>
+                              {displayValue}
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                              aria-label={t('lists.itemDetail.viewDetails')}
+                              title={t('lists.itemDetail.viewDetails')}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setItemDetailData({
+                                  itemId: item.id,
+                                  itemName: displayValue,
+                                  fileName: item.origin.name,
+                                  libraryId: item.origin.libraryId,
+                                  fileId: item.origin.id,
+                                })
+                              }}
+                            >
+                              <EyeIcon className="size-4" />
+                            </button>
+                          </div>
                         ) : (
                           <div
                             id={`${item.origin.id}-${field.id}`}
@@ -440,6 +474,19 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
           listId={list.id}
           fieldValue={sidePanelData.fieldValue}
           origin={sidePanelData.origin}
+        />
+      )}
+
+      {/* Item Detail Side Panel */}
+      {itemDetailData && (
+        <ItemDetailSidePanel
+          isOpen={!!itemDetailData}
+          onClose={() => setItemDetailData(null)}
+          itemId={itemDetailData.itemId}
+          itemName={itemDetailData.itemName}
+          fileName={itemDetailData.fileName}
+          libraryId={itemDetailData.libraryId}
+          fileId={itemDetailData.fileId}
         />
       )}
     </div>

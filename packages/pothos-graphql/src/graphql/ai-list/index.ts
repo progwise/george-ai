@@ -74,6 +74,7 @@ builder.prismaObject('AiListItem', {
     sourceId: t.exposeString('sourceId', { nullable: false }),
     sourceFileId: t.exposeString('sourceFileId', { nullable: false }),
     extractionIndex: t.exposeInt('extractionIndex'),
+    itemName: t.exposeString('itemName', { nullable: false }),
     metadata: t.string({
       nullable: true,
       resolve: (item) => (item.metadata ? JSON.stringify(item.metadata) : null),
@@ -113,6 +114,22 @@ builder.prismaObject('AiListItem', {
           libraryId: sourceFile.libraryId,
           listId: item.listId,
           itemId: item.id,
+        })
+      },
+    }),
+    /**
+     * The extraction record that created this item (contains extractionInput/extractionOutput for debugging)
+     */
+    extraction: t.prismaField({
+      type: 'AiFileExtraction',
+      nullable: true,
+      resolve: async (query, item) => {
+        return prisma.aiFileExtraction.findFirst({
+          ...query,
+          where: {
+            sourceId: item.sourceId,
+            fileId: item.sourceFileId,
+          },
         })
       },
     }),

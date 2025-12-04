@@ -138,6 +138,8 @@ const buildFilterCondition = (
  */
 const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string; column: string } => {
   switch (fileProperty) {
+    case 'itemName':
+      return { table: 'AiListItem', column: 'itemName' }
     case 'name':
       return { table: 'AiLibraryFile', column: 'name' }
     case 'originUri':

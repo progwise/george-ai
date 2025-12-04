@@ -1,5 +1,5 @@
 import { requireWorkspaceAdmin } from '../../domain/workspace'
-import { canAccessListOrThrow, createListItemsForSource } from './../../domain'
+import { canAccessListOrThrow, createListItemsForSource, refreshListItemsForSource } from './../../domain'
 import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
@@ -131,6 +131,7 @@ builder.mutationField('addListSource', (t) =>
 
       // Auto-create file property fields for this list if they don't exist
       const filePropertyFields = [
+        { property: 'itemName', name: 'Item Name', type: 'string' },
         { property: 'source', name: 'Source', type: 'string' },
         { property: 'name', name: 'Filename', type: 'string' },
         { property: 'originUri', name: 'Origin URI', type: 'string' },
@@ -252,7 +253,8 @@ builder.mutationField('updateListSourceExtractionStrategy', (t) =>
       })
 
       // Re-create list items for this source based on new extraction strategy
-      await createListItemsForSource(sourceId)
+      // Use refresh to force delete and recreate all items
+      await refreshListItemsForSource(sourceId)
 
       return updatedSource
     },

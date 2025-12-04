@@ -11,6 +11,7 @@ export const LIST_FIELD_SOURCE_TYPES = ['file_property', 'llm_computed'] as cons
 export type FieldSourceType = (typeof LIST_FIELD_SOURCE_TYPES)[number]
 
 export const LIST_FIELD_FILE_PROPERTIES = [
+  'itemName',
   'name',
   'originUri',
   'crawlerUrl',
@@ -93,6 +94,9 @@ export function getFieldValue(
   if (field.sourceType === 'file_property' && field.fileProperty) {
     let value: string | null = null
     switch (field.fileProperty) {
+      case 'itemName':
+        value = item.itemName
+        break
       case 'name':
         value = file.name
         break
