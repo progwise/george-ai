@@ -280,20 +280,41 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
         itemIds = matchingItems.map((item) => item.id)
       }
 
-      const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
-        where: {
-          AND: [
-            { status: 'pending' },
-            { listId },
-            fieldId ? { fieldId } : {},
-            itemId ? { itemId } : {},
-            itemIds ? { itemId: { in: itemIds } } : {},
-          ],
-        },
-      })
+      // Batch delete operations to avoid PostgreSQL bind variable limit when itemIds is large
+      let totalDeleted = 0
+      if (itemIds && itemIds.length > BATCH_SIZE) {
+        for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
+          const batch = itemIds.slice(i, i + BATCH_SIZE)
+          const result = await prisma.aiEnrichmentTask.deleteMany({
+            where: {
+              AND: [
+                { status: 'pending' },
+                { listId },
+                fieldId ? { fieldId } : {},
+                itemId ? { itemId } : {},
+                { itemId: { in: batch } },
+              ],
+            },
+          })
+          totalDeleted += result.count
+        }
+      } else {
+        const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
+          where: {
+            AND: [
+              { status: 'pending' },
+              { listId },
+              fieldId ? { fieldId } : {},
+              itemId ? { itemId } : {},
+              itemIds ? { itemId: { in: itemIds } } : {},
+            ],
+          },
+        })
+        totalDeleted = deletedItems.count
+      }
 
       return {
-        cleanedUpTasksCount: deletedItems.count,
+        cleanedUpTasksCount: totalDeleted,
         createdTasksCount: 0,
       }
     },
@@ -338,36 +359,78 @@ builder.mutationField('clearListEnrichments', (t) =>
         itemIds = matchingItems.map((item) => item.id)
       }
 
+      // Batch delete operations to avoid PostgreSQL bind variable limit when itemIds is large
       const transactionResult = await prisma.$transaction(async (tx) => {
-        const deletedCacheItems = await tx.aiListItemCache.deleteMany({
-          where: {
-            AND: [
-              {
-                field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+        let totalDeletedCache = 0
+        let totalDeletedTasks = 0
+
+        if (itemIds && itemIds.length > BATCH_SIZE) {
+          // Process in batches
+          for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
+            const batch = itemIds.slice(i, i + BATCH_SIZE)
+
+            const deletedCacheItems = await tx.aiListItemCache.deleteMany({
+              where: {
+                AND: [
+                  {
+                    field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+                  },
+                  itemId ? { itemId } : {},
+                  { itemId: { in: batch } },
+                ],
               },
-              itemId ? { itemId } : {},
-              itemIds ? { itemId: { in: itemIds } } : {},
-            ],
-          },
-        })
-        const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
-          where: {
-            AND: [
-              itemId ? { itemId } : {},
-              fieldId ? { fieldId } : {},
-              { listId },
-              { status: { in: ['pending', 'failed', 'canceled'] } },
-              itemIds ? { itemId: { in: itemIds } } : {},
-            ],
-          },
-        })
-        return { deletedCacheItems, deletedEnrichmentTasks }
+            })
+            totalDeletedCache += deletedCacheItems.count
+
+            const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
+              where: {
+                AND: [
+                  itemId ? { itemId } : {},
+                  fieldId ? { fieldId } : {},
+                  { listId },
+                  { status: { in: ['pending', 'failed', 'canceled'] } },
+                  { itemId: { in: batch } },
+                ],
+              },
+            })
+            totalDeletedTasks += deletedEnrichmentTasks.count
+          }
+        } else {
+          // Small array or no itemIds filter - execute directly
+          const deletedCacheItems = await tx.aiListItemCache.deleteMany({
+            where: {
+              AND: [
+                {
+                  field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+                },
+                itemId ? { itemId } : {},
+                itemIds ? { itemId: { in: itemIds } } : {},
+              ],
+            },
+          })
+          totalDeletedCache = deletedCacheItems.count
+
+          const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
+            where: {
+              AND: [
+                itemId ? { itemId } : {},
+                fieldId ? { fieldId } : {},
+                { listId },
+                { status: { in: ['pending', 'failed', 'canceled'] } },
+                itemIds ? { itemId: { in: itemIds } } : {},
+              ],
+            },
+          })
+          totalDeletedTasks = deletedEnrichmentTasks.count
+        }
+
+        return { deletedCacheItems: totalDeletedCache, deletedEnrichmentTasks: totalDeletedTasks }
       })
 
       return {
-        cleanedUpTasksCount: transactionResult.deletedEnrichmentTasks.count,
+        cleanedUpTasksCount: transactionResult.deletedEnrichmentTasks,
         createdTasksCount: 0,
-        cleanedUpEnrichmentsCount: transactionResult.deletedCacheItems.count,
+        cleanedUpEnrichmentsCount: transactionResult.deletedCacheItems,
       }
     },
   }),

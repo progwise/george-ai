@@ -919,6 +919,7 @@ export default {
       warningCancel: 'Cancel',
       noEnrichmentsToDelete: 'No enrichments to delete',
       enrichmentsCount: '{count} enriched values',
+      enrichmentsWillBeDeleted: '{count} enriched values will be deleted if you save.',
     },
     files: {
       title: 'Files',

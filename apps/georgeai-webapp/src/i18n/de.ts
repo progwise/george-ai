@@ -933,6 +933,7 @@ export default {
       warningCancel: 'Abbrechen',
       noEnrichmentsToDelete: 'Keine Anreicherungen zum Löschen',
       enrichmentsCount: '{count} angereicherte Werte',
+      enrichmentsWillBeDeleted: '{count} angereicherte Werte werden gelöscht, wenn Sie speichern.',
     },
     files: {
       title: 'Dateien',

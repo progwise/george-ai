@@ -215,9 +215,7 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                 {hasEnrichments && (
                   <div className="bg-warning/10 text-warning-content flex items-start gap-2 rounded-lg p-3 text-sm">
                     <WarnIcon className="mt-0.5 size-4 shrink-0" />
-                    <span>
-                      {t('lists.sources.enrichmentsCount', { count: totalEnrichments })} will be deleted if you save.
-                    </span>
+                    <span>{t('lists.sources.enrichmentsWillBeDeleted', { count: totalEnrichments })}</span>
                   </div>
                 )}
               </div>
