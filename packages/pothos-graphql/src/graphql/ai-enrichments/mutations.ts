@@ -210,16 +210,27 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         }
       }
 
-      // First, clean up any existing queue items for this field to allow fresh start
-      // Then create new tasks in batches to avoid PostgreSQL bind variable limit
+      // Clean up existing queue items only for items that will get new tasks
+      // This preserves metadata for items with cached values when onlyMissingValues is true
 
       const transactionResult = await prisma.$transaction(async (tx) => {
-        const cleanupTasksResult = await tx.aiEnrichmentTask.deleteMany({
-          where: {
-            listId,
-            fieldId,
-          },
-        })
+        // Only delete tasks for items that will be recreated
+        const itemIdsToProcess = items.map((item) => item.id)
+        let cleanupCount = 0
+
+        // Batch the delete to avoid PostgreSQL bind variable limit
+        for (let i = 0; i < itemIdsToProcess.length; i += BATCH_SIZE) {
+          const batch = itemIdsToProcess.slice(i, i + BATCH_SIZE)
+          const result = await tx.aiEnrichmentTask.deleteMany({
+            where: {
+              listId,
+              fieldId,
+              itemId: { in: batch },
+            },
+          })
+          cleanupCount += result.count
+        }
+        const cleanupTasksResult = { count: cleanupCount }
 
         // Batch the createMany to avoid exceeding PostgreSQL's 32,767 bind variable limit
         let totalCreated = 0

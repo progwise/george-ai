@@ -471,6 +471,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
       {/* Enrichment Side Panel */}
       {sidePanelData && (
         <EnrichmentSidePanel
+          key={`${sidePanelData.itemId}-${sidePanelData.fieldValue.fieldId}`}
           isOpen={!!sidePanelData}
           onClose={() => setSidePanelData(null)}
           listId={list.id}
@@ -483,6 +484,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
       {/* Item Detail Side Panel */}
       {itemDetailData && (
         <ItemDetailSidePanel
+          key={itemDetailData.itemId}
           isOpen={!!itemDetailData}
           onClose={() => setItemDetailData(null)}
           itemId={itemDetailData.itemId}
