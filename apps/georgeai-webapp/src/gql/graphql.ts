@@ -1400,6 +1400,7 @@ export type MutationClearFailedTasksArgs = {
 
 export type MutationClearListEnrichmentsArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
+  filters?: InputMaybe<Array<AiListFilterInput>>
   itemId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
 }
@@ -1522,6 +1523,7 @@ export type MutationDeleteMessageArgs = {
 
 export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
+  filters?: InputMaybe<Array<AiListFilterInput>>
   itemId?: InputMaybe<Scalars['String']['input']>
   listId: Scalars['String']['input']
 }
@@ -5464,6 +5466,7 @@ export type ClearEnrichmentsMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
   itemId?: InputMaybe<Scalars['String']['input']>
+  filters?: InputMaybe<Array<AiListFilterInput> | AiListFilterInput>
 }>
 
 export type ClearEnrichmentsMutation = {
@@ -5611,6 +5614,7 @@ export type RemoveFromEnrichmentQueueMutation = {
 export type StopListEnrichmentMutationVariables = Exact<{
   listId: Scalars['String']['input']
   fieldId: Scalars['String']['input']
+  filters?: InputMaybe<Array<AiListFilterInput> | AiListFilterInput>
 }>
 
 export type StopListEnrichmentMutation = {
@@ -18272,6 +18276,17 @@ export const ClearEnrichmentsDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilterInput' } },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -18294,6 +18309,11 @@ export const ClearEnrichmentsDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'itemId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
               },
             ],
             selectionSet: {
@@ -18904,6 +18924,17 @@ export const StopListEnrichmentDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilterInput' } },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -18921,6 +18952,11 @@ export const StopListEnrichmentDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fieldId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fieldId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filters' } },
               },
             ],
             selectionSet: {

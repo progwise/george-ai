@@ -1204,6 +1204,7 @@ type Mutation {
     Optional Field ID to only clean enrichments for a specific field
     """
     fieldId: String
+    filters: [AiListFilterInput!]
     """
     Optional Item ID to only clean enrichments for a specific item
     """
@@ -1263,6 +1264,7 @@ type Mutation {
     Field ID to stop enrichment for
     """
     fieldId: String
+    filters: [AiListFilterInput!]
     """
     Item ID to stop enrichment for
     """

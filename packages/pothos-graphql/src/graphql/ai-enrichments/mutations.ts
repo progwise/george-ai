@@ -260,13 +260,35 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
       listId: t.arg.string({ required: true, description: 'List ID to stop enrichment for' }),
       fieldId: t.arg.string({ required: false, description: 'Field ID to stop enrichment for' }),
       itemId: t.arg.string({ required: false, description: 'Item ID to stop enrichment for' }),
+      filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
+
+      const filterConditions = await getListFiltersWhere(filters || [])
+
+      // If filters are provided, we need to get the item IDs that match the filters first
+      let itemIds: string[] | undefined
+      if (filters && filters.length > 0) {
+        const matchingItems = await prisma.aiListItem.findMany({
+          where: {
+            listId,
+            ...filterConditions,
+          },
+          select: { id: true },
+        })
+        itemIds = matchingItems.map((item) => item.id)
+      }
 
       const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
         where: {
-          AND: [{ status: 'pending' }, { listId }, fieldId ? { fieldId } : {}, itemId ? { itemId } : {}],
+          AND: [
+            { status: 'pending' },
+            { listId },
+            fieldId ? { fieldId } : {},
+            itemId ? { itemId } : {},
+            itemIds ? { itemId: { in: itemIds } } : {},
+          ],
         },
       })
 
@@ -296,9 +318,25 @@ builder.mutationField('clearListEnrichments', (t) =>
         required: false,
         description: 'Optional Item ID to only clean enrichments for a specific item',
       }),
+      filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
+
+      const filterConditions = await getListFiltersWhere(filters || [])
+
+      // If filters are provided, we need to get the item IDs that match the filters first
+      let itemIds: string[] | undefined
+      if (filters && filters.length > 0) {
+        const matchingItems = await prisma.aiListItem.findMany({
+          where: {
+            listId,
+            ...filterConditions,
+          },
+          select: { id: true },
+        })
+        itemIds = matchingItems.map((item) => item.id)
+      }
 
       const transactionResult = await prisma.$transaction(async (tx) => {
         const deletedCacheItems = await tx.aiListItemCache.deleteMany({
@@ -308,6 +346,7 @@ builder.mutationField('clearListEnrichments', (t) =>
                 field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
               },
               itemId ? { itemId } : {},
+              itemIds ? { itemId: { in: itemIds } } : {},
             ],
           },
         })
@@ -318,6 +357,7 @@ builder.mutationField('clearListEnrichments', (t) =>
               fieldId ? { fieldId } : {},
               { listId },
               { status: { in: ['pending', 'failed', 'canceled'] } },
+              itemIds ? { itemId: { in: itemIds } } : {},
             ],
           },
         })
