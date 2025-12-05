@@ -7,7 +7,7 @@ import { builder } from '../builder'
 
 const EnrichmentQueueResult = builder
   .objectRef<{
-    userId: string
+    workspaceId: string
     listId?: string | null
     itemId?: string | null
     fieldId?: string | null
@@ -26,8 +26,8 @@ const EnrichmentQueueResult = builder
       enrichments: t.prismaField({
         type: ['AiEnrichmentTask'],
         nullable: { list: false, items: false },
-        resolve: async (query, { userId, listId, itemId, fieldId, take, skip, status }) => {
-          const listWhere = getCanAccessListWhere(userId)
+        resolve: async (query, { workspaceId, listId, itemId, fieldId, take, skip, status }) => {
+          const listWhere = getCanAccessListWhere(workspaceId)
 
           return prisma.aiEnrichmentTask.findMany({
             ...query,
@@ -48,8 +48,8 @@ const EnrichmentQueueResult = builder
       }),
       totalCount: t.int({
         nullable: false,
-        resolve: async ({ userId, listId, itemId, fieldId, status }) => {
-          const listWhere = getCanAccessListWhere(userId)
+        resolve: async ({ workspaceId, listId, itemId, fieldId, status }) => {
+          const listWhere = getCanAccessListWhere(workspaceId)
 
           return prisma.aiEnrichmentTask.count({
             where: {
@@ -79,8 +79,8 @@ const EnrichmentQueueResult = builder
             }),
         ],
         nullable: false,
-        resolve: async ({ userId, listId, itemId, fieldId }) => {
-          const listWhere = getCanAccessListWhere(userId)
+        resolve: async ({ workspaceId, listId, itemId, fieldId }) => {
+          const listWhere = getCanAccessListWhere(workspaceId)
 
           const counts = await prisma.aiEnrichmentTask.groupBy({
             by: ['status'],
@@ -120,7 +120,7 @@ builder.queryField('aiListEnrichments', (t) =>
     },
     resolve: async (_source, { listId, itemId, fieldId, take, skip, status }, context) => {
       return {
-        userId: context.session.user.id,
+        workspaceId: context.workspaceId,
         listId,
         itemId,
         fieldId,
