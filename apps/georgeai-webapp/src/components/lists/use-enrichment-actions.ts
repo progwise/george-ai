@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getEnrichmentsQueryOptions, getListQueryOptions } from './queries'
+import { getListQueryOptions } from './queries'
 import { clearEnrichmentsFn, startEnrichmentsFn, stopEnrichmentsFn } from './server-functions'
 import { FieldFilter } from './use-list-settings'
 
@@ -45,8 +45,8 @@ export const useEnrichmentActions = (listId: string) => {
     onSettled: async () => {
       await Promise.all([
         queryClient.invalidateQueries(getListQueryOptions(listId)),
-        queryClient.invalidateQueries({ queryKey: ['AiListFiles'] }),
-        queryClient.invalidateQueries(getEnrichmentsQueryOptions({ listId, take: 20, skip: 0 })),
+        queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] }),
+        queryClient.invalidateQueries({ queryKey: ['getEnrichments'] }),
       ])
     },
   })
@@ -68,8 +68,8 @@ export const useEnrichmentActions = (listId: string) => {
     onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries(getListQueryOptions(listId)),
-        queryClient.invalidateQueries({ queryKey: ['AiListFiles'] }),
-        queryClient.invalidateQueries(getEnrichmentsQueryOptions({ listId, take: 20, skip: 0 })),
+        queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] }),
+        queryClient.invalidateQueries({ queryKey: ['getEnrichments'] }),
       ]),
   })
 
@@ -94,8 +94,8 @@ export const useEnrichmentActions = (listId: string) => {
     onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries(getListQueryOptions(listId)),
-        queryClient.invalidateQueries({ queryKey: ['AiListFiles'] }),
-        queryClient.invalidateQueries(getEnrichmentsQueryOptions({ listId, take: 20, skip: 0 })),
+        queryClient.invalidateQueries({ queryKey: ['AiListFilesWithValues'] }),
+        queryClient.invalidateQueries({ queryKey: ['getEnrichments'] }),
       ]),
   })
 
