@@ -22,8 +22,8 @@ builder.queryField('aiContentQueries', (t) =>
       libraryId: t.arg.string({ required: false }),
     },
     resolve: async (_root, args, context) => {
-      const listAccessWhere = getCanAccessListWhere(context.session.user.id)
-      const libraryAccessWhere = getAccessLibraryWhere(context.session.user.id)
+      const listAccessWhere = getCanAccessListWhere(context.workspaceId)
+      const libraryAccessWhere = getAccessLibraryWhere(context.workspaceId)
 
       const fieldContextItems = await prisma.aiListFieldContext.findMany({
         select: {

@@ -1,9 +1,14 @@
+import { Prisma } from '../../../prisma/generated/client'
 import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
+
+// PostgreSQL has a limit of 32,767 bind variables in prepared statements
+// Use a safe batch size that accounts for complex queries with multiple binds per item
+const BATCH_SIZE = 5000
 
 const EnrichmentQueueTasksMutationResult = builder
   .objectRef<{
@@ -89,69 +94,87 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       const filterConditions = await getListFiltersWhere(filters || [])
 
-      // Query items instead of files
-      const items = await prisma.aiListItem.findMany({
-        include: {
-          cache: { where: { fieldId: { in: allFieldIds } } },
-          sourceFile: {
-            include: {
-              crawledByCrawler: { select: { id: true, uri: true } },
-              library: {
-                select: {
-                  id: true,
-                  name: true,
-                  embeddingModel: { select: { id: true, provider: true, name: true } },
+      // Build the where clause for item query
+      const itemWhereClause: Prisma.AiListItemWhereInput = {
+        listId,
+        ...filterConditions,
+        ...(itemId ? { id: itemId } : {}),
+        sourceFile: { archivedAt: null },
+        ...(onlyMissingValues
+          ? {
+              OR: [
+                // Items with no cache entry for this field at all
+                {
+                  cache: {
+                    none: { fieldId },
+                  },
                 },
+                // Items with cache entry but no valid value (all value fields are null)
+                {
+                  cache: {
+                    some: {
+                      AND: [
+                        { fieldId },
+                        { valueString: null },
+                        { valueBoolean: null },
+                        { valueDate: null },
+                        { valueNumber: null },
+                      ],
+                    },
+                  },
+                },
+                // Items where enrichment returned a failure term (stored in failedEnrichmentValue)
+                {
+                  cache: {
+                    some: {
+                      AND: [{ fieldId }, { failedEnrichmentValue: { not: null } }],
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+      }
+
+      const itemInclude = {
+        cache: { where: { fieldId: { in: allFieldIds } } },
+        sourceFile: {
+          include: {
+            crawledByCrawler: { select: { id: true, uri: true } },
+            library: {
+              select: {
+                id: true,
+                name: true,
+                embeddingModel: { select: { id: true, provider: true, name: true } },
               },
-              contentExtractionTasks: {
-                where: { processingFinishedAt: { not: null } },
-                orderBy: { processingFinishedAt: 'desc' },
-                take: 1,
-              },
+            },
+            contentExtractionTasks: {
+              where: { processingFinishedAt: { not: null } },
+              orderBy: { processingFinishedAt: 'desc' as const },
+              take: 1,
             },
           },
         },
-        where: {
-          listId,
-          ...filterConditions,
-          ...(itemId ? { id: itemId } : {}),
-          sourceFile: { archivedAt: null },
-          ...(onlyMissingValues
-            ? {
-                OR: [
-                  // Items with no cache entry for this field at all
-                  {
-                    cache: {
-                      none: { fieldId },
-                    },
-                  },
-                  // Items with cache entry but no valid value (all value fields are null)
-                  {
-                    cache: {
-                      some: {
-                        AND: [
-                          { fieldId },
-                          { valueString: null },
-                          { valueBoolean: null },
-                          { valueDate: null },
-                          { valueNumber: null },
-                        ],
-                      },
-                    },
-                  },
-                  // Items where enrichment returned a failure term (stored in failedEnrichmentValue)
-                  {
-                    cache: {
-                      some: {
-                        AND: [{ fieldId }, { failedEnrichmentValue: { not: null } }],
-                      },
-                    },
-                  },
-                ],
-              }
-            : {}),
-        },
-      })
+      }
+
+      // Use cursor-based pagination to fetch items in batches to avoid PostgreSQL bind variable limit
+      // PostgreSQL has a limit of 32,767 bind variables in prepared statements
+      type ItemWithIncludes = Prisma.AiListItemGetPayload<{ include: typeof itemInclude }>
+      const items: ItemWithIncludes[] = []
+      let cursor: string | undefined
+
+      do {
+        const batch = await prisma.aiListItem.findMany({
+          take: BATCH_SIZE,
+          ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+          include: itemInclude,
+          where: itemWhereClause,
+          orderBy: { id: 'asc' },
+        })
+
+        items.push(...batch)
+        cursor = batch.length === BATCH_SIZE ? batch[batch.length - 1].id : undefined
+      } while (cursor)
 
       console.log('found items for enrichment:', items.length)
 
@@ -188,6 +211,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       }
 
       // First, clean up any existing queue items for this field to allow fresh start
+      // Then create new tasks in batches to avoid PostgreSQL bind variable limit
 
       const transactionResult = await prisma.$transaction(async (tx) => {
         const cleanupTasksResult = await tx.aiEnrichmentTask.deleteMany({
@@ -197,25 +221,31 @@ builder.mutationField('createEnrichmentTasks', (t) =>
           },
         })
 
-        const createTasksResult = await tx.aiEnrichmentTask.createMany({
-          data: items.map((item) => {
-            const metadata = getEnrichmentTaskInputMetadata({ validatedField, item })
-            return {
-              listId,
-              fieldId,
-              itemId: item.id,
-              status: 'pending',
-              priority: 0,
-              metadata: JSON.stringify({ input: metadata }),
-            }
-          }),
-        })
+        // Batch the createMany to avoid exceeding PostgreSQL's 32,767 bind variable limit
+        let totalCreated = 0
+        for (let i = 0; i < items.length; i += BATCH_SIZE) {
+          const batch = items.slice(i, i + BATCH_SIZE)
+          const createTasksResult = await tx.aiEnrichmentTask.createMany({
+            data: batch.map((item) => {
+              const metadata = getEnrichmentTaskInputMetadata({ validatedField, item })
+              return {
+                listId,
+                fieldId,
+                itemId: item.id,
+                status: 'pending',
+                priority: 0,
+                metadata: JSON.stringify({ input: metadata }),
+              }
+            }),
+          })
+          totalCreated += createTasksResult.count
+        }
 
-        return { createTasksResult, cleanupTasksResult }
+        return { totalCreated, cleanupTasksResult }
       })
 
       return {
-        createdTasksCount: transactionResult.createTasksResult.count,
+        createdTasksCount: transactionResult.totalCreated,
         cleanedUpTasksCount: transactionResult.cleanupTasksResult.count,
       }
     },
@@ -230,18 +260,61 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
       listId: t.arg.string({ required: true, description: 'List ID to stop enrichment for' }),
       fieldId: t.arg.string({ required: false, description: 'Field ID to stop enrichment for' }),
       itemId: t.arg.string({ required: false, description: 'Item ID to stop enrichment for' }),
+      filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
 
-      const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
-        where: {
-          AND: [{ status: 'pending' }, { listId }, fieldId ? { fieldId } : {}, itemId ? { itemId } : {}],
-        },
-      })
+      const filterConditions = await getListFiltersWhere(filters || [])
+
+      // If filters are provided, we need to get the item IDs that match the filters first
+      let itemIds: string[] | undefined
+      if (filters && filters.length > 0) {
+        const matchingItems = await prisma.aiListItem.findMany({
+          where: {
+            listId,
+            ...filterConditions,
+          },
+          select: { id: true },
+        })
+        itemIds = matchingItems.map((item) => item.id)
+      }
+
+      // Batch delete operations to avoid PostgreSQL bind variable limit when itemIds is large
+      let totalDeleted = 0
+      if (itemIds && itemIds.length > BATCH_SIZE) {
+        for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
+          const batch = itemIds.slice(i, i + BATCH_SIZE)
+          const result = await prisma.aiEnrichmentTask.deleteMany({
+            where: {
+              AND: [
+                { status: 'pending' },
+                { listId },
+                fieldId ? { fieldId } : {},
+                itemId ? { itemId } : {},
+                { itemId: { in: batch } },
+              ],
+            },
+          })
+          totalDeleted += result.count
+        }
+      } else {
+        const deletedItems = await prisma.aiEnrichmentTask.deleteMany({
+          where: {
+            AND: [
+              { status: 'pending' },
+              { listId },
+              fieldId ? { fieldId } : {},
+              itemId ? { itemId } : {},
+              itemIds ? { itemId: { in: itemIds } } : {},
+            ],
+          },
+        })
+        totalDeleted = deletedItems.count
+      }
 
       return {
-        cleanedUpTasksCount: deletedItems.count,
+        cleanedUpTasksCount: totalDeleted,
         createdTasksCount: 0,
       }
     },
@@ -266,38 +339,98 @@ builder.mutationField('clearListEnrichments', (t) =>
         required: false,
         description: 'Optional Item ID to only clean enrichments for a specific item',
       }),
+      filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId }, { session }) => {
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
       await canAccessListOrThrow(listId, session.user.id)
 
+      const filterConditions = await getListFiltersWhere(filters || [])
+
+      // If filters are provided, we need to get the item IDs that match the filters first
+      let itemIds: string[] | undefined
+      if (filters && filters.length > 0) {
+        const matchingItems = await prisma.aiListItem.findMany({
+          where: {
+            listId,
+            ...filterConditions,
+          },
+          select: { id: true },
+        })
+        itemIds = matchingItems.map((item) => item.id)
+      }
+
+      // Batch delete operations to avoid PostgreSQL bind variable limit when itemIds is large
       const transactionResult = await prisma.$transaction(async (tx) => {
-        const deletedCacheItems = await tx.aiListItemCache.deleteMany({
-          where: {
-            AND: [
-              {
-                field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+        let totalDeletedCache = 0
+        let totalDeletedTasks = 0
+
+        if (itemIds && itemIds.length > BATCH_SIZE) {
+          // Process in batches
+          for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
+            const batch = itemIds.slice(i, i + BATCH_SIZE)
+
+            const deletedCacheItems = await tx.aiListItemCache.deleteMany({
+              where: {
+                AND: [
+                  {
+                    field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+                  },
+                  itemId ? { itemId } : {},
+                  { itemId: { in: batch } },
+                ],
               },
-              itemId ? { itemId } : {},
-            ],
-          },
-        })
-        const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
-          where: {
-            AND: [
-              itemId ? { itemId } : {},
-              fieldId ? { fieldId } : {},
-              { listId },
-              { status: { in: ['pending', 'failed', 'canceled'] } },
-            ],
-          },
-        })
-        return { deletedCacheItems, deletedEnrichmentTasks }
+            })
+            totalDeletedCache += deletedCacheItems.count
+
+            const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
+              where: {
+                AND: [
+                  itemId ? { itemId } : {},
+                  fieldId ? { fieldId } : {},
+                  { listId },
+                  { status: { in: ['pending', 'failed', 'canceled'] } },
+                  { itemId: { in: batch } },
+                ],
+              },
+            })
+            totalDeletedTasks += deletedEnrichmentTasks.count
+          }
+        } else {
+          // Small array or no itemIds filter - execute directly
+          const deletedCacheItems = await tx.aiListItemCache.deleteMany({
+            where: {
+              AND: [
+                {
+                  field: { AND: [{ listId }, fieldId ? { id: fieldId } : {}] },
+                },
+                itemId ? { itemId } : {},
+                itemIds ? { itemId: { in: itemIds } } : {},
+              ],
+            },
+          })
+          totalDeletedCache = deletedCacheItems.count
+
+          const deletedEnrichmentTasks = await tx.aiEnrichmentTask.deleteMany({
+            where: {
+              AND: [
+                itemId ? { itemId } : {},
+                fieldId ? { fieldId } : {},
+                { listId },
+                { status: { in: ['pending', 'failed', 'canceled'] } },
+                itemIds ? { itemId: { in: itemIds } } : {},
+              ],
+            },
+          })
+          totalDeletedTasks = deletedEnrichmentTasks.count
+        }
+
+        return { deletedCacheItems: totalDeletedCache, deletedEnrichmentTasks: totalDeletedTasks }
       })
 
       return {
-        cleanedUpTasksCount: transactionResult.deletedEnrichmentTasks.count,
+        cleanedUpTasksCount: transactionResult.deletedEnrichmentTasks,
         createdTasksCount: 0,
-        cleanedUpEnrichmentsCount: transactionResult.deletedCacheItems.count,
+        cleanedUpEnrichmentsCount: transactionResult.deletedCacheItems,
       }
     },
   }),

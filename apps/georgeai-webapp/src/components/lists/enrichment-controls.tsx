@@ -27,11 +27,11 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing }: Enrichment
   }
 
   const handleStopEnrichment = () => {
-    stopEnrichments({ fieldId })
+    stopEnrichments({ fieldId, filters })
   }
 
   const handleCleanEnrichments = () => {
-    clearEnrichments({ fieldId })
+    clearEnrichments({ fieldId, filters })
   }
 
   return (

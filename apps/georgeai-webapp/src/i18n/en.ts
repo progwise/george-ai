@@ -910,6 +910,16 @@ export default {
       },
       llmPromptPlaceholder: 'Describe what items to extract from each file...',
       llmPromptHelp: 'The AI will analyze each file and extract items matching your description.',
+      warningTitle: 'Warning: Enrichments will be deleted',
+      warningDescription:
+        'Changing the extraction strategy will delete all existing list items and their enrichments. This action cannot be undone.',
+      warningFieldsAffected: 'The following enrichments will be permanently deleted:',
+      warningSuggestion: 'Consider creating a new list instead if you want to keep the existing enrichments.',
+      warningConfirm: 'I understand, delete enrichments',
+      warningCancel: 'Cancel',
+      noEnrichmentsToDelete: 'No enrichments to delete',
+      enrichmentsCount: '{count} enriched values',
+      enrichmentsWillBeDeleted: '{count} enriched values will be deleted if you save.',
     },
     files: {
       title: 'Files',

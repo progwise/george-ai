@@ -101,6 +101,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
   const [sidePanelData, setSidePanelData] = useState<{
+    itemId: string
     fieldValue: EnrichmentSidePanel_FieldValueFragment
     origin: EnrichmentSidePanel_OriginFragment
   } | null>(null)
@@ -341,6 +342,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   setSidePanelData({
+                                    itemId: item.id,
                                     fieldValue: fieldValueData,
                                     origin: item.origin,
                                   })
@@ -472,6 +474,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
           isOpen={!!sidePanelData}
           onClose={() => setSidePanelData(null)}
           listId={list.id}
+          itemId={sidePanelData.itemId}
           fieldValue={sidePanelData.fieldValue}
           origin={sidePanelData.origin}
         />

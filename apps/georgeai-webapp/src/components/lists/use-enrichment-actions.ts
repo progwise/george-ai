@@ -52,7 +52,8 @@ export const useEnrichmentActions = (listId: string) => {
   })
 
   const { mutate: stopEnrichments, isPending: stopEnrichmentsIsPending } = useMutation({
-    mutationFn: async (args: { fieldId: string }) => stopEnrichmentsFn({ data: { listId, fieldId: args.fieldId } }),
+    mutationFn: async (args: { fieldId: string; filters?: FieldFilter[] }) =>
+      stopEnrichmentsFn({ data: { listId, fieldId: args.fieldId, filters: args.filters } }),
     onSuccess: async (data) => {
       if (data.cleanedUpTasksCount !== undefined) {
         toastSuccess(t('lists.enrichment.stopped'))
@@ -73,8 +74,8 @@ export const useEnrichmentActions = (listId: string) => {
   })
 
   const { mutate: clearEnrichments, isPending: clearEnrichmentsIsPending } = useMutation({
-    mutationFn: async (args: { fieldId: string; itemId?: string }) =>
-      clearEnrichmentsFn({ data: { listId, fieldId: args.fieldId, itemId: args.itemId } }),
+    mutationFn: async (args: { fieldId: string; itemId?: string; filters?: FieldFilter[] }) =>
+      clearEnrichmentsFn({ data: { listId, fieldId: args.fieldId, itemId: args.itemId, filters: args.filters } }),
     onSuccess: async (data) => {
       if (data.cleanedUpEnrichmentsCount !== undefined) {
         toastSuccess(
