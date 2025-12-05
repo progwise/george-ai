@@ -7,6 +7,7 @@ export const queryKeys = {
   AiList: 'AiList',
   AiLists: 'AiLists',
   AiLibraryFiles: 'AiLibraryFiles',
+  AiLanguageModels: 'aiLanguageModels',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
   Conversation: 'Conversation',
