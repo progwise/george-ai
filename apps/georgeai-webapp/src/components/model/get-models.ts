@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../gql'
+import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 interface GetLanguageModelsParams {
@@ -35,7 +36,7 @@ const getLanguageModelsForEmbedding = createServerFn({ method: 'GET' }).handler(
 })
 
 export const getLanguageModelsForEmbeddingQueryOptions = () => ({
-  queryKey: ['aiLanguageModels', 'embedding'],
+  queryKey: [queryKeys.AiLanguageModels, 'embedding'],
   queryFn: () => getLanguageModelsForEmbedding(),
 })
 
@@ -61,7 +62,7 @@ const getLanguageModelsForChat = createServerFn({ method: 'GET' }).handler(async
 })
 
 export const getLanguageModelsForChatQueryOptions = () => ({
-  queryKey: ['aiLanguageModels', 'chat'],
+  queryKey: [queryKeys.AiLanguageModels, 'chat'],
   queryFn: () => getLanguageModelsForChat(),
 })
 
@@ -112,6 +113,6 @@ const getLanguageModels = createServerFn({ method: 'GET' })
 
 export const getLanguageModelsQueryOptions = (params: GetLanguageModelsParams = {}) =>
   queryOptions({
-    queryKey: ['aiLanguageModels', params],
+    queryKey: [queryKeys.AiLanguageModels, params],
     queryFn: () => getLanguageModels({ data: params }),
   })

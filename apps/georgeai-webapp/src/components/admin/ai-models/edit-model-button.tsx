@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { graphql } from '../../../gql'
 import { EditModelButton_LanguageModelFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { queryKeys } from '../../../query-keys'
 import { DialogForm } from '../../dialog-form'
 import { Input } from '../../form/input'
 import { toastError, toastSuccess } from '../../georgeToaster'
@@ -30,7 +31,7 @@ export const EditModelButton = ({ model }: EditModelButtonProps) => {
   const updateMutation = useMutation({
     mutationFn: (data: { id: string; enabled?: boolean; adminNotes?: string }) => updateAiLanguageModel({ data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['aiLanguageModels'] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] })
       toastSuccess(t('admin.aiModels.updateSuccess'))
       editDialogRef.current?.close()
     },

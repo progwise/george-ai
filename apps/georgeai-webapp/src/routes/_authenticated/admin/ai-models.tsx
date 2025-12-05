@@ -15,6 +15,7 @@ import { BowlerLogoIcon } from '../../../icons/bowler-logo-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
 import { RefreshIcon } from '../../../icons/refresh-icon'
+import { queryKeys } from '../../../query-keys'
 
 // Search schema for route validation
 const aiModelsSearchSchema = z.object({
@@ -180,7 +181,7 @@ function AiModelsPage() {
             count: data.syncModels.modelsDiscovered.toString(),
           }),
         )
-        queryClient.invalidateQueries({ queryKey: ['aiLanguageModels'] })
+        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] })
       } else {
         toastError(
           <div>
