@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
 import { Prisma } from '../../../prisma/generated/client'
+import { syncAutomationItems } from '../../domain/automation'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -73,7 +74,8 @@ builder.mutationField('createAutomation', (t) =>
       // Parse filter JSON if provided
       const filter = data.filter ? JSON.parse(data.filter) : null
 
-      return prisma.aiAutomation.create({
+      // Create the automation
+      const automation = await prisma.aiAutomation.create({
         ...query,
         data: {
           workspaceId: context.workspaceId,
@@ -87,6 +89,11 @@ builder.mutationField('createAutomation', (t) =>
           executeOnEnrichment: data.executeOnEnrichment ?? false,
         },
       })
+
+      // Sync automation items from the linked list
+      await syncAutomationItems(automation.id)
+
+      return automation
     },
   }),
 )

@@ -6,6 +6,10 @@
  */
 import { prisma } from '../../prisma'
 
+// PostgreSQL has a limit of 32,767 bind variables in prepared statements
+// Use a safe batch size that accounts for complex queries with multiple binds per item
+const BATCH_SIZE = 5000
+
 /**
  * Sync automation items for an automation.
  *
@@ -29,50 +33,66 @@ export async function syncAutomationItems(
     },
   })
 
-  // Get all list items for this list
-  const listItems = await prisma.aiListItem.findMany({
-    where: { listId: automation.listId },
-    select: { id: true },
-  })
-
-  if (listItems.length === 0) {
-    return { synced: 0, total: 0, inScope: 0 }
-  }
-
-  // Get existing automation items
-  const existingItems = await prisma.aiAutomationItem.findMany({
-    where: { automationId },
-    select: { listItemId: true },
-  })
-  const existingItemIds = new Set(existingItems.map((item) => item.listItemId))
+  // Get existing automation items (batched for large lists)
+  const existingItemIds = new Set<string>()
+  let existingCursor: string | undefined
+  do {
+    const batch = await prisma.aiAutomationItem.findMany({
+      take: BATCH_SIZE,
+      ...(existingCursor ? { skip: 1, cursor: { id: existingCursor } } : {}),
+      where: { automationId },
+      select: { id: true, listItemId: true },
+      orderBy: { id: 'asc' },
+    })
+    for (const item of batch) {
+      existingItemIds.add(item.listItemId)
+    }
+    existingCursor = batch.length === BATCH_SIZE ? batch[batch.length - 1].id : undefined
+  } while (existingCursor)
 
   // For now, all items are in scope (filter evaluation deferred to Phase 2)
   // TODO: Implement filter evaluation when filter format is defined
   const inScope = true
 
-  // Create new automation items for list items that don't have one yet
+  // Fetch list items in batches and create automation items
   let syncedCount = 0
-  let inScopeCount = 0
+  let totalCount = 0
+  let listItemCursor: string | undefined
 
-  for (const listItem of listItems) {
-    if (!existingItemIds.has(listItem.id)) {
-      await prisma.aiAutomationItem.create({
-        data: {
+  do {
+    const batch = await prisma.aiListItem.findMany({
+      take: BATCH_SIZE,
+      ...(listItemCursor ? { skip: 1, cursor: { id: listItemCursor } } : {}),
+      where: { listId: automation.listId },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    })
+
+    totalCount += batch.length
+
+    // Filter to only new items not already in automation
+    const newItemIds = batch.filter((item) => !existingItemIds.has(item.id)).map((item) => item.id)
+
+    // Batch insert new automation items using createMany
+    if (newItemIds.length > 0) {
+      await prisma.aiAutomationItem.createMany({
+        data: newItemIds.map((listItemId) => ({
           automationId,
-          listItemId: listItem.id,
+          listItemId,
           inScope,
-          status: 'PENDING',
-        },
+          status: 'PENDING' as const,
+        })),
+        skipDuplicates: true, // Safety net for race conditions
       })
-      syncedCount++
+      syncedCount += newItemIds.length
     }
 
-    if (inScope) {
-      inScopeCount++
-    }
-  }
+    listItemCursor = batch.length === BATCH_SIZE ? batch[batch.length - 1].id : undefined
+  } while (listItemCursor)
 
-  return { synced: syncedCount, total: listItems.length, inScope: inScopeCount }
+  const inScopeCount = inScope ? totalCount : 0
+
+  return { synced: syncedCount, total: totalCount, inScope: inScopeCount }
 }
 
 /**
