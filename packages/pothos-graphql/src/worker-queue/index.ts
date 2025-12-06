@@ -1,3 +1,4 @@
+import { startAutomationQueueWorker, stopAutomationQueueWorker } from './automation-queue-worker'
 import { startContentProcessingWorker, stopContentProcessingWorker } from './content-processing-worker'
 import { startEnrichmentQueueWorker, stopEnrichmentQueueWorker } from './enrichment-queue-worker'
 
@@ -7,6 +8,7 @@ export async function startAllWorkers() {
   // Start workers in sequence to avoid race conditions
   await startEnrichmentQueueWorker()
   await startContentProcessingWorker()
+  await startAutomationQueueWorker()
 
   console.log('✅ All queue workers started')
 }
@@ -16,6 +18,7 @@ export function stopAllWorkers() {
 
   stopEnrichmentQueueWorker()
   stopContentProcessingWorker()
+  stopAutomationQueueWorker()
 
   console.log('✅ All queue workers stopped')
 }
@@ -26,4 +29,6 @@ export {
   stopEnrichmentQueueWorker,
   startContentProcessingWorker,
   stopContentProcessingWorker,
+  startAutomationQueueWorker,
+  stopAutomationQueueWorker,
 }
