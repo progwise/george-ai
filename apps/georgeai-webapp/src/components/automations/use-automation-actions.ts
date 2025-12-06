@@ -108,8 +108,7 @@ export const useAutomationActions = () => {
   })
 
   const { mutate: triggerAutomationItem, isPending: isTriggerItemPending } = useMutation({
-    mutationFn: ({ itemId }: { automationId: string; itemId: string }) =>
-      triggerAutomationItemFn({ data: itemId }),
+    mutationFn: ({ itemId }: { automationId: string; itemId: string }) => triggerAutomationItemFn({ data: itemId }),
     onSuccess: async ({ triggerAutomationItem: result }) => {
       if (result.success) {
         toastSuccess(result.message)
