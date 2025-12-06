@@ -40,14 +40,15 @@ async function processAutomationItem(
   const startedAt = new Date()
 
   try {
-    // Mark item as processing using updateMany for race safety
+    // Mark item as PROCESSING using atomic updateMany for race safety
+    // Only succeeds if item is still PENDING - prevents duplicate processing
     const updated = await prisma.aiAutomationItem.updateMany({
       where: {
         id: item.id,
         status: 'PENDING',
       },
       data: {
-        status: 'PENDING', // Keep as PENDING until we get the result, just to avoid re-processing
+        status: 'PROCESSING',
       },
     })
 
@@ -330,8 +331,19 @@ async function resetOrphanedBatches() {
       console.log(`🔄 Reset ${resetBatches.count} orphaned automation batches back to pending`)
     }
 
-    // Also reset any items that were being processed
-    // (Items don't have a "processing" state, they go directly from PENDING to final state)
+    // Reset any items that were stuck in PROCESSING state from previous server sessions
+    const resetItems = await prisma.aiAutomationItem.updateMany({
+      where: {
+        status: 'PROCESSING',
+      },
+      data: {
+        status: 'PENDING',
+      },
+    })
+
+    if (resetItems.count > 0) {
+      console.log(`🔄 Reset ${resetItems.count} orphaned automation items back to pending`)
+    }
   } catch (error) {
     console.error('Error resetting orphaned automation batches:', error)
   }

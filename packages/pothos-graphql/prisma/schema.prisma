@@ -649,6 +649,7 @@ model AiModelUsage {
 
 enum AutomationItemStatus {
   PENDING
+  PROCESSING
   SUCCESS
   WARNING
   FAILED
