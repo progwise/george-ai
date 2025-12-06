@@ -44,6 +44,43 @@ export interface ConnectorConfig {
 }
 
 /**
+ * Option for select/enum fields
+ */
+export interface ActionConfigOption {
+  id: string
+  name: string
+  description?: string
+}
+
+/**
+ * Field type for action configuration
+ */
+export type ActionConfigFieldType = 'string' | 'select' | 'listFieldSelect' | 'fieldMappings'
+
+/**
+ * Configuration field definition
+ * Describes a single configurable field in an action
+ */
+export interface ActionConfigField {
+  /** Field identifier (matches key in config object) */
+  id: string
+  /** Display name */
+  name: string
+  /** Description/help text */
+  description?: string
+  /** Field type */
+  type: ActionConfigFieldType
+  /** Whether field is required */
+  required?: boolean
+  /** Available options for select type */
+  options?: ActionConfigOption[]
+  /** For fieldMappings: available target fields */
+  targetFields?: ActionConfigOption[]
+  /** For fieldMappings: available transforms */
+  transforms?: ActionConfigOption[]
+}
+
+/**
  * Definition of a connector action (e.g., writeProductDescription)
  */
 export interface ConnectorAction {
@@ -57,6 +94,8 @@ export interface ConnectorAction {
   configSchema: z.ZodSchema
   /** Default configuration for newly created automations (will need user configuration before running) */
   defaultConfig: Record<string, unknown>
+  /** Configuration fields definition for the UI */
+  configFields: ActionConfigField[]
   /** Execute the action */
   execute: (connectorConfig: ConnectorConfig, input: ActionInput) => Promise<ActionExecutionResult>
   /** Get a preview of what will be written (without executing) */

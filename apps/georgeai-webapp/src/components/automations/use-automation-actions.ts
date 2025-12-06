@@ -4,12 +4,29 @@ import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getAutomationQueryOptions, getAutomationsQueryOptions } from './queries'
-import { CreateAutomationInput, createAutomationFn, deleteAutomationFn, triggerAutomationFn } from './server-functions'
+import {
+  CreateAutomationInput,
+  UpdateAutomationInput,
+  createAutomationFn,
+  deleteAutomationFn,
+  triggerAutomationFn,
+  updateAutomationFn,
+} from './server-functions'
 
 interface CreateAutomationParams {
   name: string
   listId: string
   connectorId: string
+}
+
+interface UpdateAutomationParams {
+  id: string
+  name: string
+  listId: string
+  connectorId: string
+  connectorAction: string
+  actionConfig: string
+  executeOnEnrichment?: boolean
 }
 
 export const useAutomationActions = () => {
@@ -66,10 +83,34 @@ export const useAutomationActions = () => {
     },
   })
 
+  const { mutate: updateAutomation, isPending: isUpdatePending } = useMutation({
+    mutationFn: (params: UpdateAutomationParams) => {
+      const data: UpdateAutomationInput = {
+        id: params.id,
+        name: params.name,
+        listId: params.listId,
+        connectorId: params.connectorId,
+        connectorAction: params.connectorAction,
+        actionConfig: params.actionConfig,
+        executeOnEnrichment: params.executeOnEnrichment,
+      }
+      return updateAutomationFn({ data })
+    },
+    onError: (error) => toastError(error.message),
+    onSuccess: async ({ updateAutomation: automation }) => {
+      toastSuccess(t('automations.updateSuccess'))
+      await Promise.all([
+        queryClient.invalidateQueries(getAutomationsQueryOptions()),
+        queryClient.invalidateQueries(getAutomationQueryOptions(automation.id)),
+      ])
+    },
+  })
+
   return {
     createAutomation,
     deleteAutomation,
     triggerAutomation,
-    isPending: isCreatePending || isDeletePending || isTriggerPending,
+    updateAutomation,
+    isPending: isCreatePending || isDeletePending || isTriggerPending || isUpdatePending,
   }
 }

@@ -135,6 +135,36 @@ export const writeProductDescriptionAction: ConnectorAction = {
   description: 'Updates product descriptions and metadata in Shopware 6 using enrichment field values',
   configSchema: WriteProductDescriptionConfigSchema,
   defaultConfig,
+  configFields: [
+    {
+      id: 'productIdField',
+      name: 'Product ID Field',
+      description: 'Select the enrichment field that contains the Shopware product ID',
+      type: 'listFieldSelect',
+      required: true,
+    },
+    {
+      id: 'fieldMappings',
+      name: 'Field Mappings',
+      description: 'Map enrichment fields to Shopware product fields',
+      type: 'fieldMappings',
+      required: true,
+      targetFields: [
+        { id: 'description', name: 'Description', description: 'Product description (HTML)' },
+        { id: 'metaDescription', name: 'Meta Description', description: 'SEO meta description' },
+        { id: 'metaTitle', name: 'Meta Title', description: 'SEO meta title' },
+        { id: 'keywords', name: 'Keywords', description: 'SEO keywords' },
+        { id: 'name', name: 'Product Name', description: 'Product display name' },
+        { id: 'customSearchKeywords', name: 'Search Keywords', description: 'Custom search keywords' },
+      ],
+      transforms: [
+        { id: 'raw', name: 'Raw', description: 'No transformation' },
+        { id: 'markdownToHtml', name: 'Markdown to HTML', description: 'Convert Markdown to HTML' },
+        { id: 'number', name: 'Number', description: 'Convert to number' },
+        { id: 'boolean', name: 'Boolean', description: 'Convert to boolean' },
+      ],
+    },
+  ],
   execute,
   preview,
 }

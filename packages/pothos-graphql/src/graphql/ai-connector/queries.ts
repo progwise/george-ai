@@ -3,6 +3,51 @@ import { getConnectorTypeFactory } from '@george-ai/connector-types'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
+// Simple object for config field options (target fields, transforms, etc.)
+const ActionConfigOption = builder.simpleObject('ActionConfigOption', {
+  fields: (t) => ({
+    id: t.string({ nullable: false }),
+    name: t.string({ nullable: false }),
+    description: t.string({ nullable: true }),
+  }),
+})
+
+// Simple object for action config field definition
+const ActionConfigField = builder.simpleObject('ActionConfigField', {
+  fields: (t) => ({
+    id: t.string({ nullable: false }),
+    name: t.string({ nullable: false }),
+    description: t.string({ nullable: true }),
+    type: t.string({ nullable: false }),
+    required: t.boolean({ nullable: false }),
+    options: t.field({
+      type: [ActionConfigOption],
+      nullable: { list: true, items: false },
+    }),
+    targetFields: t.field({
+      type: [ActionConfigOption],
+      nullable: { list: true, items: false },
+    }),
+    transforms: t.field({
+      type: [ActionConfigOption],
+      nullable: { list: true, items: false },
+    }),
+  }),
+})
+
+// Simple object for connector action info
+const ConnectorActionInfo = builder.simpleObject('ConnectorActionInfo', {
+  fields: (t) => ({
+    id: t.string({ nullable: false }),
+    name: t.string({ nullable: false }),
+    description: t.string({ nullable: false }),
+    configFields: t.field({
+      type: [ActionConfigField],
+      nullable: { list: false, items: false },
+    }),
+  }),
+})
+
 // Simple object for connector type info from the registry
 const ConnectorTypeInfo = builder.simpleObject('ConnectorTypeInfo', {
   fields: (t) => ({
@@ -11,6 +56,10 @@ const ConnectorTypeInfo = builder.simpleObject('ConnectorTypeInfo', {
     description: t.string({ nullable: false }),
     icon: t.string({ nullable: false }),
     authType: t.string({ nullable: false }),
+    actions: t.field({
+      type: [ConnectorActionInfo],
+      nullable: { list: false, items: false },
+    }),
   }),
 })
 
@@ -27,6 +76,21 @@ builder.queryField('connectorTypes', (t) =>
         description: type.description,
         icon: type.icon,
         authType: type.authType,
+        actions: type.actions.map((action) => ({
+          id: action.id,
+          name: action.name,
+          description: action.description,
+          configFields: action.configFields.map((field) => ({
+            id: field.id,
+            name: field.name,
+            description: field.description || null,
+            type: field.type,
+            required: field.required ?? false,
+            options: field.options || null,
+            targetFields: field.targetFields || null,
+            transforms: field.transforms || null,
+          })),
+        })),
       }))
     },
   }),

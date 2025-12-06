@@ -20,6 +20,12 @@ graphql(`
     list {
       id
       name
+      fields {
+        id
+        name
+        type
+        sourceType
+      }
     }
     connector {
       id

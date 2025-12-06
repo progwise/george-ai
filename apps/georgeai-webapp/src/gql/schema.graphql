@@ -11,6 +11,23 @@ type AIActLegalDisclaimer {
   title: AiActString!
 }
 
+type ActionConfigField {
+  description: String
+  id: String!
+  name: String!
+  options: [ActionConfigOption!]
+  required: Boolean!
+  targetFields: [ActionConfigOption!]
+  transforms: [ActionConfigOption!]
+  type: String!
+}
+
+type ActionConfigOption {
+  description: String
+  id: String!
+  name: String!
+}
+
 """
 AI Act Assessment Query
 """
@@ -990,6 +1007,13 @@ type ComputeFieldValueResult {
   value: String
 }
 
+type ConnectorActionInfo {
+  configFields: [ActionConfigField!]!
+  description: String!
+  id: String!
+  name: String!
+}
+
 input ConnectorConfigInput {
   apiKey: String
   clientId: String
@@ -998,6 +1022,7 @@ input ConnectorConfigInput {
 }
 
 type ConnectorTypeInfo {
+  actions: [ConnectorActionInfo!]!
   authType: String!
   description: String!
   icon: String!

@@ -30,6 +30,25 @@ export type AiActLegalDisclaimer = {
   title: AiActString
 }
 
+export type ActionConfigField = {
+  __typename?: 'ActionConfigField'
+  description?: Maybe<Scalars['String']['output']>
+  id: Scalars['String']['output']
+  name: Scalars['String']['output']
+  options?: Maybe<Array<ActionConfigOption>>
+  required: Scalars['Boolean']['output']
+  targetFields?: Maybe<Array<ActionConfigOption>>
+  transforms?: Maybe<Array<ActionConfigOption>>
+  type: Scalars['String']['output']
+}
+
+export type ActionConfigOption = {
+  __typename?: 'ActionConfigOption'
+  description?: Maybe<Scalars['String']['output']>
+  id: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 /** AI Act Assessment Query */
 export type AiActAssessment = {
   __typename?: 'AiActAssessment'
@@ -1060,6 +1079,14 @@ export type ComputeFieldValueResult = {
   value?: Maybe<Scalars['String']['output']>
 }
 
+export type ConnectorActionInfo = {
+  __typename?: 'ConnectorActionInfo'
+  configFields: Array<ActionConfigField>
+  description: Scalars['String']['output']
+  id: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type ConnectorConfigInput = {
   apiKey?: InputMaybe<Scalars['String']['input']>
   clientId?: InputMaybe<Scalars['String']['input']>
@@ -1069,6 +1096,7 @@ export type ConnectorConfigInput = {
 
 export type ConnectorTypeInfo = {
   __typename?: 'ConnectorTypeInfo'
+  actions: Array<ConnectorActionInfo>
   authType: Scalars['String']['output']
   description: Scalars['String']['output']
   icon: Scalars['String']['output']
@@ -2887,6 +2915,38 @@ export type GetConnectorTypesQuery = {
     description: string
     icon: string
     authType: string
+    actions: Array<{
+      __typename?: 'ConnectorActionInfo'
+      id: string
+      name: string
+      description: string
+      configFields: Array<{
+        __typename?: 'ActionConfigField'
+        id: string
+        name: string
+        description?: string | null
+        type: string
+        required: boolean
+        options?: Array<{
+          __typename?: 'ActionConfigOption'
+          id: string
+          name: string
+          description?: string | null
+        }> | null
+        targetFields?: Array<{
+          __typename?: 'ActionConfigOption'
+          id: string
+          name: string
+          description?: string | null
+        }> | null
+        transforms?: Array<{
+          __typename?: 'ActionConfigOption'
+          id: string
+          name: string
+          description?: string | null
+        }> | null
+      }>
+    }>
   }>
   workspaceConnectorTypes: Array<{ __typename?: 'AiConnectorTypeWorkspace'; id: string; connectorType: string }>
 }
@@ -3726,7 +3786,18 @@ export type AutomationDetailFragment = {
   connectorActionConfigJson: string
   schedule?: string | null
   executeOnEnrichment: boolean
-  list: { __typename?: 'AiList'; id: string; name: string }
+  list: {
+    __typename?: 'AiList'
+    id: string
+    name: string
+    fields: Array<{
+      __typename?: 'AiListField'
+      id: string
+      name: string
+      type: ListFieldType
+      sourceType: ListFieldSourceType
+    }>
+  }
   connector: { __typename?: 'AiConnector'; id: string; name?: string | null; connectorType: string }
 }
 
@@ -3748,7 +3819,18 @@ export type GetAutomationQuery = {
     connectorActionConfigJson: string
     schedule?: string | null
     executeOnEnrichment: boolean
-    list: { __typename?: 'AiList'; id: string; name: string }
+    list: {
+      __typename?: 'AiList'
+      id: string
+      name: string
+      fields: Array<{
+        __typename?: 'AiListField'
+        id: string
+        name: string
+        type: ListFieldType
+        sourceType: ListFieldSourceType
+      }>
+    }
     connector: { __typename?: 'AiConnector'; id: string; name?: string | null; connectorType: string }
   } | null
 }
@@ -3834,6 +3916,22 @@ export type TriggerAutomationItemMutationVariables = Exact<{
 export type TriggerAutomationItemMutation = {
   __typename?: 'Mutation'
   triggerAutomationItem: { __typename?: 'TriggerResult'; success: boolean; message: string; batchId?: string | null }
+}
+
+export type UpdateAutomationMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: AiAutomationInput
+}>
+
+export type UpdateAutomationMutation = {
+  __typename?: 'Mutation'
+  updateAutomation: {
+    __typename?: 'AiAutomation'
+    id: string
+    name: string
+    connectorAction: string
+    connectorActionConfigJson: string
+  }
 }
 
 export type ConversationForm_ConversationFragment = {
@@ -8373,6 +8471,19 @@ export const AutomationDetailFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'fields' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -12573,6 +12684,68 @@ export const GetConnectorTypesDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'authType' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'actions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'configFields' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'required' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'options' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'targetFields' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'transforms' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -14982,6 +15155,19 @@ export const GetAutomationDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'fields' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -15253,6 +15439,61 @@ export const TriggerAutomationItemDocument = {
     },
   ],
 } as unknown as DocumentNode<TriggerAutomationItemMutation, TriggerAutomationItemMutationVariables>
+export const UpdateAutomationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateAutomation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAutomation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'connectorAction' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'connectorActionConfigJson' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAutomationMutation, UpdateAutomationMutationVariables>
 export const HideMessageDocument = {
   kind: 'Document',
   definitions: [

@@ -15,6 +15,33 @@ const getConnectorTypes = createServerFn({ method: 'GET' }).handler(async () =>
           description
           icon
           authType
+          actions {
+            id
+            name
+            description
+            configFields {
+              id
+              name
+              description
+              type
+              required
+              options {
+                id
+                name
+                description
+              }
+              targetFields {
+                id
+                name
+                description
+              }
+              transforms {
+                id
+                name
+                description
+              }
+            }
+          }
         }
         workspaceConnectorTypes {
           id
