@@ -10,7 +10,7 @@
   "private": true,
   "scripts": {
     "lint": "turbo run lint",
-    "format": "prettier --write .",
+    "format": "{ git diff --name-only; git diff --staged --name-only; } | sort -u | xargs -r prettier --write --ignore-unknown",
     "format:check": "prettier --check .",
     "codegen": "node codegen.ts",
     "build": "turbo run build",
