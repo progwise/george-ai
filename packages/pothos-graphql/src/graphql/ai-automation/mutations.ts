@@ -12,8 +12,8 @@ const AiAutomationInput = builder.inputType('AiAutomationInput', {
     name: t.string({ required: true }),
     listId: t.string({ required: true }),
     connectorId: t.string({ required: true }),
-    connectorAction: t.string({ required: true }),
-    actionConfig: t.string({ required: true }), // JSON string validated by connector type
+    connectorAction: t.string({ required: false }), // Optional - uses first action if not provided
+    actionConfig: t.string({ required: false }), // JSON string - uses default if not provided
     filter: t.string({ required: false }), // JSON string for filter criteria
     schedule: t.string({ required: false }), // CRON expression
     executeOnEnrichment: t.boolean({ required: false }),
@@ -53,12 +53,20 @@ builder.mutationField('createAutomation', (t) =>
         throw new GraphQLError('Connector not found or access denied')
       }
 
-      // Validate action config through connector-types factory
+      // Get connector type factory
       const factory = getConnectorTypeFactory()
-      const parsedActionConfig = JSON.parse(data.actionConfig)
+
+      // Use provided action or default to first action
+      const connectorAction = data.connectorAction || factory.getDefaultActionId(connector.connectorType)
+      if (!connectorAction) {
+        throw new GraphQLError(`No actions available for connector type ${connector.connectorType}`)
+      }
+
+      // Parse and validate action config (uses default if not provided)
+      const parsedActionConfig = data.actionConfig ? JSON.parse(data.actionConfig) : null
       const validatedActionConfig = factory.validateActionConfig(
         connector.connectorType,
-        data.connectorAction,
+        connectorAction,
         parsedActionConfig,
       )
 
@@ -72,7 +80,7 @@ builder.mutationField('createAutomation', (t) =>
           name: data.name,
           listId: data.listId,
           connectorId: data.connectorId,
-          connectorAction: data.connectorAction,
+          connectorAction,
           connectorActionConfig: validatedActionConfig as Prisma.InputJsonValue,
           filter: filter as Prisma.InputJsonValue,
           schedule: data.schedule,
@@ -129,12 +137,22 @@ builder.mutationField('updateAutomation', (t) =>
         throw new GraphQLError('Connector not found or access denied')
       }
 
-      // Validate action config through connector-types factory
+      // Get connector type factory
       const factory = getConnectorTypeFactory()
-      const parsedActionConfig = JSON.parse(data.actionConfig)
+
+      // Use provided action or keep existing
+      const connectorAction = data.connectorAction || existing.connectorAction
+      if (!connectorAction) {
+        throw new GraphQLError('Connector action is required')
+      }
+
+      // Parse and validate action config (uses existing if not provided)
+      const parsedActionConfig = data.actionConfig
+        ? JSON.parse(data.actionConfig)
+        : (existing.connectorActionConfig as Record<string, unknown>)
       const validatedActionConfig = factory.validateActionConfig(
         connector.connectorType,
-        data.connectorAction,
+        connectorAction,
         parsedActionConfig,
       )
 
@@ -148,7 +166,7 @@ builder.mutationField('updateAutomation', (t) =>
           name: data.name,
           listId: data.listId,
           connectorId: data.connectorId,
-          connectorAction: data.connectorAction,
+          connectorAction,
           connectorActionConfig: validatedActionConfig as Prisma.InputJsonValue,
           filter: filter as Prisma.InputJsonValue,
           schedule: data.schedule,

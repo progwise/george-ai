@@ -104,8 +104,8 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
 
 export function AiAutomationInputSchema(): z.ZodObject<Properties<AiAutomationInput>> {
   return z.object({
-    actionConfig: z.string(),
-    connectorAction: z.string(),
+    actionConfig: z.string().nullish(),
+    connectorAction: z.string().nullish(),
     connectorId: z.string(),
     executeOnEnrichment: z.boolean().nullish(),
     filter: z.string().nullish(),

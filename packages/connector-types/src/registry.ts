@@ -96,7 +96,7 @@ export function getConnectorTypeFactory(): ConnectorTypeFactory {
     validateActionConfig(
       connectorTypeId: string,
       actionId: string,
-      actionConfig: Record<string, unknown>,
+      actionConfig: Record<string, unknown> | null | undefined,
     ): Record<string, unknown> {
       const connectorType = connectorTypes.get(connectorTypeId)
       if (!connectorType) {
@@ -108,8 +108,35 @@ export function getConnectorTypeFactory(): ConnectorTypeFactory {
         throw new Error(`Unknown action ${actionId} for connector type ${connectorTypeId}`)
       }
 
+      // If no config provided, return the default config (not validated - it's a placeholder)
+      if (!actionConfig || Object.keys(actionConfig).length === 0) {
+        return action.defaultConfig
+      }
+
       // Validate against action's config schema
       return action.configSchema.parse(actionConfig) as Record<string, unknown>
+    },
+
+    getDefaultActionConfig(connectorTypeId: string, actionId: string): Record<string, unknown> {
+      const connectorType = connectorTypes.get(connectorTypeId)
+      if (!connectorType) {
+        throw new Error(`Unknown connector type: ${connectorTypeId}`)
+      }
+
+      const action = connectorType.actions.find((a) => a.id === actionId)
+      if (!action) {
+        throw new Error(`Unknown action ${actionId} for connector type ${connectorTypeId}`)
+      }
+
+      return action.defaultConfig
+    },
+
+    getDefaultActionId(connectorTypeId: string): string | undefined {
+      const connectorType = connectorTypes.get(connectorTypeId)
+      if (!connectorType || connectorType.actions.length === 0) {
+        return undefined
+      }
+      return connectorType.actions[0].id
     },
 
     getConfigForDisplay(connectorTypeId: string, storedConfig: Record<string, unknown>): Record<string, unknown> {

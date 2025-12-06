@@ -188,8 +188,8 @@ export type AiAutomationBatch = {
 }
 
 export type AiAutomationInput = {
-  actionConfig: Scalars['String']['input']
-  connectorAction: Scalars['String']['input']
+  actionConfig?: InputMaybe<Scalars['String']['input']>
+  connectorAction?: InputMaybe<Scalars['String']['input']>
   connectorId: Scalars['String']['input']
   executeOnEnrichment?: InputMaybe<Scalars['Boolean']['input']>
   filter?: InputMaybe<Scalars['String']['input']>
@@ -1032,6 +1032,7 @@ export type AssistantParticipant = AiConversationParticipant & {
 export enum AutomationItemStatus {
   Failed = 'FAILED',
   Pending = 'PENDING',
+  Processing = 'PROCESSING',
   Skipped = 'SKIPPED',
   Success = 'SUCCESS',
   Warning = 'WARNING',

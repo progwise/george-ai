@@ -169,8 +169,8 @@ type AiAutomationBatch {
 }
 
 input AiAutomationInput {
-  actionConfig: String!
-  connectorAction: String!
+  actionConfig: String
+  connectorAction: String
   connectorId: String!
   executeOnEnrichment: Boolean
   filter: String
@@ -960,6 +960,7 @@ type AssistantParticipant implements AiConversationParticipant {
 enum AutomationItemStatus {
   FAILED
   PENDING
+  PROCESSING
   SKIPPED
   SUCCESS
   WARNING

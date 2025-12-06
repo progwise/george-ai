@@ -118,6 +118,15 @@ async function preview(_connectorConfig: ConnectorConfig, input: ActionInput): P
 }
 
 /**
+ * Default configuration for newly created automations
+ * Users must configure this before running the automation
+ */
+const defaultConfig: WriteProductDescriptionConfig = {
+  productIdField: '',
+  fieldMappings: [],
+}
+
+/**
  * Write Product Description action definition
  */
 export const writeProductDescriptionAction: ConnectorAction = {
@@ -125,6 +134,7 @@ export const writeProductDescriptionAction: ConnectorAction = {
   name: 'Write Product Description',
   description: 'Updates product descriptions and metadata in Shopware 6 using enrichment field values',
   configSchema: WriteProductDescriptionConfigSchema,
+  defaultConfig,
   execute,
   preview,
 }

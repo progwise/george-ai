@@ -8,8 +8,8 @@ const createAutomationSchema = z.object({
   name: z.string().min(1),
   listId: z.string().min(1),
   connectorId: z.string().min(1),
-  connectorAction: z.string().min(1),
-  actionConfig: z.string().min(1), // JSON string
+  connectorAction: z.string().optional(), // Optional - uses default if not provided
+  actionConfig: z.string().optional(), // Optional - uses default if not provided
   filter: z.string().optional(),
   schedule: z.string().optional(),
   executeOnEnrichment: z.boolean().optional(),

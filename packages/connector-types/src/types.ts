@@ -55,6 +55,8 @@ export interface ConnectorAction {
   description: string
   /** Zod schema for action configuration */
   configSchema: z.ZodSchema
+  /** Default configuration for newly created automations (will need user configuration before running) */
+  defaultConfig: Record<string, unknown>
   /** Execute the action */
   execute: (connectorConfig: ConnectorConfig, input: ActionInput) => Promise<ActionExecutionResult>
   /** Get a preview of what will be written (without executing) */
@@ -120,12 +122,16 @@ export interface ConnectorTypeFactory {
     baseUrl: string,
     storedConfig: Record<string, unknown>,
   ): Promise<{ success: boolean; message?: string; error?: string }>
-  /** Validate action config for a specific connector action */
+  /** Validate action config for a specific connector action. Returns default config if actionConfig is empty/null */
   validateActionConfig(
     connectorTypeId: string,
     actionId: string,
-    actionConfig: Record<string, unknown>,
+    actionConfig: Record<string, unknown> | null | undefined,
   ): Record<string, unknown>
+  /** Get default action config for a specific connector action */
+  getDefaultActionConfig(connectorTypeId: string, actionId: string): Record<string, unknown>
+  /** Get the first available action ID for a connector type */
+  getDefaultActionId(connectorTypeId: string): string | undefined
   /** Get config for display (sensitive fields removed) */
   getConfigForDisplay(connectorTypeId: string, storedConfig: Record<string, unknown>): Record<string, unknown>
 }
