@@ -3,13 +3,14 @@ import { useNavigate } from '@tanstack/react-router'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getAutomationQueryOptions, getAutomationsQueryOptions } from './queries'
+import { getAutomationItemsQueryOptions, getAutomationQueryOptions, getAutomationsQueryOptions } from './queries'
 import {
   CreateAutomationInput,
   UpdateAutomationInput,
   createAutomationFn,
   deleteAutomationFn,
   triggerAutomationFn,
+  triggerAutomationItemFn,
   updateAutomationFn,
 } from './server-functions'
 
@@ -106,11 +107,28 @@ export const useAutomationActions = () => {
     },
   })
 
+  const { mutate: triggerAutomationItem, isPending: isTriggerItemPending } = useMutation({
+    mutationFn: ({ itemId }: { automationId: string; itemId: string }) =>
+      triggerAutomationItemFn({ data: itemId }),
+    onSuccess: async ({ triggerAutomationItem: result }) => {
+      if (result.success) {
+        toastSuccess(result.message)
+      } else {
+        toastError(result.message)
+      }
+    },
+    onError: (error) => toastError(t('automations.triggerError', { message: error.message })),
+    onSettled: async (_data, _error, { automationId }) => {
+      await queryClient.invalidateQueries(getAutomationItemsQueryOptions({ automationId }))
+    },
+  })
+
   return {
     createAutomation,
     deleteAutomation,
     triggerAutomation,
+    triggerAutomationItem,
     updateAutomation,
-    isPending: isCreatePending || isDeletePending || isTriggerPending || isUpdatePending,
+    isPending: isCreatePending || isDeletePending || isTriggerPending || isUpdatePending || isTriggerItemPending,
   }
 }

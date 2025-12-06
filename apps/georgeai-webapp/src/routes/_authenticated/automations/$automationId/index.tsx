@@ -2,7 +2,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
+import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
+import { PlayIcon } from '../../../../icons/play-icon'
 
 interface AutomationSearchParams {
   page?: number
@@ -22,6 +24,7 @@ export const Route = createFileRoute('/_authenticated/automations/$automationId/
 
 function RouteComponent() {
   const { t } = useTranslation()
+  const { triggerAutomationItem, isPending } = useAutomationActions()
 
   const { automationId } = Route.useParams()
   const { page = 0, pageSize = 20 } = Route.useSearch()
@@ -58,6 +61,7 @@ function RouteComponent() {
                 <th>{t('automations.itemName')}</th>
                 <th>{t('automations.itemStatus')}</th>
                 <th>{t('automations.itemInScope')}</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -82,6 +86,17 @@ function RouteComponent() {
                     </span>
                   </td>
                   <td>{item.inScope ? t('actions.yes') : t('actions.no')}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => triggerAutomationItem({ automationId, itemId: item.id })}
+                      disabled={isPending}
+                      title={t('automations.runItem')}
+                    >
+                      <PlayIcon className="size-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

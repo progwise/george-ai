@@ -4,7 +4,7 @@ console.log('Setting up: Queue Management Types')
 
 // Enum: Queue Type
 export const QueueType = builder.enumType('QueueType', {
-  values: ['ENRICHMENT', 'CONTENT_PROCESSING'] as const,
+  values: ['ENRICHMENT', 'CONTENT_PROCESSING', 'AUTOMATION'] as const,
 })
 
 // Object Type: Queue Operation Result

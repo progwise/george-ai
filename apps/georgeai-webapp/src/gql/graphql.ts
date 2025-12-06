@@ -2345,6 +2345,7 @@ export type QueueSystemStatus = {
 }
 
 export enum QueueType {
+  Automation = 'AUTOMATION',
   ContentProcessing = 'CONTENT_PROCESSING',
   Enrichment = 'ENRICHMENT',
 }

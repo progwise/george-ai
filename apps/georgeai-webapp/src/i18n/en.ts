@@ -1356,6 +1356,7 @@ export default {
     outOfScope: 'Out of Scope',
     runAll: 'Run All',
     runSelected: 'Run Selected',
+    runItem: 'Run Item',
     running: 'Running...',
     triggerSuccess: 'Automation triggered successfully',
     triggerFailed: 'Failed to trigger automation',

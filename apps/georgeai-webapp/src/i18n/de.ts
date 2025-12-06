@@ -1380,6 +1380,7 @@ export default {
     outOfScope: 'Außerhalb',
     runAll: 'Alle ausführen',
     runSelected: 'Ausgewählte ausführen',
+    runItem: 'Element ausführen',
     running: 'Wird ausgeführt...',
     triggerSuccess: 'Automatisierung erfolgreich gestartet',
     triggerFailed: 'Automatisierung konnte nicht gestartet werden',

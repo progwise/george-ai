@@ -32,3 +32,8 @@ export {
   startAutomationQueueWorker,
   stopAutomationQueueWorker,
 }
+
+// Export worker status checkers
+export { isEnrichmentWorkerRunning } from './enrichment-queue-worker'
+export { isContentProcessingWorkerRunning } from './content-processing-worker'
+export { isAutomationWorkerRunning } from './automation-queue-worker'

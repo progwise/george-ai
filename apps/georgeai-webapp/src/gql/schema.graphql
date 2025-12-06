@@ -1677,6 +1677,7 @@ type QueueSystemStatus {
 }
 
 enum QueueType {
+  AUTOMATION
   CONTENT_PROCESSING
   ENRICHMENT
 }
