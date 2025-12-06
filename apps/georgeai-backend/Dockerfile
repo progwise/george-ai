@@ -35,6 +35,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
+COPY packages/connector-types/package.json ./packages/connector-types/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
 COPY packages/html-crawler/package.json ./packages/html-crawler/
@@ -53,6 +54,7 @@ COPY LICENSE ./
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
+COPY packages/connector-types ./packages/connector-types
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
 COPY packages/html-crawler ./packages/html-crawler

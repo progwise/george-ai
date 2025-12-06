@@ -4,6 +4,7 @@ import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 import { Decimal } from '@prisma/client/runtime/library'
 
+import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { CRAWLER_URI_TYPES } from '../domain/crawler/crawler-uri-types'
 import {
@@ -59,6 +60,18 @@ const builder = new SchemaBuilder<{
     CrawlerUriType: {
       Input: (typeof CRAWLER_URI_TYPES)[number]
       Output: (typeof CRAWLER_URI_TYPES)[number]
+    }
+    AutomationItemStatus: {
+      Input: (typeof AUTOMATION_ITEM_STATUS)[number]
+      Output: (typeof AUTOMATION_ITEM_STATUS)[number]
+    }
+    BatchStatus: {
+      Input: (typeof BATCH_STATUS)[number]
+      Output: (typeof BATCH_STATUS)[number]
+    }
+    TriggerType: {
+      Input: (typeof TRIGGER_TYPE)[number]
+      Output: (typeof TRIGGER_TYPE)[number]
     }
     Date: {
       Input: Date

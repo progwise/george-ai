@@ -71,7 +71,7 @@ const clearFailedTasksQuery = graphql(`
 `)
 
 export const clearFailedTasks = createServerFn({ method: 'POST' })
-  .inputValidator((data: { queueType: 'ENRICHMENT' | 'CONTENT_PROCESSING'; libraryId?: string }) => data)
+  .inputValidator((data: { queueType: QueueType; libraryId?: string }) => data)
   .handler(async ({ data }) => {
     const response = await backendRequest(clearFailedTasksQuery, {
       queueType: data.queueType,
@@ -81,7 +81,7 @@ export const clearFailedTasks = createServerFn({ method: 'POST' })
   })
 
 export const clearPendingTasks = createServerFn({ method: 'POST' })
-  .inputValidator((data: { queueType: 'ENRICHMENT' | 'CONTENT_PROCESSING'; libraryId?: string }) => data)
+  .inputValidator((data: { queueType: QueueType; libraryId?: string }) => data)
   .handler(async ({ data }) => {
     const response = await backendRequest(
       graphql(`

@@ -46,7 +46,16 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
   } = useQueueManagementActions()
 
   const getQueueDisplayName = (queueType: QueueType) => {
-    return queueType === 'ENRICHMENT' ? 'Enrichment Queue' : 'Content Processing Queue'
+    switch (queueType) {
+      case 'ENRICHMENT':
+        return 'Enrichment Queue'
+      case 'CONTENT_PROCESSING':
+        return 'Content Processing Queue'
+      case 'AUTOMATION':
+        return 'Automation Queue'
+      default:
+        return queueType
+    }
   }
 
   const getStatusBadge = (isRunning: boolean) => {

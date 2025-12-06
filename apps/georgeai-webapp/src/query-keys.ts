@@ -22,4 +22,14 @@ export const queryKeys = {
   WorkspaceMembers: 'WorkspaceMembers',
   WorkspaceInvitations: 'WorkspaceInvitations',
   WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
+  // Connectors
+  Connectors: 'Connectors',
+  Connector: 'Connector',
+  ConnectorTypes: 'ConnectorTypes',
+  WorkspaceConnectorTypes: 'WorkspaceConnectorTypes',
+  // Automations
+  Automations: 'Automations',
+  Automation: 'Automation',
+  AutomationItems: 'AutomationItems',
+  AutomationBatches: 'AutomationBatches',
 }

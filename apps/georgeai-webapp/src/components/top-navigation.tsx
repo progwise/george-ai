@@ -65,16 +65,19 @@ export default function TopNavigation({ user }: TopNavigationProps) {
           <div className="navbar-center">
             <ul className="menu menu-horizontal menu-lg max-md:hidden">
               <li>
-                <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
-              </li>
-              <li>
-                <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
+                <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
               </li>
               <li>
                 <TopNavigationLink to="/lists">{t('topNavigation.lists')}</TopNavigationLink>
               </li>
               <li>
-                <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
+                <TopNavigationLink to="/automations">{t('topNavigation.automations')}</TopNavigationLink>
+              </li>
+              <li>
+                <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
+              </li>
+              <li>
+                <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
               </li>
             </ul>
           </div>

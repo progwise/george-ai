@@ -1,4 +1,5 @@
 import { prisma } from '../../prisma'
+import { isAutomationWorkerRunning } from '../../worker-queue/automation-queue-worker'
 import { isContentProcessingWorkerRunning } from '../../worker-queue/content-processing-worker'
 import { isEnrichmentWorkerRunning } from '../../worker-queue/enrichment-queue-worker'
 import { builder } from '../builder'
@@ -123,15 +124,68 @@ builder.queryField('queueSystemStatus', (t) =>
         select: { processingFinishedAt: true },
       })
 
+      // Get automation queue stats (filtered by user access)
+      const automationAccessFilter = isAdmin
+        ? {}
+        : {
+            automation: {
+              list: {
+                workspaceId,
+              },
+            },
+          }
+
+      const automationPending = await prisma.aiAutomationItem.count({
+        where: {
+          ...automationAccessFilter,
+          status: 'PENDING',
+          inScope: true,
+        },
+      })
+
+      const automationProcessing = await prisma.aiAutomationItem.count({
+        where: {
+          ...automationAccessFilter,
+          status: 'PROCESSING',
+          inScope: true,
+        },
+      })
+
+      const automationFailed = await prisma.aiAutomationItem.count({
+        where: {
+          ...automationAccessFilter,
+          status: 'FAILED',
+          inScope: true,
+        },
+      })
+
+      const automationCompleted = await prisma.aiAutomationItem.count({
+        where: {
+          ...automationAccessFilter,
+          status: 'SUCCESS',
+          inScope: true,
+        },
+      })
+
+      const automationLastProcessed = await prisma.aiAutomationItemExecution.findFirst({
+        where: {
+          automationItem: automationAccessFilter,
+          finishedAt: { not: null },
+        },
+        orderBy: { finishedAt: 'desc' },
+        select: { finishedAt: true },
+      })
+
       // Check if workers are running
       const enrichmentWorkerRunning = isEnrichmentWorkerRunning()
       const contentProcessingWorkerRunning = isContentProcessingWorkerRunning()
+      const automationWorkerRunning = isAutomationWorkerRunning()
 
       return {
-        allWorkersRunning: enrichmentWorkerRunning && contentProcessingWorkerRunning,
-        totalPendingTasks: enrichmentPending + contentProcessingPending,
-        totalProcessingTasks: enrichmentProcessing + contentProcessingProcessing,
-        totalFailedTasks: enrichmentFailed + contentProcessingFailed,
+        allWorkersRunning: enrichmentWorkerRunning && contentProcessingWorkerRunning && automationWorkerRunning,
+        totalPendingTasks: enrichmentPending + contentProcessingPending + automationPending,
+        totalProcessingTasks: enrichmentProcessing + contentProcessingProcessing + automationProcessing,
+        totalFailedTasks: enrichmentFailed + contentProcessingFailed + automationFailed,
         lastUpdated: new Date().toISOString(),
         queues: [
           {
@@ -151,6 +205,15 @@ builder.queryField('queueSystemStatus', (t) =>
             failedTasks: contentProcessingFailed,
             completedTasks: contentProcessingCompleted,
             lastProcessedAt: contentProcessingLastProcessed?.processingFinishedAt?.toISOString() || null,
+          },
+          {
+            queueType: 'AUTOMATION' as const,
+            isRunning: automationWorkerRunning,
+            pendingTasks: automationPending,
+            processingTasks: automationProcessing,
+            failedTasks: automationFailed,
+            completedTasks: automationCompleted,
+            lastProcessedAt: automationLastProcessed?.finishedAt?.toISOString() || null,
           },
         ],
       }

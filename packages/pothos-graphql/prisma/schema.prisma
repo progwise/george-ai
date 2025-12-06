@@ -63,11 +63,11 @@ model UserProfile {
 }
 
 model Workspace {
-  id              String                @id @default(cuid())
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
+  id              String                     @id @default(cuid())
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
   name            String
-  slug            String                @unique
+  slug            String                     @unique
   aiProviders     AiServiceProvider[]
   libraries       AiLibrary[]
   assistants      AiAssistant[]
@@ -75,7 +75,10 @@ model Workspace {
   conversations   AiConversation[]
   members         WorkspaceMember[]
   invitations     WorkspaceInvitation[]
-  defaultForUsers User[]                @relation("DefaultWorkspace")
+  defaultForUsers User[]                     @relation("DefaultWorkspace")
+  connectorTypes  AiConnectorTypeWorkspace[]
+  connectors      AiConnector[]
+  automations     AiAutomation[]
 }
 
 model WorkspaceMember {
@@ -381,6 +384,7 @@ model AiList {
   sources         AiListSource[]
   items           AiListItem[]
   modelUsageLogs  AiModelUsage[]
+  automations     AiAutomation[]
 
   @@index([workspaceId])
 }
@@ -399,9 +403,9 @@ model AiListSource {
 }
 
 model AiListItem {
-  id              String        @id @default(cuid())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id              String             @id @default(cuid())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
   listId          String
   sourceId        String // Which AiListSource this item came from
   sourceFileId    String // Which file this item was extracted from
@@ -409,11 +413,12 @@ model AiListItem {
   itemName        String // Display name for the item (first column for per_row, column name for per_column, etc.)
   metadata        Json? // Extraction metadata (headers, original row data, etc.)
   // Content stored on file system, path calculated by @george-ai/file-management getListItemContentPath()
-  list            AiList        @relation(fields: [listId], references: [id], onDelete: Cascade)
-  source          AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-  sourceFile      AiLibraryFile @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
+  list            AiList             @relation(fields: [listId], references: [id], onDelete: Cascade)
+  source          AiListSource       @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceFile      AiLibraryFile      @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
   cache           AiListItemCache[]
   enrichmentTasks AiEnrichmentTask[]
+  automationItems AiAutomationItem[]
 
   @@unique([sourceId, sourceFileId, extractionIndex])
   @@index([listId])
@@ -636,4 +641,138 @@ model AiModelUsage {
   @@index([modelId, createdAt])
   @@index([libraryId, createdAt])
   @@index([createdAt])
+}
+
+// ============================================================================
+// AUTOMATION MODELS
+// ============================================================================
+
+enum AutomationItemStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  WARNING
+  FAILED
+  SKIPPED
+}
+
+enum BatchStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+}
+
+enum TriggerType {
+  MANUAL
+  ENRICHMENT
+  SCHEDULE
+}
+
+model AiConnectorTypeWorkspace {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  workspaceId   String
+  connectorType String // "shopware6", "webhook", "restapi" - matches connector-types package
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, connectorType])
+  @@index([workspaceId])
+}
+
+model AiConnector {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  workspaceId   String
+  connectorType String // "shopware6" - matches connector-types package
+  baseUrl       String
+  name          String? // Optional display name (if null, show baseUrl)
+  config        Json // Config with sensitive fields encrypted (e.g., clientSecret: "encrypted:...")
+  isConnected   Boolean        @default(false)
+  lastTestedAt  DateTime?
+  lastError     String?
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  automations   AiAutomation[]
+
+  @@index([workspaceId])
+}
+
+model AiAutomation {
+  id                    String                @id @default(cuid())
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  workspaceId           String
+  name                  String
+  listId                String
+  connectorId           String
+  connectorAction       String // "writeProductDescription", "writeSEO"
+  connectorActionConfig Json // Field mappings, transforms
+  filter                Json? // Filter criteria for items
+  schedule              String? // CRON expression for scheduled runs
+  executeOnEnrichment   Boolean               @default(false)
+  workspace             Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  list                  AiList                @relation(fields: [listId], references: [id], onDelete: Cascade)
+  connector             AiConnector           @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  items                 AiAutomationItem[]
+  batches               AiAutomationBatch[]
+
+  @@index([workspaceId])
+  @@index([listId])
+}
+
+model AiAutomationItem {
+  id           String                      @id @default(cuid())
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  automationId String
+  listItemId   String
+  inScope      Boolean                     @default(true) // false = filtered out, history preserved
+  status       AutomationItemStatus        @default(PENDING)
+  automation   AiAutomation                @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  listItem     AiListItem                  @relation(fields: [listItemId], references: [id], onDelete: Cascade)
+  executions   AiAutomationItemExecution[]
+
+  @@unique([automationId, listItemId])
+  @@index([automationId, status])
+  @@index([automationId, inScope])
+  @@index([listItemId])
+}
+
+model AiAutomationItemExecution {
+  id               String               @id @default(cuid())
+  automationItemId String
+  batchId          String?
+  status           AutomationItemStatus
+  input            Json // What was sent to the action
+  output           Json? // What the action returned
+  startedAt        DateTime             @default(now())
+  finishedAt       DateTime?
+  automationItem   AiAutomationItem     @relation(fields: [automationItemId], references: [id], onDelete: Cascade)
+  batch            AiAutomationBatch?   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([automationItemId])
+  @@index([batchId])
+}
+
+model AiAutomationBatch {
+  id             String                      @id @default(cuid())
+  createdAt      DateTime                    @default(now())
+  automationId   String
+  status         BatchStatus                 @default(PENDING)
+  triggeredBy    TriggerType
+  itemsTotal     Int                         @default(0)
+  itemsProcessed Int                         @default(0)
+  itemsSuccess   Int                         @default(0)
+  itemsWarning   Int                         @default(0)
+  itemsFailed    Int                         @default(0)
+  itemsSkipped   Int                         @default(0)
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  automation     AiAutomation                @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  executions     AiAutomationItemExecution[]
+
+  @@index([automationId])
+  @@index([status])
 }

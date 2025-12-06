@@ -83,7 +83,7 @@ flowchart TD
 - **GraphQL Client**: graphql-request with code-generated types
 - **Authentication**: Keycloak integration
 - **Styling**: Tailwind CSS with twMerge for conditional classNames
-- **Routing**: File-based routing at `app/routes/`
+- **Routing**: File-based routing at `src/routes/`
 - **Port**: 3001 (development)
 
 ### georgeai-backend (Backend API)
@@ -432,7 +432,7 @@ All services communicate via Docker network (`george-ai-network`):
 
 ### 4. Frontend Routes
 
-1. Add new route file in `apps/georgeai-webapp/app/routes/`
+1. Add new route file in `apps/georgeai-webapp/src/routes/`
 2. Use TanStack Router file-based routing conventions
 3. Leverage existing authentication and GraphQL hooks
 4. Follow patterns in existing routes for consistency
@@ -530,8 +530,8 @@ See `.env.example` files for complete reference.
 
 Translation files are located in:
 
-- **English**: `apps/georgeai-webapp/app/i18n/en.ts`
-- **German**: `apps/georgeai-webapp/app/i18n/de.ts`
+- **English**: `apps/georgeai-webapp/src/i18n/en.ts`
+- **German**: `apps/georgeai-webapp/src/i18n/de.ts`
 
 When adding new translation keys (especially for form validation), ensure both files are updated.
 

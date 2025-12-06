@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
+  AiAutomationInput,
   AiBaseCaseInputType,
+  AiConnectorInput,
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryCrawlerCredentialsInput,
@@ -20,6 +22,9 @@ import {
   AiListSortingInput,
   AiListSourceInput,
   AiServiceProviderInput,
+  AutomationItemStatus,
+  BatchStatus,
+  ConnectorConfigInput,
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
@@ -35,6 +40,7 @@ import {
   ProcessingStatus,
   QueueType,
   TestProviderConnectionInput,
+  TriggerType,
   UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
@@ -55,6 +61,10 @@ export const AiLibraryFileSortOrderSchema = z.nativeEnum(AiLibraryFileSortOrder)
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const AiListSortingDirectionSchema = z.nativeEnum(AiListSortingDirection)
+
+export const AutomationItemStatusSchema = z.nativeEnum(AutomationItemStatus)
+
+export const BatchStatusSchema = z.nativeEnum(BatchStatus)
 
 export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
@@ -80,6 +90,8 @@ export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
 
 export const QueueTypeSchema = z.nativeEnum(QueueType)
 
+export const TriggerTypeSchema = z.nativeEnum(TriggerType)
+
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
     description: z.string().nullish(),
@@ -90,12 +102,34 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
   })
 }
 
+export function AiAutomationInputSchema(): z.ZodObject<Properties<AiAutomationInput>> {
+  return z.object({
+    actionConfig: z.string().nullish(),
+    connectorAction: z.string().nullish(),
+    connectorId: z.string(),
+    executeOnEnrichment: z.boolean().nullish(),
+    filter: z.string().nullish(),
+    listId: z.string(),
+    name: z.string(),
+    schedule: z.string().nullish(),
+  })
+}
+
 export function AiBaseCaseInputTypeSchema(): z.ZodObject<Properties<AiBaseCaseInputType>> {
   return z.object({
     condition: z.string().nullish(),
     id: z.string().nullish(),
     instruction: z.string().nullish(),
     sequence: z.number().nullish(),
+  })
+}
+
+export function AiConnectorInputSchema(): z.ZodObject<Properties<AiConnectorInput>> {
+  return z.object({
+    baseUrl: z.string(),
+    config: z.lazy(() => ConnectorConfigInputSchema()),
+    connectorType: z.string(),
+    name: z.string().nullish(),
   })
 }
 
@@ -237,6 +271,15 @@ export function AiServiceProviderInputSchema(): z.ZodObject<Properties<AiService
     name: z.string(),
     provider: z.string(),
     vramGb: z.number().nullish(),
+  })
+}
+
+export function ConnectorConfigInputSchema(): z.ZodObject<Properties<ConnectorConfigInput>> {
+  return z.object({
+    apiKey: z.string().nullish(),
+    clientId: z.string().nullish(),
+    clientSecret: z.string().nullish(),
+    token: z.string().nullish(),
   })
 }
 

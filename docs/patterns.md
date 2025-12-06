@@ -291,7 +291,7 @@ See issue #652 for real-world example of this bug.
 
 ### Toast Notifications
 
-Use the George toast system (`apps/georgeai-webapp/app/components/georgeToaster.tsx`):
+Use the George toast system (`apps/georgeai-webapp/src/components/georgeToaster.tsx`):
 
 ```typescript
 import { toastError, toastSuccess, toastWarning } from '../georgeToaster'
@@ -321,7 +321,7 @@ const className = twMerge('base-class', condition && 'conditional-class')
 
 ### Icon Components
 
-Use icon components from `apps/georgeai-webapp/app/icons/` instead of inline SVG:
+Use icon components from `apps/georgeai-webapp/src/icons/` instead of inline SVG:
 
 ```typescript
 import { PlusIcon } from '../../icons/plus-icon'
