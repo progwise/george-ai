@@ -288,6 +288,32 @@ GOOGLE_DRIVE_CLIENT_ID=your_client_id
 GOOGLE_DRIVE_CLIENT_SECRET=your_client_secret
 ```
 
+#### Automation & Connectors
+
+```bash
+# Encryption key for connector credentials (32-byte hex string)
+# Generate with: openssl rand -hex 32
+ENCRYPTION_KEY=your_64_character_hex_string_here
+```
+
+**Important**: The `ENCRYPTION_KEY` is required for the Automation feature to securely store connector credentials (e.g., Shopware 6 API keys). Without this key:
+
+- Connector credentials cannot be encrypted/decrypted
+- Existing connectors will fail to authenticate
+
+**Generating the key**:
+
+```bash
+# Generate a secure 32-byte (256-bit) encryption key
+openssl rand -hex 32
+```
+
+**Security notes**:
+
+- Store this key securely (use Docker secrets or a secrets manager in production)
+- Backup this key - losing it means losing access to all stored connector credentials
+- Never commit this key to version control
+
 #### Miscellaneous
 
 ```bash
