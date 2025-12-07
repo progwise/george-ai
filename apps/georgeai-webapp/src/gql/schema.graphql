@@ -29,6 +29,23 @@ type ActionConfigOption {
 }
 
 """
+A key-value pair for action configuration
+"""
+type ActionConfigValue {
+  key: String!
+  value: String
+}
+
+"""
+Maps a source enrichment field to a target field with transform
+"""
+type ActionFieldMapping {
+  sourceFieldId: String!
+  targetField: String!
+  transform: String!
+}
+
+"""
 AI Act Assessment Query
 """
 type AiActAssessment {
@@ -152,7 +169,7 @@ type AiAutomation {
   batches: [AiAutomationBatch!]!
   connector: AiConnector!
   connectorAction: String!
-  connectorActionConfigJson: String!
+  connectorActionConfig: ConnectorActionConfig!
   connectorId: String!
   createdAt: DateTime!
   executeOnEnrichment: Boolean!
@@ -1014,6 +1031,14 @@ type ComputeFieldValueResult {
   error: String
   success: Boolean
   value: String
+}
+
+"""
+Generic configuration for connector actions
+"""
+type ConnectorActionConfig {
+  fieldMappings: [ActionFieldMapping!]!
+  values: [ActionConfigValue!]!
 }
 
 type ConnectorActionInfo {

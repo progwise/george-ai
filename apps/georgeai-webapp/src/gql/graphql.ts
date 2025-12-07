@@ -49,6 +49,21 @@ export type ActionConfigOption = {
   name: Scalars['String']['output']
 }
 
+/** A key-value pair for action configuration */
+export type ActionConfigValue = {
+  __typename?: 'ActionConfigValue'
+  key: Scalars['String']['output']
+  value?: Maybe<Scalars['String']['output']>
+}
+
+/** Maps a source enrichment field to a target field with transform */
+export type ActionFieldMapping = {
+  __typename?: 'ActionFieldMapping'
+  sourceFieldId: Scalars['String']['output']
+  targetField: Scalars['String']['output']
+  transform: Scalars['String']['output']
+}
+
 /** AI Act Assessment Query */
 export type AiActAssessment = {
   __typename?: 'AiActAssessment'
@@ -172,7 +187,7 @@ export type AiAutomation = {
   batches: Array<AiAutomationBatch>
   connector: AiConnector
   connectorAction: Scalars['String']['output']
-  connectorActionConfigJson: Scalars['String']['output']
+  connectorActionConfig: ConnectorActionConfig
   connectorId: Scalars['String']['output']
   createdAt: Scalars['DateTime']['output']
   executeOnEnrichment: Scalars['Boolean']['output']
@@ -1085,6 +1100,13 @@ export type ComputeFieldValueResult = {
   error?: Maybe<Scalars['String']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
   value?: Maybe<Scalars['String']['output']>
+}
+
+/** Generic configuration for connector actions */
+export type ConnectorActionConfig = {
+  __typename?: 'ConnectorActionConfig'
+  fieldMappings: Array<ActionFieldMapping>
+  values: Array<ActionConfigValue>
 }
 
 export type ConnectorActionInfo = {
@@ -3799,9 +3821,18 @@ export type AutomationDetailFragment = {
   listId: string
   connectorId: string
   connectorAction: string
-  connectorActionConfigJson: string
   schedule?: string | null
   executeOnEnrichment: boolean
+  connectorActionConfig: {
+    __typename?: 'ConnectorActionConfig'
+    values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+    fieldMappings: Array<{
+      __typename?: 'ActionFieldMapping'
+      sourceFieldId: string
+      targetField: string
+      transform: string
+    }>
+  }
   list: {
     __typename?: 'AiList'
     id: string
@@ -3814,7 +3845,7 @@ export type AutomationDetailFragment = {
       sourceType: ListFieldSourceType
     }>
   }
-  connector: { __typename?: 'AiConnector'; id: string; name?: string | null; connectorType: string }
+  connector: { __typename?: 'AiConnector'; id: string; name?: string | null; baseUrl: string; connectorType: string }
 }
 
 export type GetAutomationQueryVariables = Exact<{
@@ -3832,9 +3863,18 @@ export type GetAutomationQuery = {
     listId: string
     connectorId: string
     connectorAction: string
-    connectorActionConfigJson: string
     schedule?: string | null
     executeOnEnrichment: boolean
+    connectorActionConfig: {
+      __typename?: 'ConnectorActionConfig'
+      values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+      fieldMappings: Array<{
+        __typename?: 'ActionFieldMapping'
+        sourceFieldId: string
+        targetField: string
+        transform: string
+      }>
+    }
     list: {
       __typename?: 'AiList'
       id: string
@@ -3847,7 +3887,7 @@ export type GetAutomationQuery = {
         sourceType: ListFieldSourceType
       }>
     }
-    connector: { __typename?: 'AiConnector'; id: string; name?: string | null; connectorType: string }
+    connector: { __typename?: 'AiConnector'; id: string; name?: string | null; baseUrl: string; connectorType: string }
   } | null
 }
 
@@ -3946,7 +3986,16 @@ export type UpdateAutomationMutation = {
     id: string
     name: string
     connectorAction: string
-    connectorActionConfigJson: string
+    connectorActionConfig: {
+      __typename?: 'ConnectorActionConfig'
+      values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+      fieldMappings: Array<{
+        __typename?: 'ActionFieldMapping'
+        sourceFieldId: string
+        targetField: string
+        transform: string
+      }>
+    }
   }
 }
 
@@ -8478,7 +8527,38 @@ export const AutomationDetailFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'connectorId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'connectorAction' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'connectorActionConfigJson' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'connectorActionConfig' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'values' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'fieldMappings' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceFieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'transform' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'schedule' } },
           { kind: 'Field', name: { kind: 'Name', value: 'executeOnEnrichment' } },
           {
@@ -8513,6 +8593,7 @@ export const AutomationDetailFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'connectorType' } },
               ],
             },
@@ -15177,7 +15258,38 @@ export const GetAutomationDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'connectorId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'connectorAction' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'connectorActionConfigJson' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'connectorActionConfig' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'values' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'fieldMappings' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceFieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'transform' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'schedule' } },
           { kind: 'Field', name: { kind: 'Name', value: 'executeOnEnrichment' } },
           {
@@ -15212,6 +15324,7 @@ export const GetAutomationDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'connectorType' } },
               ],
             },
@@ -15518,7 +15631,38 @@ export const UpdateAutomationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'connectorAction' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'connectorActionConfigJson' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'connectorActionConfig' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'values' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'fieldMappings' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'sourceFieldId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'transform' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },

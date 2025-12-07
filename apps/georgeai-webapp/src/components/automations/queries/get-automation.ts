@@ -14,7 +14,17 @@ graphql(`
     listId
     connectorId
     connectorAction
-    connectorActionConfigJson
+    connectorActionConfig {
+      values {
+        key
+        value
+      }
+      fieldMappings {
+        sourceFieldId
+        targetField
+        transform
+      }
+    }
     schedule
     executeOnEnrichment
     list {
@@ -30,6 +40,7 @@ graphql(`
     connector {
       id
       name
+      baseUrl
       connectorType
     }
   }

@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useMemo } from 'react'
 
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
@@ -47,6 +48,12 @@ function RouteComponent() {
     }),
   )
 
+  const subTitle = useMemo(() => {
+    if (!automation) return ''
+    const targets = automation.connectorActionConfig?.fieldMappings.map((f) => f.targetField).join(', ')
+    return `${automation.list.name} → ${targets || t('automations.notConfigured')}`
+  }, [automation, t])
+
   if (!automation) {
     return <div className="text-error">{t('automations.notFound')}</div>
   }
@@ -54,14 +61,17 @@ function RouteComponent() {
   return (
     <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr] gap-2">
       <ul className="menu menu-sm menu-horizontal text-base-content/70 bg-base-200 w-full items-center">
-        <li className="font-semibold">
+        <li className="menu-title">
+          <span>{subTitle}</span>
+        </li>
+        <li className="grow items-end">
           {t('automations.itemsCount', {
             endItem: page * pageSize + items.length,
             totalCount: totalCount,
             startItem: page * pageSize + 1,
           })}
         </li>
-        <li className="grow items-end">
+        <li>
           <Pagination
             totalItems={totalCount}
             itemsPerPage={pageSize}

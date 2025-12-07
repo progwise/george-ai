@@ -1310,6 +1310,7 @@ export default {
     createError: 'Failed to create automation: {message}',
     updateSuccess: 'Automation updated successfully',
     notFound: 'Automation not found',
+    notConfigured: 'not configured',
     selectAutomation: 'Select automation',
     noConnectorsAvailable: 'No connectors available. Please add a connector in the admin section first.',
     labelName: 'Name',

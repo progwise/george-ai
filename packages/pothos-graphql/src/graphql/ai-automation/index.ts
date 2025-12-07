@@ -1,3 +1,6 @@
+import type { ActionConfigValue, ActionFieldMapping, ConnectorActionConfig } from '@george-ai/connector-types'
+import { rawActionConfigSchema } from '@george-ai/connector-types'
+
 import { builder } from '../builder'
 
 import './mutations'
@@ -6,6 +9,40 @@ import './queries'
 console.log('Setting up: AiAutomation, AiAutomationItem, AiAutomationItemExecution, AiAutomationBatch')
 
 // Enums are defined in scalars/enums.ts
+
+// Generic action config types
+const ActionConfigValueType = builder.objectRef<ActionConfigValue>('ActionConfigValue').implement({
+  description: 'A key-value pair for action configuration',
+  fields: (t) => ({
+    key: t.exposeString('key', { nullable: false }),
+    value: t.exposeString('value', { nullable: true }),
+  }),
+})
+
+const ActionFieldMappingType = builder.objectRef<ActionFieldMapping>('ActionFieldMapping').implement({
+  description: 'Maps a source enrichment field to a target field with transform',
+  fields: (t) => ({
+    sourceFieldId: t.exposeString('sourceFieldId', { nullable: false }),
+    targetField: t.exposeString('targetField', { nullable: false }),
+    transform: t.exposeString('transform', { nullable: false }),
+  }),
+})
+
+const ConnectorActionConfigType = builder.objectRef<ConnectorActionConfig>('ConnectorActionConfig').implement({
+  description: 'Generic configuration for connector actions',
+  fields: (t) => ({
+    values: t.field({
+      type: [ActionConfigValueType],
+      nullable: { list: false, items: false },
+      resolve: (config) => config.values,
+    }),
+    fieldMappings: t.field({
+      type: [ActionFieldMappingType],
+      nullable: { list: false, items: false },
+      resolve: (config) => config.fieldMappings,
+    }),
+  }),
+})
 
 builder.prismaObject('AiAutomation', {
   name: 'AiAutomation',
@@ -18,9 +55,10 @@ builder.prismaObject('AiAutomation', {
     listId: t.exposeString('listId', { nullable: false }),
     connectorId: t.exposeString('connectorId', { nullable: false }),
     connectorAction: t.exposeString('connectorAction', { nullable: false }),
-    connectorActionConfigJson: t.string({
+    connectorActionConfig: t.field({
+      type: ConnectorActionConfigType,
       nullable: false,
-      resolve: (automation) => JSON.stringify(automation.connectorActionConfig),
+      resolve: (automation) => rawActionConfigSchema.parse(automation.connectorActionConfig),
     }),
     schedule: t.exposeString('schedule', { nullable: true }),
     executeOnEnrichment: t.exposeBoolean('executeOnEnrichment', { nullable: false }),

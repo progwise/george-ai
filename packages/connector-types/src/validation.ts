@@ -66,6 +66,54 @@ export const actionMappingsConfigSchema = z.object({
 export type ActionMappingsConfig = z.infer<typeof actionMappingsConfigSchema>
 
 /**
+ * Generic action config value (key-value pair for simple fields)
+ */
+export const actionConfigValueSchema = z.object({
+  key: z.string(),
+  value: z.string().nullable(),
+})
+
+export type ActionConfigValue = z.infer<typeof actionConfigValueSchema>
+
+/**
+ * Generic action field mapping (for GraphQL output)
+ */
+export const actionFieldMappingSchema = z.object({
+  sourceFieldId: z.string(),
+  targetField: z.string(),
+  transform: z.string(),
+})
+
+export type ActionFieldMapping = z.infer<typeof actionFieldMappingSchema>
+
+/**
+ * Generic connector action config structure (for GraphQL output)
+ */
+export const connectorActionConfigSchema = z.object({
+  values: z.array(actionConfigValueSchema),
+  fieldMappings: z.array(actionFieldMappingSchema),
+})
+
+export type ConnectorActionConfig = z.infer<typeof connectorActionConfigSchema>
+
+/**
+ * Schema that parses raw action config JSON into the generic structure
+ */
+export const rawActionConfigSchema = z.record(z.unknown()).transform((config): ConnectorActionConfig => {
+  const fieldMappingsRaw = config.fieldMappings
+  const fieldMappings = z.array(actionFieldMappingSchema).catch([]).parse(fieldMappingsRaw)
+
+  const values = Object.entries(config)
+    .filter(([key]) => key !== 'fieldMappings')
+    .map(([key, value]) => ({
+      key,
+      value: value == null ? null : String(value),
+    }))
+
+  return { values, fieldMappings }
+})
+
+/**
  * Validate connector credentials based on auth type
  */
 export function validateCredentials(

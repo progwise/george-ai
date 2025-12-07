@@ -27,7 +27,17 @@ export const updateAutomationFn = createServerFn({ method: 'POST' })
             id
             name
             connectorAction
-            connectorActionConfigJson
+            connectorActionConfig {
+              values {
+                key
+                value
+              }
+              fieldMappings {
+                sourceFieldId
+                targetField
+                transform
+              }
+            }
           }
         }
       `),

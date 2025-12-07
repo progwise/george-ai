@@ -39,14 +39,29 @@ function RouteComponent() {
     data: { connectorTypes },
   } = useSuspenseQuery(getConnectorTypesQueryOptions())
 
-  // Parse the current action config
+  // Convert structured config back to record format for form state
   const initialConfig = useMemo(() => {
-    try {
-      return JSON.parse(automation?.connectorActionConfigJson || '{}') as Record<string, unknown>
-    } catch {
-      return {}
+    if (!automation?.connectorActionConfig) return {}
+
+    const config: Record<string, unknown> = {}
+
+    // Convert values array back to key-value pairs
+    for (const { key, value } of automation.connectorActionConfig.values) {
+      config[key] = value
     }
-  }, [automation?.connectorActionConfigJson])
+
+    // Add fieldMappings if present
+    if (automation.connectorActionConfig.fieldMappings.length > 0) {
+      config.fieldMappings = automation.connectorActionConfig.fieldMappings.map((m) => ({
+        id: crypto.randomUUID(),
+        sourceFieldId: m.sourceFieldId,
+        targetField: m.targetField,
+        transform: m.transform,
+      }))
+    }
+
+    return config
+  }, [automation?.connectorActionConfig])
 
   // Form state
   const [name, setName] = useState(automation?.name || '')

@@ -1332,6 +1332,7 @@ export default {
     createError: 'Automatisierung konnte nicht erstellt werden: {message}',
     updateSuccess: 'Automatisierung erfolgreich aktualisiert',
     notFound: 'Automatisierung nicht gefunden',
+    notConfigured: 'nicht konfiguriert',
     selectAutomation: 'Automatisierung auswählen',
     noConnectorsAvailable:
       'Keine Konnektoren verfügbar. Bitte fügen Sie zuerst einen Konnektor im Admin-Bereich hinzu.',

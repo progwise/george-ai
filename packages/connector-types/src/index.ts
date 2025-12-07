@@ -20,9 +20,15 @@ export type {
 // Registry - main entry point
 export { getConnectorAction, getConnectorTypeFactory, registerConnectorType } from './registry'
 
-// Validation - only the commonly needed schema
-export { actionMappingsConfigSchema } from './validation'
-export type { ActionMappingsConfig, TransformType } from './validation'
+// Validation schemas
+export { actionMappingsConfigSchema, connectorActionConfigSchema, rawActionConfigSchema } from './validation'
+export type {
+  ActionConfigValue,
+  ActionFieldMapping,
+  ActionMappingsConfig,
+  ConnectorActionConfig,
+  TransformType,
+} from './validation'
 
 // Transforms
 export { substituteFieldValues, transformValue } from './transforms'
