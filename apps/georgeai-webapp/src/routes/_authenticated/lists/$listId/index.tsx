@@ -94,7 +94,7 @@ function RouteComponent() {
                 })}
               </div>
             </div>
-            <div className="align-right">
+            <div className="align-right text-sm">
               <Pagination
                 totalItems={aiListItems.count}
                 itemsPerPage={pageSize}

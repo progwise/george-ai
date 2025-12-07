@@ -219,8 +219,10 @@ type AiAutomationItem {
   executions: [AiAutomationItemExecution!]!
   id: ID!
   inScope: Boolean!
+  lastExecutedAt: DateTime
   listItem: AiListItem!
   listItemId: String!
+  preview: [AutomationPreviewValue!]!
   status: AutomationItemStatus!
   updatedAt: DateTime!
 }
@@ -1009,6 +1011,15 @@ enum AutomationItemStatus {
   WARNING
 }
 
+"""
+Preview of a value that will be written to the target system
+"""
+type AutomationPreviewValue {
+  targetField: String!
+  transformedValue: String
+  value: String
+}
+
 enum BatchStatus {
   COMPLETED
   COMPLETED_WITH_ERRORS
@@ -1664,6 +1675,7 @@ type Query {
   apiKeys(libraryId: String!): [ApiKey!]!
   automation(id: ID!): AiAutomation
   automationBatches(automationId: ID!, skip: Int, take: Int): [AiAutomationBatch!]!
+  automationItem(id: ID!): AiAutomationItem
   automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AiAutomationItemsResult!
   automations(listId: String): [AiAutomation!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!

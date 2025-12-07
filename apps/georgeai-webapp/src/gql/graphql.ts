@@ -239,8 +239,10 @@ export type AiAutomationItem = {
   executions: Array<AiAutomationItemExecution>
   id: Scalars['ID']['output']
   inScope: Scalars['Boolean']['output']
+  lastExecutedAt?: Maybe<Scalars['DateTime']['output']>
   listItem: AiListItem
   listItemId: Scalars['String']['output']
+  preview: Array<AutomationPreviewValue>
   status: AutomationItemStatus
   updatedAt: Scalars['DateTime']['output']
 }
@@ -1078,6 +1080,14 @@ export enum AutomationItemStatus {
   Skipped = 'SKIPPED',
   Success = 'SUCCESS',
   Warning = 'WARNING',
+}
+
+/** Preview of a value that will be written to the target system */
+export type AutomationPreviewValue = {
+  __typename?: 'AutomationPreviewValue'
+  targetField: Scalars['String']['output']
+  transformedValue?: Maybe<Scalars['String']['output']>
+  value?: Maybe<Scalars['String']['output']>
 }
 
 export enum BatchStatus {
@@ -2087,6 +2097,7 @@ export type Query = {
   apiKeys: Array<ApiKey>
   automation?: Maybe<AiAutomation>
   automationBatches: Array<AiAutomationBatch>
+  automationItem?: Maybe<AiAutomationItem>
   automationItems: AiAutomationItemsResult
   automations: Array<AiAutomation>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
@@ -2286,6 +2297,10 @@ export type QueryAutomationBatchesArgs = {
   automationId: Scalars['ID']['input']
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
+}
+
+export type QueryAutomationItemArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type QueryAutomationItemsArgs = {
@@ -3771,6 +3786,71 @@ export type GetAutomationBatchesQuery = {
   }>
 }
 
+export type AutomationItemDetail_AutomationItemFragment = {
+  __typename?: 'AiAutomationItem'
+  id: string
+  createdAt: string
+  updatedAt: string
+  automationId: string
+  listItemId: string
+  inScope: boolean
+  status: AutomationItemStatus
+  lastExecutedAt?: string | null
+  preview: Array<{
+    __typename?: 'AutomationPreviewValue'
+    targetField: string
+    value?: string | null
+    transformedValue?: string | null
+  }>
+  listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
+  executions: Array<{
+    __typename?: 'AiAutomationItemExecution'
+    id: string
+    status: AutomationItemStatus
+    inputJson: string
+    outputJson?: string | null
+    startedAt: string
+    finishedAt?: string | null
+    batchId?: string | null
+  }>
+}
+
+export type GetAutomationItemQueryVariables = Exact<{
+  itemId: Scalars['ID']['input']
+}>
+
+export type GetAutomationItemQuery = {
+  __typename?: 'Query'
+  automationItem?: {
+    __typename?: 'AiAutomationItem'
+    id: string
+    createdAt: string
+    updatedAt: string
+    automationId: string
+    listItemId: string
+    inScope: boolean
+    status: AutomationItemStatus
+    lastExecutedAt?: string | null
+    preview: Array<{
+      __typename?: 'AutomationPreviewValue'
+      targetField: string
+      value?: string | null
+      transformedValue?: string | null
+    }>
+    listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
+    executions: Array<{
+      __typename?: 'AiAutomationItemExecution'
+      id: string
+      status: AutomationItemStatus
+      inputJson: string
+      outputJson?: string | null
+      startedAt: string
+      finishedAt?: string | null
+      batchId?: string | null
+    }>
+  } | null
+}
+
 export type AutomationItemList_AutomationItemFragment = {
   __typename?: 'AiAutomationItem'
   id: string
@@ -3780,6 +3860,8 @@ export type AutomationItemList_AutomationItemFragment = {
   listItemId: string
   inScope: boolean
   status: AutomationItemStatus
+  lastExecutedAt?: string | null
+  preview: Array<{ __typename?: 'AutomationPreviewValue'; targetField: string; value?: string | null }>
   listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
 }
 
@@ -3807,6 +3889,8 @@ export type GetAutomationItemsQuery = {
       listItemId: string
       inScope: boolean
       status: AutomationItemStatus
+      lastExecutedAt?: string | null
+      preview: Array<{ __typename?: 'AutomationPreviewValue'; targetField: string; value?: string | null }>
       listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
     }>
   }
@@ -8476,6 +8560,69 @@ export const AutomationBatchDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AutomationBatchDetailFragment, unknown>
+export const AutomationItemDetail_AutomationItemFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AutomationItemDetail_AutomationItem' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'automationId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listItemId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'preview' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'transformedValue' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'listItem' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'executions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'inputJson' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'outputJson' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'batchId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AutomationItemDetail_AutomationItemFragment, unknown>
 export const AutomationItemList_AutomationItemFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8493,6 +8640,18 @@ export const AutomationItemList_AutomationItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'listItemId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'preview' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'listItem' },
@@ -15089,6 +15248,103 @@ export const GetAutomationBatchesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAutomationBatchesQuery, GetAutomationBatchesQueryVariables>
+export const GetAutomationItemDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getAutomationItem' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'automationItem' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AutomationItemDetail_AutomationItem' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AutomationItemDetail_AutomationItem' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'automationId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'listItemId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'preview' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'transformedValue' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'listItem' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'executions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'inputJson' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'outputJson' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finishedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'batchId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAutomationItemQuery, GetAutomationItemQueryVariables>
 export const GetAutomationItemsDocument = {
   kind: 'Document',
   definitions: [
@@ -15192,6 +15448,18 @@ export const GetAutomationItemsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'listItemId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'preview' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'listItem' },

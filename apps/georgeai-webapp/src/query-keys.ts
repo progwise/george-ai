@@ -30,6 +30,7 @@ export const queryKeys = {
   // Automations
   Automations: 'Automations',
   Automation: 'Automation',
+  AutomationItem: 'AutomationItem',
   AutomationItems: 'AutomationItems',
   AutomationBatches: 'AutomationBatches',
 }

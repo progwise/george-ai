@@ -241,6 +241,8 @@ test.describe('Automations', () => {
       await page.waitForLoadState('networkidle')
 
       // Verify automation 1 is available in workspace 1 by opening the automation selector
+      // The workspace switcher navigates to /automations and invalidates all automation queries
+      await expect(automationSelector).toBeVisible({ timeout: 10000 })
       await automationSelector.click()
       const finalDropdown = page.locator('details[open] > ul').first()
       await expect(finalDropdown).toBeVisible()

@@ -117,6 +117,33 @@ builder.queryField('automationItems', (t) =>
   }),
 )
 
+// Query to get a single automation item by ID
+builder.queryField('automationItem', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiAutomationItem',
+    nullable: true,
+    args: {
+      id: t.arg.id({ required: true }),
+    },
+    resolve: async (query, _source, { id }, context) => {
+      const item = await prisma.aiAutomationItem.findFirst({
+        ...query,
+        where: { id: String(id) },
+        include: {
+          automation: true,
+        },
+      })
+
+      // Verify automation belongs to workspace
+      if (!item || item.automation.workspaceId !== context.workspaceId) {
+        return null
+      }
+
+      return item
+    },
+  }),
+)
+
 // Query to get automation batches (execution history)
 builder.queryField('automationBatches', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({

@@ -14,6 +14,11 @@ graphql(`
     listItemId
     inScope
     status
+    lastExecutedAt
+    preview {
+      targetField
+      value
+    }
     listItem {
       id
       itemName
