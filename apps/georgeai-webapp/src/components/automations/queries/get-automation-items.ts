@@ -6,7 +6,7 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 graphql(`
-  fragment AutomationItemDetail on AiAutomationItem {
+  fragment AutomationItemList_AutomationItem on AiAutomationItem {
     id
     createdAt
     updatedAt
@@ -36,7 +36,12 @@ const getAutomationItems = createServerFn({ method: 'GET' })
       graphql(`
         query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {
           automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {
-            ...AutomationItemDetail
+            totalCount
+            skip
+            take
+            items {
+              ...AutomationItemList_AutomationItem
+            }
           }
         }
       `),

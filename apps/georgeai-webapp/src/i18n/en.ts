@@ -1330,7 +1330,7 @@ export default {
     action: 'Action',
     selectAction: 'Select an action',
     items: 'Items',
-    itemsCount: 'Showing {count} items',
+    itemsCount: 'Items {startItem} to {endItem} from {totalCount} items',
     noItems: 'No items available for this automation.',
     itemName: 'Item Name',
     itemStatus: 'Status',

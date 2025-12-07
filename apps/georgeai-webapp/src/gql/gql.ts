@@ -76,8 +76,8 @@ type Documents = {
   '\n  fragment AutomationMenu_Automations on AiAutomation {\n    id\n    name\n  }\n': typeof types.AutomationMenu_AutomationsFragmentDoc
   '\n  fragment AutomationBatchDetail on AiAutomationBatch {\n    id\n    createdAt\n    automationId\n    status\n    triggeredBy\n    itemsTotal\n    itemsProcessed\n    itemsSuccess\n    itemsWarning\n    itemsFailed\n    itemsSkipped\n    startedAt\n    finishedAt\n  }\n': typeof types.AutomationBatchDetailFragmentDoc
   '\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ': typeof types.GetAutomationBatchesDocument
-  '\n  fragment AutomationItemDetail on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n': typeof types.AutomationItemDetailFragmentDoc
-  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            ...AutomationItemDetail\n          }\n        }\n      ': typeof types.GetAutomationItemsDocument
+  '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n': typeof types.AutomationItemList_AutomationItemFragmentDoc
+  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ': typeof types.GetAutomationItemsDocument
   '\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfigJson\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      connectorType\n    }\n  }\n': typeof types.AutomationDetailFragmentDoc
   '\n        query getAutomation($id: ID!) {\n          automation(id: $id) {\n            ...AutomationDetail\n          }\n        }\n      ': typeof types.GetAutomationDocument
   '\n  fragment AutomationsBase on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    executeOnEnrichment\n  }\n': typeof types.AutomationsBaseFragmentDoc
@@ -375,9 +375,9 @@ const documents: Documents = {
     types.AutomationBatchDetailFragmentDoc,
   '\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ':
     types.GetAutomationBatchesDocument,
-  '\n  fragment AutomationItemDetail on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n':
-    types.AutomationItemDetailFragmentDoc,
-  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            ...AutomationItemDetail\n          }\n        }\n      ':
+  '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n':
+    types.AutomationItemList_AutomationItemFragmentDoc,
+  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ':
     types.GetAutomationItemsDocument,
   '\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfigJson\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      connectorType\n    }\n  }\n':
     types.AutomationDetailFragmentDoc,
@@ -1106,14 +1106,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AutomationItemDetail on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n',
-): (typeof documents)['\n  fragment AutomationItemDetail on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n']
+  source: '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n',
+): (typeof documents)['\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    listItem {\n      id\n      itemName\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            ...AutomationItemDetail\n          }\n        }\n      ',
-): (typeof documents)['\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            ...AutomationItemDetail\n          }\n        }\n      ']
+  source: '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

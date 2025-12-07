@@ -177,7 +177,6 @@ export type AiAutomation = {
   createdAt: Scalars['DateTime']['output']
   executeOnEnrichment: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
-  items: Array<AiAutomationItem>
   list: AiList
   listId: Scalars['String']['output']
   name: Scalars['String']['output']
@@ -243,6 +242,15 @@ export type AiAutomationItemExecution = {
   outputJson?: Maybe<Scalars['String']['output']>
   startedAt: Scalars['DateTime']['output']
   status: AutomationItemStatus
+}
+
+/** Query result for Automation Items */
+export type AiAutomationItemsResult = {
+  __typename?: 'AiAutomationItemsResult'
+  items: Array<AiAutomationItem>
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  totalCount: Scalars['Int']['output']
 }
 
 export type AiBaseCaseInputType = {
@@ -2057,7 +2065,7 @@ export type Query = {
   apiKeys: Array<ApiKey>
   automation?: Maybe<AiAutomation>
   automationBatches: Array<AiAutomationBatch>
-  automationItems: Array<AiAutomationItem>
+  automationItems: AiAutomationItemsResult
   automations: Array<AiAutomation>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
   connector?: Maybe<AiConnector>
@@ -3740,7 +3748,7 @@ export type GetAutomationBatchesQuery = {
   }>
 }
 
-export type AutomationItemDetailFragment = {
+export type AutomationItemList_AutomationItemFragment = {
   __typename?: 'AiAutomationItem'
   id: string
   createdAt: string
@@ -3762,17 +3770,23 @@ export type GetAutomationItemsQueryVariables = Exact<{
 
 export type GetAutomationItemsQuery = {
   __typename?: 'Query'
-  automationItems: Array<{
-    __typename?: 'AiAutomationItem'
-    id: string
-    createdAt: string
-    updatedAt: string
-    automationId: string
-    listItemId: string
-    inScope: boolean
-    status: AutomationItemStatus
-    listItem: { __typename?: 'AiListItem'; id: string; itemName: string }
-  }>
+  automationItems: {
+    __typename?: 'AiAutomationItemsResult'
+    totalCount: number
+    skip: number
+    take: number
+    items: Array<{
+      __typename?: 'AiAutomationItem'
+      id: string
+      createdAt: string
+      updatedAt: string
+      automationId: string
+      listItemId: string
+      inScope: boolean
+      status: AutomationItemStatus
+      listItem: { __typename?: 'AiListItem'; id: string; itemName: string }
+    }>
+  }
 }
 
 export type AutomationDetailFragment = {
@@ -8411,12 +8425,12 @@ export const AutomationBatchDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AutomationBatchDetailFragment, unknown>
-export const AutomationItemDetailFragmentDoc = {
+export const AutomationItemList_AutomationItemFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AutomationItemDetail' },
+      name: { kind: 'Name', value: 'AutomationItemList_AutomationItem' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -8443,7 +8457,7 @@ export const AutomationItemDetailFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<AutomationItemDetailFragment, unknown>
+} as unknown as DocumentNode<AutomationItemList_AutomationItemFragment, unknown>
 export const AutomationDetailFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -15060,7 +15074,21 @@ export const GetAutomationItemsDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AutomationItemDetail' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AutomationItemList_AutomationItem' } },
+                    ],
+                  },
+                },
+              ],
             },
           },
         ],
@@ -15068,7 +15096,7 @@ export const GetAutomationItemsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AutomationItemDetail' },
+      name: { kind: 'Name', value: 'AutomationItemList_AutomationItem' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',

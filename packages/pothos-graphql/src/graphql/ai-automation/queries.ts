@@ -1,3 +1,5 @@
+import { AutomationItemStatus } from '../../../prisma/generated/client'
+import { canAccessAutomationOrThrow } from '../../domain/automation'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -42,11 +44,46 @@ builder.queryField('automation', (t) =>
   }),
 )
 
+const AutomationItemsResult = builder
+  .objectRef<{
+    automationId: string
+    totalCount: number
+    take: number
+    skip: number
+    inScope: boolean
+    status: AutomationItemStatus | null
+  }>('AiAutomationItemsResult')
+  .implement({
+    description: 'Query result for Automation Items',
+    fields: (t) => ({
+      totalCount: t.exposeInt('totalCount', { nullable: false }),
+      skip: t.exposeInt('skip', { nullable: false }),
+      take: t.exposeInt('take', { nullable: false }),
+      items: t.prismaField({
+        type: ['AiAutomationItem'],
+        nullable: { list: false, items: false },
+        resolve: (query, root) => {
+          return prisma.aiAutomationItem.findMany({
+            ...query,
+            where: {
+              automationId: root.automationId,
+              inScope: root.inScope,
+              ...(root.status ? { status: root.status } : {}),
+            },
+            orderBy: [{ createdAt: 'desc' }],
+            skip: root.skip,
+            take: root.take,
+          })
+        },
+      }),
+    }),
+  })
+
 // Query to get automation items with pagination and filtering
 builder.queryField('automationItems', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: ['AiAutomationItem'],
-    nullable: { list: false, items: false },
+  t.withAuth({ isLoggedIn: true }).field({
+    type: AutomationItemsResult,
+    nullable: false,
     args: {
       automationId: t.arg.id({ required: true }),
       inScope: t.arg.boolean({ required: false }),
@@ -54,30 +91,28 @@ builder.queryField('automationItems', (t) =>
       skip: t.arg.int({ required: false }),
       take: t.arg.int({ required: false }),
     },
-    resolve: async (query, _source, { automationId, inScope, status, skip, take }, context) => {
+    resolve: async (_parent, { automationId, inScope, status, skip, take }, context) => {
       // Verify automation belongs to workspace
-      const automation = await prisma.aiAutomation.findFirst({
-        where: {
-          id: String(automationId),
-          workspaceId: context.workspaceId,
+      const automation = await canAccessAutomationOrThrow(automationId, context.session.user.id, {
+        include: {
+          _count: {
+            select: {
+              items: {
+                where: { inScope: inScope ?? true, ...(status ? { status: status as AutomationItemStatus } : {}) },
+              },
+            },
+          },
         },
       })
 
-      if (!automation) {
-        return []
+      return {
+        totalCount: automation._count.items,
+        automationId: automationId,
+        inScope: inScope ?? true,
+        status: status as AutomationItemStatus,
+        skip: skip ?? 0,
+        take: take ?? 20,
       }
-
-      return prisma.aiAutomationItem.findMany({
-        ...query,
-        where: {
-          automationId: String(automationId),
-          ...(inScope !== undefined && inScope !== null ? { inScope } : {}),
-          ...(status ? { status: status as 'PENDING' | 'SUCCESS' | 'WARNING' | 'FAILED' | 'SKIPPED' } : {}),
-        },
-        orderBy: [{ createdAt: 'desc' }],
-        skip: skip ?? undefined,
-        take: take ?? 50,
-      })
     },
   }),
 )

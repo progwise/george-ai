@@ -27,7 +27,6 @@ builder.prismaObject('AiAutomation', {
     workspace: t.relation('workspace', { nullable: false }),
     list: t.relation('list', { nullable: false }),
     connector: t.relation('connector', { nullable: false }),
-    items: t.relation('items', { nullable: false }),
     batches: t.relation('batches', { nullable: false }),
   }),
 })

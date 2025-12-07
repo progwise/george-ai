@@ -28,28 +28,24 @@ export const Pagination = ({
   onPageSizeChange,
 }: PaginationProps) => {
   const { t } = useTranslation()
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const pageInputRef = useRef<HTMLInputElement>(null)
+  const dropDownRef = useRef<HTMLDetailsElement>(null)
   const totalPages = totalItems === 0 ? 1 : Math.ceil(totalItems / itemsPerPage)
   const isFirstPage = currentPage === 1
   const isLastPage = currentPage === totalPages
   const onlyOnePage = totalPages === 1
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return
-    onPageChange(page)
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return
+    onPageChange(newPage)
   }
 
-  const handlePageInput = () => {
-    if (!dialogRef.current) return
-    dialogRef.current.showModal()
-    if (!pageInputRef.current) return
-    pageInputRef.current.value = currentPage.toString()
-    pageInputRef.current.select()
-    // Focus the input after a short delay to ensure the dialog is fully rendered
-    setTimeout(() => {
-      pageInputRef.current?.focus()
-    }, 100)
+  const handlePageManualChange = (value: string) => {
+    const newPage = Number(value)
+    if (isNaN(newPage)) return
+    handlePageChange(newPage)
+    if (dropDownRef.current) {
+      dropDownRef.current.removeAttribute('open')
+    }
   }
 
   useEffect(() => {
@@ -58,101 +54,117 @@ export const Pagination = ({
     }
   }, [currentPage, totalPages, onPageChange])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropDownRef.current && !dropDownRef.current.contains(event.target as Node)) {
+        dropDownRef.current.removeAttribute('open')
+      }
+    }
+
+    const observer = new MutationObserver(() => {
+      if (dropDownRef.current?.open) {
+        dropDownRef.current.querySelector('input')?.focus()
+      }
+    })
+
+    if (dropDownRef.current) {
+      observer.observe(dropDownRef.current, { attributes: true, attributeFilter: ['open'] })
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      observer.disconnect()
+    }
+  }, [])
+
   return (
-    <>
-      <dialog ref={dialogRef} id="pageEnterDialog" className="modal modal-bottom sm:modal-middle">
-        <form
-          method="dialog"
-          className="w-100 flex justify-center p-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (!pageInputRef.current) return
-            const page = parseInt(pageInputRef.current.value, 10)
-            if (isNaN(page) || page < 1 || page > totalPages) {
-              // Invalid page number, do nothing
-              return
+    <div className={twMerge('flex items-end gap-4', className)}>
+      <div className="join">
+        <button
+          type="button"
+          className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
+          aria-label="First Page"
+          aria-disabled={isFirstPage}
+          onClick={() => handlePageChange(1)}
+          disabled={isFirstPage}
+        >
+          «
+        </button>
+        <button
+          type="button"
+          className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
+          aria-label="Previous Page"
+          aria-disabled={isFirstPage}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          ‹
+        </button>
+        <details
+          ref={dropDownRef}
+          className="dropdown dropdown-end"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape' || event.key === 'Return') {
+              dropDownRef.current?.removeAttribute('open')
             }
-            onPageChange(page)
-            dialogRef.current?.close()
           }}
         >
-          <label className="input w-full">
-            <span>{t('labels.gotoPage')}</span>
-            <input ref={pageInputRef} type="text" className="grow text-center" placeholder={currentPage.toString()} />
-            <span>{t('labels.ofPages', { totalPages })}</span>
-          </label>
-        </form>
-      </dialog>
-      <div className={twMerge('flex items-end gap-4', className)}>
-        <div className="join">
-          <button
-            type="button"
-            className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
-            aria-label="First Page"
-            aria-disabled={isFirstPage}
-            onClick={() => handlePageChange(1)}
-            disabled={isFirstPage}
-          >
-            «
-          </button>
-          <button
-            type="button"
-            className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
-            aria-label="Previous Page"
-            aria-disabled={isFirstPage}
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            className={twMerge('join-item btn btn-xs', onlyOnePage && 'btn-disabled')}
-            onClick={() => {
-              handlePageInput()
-            }}
-          >
+          <summary role="button" className={twMerge('join-item btn btn-xs', onlyOnePage && 'btn-disabled')}>
             <span className="flex-nowrap text-nowrap text-xs font-normal">
               {currentPage}/{totalPages}
             </span>
-          </button>
-          <button
-            type="button"
-            aria-label="Next Page"
-            className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
-            aria-disabled={isLastPage}
-            disabled={currentPage === totalPages}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            ›
-          </button>
-          <button
-            type="button"
-            aria-label="Last Page"
-            className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
-            aria-disabled={isLastPage}
-            disabled={isLastPage}
-            onClick={() => handlePageChange(totalPages)}
-          >
-            »
-          </button>
-        </div>
-        {showPageSizeSelector && onPageSizeChange && (
-          <div className="flex flex-col gap-1">
-            <select
-              className="select select-sm select-bordered h-full"
-              value={itemsPerPage}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+          </summary>
+          <label className="input dropdown-content bg-base-100 rounded-box z-1 w-64 p-2 shadow-sm" tabIndex={0}>
+            {t('labels.gotoPage')}
+            <input
+              type="number"
+              min="1"
+              max={`${totalPages}`}
+              className="grow text-center"
+              placeholder={currentPage.toString()}
+              onBlur={(event) => handlePageManualChange(event.target.value)}
+            />
+            <span>{t('labels.ofPages', { totalPages })}</span>
+          </label>
+        </details>
+
+        <button
+          type="button"
+          aria-label="Next Page"
+          className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
+          aria-disabled={isLastPage}
+          disabled={currentPage === totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          ›
+        </button>
+        <button
+          type="button"
+          aria-label="Last Page"
+          className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
+          aria-disabled={isLastPage}
+          disabled={isLastPage}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          »
+        </button>
       </div>
-    </>
+      {showPageSizeSelector && onPageSizeChange && (
+        <div className="flex flex-col gap-1">
+          <select
+            className="select select-sm select-bordered h-full"
+            value={itemsPerPage}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          >
+            {pageSizeOptions.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
   )
 }

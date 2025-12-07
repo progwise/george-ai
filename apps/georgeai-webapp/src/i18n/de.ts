@@ -1353,7 +1353,7 @@ export default {
     action: 'Aktion',
     selectAction: 'Aktion auswählen',
     items: 'Elemente',
-    itemsCount: '{count} Elemente werden angezeigt',
+    itemsCount: 'Elemente {startItem} bis {endItem} von {totalCount} Elementen',
     noItems: 'Keine Elemente für diese Automatisierung verfügbar.',
     itemName: 'Elementname',
     itemStatus: 'Status',

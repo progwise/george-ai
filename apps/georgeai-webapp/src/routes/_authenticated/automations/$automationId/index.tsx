@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
+import { Pagination } from '../../../../components/table/pagination'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { PlayIcon } from '../../../../icons/play-icon'
 
@@ -26,6 +27,7 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { triggerAutomationItem, isPending } = useAutomationActions()
 
+  const navigate = Route.useNavigate()
   const { automationId } = Route.useParams()
   const { page = 0, pageSize = 20 } = Route.useSearch()
 
@@ -33,7 +35,11 @@ function RouteComponent() {
     data: { automation },
   } = useSuspenseQuery(getAutomationQueryOptions(automationId))
 
-  const { data } = useSuspenseQuery(
+  const {
+    data: {
+      automationItems: { totalCount, items },
+    },
+  } = useSuspenseQuery(
     getAutomationItemsQueryOptions({
       automationId,
       skip: page * pageSize,
@@ -48,11 +54,31 @@ function RouteComponent() {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <div className="text-base-content/70 text-sm">
-          {t('automations.itemsCount', { count: data.automationItems.length })}
-        </div>
+        <ul className="menu menu-sm menu-horizontal text-base-content/70 w-full items-center gap-4 text-sm">
+          <li>
+            {t('automations.itemsCount', {
+              endItem: page * pageSize + items.length,
+              totalCount: totalCount,
+              startItem: page * pageSize + 1,
+            })}
+          </li>
+          <li className="grow items-end">
+            <Pagination
+              totalItems={totalCount}
+              itemsPerPage={pageSize}
+              currentPage={page + 1}
+              onPageChange={(newPage) => {
+                navigate({ search: { page: newPage - 1, pageSize }, replace: true })
+              }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({ search: { page: 0, pageSize: newPageSize }, replace: true })
+              }}
+            />
+          </li>
+        </ul>
 
-        {data.automationItems.length === 0 ? (
+        {items.length === 0 ? (
           <div className="text-base-content/50 py-8 text-center">{t('automations.noItems')}</div>
         ) : (
           <table className="table-zebra table w-full">
@@ -65,7 +91,7 @@ function RouteComponent() {
               </tr>
             </thead>
             <tbody>
-              {data.automationItems.map((item) => (
+              {items.map((item) => (
                 <tr key={item.id}>
                   <td>{item.listItem.itemName}</td>
                   <td>

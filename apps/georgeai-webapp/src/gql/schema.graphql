@@ -157,7 +157,6 @@ type AiAutomation {
   createdAt: DateTime!
   executeOnEnrichment: Boolean!
   id: ID!
-  items: [AiAutomationItem!]!
   list: AiList!
   listId: String!
   name: String!
@@ -220,6 +219,16 @@ type AiAutomationItemExecution {
   outputJson: String
   startedAt: DateTime!
   status: AutomationItemStatus!
+}
+
+"""
+Query result for Automation Items
+"""
+type AiAutomationItemsResult {
+  items: [AiAutomationItem!]!
+  skip: Int!
+  take: Int!
+  totalCount: Int!
 }
 
 input AiBaseCaseInputType {
@@ -1629,7 +1638,7 @@ type Query {
   apiKeys(libraryId: String!): [ApiKey!]!
   automation(id: ID!): AiAutomation
   automationBatches(automationId: ID!, skip: Int, take: Int): [AiAutomationBatch!]!
-  automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): [AiAutomationItem!]!
+  automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AiAutomationItemsResult!
   automations(listId: String): [AiAutomation!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
   connector(id: ID!): AiConnector
