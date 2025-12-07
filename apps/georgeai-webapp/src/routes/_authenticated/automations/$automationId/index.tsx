@@ -51,7 +51,7 @@ function RouteComponent() {
   const subTitle = useMemo(() => {
     if (!automation) return ''
     const targets = automation.connectorActionConfig?.fieldMappings.map((f) => f.targetField).join(', ')
-    return `${automation.list.name} → ${targets || t('automations.notConfigured')}`
+    return `${automation.connector.baseUrl} : ${automation.list.name} → ${targets || t('automations.notConfigured')}`
   }, [automation, t])
 
   if (!automation) {
