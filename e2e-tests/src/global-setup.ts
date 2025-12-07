@@ -367,6 +367,31 @@ async function globalSetup() {
     )
     console.log(`  ✅ Added standard fields (Item Name, Filename) to test list`)
 
+    // Step 6: Create test connector for automation E2E tests
+    console.log('  🔌 Creating test connector for automations...')
+
+    // Enable shopware6 connector type for E2E Test Workspace 1
+    await client.query(
+      `
+      INSERT INTO "AiConnectorTypeWorkspace" (id, "workspaceId", "connectorType", "createdAt")
+      VALUES (gen_random_uuid(), $1, 'shopware6', NOW())
+      ON CONFLICT ("workspaceId", "connectorType") DO NOTHING
+    `,
+      [workspace1Id],
+    )
+    console.log(`  ✅ Enabled shopware6 connector type for E2E Test Workspace 1`)
+
+    // Create a test connector (with dummy config - won't actually connect)
+    await client.query(
+      `
+      INSERT INTO "AiConnector" (id, "workspaceId", "connectorType", "baseUrl", name, config, "isConnected", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, 'shopware6', 'https://test-shop.example.com', 'E2E Test Connector', '{"clientId": "test", "clientSecret": "encrypted:test"}', false, NOW(), NOW())
+      ON CONFLICT DO NOTHING
+    `,
+      [workspace1Id],
+    )
+    console.log(`  ✅ Created test connector: E2E Test Connector`)
+
     console.log('✅ E2E Global Setup completed')
   } catch (error) {
     console.error('❌ E2E Global Setup failed:')

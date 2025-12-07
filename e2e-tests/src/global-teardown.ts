@@ -15,6 +15,60 @@ async function globalTeardown() {
     await client.connect()
     console.log('  ✅ Database connected')
 
+    // Delete test automation items first (foreign key constraint)
+    await client.query(
+      `
+      DELETE FROM "AiAutomationItem"
+      WHERE "automationId" IN (
+        SELECT id FROM "AiAutomation"
+        WHERE name LIKE 'E2E Test%'
+      )
+    `,
+    )
+
+    // Delete test automation batches
+    await client.query(
+      `
+      DELETE FROM "AiAutomationBatch"
+      WHERE "automationId" IN (
+        SELECT id FROM "AiAutomation"
+        WHERE name LIKE 'E2E Test%'
+      )
+    `,
+    )
+
+    // Delete test automations
+    const automationResult = await client.query(
+      `
+      DELETE FROM "AiAutomation"
+      WHERE name LIKE 'E2E Test%'
+      RETURNING name
+    `,
+    )
+
+    if (automationResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${automationResult.rows.length} test automations:`)
+      automationResult.rows.forEach((row) => console.log(`     - ${row.name}`))
+    } else {
+      console.log('  ✅ No test automations to clean up')
+    }
+
+    // Delete test connectors
+    const connectorResult = await client.query(
+      `
+      DELETE FROM "AiConnector"
+      WHERE name LIKE 'E2E Test%'
+      RETURNING name
+    `,
+    )
+
+    if (connectorResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${connectorResult.rows.length} test connectors:`)
+      connectorResult.rows.forEach((row) => console.log(`     - ${row.name}`))
+    } else {
+      console.log('  ✅ No test connectors to clean up')
+    }
+
     // Delete test list items first (foreign key constraint)
     await client.query(
       `

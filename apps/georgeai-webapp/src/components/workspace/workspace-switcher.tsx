@@ -49,6 +49,8 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
       await navigate({ to: '/lists' })
     } else if (currentPath.startsWith('/conversations/')) {
       await navigate({ to: '/conversations' })
+    } else if (currentPath.startsWith('/automations')) {
+      await navigate({ to: '/automations' })
     }
   }
 
