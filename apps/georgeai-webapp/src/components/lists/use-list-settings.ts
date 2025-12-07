@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router'
+
 import { AiListFilterType } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
 
@@ -25,6 +27,7 @@ export interface ListSorting {
 }
 
 export const useListSettings = (listId: string) => {
+  const navigate = useNavigate()
   const [filters, setFilters] = useLocalstorage<FieldFilter[]>(`ListFilters-${listId}`)
   const [sorting, setSorting] = useLocalstorage<FieldSorting[]>(`ListSorting-${listId}`)
 
@@ -81,11 +84,22 @@ export const useListSettings = (listId: string) => {
 
   const clearAllSorting = () => setSorting([])
 
+  const removeSelectedItem = () => {
+    navigate({
+      to: '/lists/$listId',
+      params: { listId },
+      search: {
+        selectedItemId: undefined,
+      },
+    })
+  }
+
   return {
     filters: filters || [],
     getFilterValue,
     updateFilter,
     removeFilter,
+    removeSelectedItem,
     clearFieldFilters,
     clearAllFilters,
     sorting: sorting || [],

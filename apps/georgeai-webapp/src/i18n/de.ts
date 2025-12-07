@@ -1358,6 +1358,7 @@ export default {
     itemName: 'Elementname',
     itemStatus: 'Status',
     itemInScope: 'Im Umfang',
+    itemAction: 'Aktion',
     editSettings: 'Einstellungen bearbeiten',
     editComingSoon:
       'Vollständige Bearbeitungsfunktion kommt bald. Derzeit wird eine schreibgeschützte Ansicht angezeigt.',

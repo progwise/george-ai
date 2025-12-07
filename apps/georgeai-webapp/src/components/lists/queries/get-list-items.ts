@@ -19,6 +19,7 @@ const getListItemsSchema = z.object({
       value: z.string().nonempty(),
     }),
   ),
+  selectedItemId: z.string().nonempty().optional(),
   sorting: z.array(
     z.object({
       fieldId: z.string().nonempty(),
@@ -36,6 +37,7 @@ const getListItemsFn = createServerFn({ method: 'GET' })
       sorting?: FieldSorting[]
       fieldIds: string[]
       filters: FieldFilter[]
+      selectedItemId?: string
     }) => getListItemsSchema.parse(data),
   )
   .handler(async (ctx) => {
@@ -48,6 +50,7 @@ const getListItemsFn = createServerFn({ method: 'GET' })
           $sorting: [AiListSortingInput!]
           $fieldIds: [String!]!
           $filters: [AiListFilterInput!]!
+          $selectedItemId: String
         ) {
           aiListItems(
             listId: $listId
@@ -56,6 +59,7 @@ const getListItemsFn = createServerFn({ method: 'GET' })
             skip: $skip
             take: $take
             sorting: $sorting
+            selectedItemId: $selectedItemId
           ) {
             unfilteredCount
             count
@@ -75,6 +79,7 @@ export const getListItemsQueryOptions = (params: {
   sorting: FieldSorting[]
   fieldIds: string[]
   filters: FieldFilter[]
+  selectedItemId?: string
 }) =>
   queryOptions({
     queryKey: ['AiListFilesWithValues', params],

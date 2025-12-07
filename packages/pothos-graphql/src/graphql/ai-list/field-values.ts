@@ -180,6 +180,7 @@ export const ListItemsQueryResult = builder
     take: number
     sorting: { fieldId: string; direction: 'asc' | 'desc' }[]
     filters: { fieldId: string; filterType: AiListFilterType; value: string }[]
+    selectedItemId?: string
     showArchived?: boolean
   }>('ListItemsQueryResult')
   .implement({
@@ -188,16 +189,18 @@ export const ListItemsQueryResult = builder
       items: t.field({
         type: [ListItemQueryResult],
         nullable: { list: false, items: false },
-        resolve: async ({ list, fields, skip, take, sorting, filters, showArchived }) => {
-          const itemIds = await getItemIdsForListItems({
-            listId: list.id,
-            fields,
-            sorting,
-            filters,
-            showArchived: !!showArchived,
-            skip,
-            take,
-          })
+        resolve: async ({ list, fields, skip, take, sorting, filters, selectedItemId, showArchived }) => {
+          const itemIds = selectedItemId
+            ? [selectedItemId]
+            : await getItemIdsForListItems({
+                listId: list.id,
+                fields,
+                sorting,
+                filters,
+                showArchived: !!showArchived,
+                skip,
+                take,
+              })
 
           const items = await prisma.aiListItem.findMany({
             include: {
@@ -241,7 +244,10 @@ export const ListItemsQueryResult = builder
       count: t.field({
         type: 'Int',
         nullable: false,
-        resolve: async ({ list, filters, showArchived }) => {
+        resolve: async ({ list, filters, selectedItemId, showArchived }) => {
+          if (selectedItemId) {
+            return 1
+          }
           const filtersWhere = await getListFiltersWhere(filters)
 
           const where: Prisma.AiListItemWhereInput = {

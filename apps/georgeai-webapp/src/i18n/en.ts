@@ -1335,6 +1335,7 @@ export default {
     itemName: 'Item Name',
     itemStatus: 'Status',
     itemInScope: 'In Scope',
+    itemAction: 'Action',
     editSettings: 'Edit Settings',
     editComingSoon: 'Full edit functionality coming soon. Currently showing read-only view.',
     batches: 'Batches',

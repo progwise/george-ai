@@ -4,11 +4,23 @@ import { useListSettings } from './use-list-settings'
 interface ListFieldsTableFilterBadgesProps {
   listId: string
   fields: ListFieldsTableFilters_AiListFieldFragment[]
+  selectedItem?: { id: string; name?: string } | null
 }
-export const ListFieldsTableFilterBadges = ({ listId, fields }: ListFieldsTableFilterBadgesProps) => {
-  const { filters, clearFieldFilters, removeFilter } = useListSettings(listId)
+export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: ListFieldsTableFilterBadgesProps) => {
+  const { filters, clearFieldFilters, removeFilter, removeSelectedItem } = useListSettings(listId)
   return (
     <div className="flex flex-row flex-wrap gap-2 p-2">
+      {selectedItem && (
+        <div key={selectedItem.id} className="badge badge-outline badge-accent font-semibold">
+          <span>Selected Item:</span>
+          <span className="badge badge-xs badge-accent ml-1 text-nowrap">
+            {selectedItem.name ? `"${selectedItem.name}"` : selectedItem.id}
+            <button type="button" className="btn-xs btn-circle btn-ghost" onClick={() => removeSelectedItem()}>
+              ✕
+            </button>
+          </span>
+        </div>
+      )}
       {fields
         .filter((field) => filters.some((filter) => filter.fieldId === field.id))
         .map((field) => (

@@ -1613,6 +1613,7 @@ type Query {
     fieldIds: [String!]!
     filters: [AiListFilterInput!]
     listId: String!
+    selectedItemId: String
     showArchived: Boolean = false
     skip: Int! = 0
     sorting: [AiListSortingInput!]

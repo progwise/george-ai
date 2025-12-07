@@ -34,10 +34,14 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <AutomationMenu automation={automation} selectableAutomations={automations} />
-
+    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
+      <div>
+        <AutomationMenu automation={automation} selectableAutomations={automations} />
+      </div>
       <div role="tablist" className="tabs tabs-lift justify-end">
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
         <Link
           to="/automations/$automationId"
           className="tab"
@@ -71,12 +75,10 @@ function RouteComponent() {
           <EditIcon />
           {t('automations.edit')}
         </Link>
-        <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content bg-base-100 border-base-300 border p-3">
-          <div className="relative overflow-scroll">
-            <Outlet />
-          </div>
-        </div>
+      </div>
+
+      <div className="bg-base-100 min-h-0 w-full p-3">
+        <Outlet />
       </div>
     </div>
   )

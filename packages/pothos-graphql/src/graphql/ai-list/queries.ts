@@ -80,6 +80,7 @@ builder.queryField('aiListItems', (t) =>
       take: t.arg.int({ required: true, defaultValue: 20 }),
       sorting: t.arg({ type: [AiListSortingInput!], required: false }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
+      selectedItemId: t.arg.string({ required: false }),
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: async (_root, args, context) => {
@@ -116,6 +117,7 @@ builder.queryField('aiListItems', (t) =>
         take: args.take ?? 20,
         sorting: args.sorting ?? [],
         filters: args.filters ?? [],
+        selectedItemId: args.selectedItemId ?? undefined,
         showArchived: args.showArchived ?? false,
       }
     },

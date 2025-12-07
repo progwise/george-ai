@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
@@ -52,66 +52,88 @@ function RouteComponent() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <ul className="menu menu-sm menu-horizontal text-base-content/70 w-full items-center gap-4 text-sm">
-          <li>
-            {t('automations.itemsCount', {
-              endItem: page * pageSize + items.length,
-              totalCount: totalCount,
-              startItem: page * pageSize + 1,
-            })}
-          </li>
-          <li className="grow items-end">
-            <Pagination
-              totalItems={totalCount}
-              itemsPerPage={pageSize}
-              currentPage={page + 1}
-              onPageChange={(newPage) => {
-                navigate({ search: { page: newPage - 1, pageSize }, replace: true })
-              }}
-              showPageSizeSelector={true}
-              onPageSizeChange={(newPageSize) => {
-                navigate({ search: { page: 0, pageSize: newPageSize }, replace: true })
-              }}
-            />
-          </li>
-        </ul>
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr] gap-2">
+      <ul className="menu menu-sm menu-horizontal text-base-content/70 bg-base-200 w-full items-center">
+        <li className="font-semibold">
+          {t('automations.itemsCount', {
+            endItem: page * pageSize + items.length,
+            totalCount: totalCount,
+            startItem: page * pageSize + 1,
+          })}
+        </li>
+        <li className="grow items-end">
+          <Pagination
+            totalItems={totalCount}
+            itemsPerPage={pageSize}
+            currentPage={page + 1}
+            onPageChange={(newPage) => {
+              navigate({ search: { page: newPage - 1, pageSize }, replace: true })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ search: { page: 0, pageSize: newPageSize }, replace: true })
+            }}
+          />
+        </li>
+      </ul>
 
+      <div className="block h-full w-full overflow-auto">
         {items.length === 0 ? (
           <div className="text-base-content/50 py-8 text-center">{t('automations.noItems')}</div>
         ) : (
-          <table className="table-zebra table w-full">
+          <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
             <thead>
               <tr>
+                <th className="text-base-content/50">#</th>
                 <th>{t('automations.itemName')}</th>
-                <th>{t('automations.itemStatus')}</th>
-                <th>{t('automations.itemInScope')}</th>
-                <th></th>
+                <td>{t('automations.itemInScope')}</td>
+                <th>{t('automations.itemAction')}</th>
+                <td></td>
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.listItem.itemName}</td>
+              {items.map((item, index) => (
+                <tr key={item.id} className="hover:bg-base-300">
+                  <th className="text-base-content/50">{page * pageSize + index + 1}</th>
+                  <th>
+                    <div>
+                      <Link
+                        to="/lists/$listId"
+                        params={{
+                          listId: item.listItem.listId,
+                        }}
+                        search={{ selectedItemId: item.listItemId }}
+                      >
+                        {item.listItem.itemName}
+                      </Link>
+                    </div>
+                    <div>
+                      <span
+                        className={`badge badge-xs text-base-content/70 ${
+                          item.status === 'SUCCESS'
+                            ? 'badge-success'
+                            : item.status === 'FAILED'
+                              ? 'badge-error'
+                              : item.status === 'WARNING'
+                                ? 'badge-warning'
+                                : item.status === 'SKIPPED'
+                                  ? 'badge-ghost'
+                                  : 'badge-info'
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                  </th>
+
                   <td>
-                    <span
-                      className={`badge ${
-                        item.status === 'SUCCESS'
-                          ? 'badge-success'
-                          : item.status === 'FAILED'
-                            ? 'badge-error'
-                            : item.status === 'WARNING'
-                              ? 'badge-warning'
-                              : item.status === 'SKIPPED'
-                                ? 'badge-ghost'
-                                : 'badge-info'
-                      }`}
-                    >
-                      {item.status}
-                    </span>
+                    {item.inScope ? (
+                      <input type="checkbox" checked className="checkbox checkbox-success checkbox-xs" />
+                    ) : (
+                      <input type="checkbox" className="checkbox checkbox-warning checkbox-xs" />
+                    )}
                   </td>
-                  <td>{item.inScope ? t('actions.yes') : t('actions.no')}</td>
+                  <td></td>
                   <td>
                     <button
                       type="button"

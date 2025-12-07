@@ -2213,6 +2213,7 @@ export type QueryAiListItemsArgs = {
   fieldIds: Array<Scalars['String']['input']>
   filters?: InputMaybe<Array<AiListFilterInput>>
   listId: Scalars['String']['input']
+  selectedItemId?: InputMaybe<Scalars['String']['input']>
   showArchived?: InputMaybe<Scalars['Boolean']['input']>
   skip?: Scalars['Int']['input']
   sorting?: InputMaybe<Array<AiListSortingInput>>
@@ -3757,7 +3758,7 @@ export type AutomationItemList_AutomationItemFragment = {
   listItemId: string
   inScope: boolean
   status: AutomationItemStatus
-  listItem: { __typename?: 'AiListItem'; id: string; itemName: string }
+  listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
 }
 
 export type GetAutomationItemsQueryVariables = Exact<{
@@ -3784,7 +3785,7 @@ export type GetAutomationItemsQuery = {
       listItemId: string
       inScope: boolean
       status: AutomationItemStatus
-      listItem: { __typename?: 'AiListItem'; id: string; itemName: string }
+      listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
     }>
   }
 }
@@ -5969,6 +5970,7 @@ export type GetListItemsQueryVariables = Exact<{
   sorting?: InputMaybe<Array<AiListSortingInput> | AiListSortingInput>
   fieldIds: Array<Scalars['String']['input']> | Scalars['String']['input']
   filters: Array<AiListFilterInput> | AiListFilterInput
+  selectedItemId?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type GetListItemsQuery = {
@@ -8450,6 +8452,7 @@ export const AutomationItemList_AutomationItemFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
               ],
             },
           },
@@ -15116,6 +15119,7 @@ export const GetAutomationItemsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
               ],
             },
           },
@@ -19447,6 +19451,11 @@ export const GetListItemsDocument = {
             },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'selectedItemId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -19484,6 +19493,11 @@ export const GetListItemsDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'sorting' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'sorting' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'selectedItemId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'selectedItemId' } },
               },
             ],
             selectionSet: {

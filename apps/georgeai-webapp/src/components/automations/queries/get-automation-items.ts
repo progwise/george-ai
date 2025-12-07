@@ -17,6 +17,7 @@ graphql(`
     listItem {
       id
       itemName
+      listId
     }
   }
 `)
