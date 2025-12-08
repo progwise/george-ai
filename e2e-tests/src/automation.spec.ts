@@ -357,6 +357,11 @@ test.describe('Automations', () => {
       await automationDropdown.getByText(automationName).click()
       await page.waitForLoadState('networkidle')
 
+      // Click Items tab to ensure we're on the items view (not edit tab)
+      const itemsTab = page.getByRole('tab', { name: /items/i })
+      await itemsTab.click()
+      await page.waitForLoadState('networkidle')
+
       // Verify items are displayed with status badges
       const table = page.locator('table')
       await expect(table).toBeVisible()
