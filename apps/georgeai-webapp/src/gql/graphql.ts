@@ -2089,19 +2089,19 @@ export type Query = {
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
   aiModelUsageStats?: Maybe<ModelUsageStats>
-  aiServiceProvider?: Maybe<AiServiceProvider>
+  aiServiceProvider: AiServiceProvider
   aiServiceProviders: Array<AiServiceProvider>
   aiServiceStatus: AiServiceClusterStatus
   aiSimilarFileChunks: Array<FileChunk>
   apiCrawlerTemplates: Array<ApiCrawlerTemplate>
   apiKeys: Array<ApiKey>
-  automation?: Maybe<AiAutomation>
+  automation: AiAutomation
   automationBatches: Array<AiAutomationBatch>
-  automationItem?: Maybe<AiAutomationItem>
+  automationItem: AiAutomationItem
   automationItems: AiAutomationItemsResult
   automations: Array<AiAutomation>
   checkFileExistsByOriginUri: CheckFileExistsByOriginUriResult
-  connector?: Maybe<AiConnector>
+  connector: AiConnector
   connectorTypes: Array<ConnectorTypeInfo>
   connectors: Array<AiConnector>
   managedUsers: ManagedUsersResponse
@@ -2112,9 +2112,9 @@ export type Query = {
   userProfile: UserProfile
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
-  workspace?: Maybe<Workspace>
+  workspace: Workspace
   workspaceConnectorTypes: Array<AiConnectorTypeWorkspace>
-  workspaceInvitation?: Maybe<WorkspaceInvitation>
+  workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
   workspaceMembers: Array<WorkspaceMember>
   workspaces: Array<Workspace>
@@ -3821,7 +3821,7 @@ export type GetAutomationItemQueryVariables = Exact<{
 
 export type GetAutomationItemQuery = {
   __typename?: 'Query'
-  automationItem?: {
+  automationItem: {
     __typename?: 'AiAutomationItem'
     id: string
     createdAt: string
@@ -3848,7 +3848,7 @@ export type GetAutomationItemQuery = {
       finishedAt?: string | null
       batchId?: string | null
     }>
-  } | null
+  }
 }
 
 export type AutomationItemList_AutomationItemFragment = {
@@ -3938,7 +3938,7 @@ export type GetAutomationQueryVariables = Exact<{
 
 export type GetAutomationQuery = {
   __typename?: 'Query'
-  automation?: {
+  automation: {
     __typename?: 'AiAutomation'
     id: string
     createdAt: string
@@ -3972,7 +3972,7 @@ export type GetAutomationQuery = {
       }>
     }
     connector: { __typename?: 'AiConnector'; id: string; name?: string | null; baseUrl: string; connectorType: string }
-  } | null
+  }
 }
 
 export type AutomationsBaseFragment = {
@@ -6764,7 +6764,7 @@ export type WorkspaceInvitationQueryVariables = Exact<{
 
 export type WorkspaceInvitationQuery = {
   __typename?: 'Query'
-  workspaceInvitation?: {
+  workspaceInvitation: {
     __typename?: 'WorkspaceInvitation'
     id: string
     email: string
@@ -6772,7 +6772,7 @@ export type WorkspaceInvitationQuery = {
     acceptedAt?: string | null
     workspace: { __typename?: 'Workspace'; id: string; name: string }
     inviter: { __typename?: 'User'; name?: string | null; email: string }
-  } | null
+  }
 }
 
 export type AcceptWorkspaceInvitationMutationVariables = Exact<{

@@ -58,14 +58,9 @@ function RouteComponent() {
   )
 
   const subTitle = useMemo(() => {
-    if (!automation) return ''
-    const targets = automation.connectorActionConfig?.fieldMappings.map((f) => f.targetField).join(', ')
+    const targets = automation.connectorActionConfig.fieldMappings.map((f) => f.targetField).join(', ')
     return `${automation.connector.baseUrl} ${automation.connectorAction} : ${automation.list.name} → ${targets || t('automations.notConfigured')}`
   }, [automation, t])
-
-  if (!automation) {
-    return <div className="text-error">{t('automations.notFound')}</div>
-  }
 
   return (
     <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr] gap-2">

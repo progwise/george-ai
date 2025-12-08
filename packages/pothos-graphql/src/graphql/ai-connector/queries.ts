@@ -136,12 +136,12 @@ builder.queryField('connectors', (t) =>
 builder.queryField('connector', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConnector',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: (query, _source, { id }, context) => {
-      return prisma.aiConnector.findFirst({
+      return prisma.aiConnector.findFirstOrThrow({
         ...query,
         where: {
           id: String(id),

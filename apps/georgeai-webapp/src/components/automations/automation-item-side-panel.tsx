@@ -29,7 +29,7 @@ export const AutomationItemSidePanel = ({
   const [copied, setCopied] = useState<string | null>(null)
 
   // Fetch item details when panel opens
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     ...getAutomationItemQueryOptions(itemId),
     enabled: isOpen,
   })
@@ -110,7 +110,7 @@ export const AutomationItemSidePanel = ({
               <span className="loading loading-spinner loading-md" />
               <span className="ml-2">{t('automations.itemDetail.loading')}</span>
             </div>
-          ) : !item ? (
+          ) : isError || !item ? (
             <div className="text-error py-8 text-center">{t('automations.itemDetail.notFound')}</div>
           ) : (
             <>

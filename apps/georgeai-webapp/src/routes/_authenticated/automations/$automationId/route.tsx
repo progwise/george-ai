@@ -29,10 +29,6 @@ function RouteComponent() {
     data: { automation },
   } = useSuspenseQuery(getAutomationQueryOptions(params.automationId))
 
-  if (!automation) {
-    return <div className="text-error">{t('automations.notFound')}</div>
-  }
-
   return (
     <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div>

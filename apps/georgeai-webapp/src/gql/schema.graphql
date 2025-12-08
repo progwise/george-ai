@@ -1667,19 +1667,19 @@ type Query {
     usageType: String
     userId: String
   ): ModelUsageStats
-  aiServiceProvider(id: ID!): AiServiceProvider
+  aiServiceProvider(id: ID!): AiServiceProvider!
   aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
   aiServiceStatus: AiServiceClusterStatus!
   aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
   apiKeys(libraryId: String!): [ApiKey!]!
-  automation(id: ID!): AiAutomation
+  automation(id: ID!): AiAutomation!
   automationBatches(automationId: ID!, skip: Int, take: Int): [AiAutomationBatch!]!
-  automationItem(id: ID!): AiAutomationItem
+  automationItem(id: ID!): AiAutomationItem!
   automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AiAutomationItemsResult!
   automations(listId: String): [AiAutomation!]!
   checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
-  connector(id: ID!): AiConnector
+  connector(id: ID!): AiConnector!
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
@@ -1690,9 +1690,9 @@ type Query {
   userProfile: UserProfile!
   users: [User!]!
   version: String
-  workspace(id: ID!): Workspace
+  workspace(id: ID!): Workspace!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
-  workspaceInvitation(id: ID!): WorkspaceInvitation
+  workspaceInvitation(id: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaces: [Workspace!]!

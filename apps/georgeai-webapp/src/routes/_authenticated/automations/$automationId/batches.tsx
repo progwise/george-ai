@@ -18,15 +18,9 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { automationId } = Route.useParams()
 
-  const {
-    data: { automation },
-  } = useSuspenseQuery(getAutomationQueryOptions(automationId))
+  useSuspenseQuery(getAutomationQueryOptions(automationId))
 
   const { data } = useSuspenseQuery(getAutomationBatchesQueryOptions({ automationId }))
-
-  if (!automation) {
-    return <div className="text-error">{t('automations.notFound')}</div>
-  }
 
   return (
     <div className="space-y-6">

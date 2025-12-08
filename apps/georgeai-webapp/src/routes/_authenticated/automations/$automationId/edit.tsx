@@ -41,8 +41,6 @@ function RouteComponent() {
 
   // Convert structured config back to record format for form state
   const initialConfig = useMemo(() => {
-    if (!automation?.connectorActionConfig) return {}
-
     const config: Record<string, unknown> = {}
 
     // Convert values array back to key-value pairs
@@ -61,21 +59,21 @@ function RouteComponent() {
     }
 
     return config
-  }, [automation?.connectorActionConfig])
+  }, [automation.connectorActionConfig])
 
   // Form state
-  const [name, setName] = useState(automation?.name || '')
-  const [connectorAction, setConnectorAction] = useState(automation?.connectorAction || '')
+  const [name, setName] = useState(automation.name)
+  const [connectorAction, setConnectorAction] = useState(automation.connectorAction)
   const [actionConfig, setActionConfig] = useState<Record<string, unknown>>(initialConfig)
-  const [executeOnEnrichment, setExecuteOnEnrichment] = useState(automation?.executeOnEnrichment || false)
+  const [executeOnEnrichment, setExecuteOnEnrichment] = useState(automation.executeOnEnrichment)
 
   // Get connector type and its actions
-  const connectorType = connectorTypes.find((ct) => ct.id === automation?.connector.connectorType)
+  const connectorType = connectorTypes.find((ct) => ct.id === automation.connector.connectorType)
   const availableActions = connectorType?.actions || []
   const selectedAction = availableActions.find((a) => a.id === connectorAction)
 
   // Get list fields for mapping
-  const listFields = automation?.list.fields || []
+  const listFields = automation.list.fields
 
   // Helper to update a config field
   const updateConfigField = useCallback((fieldId: string, value: unknown) => {
@@ -113,7 +111,6 @@ function RouteComponent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!automation) return
 
     updateAutomation({
       id: automationId,
@@ -124,10 +121,6 @@ function RouteComponent() {
       actionConfig: JSON.stringify(actionConfig),
       executeOnEnrichment,
     })
-  }
-
-  if (!automation) {
-    return <div className="text-error">{t('automations.notFound')}</div>
   }
 
   return (

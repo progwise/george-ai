@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { AutomationItemStatus } from '../../../prisma/generated/client'
 import { canAccessAutomationOrThrow } from '../../domain/automation'
 import { prisma } from '../../prisma'
@@ -28,12 +30,12 @@ builder.queryField('automations', (t) =>
 builder.queryField('automation', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAutomation',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: (query, _source, { id }, context) => {
-      return prisma.aiAutomation.findFirst({
+      return prisma.aiAutomation.findFirstOrThrow({
         ...query,
         where: {
           id: String(id),
@@ -121,12 +123,12 @@ builder.queryField('automationItems', (t) =>
 builder.queryField('automationItem', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAutomationItem',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      const item = await prisma.aiAutomationItem.findFirst({
+      const item = await prisma.aiAutomationItem.findFirstOrThrow({
         ...query,
         where: { id: String(id) },
         include: {
@@ -136,7 +138,7 @@ builder.queryField('automationItem', (t) =>
 
       // Verify automation belongs to workspace
       if (!item || item.automation.workspaceId !== context.workspaceId) {
-        return null
+        throw new GraphQLError('Automation item not found or access denied')
       }
 
       return item
