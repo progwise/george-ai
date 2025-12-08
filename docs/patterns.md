@@ -14,6 +14,7 @@ Code conventions and best practices used throughout the George AI codebase.
   - [LocalStorage Hook](#uselocalstorage-hook)
 - [Backend Patterns](#backend-patterns)
   - [GraphQL Module Structure](#graphql-module-structure)
+  - [Non-Nullable Queries](#non-nullable-query-pattern-fail-fast)
   - [Type Definitions](#custom-type-definitions)
   - [Prisma Objects](#prisma-object-definitions)
 - [Full-Stack Patterns](#full-stack-patterns)
@@ -417,6 +418,87 @@ builder.prismaObject('MyModel', { ... })
 
 import './mutations'  // ❌ Must be at top
 ```
+
+---
+
+### Non-Nullable Query Pattern (Fail-Fast)
+
+**Rule:** For single-entity queries (getById), use `nullable: false` and throw errors instead of returning null.
+
+**Why?**
+
+- **Fail-fast behavior**: Invalid IDs throw errors immediately, preventing silent failures
+- **Cleaner frontend code**: No null checks needed, better TypeScript inference
+- **Better error messages**: Users see specific errors instead of blank/loading states
+- **Simpler components**: Remove `if (!entity) return` guards and optional chaining
+
+**Backend Pattern:**
+
+```typescript
+// ✅ CORRECT: Fail-fast with non-nullable
+builder.queryField('automation', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiAutomation',
+    nullable: false,  // Throw error if not found
+    args: { id: t.arg.id({ required: true }) },
+    resolve: (query, _source, { id }, context) => {
+      return prisma.aiAutomation.findFirstOrThrow({  // Use OrThrow variant
+        ...query,
+        where: {
+          id,
+          list: { workspace: { members: { some: { userId: context.user.id } } } },
+        },
+      })
+    },
+  }),
+)
+
+// ❌ WRONG: Returns null, forces frontend null checks
+builder.queryField('automation', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiAutomation',
+    nullable: true,  // Returns null if not found
+    resolve: (query, _source, { id }, context) => {
+      return prisma.aiAutomation.findFirst({ ... })  // Returns null
+    },
+  }),
+)
+```
+
+**Frontend Benefits:**
+
+```typescript
+// ✅ CORRECT: With non-nullable query - clean and simple
+function AutomationPage() {
+  const { data: { automation } } = useSuspenseQuery(getAutomationQueryOptions(id))
+
+  // Direct access - no null checks needed
+  return <h1>{automation.name}</h1>
+}
+
+// ❌ WRONG: With nullable query - unnecessary guards
+function AutomationPage() {
+  const { data: { automation } } = useSuspenseQuery(getAutomationQueryOptions(id))
+
+  if (!automation) {
+    return <div className="text-error">Not found</div>  // Unnecessary
+  }
+
+  return <h1>{automation.name}</h1>
+}
+```
+
+**When to use nullable: true:**
+
+- List queries that may return empty arrays
+- Optional relationships (e.g., `parentId` that may not exist)
+- Queries where "not found" is a valid, expected result
+
+**When to use nullable: false:**
+
+- Single-entity queries by ID (getById pattern)
+- Required relationships
+- Queries where "not found" indicates an error condition
 
 ---
 
