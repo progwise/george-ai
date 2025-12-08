@@ -71,31 +71,25 @@ test.describe('Automations', () => {
       // Submit
       await dialog.getByRole('button', { name: /create/i }).click()
 
-      // Wait for navigation to the new automation
+      // Wait for navigation to the new automation (lands on Edit tab)
+      await expect(page.getByRole('button', { name: 'Select automation' })).toContainText(automationName)
+
+      // Navigate to Items tab to see items
+      await page.getByRole('tab', { name: /items/i }).click()
       await page.waitForLoadState('networkidle')
-
-      // Select our automation from the dropdown (in case another test created one simultaneously)
-      const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automationName).click()
-      await page.waitForLoadState('networkidle')
-
-      // Verify we're on the automation detail page with our automation selected
-      await expect(automationSelector).toContainText(automationName)
-
-      // Verify automation items are displayed (from the list)
-      // The test list has 3 files, so we should see 3 items
-      await expect(page.getByText('E2E Test Document 1.txt')).toBeVisible()
-      await expect(page.getByText('E2E Test Document 2.txt')).toBeVisible()
-      await expect(page.getByText('E2E Test Document 3.txt')).toBeVisible()
 
       // Verify item count is displayed
       await expect(page.getByText(/3 items/i)).toBeVisible()
 
+      const table = page.getByRole('table')
+      // Verify automation items are displayed (from the list)
+      // The test list has 3 files, so we should see 3 items
+      await expect(table.getByText('E2E Test Document 1 WS1.txt')).toBeVisible()
+      await expect(table.getByText('E2E Test Document 2 WS1.txt')).toBeVisible()
+      await expect(table.getByText('E2E Test Document 3 WS1.txt')).toBeVisible()
+
       // Verify status badges are visible within the table (items should be PENDING initially)
-      const table = page.locator('table')
+
       await expect(table.getByText('PENDING').first()).toBeVisible()
 
       // Verify the "Run All" button is visible
@@ -136,22 +130,10 @@ test.describe('Automations', () => {
       await dialog.getByLabel(/connector/i).click()
       await page.getByRole('option', { name: 'E2E Test Connector' }).click()
       await dialog.getByRole('button', { name: /create/i }).click()
-      await page.waitForLoadState('networkidle')
 
-      // Select our automation from the dropdown (in case another test created one simultaneously)
+      // Wait for automation selector to show the new automation
       const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automationName).click()
-      await page.waitForLoadState('networkidle')
-
-      // Verify we're on the automation detail page with our automation selected
       await expect(automationSelector).toContainText(automationName)
-
-      // Store the current URL (automation detail)
-      const automationDetailUrl = page.url()
-      expect(automationDetailUrl).toContain('/automations/')
 
       // Now switch to E2E Test Workspace 2
       await page.waitForTimeout(200) // Brief wait for dropdown state
@@ -162,15 +144,15 @@ test.describe('Automations', () => {
       await expect(workspaceSwitcher).toContainText('E2E Test Workspace 2')
       await page.waitForLoadState('networkidle')
 
-      // Verify we were redirected to /automations (not staying on the detail page)
+      // Verify we were redirected to automations (either list or detail of WS2 automation)
       const newUrl = page.url()
-      expect(newUrl).toMatch(/\/automations\/?$/)
+      expect(newUrl).toContain('/automations')
 
       // Verify the automation from Workspace 1 is NOT visible
       await expect(page.getByText(automationName)).not.toBeVisible()
 
-      // Workspace 2 should show the empty state (no automations)
-      await expect(page.getByText(/create your first automation/i)).toBeVisible()
+      // Workspace 2 has a pre-created automation, so we should see it
+      await expect(page.getByText('E2E Test Automation - WS2').first()).toBeVisible()
     })
 
     test('should show different automations in different workspaces', async ({ page }) => {
@@ -206,17 +188,9 @@ test.describe('Automations', () => {
       await dialog.getByLabel(/connector/i).click()
       await page.getByRole('option', { name: 'E2E Test Connector' }).click()
       await dialog.getByRole('button', { name: /create/i }).click()
-      await page.waitForLoadState('networkidle')
 
-      // Select our automation from the dropdown (in case another test created one simultaneously)
+      // Wait for automation selector to show the new automation
       const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automation1Name).click()
-      await page.waitForLoadState('networkidle')
-
-      // Verify automation 1 is now selected
       await expect(automationSelector).toContainText(automation1Name)
 
       // Switch to Workspace 2
@@ -240,13 +214,15 @@ test.describe('Automations', () => {
       await expect(workspaceSwitcher).toContainText('E2E Test Workspace 1')
       await page.waitForLoadState('networkidle')
 
-      // Verify automation 1 is available in workspace 1 by opening the automation selector
-      // The workspace switcher navigates to /automations and invalidates all automation queries
+      // Verify automation 1 is available in workspace 1
+      // App may auto-select a different automation, so open dropdown to verify ours is listed
       await expect(automationSelector).toBeVisible({ timeout: 10000 })
       await automationSelector.click()
-      const finalDropdown = page.locator('details[open] > ul').first()
-      await expect(finalDropdown).toBeVisible()
-      await expect(finalDropdown.getByText(automation1Name)).toBeVisible()
+
+      // Wait for automation dropdown (not workspace dropdown)
+      const automationDropdown = page.locator('details:has(summary[aria-label="Select automation"]) > ul')
+      await expect(automationDropdown).toBeVisible()
+      await expect(automationDropdown.getByText(automation1Name)).toBeVisible()
     })
 
     test('should delete automation', async ({ page }) => {
@@ -282,24 +258,16 @@ test.describe('Automations', () => {
       await createDialog.getByLabel(/connector/i).click()
       await page.getByRole('option', { name: 'E2E Test Connector' }).click()
       await createDialog.getByRole('button', { name: /create/i }).click()
-      await page.waitForLoadState('networkidle')
 
-      // Select our automation from the dropdown (in case another test created one simultaneously)
+      // Wait for automation selector to show the new automation
       const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automationName).click()
-      await page.waitForLoadState('networkidle')
-
-      // Verify our automation is now selected
       await expect(automationSelector).toContainText(automationName)
 
       // Click delete button
-      await page.getByTitle('Delete').click()
+      await page.getByRole('button', { name: /delete automation/i }).click()
 
       // Confirm deletion in dialog (button text is "Confirm" from DialogForm default)
-      const deleteDialog = page.getByRole('dialog')
+      const deleteDialog = page.getByRole('dialog', { name: /delete automation/i })
       await expect(deleteDialog).toBeVisible()
       await expect(deleteDialog).toContainText(automationName)
       await deleteDialog.getByRole('button', { name: /confirm/i }).click()
@@ -347,23 +315,16 @@ test.describe('Automations', () => {
       await dialog.getByLabel(/connector/i).click()
       await page.getByRole('option', { name: 'E2E Test Connector' }).click()
       await dialog.getByRole('button', { name: /create/i }).click()
-      await page.waitForLoadState('networkidle')
 
-      // Select our automation from the dropdown (in case another test created one simultaneously)
-      const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automationName).click()
-      await page.waitForLoadState('networkidle')
+      // Wait for automation selector to show the new automation
+      await expect(page.getByRole('button', { name: 'Select automation' })).toContainText(automationName)
 
-      // Click Items tab to ensure we're on the items view (not edit tab)
-      const itemsTab = page.getByRole('tab', { name: /items/i })
-      await itemsTab.click()
+      // Navigate to Items tab to see items
+      await page.getByRole('tab', { name: /items/i }).click()
       await page.waitForLoadState('networkidle')
 
       // Verify items are displayed with status badges
-      const table = page.locator('table')
+      const table = page.getByRole('table')
       await expect(table).toBeVisible()
 
       // Verify items have run buttons (one per test document)
@@ -406,19 +367,15 @@ test.describe('Automations', () => {
       await dialog.getByLabel(/connector/i).click()
       await page.getByRole('option', { name: 'E2E Test Connector' }).click()
       await dialog.getByRole('button', { name: /create/i }).click()
-      await page.waitForLoadState('networkidle')
 
-      // Select our automation from the dropdown (in case another test created one simultaneously)
-      const automationSelector = page.getByRole('button', { name: 'Select automation' })
-      await automationSelector.click()
-      const automationDropdown = page.locator('details[open] > ul').first()
-      await expect(automationDropdown).toBeVisible()
-      await automationDropdown.getByText(automationName).click()
-      await page.waitForLoadState('networkidle')
+      // Wait for automation selector to show the new automation
+      await expect(page.getByRole('button', { name: 'Select automation' })).toContainText(automationName)
 
-      // Items tab should be active by default
+      // Click Items tab
       const itemsTab = page.getByRole('tab', { name: /items/i })
-      await expect(itemsTab).toBeVisible()
+      await itemsTab.click()
+      await page.waitForLoadState('networkidle')
+      expect(page.url()).toMatch(/\/automations\/[^/]+\/?$/)
 
       // Click Batches tab
       const batchesTab = page.getByRole('tab', { name: /batches/i })
@@ -431,11 +388,6 @@ test.describe('Automations', () => {
       await editTab.click()
       await page.waitForLoadState('networkidle')
       expect(page.url()).toContain('/edit')
-
-      // Go back to Items tab
-      await itemsTab.click()
-      await page.waitForLoadState('networkidle')
-      expect(page.url()).toMatch(/\/automations\/[^/]+\/?$/)
     })
   })
 })

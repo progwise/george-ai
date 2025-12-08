@@ -1297,7 +1297,7 @@ export default {
     addAutomation: 'Add Automation',
     editAutomation: 'Edit Automation',
     edit: 'Edit',
-    delete: 'Delete',
+    delete: 'Delete Automation',
     deleteAutomation: 'Delete Automation',
     deleteDialogTitle: 'Delete Automation?',
     deleteDialogConfirmation: 'Are you sure you want to delete the automation "{name}"? This action cannot be undone.',

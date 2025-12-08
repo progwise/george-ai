@@ -69,6 +69,22 @@ async function globalTeardown() {
       console.log('  ✅ No test connectors to clean up')
     }
 
+    // Delete test assistants
+    const assistantResult = await client.query(
+      `
+      DELETE FROM "AiAssistant"
+      WHERE name LIKE 'E2E Test%'
+      RETURNING name
+    `,
+    )
+
+    if (assistantResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${assistantResult.rows.length} test assistants:`)
+      assistantResult.rows.forEach((row) => console.log(`     - ${row.name}`))
+    } else {
+      console.log('  ✅ No test assistants to clean up')
+    }
+
     // Delete test list items first (foreign key constraint)
     await client.query(
       `

@@ -63,6 +63,6 @@ const getAutomation = createServerFn({ method: 'GET' })
 
 export const getAutomationQueryOptions = (automationId: string) =>
   queryOptions({
-    queryKey: [queryKeys.Automation, automationId],
+    queryKey: [queryKeys.Automation, { automationId }],
     queryFn: () => getAutomation({ data: { automationId } }),
   })

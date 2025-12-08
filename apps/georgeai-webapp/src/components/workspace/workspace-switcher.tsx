@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -13,7 +12,6 @@ import { WorkspaceMembersDialog } from './members/workspace-members-dialog'
 import { useWorkspace } from './use-workspace'
 
 export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
-  const navigate = useNavigate()
   const { t } = useTranslation()
   const { workspaces, currentWorkspace, setWorkspace, isLoading, isDefaultWorkspace, currentUserRole, reValidate } =
     useWorkspace(user)
@@ -23,35 +21,12 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
   const handleWorkspaceChange = async (workspaceId: string) => {
-    // Check if workspace is changing before state updates
-    const isChangingWorkspace = currentWorkspace?.id !== workspaceId
-
-    // Always set the workspace cookie to ensure it's synchronized
-    await setWorkspace(workspaceId)
-
     // Close the dropdown first
     if (detailsRef.current) {
       detailsRef.current.open = false
     }
-
-    // If workspace hasn't changed, no need for navigation/invalidation
-    if (!isChangingWorkspace) {
-      return
-    }
-
-    // If currently viewing a workspace-scoped resource, navigate to list view
-    const currentPath = window.location.pathname
-    if (currentPath.startsWith('/libraries/')) {
-      await navigate({ to: '/libraries' })
-    } else if (currentPath.startsWith('/assistants/')) {
-      await navigate({ to: '/assistants' })
-    } else if (currentPath.startsWith('/lists/')) {
-      await navigate({ to: '/lists' })
-    } else if (currentPath.startsWith('/conversations/')) {
-      await navigate({ to: '/conversations' })
-    } else if (currentPath.startsWith('/automations')) {
-      await navigate({ to: '/automations' })
-    }
+    // setWorkspace handles: early return if same, cookie, navigation, query invalidation
+    await setWorkspace(workspaceId)
   }
 
   useEffect(() => {

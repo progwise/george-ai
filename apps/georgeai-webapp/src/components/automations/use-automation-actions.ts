@@ -50,7 +50,7 @@ export const useAutomationActions = () => {
     onSuccess: async ({ createAutomation: automation }) => {
       toastSuccess(t('automations.createSuccess'))
       await queryClient.invalidateQueries(getAutomationsQueryOptions())
-      navigate({ to: '/automations/$automationId/edit', params: { automationId: automation.id } })
+      await navigate({ to: '/automations/$automationId/edit', params: { automationId: automation.id } })
     },
   })
 

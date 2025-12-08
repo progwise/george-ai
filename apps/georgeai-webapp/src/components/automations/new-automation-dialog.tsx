@@ -44,12 +44,14 @@ export const NewAutomationDialog = ({ ref }: NewAutomationDialogProps) => {
   const { createAutomation, isPending } = useAutomationActions()
 
   const handleSubmit = (formData: FormData) => {
-    ref.current?.close()
-    createAutomation({
-      name: formData.get('name') as string,
-      listId: formData.get('listId') as string,
-      connectorId: formData.get('connectorId') as string,
-    })
+    createAutomation(
+      {
+        name: formData.get('name') as string,
+        listId: formData.get('listId') as string,
+        connectorId: formData.get('connectorId') as string,
+      },
+      { onSuccess: () => ref.current?.close() },
+    )
   }
 
   if (connectors.length === 0) {

@@ -1318,7 +1318,7 @@ export default {
     addAutomation: 'Automatisierung hinzufügen',
     editAutomation: 'Automatisierung bearbeiten',
     edit: 'Bearbeiten',
-    delete: 'Löschen',
+    delete: 'Lösche Automatisierung',
     deleteAutomation: 'Automatisierung löschen',
     deleteDialogTitle: 'Automatisierung löschen?',
     deleteDialogConfirmation:

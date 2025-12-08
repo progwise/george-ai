@@ -89,7 +89,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
             </ul>
           </details>
         </li>
-        <li className="grow-1 items-end">
+        <li className="grow items-end">
           <button
             type="button"
             className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"

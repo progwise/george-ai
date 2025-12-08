@@ -59,7 +59,7 @@ export const DialogForm = ({
   }
 
   return (
-    <dialog className="modal" ref={ref} onCancel={handleCancel}>
+    <dialog className="modal" ref={ref} onCancel={handleCancel} title={title}>
       <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}

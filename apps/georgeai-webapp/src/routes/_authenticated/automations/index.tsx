@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { NewAutomationDialog } from '../../../components/automations/new-automation-dialog'
 import { getAutomationsQueryOptions } from '../../../components/automations/queries'
@@ -23,8 +23,9 @@ function RouteComponent() {
   const {
     data: { automations },
   } = useSuspenseQuery(getAutomationsQueryOptions())
-  const latestAutomation = automations.at(0)
+  const latestAutomation = useMemo(() => automations.at(0), [automations])
 
+  // Synchronous redirect to first automation (like lists do)
   if (latestAutomation) {
     navigate({
       to: '/automations/$automationId',
