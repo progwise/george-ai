@@ -2,8 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { dateStringShort, timeString } from '@george-ai/web-utils'
-
+import { ClientDate } from '../../../components/client-date'
 import { NewLibraryDialog } from '../../../components/library/new-library-dialog'
 import { getLibrariesQueryOptions } from '../../../components/library/queries/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
@@ -22,7 +21,7 @@ function RouteComponent() {
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
 
   const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions())
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -63,9 +62,6 @@ function RouteComponent() {
 
           <tbody>
             {data.aiLibraries.map((library, index) => {
-              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
-              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
-
               return (
                 <tr
                   key={library.id}
@@ -85,7 +81,7 @@ function RouteComponent() {
                   </td>
                   <td data-label="Owner">{library.owner?.name}</td>
                   <td data-label="Last update">
-                    {datePart} {timePart}
+                    <ClientDate date={library.updatedAt} format="dateTime" />
                   </td>
                 </tr>
               )
