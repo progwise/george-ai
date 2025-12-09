@@ -24,18 +24,29 @@ test.describe('Workspace Switching - All Pages', () => {
     // Track errors during test
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
+        console.log(`[CONSOLE ERROR] ${msg.text()}`)
         consoleErrors.push(msg.text())
       }
     })
 
     page.on('pageerror', (error) => {
+      console.log(`[PAGE ERROR] ${error.message}`)
       consoleErrors.push(error.message)
     })
 
     page.on('requestfailed', (request) => {
       const failure = request.failure()?.errorText || 'unknown'
       if (!failure.includes('net::ERR_ABORTED')) {
+        console.log(`[REQUEST FAILED] ${request.url()} - ${failure}`)
         networkFailures.push(`${request.url()} - ${failure}`)
+      }
+    })
+
+    // Track 404 responses to identify which resources are failing
+    page.on('response', (response) => {
+      if (response.status() === 404) {
+        console.log(`[404 RESPONSE] ${response.url()}`)
+        networkFailures.push(`[404] ${response.url()}`)
       }
     })
 
