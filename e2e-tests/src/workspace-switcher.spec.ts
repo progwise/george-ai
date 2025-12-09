@@ -75,8 +75,8 @@ test.describe('Workspace Switcher', () => {
 
     test('should create workspace with valid name and slug', async ({ page }) => {
       const uniqueId = Date.now()
-      const workspaceName = `E2E Test Workspace ${uniqueId}`
-      const workspaceSlug = `e2e-test-workspace-${uniqueId}`
+      const workspaceName = `E2E New Workspace ${uniqueId}`
+      const workspaceSlug = `e2e-new-workspace-${uniqueId}`
 
       // Open create workspace dialog
       await page.getByRole('button', { name: /create workspace/i }).click()

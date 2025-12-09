@@ -42,6 +42,7 @@ async function globalTeardown() {
       `
       DELETE FROM "AiAutomation"
       WHERE name LIKE 'E2E Test%'
+         OR name LIKE 'E2E New%'
       RETURNING name
     `,
     )
@@ -168,6 +169,7 @@ async function globalTeardown() {
         OR name LIKE 'Empty WS%'
         OR name LIKE 'Auto Switch%'
         OR name LIKE 'E2E Test Workspace%'
+        OR name LIKE 'E2E New Workspace%'
       )
       AND id NOT IN (
         '00000000-0000-0000-0000-000000000002',

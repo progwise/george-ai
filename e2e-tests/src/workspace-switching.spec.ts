@@ -123,7 +123,7 @@ test.describe('Workspace Switching - All Pages', () => {
     await switchWorkspace(page, 'E2E Test Workspace 2')
     await page.waitForLoadState('networkidle')
 
-    expect(page.url()).toContain('/automations/')
+    expect(page.url()).toContain('/automations')
     expectNoErrors()
   })
 

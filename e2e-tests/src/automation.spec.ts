@@ -14,7 +14,7 @@ test.describe('Automations', () => {
 
   test.describe('Creating and Managing Automations', () => {
     test('should create a new automation and display items from the list', async ({ page }) => {
-      const automationName = `E2E Test Automation ${Date.now()}`
+      const automationName = `E2E New Automation ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
@@ -39,7 +39,7 @@ test.describe('Automations', () => {
     })
 
     test('should switch workspace from automation detail and redirect to automations list', async ({ page }) => {
-      const automationName = `E2E Test Workspace Switch ${Date.now()}`
+      const automationName = `E2E New Automation Switch ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
@@ -53,7 +53,7 @@ test.describe('Automations', () => {
     })
 
     test('should show different automations in different workspaces', async ({ page }) => {
-      const automationName = `E2E Test Auto WS1 ${Date.now()}`
+      const automationName = `E2E New Auto WS1 ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
@@ -81,7 +81,7 @@ test.describe('Automations', () => {
     })
 
     test('should delete automation', async ({ page }) => {
-      const automationName = `E2E Test Delete ${Date.now()}`
+      const automationName = `E2E New Delete ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
@@ -108,7 +108,7 @@ test.describe('Automations', () => {
 
   test.describe('Automation Items', () => {
     test('should display item status badges correctly', async ({ page }) => {
-      const automationName = `E2E Test Status ${Date.now()}`
+      const automationName = `E2E New Status ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
@@ -129,7 +129,7 @@ test.describe('Automations', () => {
     })
 
     test('should have working tabs (Items, Batches, Edit)', async ({ page }) => {
-      const automationName = `E2E Test Tabs ${Date.now()}`
+      const automationName = `E2E New Tabs ${Date.now()}`
 
       await switchWorkspace(page, 'E2E Test Workspace 1')
       await createAutomation(page, { name: automationName, list: TEST_LIST, connector: TEST_CONNECTOR })
