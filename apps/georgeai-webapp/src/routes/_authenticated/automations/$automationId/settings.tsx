@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getConnectorTypesQueryOptions } from '../../../../components/admin/connectors/queries/get-connector-types'
 import { getAutomationQueryOptions } from '../../../../components/automations/queries'
@@ -66,6 +66,18 @@ function RouteComponent() {
   const [connectorAction, setConnectorAction] = useState(automation.connectorAction)
   const [actionConfig, setActionConfig] = useState<Record<string, unknown>>(initialConfig)
   const [executeOnEnrichment, setExecuteOnEnrichment] = useState(automation.executeOnEnrichment)
+
+  // Reset form state when automation changes (e.g., when switching automations)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setName(automation.name)
+      setConnectorAction(automation.connectorAction)
+      setActionConfig(initialConfig)
+      setExecuteOnEnrichment(automation.executeOnEnrichment)
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [automation.id, automation.name, automation.connectorAction, automation.executeOnEnrichment, initialConfig])
 
   // Get connector type and its actions
   const connectorType = connectorTypes.find((ct) => ct.id === automation.connector.connectorType)
