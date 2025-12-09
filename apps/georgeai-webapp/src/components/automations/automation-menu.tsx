@@ -77,6 +77,9 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
                     className="text-nowrap"
                     params={{ automationId: a.id }}
                     activeProps={{ className: 'font-bold' }}
+                    onClick={() => {
+                      automationSelectorDetailsRef.current?.removeAttribute('open')
+                    }}
                   >
                     {a.name}
                   </Link>

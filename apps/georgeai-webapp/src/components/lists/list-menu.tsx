@@ -48,7 +48,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
   }, [list.id])
 
   useEffect(() => {
-    if (!deleteDialogRef.current) return
+    if (!listSelectorDetailsRef.current) return
     const handleMouseDown = (e: MouseEvent) => {
       if (listSelectorDetailsRef.current && !listSelectorDetailsRef.current.contains(e.target as Node)) {
         listSelectorDetailsRef.current.open = false
