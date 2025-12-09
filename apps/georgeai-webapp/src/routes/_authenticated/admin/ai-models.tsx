@@ -8,6 +8,7 @@ import { EditModelButton } from '../../../components/admin/ai-models/edit-model-
 import { aiLanguageModelsQueryOptions } from '../../../components/admin/ai-models/get-language-models'
 import { usageStatsQueryOptions } from '../../../components/admin/ai-models/get-usage-stats'
 import { syncModels } from '../../../components/admin/ai-models/mutate-sync-models'
+import { ClientDate } from '../../../components/client-date'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { Pagination } from '../../../components/table/pagination'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -568,7 +569,7 @@ function AiModelsPage() {
                   </td>
                   <td>
                     <span className="text-sm opacity-60">
-                      {model.lastUsedAt ? new Date(model.lastUsedAt).toLocaleString() : t('admin.aiModels.neverUsed')}
+                      {model.lastUsedAt ? <ClientDate date={model.lastUsedAt} /> : t('admin.aiModels.neverUsed')}
                     </span>
                   </td>
                   <td>

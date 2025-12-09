@@ -3,6 +3,7 @@ import { useRef } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
+import { ClientDate } from '../client-date'
 import { ApiKeyGenerationModal } from './api-key-generation-modal'
 import { ApiKeyRevokeButton } from './api-key-revoke-button'
 import { getApiKeysQueryOptions } from './queries/get-api-keys'
@@ -16,10 +17,6 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
   const createDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: apiKeys } = useSuspenseQuery(getApiKeysQueryOptions(libraryId))
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleString()
-  }
 
   return (
     <>
@@ -52,8 +49,12 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
                 {apiKeys.map((key) => (
                   <tr key={key.id}>
                     <td className="font-medium">{key.name}</td>
-                    <td className="text-sm">{formatDate(key.createdAt)}</td>
-                    <td className="text-sm">{key.lastUsedAt ? formatDate(key.lastUsedAt) : t('apiKeys.never')}</td>
+                    <td className="text-sm">
+                      <ClientDate date={key.createdAt} />
+                    </td>
+                    <td className="text-sm">
+                      <ClientDate date={key.lastUsedAt} fallback={t('apiKeys.never')} />
+                    </td>
                     <td className="text-sm">
                       <ApiKeyRevokeButton libraryId={libraryId} apiKey={key} />
                     </td>

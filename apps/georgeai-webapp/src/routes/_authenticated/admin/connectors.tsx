@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 
 import { getConnectorTypesQueryOptions, getConnectorsQueryOptions } from '../../../components/admin/connectors/queries'
 import { useConnectorActions } from '../../../components/admin/connectors/use-connector-actions'
+import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { ConnectorDetailFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -116,11 +117,6 @@ function ConnectorsAdminPage() {
     }
   }
 
-  const formatDate = (date: string | null | undefined) => {
-    if (!date) return t('connectors.neverTested')
-    return new Date(date).toLocaleString()
-  }
-
   const isEditing = editingConnector?.id && editingConnector.id !== ''
 
   return (
@@ -208,7 +204,8 @@ function ConnectorsAdminPage() {
                       </h3>
                       <p className="text-sm opacity-70">{connector.baseUrl}</p>
                       <p className="text-xs opacity-50">
-                        {t('connectors.lastTested')}: {formatDate(connector.lastTestedAt)}
+                        {t('connectors.lastTested')}:{' '}
+                        <ClientDate date={connector.lastTestedAt} fallback={t('connectors.neverTested')} />
                         {connector.lastError && <span className="text-error ml-2">Error: {connector.lastError}</span>}
                       </p>
                     </div>

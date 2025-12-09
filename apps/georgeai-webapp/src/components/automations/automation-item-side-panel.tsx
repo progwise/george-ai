@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
+import { ClientDate } from '../client-date'
 import { getAutomationItemQueryOptions } from './queries/get-automation-item'
 
 interface AutomationItemSidePanelProps {
@@ -139,7 +140,9 @@ export const AutomationItemSidePanel = ({
                 <section aria-label={t('automations.itemDetail.lastExecuted')}>
                   <h4 className="mb-2 font-semibold">{t('automations.itemDetail.lastExecuted')}</h4>
                   <div className="bg-base-200 rounded-lg p-3">
-                    <p className="text-base-content">{new Date(item.lastExecutedAt).toLocaleString()}</p>
+                    <p className="text-base-content">
+                      <ClientDate date={item.lastExecutedAt} />
+                    </p>
                   </div>
                 </section>
               )}
@@ -196,7 +199,7 @@ export const AutomationItemSidePanel = ({
                             {execution.status}
                           </span>
                           <span className="text-base-content/60 text-xs">
-                            {new Date(execution.startedAt).toLocaleString()}
+                            <ClientDate date={execution.startedAt} />
                           </span>
                         </div>
 

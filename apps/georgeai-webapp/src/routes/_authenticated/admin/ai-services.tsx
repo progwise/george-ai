@@ -10,6 +10,7 @@ import { restoreDefaultProvidersFn } from '../../../components/admin/server-func
 import { testProviderConnectionFn } from '../../../components/admin/server-functions/test-provider-connection'
 import { toggleProviderFn } from '../../../components/admin/server-functions/toggle-provider'
 import { updateProviderFn } from '../../../components/admin/server-functions/update-provider'
+import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { AiServiceProviderInput } from '../../../gql/graphql'
@@ -469,7 +470,9 @@ function AiServicesAdminPage() {
                                   <div className="flex justify-between text-xs opacity-70">
                                     <span>Size: {formatMemory(model.size)}</span>
                                     {model.expiresAt && (
-                                      <span>Expires: {new Date(model.expiresAt).toLocaleTimeString()}</span>
+                                      <span>
+                                        Expires: <ClientDate date={model.expiresAt} format="time" />
+                                      </span>
                                     )}
                                   </div>
                                 </div>

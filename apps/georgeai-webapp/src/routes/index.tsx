@@ -3,6 +3,7 @@ import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { AssistantNewDialog } from '../components/assistant/assistant-new-dialog'
+import { ClientDate } from '../components/client-date'
 import { getDashboardDataQueryOptions } from '../components/dashboard/get-dashboard-data'
 import { NewLibraryDialog } from '../components/library/new-library-dialog'
 import { NewListDialog } from '../components/lists/new-list-dialog'
@@ -170,7 +171,7 @@ const Home = () => {
                             {t('dashboard.labels.files', { count: library.filesCount })}
                           </span>
                           <span className="text-base-content/50 text-sm">
-                            {new Date(library.updatedAt).toLocaleDateString()}
+                            <ClientDate date={library.updatedAt} format="date" />
                           </span>
                         </div>
                       </Link>
@@ -238,7 +239,7 @@ const Home = () => {
                           {t('dashboard.labels.conversationWith', { name: conversation.owner.name || 'Unknown' })}
                         </span>
                         <span className="text-base-content/50 text-sm">
-                          {new Date(conversation.updatedAt || conversation.createdAt).toLocaleDateString()}
+                          <ClientDate date={conversation.updatedAt || conversation.createdAt} format="date" />
                         </span>
                       </Link>
                     </li>

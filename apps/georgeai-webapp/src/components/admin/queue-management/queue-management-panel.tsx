@@ -7,6 +7,7 @@ import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { StopIcon } from '../../../icons/stop-icon'
 import { StopProcessingIcon } from '../../../icons/stop-processing-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
+import { ClientDate } from '../../client-date'
 import { useQueueManagementActions } from './use-queue-management-actions'
 
 graphql(`
@@ -131,7 +132,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                   </h3>
                   {queue.lastProcessedAt && (
                     <p className="text-sm opacity-70">
-                      Last processed: {new Date(queue.lastProcessedAt).toLocaleString()}
+                      Last processed: <ClientDate date={queue.lastProcessedAt} />
                     </p>
                   )}
                 </div>

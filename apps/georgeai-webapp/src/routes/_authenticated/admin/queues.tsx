@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { getQueueStatusQueryOptions } from '../../../components/admin/queue-management/get-queue-status'
 import { QueueManagementPanel } from '../../../components/admin/queue-management/queue-management-panel'
+import { ClientDate } from '../../../components/client-date'
 
 export const Route = createFileRoute('/_authenticated/admin/queues')({
   component: QueueManagementAdminPage,
@@ -50,7 +51,7 @@ function QueueManagementAdminPage() {
       <QueueManagementPanel queueStatus={queueStatus} />
 
       <div className="mt-8 text-center text-sm opacity-50">
-        Last updated: {new Date(queueStatus.lastUpdated).toLocaleString()}
+        Last updated: <ClientDate date={queueStatus.lastUpdated} />
       </div>
     </div>
   )

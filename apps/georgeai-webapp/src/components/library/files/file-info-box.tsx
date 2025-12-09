@@ -1,6 +1,7 @@
 import { graphql } from '../../../gql'
 import { AiLibraryFile_InfoBoxFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ClientDate } from '../../client-date'
 
 graphql(`
   fragment AiLibraryFile_InfoBox on AiLibraryFile {
@@ -40,7 +41,7 @@ interface FileInfoBoxProps {
 }
 
 export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   return (
     <dl className="properties max-w-100 text-xs">
       <dt>{t('labels.size')}</dt>
@@ -54,7 +55,9 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <dt>{t('labels.crawler')}</dt>
       <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
       <dt>{t('labels.originModified')}</dt>
-      <dd>{file.originModificationDate ? new Date(file.originModificationDate).toLocaleString(language) : '-'}</dd>
+      <dd>
+        <ClientDate date={file.originModificationDate} />
+      </dd>
     </dl>
   )
 }

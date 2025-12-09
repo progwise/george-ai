@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getAutomationBatchesQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
+import { ClientDate } from '../../../../components/client-date'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/automations/$automationId/batches')({
@@ -66,8 +67,12 @@ function RouteComponent() {
                   {batch.itemsProcessed}/{batch.itemsTotal}
                   {batch.itemsFailed > 0 && <span className="text-error ml-2">({batch.itemsFailed} failed)</span>}
                 </td>
-                <td>{batch.startedAt ? new Date(batch.startedAt).toLocaleString() : '-'}</td>
-                <td>{batch.finishedAt ? new Date(batch.finishedAt).toLocaleString() : '-'}</td>
+                <td>
+                  <ClientDate date={batch.startedAt} />
+                </td>
+                <td>
+                  <ClientDate date={batch.finishedAt} />
+                </td>
               </tr>
             ))}
           </tbody>

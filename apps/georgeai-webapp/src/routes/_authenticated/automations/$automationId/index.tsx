@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { AutomationItemSidePanel } from '../../../../components/automations/automation-item-side-panel'
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
+import { ClientDate } from '../../../../components/client-date'
 import { Pagination } from '../../../../components/table/pagination'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EyeIcon } from '../../../../icons/eye-icon'
@@ -174,9 +175,7 @@ function RouteComponent() {
                   </td>
                   <td className="text-xs">
                     {item.lastExecutedAt ? (
-                      <span title={new Date(item.lastExecutedAt).toLocaleString()}>
-                        {new Date(item.lastExecutedAt).toLocaleDateString()}
-                      </span>
+                      <ClientDate date={item.lastExecutedAt} format="date" />
                     ) : (
                       <span className="text-base-content/50">—</span>
                     )}
