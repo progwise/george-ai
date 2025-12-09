@@ -170,7 +170,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
       toastSuccess(t('libraries.filesEmbeddedSuccess'))
       setSelectedFiles([])
       queryClient.invalidateQueries({ queryKey: ['AiLibraryFiles', { libraryId }] })
-      queryClient.invalidateQueries({ queryKey: getProfileQueryOptions() })
+      queryClient.invalidateQueries(getProfileQueryOptions())
       dialogRef.current?.close()
     },
     onError: (error) => {
