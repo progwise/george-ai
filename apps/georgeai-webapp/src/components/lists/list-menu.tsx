@@ -76,7 +76,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
               {selectableLists.map((l) => (
                 <li role="option" key={l.id} aria-selected={l.id === list.id}>
                   <Link
-                    to={'.'}
+                    to="/lists/$listId"
                     className="text-nowrap"
                     params={{ listId: l.id }}
                     activeProps={{ className: 'font-bold' }}

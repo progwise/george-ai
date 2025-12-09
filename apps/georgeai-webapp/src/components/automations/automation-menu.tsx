@@ -73,7 +73,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
               {selectableAutomations.map((a) => (
                 <li key={a.id} role="option" aria-selected={a.id === automation.id}>
                   <Link
-                    to={'.'}
+                    to="/automations/$automationId"
                     className="text-nowrap"
                     params={{ automationId: a.id }}
                     activeProps={{ className: 'font-bold' }}
