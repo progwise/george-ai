@@ -766,6 +766,7 @@ export default {
     selectList: 'Select list',
     statistics: 'Statistics',
     title: 'List',
+    switcherTitle: 'Switch list',
     updateError: 'Error updating list: {message}',
     updateParticipantsSuccess:
       'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',

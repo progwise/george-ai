@@ -68,31 +68,27 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
           <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('lists.title')}</span>
         </li>
         <li>
-          <details title={t('lists.title')} ref={listSelectorDetailsRef} className="z-50">
-            <summary
-              role="button"
-              aria-label={t('lists.selectList')}
-              className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold"
-            >
+          <details aria-label={t('lists.switcherTitle')} ref={listSelectorDetailsRef} className="z-50">
+            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
               {list.name}
             </summary>
-            <ul className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
-              {selectableLists.map((list) => (
-                <li key={list.id}>
+            <ul role="listbox" className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
+              {selectableLists.map((l) => (
+                <li role="option" key={l.id} aria-selected={l.id === list.id}>
                   <Link
                     to={'.'}
                     className="text-nowrap"
-                    params={{ listId: list.id }}
+                    params={{ listId: l.id }}
                     activeProps={{ className: 'font-bold' }}
                   >
-                    {list.name}
+                    {l.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </details>
         </li>
-        <li className="grow-1 items-end">
+        <li className="grow items-end">
           <button
             type="button"
             className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"

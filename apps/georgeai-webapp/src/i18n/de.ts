@@ -778,6 +778,7 @@ export default {
     selectList: 'Liste auswählen',
     statistics: 'Statistiken',
     title: 'Liste',
+    switcherTitle: 'Listen',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateParticipantsSuccess:
       'Teilnehmer der Liste erfolgreich aktualisiert: {addedParticipants} hinzugefügt, {removedParticipants} entfernt, insgesamt {totalParticipants} Teilnehmer.',
@@ -1332,7 +1333,8 @@ export default {
     updateSuccess: 'Automatisierung erfolgreich aktualisiert',
     notFound: 'Automatisierung nicht gefunden',
     notConfigured: 'nicht konfiguriert',
-    selectAutomation: 'Automatisierung auswählen',
+    selectedAutomation: 'Ausgewählte Automatisierung',
+    switcherTitle: 'Automatisierung wechseln',
     noConnectorsAvailable:
       'Keine Konnektoren verfügbar. Bitte fügen Sie zuerst einen Konnektor im Admin-Bereich hinzu.',
     labelName: 'Name',
