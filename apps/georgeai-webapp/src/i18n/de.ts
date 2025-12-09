@@ -1416,6 +1416,7 @@ export default {
     },
     fieldMappings: 'Feldzuordnungen',
     addMapping: 'Zuordnung hinzufügen',
+    noMappings: 'Keine Zuordnungen konfiguriert',
     sourceField: 'Quellfeld',
     targetField: 'Zielfeld',
     transform: 'Transformation',

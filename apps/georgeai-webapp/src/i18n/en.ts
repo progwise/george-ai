@@ -1393,6 +1393,7 @@ export default {
     },
     fieldMappings: 'Field Mappings',
     addMapping: 'Add Mapping',
+    noMappings: 'No mappings configured',
     sourceField: 'Source Field',
     targetField: 'Target Field',
     transform: 'Transform',

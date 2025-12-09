@@ -1,11 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getConnectorTypesQueryOptions } from '../../../../components/admin/connectors/queries/get-connector-types'
 import { getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useAutomationActions } from '../../../../components/automations/use-automation-actions'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
+import { LinkIcon } from '../../../../icons/link-icon'
 import { PlusIcon } from '../../../../icons/plus-icon'
 import { TrashIcon } from '../../../../icons/trash-icon'
 
@@ -28,6 +29,7 @@ export const Route = createFileRoute('/_authenticated/automations/$automationId/
 
 function RouteComponent() {
   const { t } = useTranslation()
+  const { user } = Route.useRouteContext()
   const { automationId } = Route.useParams()
   const { updateAutomation, isPending } = useAutomationActions()
 
@@ -136,46 +138,30 @@ function RouteComponent() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="prose">
-        <h3>{t('automations.editSettings')}</h3>
-      </div>
-
+    <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-4">
       {/* Basic Settings */}
-      <div className="card bg-base-200">
+      <div className="card card-compact bg-base-200">
         <div className="card-body">
-          <h4 className="card-title text-base">{t('automations.settings')}</h4>
+          <h4 className="card-title text-sm">{t('automations.settings')}</h4>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             {/* Name */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">{t('automations.labelName')}</legend>
+              <legend className="fieldset-legend text-xs">{t('automations.labelName')}</legend>
               <input
                 type="text"
-                className="input w-full"
+                className="input input-sm w-full"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </fieldset>
 
-            {/* Connector (read-only) */}
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{t('automations.labelConnector')}</legend>
-              <input type="text" className="input w-full" value={automation.connector.name || ''} disabled />
-            </fieldset>
-
-            {/* List (read-only) */}
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{t('automations.labelList')}</legend>
-              <input type="text" className="input w-full" value={automation.list.name} disabled />
-            </fieldset>
-
             {/* Action */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">{t('automations.labelAction')}</legend>
+              <legend className="fieldset-legend text-xs">{t('automations.labelAction')}</legend>
               <select
-                className="select w-full"
+                className="select select-sm w-full"
                 value={connectorAction}
                 onChange={(e) => setConnectorAction(e.target.value)}
                 required
@@ -191,201 +177,221 @@ function RouteComponent() {
               </select>
             </fieldset>
 
-            {/* Execute on Enrichment */}
-            <fieldset className="fieldset col-span-full">
-              <label className="label cursor-pointer justify-start gap-2">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  checked={executeOnEnrichment}
-                  onChange={(e) => setExecuteOnEnrichment(e.target.checked)}
-                />
-                <span>{t('automations.labelExecuteOnEnrichment')}</span>
+            {/* Connector (read-only) */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-xs">{t('automations.labelConnector')}</legend>
+              <label className="input input-sm w-full">
+                <input type="text" value={automation.connector.name || ''} disabled />
+                {user.isAdmin && (
+                  <Link to="/admin/connectors" className="link link-sm">
+                    <LinkIcon className="size-3" />
+                  </Link>
+                )}
+              </label>
+            </fieldset>
+
+            {/* List (read-only) */}
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-xs">{t('automations.labelList')}</legend>
+              <label className="input input-sm w-full">
+                <input type="text" value={automation.list.name} disabled />
+                <Link to="/lists/$listId" params={{ listId: automation.listId }} className="link link-sm">
+                  <LinkIcon className="size-3" />
+                </Link>
               </label>
             </fieldset>
           </div>
+
+          {/* Execute on Enrichment */}
+          <label className="label cursor-pointer justify-start gap-1.5 py-1">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-xs"
+              checked={executeOnEnrichment}
+              onChange={(e) => setExecuteOnEnrichment(e.target.checked)}
+            />
+            <span className="text-xs">{t('automations.labelExecuteOnEnrichment')}</span>
+          </label>
         </div>
       </div>
 
       {/* Dynamic Action Configuration */}
       {selectedAction && selectedAction.configFields.length > 0 && (
-        <div className="card bg-base-200">
+        <div className="card card-compact bg-base-200">
           <div className="card-body">
-            <h4 className="card-title text-base">{t('automations.fieldMappings')}</h4>
+            <h4 className="card-title text-sm">{t('automations.fieldMappings')}</h4>
 
-            {selectedAction.configFields.map((field) => {
-              // List field select (e.g., productIdField)
-              if (field.type === 'listFieldSelect') {
-                return (
-                  <fieldset key={field.id} className="fieldset">
-                    <legend className="fieldset-legend">
-                      {field.name}
-                      {field.required && <span className="text-error"> *</span>}
-                    </legend>
-                    {field.description && <p className="text-base-content/60 mb-2 text-sm">{field.description}</p>}
-                    <select
-                      className="select w-full max-w-md"
-                      value={(actionConfig[field.id] as string) || ''}
-                      onChange={(e) => updateConfigField(field.id, e.target.value)}
-                      required={field.required}
-                    >
-                      <option value="" disabled>
-                        Select a field...
-                      </option>
-                      {listFields.map((lf) => (
-                        <option key={lf.id} value={lf.id}>
-                          {lf.name}
+            <div className="space-y-3">
+              {selectedAction.configFields.map((field) => {
+                // List field select (e.g., productIdField)
+                if (field.type === 'listFieldSelect') {
+                  return (
+                    <fieldset key={field.id} className="fieldset">
+                      <legend className="fieldset-legend text-xs">
+                        {field.name}
+                        {field.required && <span className="text-error"> *</span>}
+                      </legend>
+                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      <select
+                        className="select select-sm w-full"
+                        value={(actionConfig[field.id] as string) || ''}
+                        onChange={(e) => updateConfigField(field.id, e.target.value)}
+                        required={field.required}
+                      >
+                        <option value="" disabled>
+                          Select a field...
                         </option>
-                      ))}
-                    </select>
-                  </fieldset>
-                )
-              }
-
-              // Field mappings
-              if (field.type === 'fieldMappings') {
-                return (
-                  <div key={field.id} className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm font-medium">{field.name}</span>
-                        {field.description && <p className="text-base-content/60 text-sm">{field.description}</p>}
-                      </div>
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={addFieldMapping}>
-                        <PlusIcon className="size-4" />
-                        {t('automations.addMapping')}
-                      </button>
-                    </div>
-
-                    {fieldMappings.length === 0 ? (
-                      <div className="text-base-content/50 text-sm">{t('automations.addMapping')}</div>
-                    ) : (
-                      <div className="space-y-2">
-                        {fieldMappings.map((mapping, index) => (
-                          <div
-                            key={mapping.id || `mapping-${index}`}
-                            className="bg-base-100 flex items-center gap-2 rounded-lg p-3"
-                          >
-                            {/* Source Field */}
-                            <select
-                              className="select select-sm flex-1"
-                              value={mapping.sourceFieldId}
-                              onChange={(e) => updateFieldMapping(index, { sourceFieldId: e.target.value })}
-                              aria-label={t('automations.sourceField')}
-                            >
-                              <option value="">{t('automations.sourceField')}</option>
-                              {listFields.map((lf) => (
-                                <option key={lf.id} value={lf.id}>
-                                  {lf.name}
-                                </option>
-                              ))}
-                            </select>
-
-                            <span className="text-base-content/50">→</span>
-
-                            {/* Target Field */}
-                            <select
-                              className="select select-sm flex-1"
-                              value={mapping.targetField}
-                              onChange={(e) => updateFieldMapping(index, { targetField: e.target.value })}
-                              aria-label={t('automations.targetField')}
-                            >
-                              <option value="">{t('automations.targetField')}</option>
-                              {field.targetFields?.map((tf) => (
-                                <option key={tf.id} value={tf.id}>
-                                  {tf.name}
-                                </option>
-                              ))}
-                            </select>
-
-                            {/* Transform */}
-                            <select
-                              className="select select-sm w-40"
-                              value={mapping.transform}
-                              onChange={(e) => updateFieldMapping(index, { transform: e.target.value })}
-                              aria-label={t('automations.transform')}
-                            >
-                              {field.transforms?.map((tr) => (
-                                <option key={tr.id} value={tr.id}>
-                                  {tr.name}
-                                </option>
-                              ))}
-                            </select>
-
-                            {/* Remove */}
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-sm text-error"
-                              onClick={() => removeFieldMapping(index)}
-                              aria-label={`Remove mapping ${index + 1}`}
-                            >
-                              <TrashIcon className="size-4" />
-                            </button>
-                          </div>
+                        {listFields.map((lf) => (
+                          <option key={lf.id} value={lf.id}>
+                            {lf.name}
+                          </option>
                         ))}
+                      </select>
+                    </fieldset>
+                  )
+                }
+
+                // Field mappings
+                if (field.type === 'fieldMappings') {
+                  return (
+                    <div key={field.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-medium">{field.name}</span>
+                          {field.description && <p className="text-base-content/60 text-xs">{field.description}</p>}
+                        </div>
+                        <button type="button" className="btn btn-ghost btn-xs" onClick={addFieldMapping}>
+                          <PlusIcon className="size-3" />
+                          {t('automations.addMapping')}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )
-              }
 
-              // String input
-              if (field.type === 'string') {
-                return (
-                  <fieldset key={field.id} className="fieldset">
-                    <legend className="fieldset-legend">
-                      {field.name}
-                      {field.required && <span className="text-error"> *</span>}
-                    </legend>
-                    {field.description && <p className="text-base-content/60 mb-2 text-sm">{field.description}</p>}
-                    <input
-                      type="text"
-                      className="input w-full max-w-md"
-                      value={(actionConfig[field.id] as string) || ''}
-                      onChange={(e) => updateConfigField(field.id, e.target.value)}
-                      required={field.required}
-                    />
-                  </fieldset>
-                )
-              }
+                      {fieldMappings.length === 0 ? (
+                        <div className="text-base-content/50 text-xs">{t('automations.noMappings')}</div>
+                      ) : (
+                        <div className="space-y-1">
+                          {fieldMappings.map((mapping, index) => (
+                            <div
+                              key={mapping.id || `mapping-${index}`}
+                              className="bg-base-100 flex items-center gap-2 rounded p-2"
+                            >
+                              <select
+                                className="select select-xs flex-1"
+                                value={mapping.sourceFieldId}
+                                onChange={(e) => updateFieldMapping(index, { sourceFieldId: e.target.value })}
+                                aria-label={t('automations.sourceField')}
+                              >
+                                <option value="">{t('automations.sourceField')}</option>
+                                {listFields.map((lf) => (
+                                  <option key={lf.id} value={lf.id}>
+                                    {lf.name}
+                                  </option>
+                                ))}
+                              </select>
 
-              // Select
-              if (field.type === 'select' && field.options) {
-                return (
-                  <fieldset key={field.id} className="fieldset">
-                    <legend className="fieldset-legend">
-                      {field.name}
-                      {field.required && <span className="text-error"> *</span>}
-                    </legend>
-                    {field.description && <p className="text-base-content/60 mb-2 text-sm">{field.description}</p>}
-                    <select
-                      className="select w-full max-w-md"
-                      value={(actionConfig[field.id] as string) || ''}
-                      onChange={(e) => updateConfigField(field.id, e.target.value)}
-                      required={field.required}
-                    >
-                      <option value="" disabled>
-                        Select...
-                      </option>
-                      {field.options.map((opt) => (
-                        <option key={opt.id} value={opt.id}>
-                          {opt.name}
+                              <span className="text-base-content/50 text-xs">→</span>
+
+                              <select
+                                className="select select-xs flex-1"
+                                value={mapping.targetField}
+                                onChange={(e) => updateFieldMapping(index, { targetField: e.target.value })}
+                                aria-label={t('automations.targetField')}
+                              >
+                                <option value="">{t('automations.targetField')}</option>
+                                {field.targetFields?.map((tf) => (
+                                  <option key={tf.id} value={tf.id}>
+                                    {tf.name}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <select
+                                className="select select-xs w-28"
+                                value={mapping.transform}
+                                onChange={(e) => updateFieldMapping(index, { transform: e.target.value })}
+                                aria-label={t('automations.transform')}
+                              >
+                                {field.transforms?.map((tr) => (
+                                  <option key={tr.id} value={tr.id}>
+                                    {tr.name}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <button
+                                type="button"
+                                className="btn btn-ghost btn-xs text-error"
+                                onClick={() => removeFieldMapping(index)}
+                                aria-label={`Remove mapping ${index + 1}`}
+                              >
+                                <TrashIcon className="size-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+
+                // String input
+                if (field.type === 'string') {
+                  return (
+                    <fieldset key={field.id} className="fieldset">
+                      <legend className="fieldset-legend text-xs">
+                        {field.name}
+                        {field.required && <span className="text-error"> *</span>}
+                      </legend>
+                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      <input
+                        type="text"
+                        className="input input-sm w-full"
+                        value={(actionConfig[field.id] as string) || ''}
+                        onChange={(e) => updateConfigField(field.id, e.target.value)}
+                        required={field.required}
+                      />
+                    </fieldset>
+                  )
+                }
+
+                // Select
+                if (field.type === 'select' && field.options) {
+                  return (
+                    <fieldset key={field.id} className="fieldset">
+                      <legend className="fieldset-legend text-xs">
+                        {field.name}
+                        {field.required && <span className="text-error"> *</span>}
+                      </legend>
+                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      <select
+                        className="select select-sm w-full"
+                        value={(actionConfig[field.id] as string) || ''}
+                        onChange={(e) => updateConfigField(field.id, e.target.value)}
+                        required={field.required}
+                      >
+                        <option value="" disabled>
+                          Select...
                         </option>
-                      ))}
-                    </select>
-                  </fieldset>
-                )
-              }
+                        {field.options.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.name}
+                          </option>
+                        ))}
+                      </select>
+                    </fieldset>
+                  )
+                }
 
-              return null
-            })}
+                return null
+              })}
+            </div>
           </div>
         </div>
       )}
 
       {/* Submit */}
       <div className="flex justify-end">
-        <button type="submit" className="btn btn-primary" disabled={isPending}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
           {isPending ? t('actions.saving') : t('actions.save')}
         </button>
       </div>
