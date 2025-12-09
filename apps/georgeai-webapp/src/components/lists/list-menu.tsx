@@ -80,6 +80,9 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
                     className="text-nowrap"
                     params={{ listId: l.id }}
                     activeProps={{ className: 'font-bold' }}
+                    onClick={() => {
+                      listSelectorDetailsRef.current?.removeAttribute('open')
+                    }}
                   >
                     {l.name}
                   </Link>
