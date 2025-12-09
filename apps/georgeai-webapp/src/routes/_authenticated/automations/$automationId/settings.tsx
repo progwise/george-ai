@@ -16,7 +16,7 @@ interface FieldMapping {
   transform: string
 }
 
-export const Route = createFileRoute('/_authenticated/automations/$automationId/edit')({
+export const Route = createFileRoute('/_authenticated/automations/$automationId/settings')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
     await Promise.all([

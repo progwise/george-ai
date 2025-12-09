@@ -47,7 +47,7 @@ import { Route as AuthenticatedLibrariesLibraryIdSettingsRouteImport } from './r
 import { Route as AuthenticatedLibrariesLibraryIdQueryRouteImport } from './routes/_authenticated/libraries/$libraryId/query'
 import { Route as AuthenticatedLibrariesLibraryIdProcessingRouteImport } from './routes/_authenticated/libraries/$libraryId/processing'
 import { Route as AuthenticatedLibrariesLibraryIdPostprocessRouteImport } from './routes/_authenticated/libraries/$libraryId/postprocess'
-import { Route as AuthenticatedAutomationsAutomationIdEditRouteImport } from './routes/_authenticated/automations/$automationId/edit'
+import { Route as AuthenticatedAutomationsAutomationIdSettingsRouteImport } from './routes/_authenticated/automations/$automationId/settings'
 import { Route as AuthenticatedAutomationsAutomationIdBatchesRouteImport } from './routes/_authenticated/automations/$automationId/batches'
 import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin/users/$userId'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersRouteRouteImport } from './routes/_authenticated/libraries/$libraryId/crawlers/route'
@@ -285,10 +285,10 @@ const AuthenticatedLibrariesLibraryIdPostprocessRoute =
     path: '/postprocess',
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
-const AuthenticatedAutomationsAutomationIdEditRoute =
-  AuthenticatedAutomationsAutomationIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
+const AuthenticatedAutomationsAutomationIdSettingsRoute =
+  AuthenticatedAutomationsAutomationIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAutomationsAutomationIdRouteRoute,
   } as any)
 const AuthenticatedAutomationsAutomationIdBatchesRoute =
@@ -423,7 +423,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/automations/$automationId/batches': typeof AuthenticatedAutomationsAutomationIdBatchesRoute
-  '/automations/$automationId/edit': typeof AuthenticatedAutomationsAutomationIdEditRoute
+  '/automations/$automationId/settings': typeof AuthenticatedAutomationsAutomationIdSettingsRoute
   '/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
   '/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
@@ -473,7 +473,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/automations/$automationId/batches': typeof AuthenticatedAutomationsAutomationIdBatchesRoute
-  '/automations/$automationId/edit': typeof AuthenticatedAutomationsAutomationIdEditRoute
+  '/automations/$automationId/settings': typeof AuthenticatedAutomationsAutomationIdSettingsRoute
   '/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
   '/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
@@ -528,7 +528,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
   '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/_authenticated/automations/$automationId/batches': typeof AuthenticatedAutomationsAutomationIdBatchesRoute
-  '/_authenticated/automations/$automationId/edit': typeof AuthenticatedAutomationsAutomationIdEditRoute
+  '/_authenticated/automations/$automationId/settings': typeof AuthenticatedAutomationsAutomationIdSettingsRoute
   '/_authenticated/libraries/$libraryId/postprocess': typeof AuthenticatedLibrariesLibraryIdPostprocessRoute
   '/_authenticated/libraries/$libraryId/processing': typeof AuthenticatedLibrariesLibraryIdProcessingRoute
   '/_authenticated/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
@@ -586,7 +586,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/crawlers'
     | '/admin/users/$userId'
     | '/automations/$automationId/batches'
-    | '/automations/$automationId/edit'
+    | '/automations/$automationId/settings'
     | '/libraries/$libraryId/postprocess'
     | '/libraries/$libraryId/processing'
     | '/libraries/$libraryId/query'
@@ -636,7 +636,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/admin/users/$userId'
     | '/automations/$automationId/batches'
-    | '/automations/$automationId/edit'
+    | '/automations/$automationId/settings'
     | '/libraries/$libraryId/postprocess'
     | '/libraries/$libraryId/processing'
     | '/libraries/$libraryId/query'
@@ -690,7 +690,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/crawlers'
     | '/_authenticated/admin/users/$userId'
     | '/_authenticated/automations/$automationId/batches'
-    | '/_authenticated/automations/$automationId/edit'
+    | '/_authenticated/automations/$automationId/settings'
     | '/_authenticated/libraries/$libraryId/postprocess'
     | '/_authenticated/libraries/$libraryId/processing'
     | '/_authenticated/libraries/$libraryId/query'
@@ -995,11 +995,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdPostprocessRouteImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteRoute
     }
-    '/_authenticated/automations/$automationId/edit': {
-      id: '/_authenticated/automations/$automationId/edit'
-      path: '/edit'
-      fullPath: '/automations/$automationId/edit'
-      preLoaderRoute: typeof AuthenticatedAutomationsAutomationIdEditRouteImport
+    '/_authenticated/automations/$automationId/settings': {
+      id: '/_authenticated/automations/$automationId/settings'
+      path: '/settings'
+      fullPath: '/automations/$automationId/settings'
+      preLoaderRoute: typeof AuthenticatedAutomationsAutomationIdSettingsRouteImport
       parentRoute: typeof AuthenticatedAutomationsAutomationIdRouteRoute
     }
     '/_authenticated/automations/$automationId/batches': {
@@ -1165,7 +1165,7 @@ const AuthenticatedConversationsRouteRouteWithChildren =
 
 interface AuthenticatedAutomationsAutomationIdRouteRouteChildren {
   AuthenticatedAutomationsAutomationIdBatchesRoute: typeof AuthenticatedAutomationsAutomationIdBatchesRoute
-  AuthenticatedAutomationsAutomationIdEditRoute: typeof AuthenticatedAutomationsAutomationIdEditRoute
+  AuthenticatedAutomationsAutomationIdSettingsRoute: typeof AuthenticatedAutomationsAutomationIdSettingsRoute
   AuthenticatedAutomationsAutomationIdIndexRoute: typeof AuthenticatedAutomationsAutomationIdIndexRoute
 }
 
@@ -1173,8 +1173,8 @@ const AuthenticatedAutomationsAutomationIdRouteRouteChildren: AuthenticatedAutom
   {
     AuthenticatedAutomationsAutomationIdBatchesRoute:
       AuthenticatedAutomationsAutomationIdBatchesRoute,
-    AuthenticatedAutomationsAutomationIdEditRoute:
-      AuthenticatedAutomationsAutomationIdEditRoute,
+    AuthenticatedAutomationsAutomationIdSettingsRoute:
+      AuthenticatedAutomationsAutomationIdSettingsRoute,
     AuthenticatedAutomationsAutomationIdIndexRoute:
       AuthenticatedAutomationsAutomationIdIndexRoute,
   }

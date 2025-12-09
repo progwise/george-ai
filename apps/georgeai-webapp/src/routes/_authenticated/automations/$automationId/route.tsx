@@ -61,7 +61,7 @@ function RouteComponent() {
           {t('automations.batches')}
         </Link>
         <Link
-          to="/automations/$automationId/edit"
+          to="/automations/$automationId/settings"
           className="tab"
           params={{ automationId: params.automationId }}
           activeOptions={{ exact: true }}
@@ -69,7 +69,7 @@ function RouteComponent() {
           role="tab"
         >
           <EditIcon />
-          {t('automations.edit')}
+          {t('automations.settings')}
         </Link>
       </div>
 

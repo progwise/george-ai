@@ -61,8 +61,12 @@ test.describe('Automations', () => {
       // Switch to Workspace 2
       await switchWorkspace(page, 'E2E Test Workspace 2')
 
-      // Verify automation is NOT visible in Workspace 2
-      await expect(page.getByText(automationName)).not.toBeVisible()
+      // Verify automation is NOT visible in Workspace 2's automation list
+      const switcher2 = automationSwitcher(page)
+      await switcher2.locator('summary').click()
+      await expect(switcher2.locator('ul')).toBeVisible()
+      await expect(switcher2.getByText(automationName)).not.toBeVisible()
+      await switcher2.locator('summary').click() // close dropdown
 
       // Switch back to Workspace 1
       await switchWorkspace(page, 'E2E Test Workspace 1')
@@ -94,8 +98,11 @@ test.describe('Automations', () => {
       // Wait for dialog to close
       await expect(deleteDialog).not.toBeVisible()
 
-      // Verify automation is deleted
-      await expect(page.getByText(automationName, { exact: true })).toHaveCount(0)
+      // Verify automation is deleted (not in the automation switcher)
+      const switcher = automationSwitcher(page)
+      await switcher.locator('summary').click()
+      await expect(switcher.locator('ul')).toBeVisible()
+      await expect(switcher.getByText(automationName)).not.toBeVisible()
     })
   })
 
@@ -137,10 +144,10 @@ test.describe('Automations', () => {
       await page.waitForLoadState('networkidle')
       expect(page.url()).toContain('/batches')
 
-      // Click Edit tab
-      await page.getByRole('tab', { name: /edit/i }).click()
+      // Click Settings tab
+      await page.getByRole('tab', { name: /settings/i }).click()
       await page.waitForLoadState('networkidle')
-      expect(page.url()).toContain('/edit')
+      expect(page.url()).toContain('/settings')
     })
   })
 })

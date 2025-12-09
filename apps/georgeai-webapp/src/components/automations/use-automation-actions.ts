@@ -50,7 +50,7 @@ export const useAutomationActions = () => {
     onSuccess: async ({ createAutomation: automation }) => {
       toastSuccess(t('automations.createSuccess'))
       await queryClient.invalidateQueries(getAutomationsQueryOptions())
-      await navigate({ to: '/automations/$automationId/edit', params: { automationId: automation.id } })
+      await navigate({ to: '/automations/$automationId/settings', params: { automationId: automation.id } })
     },
   })
 
@@ -59,7 +59,11 @@ export const useAutomationActions = () => {
     onSuccess: async (_data, automationId) => {
       toastSuccess(t('automations.deleteSuccess'))
       await Promise.all([
-        queryClient.invalidateQueries(getAutomationsQueryOptions()),
+        queryClient.cancelQueries(getAutomationsQueryOptions()),
+        queryClient.cancelQueries(getAutomationQueryOptions(automationId)),
+      ])
+      await Promise.all([
+        queryClient.removeQueries(getAutomationsQueryOptions()),
         queryClient.removeQueries(getAutomationQueryOptions(automationId)),
       ])
       await navigate({ to: '/automations' })

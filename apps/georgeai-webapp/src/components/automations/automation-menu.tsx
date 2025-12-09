@@ -131,6 +131,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
       <DialogForm
         ref={deleteDialogRef}
         title={t('automations.deleteDialogTitle')}
+        description={t('automations.deleteDialogConfirmation', { name: automation.name })}
         onSubmit={() =>
           deleteAutomation(automation.id, {
             onSuccess: () => {
@@ -138,9 +139,8 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
             },
           })
         }
-      >
-        {t('automations.deleteDialogConfirmation', { name: automation.name })}
-      </DialogForm>
+        disabledSubmit={isPending}
+      />
     </div>
   )
 }
