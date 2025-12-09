@@ -92,24 +92,17 @@ async function globalSetup() {
         [workspace.id, workspace.name, workspace.slug],
       )
 
-      // Add user as admin
-      const memberResult = await client.query(
-        'SELECT id FROM "WorkspaceMember" WHERE "workspaceId" = $1 AND "userId" = $2',
+      // Add user as owner (upsert to ensure correct role)
+      await client.query(
+        `
+        INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
+        ON CONFLICT ("workspaceId", "userId")
+        DO UPDATE SET role = 'owner', "updatedAt" = NOW()
+      `,
         [workspace.id, userId],
       )
-
-      if (memberResult.rows.length === 0) {
-        await client.query(
-          `
-          INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
-          VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
-        `,
-          [workspace.id, userId],
-        )
-        console.log(`  ✅ Created workspace: ${workspace.name}`)
-      } else {
-        console.log(`  ℹ️  Workspace exists: ${workspace.name}`)
-      }
+      console.log(`  ✅ Workspace ready (user is owner): ${workspace.name}`)
     }
 
     // Step 3: Create AI Service Providers for test workspaces
