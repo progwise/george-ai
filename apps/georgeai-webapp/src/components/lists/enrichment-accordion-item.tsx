@@ -2,13 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { EnrichmentAccordionItem_EnrichmentFragment, EnrichmentStatus } from '../../gql/graphql'
-import { useTranslation } from '../../i18n/use-translation-hook'
 import ErrorIcon from '../../icons/error-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { ClientDate } from '../client-date'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { JsonModal } from '../json-modal'
 import { useEnrichmentActions } from './use-enrichment-actions'
@@ -89,7 +89,6 @@ interface EnrichmentAccordionItemProps {
 }
 
 export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordionItemProps) => {
-  const { language } = useTranslation()
   const metadataModalRef = useRef<HTMLDialogElement>(null)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(enrichment.listId)
 
@@ -121,7 +120,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               <span className="text-primary">{enrichment.field.name}</span>
             </div>
             <div className="flex items-center gap-4 text-xs">
-              <span className="text-base-content/50">{dateTimeString(enrichment.requestedAt, language)}</span>
+              <ClientDate date={enrichment.requestedAt} format="dateTime" className="text-base-content/50" />
               {enrichment.status === EnrichmentStatus.Completed && processingData.output?.enrichedValue && (
                 <>
                   <span className="text-base-content/40">•</span>

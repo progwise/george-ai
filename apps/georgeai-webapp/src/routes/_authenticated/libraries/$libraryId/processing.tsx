@@ -72,27 +72,29 @@ function RouteComponent() {
   const count = aiContentProcessingTasks.count
 
   return (
-    <div className="space-y-4">
-      <TaskMenu
-        libraryId={libraryId}
-        files={aiLibraryFiles}
-        statusCounts={aiContentProcessingTasks.statusCounts}
-        totalTasksCount={aiContentProcessingTasks.count}
-      />
-
-      <div className="flex flex-row justify-end">
-        <Pagination
-          totalItems={count}
-          itemsPerPage={take}
-          currentPage={1 + skip / take}
-          onPageChange={(page) => {
-            navigate({ search: { skip: (page - 1) * take, take, status } })
-          }}
-          showPageSizeSelector={true}
-          onPageSizeChange={(newPageSize) => {
-            navigate({ search: { skip: 0, take: newPageSize, status } })
-          }}
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div>
+        <TaskMenu
+          libraryId={libraryId}
+          files={aiLibraryFiles}
+          statusCounts={aiContentProcessingTasks.statusCounts}
+          totalTasksCount={aiContentProcessingTasks.count}
         />
+
+        <div className="flex flex-row justify-end">
+          <Pagination
+            totalItems={count}
+            itemsPerPage={take}
+            currentPage={1 + skip / take}
+            onPageChange={(page) => {
+              navigate({ search: { skip: (page - 1) * take, take, status } })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ search: { skip: 0, take: newPageSize, status } })
+            }}
+          />
+        </div>
       </div>
       {tasks.length === 0 ? (
         <div className="card bg-base-200">
@@ -101,7 +103,7 @@ function RouteComponent() {
           </div>
         </div>
       ) : (
-        <div className="join join-vertical bg-base-100 w-full">
+        <div className="overflow-auto">
           {tasks.map((task, index) => (
             <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={false} />
           ))}

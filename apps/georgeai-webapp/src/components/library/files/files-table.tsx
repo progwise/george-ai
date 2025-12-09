@@ -2,7 +2,7 @@ import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, dateTimeStringArray, formatBytes } from '@george-ai/web-utils'
+import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiLibraryFile_TableItemFragment, ExtractionStatus, ProcessingStatus } from '../../../gql/graphql'
@@ -16,6 +16,7 @@ import { PlayIcon } from '../../../icons/play-icon'
 import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
+import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
 import { useFileActions } from './use-file-actions'
 
@@ -53,7 +54,7 @@ interface FilesTableProps {
   firstItemNumber: number
 }
 export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const { libraryId } = useParams({ from: '/_authenticated/libraries/$libraryId' })
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   const pageFileIds = files?.map((file) => file.id) || []
@@ -225,11 +226,11 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <span>{t('labels.chunks')}:</span>
                 <span>{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}</span>
                 <span>{t('labels.processed')}:</span>
-                <span>{dateTimeString(file.lastSuccessfulEmbedding?.processingFinishedAt, language) || '-'}</span>
+                <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="-" />
                 {file.originModificationDate && (
                   <>
                     <span>{t('labels.originModified')}:</span>
-                    <span>{dateTimeString(file.originModificationDate, language)}</span>
+                    <ClientDate date={file.originModificationDate} format="dateTime" />
                   </>
                 )}
               </div>
@@ -369,21 +370,11 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <td>
                   {file.taskCount ?? '-'}/{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}
                 </td>
-                <td>
-                  {file.lastSuccessfulEmbedding?.processingFinishedAt &&
-                    dateTimeStringArray(file.lastSuccessfulEmbedding?.processingFinishedAt, language).map((item) => (
-                      <div key={item} className="text-nowrap">
-                        {item}
-                      </div>
-                    ))}
+                <td className="text-nowrap">
+                  <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="" />
                 </td>
-                <td>
-                  {file.originModificationDate &&
-                    dateTimeStringArray(file.originModificationDate, language).map((item) => (
-                      <div key={item} className="text-nowrap">
-                        {item}
-                      </div>
-                    ))}
+                <td className="text-nowrap">
+                  <ClientDate date={file.originModificationDate} format="dateTime" fallback="" />
                 </td>
               </tr>
             ))}

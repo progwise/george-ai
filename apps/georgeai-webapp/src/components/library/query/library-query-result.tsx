@@ -20,13 +20,13 @@ export interface LibraryQueryParams {
 
 export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCount }: LibraryQueryParams) => {
   return (
-    <article className="panel justify-center">
-      <ul className="list bg-base-100 rounded-box shadow-md">
+    <article className="justify-center">
+      <ul className="list bg-base-100 rounded-box w-full shadow-md">
         <li className="pl-4 text-xs tracking-wide opacity-60">
           {hitCount} matches for your search term: &quot;{searchTerm}&quot;
         </li>
         {hits.map((hit, index) => (
-          <li key={hit.id} className="list-row">
+          <li key={hit.id} className="list-row w-full">
             <div>
               <span>{index + 1 + offset}</span>
             </div>
@@ -52,7 +52,7 @@ export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCou
                 )}
               </div>
             </div>
-            <div className="list-col-wrap text-xs">
+            <div className="list-col-wrap w-full text-xs">
               {(() => {
                 const highlight = hit.highlights.find((h) => h.field === 'text')
                 const text = highlight?.snippet ? `...${highlight?.snippet}...` : hit.pageContent

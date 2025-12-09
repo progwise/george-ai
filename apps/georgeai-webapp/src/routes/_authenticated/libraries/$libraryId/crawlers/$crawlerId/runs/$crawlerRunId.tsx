@@ -3,8 +3,9 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString, dateTimeStringArray, duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/web-utils'
 
+import { ClientDate } from '../../../../../../../components/client-date'
 import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler-run'
 import { UpdateStatusBadge } from '../../../../../../../components/library/crawler/update-status-badge'
 import { Pagination } from '../../../../../../../components/table/pagination'
@@ -33,7 +34,7 @@ function RouteComponent() {
   const params = Route.useParams()
   const search = Route.useSearch()
   const { queryClient } = Route.useRouteContext()
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const {
     data: { aiLibraryCrawlerRun: crawlerRun },
   } = useSuspenseQuery(
@@ -103,7 +104,7 @@ function RouteComponent() {
                 <span className="label-text font-medium">{t('crawlers.runStartDate')}</span>
               </label>
               <div className="text-sm">
-                {crawlerRun.startedAt ? dateTimeString(crawlerRun.startedAt, language) : 'N/A'}
+                <ClientDate date={crawlerRun.startedAt} format="dateTime" fallback="N/A" />
               </div>
             </div>
             <div>
@@ -111,11 +112,11 @@ function RouteComponent() {
                 <span className="label-text font-medium">{t('crawlers.runEndDate')}</span>
               </label>
               <div className="text-sm">
-                {crawlerRun.endedAt ? dateTimeString(crawlerRun.endedAt, language) : t('texts.running')}
+                {crawlerRun.endedAt ? <ClientDate date={crawlerRun.endedAt} format="dateTime" /> : t('texts.running')}
               </div>
               {crawlerRun.stoppedByUser && (
                 <div className="text-base-content/60 text-sm">
-                  {t('crawlers.stoppedByUser')}: {dateTimeString(crawlerRun.stoppedByUser, language)}
+                  {t('crawlers.stoppedByUser')}: <ClientDate date={crawlerRun.stoppedByUser} format="dateTime" />
                 </div>
               )}
             </div>
@@ -281,11 +282,7 @@ function RouteComponent() {
                           <UpdateStatusBadge updateType={updateType} size="xs" />
                         </td>
                         <td className="truncate">
-                          {dateTimeStringArray(update.createdAt, language).map((item) => (
-                            <div key={item} className="text-nowrap">
-                              {item}
-                            </div>
-                          ))}
+                          <ClientDate date={update.createdAt} format="dateTime" />
                         </td>
 
                         <td className="truncate">

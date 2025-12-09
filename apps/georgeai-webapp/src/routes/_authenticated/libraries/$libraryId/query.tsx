@@ -51,40 +51,44 @@ function RouteComponent() {
     }),
   )
   return (
-    <article className="flex flex-col gap-4">
-      <LibraryQueryInput
-        defaultSearchTerm={query ?? ''}
-        libraryName={library.name}
-        onSearchTermChange={(newTerm) => {
-          navigate({
-            search: { query: newTerm, skip: 0, take },
-          })
-        }}
-      />
-      <Pagination
-        className="justify-end"
-        totalItems={hits.hitCount}
-        itemsPerPage={take}
-        currentPage={skip / take + 1}
-        onPageChange={(page: number) => {
-          navigate({
-            search: { query, skip: (page - 1) * take, take },
-          })
-        }}
-        showPageSizeSelector={true}
-        onPageSizeChange={(newPageSize) => {
-          navigate({
-            search: { query, skip: 0, take: newPageSize },
-          })
-        }}
-      />
-      <LibraryQueryResult
-        libraryId={libraryId}
-        hits={hits.hits}
-        offset={skip}
-        searchTerm={query ?? '*'}
-        hitCount={hits.hitCount}
-      />
-    </article>
+    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+      <div>
+        <LibraryQueryInput
+          defaultSearchTerm={query ?? ''}
+          libraryName={library.name}
+          onSearchTermChange={(newTerm) => {
+            navigate({
+              search: { query: newTerm, skip: 0, take },
+            })
+          }}
+        />
+        <Pagination
+          className="justify-end"
+          totalItems={hits.hitCount}
+          itemsPerPage={take}
+          currentPage={skip / take + 1}
+          onPageChange={(page: number) => {
+            navigate({
+              search: { query, skip: (page - 1) * take, take },
+            })
+          }}
+          showPageSizeSelector={true}
+          onPageSizeChange={(newPageSize) => {
+            navigate({
+              search: { query, skip: 0, take: newPageSize },
+            })
+          }}
+        />
+      </div>
+      <div className="overflow-auto">
+        <LibraryQueryResult
+          libraryId={libraryId}
+          hits={hits.hits}
+          offset={skip}
+          searchTerm={query ?? '*'}
+          hitCount={hits.hitCount}
+        />
+      </div>
+    </div>
   )
 }

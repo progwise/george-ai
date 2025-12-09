@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import {
@@ -16,6 +16,7 @@ import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { TrashIcon } from '../../icons/trash-icon'
+import { ClientDate } from '../client-date'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { getEnrichmentsQueryOptions } from './queries'
 import { useEnrichmentActions } from './use-enrichment-actions'
@@ -68,7 +69,7 @@ export const EnrichmentSidePanel = ({
     failedEnrichmentValue,
   } = fieldValue
   const { name: fileName } = origin
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
 
@@ -217,12 +218,12 @@ export const EnrichmentSidePanel = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-base-content/60">{t('lists.enrichment.sidePanel.requestedAt')}</span>
-                      <span>{dateTimeString(enrichment.requestedAt, language)}</span>
+                      <ClientDate date={enrichment.requestedAt} format="dateTime" />
                     </div>
                     {enrichment.completedAt && (
                       <div className="flex justify-between">
                         <span className="text-base-content/60">{t('lists.enrichment.sidePanel.completedAt')}</span>
-                        <span>{dateTimeString(enrichment.completedAt, language)}</span>
+                        <ClientDate date={enrichment.completedAt} format="dateTime" />
                       </div>
                     )}
                   </div>

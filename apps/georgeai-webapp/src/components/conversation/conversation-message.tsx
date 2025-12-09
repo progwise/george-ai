@@ -5,8 +5,6 @@ import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
@@ -14,6 +12,7 @@ import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { backendRequest } from '../../server-functions/backend'
 import { AssistantIcon } from '../assistant/assistant-icon'
+import { ClientDate } from '../client-date'
 import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { toastError } from '../georgeToaster'
@@ -111,7 +110,7 @@ interface ConversationMessageProps {
 
 export const ConversationMessage = ({ isLoading, message, conversationOwnerId, userId }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { mutate: hideMessageMutate } = useMutation({
@@ -184,7 +183,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
 
         <div className="flex min-w-0 grow flex-col">
           <span className="truncate text-sm font-semibold">{message.sender.name}</span>
-          <span className="text-xs opacity-60">{dateTimeString(message.createdAt, language)}</span>
+          <ClientDate date={message.createdAt} format="dateTime" className="text-xs opacity-60" />
         </div>
         {isLoading && message.sender.isBot && (
           <div>

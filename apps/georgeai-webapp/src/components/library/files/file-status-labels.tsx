@@ -1,8 +1,7 @@
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { graphql } from '../../../gql'
 import { AiLibraryFile_FileStatusLabelsFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ClientDate } from '../../client-date'
 
 graphql(`
   fragment AiLibraryFile_FileStatusLabels on AiLibraryFile {
@@ -31,7 +30,7 @@ interface FileStatusLabelsProps {
 }
 
 export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
-  const { language } = useTranslation()
+  useTranslation()
   const renderConversionStatus = () => {
     const { supportedExtractionMethods, isLegacyFile, lastSuccessfulExtraction, lastSuccessfulEmbedding } = file
 
@@ -63,7 +62,9 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
               clipRule="evenodd"
             />
           </svg>
-          <div>Extraction {dateTimeString(lastSuccessfulExtraction.extractionFinishedAt, language)}</div>
+          <div className="flex gap-1">
+            Extraction <ClientDate date={lastSuccessfulExtraction.extractionFinishedAt} format="dateTime" />
+          </div>
         </div>,
       )
     }
@@ -78,7 +79,9 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
               clipRule="evenodd"
             />
           </svg>
-          <div>Embedding {dateTimeString(lastSuccessfulEmbedding.embeddingFinishedAt, language)}</div>
+          <div className="flex gap-1">
+            Embedding <ClientDate date={lastSuccessfulEmbedding.embeddingFinishedAt} format="dateTime" />
+          </div>
         </div>,
       )
     }

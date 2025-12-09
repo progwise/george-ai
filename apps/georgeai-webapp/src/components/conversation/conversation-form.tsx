@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { graphql } from '../../gql'
 import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { sendMessage } from '../../server-functions/conversations'
 import { getProfileQueryOptions } from '../../server-functions/users'
+import { ClientDate } from '../client-date'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
@@ -31,7 +30,7 @@ interface ConversationFormProps {
   profile?: UserProfileFragment
 }
 export const ConversationForm = ({ conversation, user, profile }: ConversationFormProps) => {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
@@ -169,7 +168,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
       <div className="rounded-box bg-base-100 mt-75 sticky bottom-[72px] z-30 mx-1 border p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
-            className="focus:outline-hidden focus:border-primary max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2"
+            className="focus:outline-hidden focus:border-primary max-h-40 min-h-12 overflow-y-auto rounded-md p-2"
             disabled={isPending}
             onSubmit={handleSubmitMessage}
             value={message}
@@ -181,7 +180,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
 
             <div className="flex grow flex-col">
               <span className="truncate text-sm font-semibold">{name}</span>
-              <span className="truncate text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
+              <ClientDate date={new Date().toISOString()} format="dateTime" className="truncate text-xs opacity-60" />
             </div>
 
             <div className="no-scrollbar hidden items-center gap-2 overflow-x-auto lg:flex">

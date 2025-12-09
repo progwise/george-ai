@@ -69,7 +69,12 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                 >
                   <div>
                     <div className="flex items-center gap-1">
-                      <Link to="." search={{ crawlerId: run.crawlerId }} className="flex items-center gap-1">
+                      <Link
+                        to="/libraries/$libraryId/crawlers"
+                        params={{ libraryId: run.crawler.libraryId }}
+                        search={{ crawlerId: run.crawlerId }}
+                        className="flex items-center gap-1"
+                      >
                         <span>{run.crawler.uriType}</span>
                         <FilterIcon className="size-3" />
                       </Link>
