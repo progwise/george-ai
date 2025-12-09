@@ -45,16 +45,18 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
     actionsPending,
   } = useQueueManagementActions()
 
-  const getQueueDisplayName = (queueType: QueueType) => {
+  const getQueueDisplayName = (queueType: QueueType): string => {
     switch (queueType) {
-      case 'ENRICHMENT':
+      case QueueType.Enrichment:
         return 'Enrichment Queue'
-      case 'CONTENT_PROCESSING':
+      case QueueType.ContentProcessing:
         return 'Content Processing Queue'
-      case 'AUTOMATION':
+      case QueueType.Automation:
         return 'Automation Queue'
-      default:
-        return queueType
+      default: {
+        const exhaustiveCheck: never = queueType
+        throw new Error(`Unhandled queue type: ${exhaustiveCheck}`)
+      }
     }
   }
 
