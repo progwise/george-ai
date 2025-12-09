@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { z } from 'zod'
 
@@ -18,13 +18,12 @@ interface NewAutomationDialogProps {
 export const NewAutomationDialog = ({ ref }: NewAutomationDialogProps) => {
   const { t, language } = useTranslation()
 
-  const {
-    data: { aiLists },
-  } = useSuspenseQuery(getListsQueryOptions())
+  const { data: listsData, isLoading: isLoadingLists } = useQuery(getListsQueryOptions())
+  const { data: connectorsData, isLoading: isLoadingConnectors } = useQuery(getConnectorsQueryOptions())
 
-  const {
-    data: { connectors },
-  } = useSuspenseQuery(getConnectorsQueryOptions())
+  const isLoading = isLoadingLists || isLoadingConnectors
+  const aiLists = listsData?.aiLists ?? []
+  const connectors = connectorsData?.connectors ?? []
 
   const listOptions: SelectItem[] = aiLists.map((list) => ({ id: list.id, name: list.name }))
   const connectorOptions: SelectItem[] = connectors
@@ -51,6 +50,34 @@ export const NewAutomationDialog = ({ ref }: NewAutomationDialogProps) => {
         connectorId: formData.get('connectorId') as string,
       },
       { onSuccess: () => ref.current?.close() },
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <DialogForm
+        ref={ref}
+        title={t('automations.createDialogTitle')}
+        className="max-w-md"
+        onSubmit={() => {}}
+        disabledSubmit={true}
+        submitButtonText={t('actions.create')}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-4 w-16" />
+            <div className="skeleton h-10 w-full" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-4 w-12" />
+            <div className="skeleton h-10 w-full" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-4 w-20" />
+            <div className="skeleton h-10 w-full" />
+          </div>
+        </div>
+      </DialogForm>
     )
   }
 

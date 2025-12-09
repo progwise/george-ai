@@ -1,6 +1,5 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useRef } from 'react'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useRef } from 'react'
 
 import { NewAutomationDialog } from '../../../components/automations/new-automation-dialog'
 import { getAutomationsQueryOptions } from '../../../components/automations/queries'
@@ -10,29 +9,21 @@ import { PlusIcon } from '../../../icons/plus-icon'
 export const Route = createFileRoute('/_authenticated/automations/')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    return await context.queryClient.ensureQueryData(getAutomationsQueryOptions())
+    const { automations } = await context.queryClient.ensureQueryData(getAutomationsQueryOptions())
+    const latestAutomation = automations.at(0)
+
+    if (latestAutomation) {
+      throw redirect({
+        to: '/automations/$automationId',
+        params: { automationId: latestAutomation.id },
+      })
+    }
   },
 })
 
 function RouteComponent() {
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
-
-  const navigate = Route.useNavigate()
   const { t } = useTranslation()
-
-  const {
-    data: { automations },
-  } = useSuspenseQuery(getAutomationsQueryOptions())
-  const latestAutomation = useMemo(() => automations.at(0), [automations])
-
-  // Synchronous redirect to first automation (like lists do)
-  if (latestAutomation) {
-    navigate({
-      to: '/automations/$automationId',
-      params: { automationId: latestAutomation.id },
-    })
-    return null
-  }
 
   return (
     <div className="absolute flex h-screen w-full">

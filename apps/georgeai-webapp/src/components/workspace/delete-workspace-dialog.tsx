@@ -37,7 +37,7 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
       title={`${t('workspace.deleteTitle')}: ${currentWorkspace.name}`}
       description={validation?.canDelete ? t('workspace.deleteDescription') : t('workspace.deleteBlockedDescription')}
       onSubmit={handleSubmit}
-      submitButtonText={t('workspace.delete')}
+      submitButtonText={t('workspace.deleteTitle')}
       disabledSubmit={isPending || isLoading}
       buttonOptions={validation?.canDelete ? 'cancelAndConfirm' : 'onlyClose'}
     >

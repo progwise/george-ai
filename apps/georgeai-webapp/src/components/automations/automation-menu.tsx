@@ -60,22 +60,18 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
   if (!user) return null
   return (
     <div>
-      <ul className="menu menu-horizontal rounded-box w-full">
+      <ul title={t('automations.menuTitle')} className="menu menu-horizontal rounded-box w-full">
         <li>
           <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('automations.title')}</span>
         </li>
         <li>
-          <details title={t('automations.title')} ref={automationSelectorDetailsRef} className="z-50">
-            <summary
-              role="button"
-              aria-label={t('automations.selectAutomation')}
-              className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold"
-            >
+          <details aria-label={t('automations.switcherTitle')} ref={automationSelectorDetailsRef} className="z-50">
+            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
               {automation.name}
             </summary>
-            <ul className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
+            <ul role="listbox" className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
               {selectableAutomations.map((a) => (
-                <li key={a.id}>
+                <li key={a.id} role="option" aria-selected={a.id === automation.id}>
                   <Link
                     to={'.'}
                     className="text-nowrap"
@@ -105,7 +101,10 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
         <li>
           <button
             type="button"
-            onClick={() => newAutomationDialogRef.current?.showModal()}
+            disabled={isPending}
+            onClick={() => {
+              newAutomationDialogRef.current?.showModal()
+            }}
             className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             title={t('automations.newAutomation')}
             data-tip={t('automations.newAutomation')}
@@ -132,7 +131,13 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
       <DialogForm
         ref={deleteDialogRef}
         title={t('automations.deleteDialogTitle')}
-        onSubmit={() => deleteAutomation(automation.id)}
+        onSubmit={() =>
+          deleteAutomation(automation.id, {
+            onSuccess: () => {
+              deleteDialogRef.current?.close()
+            },
+          })
+        }
       >
         {t('automations.deleteDialogConfirmation', { name: automation.name })}
       </DialogForm>

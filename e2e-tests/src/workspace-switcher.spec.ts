@@ -123,7 +123,7 @@ test.describe('Workspace Switcher', () => {
   test.describe('Create Workspace', () => {
     test('should show create workspace button in navigation', async ({ page }) => {
       // Create button should be visible in navigation (not inside dropdown anymore)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await expect(createButton).toBeVisible()
     })
 
@@ -132,7 +132,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Click create button (now in navigation, not inside dropdown)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       // Dialog should be visible
@@ -150,7 +150,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Open create workspace dialog (button now in navigation)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
@@ -162,11 +162,9 @@ test.describe('Workspace Switcher', () => {
       // Submit form
       await page
         .getByRole('dialog')
-        .getByRole('button', { name: /^create$/i })
+        .getByRole('button', { name: /create workspace/i })
         .click()
 
-      // Wait for workspace to be created and switched
-      await page.waitForLoadState('networkidle')
       await expect(workspaceSwitcher).toContainText(workspaceName)
 
       // Verify new workspace appears in dropdown
@@ -182,7 +180,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Open create workspace dialog (button now in navigation)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       // Fill in only workspace name
@@ -205,7 +203,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Open create workspace dialog (button now in navigation)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       // Try to submit with invalid slug (uppercase, spaces, special chars)
@@ -215,7 +213,7 @@ test.describe('Workspace Switcher', () => {
       // Submit form
       await page
         .getByRole('dialog')
-        .getByRole('button', { name: /^create$/i })
+        .getByRole('button', { name: /create workspace/i })
         .click()
 
       // Should show inline error in dialog (not toast)
@@ -270,7 +268,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Create a new workspace (button now in navigation)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
@@ -279,7 +277,7 @@ test.describe('Workspace Switcher', () => {
       await page.getByLabel(/slug/i).fill(workspaceSlug)
 
       let createDialog = page.getByRole('dialog')
-      await createDialog.getByRole('button', { name: /^create$/i }).click()
+      await createDialog.getByRole('button', { name: /create workspace/i }).click()
 
       // Wait for Create Workspace dialog to close and verify we switched to new workspace
       await expect(createDialog).not.toBeVisible()
@@ -293,7 +291,7 @@ test.describe('Workspace Switcher', () => {
       await page.getByLabel('Library Name').fill(libraryName)
 
       createDialog = page.getByRole('dialog')
-      await createDialog.getByRole('button', { name: /^create$/i }).click()
+      await createDialog.getByRole('button', { name: /create library/i }).click()
 
       // Wait for Create Library dialog to close
       await expect(createDialog).not.toBeVisible()
@@ -324,7 +322,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Create a new empty workspace (button now in navigation)
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
@@ -333,7 +331,7 @@ test.describe('Workspace Switcher', () => {
       await page.getByLabel(/slug/i).fill(workspaceSlug)
 
       const createDialog = page.getByRole('dialog')
-      await createDialog.getByRole('button', { name: /^create$/i }).click()
+      await createDialog.getByRole('button', { name: /create workspace/i }).click()
 
       // Wait for Create dialog to close
       await expect(createDialog).not.toBeVisible()
@@ -375,7 +373,7 @@ test.describe('Workspace Switcher', () => {
       await page.evaluate(() => window.scrollTo(0, 0))
 
       // Create a new empty workspace
-      const createButton = page.locator('button[aria-label*="Create"]').first()
+      const createButton = page.getByRole('button', { name: /create workspace/i })
       await createButton.click()
 
       const workspaceSwitcher = page.getByRole('button', { name: 'Switch workspace' })
@@ -383,7 +381,7 @@ test.describe('Workspace Switcher', () => {
       await page.getByLabel(/slug/i).fill(workspaceSlug)
 
       const createDialog = page.getByRole('dialog')
-      await createDialog.getByRole('button', { name: /^create$/i }).click()
+      await createDialog.getByRole('button', { name: /create workspace/i }).click()
 
       // Wait for Create dialog to close
       await expect(createDialog).not.toBeVisible()
@@ -393,7 +391,7 @@ test.describe('Workspace Switcher', () => {
       await expect(workspaceSwitcher).toContainText(workspaceName)
 
       // Click delete button in navbar (deletes current workspace)
-      const deleteButton = page.locator('button[aria-label*="Delete"]').first()
+      const deleteButton = page.getByRole('button', { name: /delete workspace/i })
       await deleteButton.click()
 
       // Confirm deletion

@@ -1178,10 +1178,10 @@ export default {
   workspace: {
     selectWorkspace: 'Arbeitsbereich auswählen',
     switcherLabel: 'Arbeitsbereich wechseln',
+    noWorkspaceSelected: 'Kein Arbeitsbereich ausgewählt',
     createTitle: 'Arbeitsbereich erstellen',
     createDescription:
       'Erstellen Sie einen neuen Arbeitsbereich, um Ihre Bibliotheken, Assistenten und Listen zu organisieren.',
-    create: 'Erstellen',
     createLong: 'Neuen Arbeitsbereich erstellen',
     createSuccess: 'Arbeitsbereich erfolgreich erstellt',
     name: 'Name des Arbeitsbereichs',
@@ -1195,7 +1195,6 @@ export default {
     deleteTitle: 'Arbeitsbereich löschen',
     deleteDescription: 'Diese Aktion kann nicht rückgängig gemacht werden. Der Arbeitsbereich wird dauerhaft gelöscht.',
     deleteBlockedDescription: 'Dieser Arbeitsbereich kann nicht gelöscht werden, da er Elemente enthält.',
-    delete: 'Arbeitsbereich löschen',
     deleteSuccess: 'Arbeitsbereich erfolgreich gelöscht',
     cannotDelete: 'Arbeitsbereich mit vorhandenen Elementen kann nicht gelöscht werden',
     confirmName: 'Geben Sie den Arbeitsbereichsnamen zur Bestätigung ein',

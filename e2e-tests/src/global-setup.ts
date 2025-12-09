@@ -35,6 +35,18 @@ async function globalSetup() {
     const userId = userResult.rows[0].id
     console.log(`  ✅ E2E user ready: ${E2E_EMAIL}`)
 
+    // Ensure UserProfile exists for the E2E test user
+    await client.query(
+      `
+      INSERT INTO "UserProfile" (id, email, "userId", "freeMessages", "freeStorage", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, $2, 1000, 1000000, NOW(), NOW())
+      ON CONFLICT ("userId")
+      DO UPDATE SET email = $1, "updatedAt" = NOW()
+    `,
+      [E2E_EMAIL, userId],
+    )
+    console.log(`  ✅ E2E user profile ready`)
+
     // Ensure user is a member of the Shared workspace (their default)
     const sharedMemberResult = await client.query(
       'SELECT id FROM "WorkspaceMember" WHERE "workspaceId" = $1 AND "userId" = $2',

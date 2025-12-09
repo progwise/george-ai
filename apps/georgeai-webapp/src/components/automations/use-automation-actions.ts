@@ -56,17 +56,15 @@ export const useAutomationActions = () => {
 
   const { mutate: deleteAutomation, isPending: isDeletePending } = useMutation({
     mutationFn: (automationId: string) => deleteAutomationFn({ data: automationId }),
-    onSuccess: async () => {
+    onSuccess: async (_data, automationId) => {
       toastSuccess(t('automations.deleteSuccess'))
-    },
-    onError: (error) => toastError(t('automations.deleteError', { message: error.message })),
-    onSettled: async (_data, _error, automationId) => {
       await Promise.all([
         queryClient.invalidateQueries(getAutomationsQueryOptions()),
         queryClient.removeQueries(getAutomationQueryOptions(automationId)),
       ])
       await navigate({ to: '/automations' })
     },
+    onError: (error) => toastError(t('automations.deleteError', { message: error.message })),
   })
 
   const { mutate: triggerAutomation, isPending: isTriggerPending } = useMutation({

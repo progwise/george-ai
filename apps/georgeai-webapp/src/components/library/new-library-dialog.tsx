@@ -37,7 +37,7 @@ export const NewLibraryDialog = ({ ref }: { ref: React.RefObject<HTMLDialogEleme
       description={t('libraries.addNewDescription')}
       onSubmit={mutate}
       disabledSubmit={isPending}
-      submitButtonText={t('actions.create')}
+      submitButtonText={t('libraries.addNewButton')}
     >
       <div className="flex w-full flex-col gap-4">
         <Input
