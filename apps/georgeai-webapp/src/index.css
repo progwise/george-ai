@@ -1,4 +1,8 @@
-@import 'tailwindcss';
+/* Explicit source paths prevent SSR/client hash mismatch in Docker builds */
+/* See: https://github.com/TanStack/router/issues/4959 */
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/theme.css' layer(theme) source('./');
+@import 'tailwindcss/utilities.css' layer(utilities) source('./');
 @plugin "daisyui" {
   themes:
     light --default,
