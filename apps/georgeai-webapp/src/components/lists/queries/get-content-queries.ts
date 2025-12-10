@@ -18,6 +18,7 @@ const getContentQueries = createServerFn({ method: 'GET' })
       graphql(`
         query getContentQueries($listId: String, $libraryId: String) {
           aiContentQueries(listId: $listId, libraryId: $libraryId) {
+            id
             fieldId
             fieldName
             listId
