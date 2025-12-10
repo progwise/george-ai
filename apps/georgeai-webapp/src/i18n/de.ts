@@ -48,7 +48,7 @@ export default {
     upload: 'Hochladen',
     uploadAvatar: 'Avatar hochladen',
     uploaded: 'Hochgeladen',
-    view: 'Ansehen'
+    view: 'Ansehen',
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
@@ -67,6 +67,7 @@ export default {
       name: 'Name',
       neverUsed: 'Nie verwendet',
       notUsed: 'Nicht konfiguriert',
+      providers: 'Anbieter',
       save: 'Speichern',
       status: 'Status',
       syncFailed: 'Modellsynchronisierung fehlgeschlagen',
@@ -74,7 +75,7 @@ export default {
       syncSuccess: '{{count}} Modelle erfolgreich synchronisiert',
       totalModels: 'Gesamtzahl Modelle',
       updateSuccess: 'Modell erfolgreich aktualisiert',
-      usedIn: 'Verwendet in'
+      usedIn: 'Verwendet in',
     },
     dashboard: 'Dashboard',
     dashboardTitle: 'Admin-Dashboard',
@@ -83,31 +84,39 @@ export default {
     manageQueues: 'Warteschlangen verwalten',
     manageQueuesDescription: 'Queue-Worker steuern und fehlgeschlagene Verarbeitungsaufgaben verwalten.',
     manageUsers: 'Benutzer verwalten',
-    manageUsersDescription: 'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
+    manageUsersDescription:
+      'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
     monitorAiServices: 'AI-Dienste überwachen',
     monitorAiServicesDescription: 'Status der integrierten AI-Dienste und Modelle anzeigen und verwalten.',
-    welcomeMessage: 'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.'
+    welcomeMessage:
+      'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.',
   },
   aiAct: {
-    applicableHeadline: 'Basierend auf Ihren Antworten empfehlen wir, die folgenden Bereiche in der detaillierten Bewertung zu prüfen. Sie können die Auswahl anpassen',
+    applicableHeadline:
+      'Basierend auf Ihren Antworten empfehlen wir, die folgenden Bereiche in der detaillierten Bewertung zu prüfen. Sie können die Auswahl anpassen',
     identifiedRisks: 'Identifizierte Risikofaktoren',
     notApplicableHeadline: 'Der EU AI Act ist für Ihr System wahrscheinlich nicht anwendbar.',
-    notApplicableText: 'Da Ihr System nicht in der EU betrieben wird und keine EU-Bürger betrifft, ist eine detaillierte Compliance-Prüfung gemäß EU AI Act nicht erforderlich. Es wird jedoch empfohlen, die Anwendbarkeit regelmäßig zu überprüfen, falls sich die Nutzung Ihres Systems ändert.',
-    notesOnApplicability: 'Da Ihr System nicht in der EU betrieben wird und keine Personen in der EU betrifft, ist der EU AI Act möglicherweise nicht anwendbar. Überwachen Sie jedoch Änderungen in Ihrem Geschäftsmodell, die zu einer Anwendbarkeit führen könnten.',
+    notApplicableText:
+      'Da Ihr System nicht in der EU betrieben wird und keine EU-Bürger betrifft, ist eine detaillierte Compliance-Prüfung gemäß EU AI Act nicht erforderlich. Es wird jedoch empfohlen, die Anwendbarkeit regelmäßig zu überprüfen, falls sich die Nutzung Ihres Systems ändert.',
+    notesOnApplicability:
+      'Da Ihr System nicht in der EU betrieben wird und keine Personen in der EU betrifft, ist der EU AI Act möglicherweise nicht anwendbar. Überwachen Sie jedoch Änderungen in Ihrem Geschäftsmodell, die zu einer Anwendbarkeit führen könnten.',
     notesOnApplicabilityHeadline: 'Hinweis zur Anwendbarkeit',
     suggestedDetailedEvaluationHeadline: 'Empfohlene Bereiche für die detaillierte Bewertung',
     summaryInitialAssessment: 'Zusammenfassung der Erstbewertung',
-    systemProperties: 'Systemeigenschaften'
+    systemProperties: 'Systemeigenschaften',
   },
   apiKeys: {
     actions: 'Aktionen',
     copiedToClipboard: 'API-Schlüssel in die Zwischenablage kopiert',
-    copyWarningText: 'Stellen Sie sicher, dass Sie Ihren API-Schlüssel jetzt kopieren. Sie werden ihn nicht erneut sehen können. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich.',
+    copyWarningText:
+      'Stellen Sie sicher, dass Sie Ihren API-Schlüssel jetzt kopieren. Sie werden ihn nicht erneut sehen können. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich.',
     copyWarningTitle: 'Wichtig: API-Schlüssel kopieren',
     createdAt: 'Erstellt',
-    description: 'API-Schlüssel ermöglichen externen Anwendungen und Diensten den Zugriff auf diese Bibliothek. Bewahren Sie Ihre Schlüssel sicher auf und widerrufen Sie sie bei Kompromittierung.',
+    description:
+      'API-Schlüssel ermöglichen externen Anwendungen und Diensten den Zugriff auf diese Bibliothek. Bewahren Sie Ihre Schlüssel sicher auf und widerrufen Sie sie bei Kompromittierung.',
     generate: 'API-Schlüssel generieren',
-    generatedSuccessText: 'Ihr API-Schlüssel wurde generiert und wird unten angezeigt. Dies ist das einzige Mal, dass Sie ihn sehen werden.',
+    generatedSuccessText:
+      'Ihr API-Schlüssel wurde generiert und wird unten angezeigt. Dies ist das einzige Mal, dass Sie ihn sehen werden.',
     generatedSuccessTitle: 'API-Schlüssel generiert: {name}',
     generateSuccess: 'API-Schlüssel erfolgreich generiert',
     generateTitle: 'Neuen API-Schlüssel generieren',
@@ -118,22 +127,25 @@ export default {
     never: 'Nie',
     noKeys: 'Keine API-Schlüssel gefunden. Generieren Sie einen neuen Schlüssel, um zu beginnen.',
     revoke: 'Widerrufen',
-    revokeConfirm: 'Sind Sie sicher, dass Sie den API-Schlüssel "{name}" widerrufen möchten? Diese Aktion kann nicht rückgängig gemacht werden.',
+    revokeConfirm:
+      'Sind Sie sicher, dass Sie den API-Schlüssel "{name}" widerrufen möchten? Diese Aktion kann nicht rückgängig gemacht werden.',
     revokeDialogTitle: 'API-Schlüssel widerrufen',
     revokeSuccess: 'API-Schlüssel erfolgreich widerrufen',
-    securityWarningText: 'API-Schlüssel gewähren Zugriff auf Ihre Bibliothek. Bewahren Sie sie sicher auf und übertragen Sie sie niemals in die Versionskontrolle oder teilen Sie sie öffentlich.',
+    securityWarningText:
+      'API-Schlüssel gewähren Zugriff auf Ihre Bibliothek. Bewahren Sie sie sicher auf und übertragen Sie sie niemals in die Versionskontrolle oder teilen Sie sie öffentlich.',
     securityWarningTitle: 'Sicherheitswarnung',
     title: 'API-Schlüssel',
     validation: {
       nameTooLong: 'API-Schlüsselname darf maximal 100 Zeichen lang sein',
-      nameTooShort: 'API-Schlüsselname muss mindestens 2 Zeichen lang sein'
+      nameTooShort: 'API-Schlüsselname muss mindestens 2 Zeichen lang sein',
     },
-    yourApiKey: 'Ihr API-Schlüssel'
+    yourApiKey: 'Ihr API-Schlüssel',
   },
   assistants: {
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
-    addNewDescription: 'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+    addNewDescription:
+      'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
     delete: 'Assistent löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen.',
     hasNoIcon: '{assistant.name} hat kein Icon',
@@ -146,11 +158,12 @@ export default {
       description: 'Beschreiben Sie Ihren Assistenten',
       euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
       languageModel: 'Wählen Sie das Sprachmodell',
-      name: 'Name Ihres Assistenten'
+      name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
     usageLabel: 'Beschreibung der Verwendung',
-    usagePlaceholder: 'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.'
+    usagePlaceholder:
+      'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
   },
   automations: {
     addMapping: 'Zuordnung hinzufügen',
@@ -166,7 +179,8 @@ export default {
     createError: 'Automatisierung konnte nicht erstellt werden: {message}',
     createSuccess: 'Automatisierung erfolgreich erstellt',
     delete: 'Lösche Automatisierung',
-    deleteDialogConfirmation: 'Möchten Sie die Automatisierung "{name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    deleteDialogConfirmation:
+      'Möchten Sie die Automatisierung "{name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
     deleteDialogTitle: 'Automatisierung löschen?',
     deleteError: 'Automatisierung konnte nicht gelöscht werden: {message}',
     deleteSuccess: 'Automatisierung erfolgreich gelöscht',
@@ -187,7 +201,7 @@ export default {
       previewValues: 'Vorschauwerte',
       status: 'Status',
       title: 'Elementdetails',
-      viewInList: 'In Liste anzeigen'
+      viewInList: 'In Liste anzeigen',
     },
     itemInScope: 'Im Umfang',
     itemLastExecuted: 'Zuletzt ausgeführt',
@@ -201,9 +215,11 @@ export default {
     labelExecuteOnEnrichment: 'Bei Anreicherung ausführen',
     labelList: 'Liste',
     labelName: 'Name',
+    menuTitle: 'Automatisierungs-Menü',
     newAutomation: 'Neue Automatisierung',
     noBatches: 'Es wurden noch keine Stapel ausgeführt.',
-    noConnectorsAvailable: 'Keine Konnektoren verfügbar. Bitte fügen Sie zuerst einen Konnektor im Admin-Bereich hinzu.',
+    noConnectorsAvailable:
+      'Keine Konnektoren verfügbar. Bitte fügen Sie zuerst einen Konnektor im Admin-Bereich hinzu.',
     noItems: 'Keine Elemente für diese Automatisierung verfügbar.',
     noMappings: 'Keine Zuordnungen konfiguriert',
     notConfigured: 'nicht konfiguriert',
@@ -224,8 +240,8 @@ export default {
     validation: {
       connectorRequired: 'Konnektor ist erforderlich',
       listRequired: 'Liste ist erforderlich',
-      nameRequired: 'Name ist erforderlich'
-    }
+      nameRequired: 'Name ist erforderlich',
+    },
   },
   connectors: {
     addConnector: 'Konnektor hinzufügen',
@@ -261,7 +277,7 @@ export default {
     title: 'Konnektoren',
     typeDisabled: 'Konnektor-Typ deaktiviert',
     typeEnabled: 'Konnektor-Typ aktiviert',
-    updateSuccess: 'Konnektor erfolgreich aktualisiert'
+    updateSuccess: 'Konnektor erfolgreich aktualisiert',
   },
   conversations: {
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
@@ -283,17 +299,20 @@ export default {
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
     removeMultiple: 'Konversationen entfernen',
-    removeMultipleConfirmation: 'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden.',
+    removeMultipleConfirmation:
+      'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden.',
     removeParticipant: 'Teilnehmer entfernen',
-    removeParticipantConfirmation: 'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Alle Nachrichten von diesem Teilnehmer werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden.',
+    removeParticipantConfirmation:
+      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Alle Nachrichten von diesem Teilnehmer werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden.',
     setLLM: 'Assistent hat kein Sprachmodell',
-    tokenLimitExceeded: 'Tokenlimit überschritten'
+    tokenLimitExceeded: 'Tokenlimit überschritten',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
     allowedMimeTypes: 'Erlaubte MIME-Typen',
     apiConfiguration: 'API-Konfiguration (JSON)',
-    apiConfigurationHint: 'Authentifizierung, Paginierung und Feldzuordnung als JSON konfigurieren. Wählen Sie eine Vorlage oder passen Sie manuell an.',
+    apiConfigurationHint:
+      'Authentifizierung, Paginierung und Feldzuordnung als JSON konfigurieren. Wählen Sie eine Vorlage oder passen Sie manuell an.',
     apiConfigurationPlaceholder: 'API-Konfiguration als JSON eingeben oder Vorlage oben auswählen',
     credentialsBoxCustomerId: 'Box Kunden ID',
     credentialsBoxToken: 'Box Token',
@@ -307,7 +326,7 @@ export default {
       baseUrl: 'Basis-URL der API (z.B. https://api.example.com)',
       endpoint: 'API-Endpunktpfad (z.B. /v1/products)',
       identifierField: 'Feldname für eindeutige Element-ID (Standard: id)',
-      titleField: 'Feldname für Elementtitel (Standard: name oder title)'
+      titleField: 'Feldname für Elementtitel (Standard: name oder title)',
     },
     customApiHelpDescription: 'Konfigurieren Sie eine benutzerdefinierte REST-API zum Abrufen von Daten:',
     customApiHelpHint: 'Verwenden Sie providerConfig, um Feldzuordnungen für Ihre API-Antwortstruktur anzupassen.',
@@ -318,7 +337,7 @@ export default {
       crawlerConfigRequired: 'API-Konfiguration ist erforderlich',
       invalidUri: 'Ungültiges URI-Format für den ausgewählten Typ',
       maxDepth: 'muss > 0 sein',
-      maxPages: 'muss > 1 sein'
+      maxPages: 'muss > 1 sein',
     },
     excludePatterns: 'Ausschlussmuster (kommagetrennte Regex)',
     filtersActive: 'Dateifilter aktivieren',
@@ -328,7 +347,8 @@ export default {
     maxFileSize: 'Max. Dateigröße (MB)',
     maxPages: 'Seiten',
     minFileSize: 'Min. Dateigröße (MB)',
-    noRunsDescription: 'Sie müssen den Crawler zuerst starten, um Daten über Updates, Dateien und das Verhalten des Crawlers zu erhalten.',
+    noRunsDescription:
+      'Sie müssen den Crawler zuerst starten, um Daten über Updates, Dateien und das Verhalten des Crawlers zu erhalten.',
     noRunsFound: 'Keine Crawlläufe gefunden',
     noRunsTitle: 'Noch nichts gesammelt.',
     placeholders: {
@@ -339,7 +359,7 @@ export default {
       password: 'Passwort für den Zugriff',
       sharepointAuth: 'Authentifizierungs-Cookies aus Browser (siehe Hilfe)',
       uri: 'https://vwx.yz oder //smbhost.local/share oder https://tenant.sharepoint.com/sitename',
-      username: 'Für Domänen-Auth: DOMÄNE\\Benutzer'
+      username: 'Für Domänen-Auth: DOMÄNE\\Benutzer',
     },
     run: 'Crawler starten',
     runCount: '# Läufe',
@@ -368,10 +388,12 @@ export default {
       seoUrls: 'SEO-URLs',
       tags: 'Produkt-Tags',
       tax: 'Steuerinformationen',
-      unit: 'Verkaufseinheit (z.B. "Stück", "kg")'
+      unit: 'Verkaufseinheit (z.B. "Stück", "kg")',
     },
-    shopwareAssociationsDescription: 'Assoziationen definieren, welche verknüpften Daten mit jedem Produkt abgerufen werden. Bearbeiten Sie das "associations" Array in der JSON-Konfiguration unten:',
-    shopwareAssociationsHint: 'Fügen Sie Assoziationen in der JSON-Konfiguration hinzu oder entfernen Sie sie, um anzupassen, welche Daten abgerufen werden.',
+    shopwareAssociationsDescription:
+      'Assoziationen definieren, welche verknüpften Daten mit jedem Produkt abgerufen werden. Bearbeiten Sie das "associations" Array in der JSON-Konfiguration unten:',
+    shopwareAssociationsHint:
+      'Fügen Sie Assoziationen in der JSON-Konfiguration hinzu oder entfernen Sie sie, um anzupassen, welche Daten abgerufen werden.',
     shopwareAssociationsTitle: 'Shopware 6 Assoziationen (Verknüpfte Daten)',
     startFailed: 'Start fehlgeschlagen',
     startSuccess: 'Erfolgreich gestartet',
@@ -395,44 +417,48 @@ export default {
     validationBoxCustomerIdTooShort: 'Box Kunden ID muss mindestens 10 Zeichen lang sein.',
     validationBoxTokenTooShort: 'Box Token muss mindestens 20 Zeichen lang sein.',
     validationPasswordRequired: 'Passwort braucht mindestens 2 Zeichen.',
-    validationSharePointAuthenticationError: 'Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie Ihre SharePoint-Cookies und versuchen Sie es erneut.',
+    validationSharePointAuthenticationError:
+      'Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie Ihre SharePoint-Cookies und versuchen Sie es erneut.',
     validationSharePointAuthInvalidFormat: 'Ungültiges Cookie-Format - sollte "name=wert; name=wert; ..." sein.',
-    validationSharePointAuthMissingTokens: 'SharePoint-Cookies müssen gültige Authentifizierungs-Token enthalten (FedAuth, rtFa, SPOIDCRL oder benutzerdefinierte Authentifizierung).',
+    validationSharePointAuthMissingTokens:
+      'SharePoint-Cookies müssen gültige Authentifizierungs-Token enthalten (FedAuth, rtFa, SPOIDCRL oder benutzerdefinierte Authentifizierung).',
     validationSharePointAuthTooShort: 'SharePoint-Cookies müssen mindestens 20 Zeichen lang sein.',
     validationSharePointLibraryNotFound: 'Die angegebene Dokumentbibliothek wurde nicht gefunden.',
-    validationSharePointNetworkError: 'Netzwerkfehler beim Verbinden mit SharePoint. Bitte überprüfen Sie Ihre Verbindung.',
+    validationSharePointNetworkError:
+      'Netzwerkfehler beim Verbinden mit SharePoint. Bitte überprüfen Sie Ihre Verbindung.',
     validationSharePointNotFound: 'SharePoint-Site nicht gefunden. Bitte überprüfen Sie die URL.',
-    validationSharePointUnknownError: 'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
-    validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.'
+    validationSharePointUnknownError:
+      'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
+    validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
   },
   dashboard: {
     emptyStates: {
       noAssistants: 'Noch keine Assistenten',
       noConversations: 'Noch keine Konversationen',
       noLibraries: 'Noch keine Bibliotheken',
-      noLists: 'Noch keine Listen'
+      noLists: 'Noch keine Listen',
     },
     labels: {
       conversationWith: 'Konversation mit {name}',
       failed: 'fehlgeschl.',
       files: '{count} Dateien',
       models: '{count} Modelle',
-      processing: 'verarb.'
+      processing: 'verarb.',
     },
     status: {
       offline: 'Offline',
       online: 'Online',
       owned: 'Eigene',
-      shared: 'Geteilt'
+      shared: 'Geteilt',
     },
     subtitle: 'Ihr Arbeitsbereich und Systemstatus',
     tabs: {
       assistants: 'Assistenten',
       conversations: 'Konversationen',
       libraries: 'Bibliotheken',
-      lists: 'Listen'
+      lists: 'Listen',
     },
-    title: 'Übersicht'
+    title: 'Übersicht',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',
@@ -456,17 +482,18 @@ export default {
     reorderFieldFailed: 'Fehler beim Ändern der Feldreihenfolge: {error}',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
-    uploadedFileIsMissing: 'Die hochgeladene Datei fehlt.'
+    uploadedFileIsMissing: 'Die hochgeladene Datei fehlt.',
   },
   files: {
     activeFilesForLibrary: '{count} Aktive Dateien in der Bibliothek',
     allFilesForLibrary: '{count} Dateien gesamt in der Bibliothek',
-    noContentAvailable: 'Kein Inhalt verfügbar'
+    noContentAvailable: 'Kein Inhalt verfügbar',
   },
   googleDriveRootFolder: 'Meine Ablage',
   invitations: {
     alreadyParticipant: 'Sie sind bereits Teilnehmer dieser Konversation.',
-    confirmDescription: 'Bitte bestätigen Sie die Konversationseinladung. Sie können die Konversation jederzeit verlassen.',
+    confirmDescription:
+      'Bitte bestätigen Sie die Konversationseinladung. Sie können die Konversation jederzeit verlassen.',
     conversationNotFound: 'Konversation nicht gefunden.',
     emailMismatchSingleUse: 'Die E-Mail-Adresse stimmt nicht mit der Einladung für diese Einmal-Einladung überein',
     failedToSendInvitation: 'Einladung konnte nicht gesendet werden',
@@ -474,7 +501,7 @@ export default {
     invitationAccepted: 'Einladung akzeptiert',
     invitationNotFound: 'Einladung nicht gefunden.',
     invitationSent: 'Einladung gesendet',
-    linkAlreadyUsed: 'Einladungslink wurde bereits verwendet'
+    linkAlreadyUsed: 'Einladungslink wurde bereits verwendet',
   },
   labels: {
     actions: 'Aktionen',
@@ -514,7 +541,8 @@ export default {
     friday: 'Freitag',
     gotoPage: 'Gehe zu Seite',
     icon: 'Icon',
-    imageOcrProcessingDescription: 'PDF-Dateien als Bilder unter Verwendung von KI-Vision-Modellen für OCR-Analyse verarbeiten. Nützlich für gescannte Dokumente oder komplexe Layouts.',
+    imageOcrProcessingDescription:
+      'PDF-Dateien als Bilder unter Verwendung von KI-Vision-Modellen für OCR-Analyse verarbeiten. Nützlich für gescannte Dokumente oder komplexe Layouts.',
     instructions: 'Anweisungen',
     invitation: 'Einladung',
     isAdmin: 'Admin?',
@@ -563,7 +591,7 @@ export default {
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',
     username: 'Benutzername',
-    wednesday: 'Mittwoch'
+    wednesday: 'Mittwoch',
   },
   libraries: {
     addMultipleFiles: 'Füge {count} Dateien hinzu',
@@ -574,7 +602,8 @@ export default {
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryButton: 'Bibliothek löschen',
-    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
+    deleteLibraryConfirmation:
+      '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht. Dies kann nicht rückgängig gemacht werden.',
     deleteSuccess: 'Bibliothek {name} erfolgreich gelöscht',
     dropAllFilesDialog: 'Alle Dateien entfernen',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
@@ -594,7 +623,7 @@ export default {
       description: 'Beschreiben Sie Ihre Bibliothek',
       embeddingModelName: 'Mit diesem Modell werden Daten in Vektoren umgewandelt',
       embeddingTimeoutMs: 'Zeit in Millisekunden bevor Embedding-Task abbricht (30000-1800000)',
-      name: 'Name Ihrer Bibliothek'
+      name: 'Name Ihrer Bibliothek',
     },
     processFilesDialog: 'Dateien verarbeiten',
     saveError: 'Fehler beim Speichern der Bibliothek: {message}',
@@ -603,7 +632,7 @@ export default {
     searchingAllFiles: 'Durchsuche alle Dateien',
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
-    title: 'Bibliothek'
+    title: 'Bibliothek',
   },
   lists: {
     contextSources: {
@@ -627,7 +656,7 @@ export default {
       vectorSearchMaxTokens: 'Maximale Tokens für Vektor-Suchergebnisse',
       webFetch: 'Web-Abruf',
       webFetchHelp: 'Rufen Sie Inhalte von externen URLs ab, um Kontext bereitzustellen.',
-      webFetchMaxTokens: 'Maximale Tokens für Web-Abruf-Inhalte'
+      webFetchMaxTokens: 'Maximale Tokens für Web-Abruf-Inhalte',
     },
     createDialogDescription: 'Quellen und Felder werden nach dem Erstellen hinzugefügt.',
     createDialogTitle: 'Neue Liste',
@@ -635,7 +664,8 @@ export default {
     createListButtonText: 'Erzeuge Liste',
     createSuccess: 'Liste erfolgreich erstellt',
     delete: 'Löschen',
-    deleteDialogConfirmation: 'Sie sind dabei, die Liste "{name}" zu löschen. Dies kann nicht rückgängig gemacht werden.',
+    deleteDialogConfirmation:
+      'Sie sind dabei, die Liste "{name}" zu löschen. Dies kann nicht rückgängig gemacht werden.',
     deleteDialogTitle: 'Liste endgültig löschen',
     deleteError: 'Fehler beim Löschen der Liste: {message}',
     deleteSuccess: '{name} erfolgreich gelöscht.',
@@ -675,7 +705,7 @@ export default {
         similarChunks: 'Ähnliche Abschnitte',
         status: 'Status',
         value: 'Wert',
-        viewDetails: 'Details anzeigen'
+        viewDetails: 'Details anzeigen',
       },
       singleStarted: 'Anreicherung für {field} in {file} gestartet',
       start: 'Anreicherung starten',
@@ -687,7 +717,7 @@ export default {
       stopSingle: 'Diese Anreicherung stoppen',
       stopSingleError: 'Fehler beim Stoppen der Anreicherung',
       stopSingleSuccess: 'Anreicherung für {field} in {file} gestoppt',
-      title: 'Anreicherung'
+      title: 'Anreicherung',
     },
     enrichmentCount: '{count} Anreicherung',
     enrichments: 'Anreicherungen',
@@ -701,11 +731,11 @@ export default {
         selectFields: 'Felder zum Exportieren auswählen',
         selectNone: 'Keine',
         title: 'Export Konfiguration',
-        totalFiles: 'Verfügbare Dateien insgesamt: {count}'
+        totalFiles: 'Verfügbare Dateien insgesamt: {count}',
       },
       error: 'Fehler beim Exportieren der CSV-Datei',
       noFieldsSelected: 'Bitte wählen Sie mindestens ein Feld zum Exportieren aus',
-      success: '{name} erfolgreich als CSV exportiert'
+      success: '{name} erfolgreich als CSV exportiert',
     },
     fields: {
       addField: 'Feld hinzufügen',
@@ -713,7 +743,8 @@ export default {
       aiModel: 'Sprachmodell',
       aiPrompt: 'Prompt',
       aiPromptHelp: 'Dieser Prompt wird verwendet, um den Wert des Feldes für jede Datei zu berechnen.',
-      aiPromptPlaceholder: 'Beschreiben Sie, was die KI aus jeder Datei extrahieren oder analysieren soll. Beispiel: \'Analysiere die Stimmung dieses Dokuments und gib entweder Positiv, Negativ oder Neutral zurück\'',
+      aiPromptPlaceholder:
+        "Beschreiben Sie, was die KI aus jeder Datei extrahieren oder analysieren soll. Beispiel: 'Analysiere die Stimmung dieses Dokuments und gib entweder Positiv, Negativ oder Neutral zurück'",
       computed: 'Berechnet',
       confirmDelete: 'Zum Bestätigen erneut klicken',
       dataType: 'Datentyp',
@@ -741,11 +772,11 @@ export default {
       stepWhere: 'Kontext',
       typeRequired: 'Feldtyp ist erforderlich.',
       updateField: 'Feld aktualisieren',
-      updateSuccess: 'Feld "{name}" erfolgreich aktualisiert'
+      updateSuccess: 'Feld "{name}" erfolgreich aktualisiert',
     },
     files: {
       showColumns: '{count}/{total} Spalten',
-      showing: 'Zeige {start} bis {end} von {total} Dateien'
+      showing: 'Zeige {start} bis {end} von {total} Dateien',
     },
     firstList: 'Noch keine Listen vorhanden, starte Deine erste...',
     idRequired: 'Listen-ID ist erforderlich.',
@@ -763,10 +794,10 @@ export default {
       noContent: 'Kein Inhalt verfügbar',
       noExtraction: 'Keine Extraktionsdetails verfügbar',
       title: 'Elementdetails',
-      viewDetails: 'Elementdetails anzeigen'
+      viewDetails: 'Elementdetails anzeigen',
     },
     items: {
-      itemIdRequired: 'Element-ID ist erforderlich.'
+      itemIdRequired: 'Element-ID ist erforderlich.',
     },
     labelCreatedAt: 'Erstellt',
     labelName: 'Benenne die Liste',
@@ -801,29 +832,31 @@ export default {
       updateSuccess: 'Extraktionsstrategie erfolgreich aktualisiert',
       warningCancel: 'Abbrechen',
       warningConfirm: 'Verstanden, Anreicherungen löschen',
-      warningDescription: 'Das Ändern der Extraktionsstrategie löscht alle bestehenden Listenelemente und deren Anreicherungen. Diese Aktion kann nicht rückgängig gemacht werden.',
+      warningDescription:
+        'Das Ändern der Extraktionsstrategie löscht alle bestehenden Listenelemente und deren Anreicherungen. Diese Aktion kann nicht rückgängig gemacht werden.',
       warningFieldsAffected: 'Die folgenden Anreicherungen werden dauerhaft gelöscht:',
-      warningSuggestion: 'Erwägen Sie, eine neue Liste zu erstellen, wenn Sie die bestehenden Anreicherungen behalten möchten.',
-      warningTitle: 'Warnung: Anreicherungen werden gelöscht'
+      warningSuggestion:
+        'Erwägen Sie, eine neue Liste zu erstellen, wenn Sie die bestehenden Anreicherungen behalten möchten.',
+      warningTitle: 'Warnung: Anreicherungen werden gelöscht',
     },
     statistics: 'Statistiken',
     switcherTitle: 'Listen',
     title: 'Liste',
     updateError: 'Fehler beim Aktualisieren der Liste: {message}',
     updateSuccess: 'Liste erfolgreich aktualisiert',
-    view: 'Liste'
+    view: 'Liste',
   },
   notifications: {
     avatarRemoved: 'Avatar entfernt',
     avatarUploaded: 'Avatar erfolgreich hochgeladen',
     participantRemoved: 'Teilnehmer erfolgreich entfernt',
-    profileEnsured: 'Profil sichergestellt für Benutzer {userId}'
+    profileEnsured: 'Profil sichergestellt für Benutzer {userId}',
   },
   placeholders: {
     condition: 'Wenn',
     emailToInvite: 'E-Mail zum Einladen',
     instruction: 'Dann',
-    searchUsers: 'Benutzer suchen...'
+    searchUsers: 'Benutzer suchen...',
   },
   settings: {
     changelog: 'Changelog',
@@ -832,7 +865,7 @@ export default {
     language: 'Sprache',
     lightMode: 'Farbschema: Hell',
     systemMode: 'Farbschema: System',
-    theme: 'Farbschema'
+    theme: 'Farbschema',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
@@ -840,19 +873,24 @@ export default {
     allowDifferentEmail: 'Andere E-Mail-Adresse zulassen',
     allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     copiedToClipboard: 'In die Zwischenablage kopiert',
-    dropAllFilesDialogDescription: 'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
-    dropFilesDialogDescription: 'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
-    embedFilesDialogDescription: 'Sie sind kurz davor, die ausgewählten Dateien zu embedden. Bitte bestätigen Sie, um das Embedding zu starten.',
+    dropAllFilesDialogDescription:
+      'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
+    dropFilesDialogDescription:
+      'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
+    embedFilesDialogDescription:
+      'Sie sind kurz davor, die ausgewählten Dateien zu embedden. Bitte bestätigen Sie, um das Embedding zu starten.',
     failure: 'Fehler',
     files: 'Dateien',
     newConversation: 'Neue Konversation',
-    newConversationConfirmation: 'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
+    newConversationConfirmation:
+      'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
     noAssistant: 'Kein Assistent',
     noAssistantsAvailable: 'Keine Assistenten verfügbar',
     noUsersFound: 'Keine Benutzer gefunden',
     numberOfConversationsToRemove: ' Konversation(en) werden/wird entfernt.',
     numberOfFilesToBeDropped: '{count} Datei(en) werden/wird entfernt.',
-    processFilesDialogDescription: 'Sie sind kurz davor, die ausgewählten Dateien zu verarbeiten. Bitte bestätigen Sie, um die Verarbeitung zu starten.',
+    processFilesDialogDescription:
+      'Sie sind kurz davor, die ausgewählten Dateien zu verarbeiten. Bitte bestätigen Sie, um die Verarbeitung zu starten.',
     profileConfirmed: 'Profil bestätigt',
     profileSaved: 'Profil gespeichert',
     running: 'Läuft',
@@ -861,7 +899,7 @@ export default {
     success: 'Erfolg',
     uploadingFiles: 'Dateien hochladen...',
     usersFound: 'Benutzer gefunden',
-    with: 'mit'
+    with: 'mit',
   },
   tooltips: {
     addNoParticipantsSelected: 'Es ist kein Teilnehmer ausgewählt',
@@ -870,7 +908,7 @@ export default {
     hide: 'Verbergen',
     remainingMessages: 'Nachrichten übrig',
     saveAndSendConfirmationMail: 'Speichern und Bestätigungsmail senden',
-    unhide: 'Einblenden'
+    unhide: 'Einblenden',
   },
   topNavigation: {
     admin: 'Verwaltung',
@@ -878,7 +916,7 @@ export default {
     automations: 'Automatisierungen',
     conversations: 'Konversationen',
     libraries: 'Bibliotheken',
-    lists: 'Listen'
+    lists: 'Listen',
   },
   updates: {
     added: 'Hinzugefügt',
@@ -889,20 +927,22 @@ export default {
     omitted: 'Ausgelassen',
     skipped: 'Übersprungen',
     status: 'Status',
-    updated: 'Aktualisiert'
+    updated: 'Aktualisiert',
   },
   welcome: {
-    signIn: 'Anmelden'
+    signIn: 'Anmelden',
   },
   workspace: {
     alreadyMember: 'Sie sind bereits Mitglied dieses Arbeitsbereichs',
-    createDescription: 'Erstellen Sie einen neuen Arbeitsbereich, um Ihre Bibliotheken, Assistenten und Listen zu organisieren.',
+    createDescription:
+      'Erstellen Sie einen neuen Arbeitsbereich, um Ihre Bibliotheken, Assistenten und Listen zu organisieren.',
     createLong: 'Neuen Arbeitsbereich erstellen',
     createSuccess: 'Arbeitsbereich erfolgreich erstellt',
     createTitle: 'Arbeitsbereich erstellen',
     deleteBlockedDescription: 'Dieser Arbeitsbereich kann nicht gelöscht werden, da er Elemente enthält.',
     deleteDescription: 'Diese Aktion kann nicht rückgängig gemacht werden. Der Arbeitsbereich wird dauerhaft gelöscht.',
-    deleteInstructions: 'Bitte löschen Sie alle Bibliotheken, Assistenten und Listen, bevor Sie diesen Arbeitsbereich löschen.',
+    deleteInstructions:
+      'Bitte löschen Sie alle Bibliotheken, Assistenten und Listen, bevor Sie diesen Arbeitsbereich löschen.',
     deleteSuccess: 'Arbeitsbereich erfolgreich gelöscht',
     deleteTitle: 'Arbeitsbereich löschen',
     deleteWarning: 'Diese Aktion kann nicht rückgängig gemacht werden!',
@@ -912,10 +952,12 @@ export default {
     invitationAlreadyTakenTitle: 'Einladung bereits verwendet',
     invitationDescription: '{inviterName} hat Sie eingeladen, dem Arbeitsbereich "{workspaceName}" beizutreten.',
     invitationEmailMismatch: 'Diese Einladung wurde an eine andere E-Mail-Adresse gesendet',
-    invitationEmailMismatchDescription: 'Diese Einladung wurde an {email} gesendet. Bitte melden Sie sich mit dieser E-Mail-Adresse an, um sie anzunehmen.',
+    invitationEmailMismatchDescription:
+      'Diese Einladung wurde an {email} gesendet. Bitte melden Sie sich mit dieser E-Mail-Adresse an, um sie anzunehmen.',
     invitationEmailMismatchTitle: 'Einladung passt nicht zu Ihrem Konto',
     invitationExpired: 'Diese Einladung ist abgelaufen',
-    invitationExpiredDescription: 'Diese Einladung ist abgelaufen. Bitte bitten Sie den Arbeitsbereich-Admin, eine neue zu senden.',
+    invitationExpiredDescription:
+      'Diese Einladung ist abgelaufen. Bitte bitten Sie den Arbeitsbereich-Admin, eine neue zu senden.',
     invitationExpiredTitle: 'Einladung abgelaufen',
     invitationNotFound: 'Einladung nicht gefunden',
     invitationNotFoundDescription: 'Diese Einladung existiert nicht.',
@@ -934,7 +976,8 @@ export default {
       inviteSuccess: 'Einladung an {email} gesendet',
       inviteTitle: 'Mitglied einladen',
       leave: 'Arbeitsbereich verlassen',
-      leaveConfirmation: 'Möchten Sie diesen Arbeitsbereich wirklich verlassen? Sie verlieren den Zugriff auf alle Ressourcen.',
+      leaveConfirmation:
+        'Möchten Sie diesen Arbeitsbereich wirklich verlassen? Sie verlieren den Zugriff auf alle Ressourcen.',
       leaveError: 'Arbeitsbereich konnte nicht verlassen werden: {message}',
       leaveSuccess: 'Sie haben den Arbeitsbereich verlassen',
       leaveTitle: 'Arbeitsbereich verlassen',
@@ -961,7 +1004,7 @@ export default {
       roleUpdateError: 'Rolle konnte nicht aktualisiert werden: {message}',
       roleUpdateSuccess: '{name} ist jetzt {role}',
       title: 'Arbeitsbereich-Mitglieder',
-      you: '(Sie)'
+      you: '(Sie)',
     },
     name: 'Name des Arbeitsbereichs',
     namePlaceholder: 'Mein Arbeitsbereich',
@@ -972,6 +1015,6 @@ export default {
     slugHint: 'Wird in URLs verwendet. Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt.',
     slugInvalid: 'Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten',
     slugPlaceholder: 'mein-arbeitsbereich',
-    slugRequired: 'Arbeitsbereich-Slug ist erforderlich'
-  }
+    slugRequired: 'Arbeitsbereich-Slug ist erforderlich',
+  },
 }

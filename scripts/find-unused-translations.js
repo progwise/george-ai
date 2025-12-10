@@ -72,12 +72,7 @@ for (const key of allKeys) {
     // Search for all translation function patterns:
     // - t('key') or t("key")
     // - translate('key') or translate("key")
-    const patterns = [
-      `t('${key}'`,
-      `t("${key}"`,
-      `translate('${key}'`,
-      `translate("${key}"`,
-    ]
+    const patterns = [`t('${key}'`, `t("${key}"`, `translate('${key}'`, `translate("${key}"`]
 
     for (const pattern of patterns) {
       const result = execSync(
@@ -106,14 +101,15 @@ for (const key of allKeys) {
       try {
         // Look for dynamic key patterns like t(`parentKey.${var}`) or translate(`parentKey.${var}`)
         // Use single quotes to avoid shell interpretation of backticks
-        const dynamicPatterns = [
-          "t(\\`" + parentKey + ".",
-          "translate(\\`" + parentKey + ".",
-        ]
+        const dynamicPatterns = ['t(\\`' + parentKey + '.', 'translate(\\`' + parentKey + '.']
 
         for (const pattern of dynamicPatterns) {
           const result = execSync(
-            "grep -rF --include='*.ts' --include='*.tsx' '" + pattern + "' " + srcDir + " 2>/dev/null | grep -v '/i18n/' || true",
+            "grep -rF --include='*.ts' --include='*.tsx' '" +
+              pattern +
+              "' " +
+              srcDir +
+              " 2>/dev/null | grep -v '/i18n/' || true",
             { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
           ).trim()
           if (result) {
