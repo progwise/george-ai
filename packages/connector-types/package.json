@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "markdown-it": "^14.1.0",
-    "zod": "^3.23.8"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
@@ -26,7 +26,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.10.1",
     "eslint": "^9.17.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.18.0",
     "vitest": "^2.1.8"
   }
