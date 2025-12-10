@@ -83,6 +83,10 @@ RUN addgroup --system --gid 1001 nodejs \
 # Copy the deployed output (all dependencies resolved, no symlinks)
 COPY --from=builder --chown=server:nodejs /app/deploy .
 
+# Copy tsconfig.base.json for prisma generate --sql at runtime
+# pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
+COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
+
 USER server
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=90s \
