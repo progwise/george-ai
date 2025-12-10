@@ -1,8 +1,11 @@
 import { getConnectorAction, getConnectorTypeFactory } from '@george-ai/connector-types'
 import type { ActionInput, ConnectorConfig } from '@george-ai/connector-types'
+import { createLogger } from '@george-ai/web-utils'
 
 import type { AiAutomationItem, AiAutomationItemExecution, AiListItemCache } from '../../prisma/generated/client'
 import { prisma } from '../prisma'
+
+const logger = createLogger('Automation Worker')
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null
@@ -53,7 +56,7 @@ async function processAutomationItem(
     })
 
     if (updated.count === 0) {
-      console.log(`⚠️ Automation item ${item.id} no longer pending, skipping`)
+      logger.debug(`Automation item ${item.id} no longer pending, skipping`)
       // Return a skipped execution record
       return prisma.aiAutomationItemExecution.create({
         data: {
@@ -139,11 +142,11 @@ async function processAutomationItem(
       },
     })
 
-    console.log(`✅ Automation item ${item.id} completed with status: ${status}`)
+    logger.debug(`Automation item ${item.id} completed with status: ${status}`)
     return execution
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error(`❌ Error processing automation item ${item.id}:`, errorMessage)
+    logger.error(`Error processing automation item ${item.id}: ${errorMessage}`)
 
     // Update item status to failed
     await prisma.aiAutomationItem.update({
@@ -277,12 +280,12 @@ async function processBatches() {
             },
           })
 
-          console.log(`✅ Batch ${batch.id} completed`)
+          logger.info(`Batch ${batch.id} completed`)
         }
         continue
       }
 
-      console.log(`Processing ${pendingItems.length} automation items for batch ${batch.id}...`)
+      logger.info(`Processing ${pendingItems.length} automation items for batch ${batch.id}`)
 
       // Process items in parallel
       const executions = await Promise.all(
@@ -307,7 +310,7 @@ async function processBatches() {
       })
     }
   } catch (error) {
-    console.error('❌ Error processing automation batches:', error)
+    logger.error('Error processing automation batches:', error)
   }
 }
 
@@ -328,7 +331,7 @@ async function resetOrphanedBatches() {
     })
 
     if (resetBatches.count > 0) {
-      console.log(`🔄 Reset ${resetBatches.count} orphaned automation batches back to pending`)
+      logger.info(`Reset ${resetBatches.count} orphaned automation batches back to pending`)
     }
 
     // Reset any items that were stuck in PROCESSING state from previous server sessions
@@ -342,10 +345,10 @@ async function resetOrphanedBatches() {
     })
 
     if (resetItems.count > 0) {
-      console.log(`🔄 Reset ${resetItems.count} orphaned automation items back to pending`)
+      logger.info(`Reset ${resetItems.count} orphaned automation items back to pending`)
     }
   } catch (error) {
-    console.error('Error resetting orphaned automation batches:', error)
+    logger.error('Error resetting orphaned automation batches:', error)
   }
 }
 
@@ -354,12 +357,12 @@ async function resetOrphanedBatches() {
  */
 export async function startAutomationQueueWorker() {
   if (isWorkerRunning) {
-    console.log('Automation queue worker is already running')
+    logger.warn('Automation queue worker is already running')
     return
   }
 
   isWorkerRunning = true
-  console.log('🚀 Starting automation queue worker...')
+  logger.info('Starting automation queue worker...')
 
   // First, reset any orphaned batches from previous server sessions
   await resetOrphanedBatches()
@@ -378,7 +381,7 @@ export async function startAutomationQueueWorker() {
  */
 export function stopAutomationQueueWorker() {
   if (!isWorkerRunning) {
-    console.log('Automation queue worker is not running')
+    logger.warn('Automation queue worker is not running')
     return
   }
 
@@ -389,7 +392,7 @@ export function stopAutomationQueueWorker() {
     workerInterval = null
   }
 
-  console.log('🛑 Stopped automation queue worker')
+  logger.info('Stopped automation queue worker')
 }
 
 /**

@@ -64,7 +64,7 @@ services:
   backend:
     image: ghcr.io/progwise/george-ai/backend:latest
     environment:
-      DATABASE_URL: postgresql://george:${DB_PASSWORD}@postgres:5432/georgeai?schema=public
+      DATABASE_URL: postgresql://george:${DB_PASSWORD}@postgres:5432/georgeai?schema=public&connection_limit=20&pool_timeout=30
       KEYCLOAK_URL: https://auth.${HOST_NAME}
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_CLIENT_ID: george-ai-client

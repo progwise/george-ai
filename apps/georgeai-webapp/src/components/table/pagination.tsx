@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useId } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -27,12 +27,11 @@ export const Pagination = ({
   pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
   onPageSizeChange,
 }: PaginationProps) => {
+  const popoverId = useId()
   const { t } = useTranslation()
-  const dropDownRef = useRef<HTMLDetailsElement>(null)
   const totalPages = totalItems === 0 ? 1 : Math.ceil(totalItems / itemsPerPage)
   const isFirstPage = currentPage === 1
   const isLastPage = currentPage === totalPages
-  const onlyOnePage = totalPages === 1
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return
@@ -43,8 +42,19 @@ export const Pagination = ({
     const newPage = Number(value)
     if (isNaN(newPage)) return
     handlePageChange(newPage)
-    if (dropDownRef.current) {
-      dropDownRef.current.removeAttribute('open')
+  }
+
+  const closePopover = () => {
+    const popover = document.getElementById(popoverId)
+    popover?.hidePopover()
+  }
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handlePageManualChange(event.currentTarget.value)
+      closePopover()
+    } else if (event.key === 'Escape') {
+      closePopover()
     }
   }
 
@@ -53,30 +63,6 @@ export const Pagination = ({
       onPageChange(totalPages)
     }
   }, [currentPage, totalPages, onPageChange])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropDownRef.current && !dropDownRef.current.contains(event.target as Node)) {
-        dropDownRef.current.removeAttribute('open')
-      }
-    }
-
-    const observer = new MutationObserver(() => {
-      if (dropDownRef.current?.open) {
-        dropDownRef.current.querySelector('input')?.focus()
-      }
-    })
-
-    if (dropDownRef.current) {
-      observer.observe(dropDownRef.current, { attributes: true, attributeFilter: ['open'] })
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      observer.disconnect()
-    }
-  }, [])
 
   return (
     <div className={twMerge('flex items-end gap-4', className)}>
@@ -101,21 +87,19 @@ export const Pagination = ({
         >
           ‹
         </button>
-        <details
-          ref={dropDownRef}
-          className="dropdown dropdown-end"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape' || event.key === 'Return') {
-              dropDownRef.current?.removeAttribute('open')
-            }
-          }}
-        >
-          <summary role="button" className={twMerge('join-item btn btn-xs', onlyOnePage && 'btn-disabled')}>
+        <div className="join-item btn btn-xs border">
+          <button type="button" popoverTarget={popoverId} style={{ anchorName: '--anchor-1' } as React.CSSProperties}>
             <span className="flex-nowrap text-nowrap text-xs font-normal">
               {currentPage}/{totalPages}
             </span>
-          </summary>
-          <label className="input dropdown-content bg-base-100 rounded-box z-1 w-64 p-2 shadow-sm" tabIndex={0}>
+          </button>
+          <label
+            style={{ positionAnchor: '--anchor-1' } as React.CSSProperties}
+            className="input dropdown dropdown-end bg-base-100 rounded-box w-64 p-2 shadow-sm"
+            tabIndex={0}
+            popover="auto"
+            id={popoverId}
+          >
             {t('labels.gotoPage')}
             <input
               type="number"
@@ -123,12 +107,15 @@ export const Pagination = ({
               max={`${totalPages}`}
               className="grow text-center"
               placeholder={currentPage.toString()}
-              onBlur={(event) => handlePageManualChange(event.target.value)}
+              onBlur={(event) => {
+                handlePageManualChange(event.target.value)
+                closePopover()
+              }}
+              onKeyDown={handleInputKeyDown}
             />
             <span>{t('labels.ofPages', { totalPages })}</span>
           </label>
-        </details>
-
+        </div>
         <button
           type="button"
           aria-label="Next Page"

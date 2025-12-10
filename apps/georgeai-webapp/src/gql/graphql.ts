@@ -5954,6 +5954,7 @@ export type GetContentQueriesQuery = {
   __typename?: 'Query'
   aiContentQueries: Array<{
     __typename?: 'ContentQueryResult'
+    id: string
     fieldId: string
     fieldName: string
     listId: string
@@ -19404,6 +19405,7 @@ export const GetContentQueriesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fieldName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'listId' } },

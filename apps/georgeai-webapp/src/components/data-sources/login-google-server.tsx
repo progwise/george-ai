@@ -47,7 +47,6 @@ export const getGoogleAccessToken = createServerFn({
   })
   .handler(async ({ data }) => {
     const params = `?client_id=${GOOGLE_DRIVE_CLIENT_ID}&client_secret=${GOOGLE_DRIVE_CLIENT_SECRET}&code=${data.access_code}&grant_type=authorization_code&redirect_uri=${data.redirect_url}`
-    console.log('getGoogleAccessToken params', params)
     const tokenData = await fetch(`https://oauth2.googleapis.com/token${params}`, {
       method: 'POST',
       headers: {
@@ -60,7 +59,6 @@ export const getGoogleAccessToken = createServerFn({
       console.error('error getting access token', json)
       return { error: tokenData.statusText, details: json }
     }
-    console.log('Token received', json)
     const token = GoogleAccessTokenSchema.parse(json)
 
     return token
@@ -87,7 +85,6 @@ export const getGoogleUserData = createServerFn({
       .catch((error) => {
         console.error('error getting user data', error)
       })
-    console.log('received user data', user_data)
     return user_data
   })
 

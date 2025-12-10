@@ -1,12 +1,15 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
+import { createLogger } from '@george-ai/web-utils'
 
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
+
+const logger = createLogger('Enrichment Worker')
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null
@@ -47,7 +50,7 @@ async function processQueueItem({
 
     // If no rows were updated, the item was likely deleted or already processing
     if (updated.count === 0) {
-      console.log(`⚠️ Task ${enrichmentTask.id} no longer pending, skipping`)
+      logger.debug(`Task ${enrichmentTask.id} no longer pending, skipping`)
       return
     }
 
@@ -102,7 +105,7 @@ async function processQueueItem({
 
             if (!query) {
               const issue = `vectorSearchSkipped: template substitution failed for "${vectorSearch.queryTemplate}"`
-              console.warn(`⚠️ ${issue}`)
+              logger.warn(issue)
               outputMetaData.issues.push(issue)
               continue
             }
@@ -110,7 +113,7 @@ async function processQueueItem({
             // Check if library has embedding model configured
             if (!metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
               const issue = `vectorSearchSkipped: library has no embedding model configured`
-              console.warn(`⚠️ ${issue}`)
+              logger.warn(issue)
               outputMetaData.issues.push(issue)
               continue
             }
@@ -160,12 +163,12 @@ async function processQueueItem({
                 allChunks.length > 0
                   ? `vectorSearchNoResults: found ${allChunks.length} chunks but all exceeded maxDistance ${maxDistance}`
                   : `vectorSearchNoResults: no similar chunks found for query "${query}"`
-              console.warn(`⚠️ ${issue}`)
+              logger.warn(issue)
               outputMetaData.issues.push(issue)
             }
           } catch (error) {
             const issue = `vectorSearchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-            console.warn(`⚠️ ${issue}`)
+            logger.warn(issue)
             outputMetaData.issues.push(issue)
           }
         }
@@ -180,7 +183,7 @@ async function processQueueItem({
 
             if (!url) {
               const issue = `webFetchSkipped: template substitution failed for "${webFetch.urlTemplate}"`
-              console.warn(`⚠️ ${issue}`)
+              logger.warn(issue)
               outputMetaData.issues.push(issue)
               continue
             }
@@ -201,7 +204,7 @@ async function processQueueItem({
             })
           } catch (error) {
             const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-            console.warn(`⚠️ ${issue}`)
+            logger.warn(issue)
             outputMetaData.issues.push(issue)
           }
         }
@@ -246,10 +249,10 @@ async function processQueueItem({
         outputMetaData.issues.push(`error: ${chatResponse.error}`)
       }
 
-      console.log(`✅ Enrichment succeeded for item ${enrichmentTask.id}`)
+      logger.debug(`Enrichment succeeded for item ${enrichmentTask.id}`)
     } catch (error) {
       enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
-      console.warn(`⚠️ Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
+      logger.warn(`Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
     }
 
     let failedEnrichmentValue: string | null = null
@@ -326,13 +329,13 @@ async function processQueueItem({
 
     // If no rows were updated, the item was likely deleted
     if (completedItem.count === 0) {
-      console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
+      logger.debug(`Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
       return
     }
 
-    console.log(`✅ Processed enrichment queue item ${enrichmentTask.id}`)
+    logger.debug(`Processed enrichment queue item ${enrichmentTask.id}`)
   } catch (error) {
-    console.error(`❌ Error processing queue item ${enrichmentTask.id}:`, error)
+    logger.error(`Error processing queue item ${enrichmentTask.id}:`, error)
 
     // Mark as failed - use updateMany to handle race conditions
     const failedItem = await prisma.aiEnrichmentTask.updateMany({
@@ -349,7 +352,7 @@ async function processQueueItem({
 
     // If no rows were updated, the item was likely deleted
     if (failedItem.count === 0) {
-      console.log(`⚠️ Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
+      logger.debug(`Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
       return
     }
   }
@@ -382,14 +385,14 @@ async function processQueue() {
       return
     }
 
-    console.log(`Processing ${queueItems.length} enrichment queue items... (capacity: ${availableCapacity})`)
+    logger.info(`Processing ${queueItems.length} enrichment queue items (capacity: ${availableCapacity})`)
 
     // Process items in parallel
     await Promise.all(
       queueItems.map((enrichmentTask) => {
         const validationResult = validateEnrichmentTaskForProcessing(enrichmentTask)
         if (!validationResult.success) {
-          console.error(`❌ Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
+          logger.error(`Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
           // Mark as failed due to validation error
           return prisma.aiEnrichmentTask.update({
             where: { id: enrichmentTask.id },
@@ -416,7 +419,7 @@ async function processQueue() {
       }),
     )
   } catch (error) {
-    console.error('❌ Error processing enrichment queue:', error)
+    logger.error('Error processing enrichment queue:', error)
   }
 }
 
@@ -434,21 +437,21 @@ async function resetOrphanedProcessingItems() {
     })
 
     if (resetResult.count > 0) {
-      console.log(`🔄 Reset ${resetResult.count} orphaned processing items back to pending`)
+      logger.info(`Reset ${resetResult.count} orphaned processing items back to pending`)
     }
   } catch (error) {
-    console.error('Error resetting orphaned processing items:', error)
+    logger.error('Error resetting orphaned processing items:', error)
   }
 }
 
 export async function startEnrichmentQueueWorker() {
   if (isWorkerRunning) {
-    console.log('Enrichment queue worker is already running')
+    logger.warn('Enrichment queue worker is already running')
     return
   }
 
   isWorkerRunning = true
-  console.log('🚀 Starting enrichment queue worker...')
+  logger.info('Starting enrichment queue worker...')
 
   // First, reset any orphaned processing items from previous server sessions
   await resetOrphanedProcessingItems()
@@ -464,7 +467,7 @@ export async function startEnrichmentQueueWorker() {
 
 export function stopEnrichmentQueueWorker() {
   if (!isWorkerRunning) {
-    console.log('Enrichment queue worker is not running')
+    logger.warn('Enrichment queue worker is not running')
     return
   }
 
@@ -475,7 +478,7 @@ export function stopEnrichmentQueueWorker() {
     workerInterval = null
   }
 
-  console.log('🛑 Stopped enrichment queue worker')
+  logger.info('Stopped enrichment queue worker')
 }
 
 export function isEnrichmentWorkerRunning(): boolean {

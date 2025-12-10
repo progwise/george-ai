@@ -1,3 +1,5 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { Prisma } from '../../../prisma/generated/client'
 import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
@@ -5,6 +7,8 @@ import { getListFiltersWhere } from '../../domain/list'
 import { prisma } from '../../prisma'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
+
+const logger = createLogger('Enrichment Tasks')
 
 // PostgreSQL has a limit of 32,767 bind variables in prepared statements
 // Use a safe batch size that accounts for complex queries with multiple binds per item
@@ -43,7 +47,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
     resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { session }) => {
-      console.log('🔍 Starting enrichment for listId:', listId, 'fieldId:', fieldId)
+      logger.info(`Starting enrichment task creation for listId: ${listId}, fieldId: ${fieldId}`)
       const list = await canAccessListOrThrow(listId, session.user.id, {
         include: {
           fields: {
@@ -176,7 +180,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         cursor = batch.length === BATCH_SIZE ? batch[batch.length - 1].id : undefined
       } while (cursor)
 
-      console.log('found items for enrichment:', items.length)
+      logger.info(`Found ${items.length} items for enrichment`)
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
@@ -234,7 +238,9 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
         // Batch the createMany to avoid exceeding PostgreSQL's 32,767 bind variable limit
         let totalCreated = 0
+        const totalBatches = Math.ceil(items.length / BATCH_SIZE)
         for (let i = 0; i < items.length; i += BATCH_SIZE) {
+          const batchNumber = Math.floor(i / BATCH_SIZE) + 1
           const batch = items.slice(i, i + BATCH_SIZE)
           const createTasksResult = await tx.aiEnrichmentTask.createMany({
             data: batch.map((item) => {
@@ -250,6 +256,9 @@ builder.mutationField('createEnrichmentTasks', (t) =>
             }),
           })
           totalCreated += createTasksResult.count
+          if (totalBatches > 1) {
+            logger.info(`Created batch ${batchNumber}/${totalBatches} (${totalCreated}/${items.length} tasks)`)
+          }
         }
 
         return { totalCreated, cleanupTasksResult }

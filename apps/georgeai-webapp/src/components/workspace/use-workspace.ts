@@ -205,7 +205,6 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: async ({ id }) => {
       toastSuccess(t('workspace.createSuccess'))
-      // queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
       console.log('Switching to new workspace:', id)
       await setWorkspace(id)
     },

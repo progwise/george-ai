@@ -29,7 +29,7 @@ function RouteComponent() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Header Section */}
             <div className="flex items-center gap-4">
-              <div className="from-primary/20 to-secondary/20 rounded-full bg-gradient-to-br p-3 shadow-lg">
+              <div className="from-primary/20 to-secondary/20 bg-linear-to-br rounded-full p-3 shadow-lg">
                 <svg className="text-primary h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"

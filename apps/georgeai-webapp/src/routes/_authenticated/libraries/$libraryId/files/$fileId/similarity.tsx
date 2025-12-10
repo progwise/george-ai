@@ -115,14 +115,14 @@ function RouteComponent() {
                   </label>
                   <div tabIndex={0} className="dropdown-content rounded-box bg-base-100 mt-2 p-2 shadow">
                     {aiContentQueries.map((cq) => (
-                      <div key={cq.fieldId} className="card card-xs bg-base-200 mb-2 flex flex-col gap-1 p-2">
+                      <div key={cq.id} className="card card-xs bg-base-200 mb-2 flex flex-col gap-1 p-2">
                         <div className="card-title text-sm font-semibold">
                           <Link className="link" to="/lists/$listId" params={{ listId: cq.listId }}>
                             {cq.listName} - {cq.fieldName}
                           </Link>
                         </div>
                         <div className="card-body p-0">
-                          <pre className="whitespace-pre-wrap break-words text-xs">
+                          <pre className="wrap-break-word whitespace-pre-wrap text-xs">
                             {!cq.contentQuery || cq.contentQuery.length < 1
                               ? 'no-content'
                               : cq.contentQuery.length > 200

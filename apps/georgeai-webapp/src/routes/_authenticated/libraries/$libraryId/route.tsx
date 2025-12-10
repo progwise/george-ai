@@ -94,16 +94,6 @@ function RouteComponent() {
         >
           {t('labels.updates')}
         </Link>
-        <Link
-          to="/libraries/$libraryId/postprocess"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('labels.postprocess')}
-        </Link>
       </div>
       <div className="bg-base-100 min-h-0 w-full p-3">
         <Outlet />

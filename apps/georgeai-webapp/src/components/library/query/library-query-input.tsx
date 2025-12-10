@@ -24,9 +24,6 @@ export const LibraryQueryInput = ({ libraryName, onSearchTermChange, defaultSear
     }
   }, [debounceInput])
 
-  useEffect(() => {
-    console.log('LibraryQueryInput mounted', defaultSearchTerm)
-  }, [defaultSearchTerm])
   return (
     <fieldset className="fieldset grid items-center gap-4">
       <h3 className="self-center text-center text-lg">Library {libraryName}</h3>

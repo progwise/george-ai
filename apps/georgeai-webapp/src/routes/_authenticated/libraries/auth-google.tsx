@@ -39,7 +39,6 @@ function RouteComponent() {
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
-      console.log('Setting redirectAfterAuth:', search.redirectAfterAuth)
       localStorage.setItem('google_login_redirect_after', search.redirectAfterAuth)
     }
   }, [search.redirectAfterAuth])
@@ -50,7 +49,6 @@ function RouteComponent() {
       const accessToken = await getGoogleAccessToken({
         data: { access_code: search.code, redirect_url },
       })
-      console.log('Got access token', accessToken)
       localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
       localStorage.setItem('google_drive_dialog_open', 'true')
       localStorage.removeItem('google_login_progress')
@@ -79,7 +77,6 @@ function RouteComponent() {
         const token = JSON.parse(tokenString)
         const isValid = await validateGoogleAccessToken({ data: { access_token: token.access_token } })
         if (!isValid.valid) {
-          console.log('Token is invalid or expired. Logging out.')
           localStorage.removeItem('google_drive_access_token')
           localStorage.removeItem('google_login_redirect_after')
           localStorage.removeItem('google_drive_dialog_open')

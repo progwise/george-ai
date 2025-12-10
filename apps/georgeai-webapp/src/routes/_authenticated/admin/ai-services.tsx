@@ -77,7 +77,6 @@ function AiServicesAdminPage() {
       setEditingProvider(null)
     },
     onError: (error) => {
-      console.log('Error creating provider:', error)
       const message = error instanceof Error ? error.message : String(error)
       toastError(message || 'Failed to create provider')
     },

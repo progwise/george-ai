@@ -21,6 +21,7 @@ import {
 } from '@george-ai/file-converter'
 import { getFileDir, getUploadFilePath, saveMarkdownContent } from '@george-ai/file-management'
 import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain-chat'
+import { createLogger } from '@george-ai/web-utils'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
 
 import { Prisma } from '../../prisma/generated/client'
@@ -28,6 +29,8 @@ import { logModelUsage } from '../domain/languageModel'
 import { createListItemsForProcessedFile } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
+
+const logger = createLogger('Content Processing Worker')
 
 let isWorkerRunning = false
 let workerInterval: NodeJS.Timeout | null = null
@@ -110,7 +113,7 @@ const updateProcessingTask = async (args: {
     data: { ...args.data },
   })
   if (args.timeoutSignal.aborted) {
-    console.warn(`❌ Task ${args.task.id} aborted due to timeout`)
+    logger.warn(`Task ${args.task.id} aborted due to timeout`)
     throw new ProcessingTaskAbortError({
       cause: 'timeout',
       data: { processingTask: { ...update, processingTimeout: true } },
@@ -119,7 +122,7 @@ const updateProcessingTask = async (args: {
   if (!update.processingCancelled) {
     return update
   } else {
-    console.warn(`❌ Task ${args.task.id} aborted due to user cancellation`)
+    logger.warn(`Task ${args.task.id} aborted due to user cancellation`)
     throw new ProcessingTaskAbortError({
       cause: 'cancel',
       data: { processingTask: { ...update, processingCancelled: true } },
@@ -139,7 +142,7 @@ const updateSubTask = async (args: {
   })
 
   if (args.timeoutSignal.aborted) {
-    console.warn(`❌ Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to timeout`)
+    logger.warn(`Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to timeout`)
     throw new ProcessingTaskAbortError({
       cause: 'timeout',
       data: { subTask: { ...update } },
@@ -147,7 +150,7 @@ const updateSubTask = async (args: {
   }
 
   if (update.contentProcessingTask.processingCancelled) {
-    console.warn(`❌ Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to user cancellation`)
+    logger.warn(`Task ${update.contentProcessingTaskId} Subtask ${update.id} aborted due to user cancellation`)
     throw new ProcessingTaskAbortError({
       cause: 'cancel',
       data: { subTask: { ...update } },
@@ -176,8 +179,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
   })
 
   try {
-    console.log(
-      `🔄 Processing extraction task ${task.id} for file ${task.fileId} with methods ${task.extractionSubTasks.map((s) => s.extractionMethod).join(', ')}`,
+    logger.info(
+      `Processing extraction task ${task.id} for file ${task.fileId} with methods ${task.extractionSubTasks.map((s) => s.extractionMethod).join(', ')}`,
     )
 
     task = await updateProcessingTask({
@@ -203,7 +206,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     })
     if (!validationResult.success) {
       const message = `Validation failed for task ${task.id}: ${validationResult.errors?.join('; ')}`
-      console.error(message)
+      logger.error(message)
       task = await updateProcessingTask({
         task,
         timeoutSignal,
@@ -212,7 +215,6 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           metadata: mergeObjectToJsonString(task.metadata, { validationErrors: validationResult.errors }),
         },
       })
-      console.error(`❌ Validation failed for task ${task.id}`)
       return
     }
 
@@ -221,7 +223,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     const onlyEmbeddingTasks = task.extractionSubTasks.every((sub) => sub.extractionMethod === 'embedding-only')
 
     if (!onlyEmbeddingTasks) {
-      console.log(`🔄 Starting content extraction phase for task ${task.id}`)
+      logger.debug(`Starting content extraction phase for task ${task.id}`)
 
       task = await updateProcessingTask({
         task,
@@ -235,8 +237,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         .filter((subTask) => subTask.extractionMethod !== 'embedding-only' && !subTask.finishedAt && !subTask.failedAt)
         .map(async (subTask) => {
           // Process each extraction method sequentially to avoid I/O overload
-          console.log(
-            `🔄 Starting extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
+          logger.debug(
+            `Starting extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
           )
 
           subTask = await updateSubTask({
@@ -278,15 +280,15 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
               timeoutSignal,
             })
           }
-          console.log(
-            `✅ Completed extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
+          logger.debug(
+            `Completed extraction method ${subTask.extractionMethod} for task ${task.id} and subtask ${subTask.id}`,
           )
           return { subTask, extractionResult }
         })
       // Await all extraction methods
       const extractionResults = await Promise.allSettled(extractionResultPromises)
 
-      console.log(`🔄 Saving extraction results for task ${task.id}`)
+      logger.debug(`Saving extraction results for task ${task.id}`)
 
       const extractionResultsFulfilled = extractionResults
         .filter((result) => result.status === 'fulfilled')
@@ -294,7 +296,9 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
 
       const failedExtractions = extractionResults.filter((r) => r.status === 'rejected')
 
-      console.error('failedExtractions', failedExtractions)
+      if (failedExtractions.length > 0) {
+        logger.error(`Failed extractions for task ${task.id}:`, failedExtractions)
+      }
 
       const allSuccessful = extractionResultsFulfilled.every((result) => result.extractionResult.success)
       if (!allSuccessful) {
@@ -307,7 +311,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             metadata: mergeObjectToJsonString(task.metadata, { extractionResults }),
           },
         })
-        console.error(`❌ Extraction phase failed for task ${task.id}`)
+        logger.error(`Extraction phase failed for task ${task.id}`)
         return
       } else {
         task = await updateProcessingTask({
@@ -326,25 +330,25 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         })
       }
 
-      console.log(`✅ Completed extraction task ${task.id}`)
+      logger.debug(`Completed extraction task ${task.id}`)
 
       // Create list items for any lists that link to this library
       // This only needs markdown content, not embeddings
       try {
         const itemResult = await createListItemsForProcessedFile(task.fileId, task.file.libraryId)
         if (itemResult.created > 0) {
-          console.log(
-            `✅ Created ${itemResult.created} list items for file ${task.fileId} across ${itemResult.sources} sources`,
+          logger.debug(
+            `Created ${itemResult.created} list items for file ${task.fileId} across ${itemResult.sources} sources`,
           )
         }
       } catch (error) {
-        console.error(`⚠️ Failed to create list items for file ${task.fileId}:`, error)
+        logger.error(`Failed to create list items for file ${task.fileId}:`, error)
         // Don't fail the task - list item creation is secondary to file processing
       }
     }
 
     // Start embedding phase with explicit data (no database re-query)
-    console.log(`🔄 Starting embedding phase for task ${task.id}`)
+    logger.debug(`Starting embedding phase for task ${task.id}`)
     task = await updateProcessingTask({
       task,
       timeoutSignal,
@@ -368,7 +372,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           }),
         },
       })
-      console.error(`❌ Embedding phase failed for task ${task.id}: no markdown file`)
+      logger.error(`Embedding phase failed for task ${task.id}: no markdown file`)
       return
     }
 
@@ -415,7 +419,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           metadata: metadata,
         },
       })
-      console.error(`❌ Embedding phase failed for task ${task.id}`)
+      logger.error(`Embedding phase failed for task ${task.id}`)
       return
     } else {
       task = await updateProcessingTask({
@@ -434,13 +438,13 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
       })
     }
     if (hasFailures) {
-      console.warn(
-        `⚠️ Embedding phase completed with warnings for task ${task.id}: ${failedEmbeddingResults.length}/${embeddingResultsSettled.length} failed`,
+      logger.warn(
+        `Embedding phase completed with warnings for task ${task.id}: ${failedEmbeddingResults.length}/${embeddingResultsSettled.length} failed`,
       )
     } else {
-      console.log(`✅ Embedding phase completed successfully for task ${task.id}`)
+      logger.debug(`Embedding phase completed successfully for task ${task.id}`)
     }
-    console.log(`✅ Completed embedding phase for task ${task.id}`)
+    logger.info(`Completed task ${task.id}`)
   } catch (error) {
     if (error instanceof ProcessingTaskAbortError) {
       const failedTask = await prisma.aiContentProcessingTask.findUniqueOrThrow({ where: { id: task.id } })
@@ -472,14 +476,14 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         })
       }
 
-      console.log(
-        `❌ Task ${error.data.processingTask ? error.data.processingTask.id : error.data.subTask?.contentProcessingTaskId} aborted due to ${error.cause}`,
+      logger.warn(
+        `Task ${error.data.processingTask ? error.data.processingTask.id : error.data.subTask?.contentProcessingTaskId} aborted due to ${error.cause}`,
       )
       return
     }
     // Catch unexpected infrastructure errors (DB offline, out of memory, etc.)
     // Business logic errors are handled in validation and extraction phases
-    console.error(`❌ Infrastructure error in task ${task.id}:`, error)
+    logger.error(`Infrastructure error in task ${task.id}:`, error)
 
     // Only try to update DB if it's not a DB connectivity issue
     try {
@@ -500,7 +504,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         },
       })
     } catch (dbError) {
-      console.error(`❌ Could not update task ${task.id} after infrastructure error:`, dbError)
+      logger.error(`Could not update task ${task.id} after infrastructure error:`, dbError)
     }
   } finally {
     clearTimeoutSignal()
@@ -521,7 +525,7 @@ const processEmbeddingPhase = async (args: {
   embeddingModelProvider: ServiceProviderType
   embeddingModelName: string
 }) => {
-  console.log(`🔗 Starting embedding phase for task ${args.taskId}`)
+  logger.debug(`Starting embedding phase for task ${args.taskId}`)
 
   // Get workspaceId from library
   const workspaceId = await getLibraryWorkspace(args.libraryId)
@@ -583,7 +587,7 @@ const performValidation = async (args: {
   metadata: string | null
   markdownFileName?: string | null
 }) => {
-  console.log(`🔍 Starting validation phase for task ${args.taskId}`)
+  logger.debug(`Starting validation phase for task ${args.taskId}`)
 
   const errors: string[] = []
 
@@ -654,7 +658,7 @@ const performValidation = async (args: {
     return { success: false, errors }
   }
 
-  console.log(`✅ Validation passed for task ${args.taskId}`)
+  logger.debug(`Validation passed for task ${args.taskId}`)
   return {
     success: true,
     validated: {
@@ -767,7 +771,7 @@ const performContentExtraction = async (args: {
       },
     }
   } catch (error) {
-    console.error(`❌ Error in extraction phase for task ${args.taskId}:`, error)
+    logger.error(`Error in extraction phase for task ${args.taskId}:`, error)
     return { success: false, error }
   }
 }
@@ -816,23 +820,23 @@ async function processQueue() {
       return
     }
 
-    console.log(`Processing ${pendingTasks.length} tasks... (capacity: ${availableCapacity})`)
+    logger.info(`Processing ${pendingTasks.length} tasks (capacity: ${availableCapacity})`)
 
     // Process tasks in parallel
     await Promise.all(pendingTasks.map((task) => processTask({ task })))
   } catch (error) {
-    console.error('Error in content processing worker processQueue:', error)
+    logger.error('Error in content processing worker processQueue:', error)
   }
 }
 
 export async function startContentProcessingWorker() {
   if (isWorkerRunning) {
-    console.log('Content processing worker is already running')
+    logger.warn('Content processing worker is already running')
     return
   }
 
   isWorkerRunning = true
-  console.log('🚀 Starting content processing worker...')
+  logger.info('Starting content processing worker...')
 
   // Process queue immediately
   await processQueue()
@@ -845,7 +849,7 @@ export async function startContentProcessingWorker() {
 
 export function stopContentProcessingWorker() {
   if (!isWorkerRunning) {
-    console.log('Content processing worker is not running')
+    logger.warn('Content processing worker is not running')
     return
   }
 
@@ -856,7 +860,7 @@ export function stopContentProcessingWorker() {
     workerInterval = null
   }
 
-  console.log('🛑 Stopped content processing worker')
+  logger.info('Stopped content processing worker')
 }
 
 export function isContentProcessingWorkerRunning(): boolean {
