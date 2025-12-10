@@ -93,6 +93,9 @@ export const NODE_ENV = optionalEnvWithDefault('NODE_ENV', 'development')
 /** Whether running in production mode */
 export const IS_PRODUCTION = NODE_ENV === 'production'
 
+/** Log level for structured logging (ERROR, WARN, INFO, DEBUG) */
+export const LOG_LEVEL = optionalEnvWithDefault('LOG_LEVEL', 'INFO') as 'ERROR' | 'WARN' | 'INFO' | 'DEBUG'
+
 // =============================================================================
 // AI PROVIDERS (Optional)
 // =============================================================================
