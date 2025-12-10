@@ -1,9 +1,5 @@
 FROM node:22-slim AS base
 
-# for displaying the latest commit hash in the UI
-ARG GIT_COMMIT_SHA
-ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-
 RUN apt-get update \
     && apt-get install -y \
         python3 \
@@ -66,6 +62,10 @@ COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # Generate Prisma client only (doesn't need DB connection)
 RUN pnpm --filter @george-ai/pothos-graphql run prisma:generate:client
+
+# ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
 
 # Deploy creates a clean directory with resolved dependencies
 RUN pnpm --filter @george-ai/backend deploy --prod /app/deploy

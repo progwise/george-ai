@@ -1,9 +1,5 @@
 FROM node:22-slim AS base
 
-# for displaying the latest commit hash in the UI
-ARG GIT_COMMIT_SHA
-ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-
 RUN apt-get update \
     && apt-get install -y \
         python3 \
@@ -41,6 +37,9 @@ RUN rm -f ./apps/georgeai-webapp/public/CHANGELOG.md && \
     cp ./LICENSE ./apps/georgeai-webapp/public/LICENSE
 
 # Build the application
+# ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
 RUN pnpm --filter @george-ai/webapp run build
 
 # Deploy creates a clean directory with resolved dependencies
