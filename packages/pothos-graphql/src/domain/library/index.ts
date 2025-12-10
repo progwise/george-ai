@@ -29,24 +29,6 @@ export const canAccessLibraryOrThrow = async (libraryId: string, userId: string)
   return library
 }
 
-/**
- * Check if user is the owner of a library (for delete operations).
- */
-export const isLibraryOwnerOrThrow = async (libraryId: string, userId: string) => {
-  const library = await prisma.aiLibrary.findUniqueOrThrow({
-    where: { id: libraryId },
-    select: {
-      ownerId: true,
-    },
-  })
-
-  if (library.ownerId !== userId) {
-    throw new Error(`Only the owner can delete this library`)
-  }
-
-  return library
-}
-
 export const getAccessLibraryWhere = (workspaceId: string): Prisma.AiLibraryWhereInput => ({
   workspaceId,
 })

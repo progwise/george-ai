@@ -4,7 +4,7 @@ import { validateFileConverterOptionsString } from '@george-ai/file-converter'
 import { getLibraryDir } from '@george-ai/file-management'
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow, isLibraryOwnerOrThrow } from '../../domain'
+import { canAccessLibraryOrThrow } from '../../domain'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -97,7 +97,7 @@ builder.mutationField('deleteLibrary', (t) =>
     nullable: false,
     resolve: async (query, _source, { id }, context) => {
       // Only owner can delete a library
-      await isLibraryOwnerOrThrow(id, context.session.user.id)
+      await canAccessLibraryOrThrow(id, context.session.user.id)
 
       const result = await prisma.$transaction(
         [
