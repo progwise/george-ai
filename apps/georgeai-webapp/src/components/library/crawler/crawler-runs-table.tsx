@@ -8,6 +8,7 @@ import { graphql } from '../../../gql'
 import { CrawlerRuns_CrawlerRunsTableFragment } from '../../../gql/graphql'
 import { FilterIcon } from '../../../icons/filter-icon'
 import { LinkIcon } from '../../../icons/link-icon'
+import { ClientDate } from '../../client-date'
 
 graphql(`
   fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {
@@ -68,7 +69,12 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                 >
                   <div>
                     <div className="flex items-center gap-1">
-                      <Link to="." search={{ crawlerId: run.crawlerId }} className="flex items-center gap-1">
+                      <Link
+                        to="/libraries/$libraryId/crawlers"
+                        params={{ libraryId: run.crawler.libraryId }}
+                        search={{ crawlerId: run.crawlerId }}
+                        className="flex items-center gap-1"
+                      >
                         <span>{run.crawler.uriType}</span>
                         <FilterIcon className="size-3" />
                       </Link>
@@ -89,7 +95,7 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                         params={{ libraryId: run.crawler.libraryId, crawlerId: run.crawlerId, crawlerRunId: run.id }}
                         className="text-base-content/90text-xs flex items-center gap-1 font-light italic"
                       >
-                        <span>{run.startedAt ? `${new Date(run.startedAt).toLocaleString()}` : ''}</span>
+                        <ClientDate date={run.startedAt} fallback="" />
                         <LinkIcon className="size-3" />
                       </Link>
                     </div>
@@ -99,7 +105,7 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                   {duration(run.startedAt, run.endedAt ? run.endedAt : new Date())}
                 </td>
                 <td className="border-t px-4 py-2 align-top">
-                  {run.endedAt ? new Date(run.endedAt).toLocaleString() : 'N/A'}
+                  <ClientDate date={run.endedAt} fallback="N/A" />
                 </td>
                 <td className="border-t px-4 py-2 align-top">{run.success ? 'Yes' : 'No'}</td>
                 <td className="border-t px-4 py-2 align-top">{run.stoppedByUser ? 'Yes' : 'No'}</td>

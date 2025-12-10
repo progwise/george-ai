@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, formatDuration } from '@george-ai/web-utils'
+import { formatDuration } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import {
@@ -14,6 +14,7 @@ import {
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CancelIcon } from '../../../icons/cancel-icon'
 import { ExternalLinkIcon } from '../../../icons/external-link-icon'
+import { ClientDate } from '../../client-date'
 import { JsonModal } from '../../json-modal'
 import { TaskTimeline } from './task-timeline'
 import { useTaskActions } from './use-task-actions'
@@ -60,7 +61,7 @@ interface TaskAccordionItemProps {
 }
 
 export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: TaskAccordionItemProps) => {
-  const { language } = useTranslation()
+  useTranslation()
   const extractionOptionsModalRef = useRef<HTMLDialogElement>(null)
   const metadataModalRef = useRef<HTMLDialogElement>(null)
 
@@ -140,7 +141,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                   <span className="text-nowrap">{`${task.file.name}`}</span>
                 </Link>
               )}
-              <span className="text-neutral/50 text-nowrap text-xs">{dateTimeString(task.createdAt, language)}</span>
+              <ClientDate date={task.createdAt} format="dateTime" className="text-neutral/50 text-nowrap text-xs" />
             </div>
             <div className="flex flex-wrap gap-2">
               <div

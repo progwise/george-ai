@@ -53,9 +53,13 @@ services:
       # Database
       DATABASE_URL: postgresql://chatweb:password@gai-e2e-backend-db:5432/chatweb?schema=public
 
+      # Encryption key for sensitive connector credentials (required for automations)
+      # This is a test key - DO NOT use in production
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
       # Typesense
       TYPESENSE_API_HOST: gai-e2e-typesense
-      TYPESENSE_API_PORT: 8118
+      TYPESENSE_API_PORT: 8108
       TYPESENSE_API_PROTOCOL: http
       TYPESENSE_API_KEY: xyz-test-key
 
@@ -113,6 +117,7 @@ services:
       # Backend API
       BACKEND_URL: http://gai-e2e-backend:3003
       BACKEND_PUBLIC_URL: http://localhost:3013
+      GRAPHQL_API_KEY: TestKey
 
       # Keycloak (shared production instance with test realm)
       KEYCLOAK_URL: https://keycloak.george-ai.net

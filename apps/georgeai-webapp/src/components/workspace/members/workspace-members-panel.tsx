@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { UserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
 import { UserAvatar } from '../../user-avatar'
 import { useWorkspace } from '../use-workspace'
@@ -48,18 +49,6 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
   const handleRevokeClick = (id: string, email: string) => {
     setInvitationToRevoke({ id, email })
     revokeDialogRef.current?.showModal()
-  }
-
-  const formatRelativeDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-    if (diffDays === 0) return 'today'
-    if (diffDays === 1) return 'yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    return date.toLocaleDateString()
   }
 
   if (isLoading) {
@@ -233,7 +222,8 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
                     <div>
                       <div className="font-medium">{invitation.email}</div>
                       <div className="text-base-content/60 text-sm">
-                        {t('workspace.members.invitedAt', { date: formatRelativeDate(invitation.createdAt) })}
+                        {t('workspace.members.invitedAt', { date: '' })}
+                        <ClientDate date={invitation.createdAt} format="date" />
                       </div>
                     </div>
                   </div>

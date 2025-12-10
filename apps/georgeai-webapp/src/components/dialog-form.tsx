@@ -1,4 +1,4 @@
-import { RefObject, useRef } from 'react'
+import { RefObject, useId, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -32,6 +32,7 @@ export const DialogForm = ({
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
+  const titleId = useId()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -59,9 +60,11 @@ export const DialogForm = ({
   }
 
   return (
-    <dialog className="modal" ref={ref} onCancel={handleCancel}>
+    <dialog className="modal" ref={ref} onCancel={handleCancel} aria-labelledby={titleId}>
       <div className={twMerge('modal-box flex flex-col', className)}>
-        <h3 className="text-lg font-bold">{title}</h3>
+        <h3 id={titleId} className="text-lg font-bold">
+          {title}
+        </h3>
         {!!description && <p className="py-4">{description}</p>}
         <form ref={formRef} method="dialog" onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-auto">{children}</div>

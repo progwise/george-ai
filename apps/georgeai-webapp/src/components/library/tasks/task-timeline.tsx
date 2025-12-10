@@ -1,10 +1,11 @@
 import { twMerge } from 'tailwind-merge'
 
-import { dateTimeString, duration, formatDuration, timeString } from '@george-ai/web-utils'
+import { duration, formatDuration } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiContentProcessingTask_TimelineFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { ClientDate } from '../../client-date'
 import { StopWatch } from './stop-watch'
 
 graphql(`
@@ -46,7 +47,7 @@ interface TaskTimelineProps {
 }
 
 export const TaskTimeline = ({ task }: TaskTimelineProps) => {
-  const { language } = useTranslation()
+  useTranslation()
 
   const timelineData: Array<{
     labels: Record<string, string>
@@ -168,7 +169,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
           >
             {index !== 0 && <hr />}
             <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
-              {index === 0 ? dateTimeString(milestone.time, language) : timeString(milestone.time, language)}
+              <ClientDate date={milestone.time} format={index === 0 ? 'dateTime' : 'time'} fallback="" />
             </div>
             <div className="timeline-middle">
               <svg

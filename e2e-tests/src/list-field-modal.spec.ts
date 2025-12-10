@@ -1,106 +1,59 @@
 import { Page, expect, test } from '@playwright/test'
 
-const E2E_USERNAME = process.env.E2E_USERNAME!
-const E2E_PASSWORD = process.env.E2E_PASSWORD!
+import { deleteField, switchList } from './webapp-utils/list-util'
+import { loginToWebapp } from './webapp-utils/login-util'
+import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
+
+const TEST_LIST = 'E2E Test List - Field Modal'
 
 /**
  * E2E tests for List Field Modal - CRUD operations
  *
- * IMPORTANT: The test list "E2E Test List - Field Modal" is created in global-setup.ts
- * with sample data so the list items table renders and "Add Field" button is available.
+ * IMPORTANT: The test list is created in global-setup.ts with sample data so
+ * the list items table renders and "Add Field" button is available.
  * These tests focus on enrichment field CRUD operations, not list creation.
- *
- * Tests creating and editing enrichment fields with various configurations,
- * ensuring all settings are preserved when switching between tabs.
  *
  * Does NOT test actual enrichment execution - only UI persistence.
  *
  * Cleanup: All test lists are deleted in global-teardown.ts
  */
 
-test.describe.configure({ mode: 'serial' })
-
-/**
- * Helper function to delete a field by name
- */
-async function deleteField(page: Page, fieldName: string) {
-  // Open field actions menu using accessible label
-  await page.getByRole('button', { name: `Field actions for ${fieldName}` }).click()
-
-  // Click delete button with specific field name in aria-label
-  await page.getByRole('button', { name: `Delete field ${fieldName}` }).click()
-
-  // Click confirm delete button
-  await page.getByRole('button', { name: `Confirm delete field ${fieldName}` }).click()
-}
-
 test.describe('List Field Modal', () => {
-  test.beforeEach(async ({ page, context }) => {
-    // Clear all browser state to ensure completely fresh session
-    // This is critical to avoid stale workspace selections from previous test runs
-    await context.clearCookies()
-    await context.clearPermissions()
+  // Serial mode: tests depend on each other (e.g., "Comprehensive Field" created in one test, used in later tests)
+  test.describe.configure({ mode: 'serial' })
 
-    // Navigate to page BEFORE clearing storage (otherwise nothing to clear)
-    await page.goto('/')
+  let page: Page
 
-    // Clear all storage types
-    await page.evaluate(() => {
-      localStorage.clear()
-      sessionStorage.clear()
-      // Clear all cookies via JavaScript as well (belt and suspenders)
-      document.cookie.split(';').forEach((c) => {
-        document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
-      })
-    })
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage()
+    await loginToWebapp(page)
+    await switchWorkspace(page, 'E2E Test Workspace 1')
 
-    // Debug listeners (only enabled in CI or when E2E_DEBUG=true)
-    if (process.env.CI || process.env.E2E_DEBUG) {
-      page.on('console', (msg) => console.log('BROWSER CONSOLE:', msg.type(), msg.text()))
-      page.on('pageerror', (error) => console.log('BROWSER ERROR:', error.message))
-      page.on('requestfailed', (request) => console.log('NETWORK FAILED:', request.url(), request.failure()?.errorText))
-    }
-
-    // Login
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Sign in' }).click()
-
-    // Keycloak login
-    await page.getByRole('textbox', { name: 'Username or email' }).fill(E2E_USERNAME)
-    await page.getByRole('textbox', { name: 'Password' }).fill(E2E_PASSWORD)
-    await page.getByRole('button', { name: 'Sign in' }).click()
-
-    // Wait for login to complete - wait for URL change first
-    await page.waitForURL('/', { timeout: 10000 })
-    await page.waitForLoadState('networkidle')
-
-    // Then verify the page loaded correctly
-    await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible({ timeout: 10000 })
-
-    // Switch to E2E Test Workspace 1 (where our test list exists)
-    await page.getByRole('button', { name: /switch workspace/i }).click()
-    await page.getByRole('button', { name: 'E2E Test Workspace 1', exact: true }).click()
-    await expect(page.getByRole('button', { name: /switch workspace/i })).toContainText('E2E Test Workspace 1')
-    await page.waitForLoadState('networkidle')
-
-    // Navigate to lists page (will auto-redirect to first list)
+    // Navigate to lists and select test list
     await page.goto('/lists')
     await page.waitForLoadState('networkidle')
+    await switchList(page, TEST_LIST)
+  })
 
-    // Click the list selector dropdown (use summary element with aria-label)
-    await page.getByRole('button', { name: /select list/i }).click()
+  test.afterAll(async () => {
+    await page.close()
+  })
 
-    // Select our test list from the dropdown
-    await page.getByRole('link', { name: 'E2E Test List - Field Modal', exact: true }).click()
+  test.beforeEach(async () => {
+    // Ensure we're on the test list page before each test
+    await page.goto('/lists')
     await page.waitForLoadState('networkidle')
+    await switchList(page, TEST_LIST)
+  })
 
-    // Now we're on the correct list detail page - find and scroll to "Add enrichment field" button
+  test('add field button should be visible', async () => {
+    // Ensure "Add enrichment field" button is visible
     const addFieldButton = page.getByTitle('Add enrichment field')
     await addFieldButton.scrollIntoViewIfNeeded()
     await expect(addFieldButton).toBeVisible({ timeout: 10000 })
   })
 
-  test('should create text field with field reference context', async ({ page }) => {
+  test('should create text field with field reference context', async () => {
     // Click "Add enrichment field" button (already scrolled into view in beforeEach)
     await page.getByTitle('Add enrichment field').click()
 
@@ -136,7 +89,7 @@ test.describe('List Field Modal', () => {
     await deleteField(page, 'Summary')
   })
 
-  test('should create field with vector search context', async ({ page }) => {
+  test('should create field with vector search context', async () => {
     // Click "Add enrichment field" button
     await page.getByTitle('Add enrichment field').click()
 
@@ -171,7 +124,7 @@ test.describe('List Field Modal', () => {
     await deleteField(page, 'Technical Specs')
   })
 
-  test('should create field with web fetch context', async ({ page }) => {
+  test('should create field with web fetch context', async () => {
     // Click "Add enrichment field" button
     await page.getByTitle('Add enrichment field').click()
 
@@ -204,7 +157,7 @@ test.describe('List Field Modal', () => {
     await deleteField(page, 'External Data')
   })
 
-  test('should create field with all context types', async ({ page }) => {
+  test('should create field with all context types', async () => {
     // Click "Add enrichment field" button
     await page.getByTitle('Add enrichment field').click()
 
@@ -249,7 +202,7 @@ test.describe('List Field Modal', () => {
     // Note: This field is used by the next test, so we DON'T delete it here
   })
 
-  test('should preserve all settings when editing field - switch between tabs', async ({ page }) => {
+  test('should preserve all settings when editing field - switch between tabs', async () => {
     // Wait for the Comprehensive Field to be visible (list selector is already open)
     await expect(page.getByRole('button', { name: 'Sort by Comprehensive Field' })).toBeVisible()
 
@@ -295,7 +248,7 @@ test.describe('List Field Modal', () => {
     await page.getByRole('button', { name: /cancel|close/i }).click()
   })
 
-  test('should add multiple vector searches', async ({ page }) => {
+  test('should add multiple vector searches', async () => {
     // Click "Add enrichment field" button
     await page.getByTitle('Add enrichment field').click()
 
@@ -339,7 +292,7 @@ test.describe('List Field Modal', () => {
     await deleteField(page, 'Multi-Search Field')
   })
 
-  test('should show context count badge', async ({ page }) => {
+  test('should show context count badge', async () => {
     // Open field actions menu
     await page.getByRole('button', { name: 'Field actions for Comprehensive Field' }).click()
 
@@ -360,7 +313,7 @@ test.describe('List Field Modal', () => {
     await deleteField(page, 'Comprehensive Field')
   })
 
-  test('should handle different data types', async ({ page }) => {
+  test('should handle different data types', async () => {
     const dataTypes = ['string', 'number', 'boolean']
 
     for (const dataType of dataTypes) {
@@ -389,7 +342,7 @@ test.describe('List Field Modal', () => {
     }
   })
 
-  test('should handle modal reopen without errors', async ({ page }) => {
+  test('should handle modal reopen without errors', async () => {
     // Open modal
     await page.getByTitle('Add enrichment field').click()
 

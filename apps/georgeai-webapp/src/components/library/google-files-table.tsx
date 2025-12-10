@@ -1,8 +1,9 @@
-import { dateTimeString, formatBytes } from '@george-ai/web-utils'
+import { formatBytes } from '@george-ai/web-utils'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { FileIcon } from '../../icons/file-icon'
 import { FolderIcon } from '../../icons/folder-icon'
+import { ClientDate } from '../client-date'
 
 export interface GoogleDriveFile {
   id: string
@@ -32,7 +33,7 @@ export const GoogleFilesTable = ({
   onToggleFile,
   onOpenFolder,
 }: GoogleFilesTableProps) => {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
 
   if (viewMode === 'list') {
     return (
@@ -95,7 +96,7 @@ export const GoogleFilesTable = ({
                   </td>
                   <td className="hidden text-nowrap md:table-cell">{isFolder ? '-' : formatBytes(sizeValue)}</td>
                   <td className="hidden text-nowrap lg:table-cell">
-                    {file.modifiedTime ? dateTimeString(file.modifiedTime, language) : '-'}
+                    <ClientDate date={file.modifiedTime} format="dateTime" fallback="-" />
                   </td>
                 </tr>
               )
@@ -172,7 +173,7 @@ export const GoogleFilesTable = ({
                 <div className="text-base-content/50 mt-0.5 text-center text-[10px]">
                   {sizeValue > 0 && <span>{formatBytes(sizeValue)}</span>}
                   {sizeValue > 0 && file.modifiedTime && <span> · </span>}
-                  {file.modifiedTime && <span>{dateTimeString(file.modifiedTime, language)}</span>}
+                  {file.modifiedTime && <ClientDate date={file.modifiedTime} format="dateTime" />}
                 </div>
               )}
             </div>

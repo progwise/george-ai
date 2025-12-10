@@ -26,12 +26,12 @@ builder.queryField('aiServiceProviders', (t) =>
 builder.queryField('aiServiceProvider', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiServiceProvider',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
-      return prisma.aiServiceProvider.findFirst({
+      return prisma.aiServiceProvider.findFirstOrThrow({
         ...query,
         where: {
           id: String(id),

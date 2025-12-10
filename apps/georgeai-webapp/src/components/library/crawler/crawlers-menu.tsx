@@ -78,13 +78,18 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
               </summary>
               <ul className="z-40">
                 <li>
-                  <Link to="." search={{ crawlerId: undefined }}>
+                  <Link to="/libraries/$libraryId/crawlers" params={{ libraryId }} search={{ crawlerId: undefined }}>
                     All
                   </Link>
                 </li>
                 {crawlers.map((crawler) => (
                   <li key={crawler.id} className={crawler.id === selectedCrawler?.id ? 'active' : ''}>
-                    <Link to="." search={{ crawlerId: crawler.id }} className="flex flex-col items-start gap-1">
+                    <Link
+                      to="/libraries/$libraryId/crawlers"
+                      params={{ libraryId }}
+                      search={{ crawlerId: crawler.id }}
+                      className="flex flex-col items-start gap-1"
+                    >
                       <span className="text-base-content/70 italic">{crawler.uriType}:</span>
                       <span className="ml-2">{crawler.uri}</span>
                     </Link>

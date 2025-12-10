@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { graphql } from '../../gql'
 import { ListEditForm_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { ClientDate } from '../client-date'
 import { Input } from '../form/input'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
@@ -55,21 +54,27 @@ export const ListEditForm = ({ list }: ListEditFormProps) => {
       <input type="hidden" name="id" value={list.id} />
       <div className="card bg-base-100 grid grid-cols-2 gap-2 p-2 shadow-md">
         <Input {...fieldProps} label={t('lists.labelName')} name="name" value={list.name} required />
-        <div className="grid grid-cols-2">
-          <Input
-            {...fieldProps}
-            label={t('lists.labelCreatedAt')}
-            name="createdAt"
-            value={dateTimeString(list.createdAt, language)}
-            disabled={true}
-          />
-          <Input
-            {...fieldProps}
-            label={t('lists.labelUpdatedAt')}
-            name="updatedAt"
-            value={dateTimeString(list.updatedAt, language)}
-            disabled={true}
-          />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">{t('lists.labelCreatedAt')}</span>
+            </label>
+            <ClientDate
+              date={list.createdAt}
+              format="dateTime"
+              className="input input-bordered input-disabled w-full"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">{t('lists.labelUpdatedAt')}</span>
+            </label>
+            <ClientDate
+              date={list.updatedAt}
+              format="dateTime"
+              className="input input-bordered input-disabled w-full"
+            />
+          </div>
         </div>
       </div>
     </form>

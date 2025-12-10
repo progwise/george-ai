@@ -1,47 +1,22 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
+import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
-import { toastSuccess } from '../georgeToaster'
-import { createWorkspaceFn } from './server-functions/create-workspace'
+import { useWorkspace } from './use-workspace'
 
 interface CreateWorkspaceDialogProps {
   dialogRef: RefObject<HTMLDialogElement | null>
-  onWorkspaceCreated?: (workspaceId: string) => void
+  user: UserFragment
 }
 
-export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateWorkspaceDialogProps) => {
+export const CreateWorkspaceDialog = ({ dialogRef, user }: CreateWorkspaceDialogProps) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
-  const createMutation = useMutation({
-    mutationFn: async (data: { name: string; slug: string }) => {
-      return await createWorkspaceFn({ data })
-    },
-    onSuccess: (workspace) => {
-      toastSuccess(t('workspace.createSuccess'))
-      queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
-      setError(null)
-
-      dialogRef.current?.close()
-
-      // Reset form after dialog close animation completes
-      setTimeout(() => {
-        const form = dialogRef.current?.querySelector('form')
-        form?.reset()
-      }, 200)
-
-      onWorkspaceCreated?.(workspace.id)
-    },
-    onError: (error) => {
-      setError(error.message)
-    },
-  })
+  const { createWorkspace, isPending } = useWorkspace(user)
 
   const handleSubmit = (formData: FormData) => {
     const name = formData.get('name') as string
@@ -64,7 +39,15 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
       return
     }
 
-    createMutation.mutate({ name: name.trim(), slug: slug.trim() })
+    createWorkspace(
+      { name: name.trim(), slug: slug.trim() },
+      {
+        onSuccess: () => {
+          setError(null)
+          dialogRef.current?.close()
+        },
+      },
+    )
   }
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,8 +81,8 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
       title={t('workspace.createTitle')}
       description={t('workspace.createDescription')}
       onSubmit={handleSubmit}
-      submitButtonText={t('workspace.create')}
-      disabledSubmit={createMutation.isPending}
+      submitButtonText={t('workspace.createTitle')}
+      disabledSubmit={isPending}
     >
       {error && (
         <div className="alert alert-error">
@@ -125,7 +108,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
         label={t('workspace.name')}
         placeholder={t('workspace.namePlaceholder')}
         required
-        disabled={createMutation.isPending}
+        disabled={isPending}
         schema={schema}
         onChange={handleNameInput}
       />
@@ -135,7 +118,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, onWorkspaceCreated }: CreateW
         label={t('workspace.slug')}
         placeholder={t('workspace.slugPlaceholder')}
         required
-        disabled={createMutation.isPending}
+        disabled={isPending}
         schema={schema}
         onChange={() => error && setError(null)}
       />

@@ -35,12 +35,12 @@ builder.queryField('workspaces', (t) =>
 builder.queryField('workspace', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'Workspace',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _root, args, ctx) => {
-      const workspace = await prisma.workspace.findFirst({
+      const workspace = await prisma.workspace.findFirstOrThrow({
         ...query,
         where: {
           id: args.id,
@@ -139,12 +139,12 @@ builder.queryField('myWorkspaceInvitations', (t) =>
 builder.queryField('workspaceInvitation', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'WorkspaceInvitation',
-    nullable: true,
+    nullable: false,
     args: {
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _root, args) => {
-      return prisma.workspaceInvitation.findUnique({
+      return prisma.workspaceInvitation.findUniqueOrThrow({
         ...query,
         where: { id: args.id },
       })

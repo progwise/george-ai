@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
 import { ListFieldsTableFilterBadges } from '../../../../components/lists/list-fields-table-filter-badges'
@@ -14,6 +14,7 @@ import { useTranslation } from '../../../../i18n/use-translation-hook'
 interface ListSearchParams {
   page?: number
   pageSize?: number
+  selectedItemId?: string
 }
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/')({
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/')({
   validateSearch: (search: Record<string, unknown>): ListSearchParams => ({
     page: Number(search.page) || 0,
     pageSize: Number(search.pageSize) || 20,
+    selectedItemId: search.selectedItemId ? String(search.selectedItemId) : undefined,
   }),
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(getListQueryOptions(params.listId))
@@ -31,7 +33,7 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   const { listId } = Route.useParams()
-  const { page = 0, pageSize = 20 } = Route.useSearch()
+  const { page = 0, pageSize = 20, selectedItemId } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const {
@@ -50,6 +52,7 @@ function RouteComponent() {
       fieldIds: visibleFields.map((f) => f.id),
       sorting,
       filters,
+      selectedItemId,
     }),
   )
 
@@ -66,13 +69,20 @@ function RouteComponent() {
     [navigate],
   )
 
+  const selectedItem = useMemo(() => {
+    if (!selectedItemId) return null
+    const item = aiListItems.items.find((item) => item.id === selectedItemId)
+    if (!item) return null
+    return { id: selectedItemId, name: item?.origin.name }
+  }, [aiListItems.items, selectedItemId])
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         {/* Controls */}
         <div className="">
-          <div className="grow-1 flex flex-row items-center gap-2">
-            <div className="grow-1 flex items-center gap-2">
+          <div className="flex grow flex-row items-center gap-2">
+            <div className="flex grow items-center gap-2">
               <ListFieldsTableMenu list={aiList} fields={aiList.fields} unfilteredCount={aiListItems.unfilteredCount} />
 
               {/* Summary */}
@@ -84,7 +94,7 @@ function RouteComponent() {
                 })}
               </div>
             </div>
-            <div className="align-right">
+            <div className="align-right text-sm">
               <Pagination
                 totalItems={aiListItems.count}
                 itemsPerPage={pageSize}
@@ -98,7 +108,7 @@ function RouteComponent() {
 
           {/* Pagination with page size selector */}
 
-          <ListFieldsTableFilterBadges listId={aiList.id} fields={aiList.fields} />
+          <ListFieldsTableFilterBadges listId={aiList.id} fields={aiList.fields} selectedItem={selectedItem} />
         </div>
         <ListFieldsTable list={aiList} listItems={aiListItems} />
       </div>

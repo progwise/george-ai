@@ -1,9 +1,5 @@
 FROM node:22-slim AS base
 
-# for displaying the latest commit hash in the UI
-ARG GIT_COMMIT_SHA
-ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-
 RUN apt-get update \
     && apt-get install -y \
         python3 \
@@ -35,6 +31,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
+COPY packages/connector-types/package.json ./packages/connector-types/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
 COPY packages/html-crawler/package.json ./packages/html-crawler/
@@ -53,6 +50,7 @@ COPY LICENSE ./
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
+COPY packages/connector-types ./packages/connector-types
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
 COPY packages/html-crawler ./packages/html-crawler
@@ -64,6 +62,10 @@ COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # Generate Prisma client only (doesn't need DB connection)
 RUN pnpm --filter @george-ai/pothos-graphql run prisma:generate:client
+
+# ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
 
 # Deploy creates a clean directory with resolved dependencies
 RUN pnpm --filter @george-ai/backend deploy --prod /app/deploy
@@ -80,6 +82,10 @@ RUN addgroup --system --gid 1001 nodejs \
 
 # Copy the deployed output (all dependencies resolved, no symlinks)
 COPY --from=builder --chown=server:nodejs /app/deploy .
+
+# Copy tsconfig.base.json for prisma generate --sql at runtime
+# pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
+COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
 
 USER server
 

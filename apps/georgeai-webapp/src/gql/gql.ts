@@ -22,6 +22,15 @@ type Documents = {
   '\n      mutation SyncModels {\n        syncModels {\n          success\n          modelsDiscovered\n          errors\n        }\n      }\n    ': typeof types.SyncModelsDocument
   '\n        mutation UpdateAiLanguageModel($id: ID!, $data: UpdateAiLanguageModelInput!) {\n          updateAiLanguageModel(id: $id, data: $data) {\n            id\n            enabled\n            adminNotes\n          }\n        }\n      ': typeof types.UpdateAiLanguageModelDocument
   '\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ': typeof types.GetAiServiceStatusDocument
+  '\n      query getConnectorTypes {\n        connectorTypes {\n          id\n          name\n          description\n          icon\n          authType\n          actions {\n            id\n            name\n            description\n            configFields {\n              id\n              name\n              description\n              type\n              required\n              options {\n                id\n                name\n                description\n              }\n              targetFields {\n                id\n                name\n                description\n              }\n              transforms {\n                id\n                name\n                description\n              }\n            }\n          }\n        }\n        workspaceConnectorTypes {\n          id\n          connectorType\n        }\n      }\n    ': typeof types.GetConnectorTypesDocument
+  '\n  fragment ConnectorDetail on AiConnector {\n    id\n    name\n    connectorType\n    baseUrl\n    isConnected\n    lastTestedAt\n    lastError\n    createdAt\n  }\n': typeof types.ConnectorDetailFragmentDoc
+  '\n      query getConnectorsAdmin {\n        connectors {\n          ...ConnectorDetail\n        }\n      }\n    ': typeof types.GetConnectorsAdminDocument
+  '\n        mutation createConnector($data: AiConnectorInput!) {\n          createConnector(data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.CreateConnectorDocument
+  '\n        mutation deleteConnector($id: ID!) {\n          deleteConnector(id: $id)\n        }\n      ': typeof types.DeleteConnectorDocument
+  '\n        mutation enableConnectorType($connectorType: String!) {\n          enableConnectorType(connectorType: $connectorType) {\n            id\n            connectorType\n          }\n        }\n      ': typeof types.EnableConnectorTypeDocument
+  '\n        mutation disableConnectorType($connectorType: String!) {\n          disableConnectorType(connectorType: $connectorType)\n        }\n      ': typeof types.DisableConnectorTypeDocument
+  '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ': typeof types.TestConnectorConnectionDocument
+  '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.UpdateConnectorDocument
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n': typeof types.GetAiServiceProvidersDocument
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n': typeof types.GetQueueSystemStatusDocument
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StartQueueWorkerDocument
@@ -63,6 +72,25 @@ type Documents = {
   '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n': typeof types.AiAssistantDetailsDocument
   '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n': typeof types.AssistantBaseFragmentDoc
   '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n': typeof types.AiAssistantCardsDocument
+  '\n  fragment AutomationMenu_Automation on AiAutomation {\n    id\n    name\n  }\n': typeof types.AutomationMenu_AutomationFragmentDoc
+  '\n  fragment AutomationMenu_Automations on AiAutomation {\n    id\n    name\n  }\n': typeof types.AutomationMenu_AutomationsFragmentDoc
+  '\n  fragment AutomationBatchDetail on AiAutomationBatch {\n    id\n    createdAt\n    automationId\n    status\n    triggeredBy\n    itemsTotal\n    itemsProcessed\n    itemsSuccess\n    itemsWarning\n    itemsFailed\n    itemsSkipped\n    startedAt\n    finishedAt\n  }\n': typeof types.AutomationBatchDetailFragmentDoc
+  '\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ': typeof types.GetAutomationBatchesDocument
+  '\n  fragment AutomationItemDetail_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n      transformedValue\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n    executions {\n      id\n      status\n      inputJson\n      outputJson\n      startedAt\n      finishedAt\n      batchId\n    }\n  }\n': typeof types.AutomationItemDetail_AutomationItemFragmentDoc
+  '\n        query getAutomationItem($itemId: ID!) {\n          automationItem(id: $itemId) {\n            ...AutomationItemDetail_AutomationItem\n          }\n        }\n      ': typeof types.GetAutomationItemDocument
+  '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n  }\n': typeof types.AutomationItemList_AutomationItemFragmentDoc
+  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ': typeof types.GetAutomationItemsDocument
+  '\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfig {\n      values {\n        key\n        value\n      }\n      fieldMappings {\n        sourceFieldId\n        targetField\n        transform\n      }\n    }\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      baseUrl\n      connectorType\n    }\n  }\n': typeof types.AutomationDetailFragmentDoc
+  '\n        query getAutomation($id: ID!) {\n          automation(id: $id) {\n            ...AutomationDetail\n          }\n        }\n      ': typeof types.GetAutomationDocument
+  '\n  fragment AutomationsBase on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    executeOnEnrichment\n  }\n': typeof types.AutomationsBaseFragmentDoc
+  '\n      query getAutomations {\n        automations {\n          ...AutomationsBase\n          ...AutomationMenu_Automation\n        }\n      }\n    ': typeof types.GetAutomationsDocument
+  '\n  fragment ConnectorBase on AiConnector {\n    id\n    name\n    connectorType\n    isConnected\n  }\n': typeof types.ConnectorBaseFragmentDoc
+  '\n      query getConnectors {\n        connectors {\n          ...ConnectorBase\n        }\n      }\n    ': typeof types.GetConnectorsDocument
+  '\n        mutation createAutomation($data: AiAutomationInput!) {\n          createAutomation(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAutomationDocument
+  '\n        mutation deleteAutomation($id: ID!) {\n          deleteAutomation(id: $id)\n        }\n      ': typeof types.DeleteAutomationDocument
+  '\n        mutation triggerAutomation($id: ID!) {\n          triggerAutomation(id: $id) {\n            success\n            message\n            batchId\n          }\n        }\n      ': typeof types.TriggerAutomationDocument
+  '\n        mutation triggerAutomationItem($automationItemId: ID!) {\n          triggerAutomationItem(automationItemId: $automationItemId) {\n            success\n            message\n            batchId\n          }\n        }\n      ': typeof types.TriggerAutomationItemDocument
+  '\n        mutation updateAutomation($id: ID!, $data: AiAutomationInput!) {\n          updateAutomation(id: $id, data: $data) {\n            id\n            name\n            connectorAction\n            connectorActionConfig {\n              values {\n                key\n                value\n              }\n              fieldMappings {\n                sourceFieldId\n                targetField\n                transform\n              }\n            }\n          }\n        }\n      ': typeof types.UpdateAutomationDocument
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    ...ConversationBase\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationForm_ConversationFragmentDoc
   '\n  fragment ConversationHistory_Conversation on AiConversation {\n    ...ConversationBase\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        __typename\n        id\n        name\n        isBot\n        assistantId\n        ... on HumanParticipant {\n          user {\n            avatarUrl\n          }\n        }\n        ... on AssistantParticipant {\n          assistant {\n            iconUrl\n            updatedAt\n          }\n        }\n      }\n    }\n  }\n': typeof types.ConversationHistory_ConversationFragmentDoc
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.HideMessageDocument
@@ -164,7 +192,7 @@ type Documents = {
   '\n        query getEnrichmentsStatistics($listId: String!) {\n          aiListEnrichmentsStatistics(listId: $listId) {\n            fieldId\n            fieldName\n            itemCount\n            cacheCount\n            valuesCount\n            completedTasksCount\n            errorTasksCount\n            failedTasksCount\n            pendingTasksCount\n            processingTasksCount\n          }\n        }\n      ': typeof types.GetEnrichmentsStatisticsDocument
   '\n        query getEnrichments(\n          $listId: String\n          $itemId: String\n          $fieldId: String\n          $take: Int!\n          $skip: Int!\n          $status: EnrichmentStatus\n        ) {\n          aiListEnrichments(\n            listId: $listId\n            itemId: $itemId\n            fieldId: $fieldId\n            take: $take\n            skip: $skip\n            status: $status\n          ) {\n            listId\n            itemId\n            fieldId\n            take\n            skip\n            status\n            totalCount\n            statusCounts {\n              status\n              count\n            }\n            enrichments {\n              id\n              ...EnrichmentAccordionItem_Enrichment\n            }\n          }\n        }\n      ': typeof types.GetEnrichmentsDocument
   '\n        query getItemDetail($itemId: String!) {\n          aiListItem(id: $itemId) {\n            id\n            itemName\n            extractionIndex\n            content\n            metadata\n            sourceFileId\n            sourceFile {\n              id\n              name\n              libraryId\n            }\n            extraction {\n              id\n              extractionInput\n              extractionOutput\n              error\n              itemsCreated\n            }\n          }\n        }\n      ': typeof types.GetItemDetailDocument
-  '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ': typeof types.GetListItemsDocument
+  '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n          $selectedItemId: String\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n            selectedItemId: $selectedItemId\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ': typeof types.GetListItemsDocument
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListFieldsTableMenu_AiList\n            ...ListMenu_AiList\n            fields {\n              ...ListFieldsTableFilters_AiListField\n              ...ListFieldSettings_Field\n            }\n          }\n        }\n      ': typeof types.GetListDocument
   '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ': typeof types.GetUserListsDocument
@@ -241,6 +269,24 @@ const documents: Documents = {
     types.UpdateAiLanguageModelDocument,
   '\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ':
     types.GetAiServiceStatusDocument,
+  '\n      query getConnectorTypes {\n        connectorTypes {\n          id\n          name\n          description\n          icon\n          authType\n          actions {\n            id\n            name\n            description\n            configFields {\n              id\n              name\n              description\n              type\n              required\n              options {\n                id\n                name\n                description\n              }\n              targetFields {\n                id\n                name\n                description\n              }\n              transforms {\n                id\n                name\n                description\n              }\n            }\n          }\n        }\n        workspaceConnectorTypes {\n          id\n          connectorType\n        }\n      }\n    ':
+    types.GetConnectorTypesDocument,
+  '\n  fragment ConnectorDetail on AiConnector {\n    id\n    name\n    connectorType\n    baseUrl\n    isConnected\n    lastTestedAt\n    lastError\n    createdAt\n  }\n':
+    types.ConnectorDetailFragmentDoc,
+  '\n      query getConnectorsAdmin {\n        connectors {\n          ...ConnectorDetail\n        }\n      }\n    ':
+    types.GetConnectorsAdminDocument,
+  '\n        mutation createConnector($data: AiConnectorInput!) {\n          createConnector(data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ':
+    types.CreateConnectorDocument,
+  '\n        mutation deleteConnector($id: ID!) {\n          deleteConnector(id: $id)\n        }\n      ':
+    types.DeleteConnectorDocument,
+  '\n        mutation enableConnectorType($connectorType: String!) {\n          enableConnectorType(connectorType: $connectorType) {\n            id\n            connectorType\n          }\n        }\n      ':
+    types.EnableConnectorTypeDocument,
+  '\n        mutation disableConnectorType($connectorType: String!) {\n          disableConnectorType(connectorType: $connectorType)\n        }\n      ':
+    types.DisableConnectorTypeDocument,
+  '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ':
+    types.TestConnectorConnectionDocument,
+  '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ':
+    types.UpdateConnectorDocument,
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n':
     types.GetAiServiceProvidersDocument,
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n':
@@ -323,6 +369,44 @@ const documents: Documents = {
     types.AssistantBaseFragmentDoc,
   '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n':
     types.AiAssistantCardsDocument,
+  '\n  fragment AutomationMenu_Automation on AiAutomation {\n    id\n    name\n  }\n':
+    types.AutomationMenu_AutomationFragmentDoc,
+  '\n  fragment AutomationMenu_Automations on AiAutomation {\n    id\n    name\n  }\n':
+    types.AutomationMenu_AutomationsFragmentDoc,
+  '\n  fragment AutomationBatchDetail on AiAutomationBatch {\n    id\n    createdAt\n    automationId\n    status\n    triggeredBy\n    itemsTotal\n    itemsProcessed\n    itemsSuccess\n    itemsWarning\n    itemsFailed\n    itemsSkipped\n    startedAt\n    finishedAt\n  }\n':
+    types.AutomationBatchDetailFragmentDoc,
+  '\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ':
+    types.GetAutomationBatchesDocument,
+  '\n  fragment AutomationItemDetail_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n      transformedValue\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n    executions {\n      id\n      status\n      inputJson\n      outputJson\n      startedAt\n      finishedAt\n      batchId\n    }\n  }\n':
+    types.AutomationItemDetail_AutomationItemFragmentDoc,
+  '\n        query getAutomationItem($itemId: ID!) {\n          automationItem(id: $itemId) {\n            ...AutomationItemDetail_AutomationItem\n          }\n        }\n      ':
+    types.GetAutomationItemDocument,
+  '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n  }\n':
+    types.AutomationItemList_AutomationItemFragmentDoc,
+  '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ':
+    types.GetAutomationItemsDocument,
+  '\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfig {\n      values {\n        key\n        value\n      }\n      fieldMappings {\n        sourceFieldId\n        targetField\n        transform\n      }\n    }\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      baseUrl\n      connectorType\n    }\n  }\n':
+    types.AutomationDetailFragmentDoc,
+  '\n        query getAutomation($id: ID!) {\n          automation(id: $id) {\n            ...AutomationDetail\n          }\n        }\n      ':
+    types.GetAutomationDocument,
+  '\n  fragment AutomationsBase on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    executeOnEnrichment\n  }\n':
+    types.AutomationsBaseFragmentDoc,
+  '\n      query getAutomations {\n        automations {\n          ...AutomationsBase\n          ...AutomationMenu_Automation\n        }\n      }\n    ':
+    types.GetAutomationsDocument,
+  '\n  fragment ConnectorBase on AiConnector {\n    id\n    name\n    connectorType\n    isConnected\n  }\n':
+    types.ConnectorBaseFragmentDoc,
+  '\n      query getConnectors {\n        connectors {\n          ...ConnectorBase\n        }\n      }\n    ':
+    types.GetConnectorsDocument,
+  '\n        mutation createAutomation($data: AiAutomationInput!) {\n          createAutomation(data: $data) {\n            id\n            name\n          }\n        }\n      ':
+    types.CreateAutomationDocument,
+  '\n        mutation deleteAutomation($id: ID!) {\n          deleteAutomation(id: $id)\n        }\n      ':
+    types.DeleteAutomationDocument,
+  '\n        mutation triggerAutomation($id: ID!) {\n          triggerAutomation(id: $id) {\n            success\n            message\n            batchId\n          }\n        }\n      ':
+    types.TriggerAutomationDocument,
+  '\n        mutation triggerAutomationItem($automationItemId: ID!) {\n          triggerAutomationItem(automationItemId: $automationItemId) {\n            success\n            message\n            batchId\n          }\n        }\n      ':
+    types.TriggerAutomationItemDocument,
+  '\n        mutation updateAutomation($id: ID!, $data: AiAutomationInput!) {\n          updateAutomation(id: $id, data: $data) {\n            id\n            name\n            connectorAction\n            connectorActionConfig {\n              values {\n                key\n                value\n              }\n              fieldMappings {\n                sourceFieldId\n                targetField\n                transform\n              }\n            }\n          }\n        }\n      ':
+    types.UpdateAutomationDocument,
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    ...ConversationBase\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationForm_ConversationFragmentDoc,
   '\n  fragment ConversationHistory_Conversation on AiConversation {\n    ...ConversationBase\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        __typename\n        id\n        name\n        isBot\n        assistantId\n        ... on HumanParticipant {\n          user {\n            avatarUrl\n          }\n        }\n        ... on AssistantParticipant {\n          assistant {\n            iconUrl\n            updatedAt\n          }\n        }\n      }\n    }\n  }\n':
@@ -521,7 +605,7 @@ const documents: Documents = {
     types.GetEnrichmentsDocument,
   '\n        query getItemDetail($itemId: String!) {\n          aiListItem(id: $itemId) {\n            id\n            itemName\n            extractionIndex\n            content\n            metadata\n            sourceFileId\n            sourceFile {\n              id\n              name\n              libraryId\n            }\n            extraction {\n              id\n              extractionInput\n              extractionOutput\n              error\n              itemsCreated\n            }\n          }\n        }\n      ':
     types.GetItemDetailDocument,
-  '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ':
+  '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n          $selectedItemId: String\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n            selectedItemId: $selectedItemId\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ':
     types.GetListItemsDocument,
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListFieldsTableMenu_AiList\n            ...ListMenu_AiList\n            fields {\n              ...ListFieldsTableFilters_AiListField\n              ...ListFieldSettings_Field\n            }\n          }\n        }\n      ':
     types.GetListDocument,
@@ -700,6 +784,60 @@ export function graphql(
 export function graphql(
   source: '\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ',
 ): (typeof documents)['\n        query GetAiServiceStatus {\n          aiServiceStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query getConnectorTypes {\n        connectorTypes {\n          id\n          name\n          description\n          icon\n          authType\n          actions {\n            id\n            name\n            description\n            configFields {\n              id\n              name\n              description\n              type\n              required\n              options {\n                id\n                name\n                description\n              }\n              targetFields {\n                id\n                name\n                description\n              }\n              transforms {\n                id\n                name\n                description\n              }\n            }\n          }\n        }\n        workspaceConnectorTypes {\n          id\n          connectorType\n        }\n      }\n    ',
+): (typeof documents)['\n      query getConnectorTypes {\n        connectorTypes {\n          id\n          name\n          description\n          icon\n          authType\n          actions {\n            id\n            name\n            description\n            configFields {\n              id\n              name\n              description\n              type\n              required\n              options {\n                id\n                name\n                description\n              }\n              targetFields {\n                id\n                name\n                description\n              }\n              transforms {\n                id\n                name\n                description\n              }\n            }\n          }\n        }\n        workspaceConnectorTypes {\n          id\n          connectorType\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ConnectorDetail on AiConnector {\n    id\n    name\n    connectorType\n    baseUrl\n    isConnected\n    lastTestedAt\n    lastError\n    createdAt\n  }\n',
+): (typeof documents)['\n  fragment ConnectorDetail on AiConnector {\n    id\n    name\n    connectorType\n    baseUrl\n    isConnected\n    lastTestedAt\n    lastError\n    createdAt\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query getConnectorsAdmin {\n        connectors {\n          ...ConnectorDetail\n        }\n      }\n    ',
+): (typeof documents)['\n      query getConnectorsAdmin {\n        connectors {\n          ...ConnectorDetail\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation createConnector($data: AiConnectorInput!) {\n          createConnector(data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createConnector($data: AiConnectorInput!) {\n          createConnector(data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteConnector($id: ID!) {\n          deleteConnector(id: $id)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteConnector($id: ID!) {\n          deleteConnector(id: $id)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation enableConnectorType($connectorType: String!) {\n          enableConnectorType(connectorType: $connectorType) {\n            id\n            connectorType\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation enableConnectorType($connectorType: String!) {\n          enableConnectorType(connectorType: $connectorType) {\n            id\n            connectorType\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation disableConnectorType($connectorType: String!) {\n          disableConnectorType(connectorType: $connectorType)\n        }\n      ',
+): (typeof documents)['\n        mutation disableConnectorType($connectorType: String!) {\n          disableConnectorType(connectorType: $connectorType)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -946,6 +1084,120 @@ export function graphql(
 export function graphql(
   source: '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n',
 ): (typeof documents)['\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationMenu_Automation on AiAutomation {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment AutomationMenu_Automation on AiAutomation {\n    id\n    name\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationMenu_Automations on AiAutomation {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment AutomationMenu_Automations on AiAutomation {\n    id\n    name\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationBatchDetail on AiAutomationBatch {\n    id\n    createdAt\n    automationId\n    status\n    triggeredBy\n    itemsTotal\n    itemsProcessed\n    itemsSuccess\n    itemsWarning\n    itemsFailed\n    itemsSkipped\n    startedAt\n    finishedAt\n  }\n',
+): (typeof documents)['\n  fragment AutomationBatchDetail on AiAutomationBatch {\n    id\n    createdAt\n    automationId\n    status\n    triggeredBy\n    itemsTotal\n    itemsProcessed\n    itemsSuccess\n    itemsWarning\n    itemsFailed\n    itemsSkipped\n    startedAt\n    finishedAt\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ',
+): (typeof documents)['\n        query getAutomationBatches($automationId: ID!, $skip: Int, $take: Int) {\n          automationBatches(automationId: $automationId, skip: $skip, take: $take) {\n            ...AutomationBatchDetail\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationItemDetail_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n      transformedValue\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n    executions {\n      id\n      status\n      inputJson\n      outputJson\n      startedAt\n      finishedAt\n      batchId\n    }\n  }\n',
+): (typeof documents)['\n  fragment AutomationItemDetail_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n      transformedValue\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n    executions {\n      id\n      status\n      inputJson\n      outputJson\n      startedAt\n      finishedAt\n      batchId\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getAutomationItem($itemId: ID!) {\n          automationItem(id: $itemId) {\n            ...AutomationItemDetail_AutomationItem\n          }\n        }\n      ',
+): (typeof documents)['\n        query getAutomationItem($itemId: ID!) {\n          automationItem(id: $itemId) {\n            ...AutomationItemDetail_AutomationItem\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n  }\n',
+): (typeof documents)['\n  fragment AutomationItemList_AutomationItem on AiAutomationItem {\n    id\n    createdAt\n    updatedAt\n    automationId\n    listItemId\n    inScope\n    status\n    lastExecutedAt\n    preview {\n      targetField\n      value\n    }\n    listItem {\n      id\n      itemName\n      listId\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query getAutomationItems($automationId: ID!, $inScope: Boolean, $status: String, $skip: Int, $take: Int) {\n          automationItems(automationId: $automationId, inScope: $inScope, status: $status, skip: $skip, take: $take) {\n            totalCount\n            skip\n            take\n            items {\n              ...AutomationItemList_AutomationItem\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfig {\n      values {\n        key\n        value\n      }\n      fieldMappings {\n        sourceFieldId\n        targetField\n        transform\n      }\n    }\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      baseUrl\n      connectorType\n    }\n  }\n',
+): (typeof documents)['\n  fragment AutomationDetail on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    connectorActionConfig {\n      values {\n        key\n        value\n      }\n      fieldMappings {\n        sourceFieldId\n        targetField\n        transform\n      }\n    }\n    schedule\n    executeOnEnrichment\n    list {\n      id\n      name\n      fields {\n        id\n        name\n        type\n        sourceType\n      }\n    }\n    connector {\n      id\n      name\n      baseUrl\n      connectorType\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getAutomation($id: ID!) {\n          automation(id: $id) {\n            ...AutomationDetail\n          }\n        }\n      ',
+): (typeof documents)['\n        query getAutomation($id: ID!) {\n          automation(id: $id) {\n            ...AutomationDetail\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AutomationsBase on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    executeOnEnrichment\n  }\n',
+): (typeof documents)['\n  fragment AutomationsBase on AiAutomation {\n    id\n    createdAt\n    updatedAt\n    name\n    listId\n    connectorId\n    connectorAction\n    executeOnEnrichment\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query getAutomations {\n        automations {\n          ...AutomationsBase\n          ...AutomationMenu_Automation\n        }\n      }\n    ',
+): (typeof documents)['\n      query getAutomations {\n        automations {\n          ...AutomationsBase\n          ...AutomationMenu_Automation\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ConnectorBase on AiConnector {\n    id\n    name\n    connectorType\n    isConnected\n  }\n',
+): (typeof documents)['\n  fragment ConnectorBase on AiConnector {\n    id\n    name\n    connectorType\n    isConnected\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query getConnectors {\n        connectors {\n          ...ConnectorBase\n        }\n      }\n    ',
+): (typeof documents)['\n      query getConnectors {\n        connectors {\n          ...ConnectorBase\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation createAutomation($data: AiAutomationInput!) {\n          createAutomation(data: $data) {\n            id\n            name\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createAutomation($data: AiAutomationInput!) {\n          createAutomation(data: $data) {\n            id\n            name\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteAutomation($id: ID!) {\n          deleteAutomation(id: $id)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteAutomation($id: ID!) {\n          deleteAutomation(id: $id)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation triggerAutomation($id: ID!) {\n          triggerAutomation(id: $id) {\n            success\n            message\n            batchId\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation triggerAutomation($id: ID!) {\n          triggerAutomation(id: $id) {\n            success\n            message\n            batchId\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation triggerAutomationItem($automationItemId: ID!) {\n          triggerAutomationItem(automationItemId: $automationItemId) {\n            success\n            message\n            batchId\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation triggerAutomationItem($automationItemId: ID!) {\n          triggerAutomationItem(automationItemId: $automationItemId) {\n            success\n            message\n            batchId\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateAutomation($id: ID!, $data: AiAutomationInput!) {\n          updateAutomation(id: $id, data: $data) {\n            id\n            name\n            connectorAction\n            connectorActionConfig {\n              values {\n                key\n                value\n              }\n              fieldMappings {\n                sourceFieldId\n                targetField\n                transform\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateAutomation($id: ID!, $data: AiAutomationInput!) {\n          updateAutomation(id: $id, data: $data) {\n            id\n            name\n            connectorAction\n            connectorActionConfig {\n              values {\n                key\n                value\n              }\n              fieldMappings {\n                sourceFieldId\n                targetField\n                transform\n              }\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1556,8 +1808,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ',
-): (typeof documents)['\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ']
+  source: '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n          $selectedItemId: String\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n            selectedItemId: $selectedItemId\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ',
+): (typeof documents)['\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n          $selectedItemId: String\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n            selectedItemId: $selectedItemId\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

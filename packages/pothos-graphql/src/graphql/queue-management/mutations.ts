@@ -2,9 +2,11 @@ import { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 import {
   startAllWorkers,
+  startAutomationQueueWorker,
   startContentProcessingWorker,
   startEnrichmentQueueWorker,
   stopAllWorkers,
+  stopAutomationQueueWorker,
   stopContentProcessingWorker,
   stopEnrichmentQueueWorker,
 } from '../../worker-queue'
@@ -94,6 +96,8 @@ builder.mutationField('startQueueWorker', (t) =>
           await startEnrichmentQueueWorker()
         } else if (queueType === 'CONTENT_PROCESSING') {
           await startContentProcessingWorker()
+        } else if (queueType === 'AUTOMATION') {
+          await startAutomationQueueWorker()
         }
 
         return {
@@ -132,6 +136,8 @@ builder.mutationField('stopQueueWorker', (t) =>
           stopEnrichmentQueueWorker()
         } else if (queueType === 'CONTENT_PROCESSING') {
           stopContentProcessingWorker()
+        } else if (queueType === 'AUTOMATION') {
+          stopAutomationQueueWorker()
         }
 
         return {
@@ -182,7 +188,7 @@ builder.mutationField('retryFailedTasks', (t) =>
               completedAt: null,
             },
           })
-        } else {
+        } else if (queueType === 'CONTENT_PROCESSING') {
           // Content processing - retry tasks with any failed status
           const where: Prisma.AiContentProcessingTaskWhereInput = {
             ...(libraryId && { file: { libraryId } }),
@@ -225,6 +231,17 @@ builder.mutationField('retryFailedTasks', (t) =>
               },
             })
           }
+        } else {
+          // Automation - retry failed items
+          updateResult = await prisma.aiAutomationItem.updateMany({
+            where: {
+              status: 'FAILED',
+              inScope: true,
+            },
+            data: {
+              status: 'PENDING',
+            },
+          })
         }
 
         return {
@@ -271,7 +288,7 @@ builder.mutationField('clearFailedTasks', (t) =>
           deleteResult = await prisma.aiEnrichmentTask.deleteMany({
             where,
           })
-        } else {
+        } else if (queueType === 'CONTENT_PROCESSING') {
           // Content processing - delete tasks with any failed status
           const where = libraryId ? { file: { libraryId } } : {}
 
@@ -283,6 +300,17 @@ builder.mutationField('clearFailedTasks', (t) =>
                 { extractionFailedAt: { not: null } },
                 { embeddingFailedAt: { not: null } },
               ],
+            },
+          })
+        } else {
+          // Automation - clear failed items (set status back to skipped, not delete)
+          deleteResult = await prisma.aiAutomationItem.updateMany({
+            where: {
+              status: 'FAILED',
+              inScope: true,
+            },
+            data: {
+              status: 'SKIPPED',
             },
           })
         }
@@ -332,7 +360,16 @@ builder.mutationField('clearPendingTasks', (t) =>
             where: { processingStartedAt: null, file: libraryId ? { libraryId } : undefined },
           })
         } else {
-          throw new Error(`Unknown queue type: ${queueType}`)
+          // Automation - clear pending items (set status back to skipped, not delete)
+          deleteResult = await prisma.aiAutomationItem.updateMany({
+            where: {
+              status: 'PENDING',
+              inScope: true,
+            },
+            data: {
+              status: 'SKIPPED',
+            },
+          })
         }
 
         return {

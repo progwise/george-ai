@@ -15,7 +15,9 @@ export default defineConfig({
     }),
     tanstackStart({}),
     tailwindcss(),
-    nitroV2Plugin(),
+    // Enable serving static assets from .output/public in production
+    // The node preset does NOT have serveStatic enabled by default
+    nitroV2Plugin({ serveStatic: true }),
     viteReact(),
   ],
 })

@@ -2,8 +2,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { dateTimeString, duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/web-utils'
 
+import { ClientDate } from '../../../../../../../components/client-date'
 import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler'
 import { getCrawlerRunsQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler-runs'
 import { Pagination } from '../../../../../../../components/table/pagination'
@@ -28,7 +29,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const navigate = Route.useNavigate()
   const params = Route.useParams()
   const search = Route.useSearch()
@@ -81,7 +82,9 @@ function RouteComponent() {
                       activeOptions={{ exact: false }}
                     >
                       <div className="flex w-full flex-col gap-1">
-                        <h3 className="font-bold">{dateTimeString(run.startedAt, language)}</h3>
+                        <h3 className="font-bold">
+                          <ClientDate date={run.startedAt} format="dateTime" />
+                        </h3>
                         <p className="self-end text-xs font-normal">{`${t('crawlers.runDuration')} : ${duration(run.startedAt, run.endedAt)}`}</p>
                         <p className="self-end text-xs font-normal">
                           {t('crawlers.runStatus')}:{' '}

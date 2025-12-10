@@ -20,6 +20,7 @@ import { deleteListItemDir, getFileDir, saveListItemContent } from '@george-ai/f
 
 import { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
+import { syncAutomationItemsForList } from '../automation'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 import { logModelUsage } from '../languageModel'
 import { getLibraryWorkspace } from '../workspace'
@@ -881,6 +882,9 @@ export async function refreshListItemsForSource(sourceId: string): Promise<{ cre
   // Create new items
   const { created } = await createListItemsForSource(sourceId)
 
+  // Sync automation items for the list
+  await syncAutomationItemsForList(source.listId)
+
   return { created, deleted: deleted.count }
 }
 
@@ -936,6 +940,9 @@ export async function createListItemsForProcessedFile(
       extractionModel,
     })
     totalCreated += result.created
+
+    // Sync automation items for the list
+    await syncAutomationItemsForList(source.listId)
   }
 
   return { created: totalCreated, sources: sources.length }

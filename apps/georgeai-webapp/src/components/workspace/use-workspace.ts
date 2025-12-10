@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 
 import { UserFragment } from '../../gql/graphql'
@@ -14,6 +15,7 @@ import { removeWorkspaceMemberFn } from './members/server-functions/remove-membe
 import { revokeWorkspaceInvitationFn } from './members/server-functions/revoke-invitation'
 import { updateWorkspaceMemberRoleFn } from './members/server-functions/update-member-role'
 import { getWorkspacesQueryOptions } from './queries/get-workspaces'
+import { createWorkspaceFn } from './server-functions/create-workspace'
 import { deleteWorkspaceFn } from './server-functions/delete-workspace'
 import { workspaceDeleteValidationQueryOptions } from './server-functions/validate-workspace-deletion'
 import { setWorkspaceCookie } from './server-functions/workspace-cookie'
@@ -21,6 +23,8 @@ import { setWorkspaceCookie } from './server-functions/workspace-cookie'
 const WORKSPACE_KEY = 'selectedWorkspaceId'
 
 export const useWorkspace = (user: UserFragment) => {
+  const navigate = useNavigate()
+
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery(getWorkspacesQueryOptions())
@@ -47,22 +51,42 @@ export const useWorkspace = (user: UserFragment) => {
   // Set workspace and update cookie
   const setWorkspace = useCallback(
     async (workspaceId: string) => {
+      if (workspaceId === currentWorkspace?.id) return
+
+      await queryClient.cancelQueries()
+      // Set new workspace context
       await setWorkspaceCookie({ data: { workspaceId } })
       setSelectedWorkspaceId(workspaceId)
+
+      // Invalidate list queries - triggers refetch with new workspace context
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [queryKeys.UserDashboard] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiLists] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.Automations] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
+        queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
+        queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
+        queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),
       ])
+
+      // Navigate to list view if currently on a detail page
+      const currentPath = window.location.pathname
+      if (currentPath.startsWith('/libraries/')) {
+        await navigate({ to: '/libraries' })
+      } else if (currentPath.startsWith('/assistants/')) {
+        await navigate({ to: '/assistants' })
+      } else if (currentPath.startsWith('/lists/')) {
+        await navigate({ to: '/lists' })
+      } else if (currentPath.startsWith('/conversations/')) {
+        await navigate({ to: '/conversations' })
+      } else if (currentPath.startsWith('/automations')) {
+        await navigate({ to: '/automations' })
+      }
     },
-    [setSelectedWorkspaceId, queryClient],
+    [currentWorkspace?.id, setSelectedWorkspaceId, queryClient, navigate],
   )
 
   const { data: members, isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(currentWorkspace?.id))
@@ -175,13 +199,28 @@ export const useWorkspace = (user: UserFragment) => {
     },
   })
 
+  const createWorkspaceMutation = useMutation({
+    mutationFn: async (data: { name: string; slug: string }) => {
+      return await createWorkspaceFn({ data })
+    },
+    onSuccess: async ({ id }) => {
+      toastSuccess(t('workspace.createSuccess'))
+      // queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
+      console.log('Switching to new workspace:', id)
+      await setWorkspace(id)
+    },
+    onError: (error) => {
+      toastError(error.message)
+    },
+  })
+
   const deleteWorkspaceMutation = useMutation({
     mutationFn: async (workspaceId: string) => {
       return await deleteWorkspaceFn({ data: { workspaceId } })
     },
     onSuccess: async () => {
       toastSuccess(t('workspace.deleteSuccess'))
-      queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
+      await setWorkspace(user.defaultWorkspaceId)
     },
     onError: (error) => {
       toastError(error.message)
@@ -212,6 +251,7 @@ export const useWorkspace = (user: UserFragment) => {
     updateRole: updateRoleMutation.mutate,
     validation,
     reValidate,
+    createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
     isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation,
     isPending:

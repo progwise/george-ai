@@ -7,6 +7,7 @@ import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { StopIcon } from '../../../icons/stop-icon'
 import { StopProcessingIcon } from '../../../icons/stop-processing-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
+import { ClientDate } from '../../client-date'
 import { useQueueManagementActions } from './use-queue-management-actions'
 
 graphql(`
@@ -45,8 +46,19 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
     actionsPending,
   } = useQueueManagementActions()
 
-  const getQueueDisplayName = (queueType: QueueType) => {
-    return queueType === 'ENRICHMENT' ? 'Enrichment Queue' : 'Content Processing Queue'
+  const getQueueDisplayName = (queueType: QueueType): string => {
+    switch (queueType) {
+      case QueueType.Enrichment:
+        return 'Enrichment Queue'
+      case QueueType.ContentProcessing:
+        return 'Content Processing Queue'
+      case QueueType.Automation:
+        return 'Automation Queue'
+      default: {
+        const exhaustiveCheck: never = queueType
+        throw new Error(`Unhandled queue type: ${exhaustiveCheck}`)
+      }
+    }
   }
 
   const getStatusBadge = (isRunning: boolean) => {
@@ -120,7 +132,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                   </h3>
                   {queue.lastProcessedAt && (
                     <p className="text-sm opacity-70">
-                      Last processed: {new Date(queue.lastProcessedAt).toLocaleString()}
+                      Last processed: <ClientDate date={queue.lastProcessedAt} />
                     </p>
                   )}
                 </div>

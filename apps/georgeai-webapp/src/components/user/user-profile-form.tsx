@@ -2,14 +2,13 @@ import { createServerFn } from '@tanstack/react-start'
 import { ReactElement, RefObject } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString } from '@george-ai/web-utils'
-
 import { useAuth } from '../../auth/auth'
 import { graphql } from '../../gql'
 import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
+import { ClientDate } from '../client-date'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -109,53 +108,65 @@ export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveB
     >
       <input type="hidden" name="profileId" value={userProfile.id} />
 
-      <Input
-        name="createdAt"
-        type="text"
-        label={t('labels.createdAt')}
-        value={dateTimeString(userProfile.createdAt, language)}
-        disabled
-      />
-      <Input
-        name="updatedAt"
-        type="text"
-        label={t('labels.updatedAt')}
-        value={dateTimeString(userProfile.updatedAt, language)}
-        disabled
-      />
-      <Input
-        name="confirmationDate"
-        type="text"
-        label={t('labels.confirmedAt')}
-        value={
-          userProfile.confirmationDate
-            ? dateTimeString(userProfile.confirmationDate, language)
-            : t('labels.awaitingConfirmation')
-        }
-        placeholder={!userProfile.confirmationDate ? t('labels.awaitingConfirmation') : undefined}
-        disabled
-      />
-      <Input
-        name="expiresAt"
-        type="text"
-        label={t('labels.expiresAt')}
-        value={dateTimeString(userProfile.expiresAt, language)}
-        valueNotSet={t('labels.never')}
-        disabled
-      />
-      <Input
-        name="activationDate"
-        type="text"
-        label={t('labels.activatedAt')}
-        value={
-          userProfile.activationDate
-            ? dateTimeString(userProfile.activationDate, language)
-            : t('labels.awaitingActivation')
-        }
-        placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
-        className="col-span-2"
-        disabled
-      />
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text">{t('labels.createdAt')}</span>
+        </label>
+        <ClientDate
+          date={userProfile.createdAt}
+          format="dateTime"
+          className="input input-bordered input-disabled w-full"
+        />
+      </div>
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text">{t('labels.updatedAt')}</span>
+        </label>
+        <ClientDate
+          date={userProfile.updatedAt}
+          format="dateTime"
+          className="input input-bordered input-disabled w-full"
+        />
+      </div>
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text">{t('labels.confirmedAt')}</span>
+        </label>
+        {userProfile.confirmationDate ? (
+          <ClientDate
+            date={userProfile.confirmationDate}
+            format="dateTime"
+            className="input input-bordered input-disabled w-full"
+          />
+        ) : (
+          <span className="input input-bordered input-disabled w-full">{t('labels.awaitingConfirmation')}</span>
+        )}
+      </div>
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text">{t('labels.expiresAt')}</span>
+        </label>
+        <ClientDate
+          date={userProfile.expiresAt}
+          format="dateTime"
+          fallback={t('labels.never')}
+          className="input input-bordered input-disabled w-full"
+        />
+      </div>
+      <div className="form-control col-span-2 w-full">
+        <label className="label">
+          <span className="label-text">{t('labels.activatedAt')}</span>
+        </label>
+        {userProfile.activationDate ? (
+          <ClientDate
+            date={userProfile.activationDate}
+            format="dateTime"
+            className="input input-bordered input-disabled w-full"
+          />
+        ) : (
+          <span className="input input-bordered input-disabled w-full">{t('labels.awaitingActivation')}</span>
+        )}
+      </div>
       <hr className="col-span-2 my-2" />
       <Input schema={formSchema} name={'email'} label="Email*" value={userProfile.email} className="col-span-2" />
       <Input schema={formSchema} name="firstName" label={t('labels.firstName')} value={userProfile.firstName} />

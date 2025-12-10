@@ -112,7 +112,7 @@ export const ConversationHistory = ({ conversation, userId }: ConversationHistor
       }
     }
     evtSource.onerror = (error) => {
-      console.error('evtSource error:', error)
+      console.warn('evtSource error:', error)
     }
     return () => {
       evtSource.close()

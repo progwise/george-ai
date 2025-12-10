@@ -1,9 +1,5 @@
 FROM node:22-slim AS base
 
-# for displaying the latest commit hash in the UI
-ARG GIT_COMMIT_SHA
-ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-
 RUN apt-get update \
     && apt-get install -y \
         python3 \
@@ -25,12 +21,14 @@ WORKDIR /app
 # Copy package.json files for dependency installation (better layer caching)
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/web-utils/package.json ./packages/web-utils/
 COPY apps/georgeai-webapp/package.json ./apps/georgeai-webapp/
 
 RUN pnpm i --frozen-lockfile
 
 # Copy source files afterwards to allow Docker layer caching
+COPY packages/package-configs ./packages/package-configs
 COPY packages/web-utils ./packages/web-utils
 COPY apps/georgeai-webapp ./apps/georgeai-webapp
 COPY CHANGELOG.md LICENSE ./
@@ -41,7 +39,13 @@ RUN rm -f ./apps/georgeai-webapp/public/CHANGELOG.md && \
     cp ./LICENSE ./apps/georgeai-webapp/public/LICENSE
 
 # Build the application
-RUN pnpm --filter @george-ai/webapp run build
+# ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
+# Clean stale build artifacts AND Vite cache to prevent cache-related asset hash mismatches
+# The .vite cache inside node_modules can persist stale CSS references via GHA layer cache
+RUN rm -rf ./apps/georgeai-webapp/.output ./apps/georgeai-webapp/dist ./apps/georgeai-webapp/node_modules/.vite && \
+    pnpm --filter @george-ai/webapp run build
 
 # Deploy creates a clean directory with resolved dependencies
 RUN pnpm --filter @george-ai/webapp deploy --prod /app/deploy

@@ -237,6 +237,9 @@ jobs:
         env:
           NODE_ENV: production
           DATABASE_URL: postgresql://chatweb:password@postgres:5432/chatweb?schema=public
+          # Encryption key for sensitive connector credentials (required for automations)
+          # This is a test key - DO NOT use in production
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
           TYPESENSE_API_HOST: typesense
           TYPESENSE_API_PORT: 8108
           TYPESENSE_API_PROTOCOL: http
@@ -269,6 +272,7 @@ jobs:
           NODE_ENV: production
           BACKEND_URL: http://backend:3003
           BACKEND_PUBLIC_URL: http://localhost:3003
+          GRAPHQL_API_KEY: TestKey
           KEYCLOAK_URL: https://keycloak.george-ai.net
           KEYCLOAK_REALM: george-ai-e2e-test
           KEYCLOAK_CLIENT_ID: george-ai-e2e

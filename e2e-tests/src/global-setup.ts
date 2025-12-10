@@ -35,6 +35,18 @@ async function globalSetup() {
     const userId = userResult.rows[0].id
     console.log(`  ✅ E2E user ready: ${E2E_EMAIL}`)
 
+    // Ensure UserProfile exists for the E2E test user
+    await client.query(
+      `
+      INSERT INTO "UserProfile" (id, email, "userId", "freeMessages", "freeStorage", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, $2, 1000, 1000000, NOW(), NOW())
+      ON CONFLICT ("userId")
+      DO UPDATE SET email = $1, "updatedAt" = NOW()
+    `,
+      [E2E_EMAIL, userId],
+    )
+    console.log(`  ✅ E2E user profile ready`)
+
     // Ensure user is a member of the Shared workspace (their default)
     const sharedMemberResult = await client.query(
       'SELECT id FROM "WorkspaceMember" WHERE "workspaceId" = $1 AND "userId" = $2',
@@ -80,24 +92,17 @@ async function globalSetup() {
         [workspace.id, workspace.name, workspace.slug],
       )
 
-      // Add user as admin
-      const memberResult = await client.query(
-        'SELECT id FROM "WorkspaceMember" WHERE "workspaceId" = $1 AND "userId" = $2',
+      // Add user as owner (upsert to ensure correct role)
+      await client.query(
+        `
+        INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
+        ON CONFLICT ("workspaceId", "userId")
+        DO UPDATE SET role = 'owner', "updatedAt" = NOW()
+      `,
         [workspace.id, userId],
       )
-
-      if (memberResult.rows.length === 0) {
-        await client.query(
-          `
-          INSERT INTO "WorkspaceMember" (id, "workspaceId", "userId", role, "createdAt", "updatedAt")
-          VALUES (gen_random_uuid(), $1, $2, 'owner', NOW(), NOW())
-        `,
-          [workspace.id, userId],
-        )
-        console.log(`  ✅ Created workspace: ${workspace.name}`)
-      } else {
-        console.log(`  ℹ️  Workspace exists: ${workspace.name}`)
-      }
+      console.log(`  ✅ Workspace ready (user is owner): ${workspace.name}`)
     }
 
     // Step 3: Create AI Service Providers for test workspaces
@@ -245,127 +250,202 @@ async function globalSetup() {
       }
     }
 
-    // Step 5: Create test library with files for list field modal tests
-    console.log('  📚 Creating test library with sample files...')
+    // Step 5: Create test data in BOTH workspaces for workspace switching tests
+    console.log('  📚 Creating test data in both workspaces...')
     const workspace1Id = '00000000-0000-0000-0000-000000000002'
+    const workspace2Id = '00000000-0000-0000-0000-000000000003'
 
-    // Create the test library (with ownerId from the E2E user created above)
-    const libraryResult = await client.query(
-      `
-      INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), $1, $2, 'E2E Test Library - Field Modal', 'Test library for enrichment field E2E tests', NOW(), NOW())
-      ON CONFLICT DO NOTHING
-      RETURNING id
-    `,
-      [workspace1Id, userId],
-    )
+    // Helper function to create test data for a workspace
+    const createWorkspaceTestData = async (workspaceId: string, workspaceNum: number, ownerId: string) => {
+      const librarySuffix = workspaceNum === 1 ? ' - Field Modal' : ` - WS${workspaceNum}`
+      const listSuffix = workspaceNum === 1 ? ' - Field Modal' : ` - WS${workspaceNum}`
 
-    let libraryId: string
-    if (libraryResult.rows.length > 0) {
-      libraryId = libraryResult.rows[0].id
-      console.log(`  ✅ Created test library: E2E Test Library - Field Modal`)
-    } else {
-      // Library already exists, fetch its ID
-      const existingLibrary = await client.query('SELECT id FROM "AiLibrary" WHERE name = $1 AND "workspaceId" = $2', [
-        'E2E Test Library - Field Modal',
-        workspace1Id,
-      ])
-      libraryId = existingLibrary.rows[0].id
-      console.log(`  ℹ️  Test library already exists: E2E Test Library - Field Modal`)
-    }
-
-    // Add a few sample files to the library (use correct table name: AiLibraryFile)
-    const sampleFiles = [
-      { name: 'E2E Test Document 1.txt', markdown: '# Document 1\n\nThis is test document 1 content.' },
-      { name: 'E2E Test Document 2.txt', markdown: '# Document 2\n\nThis is test document 2 content.' },
-      { name: 'E2E Test Document 3.txt', markdown: '# Document 3\n\nThis is test document 3 content.' },
-    ]
-
-    for (const file of sampleFiles) {
-      await client.query(
+      // Create the test library
+      const libraryResult = await client.query(
         `
-        INSERT INTO "AiLibraryFile" (id, "libraryId", name, "docPath", "mimeType", size, "createdAt", "updatedAt")
-        VALUES (gen_random_uuid(), $1, $2, $3, 'text/plain', 100, NOW(), NOW())
-        ON CONFLICT DO NOTHING
-      `,
-        [libraryId, file.name, `/tmp/e2e/${file.name}`],
-      )
-    }
-    console.log(`  ✅ Added ${sampleFiles.length} sample files to test library`)
-
-    // Delete any existing test lists (to ensure clean state)
-    // First delete list sources (due to foreign key constraint)
-    await client.query(
-      `
-      DELETE FROM "AiListSource"
-      WHERE "listId" IN (
-        SELECT id FROM "AiList"
-        WHERE name = $1 AND "workspaceId" = $2
-      )
-    `,
-      ['E2E Test List - Field Modal', workspace1Id],
-    )
-    // Then delete the list itself
-    await client.query(`DELETE FROM "AiList" WHERE name = $1 AND "workspaceId" = $2`, [
-      'E2E Test List - Field Modal',
-      workspace1Id,
-    ])
-
-    // Create the test list (with ownerId)
-    const listResult = await client.query(
-      `
-      INSERT INTO "AiList" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), $1, $2, 'E2E Test List - Field Modal', NOW(), NOW())
-      RETURNING id
-    `,
-      [workspace1Id, userId],
-    )
-    const listId = listResult.rows[0].id
-    console.log(`  ✅ Created test list: E2E Test List - Field Modal`)
-
-    // Add a list source (correct table name: AiListSource)
-    // This tells the list to pull items from this library
-    const sourceResult = await client.query(
-      `
-      INSERT INTO "AiListSource" (
-        id, "listId", "libraryId", "createdAt"
-      )
-      VALUES (gen_random_uuid(), $1, $2, NOW())
-      RETURNING id
-    `,
-      [listId, libraryId],
-    )
-    const sourceId = sourceResult.rows[0].id
-    console.log(`  ✅ Added library source to test list`)
-
-    // Create AiListItem records for each file (required since PR #920)
-    // Items are now stored in AiListItem table, not computed at query time
-    const filesResult = await client.query(`SELECT id, name FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
-    for (const file of filesResult.rows) {
-      await client.query(
-        `
-        INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "itemName", "createdAt", "updatedAt")
+        INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "createdAt", "updatedAt")
         VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
         ON CONFLICT DO NOTHING
+        RETURNING id
       `,
-        [listId, sourceId, file.id, file.name],
+        [
+          workspaceId,
+          ownerId,
+          `E2E Test Library${librarySuffix}`,
+          `Test library for E2E tests in workspace ${workspaceNum}`,
+        ],
       )
-    }
-    console.log(`  ✅ Created ${filesResult.rows.length} list items from library files`)
 
-    // Add standard file property fields to the list
-    await client.query(
-      `
-      INSERT INTO "AiListField" (
-        id, "listId", name, type, "sourceType", "fileProperty", "order", "createdAt"
+      let libraryId: string
+      if (libraryResult.rows.length > 0) {
+        libraryId = libraryResult.rows[0].id
+        console.log(`  ✅ Created test library: E2E Test Library${librarySuffix}`)
+      } else {
+        const existingLibrary = await client.query(
+          'SELECT id FROM "AiLibrary" WHERE name = $1 AND "workspaceId" = $2',
+          [`E2E Test Library${librarySuffix}`, workspaceId],
+        )
+        libraryId = existingLibrary.rows[0].id
+        console.log(`  ℹ️  Test library already exists: E2E Test Library${librarySuffix}`)
+      }
+
+      // Delete existing files in the library (clean slate)
+      await client.query(`DELETE FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
+
+      // Add sample files to the library
+      const sampleFiles = [
+        {
+          name: `E2E Test Document 1 WS${workspaceNum}.txt`,
+          markdown: `# Document 1\n\nWorkspace ${workspaceNum} content.`,
+        },
+        {
+          name: `E2E Test Document 2 WS${workspaceNum}.txt`,
+          markdown: `# Document 2\n\nWorkspace ${workspaceNum} content.`,
+        },
+        {
+          name: `E2E Test Document 3 WS${workspaceNum}.txt`,
+          markdown: `# Document 3\n\nWorkspace ${workspaceNum} content.`,
+        },
+      ]
+
+      for (const file of sampleFiles) {
+        await client.query(
+          `
+          INSERT INTO "AiLibraryFile" (id, "libraryId", name, "docPath", "mimeType", size, "createdAt", "updatedAt")
+          VALUES (gen_random_uuid(), $1, $2, $3, 'text/plain', 100, NOW(), NOW())
+        `,
+          [libraryId, file.name, `/tmp/e2e/${file.name}`],
+        )
+      }
+      console.log(`  ✅ Added ${sampleFiles.length} sample files to test library WS${workspaceNum}`)
+
+      // Delete existing test list for clean state
+      await client.query(
+        `DELETE FROM "AiListSource" WHERE "listId" IN (SELECT id FROM "AiList" WHERE name = $1 AND "workspaceId" = $2)`,
+        [`E2E Test List${listSuffix}`, workspaceId],
       )
-      VALUES
-        (gen_random_uuid(), $1, 'Item Name', 'string', 'file_property', 'itemName', 0, NOW()),
-        (gen_random_uuid(), $1, 'Filename', 'string', 'file_property', 'name', 1, NOW())
-    `,
-      [listId],
-    )
-    console.log(`  ✅ Added standard fields (Item Name, Filename) to test list`)
+      await client.query(`DELETE FROM "AiList" WHERE name = $1 AND "workspaceId" = $2`, [
+        `E2E Test List${listSuffix}`,
+        workspaceId,
+      ])
+
+      // Create the test list
+      const listResult = await client.query(
+        `
+        INSERT INTO "AiList" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+        RETURNING id
+      `,
+        [workspaceId, ownerId, `E2E Test List${listSuffix}`],
+      )
+      const listId = listResult.rows[0].id
+      console.log(`  ✅ Created test list: E2E Test List${listSuffix}`)
+
+      // Add a list source
+      const sourceResult = await client.query(
+        `INSERT INTO "AiListSource" (id, "listId", "libraryId", "createdAt") VALUES (gen_random_uuid(), $1, $2, NOW()) RETURNING id`,
+        [listId, libraryId],
+      )
+      const sourceId = sourceResult.rows[0].id
+      console.log(`  ✅ Added library source to test list WS${workspaceNum}`)
+
+      // Create AiListItem records for each file
+      const filesResult = await client.query(`SELECT id, name FROM "AiLibraryFile" WHERE "libraryId" = $1`, [libraryId])
+      if (filesResult.rows.length === 0) {
+        console.log(`  ⚠️  WARNING: No files found in library ${libraryId} for WS${workspaceNum}`)
+      } else {
+        console.log(`  📄 Found ${filesResult.rows.length} files in library:`)
+        for (const file of filesResult.rows) {
+          console.log(`     - ${file.name} (${file.id})`)
+        }
+      }
+
+      for (const file of filesResult.rows) {
+        await client.query(
+          `INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "itemName", "createdAt", "updatedAt")
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())`,
+          [listId, sourceId, file.id, file.name],
+        )
+      }
+      console.log(`  ✅ Created ${filesResult.rows.length} list items from library files WS${workspaceNum}`)
+
+      // Add standard fields to the list
+      await client.query(
+        `INSERT INTO "AiListField" (id, "listId", name, type, "sourceType", "fileProperty", "order", "createdAt")
+         VALUES (gen_random_uuid(), $1, 'Item Name', 'string', 'file_property', 'itemName', 0, NOW()),
+                (gen_random_uuid(), $1, 'Filename', 'string', 'file_property', 'name', 1, NOW())`,
+        [listId],
+      )
+      console.log(`  ✅ Added standard fields to test list WS${workspaceNum}`)
+
+      // Create test assistant
+      await client.query(
+        `INSERT INTO "AiAssistant" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
+         VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW()) ON CONFLICT DO NOTHING`,
+        [workspaceId, ownerId, `E2E Test Assistant - WS${workspaceNum}`],
+      )
+      console.log(`  ✅ Created test assistant: E2E Test Assistant - WS${workspaceNum}`)
+
+      return { libraryId, listId }
+    }
+
+    // Create test data for both workspaces
+    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, userId)
+    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, userId)
+
+    // Step 6: Create test connectors and automations for E2E tests
+    console.log('  🔌 Creating test connectors and automations...')
+
+    // Helper function to create connector and automation for a workspace
+    const createConnectorAndAutomation = async (workspaceId: string, workspaceNum: number, listId: string) => {
+      // Use plain name for WS1 (backward compat with automation.spec.ts), suffix for WS2
+      const connectorName = workspaceNum === 1 ? 'E2E Test Connector' : `E2E Test Connector - WS${workspaceNum}`
+      const automationName = `E2E Test Automation - WS${workspaceNum}`
+
+      // Enable shopware6 connector type
+      await client.query(
+        `INSERT INTO "AiConnectorTypeWorkspace" (id, "workspaceId", "connectorType", "createdAt")
+         VALUES (gen_random_uuid(), $1, 'shopware6', NOW())
+         ON CONFLICT ("workspaceId", "connectorType") DO NOTHING`,
+        [workspaceId],
+      )
+      console.log(`  ✅ Enabled shopware6 connector type for E2E Test Workspace ${workspaceNum}`)
+
+      // Create test connector
+      const connectorResult = await client.query(
+        `INSERT INTO "AiConnector" (id, "workspaceId", "connectorType", "baseUrl", name, config, "isConnected", "createdAt", "updatedAt")
+         VALUES (gen_random_uuid(), $1, 'shopware6', 'https://test-shop.example.com', $2, '{"clientId": "test", "clientSecret": "encrypted:test"}', false, NOW(), NOW())
+         ON CONFLICT DO NOTHING
+         RETURNING id`,
+        [workspaceId, connectorName],
+      )
+
+      let connectorId: string
+      if (connectorResult.rows.length > 0) {
+        connectorId = connectorResult.rows[0].id
+        console.log(`  ✅ Created test connector: ${connectorName}`)
+      } else {
+        const existingConnector = await client.query(
+          'SELECT id FROM "AiConnector" WHERE name = $1 AND "workspaceId" = $2',
+          [connectorName, workspaceId],
+        )
+        connectorId = existingConnector.rows[0].id
+        console.log(`  ℹ️  Test connector already exists: ${connectorName}`)
+      }
+
+      // Create test automation
+      await client.query(
+        `INSERT INTO "AiAutomation" (id, "workspaceId", name, "listId", "connectorId", "connectorAction", "connectorActionConfig", schedule, "executeOnEnrichment", "createdAt", "updatedAt")
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, 'updateProduct', '{"values": [], "fieldMappings": []}', NULL, false, NOW(), NOW())
+         ON CONFLICT DO NOTHING`,
+        [workspaceId, automationName, listId, connectorId],
+      )
+      console.log(`  ✅ Created test automation: ${automationName}`)
+    }
+
+    // Create connectors and automations for both workspaces
+    await createConnectorAndAutomation(workspace1Id, 1, ws1Data.listId)
+    await createConnectorAndAutomation(workspace2Id, 2, ws2Data.listId)
 
     console.log('✅ E2E Global Setup completed')
   } catch (error) {
