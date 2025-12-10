@@ -122,7 +122,7 @@ function RouteComponent() {
                           </Link>
                         </div>
                         <div className="card-body p-0">
-                          <pre className="whitespace-pre-wrap break-words text-xs">
+                          <pre className="wrap-break-word whitespace-pre-wrap text-xs">
                             {!cq.contentQuery || cq.contentQuery.length < 1
                               ? 'no-content'
                               : cq.contentQuery.length > 200

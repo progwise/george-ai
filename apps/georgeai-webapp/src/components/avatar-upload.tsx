@@ -40,7 +40,6 @@ export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps)
       return null
     },
     onSuccess: async () => {
-      console.log('Avatar upload success!')
       toastSuccess(t('notifications.avatarUploaded'))
 
       // Use Promise.all to ensure all invalidations complete
