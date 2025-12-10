@@ -40,7 +40,9 @@ RUN rm -f ./apps/georgeai-webapp/public/CHANGELOG.md && \
 # ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-RUN pnpm --filter @george-ai/webapp run build
+# Clean any stale build artifacts to prevent cache-related asset hash mismatches
+RUN rm -rf ./apps/georgeai-webapp/.output ./apps/georgeai-webapp/dist && \
+    pnpm --filter @george-ai/webapp run build
 
 # Deploy creates a clean directory with resolved dependencies
 RUN pnpm --filter @george-ai/webapp deploy --prod /app/deploy

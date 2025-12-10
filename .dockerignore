@@ -19,5 +19,4 @@ node_modules
 dist
 *.log
 **/Dockerfile
-**/tsconfig.json
 **/README.md
