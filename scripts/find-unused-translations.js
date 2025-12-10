@@ -92,35 +92,48 @@ for (const key of allKeys) {
     // grep returns non-zero if no matches
   }
 
-  // If not found directly, check if a parent key pattern is used dynamically
-  // e.g., t(`actions.${action}`) would use actions.* keys
+  // If not found directly, check for dynamic usage patterns
+  if (!found) {
+    // Pattern 1: Ternary expressions like t(condition ? 'key1' : 'key2')
+    // Search for the key appearing after ? or : in a t() call
+    try {
+      const ternaryPatterns = [`? '${key}'`, `? "${key}"`, `: '${key}'`, `: "${key}"`]
+
+      for (const pattern of ternaryPatterns) {
+        const result = execSync(
+          `grep -rF --include='*.ts' --include='*.tsx' "${pattern}" ${srcDir} 2>/dev/null | grep -v '/i18n/' || true`,
+          { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
+        ).trim()
+        if (result) {
+          found = true
+          break
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Pattern 2: Template literals like t(`parentKey.${var}`)
   if (!found) {
     const keyParts = key.split('.')
     for (let i = keyParts.length - 1; i > 0; i--) {
       const parentKey = keyParts.slice(0, i).join('.')
       try {
         // Look for dynamic key patterns like t(`parentKey.${var}`) or translate(`parentKey.${var}`)
-        // Use single quotes to avoid shell interpretation of backticks
-        const dynamicPatterns = ['t(\\`' + parentKey + '.', 'translate(\\`' + parentKey + '.']
-
-        for (const pattern of dynamicPatterns) {
-          const result = execSync(
-            "grep -rF --include='*.ts' --include='*.tsx' '" +
-              pattern +
-              "' " +
-              srcDir +
-              " 2>/dev/null | grep -v '/i18n/' || true",
-            { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
-          ).trim()
-          if (result) {
-            found = true
-            break
-          }
+        // Search using a file read approach since grep has issues with backticks
+        const result = execSync(
+          `grep -r --include='*.ts' --include='*.tsx' -E "t\\(\\\`${parentKey}\\." ${srcDir} 2>/dev/null | grep -v '/i18n/' || true`,
+          { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
+        ).trim()
+        if (result) {
+          found = true
+          break
         }
-        if (found) break
       } catch (e) {
         // ignore
       }
+      if (found) break
     }
   }
 
