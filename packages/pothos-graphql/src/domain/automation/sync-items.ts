@@ -4,7 +4,11 @@
  * Syncs list items to automation items, respecting filters.
  * Creates AiAutomationItem records for matching list items.
  */
+import { createLogger } from '@george-ai/web-utils'
+
 import { prisma } from '../../prisma'
+
+const logger = createLogger('Automation Sync')
 
 // PostgreSQL has a limit of 32,767 bind variables in prepared statements
 // Use a safe batch size that accounts for complex queries with multiple binds per item
@@ -91,6 +95,10 @@ export async function syncAutomationItems(
   } while (listItemCursor)
 
   const inScopeCount = inScope ? totalCount : 0
+
+  if (syncedCount > 0) {
+    logger.info(`Synced ${syncedCount} new items for automation ${automationId} (total: ${totalCount})`)
+  }
 
   return { synced: syncedCount, total: totalCount, inScope: inScopeCount }
 }
