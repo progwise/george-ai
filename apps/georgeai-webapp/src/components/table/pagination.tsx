@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useId } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -27,6 +27,7 @@ export const Pagination = ({
   pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
   onPageSizeChange,
 }: PaginationProps) => {
+  const popoverId = useId()
   const { t } = useTranslation()
   const totalPages = totalItems === 0 ? 1 : Math.ceil(totalItems / itemsPerPage)
   const isFirstPage = currentPage === 1
@@ -41,6 +42,20 @@ export const Pagination = ({
     const newPage = Number(value)
     if (isNaN(newPage)) return
     handlePageChange(newPage)
+  }
+
+  const closePopover = () => {
+    const popover = document.getElementById(popoverId)
+    popover?.hidePopover()
+  }
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handlePageManualChange(event.currentTarget.value)
+      closePopover()
+    } else if (event.key === 'Escape') {
+      closePopover()
+    }
   }
 
   useEffect(() => {
@@ -73,11 +88,7 @@ export const Pagination = ({
           ‹
         </button>
         <div className="join-item btn btn-xs border">
-          <button
-            type="button"
-            popoverTarget="enterTargetPage"
-            style={{ anchorName: '--anchor-1' } as React.CSSProperties}
-          >
+          <button type="button" popoverTarget={popoverId} style={{ anchorName: '--anchor-1' } as React.CSSProperties}>
             <span className="flex-nowrap text-nowrap text-xs font-normal">
               {currentPage}/{totalPages}
             </span>
@@ -87,7 +98,7 @@ export const Pagination = ({
             className="input dropdown dropdown-end bg-base-100 rounded-box w-64 p-2 shadow-sm"
             tabIndex={0}
             popover="auto"
-            id="enterTargetPage"
+            id={popoverId}
           >
             {t('labels.gotoPage')}
             <input
@@ -96,7 +107,11 @@ export const Pagination = ({
               max={`${totalPages}`}
               className="grow text-center"
               placeholder={currentPage.toString()}
-              onBlur={(event) => handlePageManualChange(event.target.value)}
+              onBlur={(event) => {
+                handlePageManualChange(event.target.value)
+                closePopover()
+              }}
+              onKeyDown={handleInputKeyDown}
             />
             <span>{t('labels.ofPages', { totalPages })}</span>
           </label>
