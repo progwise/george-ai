@@ -653,7 +653,6 @@ export default {
     notConfirmed: 'Nicht bestätigt',
     note: 'Notiz',
     position: 'Position',
-    postprocess: 'Nachbearbeitung',
     processed: 'Verarbeitet',
     prompt: 'Prompt',
     processing: 'Verarbeitung',
@@ -1092,7 +1091,6 @@ export default {
     embedFilesDialogDescription:
       'Sie sind kurz davor, die ausgewählten Dateien zu embedden. Bitte bestätigen Sie, um das Embedding zu starten.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
-    enterNameAndPrompt: 'Geben Sie einen Namen und Prompt ein, um Ihr erstes Nachbearbeitungselement zu erstellen',
     failure: 'Fehler',
     fileCreated: 'erstellt',
     fileUpdated: 'aktualisiert',
