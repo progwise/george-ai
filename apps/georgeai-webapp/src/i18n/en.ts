@@ -58,7 +58,7 @@ export default {
     uploadAvatar: 'Upload Avatar',
     uploaded: 'Uploaded',
     view: 'View',
-    yes: 'Yes',
+    yes: 'Yes'
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',
@@ -68,8 +68,7 @@ export default {
       adminNotesPlaceholder: 'Add internal notes about this model...',
       capabilities: 'Capabilities',
       disable: 'Disable',
-      disableConfirmation:
-        'Are you sure you want to disable {{provider}}: {{name}}? This will make the model unavailable for use.',
+      disableConfirmation: 'Are you sure you want to disable {{provider}}: {{name}}? This will make the model unavailable for use.',
       disabled: 'Disabled',
       disableModel: 'Disable Model',
       disableSuccess: 'Model disabled successfully',
@@ -95,7 +94,7 @@ export default {
       syncSuccess: 'Successfully synchronized {{count}} models',
       totalModels: 'Total Models',
       updateSuccess: 'Model updated successfully',
-      usedIn: 'Used In',
+      usedIn: 'Used In'
     },
     aiServices: {
       activeRequests: '{count} active',
@@ -130,7 +129,7 @@ export default {
       editProvider: 'Edit Provider',
       enabled: 'Enabled',
       enableProvider: 'Enable this provider',
-      enableProviderHelp: "Disabled providers won't be used for AI operations",
+      enableProviderHelp: 'Disabled providers won\'t be used for AI operations',
       estimatedRequestSize: 'Est. size per request: {size}',
       expiresAt: 'Expires: {time}',
       healthyInstances: '{count} healthy',
@@ -173,7 +172,7 @@ export default {
       vramLabel: 'VRAM: {vramGb} GB',
       vramPlaceholder: 'e.g., 32',
       vramUsage: 'VRAM Usage',
-      vramUsed: '{used} used ({percentage}%)',
+      vramUsed: '{used} used ({percentage}%)'
     },
     availableFunctions: 'Available administrative functions:',
     dashboard: 'Dashboard',
@@ -186,34 +185,28 @@ export default {
     manageUsersDescription: 'View all users, activate accounts, edit profiles, and delete users as needed.',
     monitorAiServices: 'Monitor AI Services',
     monitorAiServicesDescription: 'View and manage the status of integrated AI services and models.',
-    welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.',
+    welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.'
   },
   aiAct: {
-    applicableHeadline:
-      'Based on your answers, we recommend reviewing the following areas in the detailed assessment. You can adjust the selection',
+    applicableHeadline: 'Based on your answers, we recommend reviewing the following areas in the detailed assessment. You can adjust the selection',
     identifiedRisks: 'Identified risk factors',
     notApplicableHeadline: 'The EU AI Act is likely not applicable to your system.',
-    notApplicableText:
-      'Since your system is not operated in the EU and does not affect EU citizens, a detailed compliance check according to the EU AI Act is not required. However, it is recommended to regularly check applicability in case the use of your system changes.',
-    notesOnApplicability:
-      'Since your system is not operated in the EU and does not affect people in the EU, the EU AI Act may not be applicable. However, monitor changes in your business model that could lead to applicability.',
+    notApplicableText: 'Since your system is not operated in the EU and does not affect EU citizens, a detailed compliance check according to the EU AI Act is not required. However, it is recommended to regularly check applicability in case the use of your system changes.',
+    notesOnApplicability: 'Since your system is not operated in the EU and does not affect people in the EU, the EU AI Act may not be applicable. However, monitor changes in your business model that could lead to applicability.',
     notesOnApplicabilityHeadline: 'Note on applicability',
     suggestedDetailedEvaluationHeadline: 'Recommended areas for detailed evaluation',
     summaryInitialAssessment: 'Summary of initial assessment',
-    systemProperties: 'System properties',
+    systemProperties: 'System properties'
   },
   apiKeys: {
     actions: 'Actions',
     copiedToClipboard: 'API key copied to clipboard',
-    copyWarningText:
-      'Make sure to copy your API key now. You will not be able to see it again. Store it securely and never share it publicly.',
+    copyWarningText: 'Make sure to copy your API key now. You will not be able to see it again. Store it securely and never share it publicly.',
     copyWarningTitle: 'Important: Copy your API key',
     createdAt: 'Created',
-    description:
-      'API keys allow external applications and services to access this library. Keep your keys secure and revoke them if compromised.',
+    description: 'API keys allow external applications and services to access this library. Keep your keys secure and revoke them if compromised.',
     generate: 'Generate API Key',
-    generatedSuccessText:
-      'Your API key has been generated and is displayed below. This is the only time you will see it.',
+    generatedSuccessText: 'Your API key has been generated and is displayed below. This is the only time you will see it.',
     generatedSuccessTitle: 'API Key Generated: {name}',
     generateError: 'Failed to generate API key',
     generateSuccess: 'API key generated successfully',
@@ -228,21 +221,19 @@ export default {
     revokeConfirm: 'Are you sure you want to revoke the API key "{name}"? This action cannot be undone.',
     revokeDialogTitle: 'Revoke API Key',
     revokeSuccess: 'API key revoked successfully',
-    securityWarningText:
-      'API keys grant access to your library. Keep them secure and never commit them to version control or share them publicly.',
+    securityWarningText: 'API keys grant access to your library. Keep them secure and never commit them to version control or share them publicly.',
     securityWarningTitle: 'Security Warning',
     title: 'API Keys',
     validation: {
       nameTooLong: 'API key name must be at most 100 characters',
-      nameTooShort: 'API key name must be at least 2 characters',
+      nameTooShort: 'API key name must be at least 2 characters'
     },
-    yourApiKey: 'Your API Key',
+    yourApiKey: 'Your API Key'
   },
   assistants: {
     addNew: 'Create new assistant',
     addNewButton: 'Create assistant',
-    addNewDescription:
-      'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
+    addNewDescription: 'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
     addParticipantsConfirmation: 'You can add participants to this assistant.',
     delete: 'Delete assistant',
     deleteButton: 'Delete',
@@ -262,16 +253,14 @@ export default {
       euAiActNotePlaceholder: 'Additional information or context...',
       languageModel: 'Select the language model',
       llmTemperature: 'Between 0.0 and 1.0',
-      name: 'Name your assistant',
+      name: 'Name your assistant'
     },
     removeLibrary: 'Remove library',
     removeParticipant: 'Remove participant',
-    removeParticipantConfirmation:
-      'You are about to remove {participantName} from this assistant. This cannot be undone.',
+    removeParticipantConfirmation: 'You are about to remove {participantName} from this assistant. This cannot be undone.',
     usageLabel: 'Describe the usage of this library',
-    usagePlaceholder:
-      'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
-    users: 'Users',
+    usagePlaceholder: 'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
+    users: 'Users'
   },
   automations: {
     action: 'Action',
@@ -288,7 +277,7 @@ export default {
       completedWithErrors: 'Completed with Errors',
       failed: 'Failed',
       pending: 'Pending',
-      running: 'Running',
+      running: 'Running'
     },
     batchTriggeredBy: 'Triggered By',
     connector: 'Connector',
@@ -328,7 +317,7 @@ export default {
       previewValues: 'Preview Values',
       status: 'Status',
       title: 'Item Details',
-      viewInList: 'View in List',
+      viewInList: 'View in List'
     },
     itemInScope: 'In Scope',
     itemLastExecuted: 'Last Executed',
@@ -385,7 +374,7 @@ export default {
       boolean: 'Boolean',
       markdownToHtml: 'Markdown to HTML',
       number: 'Number',
-      raw: 'Raw (no transform)',
+      raw: 'Raw (no transform)'
     },
     triggerError: 'Failed to trigger automation: {message}',
     triggerFailed: 'Failed to trigger automation',
@@ -394,9 +383,9 @@ export default {
     validation: {
       connectorRequired: 'Connector is required',
       listRequired: 'List is required',
-      nameRequired: 'Name is required',
+      nameRequired: 'Name is required'
     },
-    warning: 'Warning',
+    warning: 'Warning'
   },
   brand: 'George-Ai',
   connectors: {
@@ -435,7 +424,7 @@ export default {
     title: 'Connectors',
     typeDisabled: 'Connector type disabled',
     typeEnabled: 'Connector type enabled',
-    updateSuccess: 'Connector updated successfully',
+    updateSuccess: 'Connector updated successfully'
   },
   contactForm: {
     emailOrPhoneError: 'Please enter a valid email address or phone number.',
@@ -451,7 +440,7 @@ export default {
     nameError: 'Please enter your name.',
     nameLabel: 'Name',
     namePlaceholder: 'e.g. Martha Smith',
-    nameRequired: 'Name is required.',
+    nameRequired: 'Name is required.'
   },
   conversations: {
     addParticipantsConfirmation: 'You can add participants to the current conversation.',
@@ -475,20 +464,17 @@ export default {
     owner: 'Owner',
     promptPlaceholder: 'Ask anything',
     removeMultiple: 'Remove conversations',
-    removeMultipleConfirmation:
-      'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone.',
+    removeMultipleConfirmation: 'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone.',
     removeParticipant: 'Remove participant',
-    removeParticipantConfirmation:
-      'You are about to remove {participantName} from this conversation. All messages from this participant will also be removed. This cannot be undone.',
+    removeParticipantConfirmation: 'You are about to remove {participantName} from this conversation. All messages from this participant will also be removed. This cannot be undone.',
     setLLM: 'Language model not set on assistant',
-    tokenLimitExceeded: 'Token limit exceeded',
+    tokenLimitExceeded: 'Token limit exceeded'
   },
   crawlers: {
     addNew: 'Add new crawler',
     allowedMimeTypes: 'Allowed MIME Types',
     apiConfiguration: 'API Configuration (JSON)',
-    apiConfigurationHint:
-      'Configure authentication, pagination, and field mapping as JSON. Select a template below or customize manually.',
+    apiConfigurationHint: 'Configure authentication, pagination, and field mapping as JSON. Select a template below or customize manually.',
     apiConfigurationPlaceholder: 'Enter API configuration JSON or select a template above',
     crawlSettings: 'Crawl Settings',
     credentialsBoxCustomerId: 'Box Customer ID',
@@ -506,7 +492,7 @@ export default {
       baseUrl: 'Base URL of the API (e.g., https://api.example.com)',
       endpoint: 'API endpoint path (e.g., /v1/products)',
       identifierField: 'Field name for unique item ID (default: id)',
-      titleField: 'Field name for item title (default: name or title)',
+      titleField: 'Field name for item title (default: name or title)'
     },
     customApiHelpDescription: 'Configure a custom REST API to fetch data:',
     customApiHelpHint: 'Use providerConfig to customize field mappings for your API response structure.',
@@ -520,7 +506,7 @@ export default {
       crawlerConfigRequired: 'API configuration is required',
       invalidUri: 'Invalid URI format for the selected type',
       maxDepth: 'must be > 0',
-      maxPages: 'must be > 1',
+      maxPages: 'must be > 1'
     },
     excludePatterns: 'Exclude Patterns (comma-separated regex)',
     filtersActive: 'Enable File Filters',
@@ -530,8 +516,7 @@ export default {
     maxFileSize: 'Max File Size (MB)',
     maxPages: 'Pages',
     minFileSize: 'Min File Size (MB)',
-    noRunsDescription:
-      'You need to start the crawler first to get data about updates, files and behavior of the crawler.',
+    noRunsDescription: 'You need to start the crawler first to get data about updates, files and behavior of the crawler.',
     noRunsFound: 'No crawl runs found.',
     noRunsTitle: 'Nothing crawled yet.',
     noUpdatesFound: 'No updates found.',
@@ -543,7 +528,7 @@ export default {
       password: 'Password to access the chosen URI',
       sharepointAuth: 'Authentication cookies from browser (see help)',
       uri: 'https://vwx.yz or //smbhost.local/share or https://tenant.sharepoint.com/sitename',
-      username: 'For domain auth use: DOMAIN\\username',
+      username: 'For domain auth use: DOMAIN\\username'
     },
     run: 'Crawl',
     runCount: '# Crawls',
@@ -572,10 +557,9 @@ export default {
       seoUrls: 'SEO URLs',
       tags: 'Product tags',
       tax: 'Tax rate information',
-      unit: 'Sales unit (e.g., "Stück", "kg")',
+      unit: 'Sales unit (e.g., "Stück", "kg")'
     },
-    shopwareAssociationsDescription:
-      'Associations define which related data to fetch with each product. Edit the "associations" array in the JSON config below:',
+    shopwareAssociationsDescription: 'Associations define which related data to fetch with each product. Edit the "associations" array in the JSON config below:',
     shopwareAssociationsHint: 'Add or remove associations in the JSON config to customize which data is fetched.',
     shopwareAssociationsTitle: 'Shopware 6 Associations (Related Data)',
     startFailed: 'Start failed',
@@ -603,46 +587,44 @@ export default {
     validationBoxCustomerIdTooShort: 'Box Customer ID must be at least 10 characters long.',
     validationBoxTokenTooShort: 'Box Token must be at least 20 characters long.',
     validationPasswordRequired: 'Password must be > 2 characters.',
-    validationSharePointAuthenticationError:
-      'Authentication failed. Please refresh your SharePoint cookies and try again.',
+    validationSharePointAuthenticationError: 'Authentication failed. Please refresh your SharePoint cookies and try again.',
     validationSharePointAuthInvalidFormat: 'Invalid cookie format - should be "name=value; name=value; ...".',
-    validationSharePointAuthMissingTokens:
-      'SharePoint cookies must include valid authentication tokens (FedAuth, rtFa, SPOIDCRL, or custom auth).',
+    validationSharePointAuthMissingTokens: 'SharePoint cookies must include valid authentication tokens (FedAuth, rtFa, SPOIDCRL, or custom auth).',
     validationSharePointAuthTooShort: 'SharePoint cookies must be at least 20 characters long.',
     validationSharePointLibraryNotFound: 'The specified document library was not found.',
     validationSharePointNetworkError: 'Network error connecting to SharePoint. Please check your connection.',
     validationSharePointNotFound: 'SharePoint site not found. Please check the URL.',
     validationSharePointUnknownError: 'SharePoint validation failed. Please check your URL and cookies.',
-    validationUsernameRequired: 'Username must be > 2 characters.',
+    validationUsernameRequired: 'Username must be > 2 characters.'
   },
   dashboard: {
     emptyStates: {
       noAssistants: 'No assistants yet',
       noConversations: 'No conversations yet',
       noLibraries: 'No libraries yet',
-      noLists: 'No lists yet',
+      noLists: 'No lists yet'
     },
     labels: {
       conversationWith: 'Conversation with {name}',
       failed: 'failed',
       files: '{count} files',
       models: '{count} models',
-      processing: 'proc.',
+      processing: 'proc.'
     },
     status: {
       offline: 'Offline',
       online: 'Online',
       owned: 'Owned',
-      shared: 'Shared',
+      shared: 'Shared'
     },
     subtitle: 'Your workspace and system status',
     tabs: {
       assistants: 'Assistants',
       conversations: 'Conversations',
       libraries: 'Libraries',
-      lists: 'Lists',
+      lists: 'Lists'
     },
-    title: 'Overview',
+    title: 'Overview'
   },
   errors: {
     avatarDeleteFailed: 'Avatar deletion failed',
@@ -672,7 +654,7 @@ export default {
     reprocessFiles: 'An error occurred while processing {count} files: {files}.',
     requiredField: 'Required',
     unexpectedError: 'An unexpected error occurred',
-    uploadedFileIsMissing: 'The uploaded file is missing.',
+    uploadedFileIsMissing: 'The uploaded file is missing.'
   },
   files: {
     activeFilesForLibrary: '{count} Active files in library',
@@ -680,7 +662,7 @@ export default {
     filesForLibrary: '{count} Files for library {libraryName}',
     noContentAvailable: 'No content available',
     noSourcesAvailable: 'No sources available',
-    sources: 'Sources:',
+    sources: 'Sources:'
   },
   flowLocal: 'Flow: Only Local',
   flowParallel: 'Flow: Parallel',
@@ -693,27 +675,26 @@ export default {
     chat: {
       message: {
         greeting: 'Hello! I’m George, your personal AI assistant.',
-        info: 'If you leave your email address or phone number, we’ll get back to you personally.',
+        info: 'If you leave your email address or phone number, we’ll get back to you personally.'
       },
-      title: 'George-Ai Homepage',
+      title: 'George-Ai Homepage'
     },
-    description:
-      'When experienced employees leave, answers often disappear. With George-Ai, you preserve their knowledge in AI models – and keep it for tomorrow.',
+    description: 'When experienced employees leave, answers often disappear. With George-Ai, you preserve their knowledge in AI models – and keep it for tomorrow.',
     features: {
       customAssistants: 'Custom Assistants',
       knowledgeLibraries: 'Knowledge Libraries',
-      selfLearning: 'Self-learning',
+      selfLearning: 'Self-learning'
     },
     meeting: 'Schedule a consultation',
     more: 'Learn more',
     title: {
       part1: 'Preserve knowledge.',
-      part2: 'Protect your budget, time, and team.',
-    },
+      part2: 'Protect your budget, time, and team.'
+    }
   },
   home: {
     altImage: 'George AI',
-    btnText: 'Start Training Your AI',
+    btnText: 'Start Training Your AI'
   },
   invitations: {
     alreadyParticipant: 'You are already a participant in this conversation.',
@@ -726,7 +707,7 @@ export default {
     invitationAccepted: 'Invitation accepted',
     invitationNotFound: 'Invitation not found.',
     invitationSent: 'Invitation sent',
-    linkAlreadyUsed: 'This link has already been used.',
+    linkAlreadyUsed: 'This link has already been used.'
   },
   labels: {
     actions: 'Actions',
@@ -772,8 +753,7 @@ export default {
     friday: 'Friday',
     gotoPage: 'Go to page',
     icon: 'Icon',
-    imageOcrProcessingDescription:
-      'Process PDF files as images using AI vision models for OCR analysis. Useful for scanned documents or complex layouts.',
+    imageOcrProcessingDescription: 'Process PDF files as images using AI vision models for OCR analysis. Useful for scanned documents or complex layouts.',
     instructions: 'Instructions',
     invitation: 'Invitation',
     isAdmin: 'Admin?',
@@ -832,7 +812,7 @@ export default {
     usedStorage: 'Used Storage',
     username: 'Username',
     version: 'Release',
-    wednesday: 'Wednesday',
+    wednesday: 'Wednesday'
   },
   libraries: {
     addMultipleFiles: 'Add {count} Files',
@@ -870,12 +850,11 @@ export default {
       description: 'Describe your library',
       embeddingModelName: 'With this model, data is transformed into vectors',
       embeddingTimeoutMs: 'Time in milliseconds before embedding task times out (30000-1800000)',
-      name: 'Name your library',
+      name: 'Name your library'
     },
     processFilesDialog: 'Process files',
     removeParticipant: 'Remove participant',
-    removeParticipantConfirmation:
-      'You are about to remove {participantName} from this library. This cannot be undone.',
+    removeParticipantConfirmation: 'You are about to remove {participantName} from this library. This cannot be undone.',
     removeParticipantSuccess: 'Participant successfully removed',
     saveError: 'Error saving library: {message}',
     saveSuccess: 'Library {name} saved successfully',
@@ -884,9 +863,8 @@ export default {
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
     title: 'Library',
-    updateParticipantsSuccess:
-      'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
-    users: 'Users',
+    updateParticipantsSuccess: 'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
+    users: 'Users'
   },
   lists: {
     addParticipantsConfirmation: 'You are about to add participants to this list.',
@@ -927,7 +905,7 @@ export default {
       webFetch: 'Web Fetch',
       webFetchHelp: 'Fetch content from external URLs to provide context.',
       webFetchMaxTokens: 'Maximum tokens for web fetch content',
-      webSearch: 'Web Search',
+      webSearch: 'Web Search'
     },
     createDialogDescription: 'You can add sources and fields for this list after creation.',
     createDialogTitle: 'New list',
@@ -984,7 +962,7 @@ export default {
         value: 'Value',
         vectorSearchResults: 'Vector Search Results',
         viewDetails: 'View Details',
-        webFetchContent: 'Web Fetch Content',
+        webFetchContent: 'Web Fetch Content'
       },
       singleStarted: 'Started enrichment for {field} in {file}',
       start: 'Start Enrichment',
@@ -996,7 +974,7 @@ export default {
       stopSingle: 'Stop This Enrichment',
       stopSingleError: 'Failed to stop enrichment',
       stopSingleSuccess: 'Stopped enrichment for {field} in {file}',
-      title: 'Enrichment',
+      title: 'Enrichment'
     },
     enrichmentCount: '{count} Enrichment',
     enrichments: 'Enrichments',
@@ -1010,14 +988,14 @@ export default {
         selectFields: 'Select Fields to Export',
         selectNone: 'None',
         title: 'Export Configuration',
-        totalFiles: 'Total files available: {count}',
+        totalFiles: 'Total files available: {count}'
       },
       error: 'Failed to export CSV file',
       exporting: 'Exporting...',
       noData: 'No data to export',
       noFieldsSelected: 'Please select at least one field to export',
       success: 'Successfully exported {name} to CSV',
-      tooltip: 'Export list data to CSV file',
+      tooltip: 'Export list data to CSV file'
     },
     fields: {
       addContextSources: 'Add context',
@@ -1027,8 +1005,7 @@ export default {
       aiModel: 'Large Language Model',
       aiPrompt: 'Prompt',
       aiPromptHelp: 'This prompt is used to calculate the value of the field for each file.',
-      aiPromptPlaceholder:
-        "Describe what you want the AI to extract or analyze from each file. Example: 'Analyze the sentiment of this document and return either Positive, Negative, or Neutral'",
+      aiPromptPlaceholder: 'Describe what you want the AI to extract or analyze from each file. Example: \'Analyze the sentiment of this document and return either Positive, Negative, or Neutral\'',
       computed: 'Computed',
       confirmDelete: 'Click again to confirm',
       contentQueryHelp: 'Specific query to search in document content when using content search',
@@ -1036,11 +1013,9 @@ export default {
       contentQueryRequired: 'Content query is required when using content search.',
       contentQueryTooLong: 'Content query must be less than 100 characters.',
       contentQueryTooShort: 'Content query must be at least 2 characters.',
-      contextExplanation:
-        'The AI will execute this prompt on the defined context (field values, document chunks, or external data).',
+      contextExplanation: 'The AI will execute this prompt on the defined context (field values, document chunks, or external data).',
       contextFields: 'Context Fields',
-      contextFieldsHelp:
-        'Select fields to provide additional context. If none selected, only the file content will be used.',
+      contextFieldsHelp: 'Select fields to provide additional context. If none selected, only the file content will be used.',
       dataType: 'Data Type',
       defineFailureDetection: 'Define failure detection terms',
       delete: 'Delete Field',
@@ -1081,12 +1056,12 @@ export default {
         markdown: 'Markdown',
         number: 'Number',
         string: 'String',
-        text: 'Text',
+        text: 'Text'
       },
       updateField: 'Update Field',
       updateSuccess: 'Field "{name}" updated successfully',
       useVectorStoreHelp: 'Enable targeted search within document content',
-      vectorStoreLabel: 'Content Search',
+      vectorStoreLabel: 'Content Search'
     },
     files: {
       columns: {
@@ -1095,7 +1070,7 @@ export default {
         filePath: 'File Path',
         lastUpdate: 'Last Update',
         originUri: 'Origin URI',
-        processedAt: 'Processed At',
+        processedAt: 'Processed At'
       },
       fileIdRequired: 'File ID is required.',
       filterPlaceholder: 'Filter...',
@@ -1106,7 +1081,7 @@ export default {
       previousPage: 'Previous',
       showColumns: '{count}/{total} columns',
       showing: 'Showing {start} to {end} of {total} files',
-      title: 'Files',
+      title: 'Files'
     },
     firstList: 'No lists yet, start your first now...',
     idRequired: 'List ID is required.',
@@ -1125,10 +1100,10 @@ export default {
       noExtraction: 'No extraction details available',
       sourceFile: 'Source File',
       title: 'Item Details',
-      viewDetails: 'View Item Details',
+      viewDetails: 'View Item Details'
     },
     items: {
-      itemIdRequired: 'Item ID is required.',
+      itemIdRequired: 'Item ID is required.'
     },
     labelCreatedAt: 'Created',
     labelName: 'Name the list',
@@ -1172,41 +1147,39 @@ export default {
         per_file: 'Per File',
         per_file_description: 'One item per file (default)',
         per_row: 'Per Row',
-        per_row_description: 'One item per spreadsheet row',
+        per_row_description: 'One item per spreadsheet row'
       },
       title: 'Library Sources',
       updateError: 'Failed to update extraction strategy: {message}',
       updateSuccess: 'Extraction strategy updated successfully',
       warningCancel: 'Cancel',
       warningConfirm: 'I understand, delete enrichments',
-      warningDescription:
-        'Changing the extraction strategy will delete all existing list items and their enrichments. This action cannot be undone.',
+      warningDescription: 'Changing the extraction strategy will delete all existing list items and their enrichments. This action cannot be undone.',
       warningFieldsAffected: 'The following enrichments will be permanently deleted:',
       warningSuggestion: 'Consider creating a new list instead if you want to keep the existing enrichments.',
-      warningTitle: 'Warning: Enrichments will be deleted',
+      warningTitle: 'Warning: Enrichments will be deleted'
     },
     statistics: 'Statistics',
     switcherTitle: 'Switch list',
     title: 'List',
     updateError: 'Error updating list: {message}',
-    updateParticipantsSuccess:
-      'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
+    updateParticipantsSuccess: 'Participants updated: {addedParticipants} added, {removedParticipants} removed, {totalParticipants} total',
     updateSuccess: 'List updated successfully',
     users: 'Users',
-    view: 'List',
+    view: 'List'
   },
   notifications: {
     avatarRemoved: 'Avatar removed',
     avatarUploaded: 'Avatar uploaded successfully',
     participantRemoved: 'Participant removed successfully',
-    profileEnsured: 'Profile ensured for user {userId}',
+    profileEnsured: 'Profile ensured for user {userId}'
   },
   placeholders: {
     condition: 'if',
     email: 'Your email address',
     emailToInvite: 'Email to invite',
     instruction: 'then',
-    searchUsers: 'Search users...',
+    searchUsers: 'Search users...'
   },
   resetConversation: 'Reset conversation',
   settings: {
@@ -1216,7 +1189,7 @@ export default {
     language: 'Language',
     lightMode: 'Theme: Light',
     systemMode: 'Theme: System',
-    theme: 'Theme',
+    theme: 'Theme'
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
@@ -1225,11 +1198,9 @@ export default {
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
     copiedToClipboard: 'Copied to clipboard',
-    dropAllFilesDialogDescription:
-      'You are about to drop all files in this library. This action cannot be reversed. Please confirm dropping all files.',
+    dropAllFilesDialogDescription: 'You are about to drop all files in this library. This action cannot be reversed. Please confirm dropping all files.',
     dropFileFailure: 'Failed to drop files:',
-    dropFilesDialogDescription:
-      'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
+    dropFilesDialogDescription: 'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     embedFilesDialogDescription: 'You are about to embed the selected files. Please confirm to start embedding.',
     failure: 'Failure',
     fileCreated: 'created',
@@ -1264,7 +1235,7 @@ export default {
     success: 'Success',
     uploadingFiles: 'Uploading files...',
     usersFound: 'Users found',
-    with: 'with',
+    with: 'with'
   },
   tooltips: {
     addNoParticipantsSelected: 'No participant is selected',
@@ -1285,7 +1256,7 @@ export default {
     reprocess: 'Extract markdown from original file and create embeddings',
     saveAndSendConfirmationMail: 'Save and send confirmation mail',
     sendInvitation: 'Send invitation',
-    unhide: 'Unhide',
+    unhide: 'Unhide'
   },
   topNavigation: {
     admin: 'Administration',
@@ -1296,7 +1267,7 @@ export default {
     home: 'Homepage',
     libraries: 'Libraries',
     lists: 'Lists',
-    users: 'Users',
+    users: 'Users'
   },
   updates: {
     actions: 'Actions',
@@ -1312,11 +1283,11 @@ export default {
     status: 'Status',
     success: 'Success',
     type: 'Type',
-    updated: 'Updated',
+    updated: 'Updated'
   },
   welcome: {
     message: 'Welcome to George-AI',
-    signIn: 'Sign In',
+    signIn: 'Sign In'
   },
   workspace: {
     alreadyMember: 'You are already a member of this workspace',
@@ -1340,8 +1311,7 @@ export default {
     invitationAlreadyTakenTitle: 'Invitation Already Taken',
     invitationDescription: '{inviterName} has invited you to join the workspace "{workspaceName}".',
     invitationEmailMismatch: 'This invitation was sent to a different email address',
-    invitationEmailMismatchDescription:
-      'This invitation was sent to {email}. Please log in with that email address to accept it.',
+    invitationEmailMismatchDescription: 'This invitation was sent to {email}. Please log in with that email address to accept it.',
     invitationEmailMismatchTitle: 'Invitation Does Not Match Your Account',
     invitationExpired: 'This invitation has expired',
     invitationExpiredDescription: 'This invitation has expired. Please ask the workspace admin to send a new one.',
@@ -1395,7 +1365,7 @@ export default {
       roleUpdateError: 'Failed to update role: {message}',
       roleUpdateSuccess: '{name} is now {role}',
       title: 'Workspace Members',
-      you: '(you)',
+      you: '(you)'
     },
     name: 'Workspace Name',
     namePlaceholder: 'My Workspace',
@@ -1407,6 +1377,6 @@ export default {
     slugInvalid: 'Slug must contain only lowercase letters, numbers, and hyphens',
     slugPlaceholder: 'my-workspace',
     slugRequired: 'Workspace slug is required',
-    switcherLabel: 'Switch workspace',
-  },
+    switcherLabel: 'Switch workspace'
+  }
 }
