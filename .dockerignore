@@ -2,7 +2,7 @@ node_modules
 **/.turbo
 -vercel
 .next
-.output
+**/.output
 **/.env
 **/.env.*
 .pb_data
@@ -16,7 +16,7 @@ node_modules
 .git
 .gitignore
 **/.DS_Store
-dist
+**/dist
 *.log
 **/Dockerfile
 **/README.md

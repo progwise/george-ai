@@ -42,8 +42,9 @@ RUN rm -f ./apps/georgeai-webapp/public/CHANGELOG.md && \
 # ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
-# Clean any stale build artifacts to prevent cache-related asset hash mismatches
-RUN rm -rf ./apps/georgeai-webapp/.output ./apps/georgeai-webapp/dist && \
+# Clean stale build artifacts AND Vite cache to prevent cache-related asset hash mismatches
+# The .vite cache inside node_modules can persist stale CSS references via GHA layer cache
+RUN rm -rf ./apps/georgeai-webapp/.output ./apps/georgeai-webapp/dist ./apps/georgeai-webapp/node_modules/.vite && \
     pnpm --filter @george-ai/webapp run build
 
 # Deploy creates a clean directory with resolved dependencies

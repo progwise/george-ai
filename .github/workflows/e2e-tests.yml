@@ -189,8 +189,10 @@ jobs:
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
             PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
-          cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          # Cache disabled temporarily to debug stale CSS hash issue
+          # cache-from: type=gha,scope=${{ matrix.name }}
+          # cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          no-cache: true
 
       - name: Skip ${{ matrix.name }} build
         if: matrix.build != 'true'
