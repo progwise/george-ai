@@ -382,6 +382,24 @@ function RouteComponent() {
                   )
                 }
 
+                // Boolean (checkbox)
+                if (field.type === 'boolean') {
+                  return (
+                    <label key={field.id} className="label cursor-pointer justify-start gap-1.5 py-1">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs"
+                        checked={(actionConfig[field.id] as boolean) ?? true}
+                        onChange={(e) => updateConfigField(field.id, e.target.checked)}
+                      />
+                      <span className="text-xs">
+                        {field.name}
+                        {field.description && <span className="text-base-content/60 ml-1">- {field.description}</span>}
+                      </span>
+                    </label>
+                  )
+                }
+
                 return null
               })}
             </div>
