@@ -52,6 +52,8 @@ export default {
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
+    administeringWorkspace: 'Verwalte',
+    adminAreaSubtitle: 'Systemadministration und Überwachung',
     aiModels: {
       actions: 'Aktionen',
       adminNotes: 'Admin-Notizen',
@@ -79,7 +81,7 @@ export default {
       usedIn: 'Verwendet in',
     },
     dashboard: 'Dashboard',
-    dashboardTitle: 'Admin-Dashboard',
+    dashboardTitle: 'Dashboard',
     manageAiModels: 'AI-Modelle verwalten',
     manageAiModelsDescription: 'AI-Modelle von allen Anbietern entdecken, konfigurieren und verwalten.',
     manageQueues: 'Warteschlangen verwalten',
@@ -89,8 +91,7 @@ export default {
       'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
     monitorAiServices: 'AI-Dienste überwachen',
     monitorAiServicesDescription: 'Status der integrierten AI-Dienste und Modelle anzeigen und verwalten.',
-    welcomeMessage:
-      'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.',
+    welcomeMessage: 'Verwalten Sie Benutzer, AI-Dienste, Modelle, Warteschlangen und externe Konnektoren.',
   },
   aiAct: {
     applicableHeadline:

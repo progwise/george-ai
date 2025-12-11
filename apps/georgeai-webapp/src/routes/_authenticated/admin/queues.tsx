@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { getQueueStatusQueryOptions } from '../../../components/admin/queue-management/get-queue-status'
 import { QueueManagementPanel } from '../../../components/admin/queue-management/queue-management-panel'
 import { ClientDate } from '../../../components/client-date'
+import { ListViewIcon } from '../../../icons/list-view-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/queues')({
   component: QueueManagementAdminPage,
@@ -29,9 +30,18 @@ function QueueManagementAdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Queue Management</h1>
+    <div className="container mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="from-accent/20 to-accent/10 bg-linear-to-br rounded-full p-3 shadow-lg">
+            <ListViewIcon className="text-accent h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-primary text-3xl font-bold">Queue Management</h1>
+            <p className="text-lg opacity-70">Monitor and control background processing queues</p>
+          </div>
+        </div>
         <div className="flex gap-2">
           <label className="label cursor-pointer">
             <input
@@ -50,7 +60,7 @@ function QueueManagementAdminPage() {
 
       <QueueManagementPanel queueStatus={queueStatus} />
 
-      <div className="mt-8 text-center text-sm opacity-50">
+      <div className="text-center text-sm opacity-50">
         Last updated: <ClientDate date={queueStatus.lastUpdated} />
       </div>
     </div>

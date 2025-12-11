@@ -1,9 +1,14 @@
 import { Link, Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
+import { useWorkspace } from '../../../components/workspace/use-workspace'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { BriefcaseIcon } from '../../../icons/briefcase-icon'
+import { BuildingOfficeIcon } from '../../../icons/building-office-icon'
 import { CpuIcon } from '../../../icons/cpu-icon'
+import { LinkIcon } from '../../../icons/link-icon'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 import { ServerIcon } from '../../../icons/server-icon'
+import { ShieldCheckIcon } from '../../../icons/shield-check-icon'
 import { UsersIcon } from '../../../icons/users-icon'
 
 export const Route = createFileRoute('/_authenticated/admin')({
@@ -19,10 +24,12 @@ export const Route = createFileRoute('/_authenticated/admin')({
 })
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext()
   const { t } = useTranslation()
+  const { currentWorkspace } = useWorkspace(user)
 
   return (
-    <div className="from-base-300/50 via-base-200/30 to-base-100/50 bg-linear-to-br grid h-[calc(100dvh-6rem)] w-full grid-rows-[auto_1fr_auto]">
+    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-2">
       {/* Admin Header with Navigation */}
       <div className="from-primary/10 via-secondary/10 to-accent/10 border-primary/20 bg-linear-to-r border-b shadow-sm">
         <div className="container mx-auto px-6 py-6">
@@ -30,182 +37,123 @@ function RouteComponent() {
             {/* Header Section */}
             <div className="flex items-center gap-4">
               <div className="from-primary/20 to-secondary/20 bg-linear-to-br rounded-full p-3 shadow-lg">
-                <svg className="text-primary h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
+                <ShieldCheckIcon className="text-primary h-8 w-8" />
               </div>
               <div>
                 <h1 className="text-primary text-2xl font-bold">{t('admin.adminAreaHeadline')}</h1>
-                <p className="text-sm opacity-70">System administration and monitoring</p>
+                <p className="text-sm opacity-70">{t('admin.adminAreaSubtitle')}</p>
               </div>
             </div>
-
-            {/* Navigation Tabs */}
-            <nav className="tabs tabs-boxed bg-base-100/80 shadow-lg backdrop-blur-sm">
-              <Link
-                to="/admin"
-                activeProps={{
-                  className:
-                    'tab tab-active [--tab-bg:theme(colors.primary)] [--tab-color:theme(colors.primary-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: true }}
-              >
-                <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0H8v0z"
-                  />
-                </svg>
-                {t('admin.dashboard')}
-              </Link>
-
-              <Link
-                to="/admin/users"
-                activeProps={{
-                  className:
-                    'tab tab-active [--tab-bg:theme(colors.primary)] [--tab-color:theme(colors.primary-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: false }}
-              >
-                <UsersIcon className="mr-2 h-4 w-4" />
-                {t('admin.manageUsers')}
-              </Link>
-
-              <Link
-                to="/admin/ai-services"
-                activeProps={{
-                  className:
-                    'tab tab-active [--tab-bg:theme(colors.secondary)] [--tab-color:theme(colors.secondary-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: false }}
-              >
-                <ServerIcon className="mr-2 h-4 w-4" />
-                {t('admin.monitorAiServices')}
-              </Link>
-
-              <Link
-                to="/admin/ai-models"
-                activeProps={{
-                  className: 'tab tab-active [--tab-bg:theme(colors.info)] [--tab-color:theme(colors.info-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: false }}
-              >
-                <CpuIcon className="mr-2 h-4 w-4" />
-                {t('admin.manageAiModels')}
-              </Link>
-
-              <Link
-                to="/admin/queues"
-                activeProps={{
-                  className:
-                    'tab tab-active [--tab-bg:theme(colors.accent)] [--tab-color:theme(colors.accent-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: false }}
-              >
-                <ListViewIcon className="mr-2 h-4 w-4" />
-                {t('admin.manageQueues')}
-              </Link>
-
-              <Link
-                to="/admin/connectors"
-                activeProps={{
-                  className:
-                    'tab tab-active [--tab-bg:theme(colors.warning)] [--tab-color:theme(colors.warning-content)]',
-                }}
-                inactiveProps={{
-                  className: 'tab hover:bg-base-200/80 transition-colors duration-200',
-                }}
-                activeOptions={{ exact: false }}
-              >
-                <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-                {t('connectors.title')}
-              </Link>
-            </nav>
-          </div>
-
-          {/* Breadcrumbs */}
-          <div className="mt-4 flex items-center text-sm">
-            <div className="breadcrumbs">
-              <ul>
-                <li className="opacity-60">
-                  <svg className="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                    />
-                  </svg>
-                  Home
-                </li>
-                <li className="text-primary font-semibold">
-                  <svg className="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                  Administration
-                </li>
-              </ul>
+            {/* Workspace Indicator */}
+            <div className="bg-base-100/80 flex items-center gap-3 rounded-xl px-4 py-2 shadow-md backdrop-blur-sm">
+              <div className="bg-primary/10 rounded-lg p-2">
+                <BuildingOfficeIcon className="text-primary h-5 w-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-base-content/60 text-xs font-medium uppercase tracking-wide">
+                  {t('admin.administeringWorkspace')}
+                </span>
+                <span className="text-base-content text-sm font-semibold">{currentWorkspace?.name}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Navigation Tabs */}
+      <nav className="tabs tabs-lift bg-base-100/80 container mx-auto justify-end">
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
+        <Link
+          to="/admin"
+          activeProps={{
+            className: 'tab  tab-active [--tab-bg:theme(colors.base)] [--tab-color:theme(colors.base-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: true }}
+        >
+          <BriefcaseIcon className="mr-2 h-4 w-4" />
+          {t('admin.dashboard')}
+        </Link>
+
+        <Link
+          to="/admin/users"
+          activeProps={{
+            className:
+              'tab tab-active text-primary-content  hover:text-base-200/80 [--tab-bg:theme(colors.primary)] [--tab-color:theme(colors.primary-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <UsersIcon className="mr-2 h-4 w-4" />
+          {t('admin.manageUsers')}
+        </Link>
+
+        <Link
+          to="/admin/ai-services"
+          activeProps={{
+            className:
+              'tab tab-active [--tab-bg:theme(colors.secondary)] [--tab-color:theme(colors.secondary-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <ServerIcon className="mr-2 h-4 w-4" />
+          {t('admin.monitorAiServices')}
+        </Link>
+
+        <Link
+          to="/admin/ai-models"
+          activeProps={{
+            className: 'tab tab-active [--tab-bg:theme(colors.info)] [--tab-color:theme(colors.info-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <CpuIcon className="mr-2 h-4 w-4" />
+          {t('admin.manageAiModels')}
+        </Link>
+
+        <Link
+          to="/admin/queues"
+          activeProps={{
+            className: 'tab tab-active [--tab-bg:theme(colors.accent)] [--tab-color:theme(colors.accent-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <ListViewIcon className="mr-2 h-4 w-4" />
+          {t('admin.manageQueues')}
+        </Link>
+
+        <Link
+          to="/admin/connectors"
+          activeProps={{
+            className: 'tab tab-active [--tab-bg:theme(colors.warning)] [--tab-color:theme(colors.warning-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <LinkIcon className="mr-2 h-4 w-4" />
+          {t('connectors.title')}
+        </Link>
+      </nav>
 
       {/* Main Content Area */}
-      <div className="min-h-0 min-w-0">
+      <div className="container mx-auto overflow-auto pt-4">
         <Outlet />
-      </div>
-
-      {/* Footer */}
-      <div className="bg-base-200/50 border-base-300/50 border-t">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between text-sm opacity-60">
-            <div className="flex items-center gap-2">
-              <div className="bg-success h-2 w-2 animate-pulse rounded-full"></div>
-              System Status: Operational
-            </div>
-            <div>Admin Panel v2.0 - Powered by George AI</div>
-          </div>
-        </div>
       </div>
     </div>
   )

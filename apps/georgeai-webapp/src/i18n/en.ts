@@ -52,6 +52,8 @@ export default {
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',
+    administeringWorkspace: 'Administering',
+    adminAreaSubtitle: 'System administration and monitoring',
     aiModels: {
       actions: 'Actions',
       adminNotes: 'Admin Notes',
@@ -79,7 +81,7 @@ export default {
       usedIn: 'Used In',
     },
     dashboard: 'Dashboard',
-    dashboardTitle: 'Admin Dashboard',
+    dashboardTitle: 'Dashboard',
     manageAiModels: 'Manage AI Models',
     manageAiModelsDescription: 'Discover, configure, and manage AI models from all providers.',
     manageQueues: 'Manage Queues',
@@ -88,7 +90,7 @@ export default {
     manageUsersDescription: 'View all users, activate accounts, edit profiles, and delete users as needed.',
     monitorAiServices: 'Monitor AI Services',
     monitorAiServicesDescription: 'View and manage the status of integrated AI services and models.',
-    welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.',
+    welcomeMessage: 'Manage users, AI services, models, queues, and external connectors.',
   },
   aiAct: {
     applicableHeadline:

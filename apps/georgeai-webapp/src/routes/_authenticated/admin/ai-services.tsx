@@ -15,8 +15,11 @@ import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { AiServiceProviderInput } from '../../../gql/graphql'
 import BotIcon from '../../../icons/bot-icon'
+import { EditIcon } from '../../../icons/edit-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
+import { ServerIcon } from '../../../icons/server-icon'
+import { TrashIcon } from '../../../icons/trash-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
@@ -239,11 +242,17 @@ function AiServicesAdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">AI Service Providers</h1>
-          <p className="text-sm opacity-70">Auto-refreshing every 5 seconds</p>
+    <div className="container mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="from-secondary/20 to-secondary/10 bg-linear-to-br rounded-full p-3 shadow-lg">
+            <ServerIcon className="text-secondary h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-primary text-3xl font-bold">AI Service Providers</h1>
+            <p className="text-lg opacity-70">Auto-refreshing every 5 seconds</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <label className="label cursor-pointer">
@@ -269,54 +278,69 @@ function AiServicesAdminPage() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Configured Providers</h2>
-        <div className="space-y-4">
+      {/* Configured Providers */}
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">Configured Providers</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {providers.length === 0 ? (
             <div className="alert alert-info">
               <span>No providers configured. Add your first provider to get started.</span>
             </div>
           ) : (
             providers.map((provider) => (
-              <div key={provider.id} className="card bg-base-100 shadow-md">
+              <div key={provider.id} className="card card-sm bg-base-100 shadow-md">
                 <div className="card-body">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="card-title">
+                  <div className="flex h-full flex-col items-start justify-between gap-2">
+                    <h3 className="card-title items-top flex w-full justify-between gap-2">
+                      <div className="flex items-center gap-2">
                         {getProviderIcon(provider.provider, 'h-6 w-6')}
                         {provider.name}
-                        <div className={`badge ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <div className={`badge badge-sm ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
                           {provider.enabled ? 'Enabled' : 'Disabled'}
                         </div>
-                        <div className="badge badge-outline">{provider.provider}</div>
-                      </h3>
+                        <div className="badge badge-sm badge-outline">{provider.provider}</div>
+                      </div>
+                    </h3>
+                    <div className="flex-1">
                       {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
-                      {provider.vramGb !== null && <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>}
+                      {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
+                        <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
+                      )}
+                      {provider.apiKeyHint && (
+                        <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
+                      )}
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex w-full justify-between gap-2">
                       <label className="label cursor-pointer">
                         <input
                           type="checkbox"
-                          className="toggle toggle-success"
+                          className="toggle toggle-success toggle-sm"
                           checked={provider.enabled}
                           onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
                         />
+                        {provider.enabled ? 'Disable' : 'Enable'}
                       </label>
-                      <button
-                        className="btn btn-sm btn-ghost"
-                        onClick={() => handleEditProvider(provider)}
-                        type="button"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-error btn-ghost"
-                        onClick={() => handleDeleteProvider(provider.id)}
-                        type="button"
-                      >
-                        Delete
-                      </button>
+                      <div>
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => handleEditProvider(provider)}
+                          type="button"
+                        >
+                          <EditIcon className="mr-1 h-4 w-4" />
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-error btn-ghost"
+                          onClick={() => handleDeleteProvider(provider.id)}
+                          type="button"
+                        >
+                          <TrashIcon className="mr-1 h-4 w-4" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -326,8 +350,9 @@ function AiServicesAdminPage() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Overview Metrics</h2>
+      {/* Overview Metrics */}
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">Overview Metrics</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="stat bg-base-200 rounded-lg">
             <div className="stat-title">Total Providers</div>
@@ -358,8 +383,9 @@ function AiServicesAdminPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Ollama Instance Details</h2>
+      {/* Ollama Instance Details */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Ollama Instance Details</h2>
 
         {serviceStatus.instances.length === 0 ? (
           <div className="alert alert-warning">

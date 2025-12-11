@@ -13,6 +13,7 @@ import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { Pagination } from '../../../components/table/pagination'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../../../icons/bowler-logo-icon'
+import { CpuIcon } from '../../../icons/cpu-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
 import { RefreshIcon } from '../../../icons/refresh-icon'
@@ -202,386 +203,383 @@ function AiModelsPage() {
   })
 
   return (
-    <div className="bg-linear-to-br from-base-200 via-base-100 to-base-200 grid h-full w-full grid-rows-[auto_1fr]">
-      <div>
-        <div className="container mx-auto px-6 py-4">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-primary mb-2 text-4xl font-bold">{t('admin.manageAiModels')}</h1>
-              <p className="text-lg opacity-80">{t('admin.manageAiModelsDescription')}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => syncMutation.mutate()}
-              disabled={syncMutation.isPending}
-              className={twMerge('btn btn-primary', syncMutation.isPending && 'loading')}
-            >
-              {!syncMutation.isPending && <RefreshIcon className="h-5 w-5" />}
-              {t('admin.aiModels.syncModels')}
-            </button>
+    <div className="container mx-auto grid h-full grid-rows-[auto_1fr] gap-4">
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="from-info/20 to-info/10 bg-linear-to-br rounded-full p-3 shadow-lg">
+            <CpuIcon className="text-info h-8 w-8" />
           </div>
+          <div>
+            <h1 className="text-primary text-3xl font-bold">{t('admin.manageAiModels')}</h1>
+            <p className="text-lg opacity-70">{t('admin.manageAiModelsDescription')}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => syncMutation.mutate()}
+          disabled={syncMutation.isPending}
+          className={twMerge('btn btn-primary', syncMutation.isPending && 'loading')}
+        >
+          {!syncMutation.isPending && <RefreshIcon className="h-5 w-5" />}
+          {t('admin.aiModels.syncModels')}
+        </button>
+      </div>
 
-          {/* Stats */}
-          <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Models Overview Card */}
-            <div className="card border-base-300 bg-base-100 border shadow-lg">
+      {/* Stats */}
+      <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Models Overview Card */}
+        <div className="card border-base-300 bg-base-100 border shadow-lg">
+          <div className="card-body p-6">
+            <div className="flex flex-col gap-3">
+              {/* Header with Logo */}
+              <div className="flex items-center gap-2">
+                <BowlerLogoIcon className="h-6 w-6" />
+                <span className="text-sm font-bold">{t('admin.aiModels.totalModels')}</span>
+              </div>
+
+              {/* Counts */}
+              <div className="flex items-baseline gap-3">
+                <div>
+                  <p className="text-2xl font-bold">
+                    {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount + p.disabledCount, 0)}
+                  </p>
+                  <p className="text-xs opacity-50">Total</p>
+                </div>
+                <div>
+                  <p className="text-success text-xl font-bold">
+                    {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount, 0)}
+                  </p>
+                  <p className="text-xs opacity-50">{t('admin.aiModels.enabled')}</p>
+                </div>
+                <div>
+                  <p className="text-error text-xl font-bold">
+                    {data.providerCapabilities.reduce((sum: number, p) => sum + p.disabledCount, 0)}
+                  </p>
+                  <p className="text-xs opacity-50">Disabled</p>
+                </div>
+              </div>
+
+              {/* Capability Badges */}
+              <CapabilityBadges
+                embeddingCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.embeddingCount, 0)}
+                chatCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.chatCount, 0)}
+                visionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.visionCount, 0)}
+                functionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.functionCount, 0)}
+                onFilterByCapability={filterByCapabilityAllProviders}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Ollama Card - Aggregated from all Ollama providers */}
+        {(() => {
+          const ollamaData = data.providerCapabilities.find((p) => p.provider === 'ollama')
+          if (!ollamaData) return null
+
+          return (
+            <div key="ollama" className="card border-base-300 bg-base-100 border shadow-lg">
               <div className="card-body p-6">
                 <div className="flex flex-col gap-3">
-                  {/* Header with Logo */}
                   <div className="flex items-center gap-2">
-                    <BowlerLogoIcon className="h-6 w-6" />
-                    <span className="text-sm font-bold">{t('admin.aiModels.totalModels')}</span>
+                    <OllamaLogoIcon className="h-6 w-6" />
+                    <span className="text-sm font-bold">Ollama</span>
                   </div>
-
-                  {/* Counts */}
                   <div className="flex items-baseline gap-3">
                     <div>
-                      <p className="text-2xl font-bold">
-                        {data.providerCapabilities.reduce(
-                          (sum: number, p) => sum + p.enabledCount + p.disabledCount,
-                          0,
-                        )}
-                      </p>
+                      <p className="text-2xl font-bold">{ollamaData.enabledCount + ollamaData.disabledCount}</p>
                       <p className="text-xs opacity-50">Total</p>
                     </div>
                     <div>
-                      <p className="text-success text-xl font-bold">
-                        {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount, 0)}
-                      </p>
-                      <p className="text-xs opacity-50">{t('admin.aiModels.enabled')}</p>
+                      <p className="text-success text-xl font-bold">{ollamaData.enabledCount}</p>
+                      <p className="text-xs opacity-50">Enabled</p>
                     </div>
                     <div>
-                      <p className="text-error text-xl font-bold">
-                        {data.providerCapabilities.reduce((sum: number, p) => sum + p.disabledCount, 0)}
-                      </p>
+                      <p className="text-error text-xl font-bold">{ollamaData.disabledCount}</p>
                       <p className="text-xs opacity-50">Disabled</p>
                     </div>
                   </div>
-
-                  {/* Capability Badges */}
                   <CapabilityBadges
-                    embeddingCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.embeddingCount, 0)}
-                    chatCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.chatCount, 0)}
-                    visionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.visionCount, 0)}
-                    functionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.functionCount, 0)}
-                    onFilterByCapability={filterByCapabilityAllProviders}
+                    embeddingCount={ollamaData.embeddingCount}
+                    chatCount={ollamaData.chatCount}
+                    visionCount={ollamaData.visionCount}
+                    functionCount={ollamaData.functionCount}
+                    provider="ollama"
+                    onFilterByCapability={filterByCapability}
                   />
                 </div>
               </div>
             </div>
+          )
+        })()}
 
-            {/* Ollama Card - Aggregated from all Ollama providers */}
-            {(() => {
-              const ollamaData = data.providerCapabilities.find((p) => p.provider === 'ollama')
-              if (!ollamaData) return null
+        {/* Cards for other provider types (OpenAI, etc.) */}
+        {data.providerCapabilities
+          .filter((p) => p.provider !== 'ollama')
+          .map((providerData) => {
+            const getProviderIcon = (provider: string) => {
+              switch (provider) {
+                case 'openai':
+                  return <OpenAILogoIcon className="h-6 w-6" />
+                default:
+                  return null
+              }
+            }
 
-              return (
-                <div key="ollama" className="card border-base-300 bg-base-100 border shadow-lg">
-                  <div className="card-body p-6">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-2">
-                        <OllamaLogoIcon className="h-6 w-6" />
-                        <span className="text-sm font-bold">Ollama</span>
-                      </div>
-                      <div className="flex items-baseline gap-3">
-                        <div>
-                          <p className="text-2xl font-bold">{ollamaData.enabledCount + ollamaData.disabledCount}</p>
-                          <p className="text-xs opacity-50">Total</p>
-                        </div>
-                        <div>
-                          <p className="text-success text-xl font-bold">{ollamaData.enabledCount}</p>
-                          <p className="text-xs opacity-50">Enabled</p>
-                        </div>
-                        <div>
-                          <p className="text-error text-xl font-bold">{ollamaData.disabledCount}</p>
-                          <p className="text-xs opacity-50">Disabled</p>
-                        </div>
-                      </div>
-                      <CapabilityBadges
-                        embeddingCount={ollamaData.embeddingCount}
-                        chatCount={ollamaData.chatCount}
-                        visionCount={ollamaData.visionCount}
-                        functionCount={ollamaData.functionCount}
-                        provider="ollama"
-                        onFilterByCapability={filterByCapability}
-                      />
+            const getProviderLabel = (provider: string) => {
+              switch (provider) {
+                case 'openai':
+                  return 'OpenAI'
+                default:
+                  return provider
+              }
+            }
+
+            return (
+              <div key={providerData.provider} className="card border-base-300 bg-base-100 border shadow-lg">
+                <div className="card-body p-6">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      {getProviderIcon(providerData.provider)}
+                      <span className="text-sm font-bold">{getProviderLabel(providerData.provider)}</span>
                     </div>
+                    <div className="flex items-baseline gap-3">
+                      <div>
+                        <p className="text-2xl font-bold">{providerData.enabledCount + providerData.disabledCount}</p>
+                        <p className="text-xs opacity-50">Total</p>
+                      </div>
+                      <div>
+                        <p className="text-success text-xl font-bold">{providerData.enabledCount}</p>
+                        <p className="text-xs opacity-50">Enabled</p>
+                      </div>
+                      <div>
+                        <p className="text-error text-xl font-bold">{providerData.disabledCount}</p>
+                        <p className="text-xs opacity-50">Disabled</p>
+                      </div>
+                    </div>
+                    <CapabilityBadges
+                      embeddingCount={providerData.embeddingCount}
+                      chatCount={providerData.chatCount}
+                      visionCount={providerData.visionCount}
+                      functionCount={providerData.functionCount}
+                      provider={providerData.provider}
+                      onFilterByCapability={filterByCapability}
+                    />
                   </div>
                 </div>
-              )
-            })()}
+              </div>
+            )
+          })}
 
-            {/* Cards for other provider types (OpenAI, etc.) */}
-            {data.providerCapabilities
-              .filter((p) => p.provider !== 'ollama')
-              .map((providerData) => {
-                const getProviderIcon = (provider: string) => {
-                  switch (provider) {
-                    case 'openai':
-                      return <OpenAILogoIcon className="h-6 w-6" />
-                    default:
-                      return null
-                  }
-                }
-
-                const getProviderLabel = (provider: string) => {
-                  switch (provider) {
-                    case 'openai':
-                      return 'OpenAI'
-                    default:
-                      return provider
-                  }
-                }
-
-                return (
-                  <div key={providerData.provider} className="card border-base-300 bg-base-100 border shadow-lg">
-                    <div className="card-body p-6">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                          {getProviderIcon(providerData.provider)}
-                          <span className="text-sm font-bold">{getProviderLabel(providerData.provider)}</span>
-                        </div>
-                        <div className="flex items-baseline gap-3">
-                          <div>
-                            <p className="text-2xl font-bold">
-                              {providerData.enabledCount + providerData.disabledCount}
-                            </p>
-                            <p className="text-xs opacity-50">Total</p>
-                          </div>
-                          <div>
-                            <p className="text-success text-xl font-bold">{providerData.enabledCount}</p>
-                            <p className="text-xs opacity-50">Enabled</p>
-                          </div>
-                          <div>
-                            <p className="text-error text-xl font-bold">{providerData.disabledCount}</p>
-                            <p className="text-xs opacity-50">Disabled</p>
-                          </div>
-                        </div>
-                        <CapabilityBadges
-                          embeddingCount={providerData.embeddingCount}
-                          chatCount={providerData.chatCount}
-                          visionCount={providerData.visionCount}
-                          functionCount={providerData.functionCount}
-                          provider={providerData.provider}
-                          onFilterByCapability={filterByCapability}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-
-            {/* Usage Statistics Card */}
-            <div className="card border-base-300 bg-base-100 border shadow-lg">
-              <div className="card-body p-6">
-                <div className="flex flex-col">
-                  <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm opacity-60">Usage</p>
-                    <select
-                      className="select select-xs"
-                      value={usagePeriod}
-                      onChange={(e) => setUsagePeriod(e.target.value as 'week' | 'month' | 'year')}
-                    >
-                      <option value="week">Last Week</option>
-                      <option value="month">Last Month</option>
-                      <option value="year">Last Year</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs opacity-60">Requests</span>
-                      <span className="text-sm font-bold">{(usageStats?.totalRequests ?? 0).toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs opacity-60">Tokens</span>
-                      <span className="text-sm font-bold">
-                        {usageStats
-                          ? ((usageStats.totalTokensInput + usageStats.totalTokensOutput) / 1000).toFixed(1)
-                          : '0'}
-                        k
-                      </span>
-                    </div>
-                  </div>
+        {/* Usage Statistics Card */}
+        <div className="card border-base-300 bg-base-100 border shadow-lg">
+          <div className="card-body p-6">
+            <div className="flex flex-col">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm opacity-60">Usage</p>
+                <select
+                  className="select select-xs"
+                  value={usagePeriod}
+                  onChange={(e) => setUsagePeriod(e.target.value as 'week' | 'month' | 'year')}
+                >
+                  <option value="week">Last Week</option>
+                  <option value="month">Last Month</option>
+                  <option value="year">Last Year</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs opacity-60">Requests</span>
+                  <span className="text-sm font-bold">{(usageStats?.totalRequests ?? 0).toLocaleString()}</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs opacity-60">Tokens</span>
+                  <span className="text-sm font-bold">
+                    {usageStats
+                      ? ((usageStats.totalTokensInput + usageStats.totalTokensOutput) / 1000).toFixed(1)
+                      : '0'}
+                    k
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="flex w-full items-center justify-between">
-          <div className="flex gap-2">
-            {allProviders.map((provider) => (
-              <label key={provider} className="label cursor-pointer justify-start gap-2 py-1">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  checked={search.providers?.includes(provider) ?? false}
-                  onChange={() => toggleProvider(provider)}
-                />
-                <span className="label-text capitalize">{provider}</span>
-              </label>
-            ))}
+      </div>
 
-            {allCapabilities.map((capability) => (
-              <label key={capability} className="label cursor-pointer justify-start gap-2 py-1">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  checked={search.capabilities?.includes(capability) ?? false}
-                  onChange={() => toggleCapability(capability)}
-                />
-                <span className="label-text capitalize">{capability}</span>
-              </label>
-            ))}
-
-            <label className="label cursor-pointer justify-start gap-2 py-1">
+      {/* Filters */}
+      <div className="flex w-full items-center justify-between">
+        <div className="flex gap-2">
+          {allProviders.map((provider) => (
+            <label key={provider} className="label cursor-pointer justify-start gap-2 py-1">
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                checked={search.onlyUsed}
-                onChange={toggleOnlyUsed}
+                checked={search.providers?.includes(provider) ?? false}
+                onChange={() => toggleProvider(provider)}
               />
-              <span className="label-text">Only Used</span>
+              <span className="label-text capitalize">{provider}</span>
             </label>
-            <label className="label cursor-pointer justify-start gap-2 py-1">
+          ))}
+
+          {allCapabilities.map((capability) => (
+            <label key={capability} className="label cursor-pointer justify-start gap-2 py-1">
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                checked={search.showDisabled}
-                onChange={toggleShowDisabled}
+                checked={search.capabilities?.includes(capability) ?? false}
+                onChange={() => toggleCapability(capability)}
               />
-              <span className="label-text">Show Disabled</span>
+              <span className="label-text capitalize">{capability}</span>
             </label>
-          </div>
-          <div>
-            {/* Pagination Info */}
-            <Pagination
-              totalItems={data.count}
-              itemsPerPage={data.take}
-              currentPage={1 + data.skip / data.take}
-              onPageChange={(page) => {
-                navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: (page - 1) * data.take }) })
-              }}
-              showPageSizeSelector={true}
-              onPageSizeChange={(newPageSize) => {
-                navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: 0, take: newPageSize }) })
-              }}
+          ))}
+
+          <label className="label cursor-pointer justify-start gap-2 py-1">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={search.onlyUsed}
+              onChange={toggleOnlyUsed}
             />
-          </div>
+            <span className="label-text">Only Used</span>
+          </label>
+          <label className="label cursor-pointer justify-start gap-2 py-1">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={search.showDisabled}
+              onChange={toggleShowDisabled}
+            />
+            <span className="label-text">Show Disabled</span>
+          </label>
+        </div>
+        <div>
+          {/* Pagination Info */}
+          <Pagination
+            totalItems={data.count}
+            itemsPerPage={data.take}
+            currentPage={1 + data.skip / data.take}
+            onPageChange={(page) => {
+              navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: (page - 1) * data.take }) })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: 0, take: newPageSize }) })
+            }}
+          />
         </div>
       </div>
 
-      <div className="min-h-0 min-w-0">
-        <div className="h-full w-full overflow-auto">
-          <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
-            <thead>
-              <tr>
-                <th>{t('admin.aiModels.provider')}</th>
-                <th>{t('admin.aiModels.name')}</th>
-                <td>{t('admin.aiModels.capabilities')}</td>
-                <td>{t('admin.aiModels.status')}</td>
-                <td>{t('admin.aiModels.usedIn')}</td>
-                <td>{t('admin.aiModels.lastUsed')}</td>
-                <td>{t('admin.aiModels.actions')}</td>
-              </tr>
-            </thead>
-            <tbody>
-              {models.map((model) => (
-                <tr key={model.id}>
-                  <th>
-                    <div className="flex items-center gap-2">
-                      {model.provider === 'ollama' && <OllamaLogoIcon className="h-5 w-5" />}
-                      {model.provider === 'openai' && <OpenAILogoIcon className="h-5 w-5" />}
-                      <span className="font-mono font-semibold">{model.provider}</span>
-                    </div>
-                  </th>
-                  <th>
-                    <div className="flex flex-col">
-                      <span className="font-mono font-semibold">{model.name}</span>
-                      {model.adminNotes && <span className="text-xs opacity-60">{model.adminNotes}</span>}
-                    </div>
-                  </th>
-                  <td>
-                    <div className="flex flex-wrap gap-1">
-                      {model.canDoChatCompletion && <div className="badge badge-sm badge-primary">Chat</div>}
-                      {model.canDoEmbedding && <div className="badge badge-sm badge-info">Embedding</div>}
-                      {model.canDoVision && <div className="badge badge-sm badge-secondary">Vision</div>}
-                      {model.canDoFunctionCalling && <div className="badge badge-sm badge-accent">Functions</div>}
-                    </div>
-                  </td>
-                  <td>
-                    {model.enabled ? (
-                      <div className="badge badge-sm badge-success">{t('admin.aiModels.enabled')}</div>
-                    ) : (
-                      <div className="badge badge-sm badge-error">{t('admin.aiModels.disabled')}</div>
+      {/* Table */}
+      <div className="min-h-0 min-w-0 overflow-auto">
+        <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
+          <thead>
+            <tr>
+              <th>{t('admin.aiModels.provider')}</th>
+              <th>{t('admin.aiModels.name')}</th>
+              <td>{t('admin.aiModels.capabilities')}</td>
+              <td>{t('admin.aiModels.status')}</td>
+              <td>{t('admin.aiModels.usedIn')}</td>
+              <td>{t('admin.aiModels.lastUsed')}</td>
+              <td>{t('admin.aiModels.actions')}</td>
+            </tr>
+          </thead>
+          <tbody>
+            {models.map((model) => (
+              <tr key={model.id}>
+                <th>
+                  <div className="flex items-center gap-2">
+                    {model.provider === 'ollama' && <OllamaLogoIcon className="h-5 w-5" />}
+                    {model.provider === 'openai' && <OpenAILogoIcon className="h-5 w-5" />}
+                    <span className="font-mono font-semibold">{model.provider}</span>
+                  </div>
+                </th>
+                <th>
+                  <div className="flex flex-col">
+                    <span className="font-mono font-semibold">{model.name}</span>
+                    {model.adminNotes && <span className="text-xs opacity-60">{model.adminNotes}</span>}
+                  </div>
+                </th>
+                <td>
+                  <div className="flex flex-wrap gap-1">
+                    {model.canDoChatCompletion && <div className="badge badge-sm badge-primary">Chat</div>}
+                    {model.canDoEmbedding && <div className="badge badge-sm badge-info">Embedding</div>}
+                    {model.canDoVision && <div className="badge badge-sm badge-secondary">Vision</div>}
+                    {model.canDoFunctionCalling && <div className="badge badge-sm badge-accent">Functions</div>}
+                  </div>
+                </td>
+                <td>
+                  {model.enabled ? (
+                    <div className="badge badge-sm badge-success">{t('admin.aiModels.enabled')}</div>
+                  ) : (
+                    <div className="badge badge-sm badge-error">{t('admin.aiModels.disabled')}</div>
+                  )}
+                </td>
+                <td>
+                  <div className="flex flex-col gap-1">
+                    {(model.librariesUsingAsEmbedding?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {model.librariesUsingAsEmbedding?.map((library) => (
+                          <Link
+                            key={library.id}
+                            to="/libraries/$libraryId"
+                            params={{ libraryId: library.id }}
+                            className="badge badge-outline badge-sm badge-info hover:badge-info-content"
+                          >
+                            {library.name}
+                          </Link>
+                        ))}
+                      </div>
                     )}
-                  </td>
-                  <td>
-                    <div className="flex flex-col gap-1">
-                      {(model.librariesUsingAsEmbedding?.length ?? 0) > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {model.librariesUsingAsEmbedding?.map((library) => (
-                            <Link
-                              key={library.id}
-                              to="/libraries/$libraryId"
-                              params={{ libraryId: library.id }}
-                              className="badge badge-outline badge-sm badge-info hover:badge-info-content"
-                            >
-                              {library.name}
-                            </Link>
-                          ))}
-                        </div>
+                    {(model.assistantsUsingAsChat?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {model.assistantsUsingAsChat?.map((assistant) => (
+                          <Link
+                            key={assistant.id}
+                            to="/assistants/$assistantId"
+                            params={{ assistantId: assistant.id }}
+                            className="badge badge-outline badge-sm badge-primary hover:badge-primary-content"
+                          >
+                            {assistant.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    {(model.listFieldsUsing?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {model.listFieldsUsing?.map((field) => (
+                          <Link
+                            key={field.id}
+                            to="/lists/$listId"
+                            params={{ listId: field.list.id }}
+                            className="badge badge-outline badge-sm badge-accent hover:badge-accent-content"
+                          >
+                            {field.list.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    {(model.librariesUsingAsEmbedding?.length ?? 0) === 0 &&
+                      (model.assistantsUsingAsChat?.length ?? 0) === 0 &&
+                      (model.listFieldsUsing?.length ?? 0) === 0 && (
+                        <span className="text-xs opacity-40">{t('admin.aiModels.notUsed')}</span>
                       )}
-                      {(model.assistantsUsingAsChat?.length ?? 0) > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {model.assistantsUsingAsChat?.map((assistant) => (
-                            <Link
-                              key={assistant.id}
-                              to="/assistants/$assistantId"
-                              params={{ assistantId: assistant.id }}
-                              className="badge badge-outline badge-sm badge-primary hover:badge-primary-content"
-                            >
-                              {assistant.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                      {(model.listFieldsUsing?.length ?? 0) > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {model.listFieldsUsing?.map((field) => (
-                            <Link
-                              key={field.id}
-                              to="/lists/$listId"
-                              params={{ listId: field.list.id }}
-                              className="badge badge-outline badge-sm badge-accent hover:badge-accent-content"
-                            >
-                              {field.list.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                      {(model.librariesUsingAsEmbedding?.length ?? 0) === 0 &&
-                        (model.assistantsUsingAsChat?.length ?? 0) === 0 &&
-                        (model.listFieldsUsing?.length ?? 0) === 0 && (
-                          <span className="text-xs opacity-40">{t('admin.aiModels.notUsed')}</span>
-                        )}
-                    </div>
-                  </td>
-                  <td>
-                    <span className="text-sm opacity-60">
-                      {model.lastUsedAt ? <ClientDate date={model.lastUsedAt} /> : t('admin.aiModels.neverUsed')}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="flex gap-2">
-                      <EditModelButton model={model} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </td>
+                <td>
+                  <span className="text-sm opacity-60">
+                    {model.lastUsedAt ? <ClientDate date={model.lastUsedAt} /> : t('admin.aiModels.neverUsed')}
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-2">
+                    <EditModelButton model={model} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )

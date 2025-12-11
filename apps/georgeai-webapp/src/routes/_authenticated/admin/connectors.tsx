@@ -8,6 +8,7 @@ import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { ConnectorDetailFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { LinkIcon } from '../../../icons/link-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/connectors')({
   component: ConnectorsAdminPage,
@@ -120,11 +121,17 @@ function ConnectorsAdminPage() {
   const isEditing = editingConnector?.id && editingConnector.id !== ''
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('connectors.title')}</h1>
-          <p className="text-sm opacity-70">{t('connectors.description')}</p>
+    <div className="container mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="from-warning/20 to-warning/10 bg-linear-to-br rounded-full p-3 shadow-lg">
+            <LinkIcon className="text-warning h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-primary text-3xl font-bold">{t('connectors.title')}</h1>
+            <p className="text-lg opacity-70">{t('connectors.description')}</p>
+          </div>
         </div>
         <button
           className="btn btn-primary"
@@ -137,8 +144,8 @@ function ConnectorsAdminPage() {
       </div>
 
       {/* Connector Types Section */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">{t('connectors.availableTypes')}</h2>
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">{t('connectors.availableTypes')}</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {connectorTypes.map((type) => {
             const isEnabled = enabledTypes.has(type.id)
@@ -182,8 +189,8 @@ function ConnectorsAdminPage() {
       </div>
 
       {/* Connectors Section */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">{t('connectors.enabledTypes')}</h2>
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">{t('connectors.enabledTypes')}</h2>
         {connectors.length === 0 ? (
           <div className="alert alert-info">
             <span>{t('connectors.noConnectors')}</span>
