@@ -24,7 +24,10 @@ CacheStats AS (
     ) as has_value,
     BOOL_OR(
       "failedEnrichmentValue" IS NOT NULL
-    ) as has_failed
+    ) as has_failed,
+    BOOL_OR(
+      "failedEnrichmentValue" IS NOT NULL
+    ) as has_missing
   FROM "AiListItemCache"
   WHERE "fieldId" IN (SELECT "id" FROM "AiListField" WHERE "listId" = $1)
   GROUP BY "fieldId", "itemId"
@@ -36,6 +39,7 @@ SELECT
   COUNT(DISTINCT "item"."id") as "itemCount",
   COUNT(DISTINCT CASE WHEN "cache".has_cache THEN "item"."id" END) as "cacheCount",
   COUNT(DISTINCT CASE WHEN "cache".has_value THEN "item"."id" END) as "valuesCount",
+  COUNT(DISTINCT CASE WHEN "cache".has_missing THEN "item"."id" END) as "missingCount",
   COUNT(DISTINCT CASE WHEN "task".has_completed THEN "item"."id" END) as "completedTasksCount",
   COUNT(DISTINCT CASE WHEN "task".has_error THEN "item"."id" END) as "errorTasksCount",
   COUNT(DISTINCT CASE WHEN "cache".has_failed THEN "item"."id" END) as "failedTasksCount",

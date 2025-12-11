@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 import { getEnrichmentsStatisticsQueryOptions, getListQueryOptions } from '../../../../components/lists/queries'
-import { EnrichmentStatus } from '../../../../gql/graphql'
+import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/statistics')({
   component: RouteComponent,
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/statistics')
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
   const { listId } = Route.useParams()
   const {
     data: { aiList },
@@ -22,84 +23,143 @@ function RouteComponent() {
     data: { aiListEnrichmentsStatistics: statistics },
   } = useSuspenseQuery(getEnrichmentsStatisticsQueryOptions(listId))
 
-  const statusCounts = statistics.reduce(
-    (acc, stat) => {
-      acc[EnrichmentStatus.Completed] += stat.completedTasksCount
-      acc[EnrichmentStatus.Failed] += stat.failedTasksCount
-      acc[EnrichmentStatus.Pending] += stat.pendingTasksCount
-      acc[EnrichmentStatus.Processing] += stat.processingTasksCount
-      return acc
-    },
-    {
-      [EnrichmentStatus.Completed]: 0,
-      [EnrichmentStatus.Failed]: 0,
-      [EnrichmentStatus.Error]: 0,
-      [EnrichmentStatus.Pending]: 0,
-      [EnrichmentStatus.Processing]: 0,
-      [EnrichmentStatus.Canceled]: 0, // Assuming Canceled is not tracked in stats
-    } as Record<EnrichmentStatus, number>,
+  // Calculate totals for item count (same across all fields)
+  const totalItems = statistics[0]?.itemCount ?? 0
+
+  // Calculate queue totals (sum across all fields)
+  const queueTotals = statistics.reduce(
+    (acc, stat) => ({
+      running: acc.running + stat.processingTasksCount,
+      pending: acc.pending + stat.pendingTasksCount,
+      completed: acc.completed + stat.completedTasksCount,
+      errors: acc.errors + stat.errorTasksCount,
+    }),
+    { running: 0, pending: 0, completed: 0, errors: 0 },
   )
 
-  const totalCount = Object.values(statusCounts).reduce((sum, count) => sum + count, 0)
+  const hasActiveQueue = queueTotals.running > 0 || queueTotals.pending > 0
 
-  const statisticsArray = Object.entries(statusCounts).map(([status, count]) => ({
-    status: status as EnrichmentStatus,
-    count,
-  }))
   return (
     <div className="mt-6 space-y-6">
-      <h1 className="text-2xl font-bold">Statistics for {aiList.name}</h1>
-      <div>
-        <div className="badge badge-lg badge-ghost px-3 py-2">Total Enrichments: {totalCount}</div>
-        {statisticsArray.map(({ status, count }) => (
-          <div
-            key={status}
-            className={twMerge(
-              'badge badge-lg ml-2 px-3 py-2',
-              count === 0 && 'opacity-50',
-              status === EnrichmentStatus.Processing && 'badge-primary',
-              status === EnrichmentStatus.Pending && 'badge-info',
-              status === EnrichmentStatus.Completed && 'badge-success',
-              status === EnrichmentStatus.Error && 'badge-error',
-              status === EnrichmentStatus.Failed && 'badge-warning',
-              status === EnrichmentStatus.Canceled && 'badge-info',
-            )}
-          >
-            {status}: {count}
-          </div>
-        ))}
+      <h1 className="text-2xl font-bold">{t('lists.statistics.title', { name: aiList.name })}</h1>
+
+      {/* Item Summary */}
+      <div className="flex flex-wrap gap-2">
+        <div className="badge badge-lg badge-ghost px-3 py-2">
+          {t('lists.statistics.totalItems')}: {totalItems}
+        </div>
+        <div className="badge badge-lg px-3 py-2">
+          {statistics.length} {t('lists.statistics.enrichmentFields')}
+        </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="table-zebra table w-full">
-          <thead>
-            <tr>
-              <th>Field Name</th>
-              <th className="text-right">Items</th>
-              <th className="text-right">Cached</th>
-              <th className="text-right">Values</th>
-              <th className="text-right">Completed Tasks</th>
-              <th className="text-right">Error Tasks</th>
-              <th className="text-right">Failed Tasks</th>
-              <th className="text-right">Pending Tasks</th>
-              <th className="text-right">Processing Tasks</th>
-            </tr>
-          </thead>
-          <tbody>
-            {statistics?.map((stat) => (
-              <tr key={stat.fieldId}>
-                <td>{stat.fieldName}</td>
-                <td className="text-right">{stat.itemCount}</td>
-                <td className="text-right">{stat.cacheCount}</td>
-                <td className="text-right">{stat.valuesCount}</td>
-                <td className="text-right">{stat.completedTasksCount}</td>
-                <td className="text-right">{stat.errorTasksCount}</td>
-                <td className="text-right">{stat.failedTasksCount}</td>
-                <td className="text-right">{stat.pendingTasksCount}</td>
-                <td className="text-right">{stat.processingTasksCount}</td>
+
+      {/* Queue Status - only show if there's activity */}
+      {hasActiveQueue && (
+        <div className="alert alert-info">
+          <span>
+            {t('lists.statistics.queueStatus')}:{' '}
+            {queueTotals.running > 0 && (
+              <span className="font-semibold">
+                {queueTotals.running} {t('lists.statistics.running')}
+              </span>
+            )}
+            {queueTotals.running > 0 && queueTotals.pending > 0 && ', '}
+            {queueTotals.pending > 0 && (
+              <span>
+                {queueTotals.pending} {t('lists.statistics.queued')}
+              </span>
+            )}
+          </span>
+        </div>
+      )}
+
+      {/* Data Quality Table */}
+      <div>
+        <h2 className="mb-3 text-lg font-semibold">{t('lists.statistics.dataQuality')}</h2>
+        <div className="overflow-x-auto">
+          <table className="table-zebra table w-full">
+            <thead>
+              <tr>
+                <th>{t('lists.statistics.fieldName')}</th>
+                <th className="text-right">{t('lists.statistics.items')}</th>
+                <th className="text-success text-right">{t('lists.statistics.enriched')}</th>
+                <th className="text-warning text-right">{t('lists.statistics.missing')}</th>
+                <th className="text-error text-right">{t('lists.statistics.errors')}</th>
+                <th className="text-base-content/50 text-right">{t('lists.statistics.notProcessed')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {statistics?.map((stat) => {
+                const notProcessed = stat.itemCount - stat.cacheCount
+                return (
+                  <tr key={stat.fieldId}>
+                    <td className="font-medium">{stat.fieldName}</td>
+                    <td className="text-right">{stat.itemCount}</td>
+                    <td className={twMerge('text-right', stat.valuesCount > 0 && 'text-success')}>
+                      {stat.valuesCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.missingCount > 0 && 'text-warning')}>
+                      {stat.missingCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.errorTasksCount > 0 && 'text-error')}>
+                      {stat.errorTasksCount}
+                    </td>
+                    <td className={twMerge('text-right', notProcessed > 0 && 'text-base-content/50')}>
+                      {notProcessed}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Processing History Table */}
+      <div>
+        <h2 className="mb-3 text-lg font-semibold">{t('lists.statistics.processingHistory')}</h2>
+        <div className="overflow-x-auto">
+          <table className="table-zebra table w-full">
+            <thead>
+              <tr>
+                <th>{t('lists.statistics.fieldName')}</th>
+                <th className="text-right">{t('lists.statistics.totalTasks')}</th>
+                <th className="text-success text-right">{t('lists.statistics.producedValues')}</th>
+                <th className="text-warning text-right">{t('lists.statistics.producedMissing')}</th>
+                <th className="text-error text-right">{t('lists.statistics.taskErrors')}</th>
+                <th className="text-right">{t('lists.statistics.running')}</th>
+                <th className="text-right">{t('lists.statistics.queued')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statistics?.map((stat) => {
+                const totalTasks =
+                  stat.completedTasksCount + stat.errorTasksCount + stat.processingTasksCount + stat.pendingTasksCount
+                return (
+                  <tr key={stat.fieldId}>
+                    <td className="font-medium">{stat.fieldName}</td>
+                    <td className="text-right">{totalTasks}</td>
+                    <td className={twMerge('text-right', stat.valuesCount > 0 && 'text-success')}>
+                      {stat.valuesCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.missingCount > 0 && 'text-warning')}>
+                      {stat.missingCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.errorTasksCount > 0 && 'text-error')}>
+                      {stat.errorTasksCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.processingTasksCount > 0 && 'text-primary')}>
+                      {stat.processingTasksCount}
+                    </td>
+                    <td className={twMerge('text-right', stat.pendingTasksCount > 0 && 'text-info')}>
+                      {stat.pendingTasksCount}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

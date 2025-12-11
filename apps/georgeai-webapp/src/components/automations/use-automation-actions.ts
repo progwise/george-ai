@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getAutomationItemsQueryOptions, getAutomationQueryOptions, getAutomationsQueryOptions } from './queries'
+import { getAutomationQueryOptions, getAutomationsQueryOptions } from './queries'
 import {
   CreateAutomationInput,
   UpdateAutomationInput,
@@ -79,11 +80,9 @@ export const useAutomationActions = () => {
       } else {
         toastError(result.message)
       }
+      await queryClient.invalidateQueries({ queryKey: queryKeys.AutomationItems })
     },
     onError: (error) => toastError(t('automations.triggerError', { message: error.message })),
-    onSettled: async (_data, _error, automationId) => {
-      await queryClient.invalidateQueries(getAutomationQueryOptions(automationId))
-    },
   })
 
   const { mutate: updateAutomation, isPending: isUpdatePending } = useMutation({
@@ -117,11 +116,9 @@ export const useAutomationActions = () => {
       } else {
         toastError(result.message)
       }
+      await queryClient.invalidateQueries({ queryKey: [queryKeys.AutomationItems] })
     },
     onError: (error) => toastError(t('automations.triggerError', { message: error.message })),
-    onSettled: async (_data, _error, { automationId }) => {
-      await queryClient.invalidateQueries(getAutomationItemsQueryOptions({ automationId }))
-    },
   })
 
   return {

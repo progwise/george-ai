@@ -161,7 +161,7 @@ function RouteComponent() {
             <fieldset className="fieldset">
               <legend className="fieldset-legend text-xs">{t('automations.labelAction')}</legend>
               <select
-                className="select select-sm w-full"
+                className="select select-sm w-full text-nowrap"
                 value={connectorAction}
                 onChange={(e) => setConnectorAction(e.target.value)}
                 required
@@ -233,7 +233,7 @@ function RouteComponent() {
                       </legend>
                       {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
                       <select
-                        className="select select-sm w-full"
+                        className="select select-sm w-full text-nowrap"
                         value={(actionConfig[field.id] as string) || ''}
                         onChange={(e) => updateConfigField(field.id, e.target.value)}
                         required={field.required}
@@ -276,7 +276,7 @@ function RouteComponent() {
                               className="bg-base-100 flex items-center gap-2 rounded p-2"
                             >
                               <select
-                                className="select select-xs flex-1"
+                                className="select select-xs flex-1 text-nowrap"
                                 value={mapping.sourceFieldId}
                                 onChange={(e) => updateFieldMapping(index, { sourceFieldId: e.target.value })}
                                 aria-label={t('automations.sourceField')}
@@ -306,7 +306,7 @@ function RouteComponent() {
                               </select>
 
                               <select
-                                className="select select-xs w-28"
+                                className="select select-xs w-28 text-nowrap"
                                 value={mapping.transform}
                                 onChange={(e) => updateFieldMapping(index, { transform: e.target.value })}
                                 aria-label={t('automations.transform')}
@@ -364,7 +364,7 @@ function RouteComponent() {
                       </legend>
                       {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
                       <select
-                        className="select select-sm w-full"
+                        className="select select-sm w-full text-nowrap"
                         value={(actionConfig[field.id] as string) || ''}
                         onChange={(e) => updateConfigField(field.id, e.target.value)}
                         required={field.required}
@@ -384,12 +384,15 @@ function RouteComponent() {
 
                 // Boolean (checkbox)
                 if (field.type === 'boolean') {
+                  // Config values come as strings from backend, convert to boolean
+                  const rawValue = actionConfig[field.id]
+                  const boolValue = rawValue === 'false' ? false : rawValue === 'true' ? true : (rawValue ?? true)
                   return (
                     <label key={field.id} className="label cursor-pointer justify-start gap-1.5 py-1">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs"
-                        checked={(actionConfig[field.id] as boolean) ?? true}
+                        checked={Boolean(boolValue)}
                         onChange={(e) => updateConfigField(field.id, e.target.checked)}
                       />
                       <span className="text-xs">

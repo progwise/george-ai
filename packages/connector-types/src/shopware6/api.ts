@@ -245,6 +245,40 @@ export async function getDefaultTaxId(client: ShopwareApiClient): Promise<string
 }
 
 /**
+ * Get the default currency ID from Shopware
+ * Gets EUR if available, otherwise the first currency found
+ */
+export async function getDefaultCurrencyId(client: ShopwareApiClient): Promise<string> {
+  interface CurrencyResponse {
+    data: Array<{
+      id: string
+      isoCode: string
+    }>
+  }
+
+  // Try to get EUR first (most common default in Europe)
+  const eurResponse = await apiRequest<CurrencyResponse>(client, 'POST', '/api/search/currency', {
+    filter: [{ type: 'equals', field: 'isoCode', value: 'EUR' }],
+    limit: 1,
+  })
+
+  if (eurResponse.data.length > 0) {
+    return eurResponse.data[0].id
+  }
+
+  // Fallback: get the first currency
+  const fallback = await apiRequest<CurrencyResponse>(client, 'POST', '/api/search/currency', {
+    limit: 1,
+  })
+
+  if (fallback.data.length === 0) {
+    throw new Error('No currencies found in Shopware. Please configure at least one currency.')
+  }
+
+  return fallback.data[0].id
+}
+
+/**
  * Test the connection to Shopware
  */
 export async function testConnection(

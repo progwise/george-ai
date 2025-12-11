@@ -17,6 +17,7 @@ const getEnrichmentsStatistics = createServerFn({ method: 'GET' })
             itemCount
             cacheCount
             valuesCount
+            missingCount
             completedTasksCount
             errorTasksCount
             failedTasksCount

@@ -1,4 +1,4 @@
-import { getConnectorAction, getConnectorTypeFactory } from '@george-ai/connector-types'
+import { getConnectorAction, getConnectorTypeFactory, rawActionConfigSchema } from '@george-ai/connector-types'
 import type { ActionInput, ConnectorConfig } from '@george-ai/connector-types'
 import { createLogger } from '@george-ai/web-utils'
 
@@ -86,6 +86,40 @@ async function processAutomationItem(
       }
     }
 
+    // Check for missing field values in mapped fields
+    const actionConfig = rawActionConfigSchema.safeParse(item.automation.connectorActionConfig)
+    if (actionConfig.success && actionConfig.data.fieldMappings.length > 0) {
+      const missingFields: string[] = []
+      for (const mapping of actionConfig.data.fieldMappings) {
+        const value = fieldValues[mapping.sourceFieldId]
+        if (value === undefined || value === null || value === '') {
+          missingFields.push(mapping.targetField)
+        }
+      }
+
+      if (missingFields.length > 0) {
+        // Reset item status back to PENDING so it can be processed later when values are available
+        await prisma.aiAutomationItem.update({
+          where: { id: item.id },
+          data: { status: 'SKIPPED' },
+        })
+
+        logger.info(`⊘ Item ${item.listItem.itemName} skipped: Missing values for fields: ${missingFields.join(', ')}`)
+
+        return prisma.aiAutomationItemExecution.create({
+          data: {
+            automationItemId: item.id,
+            batchId,
+            status: 'SKIPPED',
+            input: { fieldValues, missingFields },
+            output: { message: `Missing values for fields: ${missingFields.join(', ')}` },
+            startedAt,
+            finishedAt: new Date(),
+          },
+        })
+      }
+    }
+
     // Prepare connector config with decrypted credentials
     const factory = getConnectorTypeFactory()
     const decryptedCredentials = factory.prepareConfigForUse(
@@ -124,10 +158,12 @@ async function processAutomationItem(
     const status = result.status === 'success' ? 'SUCCESS' : result.status === 'skipped' ? 'SKIPPED' : 'FAILED'
 
     // Update item status
+    logger.debug(`Updating item ${item.id} status to ${status}`)
     await prisma.aiAutomationItem.update({
       where: { id: item.id },
       data: { status },
     })
+    logger.debug(`Item ${item.id} status updated to ${status}`)
 
     // Create execution record
     const execution = await prisma.aiAutomationItemExecution.create({
@@ -142,7 +178,18 @@ async function processAutomationItem(
       },
     })
 
-    logger.debug(`Automation item ${item.id} completed with status: ${status}`)
+    // Log at INFO level so action results are visible
+    if (status === 'SUCCESS') {
+      logger.info(`✓ Item ${item.listItem.itemName}: ${result.message || 'Success'}`)
+    } else if (status === 'SKIPPED') {
+      logger.info(`⊘ Item ${item.listItem.itemName} skipped: ${result.message || 'No message'}`)
+    } else {
+      // Show both message and error for failed actions
+      const errorDetail = result.error ? ` (${result.error})` : ''
+      logger.info(`✗ Item ${item.listItem.itemName} failed: ${result.message || 'Unknown error'}${errorDetail}`)
+    }
+    logger.debug(`Item ${item.id} status changed to: ${status}`)
+
     return execution
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
@@ -246,12 +293,11 @@ async function processBatches() {
         })
 
         if (remainingPending === 0) {
-          // All items processed - finalize batch
-          const stats = await prisma.aiAutomationItem.groupBy({
+          // All items processed - finalize batch using execution records for THIS batch
+          const stats = await prisma.aiAutomationItemExecution.groupBy({
             by: ['status'],
             where: {
-              automationId: batch.automationId,
-              inScope: true,
+              batchId: batch.id, // Only count executions for THIS batch
             },
             _count: true,
           })

@@ -141,7 +141,7 @@ export const AutomationItemSidePanel = ({
                   <h4 className="mb-2 font-semibold">{t('automations.itemDetail.lastExecuted')}</h4>
                   <div className="bg-base-200 rounded-lg p-3">
                     <p className="text-base-content">
-                      <ClientDate date={item.lastExecutedAt} />
+                      <ClientDate date={item.lastExecutedAt} format="dateTimeShort" />
                     </p>
                   </div>
                 </section>

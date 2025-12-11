@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { AutomationItemSidePanel } from '../../../../components/automations/automation-item-side-panel'
 import { getAutomationItemsQueryOptions, getAutomationQueryOptions } from '../../../../components/automations/queries'
@@ -9,7 +9,12 @@ import { ClientDate } from '../../../../components/client-date'
 import { Pagination } from '../../../../components/table/pagination'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EyeIcon } from '../../../../icons/eye-icon'
+import { GearIcon } from '../../../../icons/gear-icon'
+import { LibraryIcon } from '../../../../icons/library-icon'
+import { LinkIcon } from '../../../../icons/link-icon'
+import { ListViewIcon } from '../../../../icons/list-view-icon'
 import { PlayIcon } from '../../../../icons/play-icon'
+import { WarnIcon } from '../../../../icons/warn-icon'
 
 interface AutomationSearchParams {
   page?: number
@@ -58,16 +63,41 @@ function RouteComponent() {
     }),
   )
 
-  const subTitle = useMemo(() => {
-    const targets = automation.connectorActionConfig.fieldMappings.map((f) => f.targetField).join(', ')
-    return `${automation.connector.baseUrl} ${automation.connectorAction} : ${automation.list.name} → ${targets || t('automations.notConfigured')}`
-  }, [automation, t])
-
   return (
     <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr] gap-2">
+      <div className="breadcrumbs py-0 text-sm">
+        <ul>
+          {automation.list.sources[0]?.library && (
+            <li>
+              <Link to="/libraries/$libraryId" params={{ libraryId: automation.list.sources[0].library.id }}>
+                <LibraryIcon className="size-4" />
+                {automation.list.sources[0].library.name}
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link to="/lists/$listId" params={{ listId: automation.listId }}>
+              <ListViewIcon className="size-4" />
+              {automation.list.name}
+            </Link>
+          </li>
+          <li>
+            <Link to="/automations/$automationId/settings" params={{ automationId }}>
+              <GearIcon className="size-4" />
+              {automation.connectorAction}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/connectors">
+              <LinkIcon className="size-4" />
+              {automation.connector.name || automation.connector.baseUrl}
+            </Link>
+          </li>
+        </ul>
+      </div>
       <ul className="menu menu-sm menu-horizontal text-base-content/70 bg-base-200 w-full items-center">
         <li className="menu-title text-base-content/70">
-          <span>{subTitle}</span>
+          <span>{automation.name}</span>
         </li>
         <li className="grow items-end">
           {t('automations.itemsCount', {
@@ -112,7 +142,7 @@ function RouteComponent() {
                 <tr key={item.id} className="hover:bg-base-300">
                   <th className="text-base-content/50">{page * pageSize + index + 1}</th>
                   <th>
-                    <div>
+                    <div className="flex items-center">
                       <button
                         type="button"
                         className="btn btn-ghost btn-sm"
@@ -135,7 +165,11 @@ function RouteComponent() {
                           listId: item.listItem.listId,
                         }}
                         search={{ selectedItemId: item.listItemId }}
+                        className="inline-flex items-center gap-1"
                       >
+                        {item.hasIncompleteData && (
+                          <WarnIcon className="text-warning size-4" tooltip={t('automations.incompleteData')} />
+                        )}
                         {item.listItem.itemName}
                       </Link>
                     </div>
@@ -149,7 +183,7 @@ function RouteComponent() {
                               : item.status === 'WARNING'
                                 ? 'badge-warning'
                                 : item.status === 'SKIPPED'
-                                  ? 'badge-ghost'
+                                  ? 'badge-outline'
                                   : 'badge-info'
                         }`}
                       >
@@ -161,11 +195,21 @@ function RouteComponent() {
                     {item.preview.length > 0 ? (
                       <div className="space-y-1">
                         {item.preview.map((p) => (
-                          <div key={p.targetField} className="flex text-xs">
+                          <div key={p.targetField} className="flex items-center gap-1 text-xs">
                             <span className="text-base-content/50 shrink-0">{p.targetField}:</span>{' '}
-                            <span className="truncate" title={p.value || '—'}>
-                              {p.value || '—'}
-                            </span>
+                            {p.isMissing ? (
+                              <span
+                                className="text-warning flex items-center gap-1"
+                                title={t('automations.missingValue')}
+                              >
+                                <WarnIcon className="size-3" />
+                                {t('automations.missingValue')}
+                              </span>
+                            ) : (
+                              <span className="truncate" title={p.value || '—'}>
+                                {p.value || '—'}
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -175,7 +219,7 @@ function RouteComponent() {
                   </td>
                   <td className="text-xs">
                     {item.lastExecutedAt ? (
-                      <ClientDate date={item.lastExecutedAt} format="date" />
+                      <ClientDate date={item.lastExecutedAt} format="dateTime" />
                     ) : (
                       <span className="text-base-content/50">—</span>
                     )}

@@ -15,9 +15,11 @@ graphql(`
     inScope
     status
     lastExecutedAt
+    hasIncompleteData
     preview {
       targetField
       value
+      isMissing
     }
     listItem {
       id
@@ -65,4 +67,8 @@ export const getAutomationItemsQueryOptions = (params: GetAutomationItemsParams)
   queryOptions({
     queryKey: [queryKeys.AutomationItems, params],
     queryFn: () => getAutomationItems({ data: params }),
+    refetchInterval: (query) =>
+      query.state.data?.automationItems.items.some((item) => item.status === 'PENDING' || item.status === 'PROCESSING')
+        ? 5000
+        : false,
   })

@@ -217,6 +217,10 @@ type AiAutomationItem {
   automationId: String!
   createdAt: DateTime!
   executions: [AiAutomationItemExecution!]!
+  """
+  True if any mapped field is missing a value
+  """
+  hasIncompleteData: Boolean!
   id: ID!
   inScope: Boolean!
   lastExecutedAt: DateTime
@@ -811,6 +815,10 @@ type AiListFieldStatistics {
   fieldName: String!
   itemCount: Int!
   listId: String!
+  """
+  Items where value matched a failure term
+  """
+  missingCount: Int!
   pendingTasksCount: Int!
   processingTasksCount: Int!
   valuesCount: Int!
@@ -1015,6 +1023,7 @@ enum AutomationItemStatus {
 Preview of a value that will be written to the target system
 """
 type AutomationPreviewValue {
+  isMissing: Boolean!
   targetField: String!
   transformedValue: String
   value: String

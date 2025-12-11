@@ -237,6 +237,8 @@ export type AiAutomationItem = {
   automationId: Scalars['String']['output']
   createdAt: Scalars['DateTime']['output']
   executions: Array<AiAutomationItemExecution>
+  /** True if any mapped field is missing a value */
+  hasIncompleteData: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   inScope: Scalars['Boolean']['output']
   lastExecutedAt?: Maybe<Scalars['DateTime']['output']>
@@ -869,6 +871,8 @@ export type AiListFieldStatistics = {
   fieldName: Scalars['String']['output']
   itemCount: Scalars['Int']['output']
   listId: Scalars['String']['output']
+  /** Items where value matched a failure term */
+  missingCount: Scalars['Int']['output']
   pendingTasksCount: Scalars['Int']['output']
   processingTasksCount: Scalars['Int']['output']
   valuesCount: Scalars['Int']['output']
@@ -1085,6 +1089,7 @@ export enum AutomationItemStatus {
 /** Preview of a value that will be written to the target system */
 export type AutomationPreviewValue = {
   __typename?: 'AutomationPreviewValue'
+  isMissing: Scalars['Boolean']['output']
   targetField: Scalars['String']['output']
   transformedValue?: Maybe<Scalars['String']['output']>
   value?: Maybe<Scalars['String']['output']>
@@ -3861,7 +3866,13 @@ export type AutomationItemList_AutomationItemFragment = {
   inScope: boolean
   status: AutomationItemStatus
   lastExecutedAt?: string | null
-  preview: Array<{ __typename?: 'AutomationPreviewValue'; targetField: string; value?: string | null }>
+  hasIncompleteData: boolean
+  preview: Array<{
+    __typename?: 'AutomationPreviewValue'
+    targetField: string
+    value?: string | null
+    isMissing: boolean
+  }>
   listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
 }
 
@@ -3890,7 +3901,13 @@ export type GetAutomationItemsQuery = {
       inScope: boolean
       status: AutomationItemStatus
       lastExecutedAt?: string | null
-      preview: Array<{ __typename?: 'AutomationPreviewValue'; targetField: string; value?: string | null }>
+      hasIncompleteData: boolean
+      preview: Array<{
+        __typename?: 'AutomationPreviewValue'
+        targetField: string
+        value?: string | null
+        isMissing: boolean
+      }>
       listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
     }>
   }
@@ -3921,6 +3938,10 @@ export type AutomationDetailFragment = {
     __typename?: 'AiList'
     id: string
     name: string
+    sources: Array<{
+      __typename?: 'AiListSource'
+      library?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+    }>
     fields: Array<{
       __typename?: 'AiListField'
       id: string
@@ -3963,6 +3984,10 @@ export type GetAutomationQuery = {
       __typename?: 'AiList'
       id: string
       name: string
+      sources: Array<{
+        __typename?: 'AiListSource'
+        library?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+      }>
       fields: Array<{
         __typename?: 'AiListField'
         id: string
@@ -5976,6 +6001,7 @@ export type GetEnrichmentsStatisticsQuery = {
     itemCount: number
     cacheCount: number
     valuesCount: number
+    missingCount: number
     completedTasksCount: number
     errorTasksCount: number
     failedTasksCount: number
@@ -8642,6 +8668,7 @@ export const AutomationItemList_AutomationItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasIncompleteData' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'preview' },
@@ -8650,6 +8677,7 @@ export const AutomationItemList_AutomationItemFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isMissing' } },
               ],
             },
           },
@@ -8729,6 +8757,26 @@ export const AutomationDetailFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sources' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'library' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'fields' },
@@ -15450,6 +15498,7 @@ export const GetAutomationItemsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'inScope' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastExecutedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'hasIncompleteData' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'preview' },
@@ -15458,6 +15507,7 @@ export const GetAutomationItemsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'targetField' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isMissing' } },
               ],
             },
           },
@@ -15569,6 +15619,26 @@ export const GetAutomationDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sources' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'library' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'fields' },
@@ -19454,6 +19524,7 @@ export const GetEnrichmentsStatisticsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'itemCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'missingCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'errorTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },

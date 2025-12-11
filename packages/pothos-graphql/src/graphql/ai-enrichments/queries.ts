@@ -143,6 +143,7 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
           itemCount: number
           cacheCount: number
           valuesCount: number
+          missingCount: number
           completedTasksCount: number
           errorTasksCount: number
           failedTasksCount: number
@@ -157,6 +158,10 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
             itemCount: t.exposeInt('itemCount', { nullable: false }),
             cacheCount: t.exposeInt('cacheCount', { nullable: false }),
             valuesCount: t.exposeInt('valuesCount', { nullable: false }),
+            missingCount: t.exposeInt('missingCount', {
+              nullable: false,
+              description: 'Items where value matched a failure term',
+            }),
             completedTasksCount: t.exposeInt('completedTasksCount', { nullable: false }),
             errorTasksCount: t.exposeInt('errorTasksCount', { nullable: false }),
             failedTasksCount: t.exposeInt('failedTasksCount', { nullable: false }),
@@ -179,6 +184,7 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
         itemCount: Number(r.itemCount),
         cacheCount: Number(r.cacheCount),
         valuesCount: Number(r.valuesCount),
+        missingCount: Number(r.missingCount),
         completedTasksCount: Number(r.completedTasksCount),
         errorTasksCount: Number(r.errorTasksCount),
         failedTasksCount: Number(r.failedTasksCount),

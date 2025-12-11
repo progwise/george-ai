@@ -8,7 +8,14 @@ import { z } from 'zod'
 import { transformValue } from '../../transforms'
 import type { ActionExecutionResult, ActionInput, ConnectorAction, ConnectorConfig } from '../../types'
 import type { TransformType } from '../../validation'
-import { createApiClient, createProduct, getDefaultTaxId, searchProductByNumber, updateProduct } from '../api'
+import {
+  createApiClient,
+  createProduct,
+  getDefaultCurrencyId,
+  getDefaultTaxId,
+  searchProductByNumber,
+  updateProduct,
+} from '../api'
 
 /**
  * Field mapping configuration
@@ -29,7 +36,12 @@ const UpsertProductConfigSchema = z.object({
   /** Product number field - which enrichment field contains the SKU */
   productNumberField: z.string().min(1, 'Product number field is required'),
   /** Whether to create product if not found (default: true) */
-  createIfNotExists: z.boolean().default(true),
+  // Handle string "true"/"false" and undefined (unchecked checkbox) from form submissions
+  createIfNotExists: z.preprocess((val) => {
+    if (val === undefined || val === null || val === '') return false
+    if (typeof val === 'string') return val === 'true'
+    return val
+  }, z.boolean().default(true)),
   /** Language ID to write to (optional - uses default if not specified) */
   languageId: z.string().optional(),
   /** Field mappings - which enrichment fields map to which Shopware fields */
@@ -112,15 +124,25 @@ async function execute(connectorConfig: ConnectorConfig, input: ActionInput): Pr
         }
       }
 
-      // Get default tax ID for new products
-      const taxId = await getDefaultTaxId(client)
+      // Get default tax ID and currency for new products
+      const [taxId, currencyId] = await Promise.all([getDefaultTaxId(client), getDefaultCurrencyId(client)])
 
       // Create new product with required fields
+      // Shopware 6 requires: productNumber, name, taxId, price, stock
       const createData = {
         productNumber,
         taxId,
         stock: 0, // Default stock
         active: true, // Default active
+        // Default price of 0.00 - required by Shopware
+        price: [
+          {
+            currencyId,
+            gross: 0,
+            net: 0,
+            linked: true,
+          },
+        ],
         ...productData,
       }
 
