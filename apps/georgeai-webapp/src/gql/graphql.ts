@@ -863,10 +863,10 @@ export type AiListFieldInput = {
 
 export type AiListFieldStatistics = {
   __typename?: 'AiListFieldStatistics'
+  averageProcessingDurationSeconds: Scalars['Float']['output']
   cacheCount: Scalars['Int']['output']
   completedTasksCount: Scalars['Int']['output']
   errorTasksCount: Scalars['Int']['output']
-  failedTasksCount: Scalars['Int']['output']
   fieldId: Scalars['String']['output']
   fieldName: Scalars['String']['output']
   itemCount: Scalars['Int']['output']
@@ -875,6 +875,8 @@ export type AiListFieldStatistics = {
   missingCount: Scalars['Int']['output']
   pendingTasksCount: Scalars['Int']['output']
   processingTasksCount: Scalars['Int']['output']
+  /** Total number of enrichment tasks created for this field */
+  totalTasksCount: Scalars['Int']['output']
   valuesCount: Scalars['Int']['output']
 }
 
@@ -6002,11 +6004,12 @@ export type GetEnrichmentsStatisticsQuery = {
     cacheCount: number
     valuesCount: number
     missingCount: number
+    totalTasksCount: number
     completedTasksCount: number
     errorTasksCount: number
-    failedTasksCount: number
     pendingTasksCount: number
     processingTasksCount: number
+    averageProcessingDurationSeconds: number
   }>
 }
 
@@ -19525,11 +19528,12 @@ export const GetEnrichmentsStatisticsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'cacheCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'valuesCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'missingCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'completedTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'errorTasksCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'pendingTasksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingTasksCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'averageProcessingDurationSeconds' } },
               ],
             },
           },

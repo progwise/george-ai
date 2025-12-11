@@ -84,7 +84,6 @@ function RouteComponent() {
                 <th className="text-right">{t('lists.statistics.items')}</th>
                 <th className="text-success text-right">{t('lists.statistics.enriched')}</th>
                 <th className="text-warning text-right">{t('lists.statistics.missing')}</th>
-                <th className="text-error text-right">{t('lists.statistics.errors')}</th>
                 <th className="text-base-content/50 text-right">{t('lists.statistics.notProcessed')}</th>
               </tr>
             </thead>
@@ -100,9 +99,6 @@ function RouteComponent() {
                     </td>
                     <td className={twMerge('text-right', stat.missingCount > 0 && 'text-warning')}>
                       {stat.missingCount}
-                    </td>
-                    <td className={twMerge('text-right', stat.errorTasksCount > 0 && 'text-error')}>
-                      {stat.errorTasksCount}
                     </td>
                     <td className={twMerge('text-right', notProcessed > 0 && 'text-base-content/50')}>
                       {notProcessed}
@@ -124,26 +120,24 @@ function RouteComponent() {
               <tr>
                 <th>{t('lists.statistics.fieldName')}</th>
                 <th className="text-right">{t('lists.statistics.totalTasks')}</th>
-                <th className="text-success text-right">{t('lists.statistics.producedValues')}</th>
-                <th className="text-warning text-right">{t('lists.statistics.producedMissing')}</th>
-                <th className="text-error text-right">{t('lists.statistics.taskErrors')}</th>
+                <th className="text-center">Average duration</th>
+
+                <th className="text-success text-right">{t('lists.statistics.completed')}</th>
+                <th className="text-error text-right">{t('lists.statistics.errors')}</th>
                 <th className="text-right">{t('lists.statistics.running')}</th>
                 <th className="text-right">{t('lists.statistics.queued')}</th>
               </tr>
             </thead>
             <tbody>
               {statistics?.map((stat) => {
-                const totalTasks =
-                  stat.completedTasksCount + stat.errorTasksCount + stat.processingTasksCount + stat.pendingTasksCount
                 return (
                   <tr key={stat.fieldId}>
                     <td className="font-medium">{stat.fieldName}</td>
-                    <td className="text-right">{totalTasks}</td>
-                    <td className={twMerge('text-right', stat.valuesCount > 0 && 'text-success')}>
-                      {stat.valuesCount}
-                    </td>
-                    <td className={twMerge('text-right', stat.missingCount > 0 && 'text-warning')}>
-                      {stat.missingCount}
+                    <td className="text-right">{stat.totalTasksCount}</td>
+                    <td className="text-center">{Math.round(stat.averageProcessingDurationSeconds * 10) / 10} sec</td>
+
+                    <td className={twMerge('text-right', stat.completedTasksCount > 0 && 'text-success')}>
+                      {stat.completedTasksCount}
                     </td>
                     <td className={twMerge('text-right', stat.errorTasksCount > 0 && 'text-error')}>
                       {stat.errorTasksCount}

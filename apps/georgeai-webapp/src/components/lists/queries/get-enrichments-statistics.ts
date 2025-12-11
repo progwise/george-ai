@@ -18,11 +18,12 @@ const getEnrichmentsStatistics = createServerFn({ method: 'GET' })
             cacheCount
             valuesCount
             missingCount
+            totalTasksCount
             completedTasksCount
             errorTasksCount
-            failedTasksCount
             pendingTasksCount
             processingTasksCount
+            averageProcessingDurationSeconds
           }
         }
       `),

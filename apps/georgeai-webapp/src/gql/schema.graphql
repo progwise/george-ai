@@ -807,10 +807,10 @@ input AiListFieldInput {
 }
 
 type AiListFieldStatistics {
+  averageProcessingDurationSeconds: Float!
   cacheCount: Int!
   completedTasksCount: Int!
   errorTasksCount: Int!
-  failedTasksCount: Int!
   fieldId: String!
   fieldName: String!
   itemCount: Int!
@@ -821,6 +821,10 @@ type AiListFieldStatistics {
   missingCount: Int!
   pendingTasksCount: Int!
   processingTasksCount: Int!
+  """
+  Total number of enrichment tasks created for this field
+  """
+  totalTasksCount: Int!
   valuesCount: Int!
 }
 

@@ -144,11 +144,12 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
           cacheCount: number
           valuesCount: number
           missingCount: number
+          totalTasksCount: number
           completedTasksCount: number
           errorTasksCount: number
-          failedTasksCount: number
           pendingTasksCount: number
           processingTasksCount: number
+          averageProcessingDurationSeconds: number
         }>('AiListFieldStatistics')
         .implement({
           fields: (t) => ({
@@ -162,11 +163,15 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
               nullable: false,
               description: 'Items where value matched a failure term',
             }),
+            totalTasksCount: t.exposeInt('totalTasksCount', {
+              nullable: false,
+              description: 'Total number of enrichment tasks created for this field',
+            }),
             completedTasksCount: t.exposeInt('completedTasksCount', { nullable: false }),
             errorTasksCount: t.exposeInt('errorTasksCount', { nullable: false }),
-            failedTasksCount: t.exposeInt('failedTasksCount', { nullable: false }),
             pendingTasksCount: t.exposeInt('pendingTasksCount', { nullable: false }),
             processingTasksCount: t.exposeInt('processingTasksCount', { nullable: false }),
+            averageProcessingDurationSeconds: t.exposeFloat('averageProcessingDurationSeconds', { nullable: false }),
           }),
         }),
     ],
@@ -185,11 +190,12 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
         cacheCount: Number(r.cacheCount),
         valuesCount: Number(r.valuesCount),
         missingCount: Number(r.missingCount),
+        totalTasksCount: Number(r.totalTasksCount),
         completedTasksCount: Number(r.completedTasksCount),
         errorTasksCount: Number(r.errorTasksCount),
-        failedTasksCount: Number(r.failedTasksCount),
         pendingTasksCount: Number(r.pendingTasksCount),
         processingTasksCount: Number(r.processingTasksCount),
+        averageProcessingDurationSeconds: Number(r.averageProcessingDurationSeconds),
       }))
     },
   }),
