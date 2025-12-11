@@ -65,7 +65,7 @@ function RouteComponent() {
           role="tab"
         >
           <StatisticsIcon />
-          {t('lists.statistics')}
+          {t('lists.statistics.tabTitle')}
         </Link>
         <Link
           to="/lists/$listId/edit"

@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 import { getEnrichmentsStatisticsQueryOptions, getListQueryOptions } from '../../../../components/lists/queries'
+import { StackedDataQualityBar } from '../../../../components/lists/stacked-data-quality-bar'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/lists/$listId/statistics')({
@@ -37,71 +38,108 @@ function RouteComponent() {
     { running: 0, pending: 0, completed: 0, errors: 0 },
   )
 
-  const hasActiveQueue = queueTotals.running > 0 || queueTotals.pending > 0
+  // Calculate aggregate data quality metrics
+  const aggregateEnriched = statistics.reduce((sum, s) => sum + s.valuesCount, 0)
+  const aggregateMissing = statistics.reduce((sum, s) => sum + s.missingCount, 0)
+  const aggregateNotProcessed = statistics.reduce((sum, s) => sum + (s.itemCount - s.cacheCount), 0)
 
   return (
     <div className="mt-6 space-y-6">
-      <h1 className="text-2xl font-bold">{t('lists.statistics.title', { name: aiList.name })}</h1>
+      <h1 className="text-base-content/60 text-2xl font-bold">{t('lists.statistics.title', { name: aiList.name })}</h1>
 
       {/* Item Summary */}
       <div className="flex flex-wrap gap-2">
-        <div className="badge badge-lg badge-ghost px-3 py-2">
+        <div className="badge badge-lg badge-ghost">
           {t('lists.statistics.totalItems')}: {totalItems}
         </div>
-        <div className="badge badge-lg px-3 py-2">
+        <div className="badge badge-lg">
           {statistics.length} {t('lists.statistics.enrichmentFields')}
+        </div>
+        {queueTotals.running > 0 && (
+          <div className="badge badge-lg badge-primary">
+            {queueTotals.running} {t('lists.statistics.running')}
+          </div>
+        )}
+
+        {queueTotals.pending > 0 && (
+          <div className="badge badge-lg badge-secondary">
+            {queueTotals.pending} {t('lists.statistics.queued')}
+          </div>
+        )}
+      </div>
+
+      {/* Data Quality Summary Visualization */}
+      <div>
+        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.dataQualitySummary')}</h2>
+        <div className="rounded-box bg-base-200 p-4">
+          <StackedDataQualityBar
+            data={{
+              enriched: aggregateEnriched,
+              missing: aggregateMissing,
+              notProcessed: aggregateNotProcessed,
+              total: totalItems * statistics.length,
+            }}
+            variant="summary"
+          />
         </div>
       </div>
 
-      {/* Queue Status - only show if there's activity */}
-      {hasActiveQueue && (
-        <div className="alert alert-info">
-          <span>
-            {t('lists.statistics.queueStatus')}:{' '}
-            {queueTotals.running > 0 && (
-              <span className="font-semibold">
-                {queueTotals.running} {t('lists.statistics.running')}
-              </span>
-            )}
-            {queueTotals.running > 0 && queueTotals.pending > 0 && ', '}
-            {queueTotals.pending > 0 && (
-              <span>
-                {queueTotals.pending} {t('lists.statistics.queued')}
-              </span>
-            )}
-          </span>
-        </div>
-      )}
-
       {/* Data Quality Table */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold">{t('lists.statistics.dataQuality')}</h2>
+        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.dataQuality')}</h2>
         <div className="overflow-x-auto">
           <table className="table-zebra table w-full">
             <thead>
               <tr>
-                <th>{t('lists.statistics.fieldName')}</th>
-                <th className="text-right">{t('lists.statistics.items')}</th>
-                <th className="text-success text-right">{t('lists.statistics.enriched')}</th>
-                <th className="text-warning text-right">{t('lists.statistics.missing')}</th>
-                <th className="text-base-content/50 text-right">{t('lists.statistics.notProcessed')}</th>
+                <th className="w-48">{t('lists.statistics.fieldName')}</th>
+                <th className="w-20 text-center">{t('lists.statistics.items')}</th>
+                <th className="text-success w-20 text-center">{t('lists.statistics.enriched')}</th>
+                <th className="text-warning w-20 text-center">{t('lists.statistics.missing')}</th>
+                <th className="text-base-content/50 w-28 text-center">{t('lists.statistics.notProcessed')}</th>
+                <th className="text-center">{t('lists.statistics.distribution')}</th>
               </tr>
             </thead>
             <tbody>
               {statistics?.map((stat) => {
                 const notProcessed = stat.itemCount - stat.cacheCount
                 return (
-                  <tr key={stat.fieldId}>
-                    <td className="font-medium">{stat.fieldName}</td>
-                    <td className="text-right">{stat.itemCount}</td>
-                    <td className={twMerge('text-right', stat.valuesCount > 0 && 'text-success')}>
-                      {stat.valuesCount}
+                  <tr key={stat.fieldId} className="hover:bg-base-300">
+                    <td className="w-48 font-medium">{stat.fieldName}</td>
+                    <td className="w-20 text-center">{stat.itemCount}</td>
+                    <td className={twMerge('w-20 text-center', stat.valuesCount > 0 && 'text-success')}>
+                      <div className="flex gap-1">
+                        <span className="justify-center font-semibold">{stat.valuesCount}</span>
+                        <span className={twMerge('font-light', !stat.valuesCount && 'hidden')}>
+                          ({((100 * stat.valuesCount) / stat.itemCount).toFixed(1)}%)
+                        </span>
+                      </div>
                     </td>
-                    <td className={twMerge('text-right', stat.missingCount > 0 && 'text-warning')}>
-                      {stat.missingCount}
+                    <td className={twMerge('w-20 text-center', stat.missingCount > 0 && 'text-warning')}>
+                      <div className="flex justify-center gap-1">
+                        <span className="font-semibold">{stat.missingCount}</span>
+                        <span className={twMerge('font-light', !stat.missingCount && 'hidden')}>
+                          ({((100 * stat.missingCount) / stat.itemCount).toFixed(1)}%)
+                        </span>
+                      </div>
                     </td>
-                    <td className={twMerge('text-right', notProcessed > 0 && 'text-base-content/50')}>
-                      {notProcessed}
+                    <td className={twMerge('w-28 text-center', notProcessed > 0 && 'text-base-content/50')}>
+                      <div className="flex justify-center gap-1">
+                        <span className="font-semibold">{notProcessed}</span>
+                        <span className={twMerge('font-light', !notProcessed && 'hidden')}>
+                          ({((100 * notProcessed) / stat.itemCount).toFixed(1)}%)
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <StackedDataQualityBar
+                        data={{
+                          enriched: stat.valuesCount,
+                          missing: stat.missingCount,
+                          notProcessed: notProcessed,
+                          total: stat.itemCount,
+                        }}
+                        variant="compact"
+                      />
                     </td>
                   </tr>
                 )
@@ -113,39 +151,39 @@ function RouteComponent() {
 
       {/* Processing History Table */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold">{t('lists.statistics.processingHistory')}</h2>
+        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.processingHistory')}</h2>
         <div className="overflow-x-auto">
           <table className="table-zebra table w-full">
             <thead>
               <tr>
                 <th>{t('lists.statistics.fieldName')}</th>
-                <th className="text-right">{t('lists.statistics.totalTasks')}</th>
-                <th className="text-center">Average duration</th>
+                <th className="text-center">{t('lists.statistics.totalTasks')}</th>
+                <th className="text-center">{t('lists.statistics.averageDuration')}</th>
 
-                <th className="text-success text-right">{t('lists.statistics.completed')}</th>
-                <th className="text-error text-right">{t('lists.statistics.errors')}</th>
-                <th className="text-right">{t('lists.statistics.running')}</th>
-                <th className="text-right">{t('lists.statistics.queued')}</th>
+                <th className="text-success text-center">{t('lists.statistics.completed')}</th>
+                <th className="text-error text-center">{t('lists.statistics.errors')}</th>
+                <th className="text-primary text-center">{t('lists.statistics.running')}</th>
+                <th className="text-secondary text-center">{t('lists.statistics.queued')}</th>
               </tr>
             </thead>
             <tbody>
               {statistics?.map((stat) => {
                 return (
-                  <tr key={stat.fieldId}>
+                  <tr key={stat.fieldId} className="hover:bg-base-300">
                     <td className="font-medium">{stat.fieldName}</td>
-                    <td className="text-right">{stat.totalTasksCount}</td>
+                    <td className="text-center">{stat.totalTasksCount}</td>
                     <td className="text-center">{Math.round(stat.averageProcessingDurationSeconds * 10) / 10} sec</td>
 
-                    <td className={twMerge('text-right', stat.completedTasksCount > 0 && 'text-success')}>
+                    <td className={twMerge('text-center', stat.completedTasksCount > 0 && 'text-success')}>
                       {stat.completedTasksCount}
                     </td>
-                    <td className={twMerge('text-right', stat.errorTasksCount > 0 && 'text-error')}>
+                    <td className={twMerge('text-center', stat.errorTasksCount > 0 && 'text-error')}>
                       {stat.errorTasksCount}
                     </td>
-                    <td className={twMerge('text-right', stat.processingTasksCount > 0 && 'text-primary')}>
+                    <td className={twMerge('text-center', stat.processingTasksCount > 0 && 'text-primary')}>
                       {stat.processingTasksCount}
                     </td>
-                    <td className={twMerge('text-right', stat.pendingTasksCount > 0 && 'text-info')}>
+                    <td className={twMerge('text-center', stat.pendingTasksCount > 0 && 'text-secondary')}>
                       {stat.pendingTasksCount}
                     </td>
                   </tr>
