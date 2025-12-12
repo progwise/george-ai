@@ -116,7 +116,7 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
             <span>{`${missingPct.toFixed(1)}% ${t('lists.statistics.chartMissing')}`}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-3 rounded-sm bg-gray-400" />
+            <div className="size-3 rounded-sm bg-base-content/30" />
             <span>{`${notProcessedPct.toFixed(1)}% ${t('lists.statistics.chartNotProcessed')}`}</span>
           </div>
         </div>

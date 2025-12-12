@@ -386,14 +386,14 @@ function RouteComponent() {
                 if (field.type === 'boolean') {
                   // Config values come as strings from backend, convert to boolean
                   const rawValue = actionConfig[field.id]
-                  const boolValue = rawValue === 'false' ? false : rawValue === 'true' ? true : (rawValue ?? true)
+                  const boolValue = rawValue === 'true'
                   return (
                     <label key={field.id} className="label cursor-pointer justify-start gap-1.5 py-1">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs"
-                        checked={Boolean(boolValue)}
-                        onChange={(e) => updateConfigField(field.id, e.target.checked)}
+                        checked={boolValue}
+                        onChange={(e) => updateConfigField(field.id, e.target.checked ? 'true' : 'false')}
                       />
                       <span className="text-xs">
                         {field.name}

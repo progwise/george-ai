@@ -106,7 +106,7 @@ async function processAutomationItem(
 
         logger.info(`⊘ Item ${item.listItem.itemName} skipped: Missing values for fields: ${missingFields.join(', ')}`)
 
-        return prisma.aiAutomationItemExecution.create({
+        return await prisma.aiAutomationItemExecution.create({
           data: {
             automationItemId: item.id,
             batchId,

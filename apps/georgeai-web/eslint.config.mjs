@@ -1,6 +1,4 @@
 import js from '@eslint/js'
-import tanstackQuery from '@tanstack/eslint-plugin-query'
-import tanstackRouter from '@tanstack/eslint-plugin-router'
 import astro from 'eslint-plugin-astro'
 import tailwind from 'eslint-plugin-better-tailwindcss'
 import { defineConfig, globalIgnores } from 'eslint/config'
@@ -9,13 +7,7 @@ import typescript from 'typescript-eslint'
 export default defineConfig(globalIgnores(['dist/', '.astro/', '.turbo/']), {
   files: ['**/*.{ts,tsx}'],
 
-  extends: [
-    js.configs.recommended,
-    typescript.configs.recommended,
-    tanstackQuery.configs['flat/recommended'],
-    tanstackRouter.configs['flat/recommended'],
-    astro.configs['flat/recommended'],
-  ],
+  extends: [js.configs.recommended, typescript.configs.recommended, astro.configs['flat/recommended']],
   // Configure language/parsing options
   languageOptions: {
     // Use TypeScript ESLint parser for TypeScript files

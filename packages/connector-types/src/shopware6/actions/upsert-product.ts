@@ -38,7 +38,7 @@ const UpsertProductConfigSchema = z.object({
   /** Whether to create product if not found (default: true) */
   // Handle string "true"/"false" and undefined (unchecked checkbox) from form submissions
   createIfNotExists: z.preprocess((val) => {
-    if (val === undefined || val === null || val === '') return false
+    if (val === undefined || val === null || val === '') return undefined
     if (typeof val === 'string') return val === 'true'
     return val
   }, z.boolean().default(true)),
