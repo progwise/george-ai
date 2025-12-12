@@ -31,10 +31,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
+    "@eslint/js": "^9.39.1",
     "@george-ai/package-configs": "workspace:*",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1"
+    "typescript-eslint": "^8.49.0"
   }
 }

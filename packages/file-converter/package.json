@@ -28,14 +28,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
+    "@eslint/js": "^9.39.1",
     "@george-ai/package-configs": "workspace:*",
     "@types/mailparser": "^3.4.6",
-    "@types/node": "^22.10.7",
+    "@types/node": "^25.0.1",
     "dotenv": "^16.4.5",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1",
-    "vitest": "^3.1.1"
+    "typescript-eslint": "^8.49.0",
+    "vitest": "^4.0.15"
   }
 }
