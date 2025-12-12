@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 
 import { formatDuration } from '@george-ai/web-utils'
 
+import { useNow } from '../../../hooks/use-now'
+
 export const StopWatch = ({ start, refreshMs, format }: { start: Date; refreshMs: number; format: 'text' | 'lcd' }) => {
-  const [elapsedTime, setElapsedTime] = useState(Date.now() - start.getTime())
+  const { now } = useNow(1000)
+  const [elapsedTime, setElapsedTime] = useState(now - start.getTime())
 
   useEffect(() => {
     const interval = setInterval(() => {

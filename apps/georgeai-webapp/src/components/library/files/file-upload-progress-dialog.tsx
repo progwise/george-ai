@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { formatBytes } from '@george-ai/web-utils'
 
+import { useNow } from '../../../hooks/use-now'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
 import { FileIcon } from '../../../icons/file-icon'
@@ -27,12 +28,12 @@ export const FileUploadProgressDialog = ({
   preparedUploadFiles,
   onClose,
 }: FileUploadProgressDialogProps) => {
+  const { now } = useNow()
   const { t } = useTranslation()
   const startedUploadIdsRef = useRef<Set<string>>(new Set())
   const { cancelFileUpload } = useFileActions({ libraryId })
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
-  const uploadStartTimeRef = useRef<number>(Date.now())
   const [uploadEndTime, setUploadEndTime] = useState<number | null>(null)
 
   // Check if all uploads are complete
@@ -45,7 +46,7 @@ export const FileUploadProgressDialog = ({
   const totalBytes = preparedUploadFiles.reduce((sum, file) => sum + file.blob.size, 0)
 
   // Calculate upload duration
-  const uploadDuration = uploadEndTime ? ((uploadEndTime - uploadStartTimeRef.current) / 1000).toFixed(1) : null
+  const uploadDuration = uploadEndTime ? ((uploadEndTime - now) / 1000).toFixed(1) : null
 
   // Set end time when all uploads complete
   useEffect(() => {

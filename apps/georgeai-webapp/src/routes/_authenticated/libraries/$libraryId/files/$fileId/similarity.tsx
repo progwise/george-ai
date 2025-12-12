@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { debounce } from '@george-ai/web-utils'
@@ -59,22 +59,18 @@ function RouteComponent() {
 
   const handleTermChange = useMemo(
     () =>
-      debounce(async () => {
-        if (!termInputRef.current) return
-        const term = termInputRef.current.value
+      debounce(async (event: ChangeEvent<HTMLTextAreaElement>) => {
+        const term = event.target.value
         if (!term || term.length === 0) return
         await navigate({ search: { term, hits } })
       }, 500),
     [navigate, hits],
   )
-
-  // Cleanup debounced function on unmount
   useEffect(() => {
     return () => {
       handleTermChange.cancel()
     }
   }, [handleTermChange])
-
   const handleChunkClick = async (chunkText: string) => {
     if (!termInputRef.current) return
     // Use first 100 characters of chunk text as search term

@@ -26,17 +26,18 @@ export const EditableDiv = ({
   const [showPlaceholder, setShowPlaceholder] = useState(value.length === 0)
 
   useEffect(() => {
-    if (!editableDivRef.current) return
+    const timeout = setTimeout(() => {
+      if (!editableDivRef.current) return
+      if (value === '' && editableDivRef.current.innerText !== '') {
+        editableDivRef.current.innerText = ''
+        setShowPlaceholder(true)
+      } else if (value !== '' && editableDivRef.current.innerText !== value) {
+        editableDivRef.current.innerText = value.trim()
+        setShowPlaceholder(false)
+      }
+    }, 0)
 
-    if (value === '' && editableDivRef.current.innerText !== '') {
-      editableDivRef.current.innerText = ''
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      setShowPlaceholder(true)
-    } else if (value !== '' && editableDivRef.current.innerText !== value) {
-      editableDivRef.current.innerText = value.trim()
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      setShowPlaceholder(false)
-    }
+    return () => clearTimeout(timeout)
   }, [value])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

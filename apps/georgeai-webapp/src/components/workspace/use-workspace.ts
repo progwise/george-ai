@@ -226,12 +226,6 @@ export const useWorkspace = (user: UserFragment) => {
     },
   })
 
-  const reValidate = useCallback(() => {
-    if (currentWorkspace?.id) {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation, currentWorkspace.id] })
-    }
-  }, [currentWorkspace?.id, queryClient])
-
   return {
     workspaces: workspaces ?? [],
     currentWorkspace,
@@ -249,7 +243,6 @@ export const useWorkspace = (user: UserFragment) => {
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
     validation,
-    reValidate,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
     isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation,

@@ -4,7 +4,7 @@ import { duration, formatDuration } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiContentProcessingTask_TimelineFragment } from '../../../gql/graphql'
-import { useTranslation } from '../../../i18n/use-translation-hook'
+import { useNow } from '../../../hooks/use-now'
 import { ClientDate } from '../../client-date'
 import { StopWatch } from './stop-watch'
 
@@ -47,7 +47,7 @@ interface TaskTimelineProps {
 }
 
 export const TaskTimeline = ({ task }: TaskTimelineProps) => {
-  useTranslation()
+  const { now } = useNow(1000)
 
   const timelineData: Array<{
     labels: Record<string, string>
@@ -71,7 +71,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
       status: !task.processingStartedAt ? ('doing' as const) : ('done' as const),
       success: !task.processingStartedAt ? undefined : true,
       elapsedTime:
-        (task.processingStartedAt ? new Date(task.processingStartedAt).getTime() : Date.now()) -
+        (task.processingStartedAt ? new Date(task.processingStartedAt).getTime() : now) -
         new Date(task.createdAt).getTime(),
     },
     {
@@ -113,7 +113,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
         ? task.extractionFinishedAt || task.extractionFailedAt
           ? new Date((task.extractionFinishedAt || task.extractionFailedAt)!).getTime() -
             new Date(task.extractionStartedAt).getTime()
-          : Date.now() - new Date(task.extractionStartedAt).getTime()
+          : now - new Date(task.extractionStartedAt).getTime()
         : undefined,
       renderSubTasks: true,
     },
@@ -154,7 +154,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
         ? task.processingFinishedAt || task.processingFailedAt
           ? new Date((task.processingFinishedAt || task.processingFailedAt)!).getTime() -
             new Date(task.processingStartedAt).getTime()
-          : Date.now() - new Date(task.processingStartedAt).getTime()
+          : now - new Date(task.processingStartedAt).getTime()
         : undefined,
     },
   ]
@@ -178,7 +178,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'text-neutral'
                     : milestone.status === 'doing'
-                      ? 'text-info animate-jump animate-infinite animate-duration-2000 animate-delay-0 animate-ease-linear animate-normal'
+                      ? 'animate-jump text-info animate-delay-0 animate-duration-2000 animate-ease-linear animate-infinite animate-normal'
                       : milestone.status === 'skipped'
                         ? 'text-neutral-300'
                         : milestone.success
@@ -200,9 +200,9 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   milestone.status === 'todo'
                     ? 'badge-neutral'
                     : milestone.status === 'doing'
-                      ? 'badge-info animate-duration-2000 animate-pulse'
+                      ? 'animate-pulse badge-info animate-duration-2000'
                       : milestone.status === 'skipped'
-                        ? 'badge-ghost text-base-content/50 font-normal italic'
+                        ? 'badge-ghost font-normal text-base-content/50 italic'
                         : milestone.success
                           ? 'badge-success'
                           : 'badge-error',
@@ -210,7 +210,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
               >
                 <div className="">{milestone.labels[milestone.status]}</div>
               </div>
-              <div className="text-base-content/50 text-xs italic">
+              <div className="text-xs text-base-content/50 italic">
                 {milestone.status !== 'doing' ? (
                   formatDuration(milestone.elapsedTime)
                 ) : milestone.start ? (
@@ -224,7 +224,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
                   <ul>
                     {task.extractionSubTasks.map((subTask) => (
                       <li key={`subTask-${subTask.id}-${new Date().getTime()}`} className="px-2">
-                        <div className="text-base-content/50 flex items-center justify-end gap-1 text-xs italic">
+                        <div className="flex items-center justify-end gap-1 text-xs text-base-content/50 italic">
                           <span>
                             {!subTask.startedAt ? (
                               ''

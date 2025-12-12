@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -96,18 +96,25 @@ export const AssistantBasecaseForm = ({ assistant }: AssistantBaseCaseFormProps)
     }
   }, [assistant.baseCases.length])
 
+  const handleBlur = useCallback(
+    (event: React.FocusEvent) => {
+      event.preventDefault()
+      const form = event.currentTarget.closest('form') as HTMLFormElement
+      const formData = new FormData(form)
+      mutate(formData, {
+        onSuccess: () => {
+          form.reset()
+        },
+      })
+    },
+    [mutate],
+  )
+
   const fieldProps = {
     canGrab: true,
     disabled: isPending,
     className: 'w-full',
-    onBlur: (event: React.FocusEvent) => {
-      event.preventDefault()
-      if (!formRef.current) return
-
-      const formData = new FormData(formRef.current)
-      mutate(formData)
-      formRef.current.reset()
-    },
+    onBlur: handleBlur,
   }
   return (
     <form ref={formRef} className="flex flex-col gap-2">

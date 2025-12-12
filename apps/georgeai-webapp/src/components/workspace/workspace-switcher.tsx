@@ -12,7 +12,7 @@ import { useWorkspace } from './use-workspace'
 
 export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   const { t } = useTranslation()
-  const { workspaces, currentWorkspace, setWorkspace, isLoading, isDefaultWorkspace, currentUserRole, reValidate } =
+  const { workspaces, currentWorkspace, setWorkspace, isLoading, isDefaultWorkspace, currentUserRole } =
     useWorkspace(user)
   const createDialogRef = useRef<HTMLDialogElement>(null)
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
@@ -58,7 +58,6 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   }
 
   const handleDeleteWorkspaceClick = () => {
-    reValidate()
     deleteDialogRef.current?.showModal()
   }
 
