@@ -533,7 +533,7 @@ importers:
         version: link:../web-utils
       '@langchain/community':
         specifier: ^1.0.3
-        version: 1.0.3(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.895.0)(@aws-sdk/credential-provider-node@3.948.0)(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.55.1)(deepmerge@4.3.1)(dotenv@17.2.2)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.13)(@langchain/core@1.0.5(openai@6.9.0(ws@8.18.3)(zod@3.25.76)))(@smithy/util-utf8@2.3.0)(cheerio@1.1.2)(fast-xml-parser@5.3.1)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.3)(ignore@5.3.2)(ioredis@5.8.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.11.0)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(playwright@1.55.1)(typesense@2.1.0(@babel/runtime@7.28.4))(ws@8.18.3)
+        version: 1.0.3(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.895.0)(@aws-sdk/credential-provider-node@3.948.0)(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.55.1)(deepmerge@4.3.1)(dotenv@17.2.2)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.13)(@langchain/core@1.0.5(openai@6.9.0(ws@8.18.3)(zod@3.25.76)))(@smithy/util-utf8@2.3.0)(cheerio@1.1.2)(fast-xml-parser@5.3.1)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.3)(ignore@5.3.2)(ioredis@5.8.0)(jsonwebtoken@9.0.3)(lodash@4.17.21)(mammoth@1.11.0)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(playwright@1.55.1)(typesense@2.1.0(@babel/runtime@7.28.4))(ws@8.18.3)
       '@langchain/core':
         specifier: ^1.0.5
         version: 1.0.5(openai@6.9.0(ws@8.18.3)(zod@3.25.76))
@@ -637,8 +637,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
       nodemailer:
-        specifier: ^6.10.0
-        version: 6.10.1
+        specifier: ^7.0.11
+        version: 7.0.11
       prisma:
         specifier: ^6.16.2
         version: 6.16.2(magicast@0.3.5)(typescript@5.9.2)
@@ -5881,6 +5881,10 @@ packages:
     resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
     engines: {node: '>= 6'}
 
+  form-data@4.0.5:
+    resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
+    engines: {node: '>= 6'}
+
   formdata-node@4.4.1:
     resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}
     engines: {node: '>= 12.20'}
@@ -6531,14 +6535,24 @@ packages:
     resolution: {integrity: sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==}
     engines: {node: '>=12', npm: '>=6'}
 
+  jsonwebtoken@9.0.3:
+    resolution: {integrity: sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g==}
+    engines: {node: '>=12', npm: '>=6'}
+
   jszip@3.10.1:
     resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
 
   jwa@1.4.2:
     resolution: {integrity: sha512-eeH5JO+21J78qMvTIDdBXidBd6nG2kZjg5Ohz/1fpa28Z4CcsWUzJ1ZZyFq/3z3N17aZy+ZuBoHljASbL1WfOw==}
 
+  jwa@2.0.1:
+    resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
+
   jws@3.2.2:
     resolution: {integrity: sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA==}
+
+  jws@4.0.1:
+    resolution: {integrity: sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==}
 
   keycloak-js@26.2.0:
     resolution: {integrity: sha512-CrFcXTN+d6J0V/1v3Zpioys6qHNWE6yUzVVIsCUAmFn9H14GZ0vuYod+lt+SSpMgWGPuneDZBSGBAeLBFuqjsw==}
@@ -7230,10 +7244,6 @@ packages:
 
   node-releases@2.0.21:
     resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
-
-  nodemailer@6.10.1:
-    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
-    engines: {node: '>=6.0.0'}
 
   nodemailer@7.0.11:
     resolution: {integrity: sha512-gnXhNRE0FNhD7wPSCGhdNh46Hs6nm+uTyg+Kq0cZukNQiYdnCsoQjodNP9BQVG9XrcK/v6/MgpAPBUFyzh9pvw==}
@@ -11878,7 +11888,7 @@ snapshots:
     dependencies:
       '@types/node': 18.19.130
       extend: 3.0.2
-      form-data: 4.0.4
+      form-data: 4.0.5
       ibm-cloud-sdk-core: 5.4.3
     transitivePeerDependencies:
       - supports-color
@@ -12053,7 +12063,7 @@ snapshots:
       - openai
       - ws
 
-  '@langchain/community@1.0.3(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.895.0)(@aws-sdk/credential-provider-node@3.948.0)(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.55.1)(deepmerge@4.3.1)(dotenv@17.2.2)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.13)(@langchain/core@1.0.5(openai@6.9.0(ws@8.18.3)(zod@3.25.76)))(@smithy/util-utf8@2.3.0)(cheerio@1.1.2)(fast-xml-parser@5.3.1)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.3)(ignore@5.3.2)(ioredis@5.8.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.11.0)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(playwright@1.55.1)(typesense@2.1.0(@babel/runtime@7.28.4))(ws@8.18.3)':
+  '@langchain/community@1.0.3(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.895.0)(@aws-sdk/credential-provider-node@3.948.0)(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.55.1)(deepmerge@4.3.1)(dotenv@17.2.2)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.13)(@langchain/core@1.0.5(openai@6.9.0(ws@8.18.3)(zod@3.25.76)))(@smithy/util-utf8@2.3.0)(cheerio@1.1.2)(fast-xml-parser@5.3.1)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.3)(ignore@5.3.2)(ioredis@5.8.0)(jsonwebtoken@9.0.3)(lodash@4.17.21)(mammoth@1.11.0)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(playwright@1.55.1)(typesense@2.1.0(@babel/runtime@7.28.4))(ws@8.18.3)':
     dependencies:
       '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.55.1)(deepmerge@4.3.1)(dotenv@17.2.2)(openai@6.9.0(ws@8.18.3)(zod@3.25.76))(zod@3.25.76)
       '@ibm-cloud/watsonx-ai': 1.6.13
@@ -12079,7 +12089,7 @@ snapshots:
       html-to-text: 9.0.5
       ignore: 5.3.2
       ioredis: 5.8.0
-      jsonwebtoken: 9.0.2
+      jsonwebtoken: 9.0.3
       lodash: 4.17.21
       mammoth: 1.11.0
       playwright: 1.55.1
@@ -13912,7 +13922,7 @@ snapshots:
   '@types/node-fetch@2.6.13':
     dependencies:
       '@types/node': 22.18.6
-      form-data: 4.0.4
+      form-data: 4.0.5
 
   '@types/node@17.0.45': {}
 
@@ -14631,7 +14641,7 @@ snapshots:
   axios@1.13.2(debug@4.4.3):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16004,6 +16014,14 @@ snapshots:
       hasown: 2.0.2
       mime-types: 2.1.35
 
+  form-data@4.0.5:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
+      mime-types: 2.1.35
+
   formdata-node@4.4.1:
     dependencies:
       node-domexception: 1.0.0
@@ -16485,11 +16503,11 @@ snapshots:
       dotenv: 16.6.1
       extend: 3.0.2
       file-type: 16.5.4
-      form-data: 4.0.4
+      form-data: 4.0.5
       isstream: 0.1.2
-      jsonwebtoken: 9.0.2
+      jsonwebtoken: 9.0.3
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.13.2(debug@4.4.3))
+      retry-axios: 2.6.0(axios@1.13.2)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -16783,6 +16801,19 @@ snapshots:
       ms: 2.1.3
       semver: 7.7.2
 
+  jsonwebtoken@9.0.3:
+    dependencies:
+      jws: 4.0.1
+      lodash.includes: 4.3.0
+      lodash.isboolean: 3.0.3
+      lodash.isinteger: 4.0.4
+      lodash.isnumber: 3.0.3
+      lodash.isplainobject: 4.0.6
+      lodash.isstring: 4.0.1
+      lodash.once: 4.1.1
+      ms: 2.1.3
+      semver: 7.7.3
+
   jszip@3.10.1:
     dependencies:
       lie: 3.3.0
@@ -16796,9 +16827,20 @@ snapshots:
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
 
+  jwa@2.0.1:
+    dependencies:
+      buffer-equal-constant-time: 1.0.1
+      ecdsa-sig-formatter: 1.0.11
+      safe-buffer: 5.2.1
+
   jws@3.2.2:
     dependencies:
       jwa: 1.4.2
+      safe-buffer: 5.2.1
+
+  jws@4.0.1:
+    dependencies:
+      jwa: 2.0.1
       safe-buffer: 5.2.1
 
   keycloak-js@26.2.0: {}
@@ -17808,8 +17850,6 @@ snapshots:
 
   node-releases@2.0.21: {}
 
-  nodemailer@6.10.1: {}
-
   nodemailer@7.0.11: {}
 
   nodemailer@7.0.9: {}
@@ -18529,7 +18569,7 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  retry-axios@2.6.0(axios@1.13.2(debug@4.4.3)):
+  retry-axios@2.6.0(axios@1.13.2):
     dependencies:
       axios: 1.13.2(debug@4.4.3)
 
