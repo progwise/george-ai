@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { queryKeys } from '../../../query-keys'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { getConnectorTypesQueryOptions, getConnectorsQueryOptions } from './queries'
 import {
   CreateConnectorInput,
   UpdateConnectorInput,
@@ -22,7 +22,7 @@ export const useConnectorActions = () => {
     mutationFn: (connectorType: string) => enableConnectorTypeFn({ data: connectorType }),
     onSuccess: () => {
       toastSuccess(t('connectors.typeEnabled'))
-      queryClient.invalidateQueries(getConnectorTypesQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.ConnectorTypes })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : 'Failed to enable connector type')
@@ -33,7 +33,7 @@ export const useConnectorActions = () => {
     mutationFn: (connectorType: string) => disableConnectorTypeFn({ data: connectorType }),
     onSuccess: () => {
       toastSuccess(t('connectors.typeDisabled'))
-      queryClient.invalidateQueries(getConnectorTypesQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.ConnectorTypes })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : t('connectors.cannotDisable'))
@@ -44,7 +44,7 @@ export const useConnectorActions = () => {
     mutationFn: (data: CreateConnectorInput) => createConnectorFn({ data }),
     onSuccess: () => {
       toastSuccess(t('connectors.createSuccess'))
-      queryClient.invalidateQueries(getConnectorsQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.Connectors })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : 'Failed to create connector')
@@ -55,7 +55,7 @@ export const useConnectorActions = () => {
     mutationFn: (params: UpdateConnectorInput) => updateConnectorFn({ data: params }),
     onSuccess: () => {
       toastSuccess(t('connectors.updateSuccess'))
-      queryClient.invalidateQueries(getConnectorsQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.Connectors })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : 'Failed to update connector')
@@ -66,7 +66,7 @@ export const useConnectorActions = () => {
     mutationFn: (id: string) => deleteConnectorFn({ data: id }),
     onSuccess: () => {
       toastSuccess(t('connectors.deleteSuccess'))
-      queryClient.invalidateQueries(getConnectorsQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.Connectors })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : 'Failed to delete connector')
@@ -88,7 +88,7 @@ export const useConnectorActions = () => {
           </div>,
         )
       }
-      queryClient.invalidateQueries(getConnectorsQueryOptions())
+      queryClient.invalidateQueries({ queryKey: queryKeys.Connectors })
     },
     onError: (error) => {
       toastError(error instanceof Error ? error.message : t('connectors.testFailed'))

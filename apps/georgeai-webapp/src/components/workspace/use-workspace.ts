@@ -226,6 +226,13 @@ export const useWorkspace = (user: UserFragment) => {
     },
   })
 
+  const validate = async () => {
+    if (!currentWorkspace) return null
+    return await queryClient.invalidateQueries({
+      queryKey: [queryKeys.WorkspaceDeletionValidation, currentWorkspace.id],
+    })
+  }
+
   return {
     workspaces: workspaces ?? [],
     currentWorkspace,
@@ -242,6 +249,7 @@ export const useWorkspace = (user: UserFragment) => {
     removeMember: removeMemberMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
+    validate,
     validation,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,

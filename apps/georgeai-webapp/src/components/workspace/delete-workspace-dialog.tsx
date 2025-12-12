@@ -14,7 +14,7 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
   const { currentWorkspace, workspaces, validation, deleteWorkspace, setWorkspace, isPending, isLoading } =
     useWorkspace(user)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validation?.canDelete || !currentWorkspace) return
 
     deleteWorkspace(currentWorkspace.id, {

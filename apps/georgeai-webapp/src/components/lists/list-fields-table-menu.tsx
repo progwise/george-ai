@@ -66,7 +66,7 @@ export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
             {fields
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((field) => (
-                <li key={field.id} className="">
+                <li key={field.id}>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"

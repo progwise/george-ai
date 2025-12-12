@@ -46,7 +46,7 @@ export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: Li
                   </button>
                 </span>
               ))}
-            <button type="button" className="btn" onClick={() => clearFieldFilters(field.id)}>
+            <button type="button" className="btn-circle btn-ghost btn-xs" onClick={() => clearFieldFilters(field.id)}>
               x
             </button>
           </div>
