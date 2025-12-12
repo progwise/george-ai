@@ -70,27 +70,27 @@ function RouteComponent() {
       {/* Chunks Grid */}
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {aiFileChunks.chunks.map((chunk) => (
-          <div key={chunk.id} className="card bg-base-100 card-compact shadow-sm transition-shadow hover:shadow-md">
+          <div key={chunk.id} className="card bg-base-100 shadow-sm transition-shadow hover:shadow-md">
             <div className="card-body p-3">
               {/* Header with chunk number */}
               <div className="mb-2">
-                <div className="badge badge-primary badge-outline badge-sm">#{chunk.chunkIndex + 1}</div>
+                <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunkIndex + 1}</div>
                 {chunk.subChunkIndex > 0 && (
-                  <span className="badge badge-ghost badge-xs ml-1">part {chunk.subChunkIndex + 1}</span>
+                  <span className="ml-1 badge badge-ghost badge-xs">part {chunk.subChunkIndex + 1}</span>
                 )}
               </div>
 
               {/* Path information */}
               <div className="mb-2">
-                <div className="text-base-content/70 truncate text-xs" title={chunk.headingPath}>
+                <div className="truncate text-xs text-base-content/70" title={chunk.headingPath}>
                   {chunk.headingPath}
                 </div>
               </div>
 
               {/* Content preview */}
               <div className="flex-1">
-                <div className="bg-base-200 max-h-20 overflow-y-auto rounded p-2">
-                  <pre className="text-base-content/90 text-xs leading-tight">{chunk.text}</pre>
+                <div className="max-h-20 overflow-y-auto rounded-sm bg-base-200 p-2">
+                  <pre className="text-xs leading-tight text-base-content/90">{chunk.text}</pre>
                 </div>
               </div>
             </div>

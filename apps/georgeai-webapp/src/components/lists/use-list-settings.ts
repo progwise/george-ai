@@ -84,8 +84,8 @@ export const useListSettings = (listId: string) => {
 
   const clearAllSorting = () => setSorting([])
 
-  const removeSelectedItem = () => {
-    navigate({
+  const removeSelectedItem = async () => {
+    await navigate({
       to: '/lists/$listId',
       params: { listId },
       search: {

@@ -60,20 +60,20 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
   if (!user) return null
   return (
     <div>
-      <ul title={t('automations.menuTitle')} className="menu menu-horizontal rounded-box w-full">
+      <ul title={t('automations.menuTitle')} className="menu menu-horizontal w-full rounded-box">
         <li>
-          <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('automations.title')}</span>
+          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('automations.title')}</span>
         </li>
         <li>
           <details aria-label={t('automations.switcherTitle')} ref={automationSelectorDetailsRef} className="z-50">
-            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
+            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
               {automation.name}
             </summary>
-            <ul role="listbox" className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
+            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
               {selectableAutomations.map((a) => (
                 <li key={a.id} role="option" aria-selected={a.id === automation.id}>
                   <Link
-                    to="/automations/$automationId"
+                    to="."
                     className="text-nowrap"
                     params={{ automationId: a.id }}
                     activeProps={{ className: 'font-bold' }}
@@ -91,7 +91,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
         <li className="grow items-end">
           <button
             type="button"
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => triggerAutomation(automation.id)}
             disabled={isPending}
             title={t('automations.runAll')}
@@ -108,7 +108,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
             onClick={() => {
               newAutomationDialogRef.current?.showModal()
             }}
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             title={t('automations.newAutomation')}
             data-tip={t('automations.newAutomation')}
           >
@@ -119,7 +119,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
         <li>
           <button
             type="button"
-            className="btn btn-sm btn-ghost btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => deleteDialogRef.current?.showModal()}
             disabled={isPending}
             title={t('automations.delete')}

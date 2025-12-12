@@ -72,8 +72,8 @@ export const EditModelButton = ({ model }: EditModelButtonProps) => {
                   defaultChecked={model.enabled}
                 />
                 <div className="flex flex-col">
-                  <span className="label-text font-semibold">{t('admin.aiModels.enabled')}</span>
-                  <span className="label-text-alt opacity-60">
+                  <span className="font-semibold">{t('admin.aiModels.enabled')}</span>
+                  <span className="opacity-60">
                     {model.enabled ? t('admin.aiModels.modelEnabled') : t('admin.aiModels.modelDisabled')}
                   </span>
                 </div>

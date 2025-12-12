@@ -69,19 +69,19 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
     <div className="space-y-8">
       {/* Overall Status */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="stat bg-base-200 rounded-lg">
+        <div className="stat rounded-lg bg-base-200">
           <div className="stat-title">Pending Tasks</div>
           <div className="stat-value text-warning">{queueStatus.totalPendingTasks}</div>
           <div className="stat-desc">Waiting for processing</div>
         </div>
 
-        <div className="stat bg-base-200 rounded-lg">
+        <div className="stat rounded-lg bg-base-200">
           <div className="stat-title">Processing Tasks</div>
           <div className="stat-value text-info">{queueStatus.totalProcessingTasks}</div>
           <div className="stat-desc">Currently being processed</div>
         </div>
 
-        <div className="stat bg-base-200 rounded-lg">
+        <div className="stat rounded-lg bg-base-200">
           <div className="stat-title">Failed Tasks</div>
           <div className="stat-value text-error">{queueStatus.totalFailedTasks}</div>
           <div className="stat-desc">Need attention</div>
@@ -93,19 +93,19 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h3 className="card-title">Failed Task Actions</h3>
-            <div className="form-control">
+            <div>
               <label className="label">
-                <span className="label-text">Filter by Library ID (optional):</span>
+                <span>Filter by Library ID (optional):</span>
               </label>
               <input
                 type="text"
                 placeholder="Enter library ID to filter actions"
-                className="input input-bordered"
+                className="input"
                 value={selectedLibraryId}
                 onChange={(e) => setSelectedLibraryId(e.target.value)}
               />
               <label className="label">
-                <span className="label-text-alt">Leave empty to affect all libraries</span>
+                <span>Leave empty to affect all libraries</span>
               </label>
             </div>
           </div>
@@ -140,7 +140,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                 <div className="flex gap-2">
                   {queue.isRunning ? (
                     <button
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm btn-error"
                       onClick={() => stopWorker({ queueType: queue.queueType })}
                       disabled={actionsPending}
                       type="button"
@@ -150,7 +150,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                     </button>
                   ) : (
                     <button
-                      className="btn btn-success btn-sm"
+                      className="btn btn-sm btn-success"
                       onClick={() => startWorker({ queueType: queue.queueType })}
                       disabled={actionsPending}
                       type="button"
@@ -164,21 +164,21 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
 
               {/* Task Statistics */}
               <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div className="stat bg-base-200 rounded p-3">
+                <div className="stat rounded-sm bg-base-200 p-3">
                   <div className="stat-title text-xs">Pending</div>
-                  <div className="stat-value text-warning text-lg">{queue.pendingTasks}</div>
+                  <div className="stat-value text-lg text-warning">{queue.pendingTasks}</div>
                 </div>
-                <div className="stat bg-base-200 rounded p-3">
+                <div className="stat rounded-sm bg-base-200 p-3">
                   <div className="stat-title text-xs">Processing</div>
-                  <div className="stat-value text-info text-lg">{queue.processingTasks}</div>
+                  <div className="stat-value text-lg text-info">{queue.processingTasks}</div>
                 </div>
-                <div className="stat bg-base-200 rounded p-3">
+                <div className="stat rounded-sm bg-base-200 p-3">
                   <div className="stat-title text-xs">Failed</div>
-                  <div className="stat-value text-error text-lg">{queue.failedTasks}</div>
+                  <div className="stat-value text-lg text-error">{queue.failedTasks}</div>
                 </div>
-                <div className="stat bg-base-200 rounded p-3">
+                <div className="stat rounded-sm bg-base-200 p-3">
                   <div className="stat-title text-xs">Completed</div>
-                  <div className="stat-value text-success text-lg">{queue.completedTasks}</div>
+                  <div className="stat-value text-lg text-success">{queue.completedTasks}</div>
                 </div>
               </div>
 
@@ -188,7 +188,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                 {queue.failedTasks > 0 && (
                   <>
                     <button
-                      className="btn btn-warning btn-sm"
+                      className="btn btn-sm btn-warning"
                       onClick={() => retryFailedTasks({ queueType: queue.queueType })}
                       disabled={actionsPending}
                       type="button"
@@ -197,7 +197,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                       Retry Failed ({queue.failedTasks})
                     </button>
                     <button
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm btn-error"
                       onClick={() => clearFailedTasks({ queueType: queue.queueType })}
                       disabled={actionsPending}
                       type="button"
@@ -211,7 +211,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                 {/* Pending Task Actions */}
                 {queue.pendingTasks > 0 && (
                   <button
-                    className="btn btn-outline btn-warning btn-sm"
+                    className="btn btn-outline btn-sm btn-warning"
                     onClick={() => clearPendingTasks({ queueType: queue.queueType })}
                     disabled={actionsPending}
                     type="button"
@@ -224,7 +224,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
                 {/* Processing Task Actions - Only for Content Processing Queue */}
                 {queue.queueType === 'CONTENT_PROCESSING' && queue.processingTasks > 0 && (
                   <button
-                    className="btn btn-outline btn-error btn-sm"
+                    className="btn btn-outline btn-sm btn-error"
                     onClick={() => cancelContentProcessingTasks({})}
                     disabled={actionsPending}
                     type="button"

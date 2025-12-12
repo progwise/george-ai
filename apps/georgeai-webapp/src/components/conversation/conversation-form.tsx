@@ -51,20 +51,22 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
     })
   }
 
+  const handleScroll = () => {
+    const scrollPosition = window.innerHeight + window.scrollY
+    const bodyHeight = document.body.offsetHeight
+
+    const atBottom = bodyHeight - scrollPosition < 100
+    setIsAtBottom(atBottom)
+  }
+
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.innerHeight + window.scrollY
-      const bodyHeight = document.body.offsetHeight
-
-      const atBottom = bodyHeight - scrollPosition < 100
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      setIsAtBottom(atBottom)
-    }
-
-    handleScroll()
+    const timeout = setTimeout(() => handleScroll(), 100)
     window.addEventListener('scroll', handleScroll)
 
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      clearTimeout(timeout)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const { mutate, isPending } = useMutation({
@@ -158,17 +160,17 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
         <button
           onClick={scrollToBottom}
           type="button"
-          className="btn btn-sm btn-circle sticky bottom-56 z-40 self-center lg:bottom-40"
+          className="btn sticky bottom-56 z-40 btn-circle self-center btn-sm lg:bottom-40"
           aria-label={t('actions.scrollToBottom')}
         >
           <ChevronDownIcon />
         </button>
       )}
 
-      <div className="rounded-box bg-base-100 mt-75 sticky bottom-[72px] z-30 mx-1 border p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
+      <div className="sticky bottom-[72px] z-30 mx-1 mt-75 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
-            className="focus:outline-hidden focus:border-primary max-h-40 min-h-12 overflow-y-auto rounded-md p-2"
+            className="max-h-40 min-h-12 overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-hidden"
             disabled={isPending}
             onSubmit={handleSubmitMessage}
             value={message}
@@ -183,7 +185,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
               <ClientDate date={new Date().toISOString()} format="dateTime" className="truncate text-xs opacity-60" />
             </div>
 
-            <div className="no-scrollbar hidden items-center gap-2 overflow-x-auto lg:flex">
+            <div className="hidden items-center gap-2 overflow-x-auto lg:flex">
               {conversation.assistants?.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer gap-2">
                   <input
@@ -192,11 +194,9 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
                     type="checkbox"
                     checked={!unselectedAssistantIds.includes(assistant.id)}
                     onChange={() => handleAssistantToggle(assistant.id)}
-                    className="checkbox checkbox-info checkbox-xs"
+                    className="checkbox checkbox-xs checkbox-info"
                   />
-                  <span className="label-text">
-                    {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
-                  </span>
+                  <span>{t('conversations.askAssistant').replace('{assistantName}', assistant.name)}</span>
                 </label>
               ))}
             </div>
@@ -205,7 +205,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
               <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
                 ...
               </div>
-              <ul tabIndex={0} className="z-1 dropdown-content menu rounded-box bg-base-100 w-52 p-2 shadow-sm">
+              <ul tabIndex={0} className="dropdown-content menu z-1 w-52 rounded-box bg-base-100 p-2 shadow-sm">
                 {conversation.assistants?.map((assistant) => (
                   <li key={assistant.id}>
                     <label className="flex items-center gap-2">
@@ -215,9 +215,9 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
                         type="checkbox"
                         checked={!unselectedAssistantIds.includes(assistant.id)}
                         onChange={() => handleAssistantToggle(assistant.id)}
-                        className="checkbox checkbox-info checkbox-xs"
+                        className="checkbox checkbox-xs checkbox-info"
                       />
-                      <span className="label-text">{assistant.name}</span>
+                      <span>{assistant.name}</span>
                     </label>
                   </li>
                 ))}
@@ -227,7 +227,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
             <button
               name="send"
               type="submit"
-              className="btn btn-primary btn-sm tooltip tooltip-left"
+              className="tooltip btn tooltip-left btn-sm btn-primary"
               disabled={isPending || remainingMessages < 1}
               data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
             >

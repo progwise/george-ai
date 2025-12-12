@@ -108,14 +108,14 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
     messages: [],
   }
   return (
-    <div className="collapse-arrow join-item border-base-300 collapse border">
+    <div className="collapse-arrow collapse join-item border border-base-300">
       <input type="radio" name={`task-accordion`} defaultChecked={index === 0} className="peer" />
-      <div className="collapse-title peer-checked:bg-base-100 font-semibold opacity-40 peer-checked:opacity-100">
+      <div className="collapse-title font-semibold opacity-40 peer-checked:bg-base-100 peer-checked:opacity-100">
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-base-content/60">File:</span>
-              <span className="text-base-content font-mono">{enrichment.item.sourceFile.name}</span>
+              <span className="font-mono text-base-content">{enrichment.item.sourceFile.name}</span>
               <span className="text-base-content/40">→</span>
               <span className="text-primary">{enrichment.field.name}</span>
             </div>
@@ -124,13 +124,13 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               {enrichment.status === EnrichmentStatus.Completed && processingData.output?.enrichedValue && (
                 <>
                   <span className="text-base-content/40">•</span>
-                  <span className="text-success max-w-md truncate">Value: {processingData.output.enrichedValue}</span>
+                  <span className="max-w-md truncate text-success">Value: {processingData.output.enrichedValue}</span>
                 </>
               )}
               {enrichment.status === EnrichmentStatus.Error && enrichment.error && (
                 <>
                   <span className="text-base-content/40">•</span>
-                  <span className="text-error flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-error">
                     <ErrorIcon className="size-3" />
                     <span className="max-w-md truncate">{enrichment.error}</span>
                   </span>
@@ -139,7 +139,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               {enrichment.status === EnrichmentStatus.Failed && processingData.output?.enrichedValue && (
                 <>
                   <span className="text-base-content/40">•</span>
-                  <span className="text-warning flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-warning">
                     <span className="max-w-md truncate">Missing: {processingData.output.enrichedValue}</span>
                   </span>
                 </>
@@ -161,7 +161,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           <div className="flex gap-2">
             <span
               className={twMerge(
-                'badge badge-sm badge-outline',
+                'badge badge-outline badge-sm',
                 enrichment.status === EnrichmentStatus.Pending ? 'badge-info' : '',
                 enrichment.status === EnrichmentStatus.Processing ? 'badge-primary' : '',
                 enrichment.status === EnrichmentStatus.Completed ? 'badge-success' : '',
@@ -218,9 +218,9 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
 
           {/* Success Result Display */}
           {enrichment.status === EnrichmentStatus.Completed && processingData.output?.enrichedValue && (
-            <div className="bg-base-200 rounded-lg p-3">
+            <div className="rounded-lg bg-base-200 p-3">
               <div className="flex items-start gap-2">
-                <span className="text-base-content/60 min-w-fit font-semibold">Enriched Value:</span>
+                <span className="min-w-fit font-semibold text-base-content/60">Enriched Value:</span>
                 {processingData.input?.dataType === 'markdown' ? (
                   <div className="prose prose-sm max-w-none">
                     <FormattedMarkdown markdown={processingData.output.enrichedValue} />
@@ -236,15 +236,15 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex gap-2">
-                <span className="text-base-content/60 min-w-[80px]">List:</span>
+                <span className="min-w-[80px] text-base-content/60">List:</span>
                 <span className="font-medium">{enrichment.list.name}</span>
               </div>
               <div className="flex gap-2">
-                <span className="text-base-content/60 min-w-[80px]">Library:</span>
+                <span className="min-w-[80px] text-base-content/60">Library:</span>
                 <span className="font-medium">{enrichment.item.sourceFile.library.name}</span>
               </div>
               <div className="flex gap-2">
-                <span className="text-base-content/60 min-w-[80px]">File:</span>
+                <span className="min-w-[80px] text-base-content/60">File:</span>
                 <Link
                   to="/libraries/$libraryId/files/$fileId"
                   params={{ libraryId: enrichment.item.sourceFile.library.id, fileId: enrichment.item.sourceFile.id }}
@@ -256,7 +256,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
             </div>
             <div className="space-y-2">
               <div className="flex gap-2">
-                <span className="text-base-content/60 min-w-[80px]">Status:</span>
+                <span className="min-w-[80px] text-base-content/60">Status:</span>
                 <span
                   className={twMerge(
                     'font-medium',
@@ -271,12 +271,12 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 </span>
               </div>
               <div className="flex gap-2">
-                <span className="text-base-content/60 min-w-[80px]">Duration:</span>
+                <span className="min-w-[80px] text-base-content/60">Duration:</span>
                 <span>{duration(enrichment.requestedAt, enrichment.completedAt)}</span>
               </div>
               {processingData.input?.aiModelName && (
                 <div className="flex gap-2">
-                  <span className="text-base-content/60 min-w-[80px]">AI Model:</span>
+                  <span className="min-w-[80px] text-base-content/60">AI Model:</span>
                   <span className="font-mono text-xs">{processingData.input.aiModelName}</span>
                 </div>
               )}
@@ -285,8 +285,8 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
 
           {/* Processing Details */}
           {processingData.output?.issues && processingData.output.issues.length > 0 && (
-            <div className="bg-warning/10 rounded-lg p-3">
-              <h4 className="text-warning mb-1 font-semibold">Issues:</h4>
+            <div className="rounded-lg bg-warning/10 p-3">
+              <h4 className="mb-1 font-semibold text-warning">Issues:</h4>
               <ul className="list-inside list-disc text-sm">
                 {processingData.output.issues.map((issue: string) => (
                   <li key={issue}>{issue}</li>
@@ -296,15 +296,15 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           )}
 
           {/* Action Buttons */}
-          <div className="border-base-300 flex items-center justify-between border-t pt-2">
+          <div className="flex items-center justify-between border-t border-base-300 pt-2">
             <div className="flex gap-2">
               {(!enrichment.processingData || !enrichment.metadata) && (
-                <div className="badge badge-sm badge-outline badge-warning">No Process Data</div>
+                <div className="badge badge-outline badge-sm badge-warning">No Process Data</div>
               )}
               {enrichment.processingData && enrichment.metadata && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-ghost tooltip"
+                  className="tooltip btn btn-ghost btn-sm"
                   data-tip="View Process Data"
                   onClick={() => metadataModalRef.current?.showModal()}
                 >
@@ -329,7 +329,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
             <div className="flex gap-2">
               <button
                 type="button"
-                className="btn btn-sm btn-ghost text-error tooltip"
+                className="tooltip btn text-error btn-ghost btn-sm"
                 data-tip="Clear Enrichment"
                 disabled={actionsPending}
                 onClick={() => clearEnrichments({ fieldId: enrichment.fieldId, itemId: enrichment.itemId })}
@@ -356,7 +356,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
                 enrichment.status === EnrichmentStatus.Error) && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-primary tooltip"
+                  className="tooltip btn btn-sm btn-primary"
                   data-tip="Retry Enrichment"
                   disabled={actionsPending}
                   onClick={() => startEnrichment({ fieldId: enrichment.fieldId, itemId: enrichment.itemId })}

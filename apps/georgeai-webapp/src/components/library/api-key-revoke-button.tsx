@@ -18,8 +18,8 @@ export const ApiKeyRevokeButton = (props: ApiKeyRevokeButtonProps) => {
 
   return (
     <>
-      <button type="button" className="btn btn-error btn-ghost btn-sm" onClick={() => ref.current?.showModal()}>
-        <TrashIcon className="h-4 w-4" />
+      <button type="button" className="btn btn-ghost btn-sm btn-error" onClick={() => ref.current?.showModal()}>
+        <TrashIcon className="size-4" />
         {t('apiKeys.revoke')}
       </button>
 
@@ -40,7 +40,7 @@ export const ApiKeyRevokeButton = (props: ApiKeyRevokeButtonProps) => {
                 ref.current?.close()
               }}
             >
-              {isPending && <span className="loading loading-spinner loading-sm mr-2" />}
+              {isPending && <span className="loading mr-2 loading-sm loading-spinner" />}
               {t('apiKeys.revoke')}
             </button>
           </div>

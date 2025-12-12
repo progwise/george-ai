@@ -105,12 +105,12 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4 rounded-md p-6 shadow-md">
-      <span className="text-base-content text-center">{t('invitations.confirmDescription')}</span>
+      <span className="text-center text-base-content">{t('invitations.confirmDescription')}</span>
       <div className="flex space-x-4">
         <button type="button" className="btn btn-sm" onClick={() => navigate({ to: '/' })}>
           {t('actions.cancel')}
         </button>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => confirm()} disabled={isPending}>
+        <button type="button" className="btn btn-sm btn-primary" onClick={() => confirm()} disabled={isPending}>
           {t('actions.confirm')}
         </button>
       </div>

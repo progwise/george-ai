@@ -86,7 +86,7 @@ function RouteComponent() {
               <ListFieldsTableMenu list={aiList} fields={aiList.fields} unfilteredCount={aiListItems.unfilteredCount} />
 
               {/* Summary */}
-              <div className="text-base-content/70 text-sm">
+              <div className="text-sm text-base-content/70">
                 {t('lists.files.showing', {
                   start: page * pageSize + 1,
                   end: Math.min((page + 1) * pageSize, aiListItems.count),
@@ -94,7 +94,7 @@ function RouteComponent() {
                 })}
               </div>
             </div>
-            <div className="align-right text-sm">
+            <div className="text-sm">
               <Pagination
                 totalItems={aiListItems.count}
                 itemsPerPage={pageSize}

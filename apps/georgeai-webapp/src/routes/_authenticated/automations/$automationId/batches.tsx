@@ -30,9 +30,9 @@ function RouteComponent() {
       </div>
 
       {data.automationBatches.length === 0 ? (
-        <div className="text-base-content/50 py-8 text-center">{t('automations.noBatches')}</div>
+        <div className="py-8 text-center text-base-content/50">{t('automations.noBatches')}</div>
       ) : (
-        <table className="table-zebra table w-full">
+        <table className="table w-full table-zebra">
           <thead>
             <tr>
               <th>{t('automations.batchStatus')}</th>
@@ -65,7 +65,7 @@ function RouteComponent() {
                 <td>{batch.triggeredBy}</td>
                 <td>
                   {batch.itemsProcessed}/{batch.itemsTotal}
-                  {batch.itemsFailed > 0 && <span className="text-error ml-2">({batch.itemsFailed} failed)</span>}
+                  {batch.itemsFailed > 0 && <span className="ml-2 text-error">({batch.itemsFailed} failed)</span>}
                 </td>
                 <td>
                   <ClientDate date={batch.startedAt} />

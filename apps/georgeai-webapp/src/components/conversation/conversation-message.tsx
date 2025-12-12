@@ -154,7 +154,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
   return (
     <div
       key={message.id}
-      className={twMerge('card text-base-content mx-1.5 border p-3 shadow-md lg:mx-10', message.hidden && 'opacity-50')}
+      className={twMerge('card mx-1.5 border p-3 text-base-content shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
       <div className="mb-2 flex items-center gap-2">
         {message.sender.isBot ? (
@@ -168,7 +168,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
                 updatedAt: message.sender.assistant?.updatedAt || '',
                 ownerId: '',
               }}
-              className="h-8 w-8 overflow-hidden rounded-full"
+              className="size-8 overflow-hidden rounded-full"
             />
           </Link>
         ) : (
@@ -187,12 +187,12 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
         </div>
         {isLoading && message.sender.isBot && (
           <div>
-            <span className="loading loading-dots loading-xs"></span>
+            <span className="loading loading-xs loading-dots"></span>
           </div>
         )}
         <button
           type="button"
-          className="btn btn-ghost btn-xs lg:tooltip lg:tooltip-left ml-auto self-start"
+          className="btn ml-auto self-start btn-ghost btn-xs lg:tooltip lg:tooltip-left"
           onClick={handleHideMessage}
           data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >
@@ -202,7 +202,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
           <>
             <button
               type="button"
-              className="btn btn-ghost btn-xs tooltip tooltip-left self-start"
+              className="tooltip btn tooltip-left self-start btn-ghost btn-xs"
               onClick={() => deleteDialogRef.current?.showModal()}
               data-tip={t('tooltips.deleteMessage')}
               disabled={isDeletePending}
@@ -220,7 +220,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
         )}
       </div>
       {!message.hidden && (
-        <div className="border-base-200 border-t pt-3">
+        <div className="border-t border-base-200 pt-3">
           <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
         </div>
       )}

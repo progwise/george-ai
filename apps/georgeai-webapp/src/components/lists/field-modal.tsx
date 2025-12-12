@@ -341,7 +341,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
 
             <div className="flex min-h-0 flex-1 flex-col">
               {/* Tabs - Horizontal with Radio Controls */}
-              <div role="tablist" className="tabs tabs-border min-h-0 shrink-0">
+              <div role="tablist" className="tabs-border tabs min-h-0 shrink-0">
                 <input
                   type="radio"
                   name={tablistName}
@@ -419,7 +419,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                         className="h-40"
                       />
                       <div className="mt-1">
-                        <span className="text-base-content/60 text-xs">{t('lists.fields.aiPromptHelp')}</span>
+                        <span className="text-xs text-base-content/60">{t('lists.fields.aiPromptHelp')}</span>
                       </div>
                     </div>
                   </div>
@@ -428,17 +428,17 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                 {/* Context Tab with Nested Sub-Navigation */}
                 <div
                   className={twMerge(
-                    'border-base-300 bg-base-100 flex h-full flex-col',
+                    'flex h-full flex-col border-base-300 bg-base-100',
                     activeTab !== 'context' && 'hidden',
                   )}
                 >
-                  <div className="border-base-300 flex min-h-0 flex-1 border-t">
+                  <div className="flex min-h-0 flex-1 border-t border-base-300">
                     {/* Vertical Sub-Navigation */}
-                    <nav className="border-base-300 flex w-48 shrink-0 flex-col overflow-y-auto border-r">
+                    <nav className="flex w-48 shrink-0 flex-col overflow-y-auto border-r border-base-300">
                       <button
                         type="button"
                         className={twMerge(
-                          'btn btn-ghost justify-start rounded-none text-sm',
+                          'btn justify-start rounded-none text-sm btn-ghost',
                           contextSubTab === 'fields' && 'btn-active',
                         )}
                         onClick={() => setContextSubTab('fields')}
@@ -448,7 +448,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                       <button
                         type="button"
                         className={twMerge(
-                          'btn btn-ghost justify-start rounded-none text-sm',
+                          'btn justify-start rounded-none text-sm btn-ghost',
                           contextSubTab === 'similarity' && 'btn-active',
                         )}
                         onClick={() => setContextSubTab('similarity')}
@@ -458,7 +458,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                       <button
                         type="button"
                         className={twMerge(
-                          'btn btn-ghost justify-start rounded-none text-sm',
+                          'btn justify-start rounded-none text-sm btn-ghost',
                           contextSubTab === 'webFetch' && 'btn-active',
                         )}
                         onClick={() => setContextSubTab('webFetch')}
@@ -497,11 +497,11 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
             </button>
             <button
               type="submit"
-              className="btn btn-primary btn-sm"
+              className="btn btn-sm btn-primary"
               disabled={addFieldMutation.isPending || updateFieldMutation.isPending}
             >
               {(addFieldMutation.isPending || updateFieldMutation.isPending) && (
-                <span className="loading loading-spinner loading-sm" />
+                <span className="loading loading-sm loading-spinner" />
               )}
               {isEditMode ? t('lists.fields.updateField') : t('lists.fields.addField')}
             </button>
@@ -509,7 +509,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
         </form>
 
         {(addFieldMutation.isError || updateFieldMutation.isError) && (
-          <div className="alert alert-error mt-4">
+          <div className="mt-4 alert alert-error">
             <span>
               {addFieldMutation.error instanceof Error
                 ? addFieldMutation.error.message

@@ -44,7 +44,7 @@ interface UpdatesTableProps {
 export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) => {
   const { t } = useTranslation()
   return (
-    <table className="table-zebra table-xs table-pin-cols table-pin-rows table w-full">
+    <table className="table-pin-cols table-pin-rows table w-full table-zebra table-xs">
       <thead>
         <tr>
           <th></th>

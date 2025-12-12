@@ -36,7 +36,7 @@ function RouteComponent() {
       <div>
         <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full items-center gap-2 sm:w-64">
-            <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm lg:hidden">
+            <label htmlFor="conversation-drawer" className="btn btn-sm lg:hidden">
               <MenuIcon className="size-6" />
             </label>
             <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.id} />

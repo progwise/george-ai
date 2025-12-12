@@ -27,7 +27,7 @@ function RouteComponent() {
 
   return (
     <div className="absolute flex h-screen w-full">
-      <div className="prose mx-auto mt-8">
+      <div className="mx-auto prose mt-8">
         <p>{t('automations.firstAutomation')}</p>
         <button
           type="button"

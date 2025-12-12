@@ -4,7 +4,6 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
 
-import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import {
@@ -137,15 +136,14 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
-      <AvatarUpload user={user} className="size-16" />
-
       <UserProfileForm
         userProfile={userProfile}
+        user={user}
         onSubmit={handleFormSubmit}
         saveButton={
           <button
             type="button"
-            className="btn btn-primary btn-sm tooltip"
+            className="tooltip btn btn-sm btn-primary"
             data-tip={!userProfile.confirmationDate ? t('tooltips.saveAndSendConfirmationMail') : undefined}
             onClick={(event) => {
               handleButtonClick(event)

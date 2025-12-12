@@ -28,7 +28,7 @@ function RouteComponent() {
   })
 
   return (
-    <div className="bg-base-100 min-h-screen">
+    <div className="min-h-screen bg-base-100">
       <div className="container mx-auto px-4 py-8">
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body">

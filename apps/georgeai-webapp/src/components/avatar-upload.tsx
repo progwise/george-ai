@@ -123,14 +123,14 @@ export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps)
       <div className="relative">
         <UserAvatar user={user} className={className} />
         {(isUploading || deleteMutation.isPending) && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50">
-            <div className="loading loading-spinner loading-sm text-white"></div>
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black">
+            <div className="loading loading-sm loading-spinner text-white"></div>
           </div>
         )}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="btn btn-circle btn-xs btn-primary absolute -bottom-1 -right-1"
+          className="btn absolute -right-1 -bottom-1 btn-circle btn-xs btn-primary"
           disabled={isUploading || deleteMutation.isPending}
         >
           <CameraIcon className="size-3" />
@@ -151,7 +151,7 @@ export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps)
           <button
             type="button"
             onClick={handleRemoveAvatar}
-            className="btn btn-outline btn-error btn-xs"
+            className="btn btn-outline btn-xs btn-error"
             disabled={isUploading || deleteMutation.isPending}
           >
             {t('actions.removeAvatar')}

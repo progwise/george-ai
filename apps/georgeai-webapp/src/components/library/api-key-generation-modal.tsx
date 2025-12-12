@@ -87,8 +87,8 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
               <button type="button" className="btn btn-ghost btn-sm" onClick={handleClose} disabled={isPending}>
                 {t('actions.cancel')}
               </button>
-              <button type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
-                {isPending && <span className="loading loading-spinner loading-sm" />}
+              <button type="submit" className="btn btn-sm btn-primary" disabled={isPending}>
+                {isPending && <span className="loading loading-sm loading-spinner" />}
                 {t('apiKeys.generate')}
               </button>
             </div>
@@ -104,17 +104,12 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
 
             <div className="space-y-2">
               <label className="label">
-                <span className="label-text font-bold">{t('apiKeys.yourApiKey')}</span>
+                <span className="font-bold">{t('apiKeys.yourApiKey')}</span>
               </label>
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={generatedKey}
-                  readOnly
-                  className="input input-bordered flex-1 font-mono text-sm"
-                />
+                <input type="text" value={generatedKey} readOnly className="input flex-1 font-mono text-sm" />
                 <button type="button" className="btn btn-square btn-primary" onClick={handleCopy}>
-                  <CopyIcon className="h-5 w-5" />
+                  <CopyIcon className="size-5" />
                 </button>
               </div>
             </div>
@@ -127,7 +122,7 @@ export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalP
             </div>
 
             <div className="modal-action">
-              <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>
+              <button type="button" className="btn btn-sm btn-primary" onClick={handleClose}>
                 {t('actions.close')}
               </button>
             </div>

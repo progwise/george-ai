@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { debounce } from '@george-ai/web-utils'
@@ -59,22 +59,18 @@ function RouteComponent() {
 
   const handleTermChange = useMemo(
     () =>
-      debounce(async () => {
-        if (!termInputRef.current) return
-        const term = termInputRef.current.value
+      debounce(async (event: ChangeEvent<HTMLTextAreaElement>) => {
+        const term = event.target.value
         if (!term || term.length === 0) return
         await navigate({ search: { term, hits } })
       }, 500),
     [navigate, hits],
   )
-
-  // Cleanup debounced function on unmount
   useEffect(() => {
     return () => {
       handleTermChange.cancel()
     }
   }, [handleTermChange])
-
   const handleChunkClick = async (chunkText: string) => {
     if (!termInputRef.current) return
     // Use first 100 characters of chunk text as search term
@@ -89,22 +85,22 @@ function RouteComponent() {
       <div className="mb-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="text-base-content text-3xl font-bold">Similarity</h1>
-            <p className="text-base-content/70 mt-2">Find semantically similar content in your documents</p>
+            <h1 className="text-3xl font-bold text-base-content">Similarity</h1>
+            <p className="mt-2 text-base-content/70">Find semantically similar content in your documents</p>
           </div>
         </div>
 
         {/* Search Input */}
         <div className="mt-6">
-          <div className="form-control w-full">
+          <div className="w-full">
             <label className="label flex justify-between">
-              <span className="label-text font-semibold">Term</span>
+              <span className="font-semibold">Term</span>
               {aiContentQueries.length > 0 && (
-                <div className="dropdown-end dropdown">
-                  <label tabIndex={0} className="btn btn-ghost btn-sm gap-1 normal-case">
+                <div className="dropdown dropdown-end">
+                  <label tabIndex={0} className="btn gap-1 normal-case btn-ghost btn-sm">
                     Pick List Field Queries
                     <svg
-                      className="h-4 w-4"
+                      className="size-4"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -113,16 +109,16 @@ function RouteComponent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </label>
-                  <div tabIndex={0} className="dropdown-content rounded-box bg-base-100 mt-2 p-2 shadow">
+                  <div tabIndex={0} className="dropdown-content mt-2 rounded-box bg-base-100 p-2 shadow-sm">
                     {aiContentQueries.map((cq) => (
-                      <div key={cq.id} className="card card-xs bg-base-200 mb-2 flex flex-col gap-1 p-2">
+                      <div key={cq.id} className="card mb-2 flex flex-col gap-1 bg-base-200 p-2 card-xs">
                         <div className="card-title text-sm font-semibold">
                           <Link className="link" to="/lists/$listId" params={{ listId: cq.listId }}>
                             {cq.listName} - {cq.fieldName}
                           </Link>
                         </div>
                         <div className="card-body p-0">
-                          <pre className="wrap-break-word whitespace-pre-wrap text-xs">
+                          <pre className="text-xs wrap-break-word whitespace-pre-wrap">
                             {!cq.contentQuery || cq.contentQuery.length < 1
                               ? 'no-content'
                               : cq.contentQuery.length > 200
@@ -131,10 +127,10 @@ function RouteComponent() {
                           </pre>
                         </div>
                         <div className="card-actions justify-between">
-                          <div className="badge badge-ghost badge-xs text-base-content/40 font-mono">#{cq.fieldId}</div>
+                          <div className="badge badge-ghost font-mono badge-xs text-base-content/40">#{cq.fieldId}</div>
                           <button
                             type="button"
-                            className="btn btn-xs btn-outline btn-primary self-end"
+                            className="btn self-end btn-outline btn-xs btn-primary"
                             onClick={async () => {
                               if (!termInputRef.current) return
                               termInputRef.current.value = cq.contentQuery || ''
@@ -156,7 +152,7 @@ function RouteComponent() {
                 ref={termInputRef}
                 defaultValue={term || ''}
                 placeholder="What did Michael say? You can enter multiple lines or paste larger text blocks here..."
-                className="textarea textarea-bordered focus:textarea-primary max-h-32 min-h-16 flex-1 resize-y"
+                className="textarea max-h-32 min-h-16 flex-1 resize-y focus:textarea-primary"
                 onChange={handleTermChange}
                 rows={2}
               />
@@ -171,7 +167,7 @@ function RouteComponent() {
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body py-12 text-center">
               <div className="text-base-content/50">
-                <svg className="mx-auto mb-4 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mx-auto mb-4 size-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -205,17 +201,17 @@ function RouteComponent() {
                   {/* Show separator if there's a significant gap */}
                   {hasSignificantGap && index > 0 && (
                     <div className="col-span-full flex items-center justify-center">
-                      <div className="text-base-content/40 flex items-center gap-2 text-xs">
-                        <div className="bg-base-300 h-px flex-1" />
+                      <div className="flex items-center gap-2 text-xs text-base-content/40">
+                        <div className="h-px flex-1 bg-base-300" />
                         <span>Gap: {distanceGap.toFixed(3)}</span>
-                        <div className="bg-base-300 h-px flex-1" />
+                        <div className="h-px flex-1 bg-base-300" />
                       </div>
                     </div>
                   )}
 
                   <div
                     key={chunk.id}
-                    className="card bg-base-100 card-compact shadow-sm transition-all hover:shadow-md"
+                    className="card bg-base-100 shadow-sm transition-all hover:shadow-md"
                     style={{ opacity }}
                   >
                     <div className="card-body p-3">
@@ -223,7 +219,7 @@ function RouteComponent() {
                       <div className="mb-2">
                         <div className="mb-1 flex items-start justify-between">
                           <div
-                            className="badge badge-primary badge-outline badge-sm hover:badge-primary hover:text-primary-content cursor-pointer transition-colors"
+                            className="badge cursor-pointer badge-outline badge-sm transition-colors badge-primary hover:text-primary-content hover:badge-primary"
                             onClick={() => handleChunkClick(chunk.text)}
                             title="Click to search for similar content"
                           >
@@ -238,7 +234,7 @@ function RouteComponent() {
                           </div>
                         </div>
                         {chunk.fileName && (
-                          <div className="text-base-content/70 truncate text-xs" title={chunk.fileName}>
+                          <div className="truncate text-xs text-base-content/70" title={chunk.fileName}>
                             {chunk.fileName}
                           </div>
                         )}
@@ -246,8 +242,8 @@ function RouteComponent() {
 
                       {/* Content preview - more compact */}
                       <div className="flex-1">
-                        <div className="bg-base-200 max-h-20 overflow-y-auto rounded p-2">
-                          <pre className="text-base-content/90 text-xs leading-tight">{chunk.text}</pre>
+                        <div className="max-h-20 overflow-y-auto rounded-sm bg-base-200 p-2">
+                          <pre className="text-xs leading-tight text-base-content/90">{chunk.text}</pre>
                         </div>
                       </div>
                     </div>

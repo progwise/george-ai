@@ -67,12 +67,12 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
 
   return (
     <>
-      <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center shadow-lg">
+      <ul className="menu w-full flex-nowrap items-center menu-sm rounded-box bg-base-200 shadow-lg md:menu-horizontal">
         {crawlers ? (
           <li>
             <details ref={detailsRef} className="w-90">
               <summary className="text-sm font-semibold">
-                <span className="overflow-auto overflow-ellipsis text-nowrap">
+                <span className="overflow-auto text-nowrap text-ellipsis">
                   {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'All Crawlers'}
                 </span>
               </summary>
@@ -83,7 +83,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
                   </Link>
                 </li>
                 {crawlers.map((crawler) => (
-                  <li key={crawler.id} className={crawler.id === selectedCrawler?.id ? 'active' : ''}>
+                  <li key={crawler.id}>
                     <Link
                       to="/libraries/$libraryId/crawlers"
                       params={{ libraryId }}
@@ -100,15 +100,15 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
           </li>
         ) : (
           <li>
-            <span className="overflow-auto overflow-ellipsis text-nowrap font-bold">
+            <span className="overflow-auto font-bold text-nowrap text-ellipsis">
               {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'no crawler selected'}
             </span>
           </li>
         )}
         <li>
           {selectedCrawler?.isRunning && (
-            <span className="badge badge-primary gap-1">
-              <span className="loading loading-spinner loading-xs"></span>
+            <span className="badge gap-1 badge-primary">
+              <span className="loading loading-xs loading-spinner"></span>
               {t('crawlers.runs')}
             </span>
           )}

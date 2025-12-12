@@ -48,10 +48,10 @@ export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
   }, [])
 
   return (
-    <ul className="menu menu-horizontal menu-sm rounded-box bg-base-200 z-48 items-center gap-2 p-2 text-sm">
+    <ul className="menu menu-horizontal z-48 items-center gap-2 menu-sm rounded-box bg-base-200 p-2 text-sm">
       <li className="menu-title pr-2">
         {props.unfilteredCount !== undefined && (
-          <span className="text-base-content/50 text-sm">
+          <span className="text-sm text-base-content/50">
             {props.unfilteredCount}{' '}
             {props.unfilteredCount === 1 ? t('lists.elementCount') : t('lists.elementsCount')}{' '}
           </span>
@@ -66,7 +66,7 @@ export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
             {fields
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((field) => (
-                <li key={field.id} className="">
+                <li key={field.id}>
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"

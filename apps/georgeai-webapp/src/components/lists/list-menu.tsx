@@ -63,20 +63,20 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
   if (!user) return null
   return (
     <div>
-      <ul className="menu menu-horizontal rounded-box w-full">
+      <ul className="menu menu-horizontal w-full rounded-box">
         <li>
-          <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('lists.title')}</span>
+          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('lists.title')}</span>
         </li>
         <li>
           <details aria-label={t('lists.switcherTitle')} ref={listSelectorDetailsRef} className="z-50">
-            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
+            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
               {list.name}
             </summary>
-            <ul role="listbox" className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
+            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
               {selectableLists.map((l) => (
                 <li role="option" key={l.id} aria-selected={l.id === list.id}>
                   <Link
-                    to="/lists/$listId"
+                    to="."
                     className="text-nowrap"
                     params={{ listId: l.id }}
                     activeProps={{ className: 'font-bold' }}
@@ -94,7 +94,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
         <li className="grow items-end">
           <button
             type="button"
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => exportListDialogRef.current?.showModal()}
             title={t('lists.export.button')}
             data-tip={t('lists.export.button')}
@@ -107,7 +107,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
           <button
             type="button"
             onClick={() => newListDialogRef.current?.showModal()}
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             title={t('lists.newList')}
             data-tip={t('lists.newList')}
           >
@@ -118,7 +118,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
         <li>
           <button
             type="button"
-            className="btn btn-sm btn-ghost btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => deleteDialogRef.current?.showModal()}
             disabled={isPending}
             title={t('lists.delete')}

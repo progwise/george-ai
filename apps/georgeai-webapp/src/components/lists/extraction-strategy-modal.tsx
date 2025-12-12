@@ -89,13 +89,13 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-base-100 w-full max-w-lg rounded-lg shadow-xl">
+        <div className="w-full max-w-lg rounded-lg bg-base-100 shadow-xl">
           {showConfirmation ? (
             // Confirmation Step
             <div>
               {/* Header */}
-              <div className="border-base-300 border-b p-4">
-                <div className="text-warning flex items-center gap-2">
+              <div className="border-b border-base-300 p-4">
+                <div className="flex items-center gap-2 text-warning">
                   <WarnIcon className="size-6" />
                   <h3 className="text-lg font-semibold">{t('lists.sources.warningTitle')}</h3>
                 </div>
@@ -107,16 +107,16 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
 
                 <div>
                   <p className="mb-2 font-medium">{t('lists.sources.warningFieldsAffected')}</p>
-                  <div className="bg-base-200 max-h-48 overflow-y-auto rounded-lg p-3">
+                  <div className="max-h-48 overflow-y-auto rounded-lg bg-base-200 p-3">
                     {fieldsWithEnrichments.map((stat) => (
                       <div key={stat.fieldId} className="flex items-center justify-between py-1">
                         <span className="font-medium">{stat.fieldName}</span>
-                        <span className="text-base-content/60 text-sm">
+                        <span className="text-sm text-base-content/60">
                           {t('lists.sources.enrichmentsCount', { count: stat.valuesCount })}
                         </span>
                       </div>
                     ))}
-                    <div className="border-base-300 mt-2 border-t pt-2">
+                    <div className="mt-2 border-t border-base-300 pt-2">
                       <div className="flex items-center justify-between font-semibold">
                         <span>Total</span>
                         <span>{t('lists.sources.enrichmentsCount', { count: totalEnrichments })}</span>
@@ -125,13 +125,13 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                   </div>
                 </div>
 
-                <div className="bg-info/10 text-info rounded-lg p-3 text-sm">
+                <div className="rounded-lg bg-info/10 p-3 text-sm text-info">
                   {t('lists.sources.warningSuggestion')}
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="border-base-300 flex justify-end gap-2 border-t p-4">
+              <div className="flex justify-end gap-2 border-t border-base-300 p-4">
                 <button
                   type="button"
                   className="btn btn-ghost"
@@ -149,9 +149,9 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
             // Strategy Selection Step
             <form onSubmit={handleSubmit}>
               {/* Header */}
-              <div className="border-base-300 border-b p-4">
+              <div className="border-b border-base-300 p-4">
                 <h3 className="text-lg font-semibold">{t('lists.sources.configureExtraction')}</h3>
-                <p className="text-base-content/70 text-sm">{source.library?.name}</p>
+                <p className="text-sm text-base-content/70">{source.library?.name}</p>
               </div>
 
               {/* Body */}
@@ -159,9 +159,9 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                 {/* Strategy Selection */}
                 <div>
                   <label className="label">
-                    <span className="label-text font-medium">{t('lists.sources.extractionStrategy')}</span>
+                    <span className="font-medium">{t('lists.sources.extractionStrategy')}</span>
                   </label>
-                  <p className="text-base-content/70 mb-3 text-sm">
+                  <p className="mb-3 text-sm text-base-content/70">
                     {t('lists.sources.extractionStrategyDescription')}
                   </p>
 
@@ -169,7 +169,7 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                     {EXTRACTION_STRATEGIES.map((s) => (
                       <label
                         key={s}
-                        className={`border-base-300 hover:bg-base-200 flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
+                        className={`flex cursor-pointer items-center gap-3 rounded-lg border border-base-300 p-3 hover:bg-base-200 ${
                           strategy === s ? 'border-primary bg-primary/5' : ''
                         }`}
                       >
@@ -184,7 +184,7 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                         />
                         <div>
                           <div className="font-medium">{t(`lists.sources.strategies.${s}`)}</div>
-                          <div className="text-base-content/60 text-sm">
+                          <div className="text-sm text-base-content/60">
                             {t(`lists.sources.strategies.${s}_description`)}
                           </div>
                         </div>
@@ -197,23 +197,23 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
                 {strategy === 'llm_prompt' && (
                   <div>
                     <label className="label">
-                      <span className="label-text font-medium">{t('lists.sources.extractionConfig')}</span>
+                      <span className="font-medium">{t('lists.sources.extractionConfig')}</span>
                     </label>
                     <textarea
-                      className="textarea textarea-bordered w-full"
+                      className="textarea w-full"
                       rows={4}
                       value={llmPrompt}
                       onChange={(e) => setLlmPrompt(e.target.value)}
                       placeholder={t('lists.sources.llmPromptPlaceholder')}
                       disabled={isPending}
                     />
-                    <p className="text-base-content/60 mt-1 text-xs">{t('lists.sources.llmPromptHelp')}</p>
+                    <p className="mt-1 text-xs text-base-content/60">{t('lists.sources.llmPromptHelp')}</p>
                   </div>
                 )}
 
                 {/* Warning preview if there are enrichments */}
                 {hasEnrichments && (
-                  <div className="bg-warning/10 text-warning-content flex items-start gap-2 rounded-lg p-3 text-sm">
+                  <div className="flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning-content">
                     <WarnIcon className="mt-0.5 size-4 shrink-0" />
                     <span>{t('lists.sources.enrichmentsWillBeDeleted', { count: totalEnrichments })}</span>
                   </div>
@@ -221,7 +221,7 @@ export const ExtractionStrategyModal = ({ listId, source, onClose, onSuccess }: 
               </div>
 
               {/* Footer */}
-              <div className="border-base-300 flex justify-end gap-2 border-t p-4">
+              <div className="flex justify-end gap-2 border-t border-base-300 p-4">
                 <button type="button" className="btn btn-ghost" onClick={onClose} disabled={isPending}>
                   {t('actions.cancel')}
                 </button>

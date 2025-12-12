@@ -15,8 +15,11 @@ import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { AiServiceProviderInput } from '../../../gql/graphql'
 import BotIcon from '../../../icons/bot-icon'
+import { EditIcon } from '../../../icons/edit-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
 import { OpenAILogoIcon } from '../../../icons/openai-logo-icon'
+import { ServerIcon } from '../../../icons/server-icon'
+import { TrashIcon } from '../../../icons/trash-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
@@ -239,11 +242,17 @@ function AiServicesAdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">AI Service Providers</h1>
-          <p className="text-sm opacity-70">Auto-refreshing every 5 seconds</p>
+    <div className="container mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full bg-linear-to-br from-secondary/20 to-secondary/10 p-3 shadow-lg">
+            <ServerIcon className="size-8 text-secondary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-primary">AI Service Providers</h1>
+            <p className="text-lg opacity-70">Auto-refreshing every 5 seconds</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <label className="label cursor-pointer">
@@ -253,7 +262,7 @@ function AiServicesAdminPage() {
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
             />
-            <span className="label-text ml-2">Auto Refresh</span>
+            <span className="ml-2">Auto Refresh</span>
           </label>
           <button
             className="btn btn-secondary"
@@ -269,52 +278,65 @@ function AiServicesAdminPage() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Configured Providers</h2>
-        <div className="space-y-4">
+      {/* Configured Providers */}
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">Configured Providers</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {providers.length === 0 ? (
-            <div className="alert alert-info">
+            <div className="rounded-lg border border-info bg-info/10 p-4 text-sm">
               <span>No providers configured. Add your first provider to get started.</span>
             </div>
           ) : (
             providers.map((provider) => (
-              <div key={provider.id} className="card bg-base-100 shadow-md">
-                <div className="card-body">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="card-title">
-                        {getProviderIcon(provider.provider, 'h-6 w-6')}
-                        {provider.name}
-                        <div className={`badge ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
-                          {provider.enabled ? 'Enabled' : 'Disabled'}
-                        </div>
-                        <div className="badge badge-outline">{provider.provider}</div>
-                      </h3>
-                      {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
-                      {provider.vramGb !== null && <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>}
+              <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+                <div className="flex h-full flex-col items-start justify-between gap-2">
+                  <h3 className="flex w-full items-start justify-between gap-2 text-base font-bold">
+                    <div className="flex items-center gap-2">
+                      {getProviderIcon(provider.provider, 'h-6 w-6')}
+                      {provider.name}
                     </div>
+                    <div className="flex justify-between gap-1">
+                      <div className={`badge badge-sm ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
+                        {provider.enabled ? 'Enabled' : 'Disabled'}
+                      </div>
+                      <div className="badge badge-outline badge-sm">{provider.provider}</div>
+                    </div>
+                  </h3>
+                  <div className="flex-1">
+                    {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
+                    {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
+                      <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
+                    )}
+                    {provider.apiKeyHint && (
+                      <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
+                    )}
+                  </div>
 
-                    <div className="flex gap-2">
-                      <label className="label cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-success"
-                          checked={provider.enabled}
-                          onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
-                        />
-                      </label>
+                  <div className="flex w-full justify-between gap-2">
+                    <div className="flex cursor-pointer items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-sm toggle-success"
+                        checked={provider.enabled}
+                        onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
+                      />
+                      <span className="text-sm">{provider.enabled ? 'Disable' : 'Enable'}</span>
+                    </div>
+                    <div>
                       <button
-                        className="btn btn-sm btn-ghost"
+                        className="btn btn-ghost btn-sm"
                         onClick={() => handleEditProvider(provider)}
                         type="button"
                       >
+                        <EditIcon className="mr-1 size-4" />
                         Edit
                       </button>
                       <button
-                        className="btn btn-sm btn-error btn-ghost"
+                        className="btn btn-ghost btn-sm btn-error"
                         onClick={() => handleDeleteProvider(provider.id)}
                         type="button"
                       >
+                        <TrashIcon className="mr-1 size-4" />
                         Delete
                       </button>
                     </div>
@@ -326,43 +348,49 @@ function AiServicesAdminPage() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Overview Metrics</h2>
+      {/* Overview Metrics */}
+      <div>
+        <h2 className="mb-4 text-xl font-semibold">Overview Metrics</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="stat bg-base-200 rounded-lg">
-            <div className="stat-title">Total Providers</div>
-            <div className="stat-value text-primary">{providers.length}</div>
-            <div className="stat-desc">{providers.filter((p) => p.enabled).length} enabled</div>
+          <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+            <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">
+              Total Providers
+            </div>
+            <div className="text-3xl font-bold text-primary">{providers.length}</div>
+            <div className="mt-1 text-sm text-base-content/70">{providers.filter((p) => p.enabled).length} enabled</div>
           </div>
 
-          <div className="stat bg-base-200 rounded-lg">
-            <div className="stat-title">Ollama Instances</div>
-            <div className="stat-value text-secondary">{serviceStatus.availableInstances}</div>
-            <div className="stat-desc">{serviceStatus.healthyInstances} healthy</div>
+          <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+            <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">
+              Ollama Instances
+            </div>
+            <div className="text-3xl font-bold text-secondary">{serviceStatus.availableInstances}</div>
+            <div className="mt-1 text-sm text-base-content/70">{serviceStatus.healthyInstances} healthy</div>
           </div>
 
-          <div className="stat bg-base-200 rounded-lg">
-            <div className="stat-title">Total VRAM</div>
-            <div className="stat-value text-accent">{formatMemory(serviceStatus.totalMemory)}</div>
-            <div className="stat-desc">
+          <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+            <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Total VRAM</div>
+            <div className="text-3xl font-bold text-accent">{formatMemory(serviceStatus.totalMemory)}</div>
+            <div className="mt-1 text-sm text-base-content/70">
               {formatMemory(serviceStatus.totalUsedMemory)} used (
               {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
             </div>
           </div>
 
-          <div className="stat bg-base-200 rounded-lg">
-            <div className="stat-title">Queue Length</div>
-            <div className="stat-value text-info">{serviceStatus.totalQueueLength}</div>
-            <div className="stat-desc">Total waiting requests</div>
+          <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+            <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Queue Length</div>
+            <div className="text-3xl font-bold text-info">{serviceStatus.totalQueueLength}</div>
+            <div className="mt-1 text-sm text-base-content/70">Total waiting requests</div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Ollama Instance Details</h2>
+      {/* Ollama Instance Details */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Ollama Instance Details</h2>
 
         {serviceStatus.instances.length === 0 ? (
-          <div className="alert alert-warning">
+          <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm">
             <span>No Ollama instances found. Please check your configuration.</span>
           </div>
         ) : (
@@ -372,150 +400,141 @@ function AiServicesAdminPage() {
               const memoryUtilization = getMemoryUtilization(instance.usedVram, instance.totalVram)
 
               return (
-                <div key={instance.name} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <div className="mb-4 flex items-start justify-between">
-                      <div>
-                        <h3 className="card-title">
-                          <OllamaLogoIcon className="h-6 w-6" />
-                          {instance.name}
-                          <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
-                            {instance.isOnline ? 'Online' : 'Offline'}
-                          </div>
-                          <div className="badge badge-outline">{instance.type}</div>
-                        </h3>
-                        <p className="text-sm opacity-70">{instance.url}</p>
-                        {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
-                      </div>
-
-                      <div className="stats stats-vertical lg:stats-horizontal bg-base-200">
-                        <div className="stat">
-                          <div className="stat-title text-xs">VRAM Usage</div>
-                          <div className="stat-value text-sm">{formatMemory(instance.usedVram)}</div>
-                          <div className="stat-desc text-xs">of {formatMemory(instance.totalVram)}</div>
+                <div key={instance.name} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+                  <div className="mb-4 flex items-start justify-between">
+                    <div>
+                      <h3 className="flex items-center gap-2 text-lg font-bold">
+                        <OllamaLogoIcon className="size-6" />
+                        {instance.name}
+                        <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
+                          {instance.isOnline ? 'Online' : 'Offline'}
                         </div>
-                        <div className="stat">
-                          <div className="stat-title text-xs">Utilization</div>
-                          <div className="stat-value text-sm">{memoryUtilization}%</div>
-                          <div className="stat-desc text-xs">
-                            <progress
-                              className={`progress w-16 ${getUtilizationColor(memoryUtilization)}`}
-                              value={memoryUtilization}
-                              max="100"
-                            />
-                          </div>
+                        <div className="badge badge-outline">{instance.type}</div>
+                      </h3>
+                      <p className="text-sm opacity-70">{instance.url}</p>
+                      {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row">
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-base-content/60">VRAM Usage</div>
+                        <div className="text-sm font-bold">{formatMemory(instance.usedVram)}</div>
+                        <div className="text-xs text-base-content/70">of {formatMemory(instance.totalVram)}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-base-content/60">Utilization</div>
+                        <div className="text-sm font-bold">{memoryUtilization}%</div>
+                        <div className="text-xs text-base-content/70">
+                          <progress
+                            className={`progress w-16 ${getUtilizationColor(memoryUtilization)}`}
+                            value={memoryUtilization}
+                            max="100"
+                          />
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                      <div>
-                        <div className="bg-base-200 collapse">
-                          <input type="checkbox" />
-                          <div className="collapse-title text-sm font-semibold">
-                            <div className="flex items-center gap-2">
-                              <div className="badge badge-info badge-sm">{instance.availableModels?.length || 0}</div>
-                              Available Models
-                            </div>
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div>
+                      <details className="rounded-lg bg-base-200">
+                        <summary className="cursor-pointer p-4 text-sm font-semibold">
+                          <div className="flex items-center gap-2">
+                            <div className="badge badge-sm badge-info">{instance.availableModels?.length || 0}</div>
+                            Available Models
                           </div>
-                          <div className="collapse-content">
-                            <div className="max-h-48 space-y-1 overflow-y-auto pt-2">
-                              {instance.availableModels && instance.availableModels.length > 0 ? (
-                                instance.availableModels.map((model) => (
-                                  <div key={model.name} className="card card-compact bg-base-100">
-                                    <div className="card-body">
-                                      <div className="font-mono text-xs font-medium">{model.name}</div>
-                                      <div className="text-xs opacity-70">
-                                        {model.family && (
-                                          <span className="badge badge-ghost badge-xs mr-1">{model.family}</span>
-                                        )}
-                                        {model.size !== undefined && <span>Size: {formatMemory(model.size)}</span>}
-                                        {model.parameterSize && <span> • {model.parameterSize} params</span>}
-                                      </div>
-                                      {model.capabilities && model.capabilities.length > 0 && (
-                                        <div className="mt-1 flex flex-wrap gap-1">
-                                          {model.capabilities.map((cap) => (
-                                            <div key={cap} className="badge badge-outline badge-xs">
-                                              {cap}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <p className="py-2 text-center text-xs opacity-50">No models available</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                          <div className="badge badge-success badge-sm">{instance.runningModels?.length || 0}</div>
-                          Running Models
-                        </h4>
-                        <div className="max-h-48 space-y-2 overflow-y-auto">
-                          {instance.runningModels && instance.runningModels.length > 0 ? (
-                            instance.runningModels.map((model) => (
-                              <div key={model.name} className="card card-compact bg-base-200">
-                                <div className="card-body">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-mono text-sm font-medium">{model.name}</span>
-                                    <div className="badge badge-info badge-sm">{model.activeRequests} active</div>
-                                  </div>
-                                  <div className="flex justify-between text-xs opacity-70">
-                                    <span>Size: {formatMemory(model.size)}</span>
-                                    {model.expiresAt && (
-                                      <span>
-                                        Expires: <ClientDate date={model.expiresAt} format="time" />
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="py-4 text-center text-sm opacity-50">No models currently running</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                          <div className="badge badge-warning badge-sm">{instance.modelQueues?.length || 0}</div>
-                          Model Queues
-                        </h4>
-                        <div className="max-h-48 space-y-2 overflow-y-auto">
-                          {instance.modelQueues && instance.modelQueues.length > 0 ? (
-                            instance.modelQueues.map((queue) => (
-                              <div key={queue.modelName} className="card card-compact bg-base-200">
-                                <div className="card-body">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-mono text-sm font-medium">{queue.modelName}</span>
-                                    <div className="badge badge-outline badge-sm">
-                                      {queue.queueLength}/{queue.maxConcurrency}
-                                    </div>
-                                  </div>
+                        </summary>
+                        <div className="px-4 pb-4">
+                          <div className="max-h-48 space-y-1 overflow-y-auto">
+                            {instance.availableModels && instance.availableModels.length > 0 ? (
+                              instance.availableModels.map((model) => (
+                                <div key={model.name} className="rounded-sm border border-base-300 bg-base-100 p-2">
+                                  <div className="font-mono text-xs font-medium">{model.name}</div>
                                   <div className="text-xs opacity-70">
-                                    Est. size per request: {formatMemory(queue.estimatedRequestSize)}
+                                    {model.family && (
+                                      <span className="mr-1 badge badge-ghost badge-xs">{model.family}</span>
+                                    )}
+                                    {model.size !== undefined && <span>Size: {formatMemory(model.size)}</span>}
+                                    {model.parameterSize && <span> • {model.parameterSize} params</span>}
                                   </div>
-                                  {queue.queueLength > 0 && (
-                                    <progress
-                                      className="progress progress-warning w-full"
-                                      value={queue.queueLength}
-                                      max={queue.maxConcurrency}
-                                    />
+                                  {model.capabilities && model.capabilities.length > 0 && (
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                      {model.capabilities.map((cap) => (
+                                        <div key={cap} className="badge badge-outline badge-xs">
+                                          {cap}
+                                        </div>
+                                      ))}
+                                    </div>
                                   )}
                                 </div>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="py-4 text-center text-sm opacity-50">No active queues</p>
-                          )}
+                              ))
+                            ) : (
+                              <p className="py-2 text-center text-xs opacity-50">No models available</p>
+                            )}
+                          </div>
                         </div>
+                      </details>
+                    </div>
+
+                    <div>
+                      <h4 className="mb-3 flex items-center gap-2 font-semibold">
+                        <div className="badge badge-sm badge-success">{instance.runningModels?.length || 0}</div>
+                        Running Models
+                      </h4>
+                      <div className="max-h-48 space-y-2 overflow-y-auto">
+                        {instance.runningModels && instance.runningModels.length > 0 ? (
+                          instance.runningModels.map((model) => (
+                            <div key={model.name} className="rounded-sm border border-base-300 bg-base-200 p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-mono text-sm font-medium">{model.name}</span>
+                                <div className="badge badge-sm badge-info">{model.activeRequests} active</div>
+                              </div>
+                              <div className="flex justify-between text-xs opacity-70">
+                                <span>Size: {formatMemory(model.size)}</span>
+                                {model.expiresAt && (
+                                  <span>
+                                    Expires: <ClientDate date={model.expiresAt} format="time" />
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="py-4 text-center text-sm opacity-50">No models currently running</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="mb-3 flex items-center gap-2 font-semibold">
+                        <div className="badge badge-sm badge-warning">{instance.modelQueues?.length || 0}</div>
+                        Model Queues
+                      </h4>
+                      <div className="max-h-48 space-y-2 overflow-y-auto">
+                        {instance.modelQueues && instance.modelQueues.length > 0 ? (
+                          instance.modelQueues.map((queue) => (
+                            <div key={queue.modelName} className="rounded-sm border border-base-300 bg-base-200 p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-mono text-sm font-medium">{queue.modelName}</span>
+                                <div className="badge badge-outline badge-sm">
+                                  {queue.queueLength}/{queue.maxConcurrency}
+                                </div>
+                              </div>
+                              <div className="text-xs opacity-70">
+                                Est. size per request: {formatMemory(queue.estimatedRequestSize)}
+                              </div>
+                              {queue.queueLength > 0 && (
+                                <progress
+                                  className="progress w-full progress-warning"
+                                  value={queue.queueLength}
+                                  max={queue.maxConcurrency}
+                                />
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="py-4 text-center text-sm opacity-50">No active queues</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -529,13 +548,11 @@ function AiServicesAdminPage() {
         <div className="modal-box w-11/12 max-w-3xl">
           <h3 className="mb-6 text-2xl font-bold">{editingProvider?.id ? 'Edit Provider' : 'Add Provider'}</h3>
           <form key={editingProvider?.id || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-semibold">Provider Type</span>
-              </label>
+            <div>
+              <label className="mb-2 block text-sm font-semibold">Provider Type</label>
               <select
                 name="provider"
-                className="select select-bordered w-full"
+                className="select w-full"
                 defaultValue={editingProvider?.provider}
                 onChange={(e) => setSelectedProviderType(e.target.value)}
                 disabled={!!editingProvider?.id}
@@ -544,84 +561,70 @@ function AiServicesAdminPage() {
                 <option value="ollama">Ollama - Self-hosted LLM runtime</option>
                 <option value="openai">OpenAI - GPT models</option>
               </select>
-              <label className="label">
-                <span className="label-text-alt">
-                  {editingProvider?.id
-                    ? 'Provider type cannot be changed. Only one non-Ollama provider of each type can be enabled.'
-                    : 'Choose the AI service provider type. Only one non-Ollama provider of each type can be enabled.'}
-                </span>
-              </label>
+              <p className="mt-1 text-xs text-base-content/60">
+                {editingProvider?.id
+                  ? 'Provider type cannot be changed. Only one non-Ollama provider of each type can be enabled.'
+                  : 'Choose the AI service provider type. Only one non-Ollama provider of each type can be enabled.'}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-semibold">Display Name</span>
-                </label>
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Display Name</label>
                 <input
                   type="text"
                   name="name"
-                  className="input input-bordered w-full"
+                  className="input w-full"
                   defaultValue={editingProvider?.name}
                   placeholder="e.g., Primary Ollama"
                   required
                 />
-                <label className="label">
-                  <span className="label-text-alt">A friendly name to identify this provider</span>
-                </label>
+                <p className="mt-1 text-xs text-base-content/60">A friendly name to identify this provider</p>
               </div>
 
               {selectedProviderType === 'ollama' && (
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">VRAM (GB)</span>
-                  </label>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold">VRAM (GB)</label>
                   <input
                     type="number"
                     name="vramGb"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                     defaultValue={editingProvider?.vramGb}
                     placeholder="e.g., 32"
                     min="1"
                   />
-                  <label className="label">
-                    <span className="label-text-alt">GPU memory available for this instance</span>
-                  </label>
+                  <p className="mt-1 text-xs text-base-content/60">GPU memory available for this instance</p>
                 </div>
               )}
             </div>
 
             {selectedProviderType === 'ollama' && (
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-semibold">Base URL</span>
-                </label>
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Base URL</label>
                 <input
                   type="url"
                   name="baseUrl"
-                  className="input input-bordered w-full font-mono text-sm"
+                  className="input w-full font-mono text-sm"
                   defaultValue={editingProvider?.baseUrl}
                   placeholder="e.g., http://ollama:11434"
                 />
-                <label className="label">
-                  <span className="label-text-alt">The Ollama API endpoint URL</span>
-                </label>
+                <p className="mt-1 text-xs text-base-content/60">The Ollama API endpoint URL</p>
               </div>
             )}
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-semibold">API Key</span>
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-semibold">API Key</label>
                 {editingProvider?.apiKeyHint && (
-                  <span className="label-text-alt">
+                  <span className="text-xs text-base-content/60">
                     Current: <span className="font-mono">{editingProvider.apiKeyHint}</span>
                   </span>
                 )}
-              </label>
+              </div>
               <input
                 type="password"
                 name="apiKey"
-                className="input input-bordered w-full font-mono text-sm"
+                className="input w-full font-mono text-sm"
                 placeholder={
                   editingProvider?.apiKeyHint
                     ? 'Leave empty to keep existing key'
@@ -632,18 +635,16 @@ function AiServicesAdminPage() {
                 autoComplete="new-password"
                 required={selectedProviderType === 'openai' && !editingProvider?.apiKeyHint}
               />
-              <label className="label">
-                <span className="label-text-alt">
-                  {selectedProviderType === 'openai'
-                    ? editingProvider?.apiKeyHint
-                      ? 'Enter a new key to replace the existing one'
-                      : 'Required - Your OpenAI API key'
-                    : 'Optional - Only needed if Ollama requires authentication'}
-                </span>
-              </label>
+              <p className="mt-1 text-xs text-base-content/60">
+                {selectedProviderType === 'openai'
+                  ? editingProvider?.apiKeyHint
+                    ? 'Enter a new key to replace the existing one'
+                    : 'Required - Your OpenAI API key'
+                  : 'Optional - Only needed if Ollama requires authentication'}
+              </p>
             </div>
 
-            <div className="form-control">
+            <div>
               <button
                 type="button"
                 className="btn btn-outline btn-sm"
@@ -666,24 +667,22 @@ function AiServicesAdminPage() {
               >
                 {testConnectionMutation.isPending ? (
                   <>
-                    <span className="loading loading-spinner loading-xs" />
+                    <span className="loading loading-xs loading-spinner" />
                     Testing Connection...
                   </>
                 ) : (
                   'Test Connection'
                 )}
               </button>
-              <label className="label">
-                <span className="label-text-alt">
-                  Verify that the provider is reachable with the configured credentials
-                </span>
-              </label>
+              <p className="mt-1 text-xs text-base-content/60">
+                Verify that the provider is reachable with the configured credentials
+              </p>
             </div>
 
             <div className="divider" />
 
-            <div className="form-control">
-              <label className="label cursor-pointer justify-start gap-4">
+            <div>
+              <label className="flex cursor-pointer items-start gap-4">
                 <input
                   type="checkbox"
                   name="enabled"
@@ -691,7 +690,7 @@ function AiServicesAdminPage() {
                   defaultChecked={editingProvider?.enabled}
                 />
                 <div>
-                  <span className="label-text font-semibold">Enable this provider</span>
+                  <span className="text-sm font-semibold">Enable this provider</span>
                   <p className="text-xs opacity-70">Disabled providers won't be used for AI operations</p>
                 </div>
               </label>

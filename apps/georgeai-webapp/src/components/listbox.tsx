@@ -33,37 +33,37 @@ export const Listbox = <T extends { id: string; name: string }>({
       <ListboxButton
         disabled={disabled}
         aria-required={required}
-        className={twMerge('focus:outline-primary grid w-full cursor-default grid-cols-1', className)}
+        className={twMerge('grid w-full cursor-default grid-cols-1 focus:outline-primary', className)}
       >
         <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
           {selectedItem ? (
             <span className="block truncate">{selectedItem.name}</span>
           ) : (
-            <span className="text-base-content/50 block truncate">{placeholder}</span>
+            <span className="block truncate text-base-content/50">{placeholder}</span>
           )}
         </span>
         <ChevronUpDownIcon
           aria-hidden="true"
-          className="text-base-content/50 col-start-1 row-start-1 size-5 self-center justify-self-end sm:size-4"
+          className="col-start-1 row-start-1 size-5 self-center justify-self-end text-base-content/50 sm:size-4"
         />
       </ListboxButton>
 
       <ListboxOptions
         anchor="bottom"
         transition
-        className="focus:outline-hidden bg-base-100 z-[9999] mt-1 overflow-auto rounded-lg border shadow-lg data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+        className="z-9999 mt-1 overflow-auto rounded-lg border bg-base-100 shadow-lg focus:outline-hidden data-leave:transition data-leave:duration-100 data-leave:ease-in data-closed:data-leave:opacity-0 sm:text-sm"
       >
         {items.map((item) => (
           <ListboxOption
             key={item.id}
             value={item}
-            className="data-[focus]:bg-primary data-[focus]:text-primary-content group relative cursor-default select-none p-2 pr-12 data-[focus]:rounded-lg"
+            className="group relative cursor-default p-2 pr-12 select-none data-focus:rounded-lg data-focus:bg-primary data-focus:text-primary-content"
           >
             <div className="flex items-center">
-              <span className="ml-3 block truncate font-normal group-data-[selected]:font-semibold">{item.name}</span>
+              <span className="ml-3 block truncate font-normal group-data-selected:font-semibold">{item.name}</span>
             </div>
 
-            <span className="group-data-[focus]:text-primary-content absolute inset-y-0 right-0 flex items-center pr-4 group-[&:not([data-selected])]:hidden">
+            <span className="absolute inset-y-0 right-0 flex items-center pr-4 group-data-focus:text-primary-content group-[&:not([data-selected])]:hidden">
               <CheckIcon aria-hidden="true" className="size-5" />
             </span>
           </ListboxOption>

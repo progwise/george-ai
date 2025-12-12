@@ -112,7 +112,10 @@ async function globalTeardown() {
     const listResult = await client.query(
       `
       DELETE FROM "AiList"
-      WHERE name LIKE 'E2E Test List%'
+      WHERE "workspaceId" IN (
+          '00000000-0000-0000-0000-000000000002',
+          '00000000-0000-0000-0000-000000000003'
+        )
       RETURNING name
     `,
     )

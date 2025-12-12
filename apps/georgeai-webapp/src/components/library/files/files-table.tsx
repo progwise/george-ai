@@ -141,7 +141,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
           {selectedFileIds.length > 0 && (
             <>
               <button type="button" className="btn btn-ghost btn-xs" onClick={() => dropDialogRef.current?.showModal()}>
-                <TrashIcon className="h-4 w-4" />
+                <TrashIcon className="size-4" />
                 {t('actions.dropSelected', { count: selectedFileIds.length })}
               </button>
               <button
@@ -149,7 +149,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 className="btn btn-ghost btn-xs"
                 onClick={() => processDialogRef.current?.showModal()}
               >
-                <ReprocessIcon className="h-4 w-4" />
+                <ReprocessIcon className="size-4" />
                 {t('actions.processSelected', { count: selectedFileIds.length })}
               </button>
               <button
@@ -157,7 +157,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 className="btn btn-ghost btn-xs"
                 onClick={() => embedDialogRef.current?.showModal()}
               >
-                <SparklesIcon className="h-4 w-4" />
+                <SparklesIcon className="size-4" />
                 {t('actions.embedSelected', { count: selectedFileIds.length })}
               </button>
             </>
@@ -168,7 +168,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
           {files.map((file, index) => (
             <div
               key={file.id}
-              className={`shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3 ${
+              className={`flex flex-col gap-2 rounded-md border border-base-300 p-3 shadow-xs ${
                 index % 2 === 0 ? 'bg-base-100 dark:bg-base-100' : 'bg-base-200 dark:bg-base-200'
               }`}
             >
@@ -192,17 +192,17 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                     </Link>
                   </span>
                 </label>
-                <div className="flex flex-shrink-0 justify-end gap-2">
+                <div className="flex shrink-0 justify-end gap-2">
                   {file.archivedAt && (
-                    <span className="badge badge-outline badge-sm gap-1">
-                      <ArchiveIcon className="h-3 w-3" />
+                    <span className="badge gap-1 badge-outline badge-sm">
+                      <ArchiveIcon className="size-3" />
                       {t('labels.archived')}
                     </span>
                   )}
                   {file.extractionStatus !== ExtractionStatus.None && (
                     <span
                       className={twMerge(
-                        'badge badge-sm gap-1',
+                        'badge gap-1 badge-sm',
                         file.extractionStatus === ExtractionStatus.Pending && 'badge-info',
                         file.extractionStatus === ExtractionStatus.Running && 'badge-primary',
                         file.extractionStatus === ExtractionStatus.Completed && 'badge-success',
@@ -210,10 +210,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       )}
                       title={file.extractionStatus}
                     >
-                      {file.extractionStatus === ExtractionStatus.Pending && <CalendarIcon className="h-3 w-3" />}
-                      {file.extractionStatus === ExtractionStatus.Running && <PlayIcon className="h-3 w-3" />}
-                      {file.extractionStatus === ExtractionStatus.Completed && <CheckIcon className="h-3 w-3" />}
-                      {file.extractionStatus === ExtractionStatus.Failed && <ExclamationIcon className="h-3 w-3" />}
+                      {file.extractionStatus === ExtractionStatus.Pending && <CalendarIcon className="size-3" />}
+                      {file.extractionStatus === ExtractionStatus.Running && <PlayIcon className="size-3" />}
+                      {file.extractionStatus === ExtractionStatus.Completed && <CheckIcon className="size-3" />}
+                      {file.extractionStatus === ExtractionStatus.Failed && <ExclamationIcon className="size-3" />}
                       {file.extractionStatus}
                     </span>
                   )}
@@ -240,15 +240,15 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden h-full w-full overflow-auto lg:block">
-        <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
+      <div className="hidden size-full overflow-auto lg:block">
+        <table className="table-pin-rows table-pin-cols table table-zebra table-sm">
           <thead>
             <tr>
               <th>
                 <div className="flex flex-row flex-nowrap justify-between text-sm">
                   <input
                     type="checkbox"
-                    className="checkbox checkbox-xs m-0 p-0 text-xs"
+                    className="checkbox m-0 checkbox-xs p-0 text-xs"
                     checked={allSelected}
                     onChange={handleSelectAll}
                   />
@@ -256,30 +256,30 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
                   <button
                     type="button"
-                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    className="tooltip btn tooltip-right btn-square btn-xs"
                     onClick={() => embedDialogRef.current?.showModal()}
                     data-tip={t('actions.embedSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
                   >
-                    <SparklesIcon className="h-4 w-4" />
+                    <SparklesIcon className="size-4" />
                   </button>
                   <button
                     type="button"
-                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    className="tooltip btn tooltip-right btn-square btn-xs"
                     onClick={() => dropDialogRef.current?.showModal()}
                     data-tip={t('actions.dropSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
                   >
-                    <TrashIcon className="h-4 w-4" />
+                    <TrashIcon className="size-4" />
                   </button>
                   <button
                     type="button"
-                    className="tooltip btn btn-square btn-xs tooltip-right"
+                    className="tooltip btn tooltip-right btn-square btn-xs"
                     onClick={() => processDialogRef.current?.showModal()}
                     data-tip={t('actions.processSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
                   >
-                    <ReprocessIcon className="h-4 w-4" />
+                    <ReprocessIcon className="size-4" />
                   </button>
                 </div>
               </th>
@@ -310,37 +310,37 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <Link
                         to="/libraries/$libraryId/files/$fileId"
                         params={{ libraryId: file.libraryId, fileId: file.id }}
-                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.view')}
                       >
-                        <EyeIcon className="h-4 w-4" />
+                        <EyeIcon className="size-4" />
                       </Link>
                       <button
                         type="button"
                         disabled={fileActionPending}
-                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.drop')}
                         onClick={() => dropFile(file.id)}
                       >
-                        <TrashIcon className="h-4 w-4" />
+                        <TrashIcon className="size-4" />
                       </button>
                       <button
                         type="button"
-                        className="tooltip btn btn-square btn-xs tooltip-right"
+                        className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
                         onClick={() => createExtractionTasks([file.id])}
                       >
-                        <ReprocessIcon className="h-4 w-4" />
+                        <ReprocessIcon className="size-4" />
                       </button>
                       {file.processingStatus === ProcessingStatus.Failed && (
                         <span className="tooltip tooltip-right" data-tip={file.processingStatus}>
-                          <ExclamationIcon className="h-4 w-4" />
+                          <ExclamationIcon className="size-4" />
                         </span>
                       )}
 
                       {file.dropError && (
-                        <span className="lg:tooltip tooltip-right" data-tip={t('libraries.dropFileError')}>
-                          <ExclamationIcon className="fill-warning h-4 w-4" />
+                        <span className="tooltip-right lg:tooltip" data-tip={t('libraries.dropFileError')}>
+                          <ExclamationIcon className="size-4 fill-warning" />
                         </span>
                       )}
                     </div>
@@ -356,8 +356,8 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <span>{truncateFileName(file.name, 49, 45)}</span>
                     </Link>
                     {file.archivedAt && (
-                      <span className="badge badge-warning badge-xs gap-1">
-                        <ArchiveIcon className="h-3 w-3" />
+                      <span className="badge gap-1 badge-xs badge-warning">
+                        <ArchiveIcon className="size-3" />
                         {t('labels.archived')}
                       </span>
                     )}

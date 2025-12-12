@@ -151,14 +151,14 @@ export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLi
                 <Link
                   to="/libraries/$libraryId"
                   params={{ libraryId: usage.libraryId }}
-                  className="link link-hover text-sm"
+                  className="link text-sm link-hover"
                 >
                   {usage.library.name}
                 </Link>
               </div>
               <button
                 type="button"
-                className="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom"
+                className="tooltip btn tooltip-bottom btn-circle btn-ghost btn-sm"
                 onClick={() => {
                   const libraryId = usage.libraryId
                   removeUsage({ assistantId: assistant.id, libraryId })

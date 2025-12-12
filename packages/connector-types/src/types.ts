@@ -55,7 +55,7 @@ export interface ActionConfigOption {
 /**
  * Field type for action configuration
  */
-export type ActionConfigFieldType = 'string' | 'select' | 'listFieldSelect' | 'fieldMappings'
+export type ActionConfigFieldType = 'string' | 'boolean' | 'select' | 'listFieldSelect' | 'fieldMappings'
 
 /**
  * Configuration field definition

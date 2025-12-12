@@ -53,13 +53,13 @@ function RouteComponent() {
   const count = aiContentProcessingTasks.count
 
   return (
-    <div className="bg-base-100 flex h-full flex-col gap-2">
+    <div className="flex h-full flex-col gap-2 bg-base-100">
       <div className="flex items-center justify-between">
-        <h2 className="text-base-content/80 text-xl font-bold">Content Extraction Tasks</h2>
+        <h2 className="text-xl font-bold text-base-content/80">Content Extraction Tasks</h2>
         <div className="flex items-end gap-4">
           <div>
             <select
-              className="select select-sm select-bordered h-full"
+              className="select h-full select-sm"
               value={status || ''}
               onChange={(e) => {
                 const selectedStatus = e.target.value as ProcessingStatus | ''
@@ -91,13 +91,13 @@ function RouteComponent() {
 
       <div className="overflow-auto">
         {tasks.length === 0 ? (
-          <div className="card bg-base-200 w-full">
+          <div className="card w-full bg-base-200">
             <div className="card-body text-center">
               <p className="text-base-content/60">No tasks found</p>
             </div>
           </div>
         ) : (
-          <div className="join join-vertical bg-base-100 w-full">
+          <div className="join-vertical join w-full bg-base-100">
             {tasks.map((task, index) => (
               <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={true} />
             ))}

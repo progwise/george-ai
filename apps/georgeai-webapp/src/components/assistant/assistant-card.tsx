@@ -14,18 +14,18 @@ export const AssistantCard = ({ assistant, userId }: AssistantCardProps): React.
   const { t } = useTranslation()
 
   return (
-    <div className="card bg-base-100 w-96 shadow-xl">
+    <div className="card w-96 bg-base-100 shadow-xl">
       <figure className="max-h-24">
         <div className="h-36 w-full overflow-hidden rounded-lg text-center">
           {!assistant.iconUrl ? (
-            <div className="text-base-content/50 bg-base-300 flex h-full w-full items-center justify-center">
+            <div className="flex size-full items-center justify-center bg-base-300 text-base-content/50">
               {t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name)}
             </div>
           ) : (
             <img
               src={assistant.iconUrl}
               alt={t('labels.assistantIcon')}
-              className="h-full w-full object-cover"
+              className="size-full object-cover"
               onError={(event) => {
                 event.currentTarget.hidden = true
               }}

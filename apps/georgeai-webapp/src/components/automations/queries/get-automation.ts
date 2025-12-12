@@ -30,6 +30,12 @@ graphql(`
     list {
       id
       name
+      sources {
+        library {
+          id
+          name
+        }
+      }
       fields {
         id
         name

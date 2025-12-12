@@ -35,8 +35,8 @@ function RouteComponent() {
   return (
     <div
       className={twMerge(
-        'drawer lg:drawer-open grow',
-        'min-h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
+        'drawer grow lg:drawer-open',
+        'min-h-[calc(100dvh---spacing(16))]', // full height minus the top bar
       )}
     >
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
@@ -46,11 +46,11 @@ function RouteComponent() {
       <div
         className={twMerge(
           'drawer-side max-lg:z-50 lg:top-16',
-          'lg:h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
+          'lg:h-[calc(100dvh---spacing(16))]', // full height minus the top bar
         )}
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-100 flex w-80 flex-col items-center bg-auto p-4 lg:p-0 lg:pl-4 lg:pt-4">
+        <div className="flex w-80 flex-col items-center bg-base-100 bg-auto p-4 lg:p-0 lg:pt-4 lg:pl-4">
           <ConversationSelector conversations={aiConversations} onClick={handleConversationClick} />
         </div>
       </div>

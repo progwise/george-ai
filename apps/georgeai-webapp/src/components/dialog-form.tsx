@@ -70,7 +70,7 @@ export const DialogForm = ({
           <div className="min-h-0 flex-1 overflow-auto">{children}</div>
           <div className="modal-action flex justify-end gap-2">
             {buttonOptions === 'onlyClose' ? (
-              <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>
+              <button type="button" className="btn btn-sm btn-primary" onClick={handleClose}>
                 {t('actions.close')}
               </button>
             ) : (
@@ -79,7 +79,7 @@ export const DialogForm = ({
                   {t('actions.cancel')}
                 </button>
                 <div className={`${disabledSubmit ? 'tooltip tooltip-left' : ''}`} data-tip={submitButtonTooltipText}>
-                  <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
+                  <button type="submit" className="btn btn-sm btn-primary" disabled={disabledSubmit}>
                     {submitButtonText || t('actions.confirm')}
                   </button>
                 </div>

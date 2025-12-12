@@ -77,13 +77,13 @@ export const AssistantSurvey = ({ assessment }: AssistantSurveyProps) => {
   const formRef = React.useRef<HTMLFormElement>(null)
 
   return (
-    <div className="bg-base-100 mx-auto flex max-w-2xl flex-col gap-4 rounded-lg p-4 shadow-sm">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow-sm">
       <h3 className="flex items-center justify-between">
         <span className="text-xl font-bold">{assistantSurvey.title[language]}</span>
-        <span className="bg-base-200 min-w-[4em] rounded-sm p-2 text-sm">{assistantSurvey.percentCompleted}%</span>
+        <span className="min-w-[4em] rounded-sm bg-base-200 p-2 text-sm">{assistantSurvey.percentCompleted}%</span>
       </h3>
 
-      <div className="bg-info/40 border-info rounded-sm border p-3 text-sm">{assistantSurvey.hint[language]}</div>
+      <div className="rounded-sm border border-info bg-info/40 p-3 text-sm">{assistantSurvey.hint[language]}</div>
 
       {/* Basic System Information Questions */}
 
@@ -101,7 +101,7 @@ export const AssistantSurvey = ({ assessment }: AssistantSurveyProps) => {
       </form>
 
       {/* Next Steps */}
-      <div className="bg-base-200 flex flex-col gap-2 rounded-lg border p-3">
+      <div className="flex flex-col gap-2 rounded-lg border bg-base-200 p-3">
         <h2 className="font-semibold">{t('labels.nextSteps')}</h2>
         <p className="text-sm">{assistantSurvey.actionsTitle[language]}</p>
         <ul className="list-inside list-disc text-sm">
@@ -114,7 +114,7 @@ export const AssistantSurvey = ({ assessment }: AssistantSurveyProps) => {
 
         <button
           type="button"
-          className="btn btn-neutral btn-sm w-min self-end"
+          className="btn w-min self-end btn-sm btn-neutral"
           onClick={() => {
             reset()
           }}

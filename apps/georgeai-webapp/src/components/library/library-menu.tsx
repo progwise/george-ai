@@ -62,16 +62,16 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
   if (!user) return null
   return (
     <div>
-      <ul className="menu menu-horizontal rounded-box w-full">
+      <ul className="menu menu-horizontal w-full rounded-box">
         <li>
-          <span className="text-primary/50 menu-title text-nowrap text-xl font-semibold">{t('libraries.title')}</span>
+          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('libraries.title')}</span>
         </li>
         <li>
           <details ref={librarySelectorDetailsRef} className="z-40">
-            <summary className="text-primary min-w-68 border-base-content/30 text-nowrap rounded-2xl border text-xl font-semibold">
+            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
               {library.name}
             </summary>
-            <ul className="rounded-box bg-base-200 min-w-68 p-2 shadow-lg">
+            <ul className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
               {selectableLibraries.map((library) => (
                 <li key={library.id}>
                   <Link
@@ -93,11 +93,11 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
             </ul>
           </details>
         </li>
-        <li className="grow-1 items-end">
+        <li className="grow items-end">
           <button
             type="button"
             onClick={() => newLibraryDialogRef.current?.showModal()}
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             title={t('libraries.addNewButton')}
             data-tip={t('libraries.addNew')}
           >
@@ -108,7 +108,7 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
         <li>
           <button
             type="button"
-            className="btn btn-sm btn-ghost btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             onClick={() => deleteDialogRef.current?.showModal()}
             disabled={isPending}
             title={t('libraries.deleteLibraryButton')}

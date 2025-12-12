@@ -9,7 +9,7 @@ export const CircleCrossIcon = ({ className }: IconProps) => {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 26 26"
         fill="none"
-        className="inline-block h-4 w-4 stroke-current"
+        className="inline-block size-4 stroke-current"
       >
         <circle cx="13" cy="13" r="12" stroke="currentcolor" strokeWidth="2" />
         <path d="M17.9497 8.05026L8.05024 17.9498" stroke="currentcolor" strokeWidth="4" strokeLinecap="round" />

@@ -140,7 +140,7 @@ function RouteComponent() {
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-4">
       {/* Basic Settings */}
-      <div className="card card-compact bg-base-200">
+      <div className="card bg-base-200">
         <div className="card-body">
           <h4 className="card-title text-sm">{t('automations.settings')}</h4>
 
@@ -161,7 +161,7 @@ function RouteComponent() {
             <fieldset className="fieldset">
               <legend className="fieldset-legend text-xs">{t('automations.labelAction')}</legend>
               <select
-                className="select select-sm w-full"
+                className="select w-full select-sm text-nowrap"
                 value={connectorAction}
                 onChange={(e) => setConnectorAction(e.target.value)}
                 required
@@ -183,7 +183,7 @@ function RouteComponent() {
               <label className="input input-sm w-full">
                 <input type="text" value={automation.connector.name || ''} disabled />
                 {user.isAdmin && (
-                  <Link to="/admin/connectors" className="link link-sm">
+                  <Link to="/admin/connectors" className="link">
                     <LinkIcon className="size-3" />
                   </Link>
                 )}
@@ -195,7 +195,7 @@ function RouteComponent() {
               <legend className="fieldset-legend text-xs">{t('automations.labelList')}</legend>
               <label className="input input-sm w-full">
                 <input type="text" value={automation.list.name} disabled />
-                <Link to="/lists/$listId" params={{ listId: automation.listId }} className="link link-sm">
+                <Link to="/lists/$listId" params={{ listId: automation.listId }} className="link">
                   <LinkIcon className="size-3" />
                 </Link>
               </label>
@@ -217,7 +217,7 @@ function RouteComponent() {
 
       {/* Dynamic Action Configuration */}
       {selectedAction && selectedAction.configFields.length > 0 && (
-        <div className="card card-compact bg-base-200">
+        <div className="card bg-base-200">
           <div className="card-body">
             <h4 className="card-title text-sm">{t('automations.fieldMappings')}</h4>
 
@@ -231,9 +231,9 @@ function RouteComponent() {
                         {field.name}
                         {field.required && <span className="text-error"> *</span>}
                       </legend>
-                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      {field.description && <p className="mb-1 text-xs text-base-content/60">{field.description}</p>}
                       <select
-                        className="select select-sm w-full"
+                        className="select w-full select-sm text-nowrap"
                         value={(actionConfig[field.id] as string) || ''}
                         onChange={(e) => updateConfigField(field.id, e.target.value)}
                         required={field.required}
@@ -258,7 +258,7 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-xs font-medium">{field.name}</span>
-                          {field.description && <p className="text-base-content/60 text-xs">{field.description}</p>}
+                          {field.description && <p className="text-xs text-base-content/60">{field.description}</p>}
                         </div>
                         <button type="button" className="btn btn-ghost btn-xs" onClick={addFieldMapping}>
                           <PlusIcon className="size-3" />
@@ -267,16 +267,16 @@ function RouteComponent() {
                       </div>
 
                       {fieldMappings.length === 0 ? (
-                        <div className="text-base-content/50 text-xs">{t('automations.noMappings')}</div>
+                        <div className="text-xs text-base-content/50">{t('automations.noMappings')}</div>
                       ) : (
                         <div className="space-y-1">
                           {fieldMappings.map((mapping, index) => (
                             <div
                               key={mapping.id || `mapping-${index}`}
-                              className="bg-base-100 flex items-center gap-2 rounded p-2"
+                              className="flex items-center gap-2 rounded-sm bg-base-100 p-2"
                             >
                               <select
-                                className="select select-xs flex-1"
+                                className="select flex-1 select-xs text-nowrap"
                                 value={mapping.sourceFieldId}
                                 onChange={(e) => updateFieldMapping(index, { sourceFieldId: e.target.value })}
                                 aria-label={t('automations.sourceField')}
@@ -289,10 +289,10 @@ function RouteComponent() {
                                 ))}
                               </select>
 
-                              <span className="text-base-content/50 text-xs">→</span>
+                              <span className="text-xs text-base-content/50">→</span>
 
                               <select
-                                className="select select-xs flex-1"
+                                className="select flex-1 select-xs"
                                 value={mapping.targetField}
                                 onChange={(e) => updateFieldMapping(index, { targetField: e.target.value })}
                                 aria-label={t('automations.targetField')}
@@ -306,7 +306,7 @@ function RouteComponent() {
                               </select>
 
                               <select
-                                className="select select-xs w-28"
+                                className="select w-28 select-xs text-nowrap"
                                 value={mapping.transform}
                                 onChange={(e) => updateFieldMapping(index, { transform: e.target.value })}
                                 aria-label={t('automations.transform')}
@@ -320,7 +320,7 @@ function RouteComponent() {
 
                               <button
                                 type="button"
-                                className="btn btn-ghost btn-xs text-error"
+                                className="btn text-error btn-ghost btn-xs"
                                 onClick={() => removeFieldMapping(index)}
                                 aria-label={`Remove mapping ${index + 1}`}
                               >
@@ -342,7 +342,7 @@ function RouteComponent() {
                         {field.name}
                         {field.required && <span className="text-error"> *</span>}
                       </legend>
-                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      {field.description && <p className="mb-1 text-xs text-base-content/60">{field.description}</p>}
                       <input
                         type="text"
                         className="input input-sm w-full"
@@ -362,9 +362,9 @@ function RouteComponent() {
                         {field.name}
                         {field.required && <span className="text-error"> *</span>}
                       </legend>
-                      {field.description && <p className="text-base-content/60 mb-1 text-xs">{field.description}</p>}
+                      {field.description && <p className="mb-1 text-xs text-base-content/60">{field.description}</p>}
                       <select
-                        className="select select-sm w-full"
+                        className="select w-full select-sm text-nowrap"
                         value={(actionConfig[field.id] as string) || ''}
                         onChange={(e) => updateConfigField(field.id, e.target.value)}
                         required={field.required}
@@ -382,6 +382,27 @@ function RouteComponent() {
                   )
                 }
 
+                // Boolean (checkbox)
+                if (field.type === 'boolean') {
+                  // Config values come as strings from backend, convert to boolean
+                  const rawValue = actionConfig[field.id]
+                  const boolValue = rawValue === 'true'
+                  return (
+                    <label key={field.id} className="label cursor-pointer justify-start gap-1.5 py-1">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs"
+                        checked={boolValue}
+                        onChange={(e) => updateConfigField(field.id, e.target.checked ? 'true' : 'false')}
+                      />
+                      <span className="text-xs">
+                        {field.name}
+                        {field.description && <span className="ml-1 text-base-content/60">- {field.description}</span>}
+                      </span>
+                    </label>
+                  )
+                }
+
                 return null
               })}
             </div>
@@ -391,7 +412,7 @@ function RouteComponent() {
 
       {/* Submit */}
       <div className="flex justify-end">
-        <button type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
+        <button type="submit" className="btn btn-sm btn-primary" disabled={isPending}>
           {isPending ? t('actions.saving') : t('actions.save')}
         </button>
       </div>

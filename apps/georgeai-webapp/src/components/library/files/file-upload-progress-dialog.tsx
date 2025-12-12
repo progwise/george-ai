@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { formatBytes } from '@george-ai/web-utils'
 
+import { useNow } from '../../../hooks/use-now'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
 import { FileIcon } from '../../../icons/file-icon'
@@ -27,12 +28,12 @@ export const FileUploadProgressDialog = ({
   preparedUploadFiles,
   onClose,
 }: FileUploadProgressDialogProps) => {
+  const { now } = useNow()
   const { t } = useTranslation()
   const startedUploadIdsRef = useRef<Set<string>>(new Set())
   const { cancelFileUpload } = useFileActions({ libraryId })
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
-  const uploadStartTimeRef = useRef<number>(Date.now())
   const [uploadEndTime, setUploadEndTime] = useState<number | null>(null)
 
   // Check if all uploads are complete
@@ -45,7 +46,7 @@ export const FileUploadProgressDialog = ({
   const totalBytes = preparedUploadFiles.reduce((sum, file) => sum + file.blob.size, 0)
 
   // Calculate upload duration
-  const uploadDuration = uploadEndTime ? ((uploadEndTime - uploadStartTimeRef.current) / 1000).toFixed(1) : null
+  const uploadDuration = uploadEndTime ? ((uploadEndTime - now) / 1000).toFixed(1) : null
 
   // Set end time when all uploads complete
   useEffect(() => {
@@ -269,9 +270,9 @@ export const FileUploadProgressDialog = ({
                     <span className="text-success">{t('actions.uploaded')}</span>
                   ) : (
                     // Progress Bar
-                    <div className="bg-base-200 relative h-2 w-20 rounded-sm">
+                    <div className="relative h-2 w-20 rounded-sm bg-base-200">
                       <div
-                        className="bg-info absolute h-2 rounded-sm duration-200"
+                        className="absolute h-2 rounded-sm bg-info duration-200"
                         style={{
                           width: `${progress || 0}%`,
                         }}
@@ -282,7 +283,7 @@ export const FileUploadProgressDialog = ({
                 {progress !== -1 && progress !== 100 && (
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs btn-square"
+                    className="btn btn-square btn-ghost btn-xs"
                     onClick={() => handleCancelUpload(fileId)}
                   >
                     <CrossIcon />

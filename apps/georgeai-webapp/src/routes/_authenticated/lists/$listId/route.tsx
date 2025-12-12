@@ -33,7 +33,7 @@ function RouteComponent() {
     <div className="flex flex-col gap-4">
       <ListMenu list={aiList} selectableLists={aiLists} />
 
-      <div role="tablist" className="tabs tabs-lift justify-end">
+      <div role="tablist" className="tabs-lift tabs justify-end">
         <Link
           to="/lists/$listId"
           className="tab"
@@ -65,7 +65,7 @@ function RouteComponent() {
           role="tab"
         >
           <StatisticsIcon />
-          {t('lists.statistics')}
+          {t('lists.statistics.tabTitle')}
         </Link>
         <Link
           to="/lists/$listId/edit"
@@ -79,7 +79,7 @@ function RouteComponent() {
           {t('lists.edit')}
         </Link>
         <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content bg-base-100 border-base-300 border p-3">
+        <div className="tab-content border border-base-300 bg-base-100 p-3">
           <div className="relative overflow-scroll">
             <Outlet />
           </div>

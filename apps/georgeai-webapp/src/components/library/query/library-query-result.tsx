@@ -21,7 +21,7 @@ export interface LibraryQueryParams {
 export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCount }: LibraryQueryParams) => {
   return (
     <article className="justify-center">
-      <ul className="list bg-base-100 rounded-box w-full shadow-md">
+      <ul className="list w-full rounded-box bg-base-100 shadow-md">
         <li className="pl-4 text-xs tracking-wide opacity-60">
           {hitCount} matches for your search term: &quot;{searchTerm}&quot;
         </li>

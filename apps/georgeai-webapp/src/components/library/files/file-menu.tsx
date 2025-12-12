@@ -36,13 +36,13 @@ export const FileMenu = ({ file }: FileMenuProps) => {
 
   const reverseClassNames = 'flex flex-row-reverse md:flex-row'
   const buttonProps = {
-    className: twMerge('btn btn-xs rounded-full', reverseClassNames),
+    className: twMerge('btn rounded-full btn-xs', reverseClassNames),
     disabled: !!fileActionPending,
     type: 'button' as const,
   }
 
   return (
-    <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap items-end shadow-lg md:items-center">
+    <ul className="menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center">
       <li>
         <button {...buttonProps} onClick={() => createEmbeddingTasks([file.id])}>
           <svg

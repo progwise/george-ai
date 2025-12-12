@@ -127,7 +127,7 @@ export const RunCrawlerButton = ({ crawler, className, afterStart }: RunCrawlerB
       onClick={handleClick}
       className={twMerge('btn btn-primary', className)}
     >
-      {crawler.isRunning ? <span className="loading loading-spinner loading-xs"></span> : <PlayIcon />}
+      {crawler.isRunning ? <span className="loading loading-xs loading-spinner"></span> : <PlayIcon />}
       {crawler.isRunning ? t('crawlers.stop') : t('crawlers.run')}
     </button>
   )

@@ -51,7 +51,7 @@ function RouteComponent() {
     }),
   )
   return (
-    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>
         <LibraryQueryInput
           defaultSearchTerm={query ?? ''}

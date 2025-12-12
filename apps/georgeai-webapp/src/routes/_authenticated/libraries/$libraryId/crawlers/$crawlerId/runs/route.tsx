@@ -40,7 +40,7 @@ function RouteComponent() {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions(params))
   return (
-    <div className="drawer lg:drawer-open grow gap-4">
+    <div className="drawer grow gap-4 lg:drawer-open">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
         <Outlet />
@@ -48,7 +48,7 @@ function RouteComponent() {
 
       <div className="drawer-side max-lg:z-50">
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-200 flex flex-col items-center gap-2 pt-4">
+        <div className="flex flex-col items-center gap-2 bg-base-200 pt-4">
           <div className="flex flex-1 flex-col gap-4 overflow-scroll">
             <Pagination
               totalItems={crawler.runCount}
@@ -67,7 +67,7 @@ function RouteComponent() {
               }}
             />
           </div>
-          <ul className="menu bg-base-200 rounded-box">
+          <ul className="menu rounded-box bg-base-200">
             {crawlerRuns.length < 1 ? (
               <li className="text-center text-sm text-gray-500">{t('crawlers.noRunsFound')}</li>
             ) : (
@@ -77,7 +77,7 @@ function RouteComponent() {
                     <Link
                       to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"
                       params={{ ...params, crawlerRunId: run.id }}
-                      className="btn btn-btn-ghost h-full w-full"
+                      className="btn size-full btn-ghost"
                       activeProps={{ className: 'btn-active' }}
                       activeOptions={{ exact: false }}
                     >

@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { registerConnectorType } from '../registry'
 import type { ConnectorConfig, ConnectorType } from '../types'
 import { oauth2CredentialsSchema } from '../validation'
-import { writeProductDescriptionAction } from './actions'
+import { upsertProductAction, writeProductDescriptionAction } from './actions'
 import { createApiClient, getLanguages, getSalesChannels, testConnection } from './api'
 
 /**
@@ -23,7 +23,7 @@ export const shopware6ConnectorType: ConnectorType = {
   credentialsSchema: oauth2CredentialsSchema,
   sensitiveFields: ['clientSecret'],
 
-  actions: [writeProductDescriptionAction],
+  actions: [writeProductDescriptionAction, upsertProductAction],
 
   async testConnection(config: ConnectorConfig) {
     return testConnection(config.baseUrl, {

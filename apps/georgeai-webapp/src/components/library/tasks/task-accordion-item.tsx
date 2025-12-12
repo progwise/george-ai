@@ -123,9 +123,9 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
 
   return (
     <>
-      <div className="collapse-arrow join-item border-base-300 collapse border">
+      <div className="collapse-arrow collapse join-item border border-base-300">
         <input type="radio" name={`task-accordion-${skip}-${take}`} defaultChecked={index === 0} className="peer" />
-        <div className="collapse-title peer-checked:bg-base-100 font-semibold opacity-40 peer-checked:opacity-100">
+        <div className="collapse-title font-semibold opacity-40 peer-checked:bg-base-100 peer-checked:opacity-100">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
               {hideFileName ? (
@@ -134,19 +134,19 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 </span>
               ) : (
                 <Link
-                  className="z-20 text-nowrap font-semibold hover:underline"
+                  className="z-20 font-semibold text-nowrap hover:underline"
                   to="/libraries/$libraryId/files/$fileId"
                   params={{ libraryId: task.file.libraryId, fileId: task.file.id }}
                 >
                   <span className="text-nowrap">{`${task.file.name}`}</span>
                 </Link>
               )}
-              <ClientDate date={task.createdAt} format="dateTime" className="text-neutral/50 text-nowrap text-xs" />
+              <ClientDate date={task.createdAt} format="dateTime" className="text-xs text-nowrap text-neutral/50" />
             </div>
             <div className="flex flex-wrap gap-2">
               <div
                 className={twMerge(
-                  'badge badge-sm badge-outline text-nowrap',
+                  'badge badge-outline badge-sm text-nowrap',
                   getStatusBadgeClass(task.extractionStatus),
                 )}
               >
@@ -157,7 +157,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
               </div>
               <div
                 className={twMerge(
-                  'badge badge-sm badge-outline text-nowrap',
+                  'badge badge-outline badge-sm text-nowrap',
                   getStatusBadgeClass(task.embeddingStatus),
                 )}
               >
@@ -168,7 +168,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
               </div>
               <div
                 className={twMerge(
-                  'badge badge-sm badge-outline text-nowrap',
+                  'badge badge-outline badge-sm text-nowrap',
                   getProcessingStatusBadgeClass(task.processingStatus),
                 )}
               >
@@ -202,10 +202,10 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <span className="text-base-content/60">Timeout:</span>
                 {task.timeoutMs === undefined ? '-' : task.timeoutMs}ms
               </div>
-              <ul className="menu menu-horizontal bg-base-200 rounded-box gap-2">
+              <ul className="menu menu-horizontal gap-2 rounded-box bg-base-200">
                 <button
                   type="button"
-                  className="btn btn-sm btn-circle tooltip"
+                  className="tooltip btn btn-circle btn-sm"
                   data-tip="Extraction Options"
                   onClick={openExtractionOptionsModal}
                 >
@@ -228,7 +228,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 {task.metadata && (
                   <button
                     type="button"
-                    className="btn btn-sm btn-circle tooltip"
+                    className="tooltip btn btn-circle btn-sm"
                     data-tip="Process Data"
                     onClick={openMetadataModal}
                   >
@@ -251,7 +251,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 {!task.processingFailedAt && !task.processingFinishedAt && (
                   <button
                     type="button"
-                    className="btn btn-sm btn-circle tooltip"
+                    className="tooltip btn btn-circle btn-sm"
                     data-tip="Cancel Processing"
                     onClick={() => cancelProcessingTask({ taskId: task.id, fileId: task.file.id })}
                   >
@@ -261,7 +261,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                 <Link
                   to="/libraries/$libraryId/files/$fileId/tasks"
                   params={{ fileId: task.file.id, libraryId: task.file.libraryId }}
-                  className="btn btn-sm btn-circle tooltip"
+                  className="tooltip btn btn-circle btn-sm"
                   data-tip={`Go to file's tasks`}
                 >
                   <ExternalLinkIcon className="size-4" />
@@ -282,7 +282,7 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                   </div>
                 ))}
 
-              <div className="text-base-content/40 ml-auto">ID: {task.id}</div>
+              <div className="ml-auto text-base-content/40">ID: {task.id}</div>
             </div>
           </div>
         </div>

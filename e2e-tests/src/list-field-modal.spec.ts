@@ -55,7 +55,9 @@ test.describe('List Field Modal', () => {
 
   test('should create text field with field reference context', async () => {
     // Click "Add enrichment field" button (already scrolled into view in beforeEach)
-    await page.getByTitle('Add enrichment field').click()
+    const addFieldButton = page.getByTitle('Add enrichment field')
+    await addFieldButton.scrollIntoViewIfNeeded()
+    await addFieldButton.click()
 
     // Fill Basic tab
     await page.getByLabel(/field name/i).fill('Summary')

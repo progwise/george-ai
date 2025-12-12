@@ -97,7 +97,7 @@ export const Input = <T extends ZodRawShape>({
   }, [schema, validate, hasBeenTouched, validateOnSchemaChange])
 
   return (
-    <fieldset className={twMerge('fieldset group', type === 'textarea' && 'flex flex-col', className)}>
+    <fieldset className={twMerge('group fieldset', type === 'textarea' && 'flex flex-col', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
         <label
           htmlFor={uniqueId}
@@ -123,8 +123,8 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'textarea validator wrap-break-word w-full flex-1 resize-none whitespace-pre-wrap py-1 leading-normal placeholder:italic placeholder:opacity-50',
-            readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
+            'validator textarea w-full flex-1 resize-none py-1 leading-normal wrap-break-word whitespace-pre-wrap placeholder:italic placeholder:opacity-50',
+            readonly && 'cursor-not-allowed bg-base-300 text-base-content/50',
           )}
           style={{ font: 'inherit' }}
           placeholder={placeholder || ''}
@@ -151,8 +151,8 @@ export const Input = <T extends ZodRawShape>({
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input validator w-full placeholder:italic placeholder:opacity-50',
-            readonly && 'bg-base-300 text-base-content/50 cursor-not-allowed',
+            'validator input w-full placeholder:italic placeholder:opacity-50',
+            readonly && 'cursor-not-allowed bg-base-300 text-base-content/50',
           )}
           placeholder={placeholder || ''}
           required={required}

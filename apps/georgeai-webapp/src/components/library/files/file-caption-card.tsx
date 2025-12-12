@@ -22,10 +22,10 @@ interface FileCaptionCardProps {
 
 export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
   return (
-    <div className="bg-base-100 flex flex-col">
+    <div className="flex flex-col bg-base-100">
       <div className="">
         <a
-          className="link link-primary text-nowrap align-text-top text-xs italic"
+          className="link align-text-top text-xs text-nowrap link-primary italic"
           href={file.originUri || '#'}
           target="_blank"
         >
@@ -33,8 +33,8 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
         </a>
       </div>
       <div className="flex justify-between align-top">
-        <div className="flex-start flex flex-col gap-1 overflow-y-auto">
-          <h3 className="text-base-content text-nowrap text-xl font-bold">{file.name}</h3>
+        <div className="flex flex-col gap-1 overflow-y-auto">
+          <h3 className="text-xl font-bold text-nowrap text-base-content">{file.name}</h3>
           <FileStatusLabels file={file} />
         </div>
         <div className="z-30 md:flex">

@@ -77,7 +77,7 @@ export const AutomationItemSidePanel = ({
       {/* Side Panel */}
       <div
         className={twMerge(
-          'bg-base-100 fixed right-0 top-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
@@ -85,7 +85,7 @@ export const AutomationItemSidePanel = ({
         aria-label={`${t('automations.itemDetail.title')} - ${itemName}`}
       >
         {/* Header */}
-        <div className="border-base-300 flex shrink-0 items-center justify-between border-b p-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-lg font-semibold" title={itemName}>
               {itemName}
@@ -94,7 +94,7 @@ export const AutomationItemSidePanel = ({
               to="/lists/$listId"
               params={{ listId }}
               search={{ selectedItemId: listItemId }}
-              className="link link-primary text-base-content/60 text-sm"
+              className="link text-sm link-primary text-base-content/60"
             >
               {t('automations.itemDetail.viewInList')}
             </Link>
@@ -108,27 +108,27 @@ export const AutomationItemSidePanel = ({
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <span className="loading loading-spinner loading-md" />
+              <span className="loading loading-md loading-spinner" />
               <span className="ml-2">{t('automations.itemDetail.loading')}</span>
             </div>
           ) : isError || !item ? (
-            <div className="text-error py-8 text-center">{t('automations.itemDetail.notFound')}</div>
+            <div className="py-8 text-center text-error">{t('automations.itemDetail.notFound')}</div>
           ) : (
             <>
               {/* Status Section */}
               <section aria-label={t('automations.itemDetail.status')}>
                 <h4 className="mb-2 font-semibold">{t('automations.itemDetail.status')}</h4>
-                <div className="bg-base-200 flex items-center gap-4 rounded-lg p-3">
+                <div className="flex items-center gap-4 rounded-lg bg-base-200 p-3">
                   <div>
-                    <span className="text-base-content/60 text-sm">{t('automations.itemStatus')}:</span>
-                    <span className={`badge badge-sm ml-2 ${getStatusBadgeClass(item.status)}`}>{item.status}</span>
+                    <span className="text-sm text-base-content/60">{t('automations.itemStatus')}:</span>
+                    <span className={`ml-2 badge badge-sm ${getStatusBadgeClass(item.status)}`}>{item.status}</span>
                   </div>
                   <div>
-                    <span className="text-base-content/60 text-sm">{t('automations.itemInScope')}:</span>
+                    <span className="text-sm text-base-content/60">{t('automations.itemInScope')}:</span>
                     <input
                       type="checkbox"
                       checked={item.inScope}
-                      className={`checkbox checkbox-xs ml-2 ${item.inScope ? 'checkbox-success' : 'checkbox-warning'}`}
+                      className={`checkbox ml-2 checkbox-xs ${item.inScope ? 'checkbox-success' : 'checkbox-warning'}`}
                       readOnly
                     />
                   </div>
@@ -139,9 +139,9 @@ export const AutomationItemSidePanel = ({
               {item.lastExecutedAt && (
                 <section aria-label={t('automations.itemDetail.lastExecuted')}>
                   <h4 className="mb-2 font-semibold">{t('automations.itemDetail.lastExecuted')}</h4>
-                  <div className="bg-base-200 rounded-lg p-3">
+                  <div className="rounded-lg bg-base-200 p-3">
                     <p className="text-base-content">
-                      <ClientDate date={item.lastExecutedAt} />
+                      <ClientDate date={item.lastExecutedAt} format="dateTimeShort" />
                     </p>
                   </div>
                 </section>
@@ -153,9 +153,9 @@ export const AutomationItemSidePanel = ({
                 {item.preview.length > 0 ? (
                   <div className="space-y-2">
                     {item.preview.map((p) => (
-                      <div key={p.targetField} className="bg-base-200 rounded-lg p-3">
+                      <div key={p.targetField} className="rounded-lg bg-base-200 p-3">
                         <div className="mb-1 flex items-center justify-between">
-                          <span className="text-base-content/60 text-sm font-medium">{p.targetField}</span>
+                          <span className="text-sm font-medium text-base-content/60">{p.targetField}</span>
                           {p.transformedValue && (
                             <button
                               type="button"
@@ -170,9 +170,9 @@ export const AutomationItemSidePanel = ({
                             </button>
                           )}
                         </div>
-                        <div className="bg-base-300 max-h-60 overflow-y-auto rounded p-2">
+                        <div className="max-h-60 overflow-y-auto rounded-sm bg-base-300 p-2">
                           {p.transformedValue ? (
-                            <pre className="text-base-content/80 whitespace-pre-wrap text-xs">{p.transformedValue}</pre>
+                            <pre className="text-xs whitespace-pre-wrap text-base-content/80">{p.transformedValue}</pre>
                           ) : (
                             <span className="text-base-content/50 italic">—</span>
                           )}
@@ -181,7 +181,7 @@ export const AutomationItemSidePanel = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-base-200 rounded-lg p-3">
+                  <div className="rounded-lg bg-base-200 p-3">
                     <p className="text-base-content/50 italic">{t('automations.itemDetail.noPreviewValues')}</p>
                   </div>
                 )}
@@ -193,12 +193,12 @@ export const AutomationItemSidePanel = ({
                 {item.executions.length > 0 ? (
                   <div className="space-y-3">
                     {item.executions.map((execution) => (
-                      <div key={execution.id} className="bg-base-200 rounded-lg p-3">
+                      <div key={execution.id} className="rounded-lg bg-base-200 p-3">
                         <div className="mb-2 flex items-center justify-between">
                           <span className={`badge badge-sm ${getStatusBadgeClass(execution.status)}`}>
                             {execution.status}
                           </span>
-                          <span className="text-base-content/60 text-xs">
+                          <span className="text-xs text-base-content/60">
                             <ClientDate date={execution.startedAt} />
                           </span>
                         </div>
@@ -206,7 +206,7 @@ export const AutomationItemSidePanel = ({
                         {/* Input */}
                         <div className="mb-2">
                           <div className="mb-1 flex items-center justify-between">
-                            <span className="text-base-content/60 text-xs font-medium">
+                            <span className="text-xs font-medium text-base-content/60">
                               {t('automations.itemDetail.input')}
                             </span>
                             <button
@@ -221,8 +221,8 @@ export const AutomationItemSidePanel = ({
                                 : t('automations.itemDetail.copy')}
                             </button>
                           </div>
-                          <div className="bg-base-300 max-h-32 overflow-y-auto rounded p-2">
-                            <pre className="text-base-content/80 whitespace-pre-wrap text-xs">
+                          <div className="max-h-32 overflow-y-auto rounded-sm bg-base-300 p-2">
+                            <pre className="text-xs whitespace-pre-wrap text-base-content/80">
                               {JSON.stringify(JSON.parse(execution.inputJson), null, 2)}
                             </pre>
                           </div>
@@ -232,7 +232,7 @@ export const AutomationItemSidePanel = ({
                         {execution.outputJson && (
                           <div>
                             <div className="mb-1 flex items-center justify-between">
-                              <span className="text-base-content/60 text-xs font-medium">
+                              <span className="text-xs font-medium text-base-content/60">
                                 {t('automations.itemDetail.output')}
                               </span>
                               <button
@@ -247,8 +247,8 @@ export const AutomationItemSidePanel = ({
                                   : t('automations.itemDetail.copy')}
                               </button>
                             </div>
-                            <div className="bg-base-300 max-h-32 overflow-y-auto rounded p-2">
-                              <pre className="text-base-content/80 whitespace-pre-wrap text-xs">
+                            <div className="max-h-32 overflow-y-auto rounded-sm bg-base-300 p-2">
+                              <pre className="text-xs whitespace-pre-wrap text-base-content/80">
                                 {JSON.stringify(JSON.parse(execution.outputJson), null, 2)}
                               </pre>
                             </div>
@@ -256,7 +256,7 @@ export const AutomationItemSidePanel = ({
                         )}
 
                         {execution.finishedAt && (
-                          <div className="text-base-content/50 mt-2 text-right text-xs">
+                          <div className="mt-2 text-right text-xs text-base-content/50">
                             {t('automations.itemDetail.duration')}:{' '}
                             {Math.round(
                               (new Date(execution.finishedAt).getTime() - new Date(execution.startedAt).getTime()) /
@@ -269,7 +269,7 @@ export const AutomationItemSidePanel = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-base-200 rounded-lg p-3">
+                  <div className="rounded-lg bg-base-200 p-3">
                     <p className="text-base-content/50 italic">{t('automations.itemDetail.noExecutions')}</p>
                   </div>
                 )}

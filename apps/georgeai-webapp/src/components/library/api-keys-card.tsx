@@ -22,21 +22,21 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => createDialogRef.current?.showModal()}>
-            <PlusIcon className="h-4 w-4" />
+          <button type="button" className="btn btn-sm btn-primary" onClick={() => createDialogRef.current?.showModal()}>
+            <PlusIcon className="size-4" />
             {t('apiKeys.generate')}
           </button>
         </div>
 
-        <p className="text-base-content/70 text-sm">{t('apiKeys.description')}</p>
+        <p className="text-sm text-base-content/70">{t('apiKeys.description')}</p>
 
         {apiKeys.length === 0 ? (
-          <div className="text-base-content/60 rounded-lg border-2 border-dashed p-8 text-center">
+          <div className="rounded-lg border-2 border-dashed p-8 text-center text-base-content/60">
             <p>{t('apiKeys.noKeys')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="table-zebra table">
+            <table className="table table-zebra">
               <thead>
                 <tr>
                   <th>{t('apiKeys.name')}</th>

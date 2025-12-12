@@ -72,7 +72,7 @@ const AutomationItemsResult = builder
               inScope: root.inScope,
               ...(root.status ? { status: root.status } : {}),
             },
-            orderBy: [{ createdAt: 'desc' }],
+            orderBy: [{ listItem: { itemName: 'asc' } }, { createdAt: 'desc' }],
             skip: root.skip,
             take: root.take,
           })

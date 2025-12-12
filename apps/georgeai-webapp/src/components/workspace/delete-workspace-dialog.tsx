@@ -14,7 +14,7 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
   const { currentWorkspace, workspaces, validation, deleteWorkspace, setWorkspace, isPending, isLoading } =
     useWorkspace(user)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validation?.canDelete || !currentWorkspace) return
 
     deleteWorkspace(currentWorkspace.id, {
@@ -46,7 +46,7 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
         <div className="alert alert-warning">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
+            className="size-6 shrink-0 stroke-current"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -85,11 +85,11 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
       )}
 
       {/* Show warning if workspace can be deleted */}
-      {validation?.canDelete && <div className="text-error text-sm font-bold">{t('workspace.deleteWarning')}</div>}
+      {validation?.canDelete && <div className="text-sm font-bold text-error">{t('workspace.deleteWarning')}</div>}
 
       {/* Show instructions if workspace cannot be deleted */}
       {!validation?.canDelete && (
-        <div className="text-base-content/70 text-sm">{t('workspace.deleteInstructions')}</div>
+        <div className="text-sm text-base-content/70">{t('workspace.deleteInstructions')}</div>
       )}
     </DialogForm>
   )

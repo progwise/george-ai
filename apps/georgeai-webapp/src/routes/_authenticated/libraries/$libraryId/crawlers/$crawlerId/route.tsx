@@ -44,22 +44,22 @@ function RouteComponent() {
           <span className="mx-2">|</span>
           <span>
             {crawler.lastRun?.success && crawler.lastRun.endedAt ? (
-              <span className="text-success flex items-center">
+              <span className="flex items-center text-success">
                 {t('texts.success')}
-                <CheckIcon className="inline-block h-4 w-4" />
+                <CheckIcon className="inline-block size-4" />
               </span>
             ) : crawler.lastRun?.endedAt ? (
-              <span className="text-error flex items-center">
+              <span className="flex items-center text-error">
                 <span>{t('texts.failure')}</span>
                 <WarnIcon className="inline-block" />
               </span>
             ) : crawler.lastRun ? (
-              <span className="text-info flex items-center">
+              <span className="flex items-center text-info">
                 <span>{t('texts.running')}</span>
-                <span className="loading loading-spinner loading-xs"></span>
+                <span className="loading loading-xs loading-spinner"></span>
               </span>
             ) : (
-              <span className="text-info flex items-center">
+              <span className="flex items-center text-info">
                 <span>{t('crawlers.noRunsTitle')}</span>
                 <WarnIcon className="inline-block" />
               </span>

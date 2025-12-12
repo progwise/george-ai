@@ -15,7 +15,7 @@ function RouteComponent() {
     data: { aiList },
   } = useSuspenseQuery(getListQueryOptions(listId))
   return (
-    <div className="mt-6 space-y-6">
+    <div className="mx-auto w-full max-w-3xl space-y-4">
       <ListEditForm list={aiList} />
       <ListSourcesManager list={aiList} />
     </div>

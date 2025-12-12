@@ -164,6 +164,121 @@ export async function getProduct(
 }
 
 /**
+ * Search for a product by product number (SKU)
+ */
+export async function searchProductByNumber(
+  client: ShopwareApiClient,
+  productNumber: string,
+  languageId?: string,
+): Promise<{ id: string; productNumber: string } | null> {
+  interface SearchResponse {
+    data: Array<{
+      id: string
+      productNumber: string
+    }>
+  }
+
+  const response = await apiRequest<SearchResponse>(
+    client,
+    'POST',
+    '/api/search/product',
+    {
+      filter: [{ type: 'equals', field: 'productNumber', value: productNumber }],
+      limit: 1,
+    },
+    languageId,
+  )
+
+  if (response.data.length === 0) {
+    return null
+  }
+
+  return {
+    id: response.data[0].id,
+    productNumber: response.data[0].productNumber,
+  }
+}
+
+/**
+ * Create a new product in Shopware
+ */
+export async function createProduct(
+  client: ShopwareApiClient,
+  data: Record<string, unknown>,
+  languageId?: string,
+): Promise<{ id: string }> {
+  interface CreateResponse {
+    data: {
+      id: string
+    }
+  }
+
+  // Shopware returns 204 No Content on successful creation via POST
+  // but we need the ID, so we use the sync endpoint which returns the created entity
+  const response = await apiRequest<CreateResponse>(client, 'POST', '/api/product?_response=detail', data, languageId)
+
+  return { id: response.data.id }
+}
+
+/**
+ * Get the default tax ID from Shopware
+ * Returns the first tax rate found
+ */
+export async function getDefaultTaxId(client: ShopwareApiClient): Promise<string> {
+  interface TaxResponse {
+    data: Array<{
+      id: string
+      name: string
+      taxRate: number
+    }>
+  }
+
+  const response = await apiRequest<TaxResponse>(client, 'POST', '/api/search/tax', {
+    limit: 1,
+  })
+
+  if (response.data.length === 0) {
+    throw new Error('No tax rates found in Shopware. Please configure at least one tax rate.')
+  }
+
+  return response.data[0].id
+}
+
+/**
+ * Get the default currency ID from Shopware
+ * Gets EUR if available, otherwise the first currency found
+ */
+export async function getDefaultCurrencyId(client: ShopwareApiClient): Promise<string> {
+  interface CurrencyResponse {
+    data: Array<{
+      id: string
+      isoCode: string
+    }>
+  }
+
+  // Try to get EUR first (most common default in Europe)
+  const eurResponse = await apiRequest<CurrencyResponse>(client, 'POST', '/api/search/currency', {
+    filter: [{ type: 'equals', field: 'isoCode', value: 'EUR' }],
+    limit: 1,
+  })
+
+  if (eurResponse.data.length > 0) {
+    return eurResponse.data[0].id
+  }
+
+  // Fallback: get the first currency
+  const fallback = await apiRequest<CurrencyResponse>(client, 'POST', '/api/search/currency', {
+    limit: 1,
+  })
+
+  if (fallback.data.length === 0) {
+    throw new Error('No currencies found in Shopware. Please configure at least one currency.')
+  }
+
+  return fallback.data[0].id
+}
+
+/**
  * Test the connection to Shopware
  */
 export async function testConnection(

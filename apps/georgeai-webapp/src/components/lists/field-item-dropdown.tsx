@@ -139,21 +139,21 @@ export const FieldItemDropdown = ({
   return (
     <div
       ref={dropdownRef}
-      className="bg-base-100 border-base-300 absolute right-0 top-full z-[9999] mt-1 w-56 rounded-lg border shadow-lg"
+      className="absolute top-full right-0 z-9999 mt-1 w-56 rounded-lg border border-base-300 bg-base-100 shadow-lg"
     >
       {/* Display error or failed enrichment value if present */}
       {(error || failedEnrichmentValue) && (
-        <div className="border-base-300 border-b px-4 py-3">
+        <div className="border-b border-base-300 px-4 py-3">
           {error && (
             <div className="mb-2">
-              <div className="text-error mb-1 text-xs font-semibold">❌ {t('lists.enrichment.error')}</div>
-              <div className="text-error break-words text-xs">{error}</div>
+              <div className="mb-1 text-xs font-semibold text-error">❌ {t('lists.enrichment.error')}</div>
+              <div className="text-xs wrap-break-word text-error">{error}</div>
             </div>
           )}
           {failedEnrichmentValue && (
             <div>
-              <div className="text-warning mb-1 text-xs font-semibold">⚠️ {t('lists.enrichment.failedTerm')}</div>
-              <div className="text-warning break-words text-xs">{failedEnrichmentValue}</div>
+              <div className="mb-1 text-xs font-semibold text-warning">⚠️ {t('lists.enrichment.failedTerm')}</div>
+              <div className="text-xs wrap-break-word text-warning">{failedEnrichmentValue}</div>
             </div>
           )}
         </div>
@@ -164,15 +164,15 @@ export const FieldItemDropdown = ({
           type="button"
           className={`flex w-full items-center px-4 py-2 transition-colors ${
             enrichSingleMutation.isPending || isEnrichmentDisabled
-              ? 'text-base-content/40 cursor-not-allowed opacity-50'
-              : 'hover:bg-base-200 button button-xs'
+              ? 'cursor-not-allowed text-base-content/40 opacity-50'
+              : 'btn btn-xs hover:bg-base-200'
           }`}
           onClick={handleEnrichSingle}
           disabled={enrichSingleMutation.isPending || isEnrichmentDisabled}
         >
           {enrichSingleMutation.isPending ? (
             <>
-              <span className="loading loading-spinner loading-xs mr-2 text-xs" />
+              <span className="loading mr-2 loading-xs loading-spinner text-xs" />
               {t('lists.enrichment.processing')}
             </>
           ) : isEnrichmentDisabled ? (
@@ -192,13 +192,13 @@ export const FieldItemDropdown = ({
         {canStopEnrichment && (
           <button
             type="button"
-            className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+            className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
             onClick={handleStopEnrichment}
             disabled={stopEnrichmentMutation.isPending}
           >
             {stopEnrichmentMutation.isPending ? (
               <>
-                <span className="loading loading-spinner loading-xs mr-2 text-xs" />
+                <span className="loading mr-2 loading-xs loading-spinner text-xs" />
                 {t('lists.enrichment.removing')}
               </>
             ) : (
@@ -214,13 +214,13 @@ export const FieldItemDropdown = ({
         {hasEnrichment && (
           <button
             type="button"
-            className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+            className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
             onClick={handleClearEnrichment}
             disabled={clearEnrichmentMutation.isPending}
           >
             {clearEnrichmentMutation.isPending ? (
               <>
-                <span className="loading loading-spinner loading-xs mr-2 text-xs" />
+                <span className="loading mr-2 loading-xs loading-spinner text-xs" />
                 {t('lists.enrichment.removing')}
               </>
             ) : (

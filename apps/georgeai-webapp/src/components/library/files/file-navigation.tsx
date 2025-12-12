@@ -7,10 +7,10 @@ interface FileNavigationProps {
 }
 export const FileNavigation = ({ file }: FileNavigationProps) => {
   return (
-    <ul className="menu menu-sm menu-horizontal bg-base-200 rounded-box flex-nowrap shadow-lg">
+    <ul className="menu menu-horizontal flex-nowrap menu-sm rounded-box bg-base-200 shadow-lg">
       <li>
         <Link
-          className="btn btn-xs rounded-full"
+          className="btn rounded-full btn-xs"
           activeProps={{ className: 'btn-active btn-primary' }}
           activeOptions={{ exact: true, includeSearch: false }}
           to="/libraries/$libraryId/files/$fileId"
@@ -21,7 +21,7 @@ export const FileNavigation = ({ file }: FileNavigationProps) => {
       </li>
       <li>
         <Link
-          className="btn btn-xs rounded-full"
+          className="btn rounded-full btn-xs"
           activeProps={{ className: 'btn-active btn-primary' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/tasks"
@@ -32,7 +32,7 @@ export const FileNavigation = ({ file }: FileNavigationProps) => {
       </li>
       <li>
         <Link
-          className="btn btn-xs rounded-full"
+          className="btn rounded-full btn-xs"
           activeProps={{ className: 'btn-active btn-primary' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/chunks"
@@ -43,7 +43,7 @@ export const FileNavigation = ({ file }: FileNavigationProps) => {
       </li>
       <li>
         <Link
-          className="btn btn-xs rounded-full"
+          className="btn rounded-full btn-xs"
           activeProps={{ className: 'btn-active btn-primary' }}
           activeOptions={{ exact: false }}
           to="/libraries/$libraryId/files/$fileId/similarity"

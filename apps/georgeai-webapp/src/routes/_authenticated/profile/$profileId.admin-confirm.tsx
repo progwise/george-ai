@@ -22,7 +22,7 @@ function RouteComponent() {
     setTimeout(() => navigate({ to: '/' }), 300)
     return (
       <div
-        className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        className="mx-auto alert max-w-fit cursor-pointer py-2 text-sm alert-error"
         onClick={() => navigate({ to: '/' })}
       >
         {t('errors.profileNotFound')}. {t('actions.redirecting')}
@@ -34,7 +34,7 @@ function RouteComponent() {
     setTimeout(() => navigate({ to: '/' }), 300)
     return (
       <div
-        className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        className="mx-auto alert max-w-fit cursor-pointer py-2 text-sm alert-error"
         onClick={() => navigate({ to: '/' })}
       >
         {t('errors.notAllowed')}. {t('actions.redirecting')}

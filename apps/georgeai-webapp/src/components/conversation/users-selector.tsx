@@ -47,12 +47,12 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       />
       {showNoUsersFound && <p className="text-sm">{t('texts.noUsersFound')}</p>}
       {displayedUsers.length > 0 && (
-        <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+        <div className="flex flex-col gap-2 overflow-y-auto rounded-box border border-transparent p-2 hover:border-base-300">
           <label className="label text-base-content">
             <input
               type="checkbox"
               name="selectAll"
-              className="checkbox checkbox-info checkbox-xs"
+              className="checkbox checkbox-xs checkbox-info"
               checked={selectedUserIds.length > 0}
               ref={(element) => {
                 if (!element) return
@@ -70,7 +70,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
               {displayedUsers.length} {t('texts.usersFound')}
             </span>
           </label>
-          <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
+          <div className="flex min-w-full flex-col gap-2 overflow-y-auto border-t border-base-300 py-2">
             {displayedUsers.map((user) => {
               const formattedUser = `${user.name} (${user.email}${user.profile?.business ? ' | ' + user.profile?.business : ''})`
               return (
@@ -79,7 +79,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
                     type="checkbox"
                     name="userIds"
                     value={user.id}
-                    className="checkbox checkbox-info checkbox-xs"
+                    className="checkbox checkbox-xs checkbox-info"
                     checked={selectedUserIds.includes(user.id)}
                     onChange={(event) => {
                       const value = event.target.checked
