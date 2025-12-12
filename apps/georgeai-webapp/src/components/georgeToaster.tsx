@@ -23,7 +23,7 @@ const ToastContent = ({
     <div className={twMerge('alert flex w-fit rounded-lg py-0 pr-1 text-sm shadow-lg', type)} role="alert">
       <Icon className="size-5 shrink-0" />
       <p className="flex-1">{message}</p>
-      <button type="button" className="btn btn-outline btn-sm my-1 self-start" onClick={onClose}>
+      <button type="button" className="btn my-1 self-start btn-outline btn-sm" onClick={onClose}>
         {t('actions.close')}
       </button>
     </div>

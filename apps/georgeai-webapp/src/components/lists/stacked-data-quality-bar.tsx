@@ -19,7 +19,7 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
   // Handle edge case: no items
   if (data.total === 0) {
     return (
-      <div className="text-base-content/50 text-sm">{variant === 'summary' ? t('lists.statistics.noData') : '—'}</div>
+      <div className="text-sm text-base-content/50">{variant === 'summary' ? t('lists.statistics.noData') : '—'}</div>
     )
   }
 
@@ -41,9 +41,9 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
       >
         {/* Enriched segment */}
         {enrichedPct > 0 && (
-          <div className="bg-success relative flex items-center justify-center" style={{ width: `${enrichedPct}%` }}>
+          <div className="relative flex items-center justify-center bg-success" style={{ width: `${enrichedPct}%` }}>
             {enrichedPct >= 1 && (
-              <span className={`text-success-content font-semibold ${fontSize}`}>
+              <span className={`font-semibold text-success-content ${fontSize}`}>
                 {variant === 'summary' ? `${data.enriched} (${enrichedPct.toFixed(0)}%)` : `${enrichedPct.toFixed(0)}%`}
               </span>
             )}
@@ -52,9 +52,9 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
 
         {/* Missing segment */}
         {missingPct > 0 && (
-          <div className="bg-warning relative flex items-center justify-center" style={{ width: `${missingPct}%` }}>
+          <div className="relative flex items-center justify-center bg-warning" style={{ width: `${missingPct}%` }}>
             {missingPct >= 1 && (
-              <span className={`text-warning-content text-nowrap font-semibold ${fontSize}`}>
+              <span className={`font-semibold text-nowrap text-warning-content ${fontSize}`}>
                 {variant === 'summary' ? `${data.missing} (${missingPct.toFixed(0)}%)` : `${missingPct.toFixed(0)}%`}
               </span>
             )}
@@ -64,11 +64,11 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
         {/* Not Processed segment */}
         {notProcessedPct > 0 && (
           <div
-            className="bg-base-content/30 relative flex items-center justify-center"
+            className="relative flex items-center justify-center bg-base-content/30"
             style={{ width: `${notProcessedPct}%` }}
           >
             {notProcessedPct >= 1 && (
-              <span className={`text-base-content/70 text-nowrap font-semibold ${fontSize}`}>
+              <span className={`font-semibold text-nowrap text-base-content/70 ${fontSize}`}>
                 {variant === 'summary'
                   ? `${data.notProcessed} (${notProcessedPct.toFixed(0)}%)`
                   : `${notProcessedPct.toFixed(0)}%`}
@@ -79,22 +79,22 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
 
         {/* Tooltip */}
         {showTooltip && (
-          <div className="bg-base-100 border-base-300 absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 rounded-lg border p-3 shadow-lg">
+          <div className="absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded-lg border border-base-300 bg-base-100 p-3 shadow-lg">
             <div className="space-y-1 text-xs">
               <div className="flex items-center gap-2">
-                <div className="bg-success h-3 w-3 rounded" />
+                <div className="size-3 rounded-sm bg-success" />
                 <span>
                   {t('lists.statistics.chartEnriched')}: {data.enriched} ({enrichedPct.toFixed(1)}%)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="bg-warning h-3 w-3 rounded" />
+                <div className="size-3 rounded-sm bg-warning" />
                 <span>
                   {t('lists.statistics.chartMissing')}: {data.missing} ({missingPct.toFixed(1)}%)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="bg-base-content/30 h-3 w-3 rounded" />
+                <div className="size-3 rounded-sm bg-base-content/30" />
                 <span>
                   {t('lists.statistics.chartNotProcessed')}: {data.notProcessed} ({notProcessedPct.toFixed(1)}%)
                 </span>
@@ -108,15 +108,15 @@ export const StackedDataQualityBar = ({ data, variant }: StackedDataQualityBarPr
       {variant === 'summary' && (
         <div className="mt-2 flex flex-wrap justify-center gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="bg-success h-3 w-3 rounded" />
+            <div className="size-3 rounded-sm bg-success" />
             <span>{`${enrichedPct.toFixed(1)}% ${t('lists.statistics.chartEnriched')}`}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="bg-warning h-3 w-3 rounded" />
+            <div className="size-3 rounded-sm bg-warning" />
             <span>{`${missingPct.toFixed(1)}% ${t('lists.statistics.chartMissing')}`}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded bg-gray-400" />
+            <div className="size-3 rounded-sm bg-gray-400" />
             <span>{`${notProcessedPct.toFixed(1)}% ${t('lists.statistics.chartNotProcessed')}`}</span>
           </div>
         </div>

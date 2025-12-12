@@ -29,15 +29,15 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col gap-4">
-      <ul className="bg-base-200 menu-horizontal rounded-box flex w-full items-center justify-start gap-2 p-2">
+      <ul className="menu-horizontal flex w-full items-center justify-start gap-2 rounded-box bg-base-200 p-2">
         <li>
-          <h3 className="text-l font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
+          <h3 className="font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
         </li>
         <li className="flex flex-1 justify-end">
           <button
             type="button"
             onClick={() => newLibraryDialogRef.current?.showModal()}
-            className="btn btn-sm btn-ghost btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
             title={t('libraries.newList')}
             data-tip={t('libraries.newList')}
           >

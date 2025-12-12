@@ -45,9 +45,9 @@ function RouteComponent() {
   const archivedCount = aiLibraryFiles.archivedCount
 
   return (
-    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>
-        <div className="text-primary text-nowrap align-text-top text-xs italic">
+        <div className="align-text-top text-xs text-nowrap text-primary italic">
           {showArchived
             ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count })
             : t('files.activeFilesForLibrary', {
@@ -55,10 +55,10 @@ function RouteComponent() {
               })}
         </div>
         <div className="relative flex justify-between align-top">
-          <div className="flex-start flex flex-col gap-1 overflow-y-auto">
-            <h3 className="text-base-content text-nowrap text-xl font-bold">{aiLibraryFiles.library.name}</h3>
+          <div className="flex flex-col gap-1 overflow-y-auto">
+            <h3 className="text-xl font-bold text-nowrap text-base-content">{aiLibraryFiles.library.name}</h3>
           </div>
-          <div className="z-49 absolute right-0 md:flex">
+          <div className="absolute right-0 z-49 md:flex">
             <FilesActionsBar
               libraryId={libraryId}
               totalItems={aiLibraryFiles.count}

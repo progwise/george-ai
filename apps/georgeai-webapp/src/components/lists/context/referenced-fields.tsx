@@ -26,7 +26,7 @@ export const ReferencedFields = ({ list, fieldId, fieldReferences }: ReferencedF
 
   return (
     <div className="space-y-4">
-      <p className="text-base-content/60 text-sm">{t('lists.contextSources.referencedFieldsHelp')}</p>
+      <p className="text-sm text-base-content/60">{t('lists.contextSources.referencedFieldsHelp')}</p>
 
       {/* Checkboxes for all available fields */}
       <div className="space-y-1">
@@ -36,7 +36,7 @@ export const ReferencedFields = ({ list, fieldId, fieldReferences }: ReferencedF
           .map((referencedField) => (
             <label
               key={`contextFieldReference_${fieldId}_${referencedField.id}`}
-              className="hover:bg-base-200 flex cursor-pointer items-center gap-2 rounded p-2"
+              className="flex cursor-pointer items-center gap-2 rounded-sm p-2 hover:bg-base-200"
             >
               <input
                 type="checkbox"
@@ -47,8 +47,8 @@ export const ReferencedFields = ({ list, fieldId, fieldReferences }: ReferencedF
                 defaultChecked={fieldReferences.some((ref) => ref.contextFieldId === referencedField.id)}
               />
               <span className="flex-1 text-sm">{referencedField.name}</span>
-              <span className="badge badge-sm badge-ghost">{t(`lists.fields.types.${referencedField.type}`)}</span>
-              <span className="badge badge-sm badge-outline">
+              <span className="badge badge-ghost badge-sm">{t(`lists.fields.types.${referencedField.type}`)}</span>
+              <span className="badge badge-outline badge-sm">
                 {referencedField.sourceType === 'file_property'
                   ? t('lists.fields.fileProperty')
                   : t('lists.fields.computed')}

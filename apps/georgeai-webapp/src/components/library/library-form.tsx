@@ -119,18 +119,18 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   }
 
   return (
-    <div className="grid h-full w-full grid-rows-[auto_1fr] gap-2">
+    <div className="grid size-full grid-rows-[auto_1fr] gap-2">
       <div className="flex justify-end">
-        <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap shadow-lg">
+        <ul className="menu flex-nowrap menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal">
           <li>
             <button type="submit" form={library.id} disabled={isPending}>
-              <SaveIcon className="h-5 w-5" />
+              <SaveIcon className="size-5" />
               {t('actions.save')}
             </button>
           </li>
           <li>
             <button type="button" onClick={handleReset}>
-              <ReprocessIcon className="h-5 w-5" />
+              <ReprocessIcon className="size-5" />
               {t('actions.cancel')}
             </button>
           </li>
@@ -147,7 +147,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           />
 
           {/* Basic Information Card */}
-          <div className="card bg-base-100 border-base-300 border shadow-md">
+          <div className="card border border-base-300 bg-base-100 shadow-md">
             <div className="card-body">
               <h2 className="card-title text-base-content/80">{t('labels.basicInformation')}</h2>
               <div className="space-y-4">
@@ -175,7 +175,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </div>
 
           {/* Embedding Model Configuration Card */}
-          <div className="card bg-base-100 border-base-300 border shadow-md">
+          <div className="card border border-base-300 bg-base-100 shadow-md">
             <div className="card-body">
               <h2 className="card-title text-base-content/80">{t('labels.libraryProcessingOptions')}</h2>
               <div className="space-y-4">
@@ -207,12 +207,12 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     <input
                       name="autoProcessCrawledFiles"
                       type="checkbox"
-                      className="checkbox checkbox-sm mr-3"
+                      className="checkbox mr-3 checkbox-sm"
                       defaultChecked={library.autoProcessCrawledFiles}
                     />
                     <div>
                       <span className="text-sm font-medium">Auto-process hash-skipped crawled files</span>
-                      <p className="text-base-content/80 wrap-break-word mt-1 whitespace-normal text-xs">
+                      <p className="mt-1 text-xs wrap-break-word whitespace-normal text-base-content/80">
                         Automatically create content extraction tasks for files skipped during crawling due to unchanged
                         content (hash equality), but only if they have no successful or pending processing task. Note:
                         Uploaded files and new/updated crawled files always get tasks automatically.
@@ -224,7 +224,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
             </div>
           </div>
           {/* File Processing Options Card */}
-          <div className="card bg-base-100 border-base-300 border shadow-md">
+          <div className="card border border-base-300 bg-base-100 shadow-md">
             <div className="card-body">
               <h2 className="card-title text-base-content/80">{t('labels.fileProcessingOptions')}</h2>
               <div className="space-y-6">
@@ -235,7 +235,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     <input
                       name="enableTextExtraction"
                       type="checkbox"
-                      className="checkbox checkbox-sm mr-3"
+                      className="checkbox mr-3 checkbox-sm"
                       defaultChecked={currentOptions.includes('enableTextExtraction')}
                       onChange={(e) =>
                         changeFileConverterOptions('enableTextExtraction', e.target.checked ? true : false)
@@ -252,7 +252,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     <input
                       name="enableImageProcessing"
                       type="checkbox"
-                      className="checkbox checkbox-sm mr-3"
+                      className="checkbox mr-3 checkbox-sm"
                       defaultChecked={isImageProcessingEnabled}
                       onChange={(e) =>
                         changeFileConverterOptions('enableImageProcessing', e.target.checked ? true : false)
@@ -265,10 +265,10 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                   </label>
 
                   {/* OCR Settings - Always visible but readonly when Image OCR is off */}
-                  <div className="border-primary ml-6 space-y-4 border-l-2 pl-4">
+                  <div className="ml-6 space-y-4 border-l-2 border-primary pl-4">
                     <h4
                       className={twMerge(
-                        'text-primary text-sm font-medium',
+                        'text-sm font-medium text-primary',
                         !isImageProcessingEnabled && 'text-base-content/50',
                       )}
                     >
@@ -355,7 +355,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           </div>
         </form>
 
-        <div className="card bg-base-100 border-base-300 mt-4 border shadow-md">
+        <div className="card mt-4 border border-base-300 bg-base-100 shadow-md">
           <div className="card-body">
             <h2 className="card-title text-base-content/80">{t('apiKeys.title')}</h2>
             <ApiKeysCard libraryId={library.id} />

@@ -88,7 +88,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, user }: CreateWorkspaceDialog
         <div className="alert alert-error">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
+            className="size-6 shrink-0 stroke-current"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -123,7 +123,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, user }: CreateWorkspaceDialog
         onChange={() => error && setError(null)}
       />
 
-      <div className="text-base-content/70 text-sm">{t('workspace.slugHint')}</div>
+      <div className="text-sm text-base-content/70">{t('workspace.slugHint')}</div>
     </DialogForm>
   )
 }

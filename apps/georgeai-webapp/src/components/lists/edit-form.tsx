@@ -49,31 +49,25 @@ export const ListEditForm = ({ list }: ListEditFormProps) => {
     },
   }
   return (
-    <form ref={formRef} className="">
+    <form ref={formRef} className="flex flex-col gap-2">
       <LoadingSpinner isLoading={isPending} />
       <input type="hidden" name="id" value={list.id} />
-      <div className="card bg-base-100 grid grid-cols-2 gap-2 p-2 shadow-md">
+
+      {/* Settings Section */}
+      <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+        <h3 className="mb-4 text-sm font-semibold tracking-wide text-base-content/60 uppercase">{t('lists.edit')}</h3>
+
         <Input {...fieldProps} label={t('lists.labelName')} name="name" value={list.name} required />
-        <div className="grid grid-cols-2 gap-2">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">{t('lists.labelCreatedAt')}</span>
-            </label>
-            <ClientDate
-              date={list.createdAt}
-              format="dateTime"
-              className="input input-bordered input-disabled w-full"
-            />
+
+        {/* Metadata Row */}
+        <div className="mt-4 flex gap-6 border-t border-base-300 pt-3 text-xs text-base-content/60">
+          <div>
+            <span className="font-medium">{t('lists.labelCreatedAt')}:</span>{' '}
+            <ClientDate date={list.createdAt} format="dateTime" />
           </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">{t('lists.labelUpdatedAt')}</span>
-            </label>
-            <ClientDate
-              date={list.updatedAt}
-              format="dateTime"
-              className="input input-bordered input-disabled w-full"
-            />
+          <div>
+            <span className="font-medium">{t('lists.labelUpdatedAt')}:</span>{' '}
+            <ClientDate date={list.updatedAt} format="dateTime" />
           </div>
         </div>
       </div>

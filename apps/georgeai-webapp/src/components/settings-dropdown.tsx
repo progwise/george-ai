@@ -35,18 +35,18 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
   }
 
   return (
-    <div className="dropdown dropdown-hover dropdown-end">
+    <div className="dropdown-hover dropdown dropdown-end">
       {/* Menu button */}
       <div
         tabIndex={0}
         role="button"
-        className="btn btn-ghost btn-circle hover:scale-115 list-none transition-all"
+        className="btn btn-circle list-none btn-ghost transition-all hover:scale-115"
         aria-label="User menu"
       >
         {user ? <UserAvatar user={user} className="size-10" /> : <MenuEllipsisIcon className="size-6" />}
       </div>
 
-      <ul tabIndex={0} className="dropdown-content menu rounded-box bg-base-200 min-w-55 shadow-sm">
+      <ul tabIndex={0} className="dropdown-content menu min-w-55 rounded-box bg-base-200 shadow-sm">
         {/* Link to profile */}
         {user && (
           <>
@@ -101,7 +101,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
         <li>
           <div className="grid w-full grid-cols-[1fr_min-content] items-center">
             <span className="text-sm">{t('settings.theme')}</span>
-            <div className="bg-base-100 flex items-center gap-2 rounded-lg px-2 py-1 shadow">
+            <div className="flex items-center gap-2 rounded-lg bg-base-100 px-2 py-1 shadow-sm">
               <label className="cursor-pointer">
                 <input
                   type="radio"
@@ -114,7 +114,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 />
                 <span
                   title={t('settings.systemMode') ?? 'System'}
-                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'system' ? 'bg-base-300' : ''}`}
+                  className={`btn rounded-full p-1 btn-ghost btn-xs ${theme === 'system' ? 'bg-base-300' : ''}`}
                   tabIndex={-1}
                 >
                   <SystemIcon className="size-4" />
@@ -132,7 +132,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 />
                 <span
                   title={t('settings.lightMode')}
-                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'light' ? 'bg-base-300' : ''}`}
+                  className={`btn rounded-full p-1 btn-ghost btn-xs ${theme === 'light' ? 'bg-base-300' : ''}`}
                   tabIndex={-1}
                 >
                   <SunIcon className="size-4" />
@@ -150,7 +150,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 />
                 <span
                   title={t('settings.darkMode')}
-                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'dark' ? 'bg-base-300' : ''}`}
+                  className={`btn rounded-full p-1 btn-ghost btn-xs ${theme === 'dark' ? 'bg-base-300' : ''}`}
                   tabIndex={-1}
                 >
                   <MoonIcon className="size-4" />
@@ -164,13 +164,13 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
         <li>
           <div className="grid w-full grid-cols-[1fr_min-content] items-center">
             <span className="text-sm">{t('settings.language')}</span>
-            <div className="bg-base-100 flex items-center gap-2 rounded-lg px-2 py-1 shadow">
+            <div className="flex items-center gap-2 rounded-lg bg-base-100 px-2 py-1 shadow-sm">
               <button
                 type="button"
                 onClick={() => setLanguage('en')}
                 aria-label="Switch to English"
                 title="English"
-                className={`btn btn-ghost btn-xs rounded-full px-2 font-bold ${language === 'en' ? 'bg-base-300' : ''}`}
+                className={`btn rounded-full px-2 font-bold btn-ghost btn-xs ${language === 'en' ? 'bg-base-300' : ''}`}
               >
                 EN
               </button>
@@ -179,7 +179,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 onClick={() => setLanguage('de')}
                 aria-label="Switch to German"
                 title="Deutsch"
-                className={`btn btn-ghost btn-xs rounded-full px-2 font-bold ${language === 'de' ? 'bg-base-300' : ''}`}
+                className={`btn rounded-full px-2 font-bold btn-ghost btn-xs ${language === 'de' ? 'bg-base-300' : ''}`}
               >
                 DE
               </button>
@@ -216,7 +216,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 {t('actions.signOut')}
                 <button
                   type="button"
-                  className="btn btn-circle btn-ghost btn-sm flex size-4 items-center"
+                  className="btn flex btn-circle size-4 items-center btn-ghost btn-sm"
                   onClick={logout}
                 >
                   <ExitIcon />

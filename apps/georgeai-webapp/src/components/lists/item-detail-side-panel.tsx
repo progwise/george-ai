@@ -70,7 +70,7 @@ export const ItemDetailSidePanel = ({
       {/* Side Panel */}
       <div
         className={twMerge(
-          'bg-base-100 fixed right-0 top-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
@@ -78,7 +78,7 @@ export const ItemDetailSidePanel = ({
         aria-label={`${t('lists.itemDetail.title')} - ${itemName}`}
       >
         {/* Header */}
-        <div className="border-base-300 flex shrink-0 items-center justify-between border-b p-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-lg font-semibold" title={itemName}>
               {itemName}
@@ -86,7 +86,7 @@ export const ItemDetailSidePanel = ({
             <Link
               to="/libraries/$libraryId/files/$fileId"
               params={{ libraryId, fileId }}
-              className="link link-primary text-base-content/60 truncate text-sm"
+              className="link truncate text-sm link-primary text-base-content/60"
               title={fileName}
             >
               {fileName}
@@ -101,7 +101,7 @@ export const ItemDetailSidePanel = ({
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <span className="loading loading-spinner loading-md" />
+              <span className="loading loading-md loading-spinner" />
               <span className="ml-2">{t('lists.itemDetail.loading')}</span>
             </div>
           ) : (
@@ -120,8 +120,8 @@ export const ItemDetailSidePanel = ({
                     {copied === 'itemName' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
                   </button>
                 </div>
-                <div className="bg-base-200 rounded-lg p-3">
-                  <p className="text-base-content font-mono">{itemName}</p>
+                <div className="rounded-lg bg-base-200 p-3">
+                  <p className="font-mono text-base-content">{itemName}</p>
                 </div>
               </section>
 
@@ -129,8 +129,8 @@ export const ItemDetailSidePanel = ({
               {item?.extractionIndex !== null && item?.extractionIndex !== undefined && (
                 <section aria-label={t('lists.itemDetail.extractionIndex')}>
                   <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extractionIndex')}</h4>
-                  <div className="bg-base-200 rounded-lg p-3">
-                    <p className="text-base-content font-mono">{item.extractionIndex}</p>
+                  <div className="rounded-lg bg-base-200 p-3">
+                    <p className="font-mono text-base-content">{item.extractionIndex}</p>
                   </div>
                 </section>
               )}
@@ -151,7 +151,7 @@ export const ItemDetailSidePanel = ({
                     </button>
                   )}
                 </div>
-                <div className="bg-base-200 max-h-80 overflow-y-auto rounded-lg p-3">
+                <div className="max-h-80 overflow-y-auto rounded-lg bg-base-200 p-3">
                   {item?.content ? (
                     <div className="prose prose-sm max-w-none">
                       <FormattedMarkdown markdown={item.content} />
@@ -177,8 +177,8 @@ export const ItemDetailSidePanel = ({
                       {copied === 'metadata' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
                     </button>
                   </div>
-                  <div className="bg-base-200 max-h-60 overflow-y-auto rounded-lg p-3">
-                    <pre className="text-base-content/80 whitespace-pre-wrap text-xs">
+                  <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
+                    <pre className="text-xs whitespace-pre-wrap text-base-content/80">
                       {JSON.stringify(metadata, null, 2)}
                     </pre>
                   </div>
@@ -194,7 +194,7 @@ export const ItemDetailSidePanel = ({
                   {extractionInput && (
                     <div className="mb-3">
                       <div className="mb-1 flex items-center justify-between">
-                        <h5 className="text-base-content/70 text-sm font-medium">
+                        <h5 className="text-sm font-medium text-base-content/70">
                           {t('lists.itemDetail.extractionInput')}
                         </h5>
                         <button
@@ -207,8 +207,8 @@ export const ItemDetailSidePanel = ({
                           {copied === 'extractionInput' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
                         </button>
                       </div>
-                      <div className="bg-base-200 max-h-60 overflow-y-auto rounded-lg p-3">
-                        <pre className="text-base-content/80 whitespace-pre-wrap text-xs">
+                      <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
+                        <pre className="text-xs whitespace-pre-wrap text-base-content/80">
                           {JSON.stringify(extractionInput, null, 2)}
                         </pre>
                       </div>
@@ -219,7 +219,7 @@ export const ItemDetailSidePanel = ({
                   {extractionOutput && (
                     <div>
                       <div className="mb-1 flex items-center justify-between">
-                        <h5 className="text-base-content/70 text-sm font-medium">
+                        <h5 className="text-sm font-medium text-base-content/70">
                           {t('lists.itemDetail.extractionOutput')}
                         </h5>
                         <button
@@ -232,8 +232,8 @@ export const ItemDetailSidePanel = ({
                           {copied === 'extractionOutput' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
                         </button>
                       </div>
-                      <div className="bg-base-200 max-h-60 overflow-y-auto rounded-lg p-3">
-                        <pre className="text-base-content/80 whitespace-pre-wrap text-xs">
+                      <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
+                        <pre className="text-xs whitespace-pre-wrap text-base-content/80">
                           {JSON.stringify(extractionOutput, null, 2)}
                         </pre>
                       </div>
@@ -246,7 +246,7 @@ export const ItemDetailSidePanel = ({
               {!extractionInput && !extractionOutput && !metadata && (
                 <section aria-label={t('lists.itemDetail.extraction')}>
                   <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extraction')}</h4>
-                  <div className="bg-base-200 rounded-lg p-3">
+                  <div className="rounded-lg bg-base-200 p-3">
                     <p className="text-base-content/50 italic">{t('lists.itemDetail.noExtraction')}</p>
                   </div>
                 </section>

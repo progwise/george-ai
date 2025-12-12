@@ -31,36 +31,36 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-2">
       {/* Admin Header with Navigation */}
-      <div className="from-primary/10 via-secondary/10 to-accent/10 border-primary/20 bg-linear-to-r border-b shadow-sm">
-        <div className="container mx-auto px-6 py-6">
+      <div className="border-b border-primary/20 bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 shadow-sm">
+        <div className="container mx-auto p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Header Section */}
             <div className="flex items-center gap-4">
-              <div className="from-primary/20 to-secondary/20 bg-linear-to-br rounded-full p-3 shadow-lg">
-                <ShieldCheckIcon className="text-primary h-8 w-8" />
+              <div className="rounded-full bg-linear-to-br from-primary/20 to-secondary/20 p-3 shadow-lg">
+                <ShieldCheckIcon className="size-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-primary text-2xl font-bold">{t('admin.adminAreaHeadline')}</h1>
+                <h1 className="text-2xl font-bold text-primary">{t('admin.adminAreaHeadline')}</h1>
                 <p className="text-sm opacity-70">{t('admin.adminAreaSubtitle')}</p>
               </div>
             </div>
             {/* Workspace Indicator */}
-            <div className="bg-base-100/80 flex items-center gap-3 rounded-xl px-4 py-2 shadow-md backdrop-blur-sm">
-              <div className="bg-primary/10 rounded-lg p-2">
-                <BuildingOfficeIcon className="text-primary h-5 w-5" />
+            <div className="flex items-center gap-3 rounded-xl bg-base-100/80 px-4 py-2 shadow-md backdrop-blur-sm">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <BuildingOfficeIcon className="size-5 text-primary" />
               </div>
               <div className="flex flex-col">
-                <span className="text-base-content/60 text-xs font-medium uppercase tracking-wide">
+                <span className="text-xs font-medium tracking-wide text-base-content/60 uppercase">
                   {t('admin.administeringWorkspace')}
                 </span>
-                <span className="text-base-content text-sm font-semibold">{currentWorkspace?.name}</span>
+                <span className="text-sm font-semibold text-base-content">{currentWorkspace?.name}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       {/* Navigation Tabs */}
-      <nav className="tabs tabs-lift bg-base-100/80 container mx-auto justify-end">
+      <nav className="tabs-lift container mx-auto tabs justify-end bg-base-100/80">
         <a className="tab tab-disabled flex-1 cursor-default text-center">
           {/* Placeholder empty tab for filling up the line... */}
         </a>
@@ -74,7 +74,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: true }}
         >
-          <BriefcaseIcon className="mr-2 h-4 w-4" />
+          <BriefcaseIcon className="mr-2 size-4" />
           {t('admin.dashboard')}
         </Link>
 
@@ -89,7 +89,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: false }}
         >
-          <UsersIcon className="mr-2 h-4 w-4" />
+          <UsersIcon className="mr-2 size-4" />
           {t('admin.manageUsers')}
         </Link>
 
@@ -104,7 +104,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: false }}
         >
-          <ServerIcon className="mr-2 h-4 w-4" />
+          <ServerIcon className="mr-2 size-4" />
           {t('admin.monitorAiServices')}
         </Link>
 
@@ -118,7 +118,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: false }}
         >
-          <CpuIcon className="mr-2 h-4 w-4" />
+          <CpuIcon className="mr-2 size-4" />
           {t('admin.manageAiModels')}
         </Link>
 
@@ -132,7 +132,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: false }}
         >
-          <ListViewIcon className="mr-2 h-4 w-4" />
+          <ListViewIcon className="mr-2 size-4" />
           {t('admin.manageQueues')}
         </Link>
 
@@ -146,7 +146,7 @@ function RouteComponent() {
           }}
           activeOptions={{ exact: false }}
         >
-          <LinkIcon className="mr-2 h-4 w-4" />
+          <LinkIcon className="mr-2 size-4" />
           {t('connectors.title')}
         </Link>
       </nav>

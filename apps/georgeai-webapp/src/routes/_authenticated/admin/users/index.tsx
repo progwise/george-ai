@@ -50,11 +50,11 @@ function UsersList() {
       {/* Page Header */}
       <div className="mb-8">
         <div className="mb-4 flex items-center gap-4">
-          <div className="from-primary/20 to-primary/10 bg-linear-to-br rounded-full p-3 shadow-lg">
-            <UsersIcon className="text-primary h-8 w-8" />
+          <div className="rounded-full bg-linear-to-br from-primary/20 to-primary/10 p-3 shadow-lg">
+            <UsersIcon className="size-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-primary text-3xl font-bold">{t('labels.allUsers')}</h1>
+            <h1 className="text-3xl font-bold text-primary">{t('labels.allUsers')}</h1>
             <p className="text-lg opacity-70">Manage user accounts and permissions</p>
           </div>
         </div>
@@ -66,9 +66,9 @@ function UsersList() {
       </div>
 
       {/* Filters and Controls */}
-      <div className="bg-base-100 border-base-300/50 mb-8 rounded-xl border p-6 shadow-lg">
+      <div className="mb-8 rounded-xl border border-base-300/50 bg-base-100 p-6 shadow-lg">
         <div className="mb-4 flex items-center gap-3">
-          <div className="bg-primary h-6 w-1 rounded-full"></div>
+          <div className="h-6 w-1 rounded-full bg-primary"></div>
           <h2 className="text-xl font-semibold">Search & Filter</h2>
         </div>
 
@@ -89,18 +89,18 @@ function UsersList() {
       </div>
 
       {/* Results Section */}
-      <div className="bg-base-100 border-base-300/50 overflow-hidden rounded-xl border shadow-lg">
+      <div className="overflow-hidden rounded-xl border border-base-300/50 bg-base-100 shadow-lg">
         {/* Results Header */}
-        <div className="from-primary/5 to-secondary/5 border-base-300/50 border-b bg-gradient-to-r p-6">
+        <div className="border-b border-base-300/50 bg-linear-to-r from-primary/5 to-secondary/5 p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-secondary h-6 w-1 rounded-full"></div>
+              <div className="h-6 w-1 rounded-full bg-secondary"></div>
               <h2 className="text-xl font-semibold">User Directory</h2>
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               {/* Results counter */}
-              <div className="bg-base-200/80 rounded-lg px-4 py-2 text-sm">
+              <div className="rounded-lg bg-base-200/80 px-4 py-2 text-sm">
                 {userStatistics.total > 0
                   ? t('texts.showingUsers', {
                       start: search.skip + 1,
@@ -127,7 +127,7 @@ function UsersList() {
                   onPageSizeChange={(newPageSize) => {
                     navigate({ search: { ...search, skip: 0, take: newPageSize } })
                   }}
-                  className="bg-base-100/80 rounded-lg shadow-sm"
+                  className="rounded-lg bg-base-100/80 shadow-sm"
                 />
               )}
             </div>
@@ -148,8 +148,8 @@ function UsersList() {
             />
           ) : (
             <div className="py-16 text-center">
-              <div className="bg-base-200/50 mb-4 inline-block rounded-full p-4">
-                <UsersIcon className="text-base-content/40 h-12 w-12" />
+              <div className="mb-4 inline-block rounded-full bg-base-200/50 p-4">
+                <UsersIcon className="size-12 text-base-content/40" />
               </div>
               <h3 className="mb-2 text-lg font-semibold">
                 {search.filter || search.statusFilter !== 'all' ? 'No Matching Users' : 'No Users Found'}
@@ -162,7 +162,7 @@ function UsersList() {
               {(search.filter || search.statusFilter !== 'all') && (
                 <button
                   type="button"
-                  className="btn btn-outline btn-primary mt-4"
+                  className="btn mt-4 btn-outline btn-primary"
                   onClick={() => navigate({ search: { skip: 0, take: search.take, filter: '', statusFilter: 'all' } })}
                 >
                   Clear Filters
@@ -187,7 +187,7 @@ function UsersList() {
               }
             }}
             showPageSizeSelector={false}
-            className="bg-base-100 border-base-300/50 rounded-lg border px-4 py-2 shadow-lg"
+            className="rounded-lg border border-base-300/50 bg-base-100 px-4 py-2 shadow-lg"
           />
         </div>
       )}

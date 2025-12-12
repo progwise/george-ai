@@ -40,8 +40,8 @@ graphql(`
 
 export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_CrawlerRunsTableFragment[] }) => {
   return (
-    <div className="hidden h-full w-full overflow-auto lg:block">
-      <table className="table-sm table-pin-rows table-pin-cols table">
+    <div className="hidden size-full overflow-auto lg:block">
+      <table className="table-pin-rows table-pin-cols table table-sm">
         <thead>
           <tr>
             <th className="border-b px-4 py-2 text-left">Crawler</th>
@@ -62,7 +62,7 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
               >
                 <th
                   className={twMerge(
-                    'hover:bg-base-300 border-t px-4 py-2 align-top',
+                    'border-t px-4 py-2 align-top hover:bg-base-300',
                     !run.endedAt && 'italic',
                     !run.success && 'bg-error/0',
                   )}
@@ -79,21 +79,21 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                         <FilterIcon className="size-3" />
                       </Link>
                       {!run.endedAt ? (
-                        <div className="badge badge-xs badge-neutral text-nowrap">Running</div>
+                        <div className="badge badge-xs text-nowrap badge-neutral">Running</div>
                       ) : !run.success ? (
-                        <div className="badge badge-xs badge-error text-nowrap">Failed</div>
+                        <div className="badge badge-xs text-nowrap badge-error">Failed</div>
                       ) : (
-                        <div className="badge badge-xs badge-success text-nowrap">Success</div>
+                        <div className="badge badge-xs text-nowrap badge-success">Success</div>
                       )}
                       {run.stoppedByUser && (
-                        <div className="badge badge-xs badge-warning text-nowrap">Stopped By User</div>
+                        <div className="badge badge-xs text-nowrap badge-warning">Stopped By User</div>
                       )}
                     </div>
                     <div>
                       <Link
                         to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"
                         params={{ libraryId: run.crawler.libraryId, crawlerId: run.crawlerId, crawlerRunId: run.id }}
-                        className="text-base-content/90text-xs flex items-center gap-1 font-light italic"
+                        className="flex items-center gap-1 text-xs font-light text-base-content/90 italic"
                       >
                         <ClientDate date={run.startedAt} fallback="" />
                         <LinkIcon className="size-3" />
@@ -101,7 +101,7 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                     </div>
                   </div>
                 </th>
-                <td className="text-nowrap border-t px-4 py-2 align-top font-bold">
+                <td className="border-t px-4 py-2 align-top font-bold text-nowrap">
                   {duration(run.startedAt, run.endedAt ? run.endedAt : new Date())}
                 </td>
                 <td className="border-t px-4 py-2 align-top">
@@ -115,18 +115,18 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                 <td className="border-t px-4 py-2 align-top">{run.runBy?.email || 'N/A'}</td>
               </tr>
               <tr className="hover:bg-base-300">
-                <th className="hover:bg-base-300 align-top">
+                <th className="align-top hover:bg-base-300">
                   <Link
                     to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"
                     params={{ libraryId: run.crawler.libraryId, crawlerId: run.crawlerId, crawlerRunId: run.id }}
-                    className="text-base-content/50 text-xs font-light italic"
+                    className="text-xs font-light text-base-content/50 italic"
                   >
                     {run.id}
                   </Link>
                 </th>
                 <td colSpan={6} className="px-4 py-2">
                   <div className="flex flex-row gap-1">
-                    <div className="badge badge-xs badge-neutral text-nowrap">{run.crawler.uri}</div>
+                    <div className="badge badge-xs text-nowrap badge-neutral">{run.crawler.uri}</div>
                     {run.updateStats.map((stat) => (
                       <div
                         key={stat.updateType}

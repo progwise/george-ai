@@ -22,7 +22,7 @@ export const WorkspaceMembersDialog = ({ user, ref }: WorkspaceMembersDialogProp
         <form method="dialog">
           <button
             type="submit"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            className="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
             aria-label={t('actions.close')}
           >
             ✕

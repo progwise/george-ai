@@ -34,11 +34,11 @@ function QueueManagementAdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="from-accent/20 to-accent/10 bg-linear-to-br rounded-full p-3 shadow-lg">
-            <ListViewIcon className="text-accent h-8 w-8" />
+          <div className="rounded-full bg-linear-to-br from-accent/20 to-accent/10 p-3 shadow-lg">
+            <ListViewIcon className="size-8 text-accent" />
           </div>
           <div>
-            <h1 className="text-primary text-3xl font-bold">Queue Management</h1>
+            <h1 className="text-3xl font-bold text-primary">Queue Management</h1>
             <p className="text-lg opacity-70">Monitor and control background processing queues</p>
           </div>
         </div>
@@ -50,7 +50,7 @@ function QueueManagementAdminPage() {
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
             />
-            <span className="label-text ml-2">Auto Refresh (5s)</span>
+            <span className="ml-2">Auto Refresh (5s)</span>
           </label>
           <button className="btn btn-primary" onClick={handleRefresh} type="button">
             Refresh Now

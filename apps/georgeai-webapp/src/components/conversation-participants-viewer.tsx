@@ -82,7 +82,7 @@ export const ConversationParticipantsViewer = ({
         className="input input-sm w-full shrink-0"
       />
 
-      {showNoParticipantsFound && <p className="text-base-content/70 text-sm">{t('texts.noUsersFound')}</p>}
+      {showNoParticipantsFound && <p className="text-sm text-base-content/70">{t('texts.noUsersFound')}</p>}
 
       {displayedParticipants.length > 0 && (
         <div className="flex max-h-48 flex-col gap-1 overflow-y-auto">
@@ -94,7 +94,7 @@ export const ConversationParticipantsViewer = ({
             return (
               <div
                 key={participant.id}
-                className="hover:bg-base-200 flex items-center justify-between rounded px-3 py-2"
+                className="flex items-center justify-between rounded-sm px-3 py-2 hover:bg-base-200"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   {participant.assistantId ? (
@@ -108,7 +108,7 @@ export const ConversationParticipantsViewer = ({
                           updatedAt: participant.assistant?.updatedAt || '',
                           ownerId: '',
                         }}
-                        className="h-full w-full"
+                        className="size-full"
                       />
                     </div>
                   ) : (
@@ -126,14 +126,14 @@ export const ConversationParticipantsViewer = ({
                     <span className="block truncate text-sm" title={displayName}>
                       {displayName}
                     </span>
-                    {isParticipantOwner && <span className="text-warning text-xs">({t('conversations.owner')})</span>}
+                    {isParticipantOwner && <span className="text-xs text-warning">({t('conversations.owner')})</span>}
                   </div>
                 </div>
 
                 {canRemove && (
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs text-error hover:bg-error hover:text-error-content tooltip tooltip-left flex-none"
+                    className="tooltip btn tooltip-left flex-none text-error btn-ghost btn-xs hover:bg-error hover:text-error-content"
                     onClick={(event) => {
                       event.stopPropagation()
                       onRemoveParticipant(participant.id)

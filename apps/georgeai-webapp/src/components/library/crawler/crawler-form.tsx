@@ -338,7 +338,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       {/* File Filters Section */}
       <div className="flex flex-col gap-2">
         <fieldset className="fieldset flex">
-          <label className="label text-base-content mt-4 font-semibold">
+          <label className="label mt-4 font-semibold text-base-content">
             <input
               name="filtersActive"
               type="checkbox"
@@ -351,7 +351,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
         </fieldset>
 
         {filtersActive && (
-          <div className="bg-base-300 rounded-lg p-4">
+          <div className="rounded-lg bg-base-300 p-4">
             <div className="grid grid-cols-2 gap-2">
               <Input
                 name="includePatterns"
@@ -403,7 +403,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
 
       {selectedUriType === 'sharepoint' ? (
         <div className="flex flex-col gap-2">
-          <details className="collapse-arrow bg-base-200 collapse">
+          <details className="collapse-arrow collapse bg-base-200">
             <summary className="collapse-title text-sm font-medium">SharePoint Authentication Instructions</summary>
             <div className="collapse-content text-xs">
               <ol className="list-inside list-decimal space-y-1">
@@ -475,7 +475,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium">{t('crawlers.selectTemplate')}</label>
               <select
-                className="select select-bordered select-sm w-full max-w-xs"
+                className="select w-full max-w-xs select-sm"
                 value={selectedTemplate}
                 onChange={(e) => {
                   const template = templates.find((tpl) => tpl.id === e.target.value)
@@ -505,7 +505,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
 
             <textarea
               name="crawlerConfig"
-              className="textarea textarea-bordered w-full overflow-x-auto whitespace-pre font-mono text-xs"
+              className="textarea w-full overflow-x-auto font-mono text-xs whitespace-pre"
               rows={12}
               wrap="off"
               placeholder={t('crawlers.apiConfigurationPlaceholder')}
@@ -518,7 +518,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
       <div className="flex flex-col gap-2">
         <fieldset className="fieldset">
           <div className="flex items-center justify-between">
-            <label className="label text-base-content font-semibold">
+            <label className="label font-semibold text-base-content">
               <input
                 name="cronjob.active"
                 defaultChecked={scheduleActive}
@@ -528,7 +528,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
               />
               {t('crawlers.cronJobActive')}
             </label>
-            <label className="label text-base-content font-semibold">
+            <label className="label font-semibold text-base-content">
               {t('crawlers.cronJobTime')}
               <input
                 type="time"
@@ -546,89 +546,87 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
           </div>
         </fieldset>
-        <div className={twMerge('', !scheduleActive && 'disabled')}>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">{t('crawlers.days')}</legend>
-            <div className="grid grid-cols-7 gap-2">
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.monday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.monday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.monday')}</span>
-              </label>
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">{t('crawlers.days')}</legend>
+          <div className="grid grid-cols-7 gap-2">
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.monday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.monday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.monday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.tuesday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.tuesday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.tuesday')}</span>
-              </label>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.tuesday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.tuesday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.tuesday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.wednesday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.wednesday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.wednesday')}</span>
-              </label>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.wednesday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.wednesday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.wednesday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.thursday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.thursday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.thursday')}</span>
-              </label>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.thursday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.thursday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.thursday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.friday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.friday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.friday')}</span>
-              </label>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.friday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.friday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.friday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.saturday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.saturday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.saturday')}</span>
-              </label>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.saturday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.saturday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.saturday')}</span>
+            </label>
 
-              <label className="label justify-start gap-1">
-                <input
-                  name="cronjob.sunday"
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                  defaultChecked={crawler?.cronJob?.sunday ?? true}
-                  disabled={!scheduleActive}
-                />
-                <span className="text-xs">{t('labels.sunday')}</span>
-              </label>
-            </div>
-          </fieldset>
-        </div>
+            <label className="label justify-start gap-1">
+              <input
+                name="cronjob.sunday"
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.sunday ?? true}
+                disabled={!scheduleActive}
+              />
+              <span className="text-xs">{t('labels.sunday')}</span>
+            </label>
+          </div>
+        </fieldset>
       </div>
     </div>
   )

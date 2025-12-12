@@ -270,9 +270,9 @@ export const FileUploadProgressDialog = ({
                     <span className="text-success">{t('actions.uploaded')}</span>
                   ) : (
                     // Progress Bar
-                    <div className="bg-base-200 relative h-2 w-20 rounded-sm">
+                    <div className="relative h-2 w-20 rounded-sm bg-base-200">
                       <div
-                        className="bg-info absolute h-2 rounded-sm duration-200"
+                        className="absolute h-2 rounded-sm bg-info duration-200"
                         style={{
                           width: `${progress || 0}%`,
                         }}
@@ -283,7 +283,7 @@ export const FileUploadProgressDialog = ({
                 {progress !== -1 && progress !== 100 && (
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs btn-square"
+                    className="btn btn-square btn-ghost btn-xs"
                     onClick={() => handleCancelUpload(fileId)}
                   >
                     <CrossIcon />

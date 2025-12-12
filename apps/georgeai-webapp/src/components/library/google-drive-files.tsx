@@ -275,10 +275,10 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
       <LoadingSpinner isLoading={uploadFilesIsPending || googleDriveFilesIsLoading} />
 
       {/* Header */}
-      <div className="bg-base-100 sticky top-0 z-20 flex flex-col gap-2 p-2 shadow-md">
+      <div className="sticky top-0 z-20 flex flex-col gap-2 bg-base-100 p-2 shadow-md">
         {!googleDriveAccessToken?.access_token ? (
           <Link
-            className="btn btn-primary btn-sm"
+            className="btn btn-sm btn-primary"
             to="/libraries/auth-google"
             search={{ redirectAfterAuth: currentLocationHref }}
           >
@@ -290,7 +290,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
             <div className="flex flex-wrap items-center gap-2">
               <input
                 type="text"
-                className="input input-bordered input-sm min-w-0 flex-1"
+                className="input input-sm min-w-0 flex-1"
                 placeholder={t('libraries.searchGoogleDrive')}
                 onChange={(e) => debouncedSetSearchQuery(e.target.value)}
               />
@@ -300,7 +300,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
               <button
                 type="button"
                 disabled={!selectedFiles.length || uploadFilesIsPending || disabled}
-                className="btn btn-primary btn-sm"
+                className="btn btn-sm btn-primary"
                 onClick={handleUploadFiles}
               >
                 {getAddFilesLabel(selectedFiles.length)}
@@ -310,14 +310,14 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
             {/* Row 2: Selection, breadcrumbs, view toggle */}
             <div className="flex flex-wrap items-center justify-between gap-2">
               {/* Selection count */}
-              <div className="border-base-300 bg-base-200 inline-flex h-8 items-center gap-1 rounded-full border px-2">
+              <div className="inline-flex h-8 items-center gap-1 rounded-full border border-base-300 bg-base-200 px-2">
                 <button
                   type="button"
                   onClick={() => setSelectedFiles([])}
-                  className="hover:bg-base-300 flex items-center justify-center rounded-full p-1"
+                  className="flex items-center justify-center rounded-full p-1 hover:bg-base-300"
                   disabled={selectedFiles.length === 0}
                 >
-                  <CrossIcon className="h-4 w-4" />
+                  <CrossIcon className="size-4" />
                 </button>
                 <span className="text-sm">{getSelectedFilesLabel(selectedFiles.length)}</span>
               </div>
@@ -343,13 +343,13 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
 
               {/* Search indicator */}
               {isSearching && (
-                <div className="text-base-content/60 flex-1 text-center text-sm">
+                <div className="flex-1 text-center text-sm text-base-content/60">
                   {t('libraries.searchingAllFiles')}
                 </div>
               )}
 
               {/* View toggle */}
-              <div className="border-base-300 bg-base-200 inline-flex h-8 items-center rounded-full border">
+              <div className="inline-flex h-8 items-center rounded-full border border-base-300 bg-base-200">
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
@@ -357,8 +357,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
                     viewMode === 'grid' ? 'bg-base-300' : ''
                   }`}
                 >
-                  {viewMode === 'grid' && <CheckIcon className="mr-0.5 h-3 w-3" />}
-                  <GridViewIcon className="h-4 w-4" />
+                  {viewMode === 'grid' && <CheckIcon className="mr-0.5 size-3" />}
+                  <GridViewIcon className="size-4" />
                 </button>
                 <button
                   type="button"
@@ -367,8 +367,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
                     viewMode === 'list' ? 'bg-base-300' : ''
                   }`}
                 >
-                  {viewMode === 'list' && <CheckIcon className="mr-0.5 h-3 w-3" />}
-                  <ListViewIcon className="h-4 w-4" />
+                  {viewMode === 'list' && <CheckIcon className="mr-0.5 size-3" />}
+                  <ListViewIcon className="size-4" />
                 </button>
               </div>
             </div>
@@ -397,14 +397,14 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
 
       {/* Pagination - only show when there are pages to navigate */}
       {(hasPreviousPage || hasNextPage) && (
-        <div className="bg-base-100 border-base-300 flex items-center justify-between border-t p-2">
+        <div className="flex items-center justify-between border-t border-base-300 bg-base-100 p-2">
           <span className="text-sm text-gray-500">
             {t('labels.page')} {currentPage}
           </span>
           <div className="join">
             <button
               type="button"
-              className="btn btn-sm join-item"
+              className="btn join-item btn-sm"
               onClick={handlePreviousPage}
               disabled={!hasPreviousPage || googleDriveFilesIsLoading}
             >
@@ -412,7 +412,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
             </button>
             <button
               type="button"
-              className="btn btn-sm join-item"
+              className="btn join-item btn-sm"
               onClick={handleNextPage}
               disabled={!hasNextPage || googleDriveFilesIsLoading}
             >

@@ -125,11 +125,11 @@ function ConnectorsAdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="from-warning/20 to-warning/10 bg-linear-to-br rounded-full p-3 shadow-lg">
-            <LinkIcon className="text-warning h-8 w-8" />
+          <div className="rounded-full bg-linear-to-br from-warning/20 to-warning/10 p-3 shadow-lg">
+            <LinkIcon className="size-8 text-warning" />
           </div>
           <div>
-            <h1 className="text-primary text-3xl font-bold">{t('connectors.title')}</h1>
+            <h1 className="text-3xl font-bold text-primary">{t('connectors.title')}</h1>
             <p className="text-lg opacity-70">{t('connectors.description')}</p>
           </div>
         </div>
@@ -160,7 +160,7 @@ function ConnectorsAdminPage() {
                     </div>
                   </h3>
                   <p className="text-sm opacity-70">{type.description}</p>
-                  <div className="card-actions mt-2 justify-end">
+                  <div className="mt-2 card-actions justify-end">
                     {isEnabled ? (
                       <button
                         className="btn btn-outline btn-sm"
@@ -172,7 +172,7 @@ function ConnectorsAdminPage() {
                       </button>
                     ) : (
                       <button
-                        className="btn btn-primary btn-sm"
+                        className="btn btn-sm btn-primary"
                         onClick={() => enableConnectorType(type.id)}
                         disabled={isPending}
                         type="button"
@@ -213,7 +213,7 @@ function ConnectorsAdminPage() {
                       <p className="text-xs opacity-50">
                         {t('connectors.lastTested')}:{' '}
                         <ClientDate date={connector.lastTestedAt} fallback={t('connectors.neverTested')} />
-                        {connector.lastError && <span className="text-error ml-2">Error: {connector.lastError}</span>}
+                        {connector.lastError && <span className="ml-2 text-error">Error: {connector.lastError}</span>}
                       </p>
                     </div>
 
@@ -224,7 +224,7 @@ function ConnectorsAdminPage() {
                         disabled={isPending}
                         type="button"
                       >
-                        {isPending ? <span className="loading loading-spinner loading-xs" /> : null}
+                        {isPending ? <span className="loading loading-xs loading-spinner" /> : null}
                         {t('connectors.testConnection')}
                       </button>
                       <button
@@ -235,7 +235,7 @@ function ConnectorsAdminPage() {
                         Edit
                       </button>
                       <button
-                        className="btn btn-error btn-ghost btn-sm"
+                        className="btn btn-ghost btn-sm btn-error"
                         onClick={() => handleDeleteConnector(connector.id)}
                         type="button"
                       >
@@ -257,13 +257,13 @@ function ConnectorsAdminPage() {
             {isEditing ? t('connectors.editConnector') : t('connectors.addConnector')}
           </h3>
           <form key={editingConnector?.id || 'new'} onSubmit={handleSubmitConnector} className="space-y-4">
-            <div className="form-control">
+            <div>
               <label className="label">
-                <span className="label-text font-semibold">{t('connectors.connectorType')}</span>
+                <span className="font-semibold">{t('connectors.connectorType')}</span>
               </label>
               <select
                 name="connectorType"
-                className="select select-bordered w-full"
+                className="select w-full"
                 defaultValue={editingConnector?.connectorType}
                 disabled={!!isEditing}
                 required
@@ -281,27 +281,27 @@ function ConnectorsAdminPage() {
               </select>
             </div>
 
-            <div className="form-control">
+            <div>
               <label className="label">
-                <span className="label-text font-semibold">{t('connectors.name')}</span>
+                <span className="font-semibold">{t('connectors.name')}</span>
               </label>
               <input
                 type="text"
                 name="name"
-                className="input input-bordered w-full"
+                className="input w-full"
                 defaultValue={editingConnector?.name || ''}
                 placeholder={t('connectors.namePlaceholder')}
               />
             </div>
 
-            <div className="form-control">
+            <div>
               <label className="label">
-                <span className="label-text font-semibold">{t('connectors.baseUrl')}</span>
+                <span className="font-semibold">{t('connectors.baseUrl')}</span>
               </label>
               <input
                 type="url"
                 name="baseUrl"
-                className="input input-bordered w-full"
+                className="input w-full"
                 defaultValue={editingConnector?.baseUrl}
                 placeholder={t('connectors.baseUrlPlaceholder')}
                 required
@@ -311,26 +311,26 @@ function ConnectorsAdminPage() {
             <div className="divider">{t('connectors.credentials')}</div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="form-control">
+              <div>
                 <label className="label">
-                  <span className="label-text font-semibold">{t('connectors.clientId')}</span>
+                  <span className="font-semibold">{t('connectors.clientId')}</span>
                 </label>
                 <input
                   type="text"
                   name="clientId"
-                  className="input input-bordered w-full"
+                  className="input w-full"
                   placeholder={t('connectors.clientIdPlaceholder')}
                 />
               </div>
 
-              <div className="form-control">
+              <div>
                 <label className="label">
-                  <span className="label-text font-semibold">{t('connectors.clientSecret')}</span>
+                  <span className="font-semibold">{t('connectors.clientSecret')}</span>
                 </label>
                 <input
                   type="password"
                   name="clientSecret"
-                  className="input input-bordered w-full"
+                  className="input w-full"
                   placeholder={isEditing ? 'Leave empty to keep existing' : t('connectors.clientSecretPlaceholder')}
                   autoComplete="new-password"
                 />

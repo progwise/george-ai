@@ -65,16 +65,16 @@ export const NewAutomationDialog = ({ ref }: NewAutomationDialogProps) => {
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <div className="skeleton h-4 w-16" />
-            <div className="skeleton h-10 w-full" />
+            <div className="h-4 w-16 skeleton" />
+            <div className="h-10 w-full skeleton" />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="skeleton h-4 w-12" />
-            <div className="skeleton h-10 w-full" />
+            <div className="h-4 w-12 skeleton" />
+            <div className="h-10 w-full skeleton" />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="skeleton h-4 w-20" />
-            <div className="skeleton h-10 w-full" />
+            <div className="h-4 w-20 skeleton" />
+            <div className="h-10 w-full skeleton" />
           </div>
         </div>
       </DialogForm>

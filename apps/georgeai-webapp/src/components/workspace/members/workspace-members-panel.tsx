@@ -54,7 +54,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <span className="loading loading-spinner loading-md" />
+        <span className="loading loading-md loading-spinner" />
         <span className="ml-2">{t('workspace.members.loadingMembers')}</span>
       </div>
     )
@@ -66,19 +66,19 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{t('workspace.members.title')}</h3>
-          <p className="text-base-content/70 text-sm">{t('workspace.members.description')}</p>
+          <p className="text-sm text-base-content/70">{t('workspace.members.description')}</p>
         </div>
         {currentUserCanManage && (
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => inviteDialogRef.current?.showModal()}>
+          <button type="button" className="btn btn-sm btn-primary" onClick={() => inviteDialogRef.current?.showModal()}>
             {t('workspace.members.invite')}
           </button>
         )}
       </div>
 
       {/* Members List */}
-      <div className="divide-base-300 divide-y rounded-lg border">
+      <div className="divide-y divide-base-300 rounded-lg border">
         {members && members?.length === 0 ? (
-          <div className="text-base-content/70 p-4 text-center">{t('workspace.members.noMembers')}</div>
+          <div className="p-4 text-center text-base-content/70">{t('workspace.members.noMembers')}</div>
         ) : (
           members?.map((member) => {
             const isCurrentUser = member.user.id === user?.id
@@ -95,10 +95,10 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{member.user.name || member.user.email}</span>
                       {isCurrentUser && (
-                        <span className="text-base-content/60 text-sm">{t('workspace.members.you')}</span>
+                        <span className="text-sm text-base-content/60">{t('workspace.members.you')}</span>
                       )}
                     </div>
-                    <div className="text-base-content/60 text-sm">{member.user.email}</div>
+                    <div className="text-sm text-base-content/60">{member.user.email}</div>
                   </div>
                 </div>
 
@@ -188,7 +188,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
                           {member.role !== 'owner' && (
                             <button
                               type="button"
-                              className="btn btn-ghost btn-xs text-error"
+                              className="btn text-error btn-ghost btn-xs"
                               onClick={() => handleRemoveClick(member.user.id, member.user.name || member.user.email)}
                             >
                               {t('workspace.members.remove')}
@@ -207,21 +207,21 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
       {currentUserCanManage && (
         <div className="mt-4">
           <h4 className="mb-2 font-medium">{t('workspace.members.pendingInvitations')}</h4>
-          <div className="divide-base-300 divide-y rounded-lg border">
+          <div className="divide-y divide-base-300 rounded-lg border">
             {invitations && invitations.length === 0 ? (
-              <div className="text-base-content/70 p-4 text-center text-sm">
+              <div className="p-4 text-center text-sm text-base-content/70">
                 {t('workspace.members.noPendingInvitations')}
               </div>
             ) : (
               invitations?.map((invitation) => (
                 <div key={invitation.id} className="flex items-center justify-between gap-4 p-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-base-300 flex size-10 items-center justify-center rounded-full">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-base-300">
                       <span className="text-lg">✉️</span>
                     </div>
                     <div>
                       <div className="font-medium">{invitation.email}</div>
-                      <div className="text-base-content/60 text-sm">
+                      <div className="text-sm text-base-content/60">
                         {t('workspace.members.invitedAt', { date: '' })}
                         <ClientDate date={invitation.createdAt} format="date" />
                       </div>
@@ -230,7 +230,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
 
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs text-error"
+                    className="btn text-error btn-ghost btn-xs"
                     onClick={() => handleRevokeClick(invitation.id, invitation.email)}
                   >
                     {t('workspace.members.revoke')}
@@ -244,7 +244,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
 
       {/* Non-admin notice */}
       {!currentUserCanManage && (
-        <div className="text-base-content/60 text-center text-sm">{t('workspace.members.adminOnly')}</div>
+        <div className="text-center text-sm text-base-content/60">{t('workspace.members.adminOnly')}</div>
       )}
 
       {/* Invite Dialog */}

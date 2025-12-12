@@ -106,7 +106,7 @@ function AcceptInvitationPage() {
   // Invitation not found
   if (!invitation) {
     return (
-      <div className="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-lg p-8">
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-base-200 p-8">
         <h2 className="text-xl font-semibold">{t('workspace.invitationNotFound')}</h2>
         <p className="text-base-content/70">{t('workspace.invitationNotFoundDescription')}</p>
         <button type="button" className="btn btn-primary" onClick={() => navigate({ to: '/' })}>
@@ -123,7 +123,7 @@ function AcceptInvitationPage() {
   // Invitation expired
   if (isExpired) {
     return (
-      <div className="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-lg p-8">
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-base-200 p-8">
         <h2 className="text-xl font-semibold">{t('workspace.invitationExpiredTitle')}</h2>
         <p className="text-base-content/70">{t('workspace.invitationExpiredDescription')}</p>
         <button type="button" className="btn btn-primary" onClick={() => navigate({ to: '/' })}>
@@ -136,7 +136,7 @@ function AcceptInvitationPage() {
   // Invitation already accepted by someone
   if (isAlreadyAccepted) {
     return (
-      <div className="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-lg p-8">
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-base-200 p-8">
         <h2 className="text-xl font-semibold">{t('workspace.invitationAlreadyTakenTitle')}</h2>
         <p className="text-base-content/70">{t('workspace.invitationAlreadyTakenDescription')}</p>
         <button type="button" className="btn btn-primary" onClick={() => navigate({ to: '/' })}>
@@ -149,7 +149,7 @@ function AcceptInvitationPage() {
   // Invitation is for a different email
   if (isEmailMismatch) {
     return (
-      <div className="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-lg p-8">
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-base-200 p-8">
         <h2 className="text-xl font-semibold">{t('workspace.invitationEmailMismatchTitle')}</h2>
         <p className="text-base-content/70">
           {t('workspace.invitationEmailMismatchDescription', { email: invitation.email })}
@@ -162,7 +162,7 @@ function AcceptInvitationPage() {
   }
 
   return (
-    <div className="bg-base-200 flex flex-col items-center justify-center space-y-6 rounded-lg p-8">
+    <div className="flex flex-col items-center justify-center space-y-6 rounded-lg bg-base-200 p-8">
       <h2 className="text-xl font-semibold">{t('workspace.invitationTitle')}</h2>
       <div className="text-center">
         <p className="text-base-content/70">

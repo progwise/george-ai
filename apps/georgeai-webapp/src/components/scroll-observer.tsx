@@ -28,5 +28,5 @@ export const ScrollObserver = ({ onScroll }: ScrollObserverProps) => {
     }
   }, [scrollRef, handleIntersection])
 
-  return <div className="absolute left-0 top-0" ref={scrollRef} />
+  return <div className="absolute top-0 left-0" ref={scrollRef} />
 }

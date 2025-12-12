@@ -72,7 +72,7 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
 
   return (
     <>
-      <ul className="menu menu-xs md:menu-horizontal bg-base-200 rounded-box flex-nowrap items-end shadow-lg md:items-center">
+      <ul className="menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center">
         <li>
           <button
             type="button"
@@ -81,7 +81,7 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
             }}
             disabled={fileActionPending}
           >
-            <FileIcon className="h-5 w-5" />
+            <FileIcon className="size-5" />
             {t('actions.upload')}
           </button>
           <input
@@ -109,7 +109,7 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
               checked={showArchived}
               onChange={(e) => navigate({ search: { showArchived: e.target.checked } })}
             />
-            <ArchiveIcon className="h-4 w-4" />
+            <ArchiveIcon className="size-4" />
             <span className="text-xs">{t('actions.showArchived', { count: archivedCount })}</span>
           </label>
         </li>

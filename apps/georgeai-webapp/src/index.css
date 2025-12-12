@@ -3,25 +3,25 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/theme.css' layer(theme) source('./');
 @import 'tailwindcss/utilities.css' layer(utilities) source('./');
-@plugin "daisyui" {
+@plugin 'daisyui' {
   themes:
     light --default,
     dark --prefersdark;
 }
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
   name: 'light';
   default: true;
   --depth: 0;
   --color-primary: var(--color-blue-700);
 }
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
   name: 'dark';
   --depth: 0;
   --color-primary: var(--color-blue-500);
 }
-@plugin "@tailwindcss/typography";
+@plugin '@tailwindcss/typography';
 
-@plugin "tailwindcss-animated";
+@plugin 'tailwindcss-animated';
 
 @theme {
   /* horizontal spacing on body */
@@ -70,11 +70,11 @@
 }
 
 dl.properties {
-  @apply border-base-300 bg-base-200 grid grid-cols-[min-content_min-content] gap-x-2 rounded-lg border p-2;
+  @apply grid grid-cols-[min-content_min-content] gap-x-2 rounded-lg border border-base-300 bg-base-200 p-2;
 }
 dl.properties dt {
-  @apply text-base-content/50 ml-0.5 text-nowrap font-medium italic;
+  @apply ml-0.5 font-medium text-nowrap text-base-content/50 italic;
 }
 dl.properties dd {
-  @apply text-base-content/50 mb-1 ml-2;
+  @apply mb-1 ml-2 text-base-content/50;
 }

@@ -24,7 +24,7 @@ export const ComplianceArea = ({ area }: ComplianceAreaProps) => {
   const { language } = useTranslation()
   const { title, description, mandatory } = area
   return (
-    <div className={`rounded-lg border p-3 ${mandatory && 'bg-info/20 border-info'}`}>
+    <div className={`rounded-lg border p-3 ${mandatory && 'border-info bg-info/20'}`}>
       <label className="flex cursor-pointer items-center gap-3">
         <input type="checkbox" checked={mandatory} readOnly className="checkbox checkbox-sm" />
         <div>

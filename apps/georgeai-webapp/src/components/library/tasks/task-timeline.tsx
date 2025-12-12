@@ -47,7 +47,7 @@ interface TaskTimelineProps {
 }
 
 export const TaskTimeline = ({ task }: TaskTimelineProps) => {
-  const { now } = useNow(1000)
+  const { now } = useNow()
 
   const timelineData: Array<{
     labels: Record<string, string>
@@ -165,7 +165,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
         {timelineData.map((milestone, index) => (
           <li
             key={`${milestone.labels[milestone.status]}-${new Date().getTime()}`}
-            className={twMerge('timeline-item', !milestone.time && milestone.status !== 'doing' && 'opacity-30')}
+            className={twMerge(!milestone.time && milestone.status !== 'doing' && 'opacity-30')}
           >
             {index !== 0 && <hr />}
             <div className={twMerge('timeline-start', milestone.time && 'timeline-box')}>
@@ -174,7 +174,7 @@ export const TaskTimeline = ({ task }: TaskTimelineProps) => {
             <div className="timeline-middle">
               <svg
                 className={twMerge(
-                  'h-3 w-3',
+                  'size-3',
                   milestone.status === 'todo'
                     ? 'text-neutral'
                     : milestone.status === 'doing'

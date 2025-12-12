@@ -149,10 +149,10 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
           <div className="mb-3 flex items-center justify-between">
             <label className="font-semibold">{t('lists.export.dialog.selectFields')}</label>
             <div className="space-x-2">
-              <button type="button" className="btn btn-xs btn-outline" onClick={handleSelectAll}>
+              <button type="button" className="btn btn-outline btn-xs" onClick={handleSelectAll}>
                 {t('lists.export.dialog.selectAll')}
               </button>
-              <button type="button" className="btn btn-xs btn-outline" onClick={handleSelectNone}>
+              <button type="button" className="btn btn-outline btn-xs" onClick={handleSelectNone}>
                 {t('lists.export.dialog.selectNone')}
               </button>
             </div>
@@ -167,7 +167,7 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
                   onChange={() => handleFieldToggle(field.id)}
                 />
                 <span className="text-sm">{field.name}</span>
-                <span className="text-base-content/60 text-xs">({field.sourceType})</span>
+                <span className="text-xs text-base-content/60">({field.sourceType})</span>
               </label>
             ))}
           </div>
@@ -178,13 +178,13 @@ export const ListExportDialog = ({ listId, ref }: ListExportDialogProps) => {
           <label className="mb-2 block font-semibold">{t('lists.export.dialog.maxRows')}</label>
           <input
             type="number"
-            className="input input-sm input-bordered w-full"
+            className="input input-sm w-full"
             value={maxRows}
             onChange={(e) => setMaxRows(Math.max(1, parseInt(e.target.value) || 1))}
             min={1}
             max={10000}
           />
-          <div className="text-base-content/60 mt-1 text-xs">
+          <div className="mt-1 text-xs text-base-content/60">
             {t('lists.export.dialog.totalFiles', { count: aiListItems.count })}
           </div>
         </div>

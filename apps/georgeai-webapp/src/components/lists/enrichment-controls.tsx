@@ -39,7 +39,7 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing }: Enrichment
       {!isProcessing ? (
         <button
           type="button"
-          className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+          className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
           onClick={handleStartEnrichment}
           disabled={enrichmentActionsIsPending}
         >
@@ -49,7 +49,7 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing }: Enrichment
       ) : (
         <button
           type="button"
-          className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+          className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
           onClick={handleStopEnrichment}
           disabled={enrichmentActionsIsPending}
         >
@@ -60,7 +60,7 @@ export const EnrichmentControls = ({ listId, fieldId, isProcessing }: Enrichment
 
       <button
         type="button"
-        className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+        className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
         onClick={handleCleanEnrichments}
         disabled={enrichmentActionsIsPending}
       >

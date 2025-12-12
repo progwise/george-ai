@@ -71,7 +71,7 @@ export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps)
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm tooltip tooltip-right"
+        className="tooltip btn tooltip-right btn-ghost btn-sm"
         onClick={showDialog}
         data-tip={t('assistants.delete')}
       >

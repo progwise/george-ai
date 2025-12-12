@@ -42,7 +42,7 @@ function AdminUserDetail() {
 
   if (!userData || !userData.profile) {
     return (
-      <div className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm">
+      <div className="mx-auto alert max-w-fit cursor-pointer py-2 text-sm alert-error">
         {t('errors.profileNotFound')} for user {userId}
         <button type="button" className="btn btn-sm btn-primary" onClick={() => ensureUserProfileMutation()}>
           {t('actions.ensureUserProfile')}

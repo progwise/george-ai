@@ -64,7 +64,7 @@ function RouteComponent() {
   )
 
   return (
-    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr] gap-2">
+    <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
       <div className="breadcrumbs py-0 text-sm">
         <ul>
           {automation.list.sources[0]?.library && (
@@ -95,7 +95,7 @@ function RouteComponent() {
           </li>
         </ul>
       </div>
-      <ul className="menu menu-sm menu-horizontal text-base-content/70 bg-base-200 w-full items-center">
+      <ul className="menu menu-horizontal w-full items-center menu-sm bg-base-200 text-base-content/70">
         <li className="menu-title text-base-content/70">
           <span>{automation.name}</span>
         </li>
@@ -122,11 +122,11 @@ function RouteComponent() {
         </li>
       </ul>
 
-      <div className="block h-full w-full overflow-auto">
+      <div className="block size-full overflow-auto">
         {items.length === 0 ? (
-          <div className="text-base-content/50 py-8 text-center">{t('automations.noItems')}</div>
+          <div className="py-8 text-center text-base-content/50">{t('automations.noItems')}</div>
         ) : (
-          <table className="table-zebra table-sm table-pin-rows table-pin-cols table">
+          <table className="table-pin-rows table-pin-cols table table-zebra table-sm">
             <thead>
               <tr>
                 <th className="text-base-content/50">#</th>
@@ -168,7 +168,7 @@ function RouteComponent() {
                         className="inline-flex items-center gap-1"
                       >
                         {item.hasIncompleteData && (
-                          <WarnIcon className="text-warning size-4" tooltip={t('automations.incompleteData')} />
+                          <WarnIcon className="size-4 text-warning" tooltip={t('automations.incompleteData')} />
                         )}
                         {item.listItem.itemName}
                       </Link>
@@ -196,10 +196,10 @@ function RouteComponent() {
                       <div className="space-y-1">
                         {item.preview.map((p) => (
                           <div key={p.targetField} className="flex items-center gap-1 text-xs">
-                            <span className="text-base-content/50 shrink-0">{p.targetField}:</span>{' '}
+                            <span className="shrink-0 text-base-content/50">{p.targetField}:</span>{' '}
                             {p.isMissing ? (
                               <span
-                                className="text-warning flex items-center gap-1"
+                                className="flex items-center gap-1 text-warning"
                                 title={t('automations.missingValue')}
                               >
                                 <WarnIcon className="size-3" />
@@ -226,9 +226,9 @@ function RouteComponent() {
                   </td>
                   <td>
                     {item.inScope ? (
-                      <input type="checkbox" checked className="checkbox checkbox-success checkbox-xs" readOnly />
+                      <input type="checkbox" checked className="checkbox checkbox-xs checkbox-success" readOnly />
                     ) : (
-                      <input type="checkbox" className="checkbox checkbox-warning checkbox-xs" readOnly />
+                      <input type="checkbox" className="checkbox checkbox-xs checkbox-warning" readOnly />
                     )}
                   </td>
                   <td>

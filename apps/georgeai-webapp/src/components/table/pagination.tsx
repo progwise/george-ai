@@ -69,7 +69,7 @@ export const Pagination = ({
       <div className="join">
         <button
           type="button"
-          className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
+          className={twMerge('btn join-item btn-xs')}
           aria-label="First Page"
           aria-disabled={isFirstPage}
           onClick={() => handlePageChange(1)}
@@ -79,7 +79,7 @@ export const Pagination = ({
         </button>
         <button
           type="button"
-          className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
+          className={twMerge('btn join-item btn-xs')}
           aria-label="Previous Page"
           aria-disabled={isFirstPage}
           onClick={() => handlePageChange(currentPage - 1)}
@@ -87,15 +87,15 @@ export const Pagination = ({
         >
           ‹
         </button>
-        <div className="join-item btn btn-xs border">
+        <div className="btn join-item border btn-xs">
           <button type="button" popoverTarget={popoverId} style={{ anchorName: '--anchor-1' } as React.CSSProperties}>
-            <span className="flex-nowrap text-nowrap text-xs font-normal">
+            <span className="flex-nowrap text-xs font-normal text-nowrap">
               {currentPage}/{totalPages}
             </span>
           </button>
           <label
             style={{ positionAnchor: '--anchor-1' } as React.CSSProperties}
-            className="input dropdown dropdown-end bg-base-100 rounded-box w-64 p-2 shadow-sm"
+            className="dropdown input dropdown-end w-64 rounded-box bg-base-100 p-2 shadow-sm"
             tabIndex={0}
             popover="auto"
             id={popoverId}
@@ -119,7 +119,7 @@ export const Pagination = ({
         <button
           type="button"
           aria-label="Next Page"
-          className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
+          className={twMerge('btn join-item btn-xs')}
           aria-disabled={isLastPage}
           disabled={currentPage === totalPages}
           onClick={() => handlePageChange(currentPage + 1)}
@@ -129,7 +129,7 @@ export const Pagination = ({
         <button
           type="button"
           aria-label="Last Page"
-          className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
+          className={twMerge('btn join-item btn-xs')}
           aria-disabled={isLastPage}
           disabled={isLastPage}
           onClick={() => handlePageChange(totalPages)}
@@ -140,7 +140,7 @@ export const Pagination = ({
       {showPageSizeSelector && onPageSizeChange && (
         <div className="flex flex-col gap-1">
           <select
-            className="select select-sm select-bordered h-full"
+            className="select h-full select-sm"
             value={itemsPerPage}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
           >

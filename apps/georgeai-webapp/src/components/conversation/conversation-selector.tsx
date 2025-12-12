@@ -96,7 +96,7 @@ export const ConversationSelector = ({ conversations, onClick }: ConversationSel
         {groupedConversations &&
           Object.entries(groupedConversations).map(([date, conversations]) => (
             <li key={date}>
-              <div className="center grid grid-cols-[1fr_8fr] py-1">
+              <div className="grid grid-cols-[1fr_8fr] items-center py-1">
                 <label className="flex cursor-pointer items-center">
                   <Checkbox
                     className="checkbox-xs"
@@ -108,7 +108,7 @@ export const ConversationSelector = ({ conversations, onClick }: ConversationSel
               </div>
               <ul className="m-0 mb-4">
                 {conversations.map((conversation) => (
-                  <li key={conversation.id} className="center grid grid-cols-[1fr_8fr] py-1">
+                  <li key={conversation.id} className="grid grid-cols-[1fr_8fr] items-center py-1">
                     <label className="flex cursor-pointer items-center">
                       <input
                         type="checkbox"

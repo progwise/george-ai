@@ -30,7 +30,7 @@ function RouteComponent() {
         </h3>
         <button
           type="button"
-          className="btn btn-primary btn-sm"
+          className="btn btn-sm btn-primary"
           onClick={() => newAssistantDialogRef.current?.showModal()}
         >
           {t('assistants.addNewButton')}

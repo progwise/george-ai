@@ -96,234 +96,226 @@ function RouteComponent() {
       <h2 className="text-2xl font-bold">{t('crawlers.runDetails')}</h2>
 
       {/* Run Details Card */}
-      <div className="card bg-base-100 shadow-sm">
-        <div className="card-body">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="label">
-                <span className="label-text font-medium">{t('crawlers.runStartDate')}</span>
-              </label>
-              <div className="text-sm">
-                <ClientDate date={crawlerRun.startedAt} format="dateTime" fallback="N/A" />
-              </div>
+      <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <div className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+              {t('crawlers.runStartDate')}
             </div>
-            <div>
-              <label className="label">
-                <span className="label-text font-medium">{t('crawlers.runEndDate')}</span>
-              </label>
-              <div className="text-sm">
-                {crawlerRun.endedAt ? <ClientDate date={crawlerRun.endedAt} format="dateTime" /> : t('texts.running')}
-              </div>
-              {crawlerRun.stoppedByUser && (
-                <div className="text-base-content/60 text-sm">
-                  {t('crawlers.stoppedByUser')}: <ClientDate date={crawlerRun.stoppedByUser} format="dateTime" />
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="label">
-                <span className="label-text font-medium">{t('crawlers.runDuration')}</span>
-              </label>
-              <div className="text-sm">
-                {crawlerRun.startedAt && crawlerRun.endedAt
-                  ? duration(crawlerRun.startedAt, crawlerRun.endedAt)
-                  : 'N/A'}
-              </div>
-            </div>
-            <div>
-              <label className="label">
-                <span className="label-text font-medium">{t('crawlers.runStatus')}</span>
-              </label>
-              <div className="text-sm">
-                <span
-                  className={`badge ${crawlerRun.success ? 'badge-success' : !crawlerRun.endedAt ? 'badge-info' : 'badge-error'}`}
-                >
-                  {crawlerRun.success
-                    ? t('crawlers.runSuccess')
-                    : !crawlerRun.endedAt
-                      ? t('crawlers.runInProgress')
-                      : t('crawlers.runFailed')}
-                </span>
-              </div>
+            <div className="text-sm">
+              <ClientDate date={crawlerRun.startedAt} format="dateTime" fallback="N/A" />
             </div>
           </div>
-
-          {/* Error Message */}
-          {crawlerRun.errorMessage && (
-            <div className="mt-4">
-              <label className="label">
-                <span className="label-text font-medium">Error Message</span>
-              </label>
-              <div className="bg-base-200 max-h-32 overflow-y-auto whitespace-pre-line rounded p-3 text-sm">
-                {crawlerRun.errorMessage.replace(/,/g, ',\n')}
-              </div>
+          <div>
+            <div className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+              {t('crawlers.runEndDate')}
             </div>
-          )}
+            <div className="text-sm">
+              {crawlerRun.endedAt ? <ClientDate date={crawlerRun.endedAt} format="dateTime" /> : t('texts.running')}
+            </div>
+            {crawlerRun.stoppedByUser && (
+              <div className="mt-1 text-sm text-base-content/60">
+                {t('crawlers.stoppedByUser')}: <ClientDate date={crawlerRun.stoppedByUser} format="dateTime" />
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+              {t('crawlers.runDuration')}
+            </div>
+            <div className="text-sm">
+              {crawlerRun.startedAt && crawlerRun.endedAt ? duration(crawlerRun.startedAt, crawlerRun.endedAt) : 'N/A'}
+            </div>
+          </div>
+          <div>
+            <div className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+              {t('crawlers.runStatus')}
+            </div>
+            <div className="text-sm">
+              <span
+                className={`badge ${crawlerRun.success ? 'badge-success' : !crawlerRun.endedAt ? 'badge-info' : 'badge-error'}`}
+              >
+                {crawlerRun.success
+                  ? t('crawlers.runSuccess')
+                  : !crawlerRun.endedAt
+                    ? t('crawlers.runInProgress')
+                    : t('crawlers.runFailed')}
+              </span>
+            </div>
+          </div>
         </div>
+
+        {/* Error Message */}
+        {crawlerRun.errorMessage && (
+          <div className="mt-6 border-t border-base-300 pt-4">
+            <div className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">Error Message</div>
+            <div className="max-h-32 overflow-y-auto rounded-lg bg-base-200 p-3 text-sm whitespace-pre-line">
+              {crawlerRun.errorMessage.replace(/,/g, ',\n')}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Updates Section */}
-      <div className="card bg-base-100 shadow-sm">
-        <div className="card-body">
-          <h3 className="card-title">Updates ({crawlerRun.updatesCount})</h3>
+      <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-semibold">Updates ({crawlerRun.updatesCount})</h3>
 
-          {/* Updates Table */}
-          <>
-            <div className="flex items-end justify-between">
-              {/* Pagination at top - only shown when there are updates */}
-              <Pagination
-                totalItems={crawlerRun.filteredUpdatesCount}
-                itemsPerPage={search.takeUpdates}
-                currentPage={1 + search.skipUpdates / search.takeUpdates}
-                onPageChange={(page) => {
-                  navigate({
-                    search: {
-                      ...search,
-                      skipUpdates: (page - 1) * search.takeUpdates,
-                      takeUpdates: search.takeUpdates,
-                    },
-                  })
-                }}
-                showPageSizeSelector={true}
-                onPageSizeChange={(newPageSize) => {
-                  navigate({
-                    search: {
-                      ...search,
-                      skipUpdates: 0,
-                      takeUpdates: newPageSize,
-                    },
-                  })
-                }}
-              />
-              <div className="flex gap-1">
-                {crawlerRun.updateStats &&
-                  crawlerRun.updateStats.map((stat) => {
-                    if (!stat.count || stat.count === 0) return null
+        {/* Updates Table */}
+        <>
+          <div className="flex items-end justify-between">
+            {/* Pagination at top - only shown when there are updates */}
+            <Pagination
+              totalItems={crawlerRun.filteredUpdatesCount}
+              itemsPerPage={search.takeUpdates}
+              currentPage={1 + search.skipUpdates / search.takeUpdates}
+              onPageChange={(page) => {
+                navigate({
+                  search: {
+                    ...search,
+                    skipUpdates: (page - 1) * search.takeUpdates,
+                    takeUpdates: search.takeUpdates,
+                  },
+                })
+              }}
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => {
+                navigate({
+                  search: {
+                    ...search,
+                    skipUpdates: 0,
+                    takeUpdates: newPageSize,
+                  },
+                })
+              }}
+            />
+            <div className="flex gap-1">
+              {crawlerRun.updateStats &&
+                crawlerRun.updateStats.map((stat) => {
+                  if (!stat.count || stat.count === 0) return null
 
-                    return (
-                      <UpdateStatusBadge
-                        key={stat.updateType || 'error'}
-                        updateType={stat.updateType}
-                        count={stat.count}
-                        size="sm"
-                        showCheckmark={true}
-                        checked={
-                          search.updateTypeFilter ? search.updateTypeFilter.includes(stat.updateType || 'error') : true
-                        }
-                        onCheckmarkChange={(updateType, checked) => {
-                          // Get all available update types from stats
-                          const allTypes = crawlerRun.updateStats?.map((s) => s.updateType || 'error') || []
-                          const currentFilter = search.updateTypeFilter
+                  return (
+                    <UpdateStatusBadge
+                      key={stat.updateType || 'error'}
+                      updateType={stat.updateType}
+                      count={stat.count}
+                      size="sm"
+                      showCheckmark={true}
+                      checked={
+                        search.updateTypeFilter ? search.updateTypeFilter.includes(stat.updateType || 'error') : true
+                      }
+                      onCheckmarkChange={(updateType, checked) => {
+                        // Get all available update types from stats
+                        const allTypes = crawlerRun.updateStats?.map((s) => s.updateType || 'error') || []
+                        const currentFilter = search.updateTypeFilter
 
-                          let newFilter: string[] | undefined
+                        let newFilter: string[] | undefined
 
-                          if (!currentFilter) {
-                            // No filter currently - if unchecking, filter out this type
-                            newFilter = checked ? undefined : allTypes.filter((type) => type !== updateType)
+                        if (!currentFilter) {
+                          // No filter currently - if unchecking, filter out this type
+                          newFilter = checked ? undefined : allTypes.filter((type) => type !== updateType)
+                        } else {
+                          // Filter exists - add/remove type
+                          if (checked) {
+                            newFilter = [...currentFilter, updateType].filter(
+                              (type, index, arr) => arr.indexOf(type) === index,
+                            )
+                            // If all types are selected, remove filter entirely
+                            if (newFilter.length === allTypes.length) {
+                              newFilter = undefined
+                            }
                           } else {
-                            // Filter exists - add/remove type
-                            if (checked) {
-                              newFilter = [...currentFilter, updateType].filter(
-                                (type, index, arr) => arr.indexOf(type) === index,
-                              )
-                              // If all types are selected, remove filter entirely
-                              if (newFilter.length === allTypes.length) {
-                                newFilter = undefined
-                              }
-                            } else {
-                              newFilter = currentFilter.filter((type) => type !== updateType)
-                              // If no types selected, undefined (show nothing? or show all?)
-                              if (newFilter.length === 0) {
-                                newFilter = undefined
-                              }
+                            newFilter = currentFilter.filter((type) => type !== updateType)
+                            // If no types selected, undefined (show nothing? or show all?)
+                            if (newFilter.length === 0) {
+                              newFilter = undefined
                             }
                           }
+                        }
 
-                          navigate({
-                            search: {
-                              ...search,
-                              skipUpdates: 0,
-                              updateTypeFilter: newFilter,
-                            },
-                          })
-                        }}
-                      />
-                    )
-                  })}
-              </div>
+                        navigate({
+                          search: {
+                            ...search,
+                            skipUpdates: 0,
+                            updateTypeFilter: newFilter,
+                          },
+                        })
+                      }}
+                    />
+                  )
+                })}
             </div>
-            <div className="overflow-x-auto">
-              <table className="table-zebra table-xs table w-full table-fixed">
-                <colgroup>
-                  <col className="w-24" />
-                  <col className="w-20" />
-                  <col className="w-54" />
-                  <col className="w-auto" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>{t('updates.status')}</th>
-                    <th>{t('updates.date')}</th>
-                    <th>{t('updates.file')}</th>
-                    <th>{t('updates.message')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {crawlerRun.updates.map((update) => {
-                    // Use updateType field
-                    const updateType = update.updateType || 'error'
-                    const isOmitted = updateType === 'omitted'
-                    const displayFileName = isOmitted ? update.fileName : update.file?.name
-                    const displayFilePath = isOmitted ? update.filePath : null
+          </div>
+          <div className="overflow-x-auto">
+            <table className="table w-full table-fixed table-zebra table-xs">
+              <colgroup>
+                <col className="w-24" />
+                <col className="w-20" />
+                <col className="w-54" />
+                <col className="w-auto" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>{t('updates.status')}</th>
+                  <th>{t('updates.date')}</th>
+                  <th>{t('updates.file')}</th>
+                  <th>{t('updates.message')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {crawlerRun.updates.map((update) => {
+                  // Use updateType field
+                  const updateType = update.updateType || 'error'
+                  const isOmitted = updateType === 'omitted'
+                  const displayFileName = isOmitted ? update.fileName : update.file?.name
+                  const displayFilePath = isOmitted ? update.filePath : null
 
-                    return (
-                      <tr key={update.id}>
-                        <td>
-                          <UpdateStatusBadge updateType={updateType} size="xs" />
-                        </td>
-                        <td className="truncate">
-                          <ClientDate date={update.createdAt} format="dateTime" />
-                        </td>
+                  return (
+                    <tr key={update.id}>
+                      <td>
+                        <UpdateStatusBadge updateType={updateType} size="xs" />
+                      </td>
+                      <td className="truncate">
+                        <ClientDate date={update.createdAt} format="dateTime" />
+                      </td>
 
-                        <td className="truncate">
-                          {update.file ? (
-                            <Link
-                              to="/libraries/$libraryId/files/$fileId"
-                              params={{ libraryId: params.libraryId, fileId: update.file.id }}
-                              className="link link-primary"
-                              title={update.file.name}
+                      <td className="truncate">
+                        {update.file ? (
+                          <Link
+                            to="/libraries/$libraryId/files/$fileId"
+                            params={{ libraryId: params.libraryId, fileId: update.file.id }}
+                            className="link link-primary"
+                            title={update.file.name}
+                          >
+                            {update.file.name}
+                          </Link>
+                        ) : isOmitted && displayFileName ? (
+                          displayFilePath ? (
+                            <a
+                              href={displayFilePath}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="link text-gray-600"
+                              title={displayFilePath}
                             >
-                              {update.file.name}
-                            </Link>
-                          ) : isOmitted && displayFileName ? (
-                            displayFilePath ? (
-                              <a
-                                href={displayFilePath}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="link text-gray-600"
-                                title={displayFilePath}
-                              >
-                                {displayFileName}
-                              </a>
-                            ) : (
-                              <span title={displayFilePath || undefined} className="text-gray-600">
-                                {displayFileName}
-                              </span>
-                            )
+                              {displayFileName}
+                            </a>
                           ) : (
-                            'N/A'
-                          )}
-                        </td>
-                        <td className="break-words text-xs">{update.message || 'no info available'}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        </div>
+                            <span title={displayFilePath || undefined} className="text-gray-600">
+                              {displayFileName}
+                            </span>
+                          )
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                      <td className="text-xs wrap-break-word">{update.message || 'no info available'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       </div>
     </div>
   )

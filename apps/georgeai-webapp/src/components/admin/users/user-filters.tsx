@@ -75,15 +75,15 @@ export const UserFilters = ({
   return (
     <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 md:flex-1 md:flex-row md:items-center">
-        <div className="md:min-w-2xs relative flex-grow md:w-96">
+        <div className="relative grow md:w-96 md:min-w-2xs">
           <input
             type="text"
             placeholder={t('placeholders.searchUsers')}
-            className="bg-base-100 focus:outline-primary w-full rounded-lg border px-2 py-1 pl-8 text-sm focus:outline-2"
+            className="w-full rounded-lg border bg-base-100 px-2 py-1 pl-8 text-sm focus:outline-2 focus:outline-primary"
             defaultValue={filter}
             onChange={(e) => handleFilterChange(e.target.value)}
           />
-          <div className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2">
+          <div className="pointer-events-none absolute top-1/2 left-2 z-10 -translate-y-1/2">
             <SearchIcon className="opacity-70" />
           </div>
         </div>

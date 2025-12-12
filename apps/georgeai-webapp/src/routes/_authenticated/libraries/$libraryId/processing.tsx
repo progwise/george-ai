@@ -72,7 +72,7 @@ function RouteComponent() {
   const count = aiContentProcessingTasks.count
 
   return (
-    <div className="bg-base-100 grid h-full w-full grid-rows-[auto_1fr]">
+    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>
         <TaskMenu
           libraryId={libraryId}

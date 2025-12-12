@@ -21,7 +21,7 @@ function RouteComponent() {
     setTimeout(() => navigate({ to: '/profile' }), 300)
     return (
       <div
-        className="alert alert-success mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        className="mx-auto alert max-w-fit cursor-pointer py-2 text-sm alert-success"
         onClick={() => navigate({ to: '/profile' })}
       >
         {t('texts.profileConfirmed')}. {t('actions.redirecting')}

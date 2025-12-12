@@ -45,19 +45,19 @@ export default function TopNavigation({ user }: TopNavigationProps) {
           !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >
-        <nav className="navbar px-body gap-2 text-sm">
+        <nav className="navbar gap-2 px-body text-sm">
           {/* Logo and Brand-Name */}
           <div className="navbar-start flex grow text-nowrap">
             <Link
               to="/"
-              className="transition-color flex items-center gap-2 text-nowrap rounded-md px-2 text-xl font-bold"
+              className="flex items-center gap-2 rounded-md px-2 text-xl font-bold text-nowrap"
               activeProps={{ className: 'bg-base-content/80 text-base-100' }}
               inactiveProps={{
                 className: 'hover:bg-base-300 text-base-content/50 hover:text-base-content hover:animate-pulse',
               }}
               activeOptions={{ exact: true }}
             >
-              <BowlerLogoIcon className="hover:animate-wiggle size-10" />
+              <BowlerLogoIcon className="size-10 hover:animate-wiggle" />
               <span>George-AI</span>
             </Link>
           </div>

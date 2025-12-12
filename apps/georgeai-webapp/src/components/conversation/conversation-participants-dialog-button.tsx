@@ -279,14 +279,14 @@ export const ConversationParticipantsDialogButton = ({
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
-              <div className="hover:border-base-300 rounded-box flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+              <div className="flex flex-col gap-2 overflow-y-auto rounded-box border border-transparent p-2 hover:border-base-300">
                 {availableAssistants.map((assistant) => (
                   <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
                     <input
                       type="checkbox"
                       name="assistants"
                       value={assistant.id}
-                      className="checkbox checkbox-info checkbox-xs"
+                      className="checkbox checkbox-xs checkbox-info"
                       checked={selectedAssistantIds.includes(assistant.id)}
                       onChange={(event) => {
                         const value = event.target.checked
@@ -326,13 +326,13 @@ export const ConversationParticipantsDialogButton = ({
                 setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
               />
-              {emailError && <p className="text-error text-sm">{emailError}</p>}
+              {emailError && <p className="text-sm text-error">{emailError}</p>}
               <div className="flex flex-col gap-1 text-sm">
                 <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowDifferentEmailAddress}
-                    className="checkbox-info checkbox checkbox-xs"
+                    className="checkbox checkbox-xs checkbox-info"
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
                   <span>{t('texts.allowDifferentEmail')}</span>
@@ -341,7 +341,7 @@ export const ConversationParticipantsDialogButton = ({
                   <input
                     type="checkbox"
                     checked={allowMultipleParticipants}
-                    className="checkbox-info checkbox checkbox-xs"
+                    className="checkbox checkbox-xs checkbox-info"
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
                   <span>{t('texts.allowMultipleParticipants')}</span>

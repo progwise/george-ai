@@ -62,7 +62,7 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
 
   return (
     <>
-      <ul className="menu menu-sm md:menu-horizontal bg-base-200 rounded-box w-full flex-nowrap items-center gap-2 shadow-lg">
+      <ul className="menu w-full flex-nowrap items-center gap-2 menu-sm rounded-box bg-base-200 shadow-lg md:menu-horizontal">
         <li className="menu-title">Content Extraction Tasks</li>
         <li>
           <details ref={detailsRef}>
@@ -93,7 +93,7 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
             <span className="badge badge-sm badge-accent">Without chunks: {files.missingChunksCount}</span>
           </div>
         </li>
-        <li className="grow-1 items-end">
+        <li className="grow items-end">
           <div className="flex gap-2">
             <button
               type="button"
@@ -101,7 +101,7 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
               onClick={handleCreateMissingExtractionTasks}
               disabled={files.missingContentExtractionTasksCount === 0 || isPending}
             >
-              {isPending ? <span className="loading loading-spinner loading-xs" /> : <PlayIcon className="size-4" />}
+              {isPending ? <span className="loading loading-xs loading-spinner" /> : <PlayIcon className="size-4" />}
               <span>Create {files.missingContentExtractionTasksCount} tasks</span>
             </button>
 
@@ -111,7 +111,7 @@ export const TaskMenu = ({ files, libraryId, totalTasksCount, statusCounts }: Ta
               onClick={() => dropDialogRef.current?.showModal()}
               disabled={pendingCount === 0 || isPending}
             >
-              {isPending ? <span className="loading loading-spinner loading-xs" /> : <TrashIcon className="size-4" />}
+              {isPending ? <span className="loading loading-xs loading-spinner" /> : <TrashIcon className="size-4" />}
               <span>drop {pendingCount} pending tasks</span>
             </button>
           </div>

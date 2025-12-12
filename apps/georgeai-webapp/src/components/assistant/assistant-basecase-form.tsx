@@ -121,7 +121,7 @@ export const AssistantBasecaseForm = ({ assistant }: AssistantBaseCaseFormProps)
       <p className="text-base-content/50">{t('labels.behavior')}</p>
       <input type="hidden" name="assistantId" value={assistant.id} />
       {assistant.baseCases.map((baseCase, index) => (
-        <div key={baseCase.id} className="border-base-content/20 flex flex-col gap-2 border-b pb-2">
+        <div key={baseCase.id} className="flex flex-col gap-2 border-b border-base-content/20 pb-2">
           <input type="hidden" name="baseCasesId" value={baseCase.id || ''} />
           <input type="hidden" name="baseCasesSequence" value={baseCase.sequence || 0} />
           <Input

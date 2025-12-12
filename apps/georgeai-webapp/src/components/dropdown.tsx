@@ -33,7 +33,7 @@ export const Dropdown = ({ title, options, action, className, disabled }: Dropdo
     <div className={twMerge('text-right', className)}>
       <Menu>
         <MenuButton
-          className="focus:outline-hidden input input-sm bg-base-100 flex w-full items-center justify-between gap-4 rounded-lg px-2 py-1 text-left text-sm"
+          className="input input-sm flex w-full items-center justify-between gap-4 rounded-lg bg-base-100 px-2 py-1 text-left text-sm focus:outline-hidden"
           disabled={disabled}
         >
           {title}
@@ -42,14 +42,14 @@ export const Dropdown = ({ title, options, action, className, disabled }: Dropdo
         <MenuItems
           transition
           anchor="bottom end"
-          className="focus:outline-hidden border-base-content/25 bg-base-100 flex flex-col items-start gap-2 rounded-xl border px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] data-[closed]:scale-95 data-[closed]:opacity-0"
+          className="flex flex-col items-start gap-2 rounded-xl border border-base-content/25 bg-base-100 px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-hidden data-closed:scale-95 data-closed:opacity-0"
         >
           {options.map((item) => (
             <MenuItem key={item.id}>
               <button
                 type="button"
                 onClick={() => handleOptionClick(item)}
-                className="btn btn-ghost btn-sm flex w-full justify-start font-normal"
+                className="btn flex w-full justify-start font-normal btn-ghost btn-sm"
                 disabled={disabled}
               >
                 {item.icon && <span>{item.icon}</span>}

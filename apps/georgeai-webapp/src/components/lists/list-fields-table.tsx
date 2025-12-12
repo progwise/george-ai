@@ -165,9 +165,9 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   return (
     <div>
       {listItems.count === 0 ? (
-        <div className="border-base-300 bg-base-200 text-base-content/70 rounded-lg border p-4 text-center text-sm">
+        <div className="rounded-lg border border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70">
           {t('lists.noFilesFound')}
-          <Link to="/lists/$listId/edit" params={{ listId: list.id }} className="link link-primary ml-1">
+          <Link to="/lists/$listId/edit" params={{ listId: list.id }} className="ml-1 link link-primary">
             {t('lists.edit')}
           </Link>
         </div>
@@ -175,7 +175,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
         <>
           <div className="overflow-x-auto">
             <div
-              className="border-base-300 grid"
+              className="grid border-base-300"
               style={{
                 gridTemplateColumns: `${visibleFields.map((field) => `${(columnWidths && columnWidths[field.id]) || 150}px`).join(' ')} 60px`,
               }}
@@ -184,7 +184,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
               {visibleFields.map((field) => (
                 <div
                   key={`header-${field.id}`}
-                  className="border-base-300 bg-base-200 group relative border-b border-r text-sm"
+                  className="group relative border-r border-b border-base-300 bg-base-200 text-sm"
                   style={{
                     minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
                     width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
@@ -194,7 +194,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                   onDrop={(e) => handleFieldReorder(field.id, e)}
                 >
                   <div
-                    className="absolute left-1 top-2.5 h-full w-2 cursor-grab transition-colors before:content-['⋮⋮']"
+                    className="absolute top-2.5 left-1 h-full w-2 cursor-grab transition-colors before:content-['⋮⋮']"
                     draggable={true}
                     onDragStart={(e) => handleDragStart(field.id, e)}
                     onDragEnd={handleDragEnd}
@@ -203,11 +203,11 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                   <div className="space-y-2 p-2">
                     {/* Field header with sorting and dropdown */}
                     <div className="flex items-center justify-between gap-1">
-                      <div className="flex flex-1 items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap pl-2 hover:overflow-visible">
+                      <div className="flex flex-1 items-center gap-1 overflow-hidden pl-2 text-nowrap whitespace-nowrap hover:overflow-visible">
                         {visibleFields.find((sortableField) => sortableField.id === field.id) ? (
                           <button
                             type="button"
-                            className="hover:text-primary flex items-center gap-1"
+                            className="flex items-center gap-1 hover:text-primary"
                             aria-label={`Sort by ${field.name}`}
                             onClick={() => toggleSorting(field.id)}
                           >
@@ -231,7 +231,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                       <div className="relative">
                         <button
                           type="button"
-                          className="btn btn-ghost btn-xs opacity-100"
+                          className="btn opacity-100 btn-ghost btn-xs"
                           aria-label={`Field actions for ${field.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
@@ -254,7 +254,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
 
                   {/* Resize handle */}
                   <div
-                    className="hover:bg-primary/30 absolute right-0 top-0 h-full w-2 cursor-col-resize transition-colors"
+                    className="absolute top-0 right-0 h-full w-2 cursor-col-resize transition-colors hover:bg-primary/30"
                     style={{
                       backgroundColor: isResizing === field.id ? 'rgba(59, 130, 246, 0.5)' : 'transparent',
                       right: '-1px',
@@ -265,10 +265,10 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
               ))}
 
               {/* Add Field Header */}
-              <div className="border-base-300 bg-base-200 relative flex items-center justify-center border-b border-r text-sm">
+              <div className="relative flex items-center justify-center border-r border-b border-base-300 bg-base-200 text-sm">
                 <button
                   type="button"
-                  className="btn btn-ghost btn-sm h-full w-full rounded-none"
+                  className="btn size-full rounded-none btn-ghost btn-sm"
                   onClick={handleAddField}
                   title="Add enrichment field"
                 >
@@ -287,7 +287,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                     return (
                       <div
                         key={`${item.origin.id}-${field.id}`}
-                        className="border-base-300 hover:bg-base-100 border-b border-r p-2 text-sm"
+                        className="border-r border-b border-base-300 p-2 text-sm hover:bg-base-100"
                         style={{
                           minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
                           width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
@@ -299,25 +299,25 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               id={`${item.origin.id}-${field.id}`}
                               className={twMerge(
                                 'flex-1 overflow-hidden text-nowrap',
-                                queueStatus === 'processing' && 'text-info text-xs',
-                                queueStatus === 'pending' && 'text-info text-xs',
+                                queueStatus === 'processing' && 'text-xs text-info',
+                                queueStatus === 'pending' && 'text-xs text-info',
                                 queueStatus !== 'processing' &&
                                   queueStatus !== 'pending' &&
                                   !value &&
                                   error &&
-                                  'text-error text-xs',
+                                  'text-xs text-error',
                                 queueStatus !== 'processing' &&
                                   queueStatus !== 'pending' &&
                                   !value &&
                                   !error &&
                                   failedEnrichmentValue &&
-                                  'text-warning text-xs',
+                                  'text-xs text-warning',
                                 queueStatus !== 'processing' &&
                                   queueStatus !== 'pending' &&
                                   !value &&
                                   !error &&
                                   !failedEnrichmentValue &&
-                                  'text-base-content/40 text-xs italic',
+                                  'text-xs text-base-content/40 italic',
                               )}
                               title={error || failedEnrichmentValue || queueStatus || displayValue}
                             >
@@ -336,7 +336,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             {fieldValueData && (value || error || failedEnrichmentValue) && (
                               <button
                                 type="button"
-                                className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                                className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
                                 aria-label={t('lists.enrichment.sidePanel.viewDetails')}
                                 title={t('lists.enrichment.sidePanel.viewDetails')}
                                 onClick={(e) => {
@@ -353,7 +353,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             )}
                             <button
                               type="button"
-                              className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                              className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
                               aria-label={`Actions for ${field.name} in ${item.origin.name}`}
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -384,7 +384,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               libraryId: item.origin.libraryId,
                               fileId: item.origin.id,
                             }}
-                            className="link link-primary block overflow-hidden text-nowrap"
+                            className="block link overflow-hidden text-nowrap link-primary"
                             title={displayValue}
                           >
                             {displayValue}
@@ -394,7 +394,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             href={value.toString()}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="link link-primary block overflow-hidden text-nowrap"
+                            className="block link overflow-hidden text-nowrap link-primary"
                             title={displayValue}
                           >
                             {displayValue}
@@ -405,7 +405,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             params={{
                               libraryId: item.origin.libraryId,
                             }}
-                            className="link link-primary block overflow-hidden text-nowrap"
+                            className="block link overflow-hidden text-nowrap link-primary"
                             title={displayValue}
                           >
                             {displayValue}
@@ -417,7 +417,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             </span>
                             <button
                               type="button"
-                              className="btn btn-ghost btn-xs opacity-0 transition-opacity group-hover:opacity-100"
+                              className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
                               aria-label={t('lists.itemDetail.viewDetails')}
                               title={t('lists.itemDetail.viewDetails')}
                               onClick={(e) => {
@@ -450,7 +450,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                     // Add empty cell for "Add Field" column
                     <div
                       key={`${item.origin.id}-add-field`}
-                      className="border-base-300 border-b border-r"
+                      className="border-r border-b border-base-300"
                       style={{ width: '60px', minWidth: '60px' }}
                     />,
                   ),

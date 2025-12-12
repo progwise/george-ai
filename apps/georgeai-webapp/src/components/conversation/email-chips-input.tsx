@@ -55,16 +55,16 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
           }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="input input-sm w-full flex-grow leading-normal"
+          className="input input-sm w-full grow leading-normal"
         />
-        <button type="button" className="btn btn-ghost btn-sm border-base-content/20" onClick={handleAddEmail}>
+        <button type="button" className="btn border-base-content/20 btn-ghost btn-sm" onClick={handleAddEmail}>
           <PlusIcon />
         </button>
       </div>
-      {error && <p className="text-error text-sm">{error}</p>}
-      <div className="rounded-box border-base-300 flex flex-col gap-1 overflow-y-auto border p-1 empty:hidden">
+      {error && <p className="text-sm text-error">{error}</p>}
+      <div className="flex flex-col gap-1 overflow-y-auto rounded-box border border-base-300 p-1 empty:hidden">
         {emails.map((email) => (
-          <div key={email} className="bg-base-300 rounded-field flex items-center gap-1 px-2 py-0.5 text-sm">
+          <div key={email} className="flex items-center gap-1 rounded-field bg-base-300 px-2 py-0.5 text-sm">
             <span className="flex-1 truncate">{email}</span>
             <button
               type="button"

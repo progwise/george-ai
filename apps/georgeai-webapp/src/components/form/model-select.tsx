@@ -30,8 +30,8 @@ interface ModelSelectProps<T extends ZodRawShape> {
 const ITEMS_PER_PAGE = 20
 
 const getProviderIcon = (provider?: string) => {
-  if (provider === 'ollama') return <OllamaLogoIcon className="h-4 w-4" />
-  if (provider === 'openai') return <OpenAILogoIcon className="h-4 w-4" />
+  if (provider === 'ollama') return <OllamaLogoIcon className="size-4" />
+  if (provider === 'openai') return <OpenAILogoIcon className="size-4" />
   return null
 }
 
@@ -106,13 +106,13 @@ export const ModelSelect = <T extends ZodRawShape>({
   }
 
   return (
-    <fieldset className={twMerge('fieldset group', className)}>
+    <fieldset className={twMerge('group fieldset', className)}>
       {label && (
         <legend className="fieldset-legend flex w-full justify-between">
           <label
             className={twMerge(
-              'group-has-aria-invalid:text-error cursor-pointer',
-              (disabled || readonly) && 'text-base-content/50 cursor-default',
+              'cursor-pointer group-has-aria-invalid:text-error',
+              (disabled || readonly) && 'cursor-default text-base-content/50',
             )}
             onClick={() => {
               if (!disabled && !readonly && detailsRef.current) {
@@ -159,11 +159,11 @@ export const ModelSelect = <T extends ZodRawShape>({
         </summary>
 
         <div
-          className="dropdown-content bg-base-100 mr-4 flex max-h-96 shrink-0 flex-col shadow-md"
+          className="dropdown-content mr-4 flex max-h-96 shrink-0 flex-col bg-base-100 shadow-md"
           role="listbox"
           aria-label="Available models"
         >
-          <div className="bg-base-200 flex shrink-0 items-center gap-2 p-2">
+          <div className="flex shrink-0 items-center gap-2 bg-base-200 p-2">
             <div className="grow">
               <input
                 type="text"
@@ -181,7 +181,7 @@ export const ModelSelect = <T extends ZodRawShape>({
               {hasMore && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-ghost"
+                  className="btn btn-ghost btn-sm"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -189,17 +189,17 @@ export const ModelSelect = <T extends ZodRawShape>({
                   }}
                   disabled={isFetching}
                 >
-                  {isFetching ? <span className="loading loading-spinner loading-xs" /> : 'Load more...'}
+                  {isFetching ? <span className="loading loading-xs loading-spinner" /> : 'Load more...'}
                 </button>
               )}
             </div>
           </div>
           {isLoading ? (
             <div className="px-2 py-4 text-center">
-              <span className="loading loading-spinner loading-sm" />
+              <span className="loading loading-sm loading-spinner" />
             </div>
           ) : models.length === 0 ? (
-            <div className="text-base-content/50 px-2 py-4 text-center text-sm">No models found</div>
+            <div className="px-2 py-4 text-center text-sm text-base-content/50">No models found</div>
           ) : (
             <div className="flex flex-1 flex-wrap gap-3 overflow-y-auto p-2">
               {models.map((model) => (
@@ -210,7 +210,7 @@ export const ModelSelect = <T extends ZodRawShape>({
                     aria-label={`${model.name} (${model.provider})`}
                     aria-selected={selectedItem?.id === model.id}
                     className={twMerge(
-                      'btn btn-dash btn-xs flex items-center gap-2',
+                      'btn flex items-center gap-2 btn-dash btn-xs',
                       selectedItem?.id === model.id && 'btn-active',
                     )}
                     onClick={() => handleModelSelect(model)}

@@ -52,7 +52,7 @@ function RouteComponent() {
     selectedMarkdownFileName &&
     aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === selectedMarkdownFileName)
   return (
-    <div className="bg-base-100 flex h-full flex-col gap-2">
+    <div className="flex h-full flex-col gap-2 bg-base-100">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MarkdownFileSelector
@@ -83,11 +83,11 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="bg-base-300 rounded-box min-h-0 min-w-0 overflow-auto p-5">
+      <div className="min-h-0 min-w-0 overflow-auto rounded-box bg-base-300 p-5">
         {!markdown ? (
           <span>No markdown</span>
         ) : viewMarkdownSource ? (
-          <pre className="whitespace-pre-wrap text-sm">
+          <pre className="text-sm whitespace-pre-wrap">
             <code lang="markdown">{markdown.content || t('files.noContentAvailable')}</code>
           </pre>
         ) : (

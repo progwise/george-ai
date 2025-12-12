@@ -21,7 +21,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
   const { t } = useTranslation()
   const uploadedFile = file.sourceFiles.find((f) => f.fileName === 'upload')
   return (
-    <ul className="menu menu-xs bg-base-200 rounded-box w-xs shadow-lg">
+    <ul className="menu w-xs menu-xs rounded-box bg-base-200 shadow-lg">
       <li>
         {uploadedFile ? (
           <a href={uploadedFile.url} className="link link-hover" download={file.name}>
@@ -31,7 +31,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="h-4 w-4"
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -54,7 +54,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="h-4 w-4"
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -76,7 +76,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
                       stroke="currentColor"
-                      className="h-4 w-4"
+                      className="size-4"
                     >
                       <path
                         strokeLinecap="round"
@@ -100,7 +100,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="h-4 w-4"
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -125,7 +125,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
                       stroke="currentColor"
-                      className="h-4 w-4"
+                      className="size-4"
                     >
                       <path
                         strokeLinecap="round"

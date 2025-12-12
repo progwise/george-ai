@@ -65,7 +65,7 @@ function RouteComponent() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base-content/80 text-xl font-bold">
+          <h2 className="text-xl font-bold text-base-content/80">
             {totalCount === 1
               ? t('lists.enrichmentCount', { count: totalCount.toString() })
               : t('lists.enrichmentsCount', { count: totalCount.toString() })}
@@ -75,7 +75,7 @@ function RouteComponent() {
               <div
                 key={status}
                 className={twMerge(
-                  'badge badge-sm px-2 py-1',
+                  'badge px-2 py-1 badge-sm',
                   status === EnrichmentStatus.Processing && 'badge-primary',
                   status === EnrichmentStatus.Pending && 'badge-info',
                   status === EnrichmentStatus.Completed && 'badge-success',
@@ -92,7 +92,7 @@ function RouteComponent() {
         <div className="flex items-end gap-4">
           <div className="flex items-center gap-2">
             <select
-              className="select select-sm select-bordered h-full text-nowrap"
+              className="select h-full select-sm text-nowrap"
               value={fieldId || ''}
               onChange={(e) => {
                 const selectedFieldId = e.target.value === '*' ? undefined : e.target.value
@@ -109,7 +109,7 @@ function RouteComponent() {
                 ))}
             </select>
             <select
-              className="select select-sm select-bordered h-full text-nowrap"
+              className="select h-full select-sm text-nowrap"
               value={status || ''}
               onChange={(e) => {
                 const selectedStatus = e.target.value as EnrichmentStatus | ''
@@ -147,7 +147,7 @@ function RouteComponent() {
           </div>
         </div>
       ) : (
-        <div className="join join-vertical bg-base-100 w-full">
+        <div className="join-vertical join w-full bg-base-100">
           {enrichments.map((enrichment, index) => (
             <EnrichmentAccordionItem key={enrichment.id} enrichment={enrichment} index={index} />
           ))}

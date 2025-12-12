@@ -24,9 +24,9 @@ export const AssistantIcon = ({ assistant, className }: AssistantIconProps): Rea
 
     return (
       <div className={twMerge('avatar', className)}>
-        <div className="h-full w-full rounded-full">
+        <div className="size-full rounded-full">
           <img
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             src={iconSrc}
             alt={assistant.name}
             onError={() => setImageError(true)}
@@ -37,7 +37,7 @@ export const AssistantIcon = ({ assistant, className }: AssistantIconProps): Rea
   } else {
     return (
       <div className={twMerge('avatar avatar-placeholder', className)}>
-        <div className="bg-secondary text-secondary-content flex h-full w-full items-center justify-center rounded-full">
+        <div className="flex size-full items-center justify-center rounded-full bg-secondary text-secondary-content">
           <BotIcon className="size-6 text-current" />
         </div>
       </div>

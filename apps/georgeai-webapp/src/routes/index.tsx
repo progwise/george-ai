@@ -53,7 +53,7 @@ const Home = () => {
               <Link
                 key={queue.queueType}
                 to="/admin/queues"
-                className="stats min-w-[200px] flex-1 shadow transition-shadow hover:shadow-lg"
+                className="stats min-w-[200px] flex-1 shadow-sm transition-shadow hover:shadow-lg"
               >
                 {queueCard}
               </Link>
@@ -61,7 +61,7 @@ const Home = () => {
           }
 
           return (
-            <div key={queue.queueType} className="stats min-w-[200px] flex-1 shadow">
+            <div key={queue.queueType} className="stats min-w-[200px] flex-1 shadow-sm">
               {queueCard}
             </div>
           )
@@ -88,7 +88,7 @@ const Home = () => {
               <Link
                 key={instance.name}
                 to="/admin/ai-services"
-                className="stats min-w-[200px] flex-1 shadow transition-shadow hover:shadow-lg"
+                className="stats min-w-50 flex-1 shadow-sm transition-shadow hover:shadow-lg"
               >
                 {instanceCard}
               </Link>
@@ -96,7 +96,7 @@ const Home = () => {
           }
 
           return (
-            <div key={instance.name} className="stats min-w-[200px] flex-1 shadow">
+            <div key={instance.name} className="stats min-w-50 flex-1 shadow-sm">
               {instanceCard}
             </div>
           )
@@ -104,15 +104,14 @@ const Home = () => {
       </div>
 
       {/* Tabs for all entities */}
-      <div role="tablist" className="tabs tabs-lift">
-        <button
-          type="button"
+      <div role="tablist" className="tabs-lift tabs">
+        <a
           role="tab"
           className={`tab ${activeTab === 'libraries' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('libraries')}
         >
           {t('dashboard.tabs.libraries')} ({data.aiLibraries.length})
-        </button>
+        </a>
         <button
           type="button"
           role="tab"
@@ -139,7 +138,7 @@ const Home = () => {
         </button>
 
         <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content bg-base-100 border-base-300 border p-6">
+        <div className="tab-content border border-base-300 bg-base-100 p-6">
           {/* Libraries Tab */}
           {activeTab === 'libraries' && (
             <div>
@@ -148,7 +147,7 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => newLibraryDialogRef.current?.showModal()}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm btn-primary"
                   title={t('libraries.addNewButton')}
                   aria-label={t('libraries.addNewButton')}
                 >
@@ -163,14 +162,14 @@ const Home = () => {
                       <Link
                         to="/libraries/$libraryId"
                         params={{ libraryId: library.id }}
-                        className="hover:bg-base-200 flex items-center justify-between rounded p-3 transition-colors"
+                        className="flex items-center justify-between rounded-sm p-3 transition-colors hover:bg-base-200"
                       >
                         <span className="truncate font-medium">{library.name}</span>
                         <div className="flex items-center gap-3">
                           <span className="badge badge-sm">
                             {t('dashboard.labels.files', { count: library.filesCount })}
                           </span>
-                          <span className="text-base-content/50 text-sm">
+                          <span className="text-sm text-base-content/50">
                             <ClientDate date={library.updatedAt} format="date" />
                           </span>
                         </div>
@@ -192,7 +191,7 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => newListDialogRef.current?.showModal()}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm btn-primary"
                   title={t('lists.createListButtonText')}
                   aria-label={t('lists.createListButtonText')}
                 >
@@ -207,10 +206,10 @@ const Home = () => {
                       <Link
                         to="/lists/$listId"
                         params={{ listId: list.id }}
-                        className="hover:bg-base-200 flex items-center justify-between rounded p-3 transition-colors"
+                        className="flex items-center justify-between rounded-sm p-3 transition-colors hover:bg-base-200"
                       >
                         <span className="truncate font-medium">{list.name}</span>
-                        <span className="text-base-content/50 text-sm">
+                        <span className="text-sm text-base-content/50">
                           {list.owner.id === userId ? t('dashboard.status.owned') : t('dashboard.status.shared')}
                         </span>
                       </Link>
@@ -233,12 +232,12 @@ const Home = () => {
                       <Link
                         to="/conversations/$conversationId"
                         params={{ conversationId: conversation.id }}
-                        className="hover:bg-base-200 flex items-center justify-between rounded p-3 transition-colors"
+                        className="flex items-center justify-between rounded-sm p-3 transition-colors hover:bg-base-200"
                       >
                         <span className="truncate font-medium">
                           {t('dashboard.labels.conversationWith', { name: conversation.owner.name || 'Unknown' })}
                         </span>
-                        <span className="text-base-content/50 text-sm">
+                        <span className="text-sm text-base-content/50">
                           <ClientDate date={conversation.updatedAt || conversation.createdAt} format="date" />
                         </span>
                       </Link>
@@ -259,7 +258,7 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => newAssistantDialogRef.current?.showModal()}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm btn-primary"
                   title={t('assistants.addNewButton')}
                   aria-label={t('assistants.addNewButton')}
                 >
@@ -274,7 +273,7 @@ const Home = () => {
                       <Link
                         to="/assistants/$assistantId"
                         params={{ assistantId: assistant.id }}
-                        className="hover:bg-base-200 flex items-center justify-between rounded p-3 transition-colors"
+                        className="flex items-center justify-between rounded-sm p-3 transition-colors hover:bg-base-200"
                       >
                         <span className="truncate font-medium">{assistant.name}</span>
                       </Link>

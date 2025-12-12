@@ -45,11 +45,11 @@ function RouteComponent() {
 
   return (
     <div className="mt-6 space-y-6">
-      <h1 className="text-base-content/60 text-2xl font-bold">{t('lists.statistics.title', { name: aiList.name })}</h1>
+      <h1 className="text-2xl font-bold text-base-content/60">{t('lists.statistics.title', { name: aiList.name })}</h1>
 
       {/* Item Summary */}
       <div className="flex flex-wrap gap-2">
-        <div className="badge badge-lg badge-ghost">
+        <div className="badge badge-ghost badge-lg">
           {t('lists.statistics.totalItems')}: {totalItems}
         </div>
         <div className="badge badge-lg">
@@ -70,7 +70,7 @@ function RouteComponent() {
 
       {/* Data Quality Summary Visualization */}
       <div>
-        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.dataQualitySummary')}</h2>
+        <h2 className="mb-3 text-lg font-semibold text-base-content/60">{t('lists.statistics.dataQualitySummary')}</h2>
         <div className="rounded-box bg-base-200 p-4">
           <StackedDataQualityBar
             data={{
@@ -86,16 +86,16 @@ function RouteComponent() {
 
       {/* Data Quality Table */}
       <div>
-        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.dataQuality')}</h2>
+        <h2 className="mb-3 text-lg font-semibold text-base-content/60">{t('lists.statistics.dataQuality')}</h2>
         <div className="overflow-x-auto">
-          <table className="table-zebra table w-full">
+          <table className="table w-full table-zebra">
             <thead>
               <tr>
                 <th className="w-48">{t('lists.statistics.fieldName')}</th>
                 <th className="w-20 text-center">{t('lists.statistics.items')}</th>
-                <th className="text-success w-20 text-center">{t('lists.statistics.enriched')}</th>
-                <th className="text-warning w-20 text-center">{t('lists.statistics.missing')}</th>
-                <th className="text-base-content/50 w-28 text-center">{t('lists.statistics.notProcessed')}</th>
+                <th className="w-20 text-center text-success">{t('lists.statistics.enriched')}</th>
+                <th className="w-20 text-center text-warning">{t('lists.statistics.missing')}</th>
+                <th className="w-28 text-center text-base-content/50">{t('lists.statistics.notProcessed')}</th>
                 <th className="text-center">{t('lists.statistics.distribution')}</th>
               </tr>
             </thead>
@@ -151,19 +151,19 @@ function RouteComponent() {
 
       {/* Processing History Table */}
       <div>
-        <h2 className="text-base-content/60 mb-3 text-lg font-semibold">{t('lists.statistics.processingHistory')}</h2>
+        <h2 className="mb-3 text-lg font-semibold text-base-content/60">{t('lists.statistics.processingHistory')}</h2>
         <div className="overflow-x-auto">
-          <table className="table-zebra table w-full">
+          <table className="table w-full table-zebra">
             <thead>
               <tr>
                 <th>{t('lists.statistics.fieldName')}</th>
                 <th className="text-center">{t('lists.statistics.totalTasks')}</th>
                 <th className="text-center">{t('lists.statistics.averageDuration')}</th>
 
-                <th className="text-success text-center">{t('lists.statistics.completed')}</th>
-                <th className="text-error text-center">{t('lists.statistics.errors')}</th>
-                <th className="text-primary text-center">{t('lists.statistics.running')}</th>
-                <th className="text-secondary text-center">{t('lists.statistics.queued')}</th>
+                <th className="text-center text-success">{t('lists.statistics.completed')}</th>
+                <th className="text-center text-error">{t('lists.statistics.errors')}</th>
+                <th className="text-center text-primary">{t('lists.statistics.running')}</th>
+                <th className="text-center text-secondary">{t('lists.statistics.queued')}</th>
               </tr>
             </thead>
             <tbody>

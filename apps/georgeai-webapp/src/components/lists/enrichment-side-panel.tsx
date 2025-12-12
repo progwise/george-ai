@@ -127,7 +127,7 @@ export const EnrichmentSidePanel = ({
       {/* Side Panel */}
       <div
         className={twMerge(
-          'bg-base-100 fixed right-0 top-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
@@ -135,12 +135,12 @@ export const EnrichmentSidePanel = ({
         aria-label={`Enrichment details for ${fieldName}`}
       >
         {/* Header */}
-        <div className="border-base-300 flex shrink-0 items-center justify-between border-b p-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-lg font-semibold" title={fieldName}>
               {fieldName}
             </h3>
-            <p className="text-base-content/60 truncate text-sm" title={fileName}>
+            <p className="truncate text-sm text-base-content/60" title={fileName}>
               {fileName}
             </p>
           </div>
@@ -153,7 +153,7 @@ export const EnrichmentSidePanel = ({
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <span className="loading loading-spinner loading-md" />
+              <span className="loading loading-md loading-spinner" />
               <span className="ml-2">{t('lists.enrichment.sidePanel.loading')}</span>
             </div>
           ) : (
@@ -161,7 +161,7 @@ export const EnrichmentSidePanel = ({
               {/* Value Section */}
               <section aria-label={t('lists.enrichment.sidePanel.value')}>
                 <h4 className="mb-2 font-semibold">{t('lists.enrichment.sidePanel.value')}</h4>
-                <div className="bg-base-200 rounded-lg p-3">
+                <div className="rounded-lg bg-base-200 p-3">
                   {error ? (
                     <div className="text-error">
                       <span className="font-semibold">❌ {t('lists.enrichment.error')}</span>
@@ -178,7 +178,7 @@ export const EnrichmentSidePanel = ({
                         <FormattedMarkdown markdown={displayValue} />
                       </div>
                     ) : (
-                      <p className="text-base-content whitespace-pre-wrap">{displayValue}</p>
+                      <p className="whitespace-pre-wrap text-base-content">{displayValue}</p>
                     )
                   ) : (
                     <p className="text-base-content/50 italic">{t('lists.enrichment.notEnriched')}</p>
@@ -190,7 +190,7 @@ export const EnrichmentSidePanel = ({
               {enrichment && (
                 <section aria-label={t('lists.enrichment.sidePanel.metadata')}>
                   <h4 className="mb-2 font-semibold">{t('lists.enrichment.sidePanel.metadata')}</h4>
-                  <div className="bg-base-200 space-y-2 rounded-lg p-3 text-sm">
+                  <div className="space-y-2 rounded-lg bg-base-200 p-3 text-sm">
                     <div className="flex justify-between">
                       <span className="text-base-content/60">{t('lists.enrichment.sidePanel.status')}</span>
                       <span
@@ -234,7 +234,7 @@ export const EnrichmentSidePanel = ({
               {processingData?.output?.issues && processingData.output.issues.length > 0 && (
                 <section aria-label={t('lists.enrichment.sidePanel.issues')}>
                   <h4 className="mb-2 font-semibold">{t('lists.enrichment.sidePanel.issues')}</h4>
-                  <div className="bg-warning/10 rounded-lg p-3">
+                  <div className="rounded-lg bg-warning/10 p-3">
                     <ul className="list-inside list-disc text-sm">
                       {processingData.output.issues.map((issue: string) => (
                         <li key={issue}>{issue}</li>
@@ -250,14 +250,14 @@ export const EnrichmentSidePanel = ({
 
                 {/* Field References */}
                 {processingData?.input?.contextFields && processingData.input.contextFields.length > 0 && (
-                  <div className="bg-base-200 mb-2 rounded-lg p-3">
-                    <h5 className="text-base-content/70 mb-2 text-xs font-semibold uppercase">
+                  <div className="mb-2 rounded-lg bg-base-200 p-3">
+                    <h5 className="mb-2 text-xs font-semibold text-base-content/70 uppercase">
                       {t('lists.enrichment.sidePanel.fieldReferences')}
                     </h5>
                     <div className="space-y-2 text-sm">
                       {processingData.input.contextFields.map(
                         (ctx: { fieldId: string; fieldName: string; value: string | null }) => (
-                          <div key={ctx.fieldId} className="border-base-300 border-l-2 pl-2">
+                          <div key={ctx.fieldId} className="border-l-2 border-base-300 pl-2">
                             <span className="text-base-content/60">{ctx.fieldName}:</span>
                             <span className="ml-2">{ctx.value || '-'}</span>
                           </div>
@@ -269,14 +269,14 @@ export const EnrichmentSidePanel = ({
 
                 {/* Vector Search Results */}
                 {processingData?.output?.similarChunks && processingData.output.similarChunks.length > 0 && (
-                  <div className="bg-base-200 mb-2 rounded-lg p-3">
-                    <h5 className="text-base-content/70 mb-2 text-xs font-semibold uppercase">
+                  <div className="mb-2 rounded-lg bg-base-200 p-3">
+                    <h5 className="mb-2 text-xs font-semibold text-base-content/70 uppercase">
                       {t('lists.enrichment.sidePanel.similarChunks')}
                     </h5>
                     <div className="space-y-2 text-sm">
                       {processingData.output.similarChunks.map(
                         (chunk: { id: string; fileName: string; fileId: string; text: string; distance: number }) => (
-                          <div key={chunk.id} className="border-base-300 border-l-2 pl-2">
+                          <div key={chunk.id} className="border-l-2 border-base-300 pl-2">
                             <div className="flex items-center justify-between">
                               <Link
                                 to="/libraries/$libraryId/files/$fileId"
@@ -284,15 +284,15 @@ export const EnrichmentSidePanel = ({
                                   libraryId: processingData.input?.libraryId || '',
                                   fileId: chunk.fileId,
                                 }}
-                                className="link link-primary text-xs"
+                                className="link text-xs link-primary"
                               >
                                 {chunk.fileName}
                               </Link>
-                              <span className="text-base-content/50 text-xs">
+                              <span className="text-xs text-base-content/50">
                                 {t('lists.enrichment.sidePanel.distance')}: {chunk.distance.toFixed(3)}
                               </span>
                             </div>
-                            <p className="text-base-content/70 mt-1 line-clamp-3 text-xs">{chunk.text}</p>
+                            <p className="mt-1 line-clamp-3 text-xs text-base-content/70">{chunk.text}</p>
                           </div>
                         ),
                       )}
@@ -303,8 +303,8 @@ export const EnrichmentSidePanel = ({
                 {/* No Context */}
                 {(!processingData?.input?.contextFields || processingData.input.contextFields.length === 0) &&
                   (!processingData?.output?.similarChunks || processingData.output.similarChunks.length === 0) && (
-                    <div className="bg-base-200 rounded-lg p-3">
-                      <p className="text-base-content/50 text-sm italic">{t('lists.enrichment.sidePanel.noContext')}</p>
+                    <div className="rounded-lg bg-base-200 p-3">
+                      <p className="text-sm text-base-content/50 italic">{t('lists.enrichment.sidePanel.noContext')}</p>
                     </div>
                   )}
               </section>
@@ -313,8 +313,8 @@ export const EnrichmentSidePanel = ({
               {processingData?.input?.aiGenerationPrompt && (
                 <section aria-label={t('lists.enrichment.sidePanel.promptSentToLlm')}>
                   <h4 className="mb-2 font-semibold">{t('lists.enrichment.sidePanel.promptSentToLlm')}</h4>
-                  <div className="bg-base-200 rounded-lg p-3">
-                    <pre className="text-base-content/80 max-h-40 overflow-auto whitespace-pre-wrap text-xs">
+                  <div className="rounded-lg bg-base-200 p-3">
+                    <pre className="max-h-40 overflow-auto text-xs whitespace-pre-wrap text-base-content/80">
                       {processingData.input.aiGenerationPrompt}
                     </pre>
                   </div>
@@ -325,10 +325,10 @@ export const EnrichmentSidePanel = ({
         </div>
 
         {/* Actions - fixed at bottom */}
-        <div className="border-base-300 flex shrink-0 gap-2 border-t p-4">
+        <div className="flex shrink-0 gap-2 border-t border-base-300 p-4">
           <button
             type="button"
-            className="btn btn-sm btn-ghost"
+            className="btn btn-ghost btn-sm"
             onClick={handleCopy}
             disabled={!displayValue}
             aria-label={t('lists.enrichment.sidePanel.copy')}
@@ -339,7 +339,7 @@ export const EnrichmentSidePanel = ({
           <div className="flex-1" />
           <button
             type="button"
-            className="btn btn-sm btn-ghost text-error"
+            className="btn text-error btn-ghost btn-sm"
             onClick={handleClear}
             disabled={actionsPending || (!value && !error && !failedEnrichmentValue)}
             aria-label={t('lists.enrichment.sidePanel.clear')}

@@ -46,7 +46,7 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
           }
         }}
       >
-        <FolderIcon className="h-5 w-5" />
+        <FolderIcon className="size-5" />
         {t('libraries.googleDrive')}
       </button>
       <PortalDialog
@@ -56,7 +56,7 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
       >
         <button
           type="button"
-          className="btn btn-ghost btn-sm absolute right-2 top-2"
+          className="btn absolute top-2 right-2 btn-ghost btn-sm"
           onClick={() => dialogRef.current?.close()}
         >
           <CrossIcon />

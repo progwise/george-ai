@@ -151,7 +151,7 @@ export const ConversationParticipants = ({
                         updatedAt: participant.assistant?.updatedAt || '',
                         ownerId: '',
                       }}
-                      className="h-full w-full"
+                      className="size-full"
                     />
                   </div>
                 ) : (
@@ -175,7 +175,7 @@ export const ConversationParticipants = ({
 
               {isParticipantOwner && (
                 <div
-                  className="tooltip tooltip-bottom absolute -right-0.5 -top-0.5"
+                  className="tooltip absolute tooltip-bottom -top-0.5 -right-0.5"
                   data-tip={t('conversations.owner')}
                 >
                   <OwnerIcon className="size-4" />
@@ -185,11 +185,11 @@ export const ConversationParticipants = ({
               {canRemove && (
                 <button
                   type="button"
-                  className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
+                  className="tooltip absolute tooltip-bottom -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-error ring-2 ring-base-100 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
                   onClick={(event) => handleRemoveParticipant(event, participant.id, participant.name || 'Unknown')}
                 >
-                  <CrossIcon className="text-error-content size-2" />
+                  <CrossIcon className="size-2 text-error-content" />
                 </button>
               )}
             </div>
@@ -198,15 +198,15 @@ export const ConversationParticipants = ({
 
         {/* Remaining participants */}
         {remainingCount > 0 && (
-          <div className="dropdown dropdown-hover dropdown-end relative transition-transform">
+          <div className="dropdown-hover dropdown relative dropdown-end transition-transform">
             <div
               tabIndex={0}
               role="button"
-              className="bg-neutral text-neutral-content border-base-content hover:bg-neutral-focus flex size-8 cursor-pointer items-center justify-center rounded-full border"
+              className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-base-content bg-neutral text-neutral-content hover:bg-neutral-400"
             >
               <span className="text-xs font-medium">+{remainingCount}</span>
             </div>
-            <div className="dropdown-content relative z-[1] mt-2 w-64">
+            <div className="dropdown-content relative z-1 mt-2 w-64">
               <DropdownContent>
                 <ConversationParticipantsViewer
                   participants={conversation.participants}

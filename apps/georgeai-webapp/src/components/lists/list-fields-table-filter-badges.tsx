@@ -11,11 +11,11 @@ export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: Li
   return (
     <div className="flex flex-row flex-wrap gap-2 p-2">
       {selectedItem && (
-        <div key={selectedItem.id} className="badge badge-outline badge-accent font-semibold">
+        <div key={selectedItem.id} className="badge badge-outline font-semibold badge-accent">
           <span>Selected Item:</span>
-          <span className="badge badge-xs badge-accent ml-1 text-nowrap">
+          <span className="ml-1 badge badge-xs text-nowrap badge-accent">
             {selectedItem.name ? `"${selectedItem.name}"` : selectedItem.id}
-            <button type="button" className="btn-xs btn-circle btn-ghost" onClick={() => removeSelectedItem()}>
+            <button type="button" className="btn-circle btn-ghost btn-xs" onClick={() => removeSelectedItem()}>
               ✕
             </button>
           </span>
@@ -24,12 +24,12 @@ export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: Li
       {fields
         .filter((field) => filters.some((filter) => filter.fieldId === field.id))
         .map((field) => (
-          <div key={field.id} className="badge badge-outline badge-accent font-semibold">
+          <div key={field.id} className="badge badge-outline font-semibold badge-accent">
             <span>{field.name}</span>:
             {filters
               .filter((filter) => filter.fieldId === field.id)
               .map((filter) => (
-                <span key={filter.filterType} className="badge badge-xs badge-accent ml-1 text-nowrap">
+                <span key={filter.filterType} className="ml-1 badge badge-xs text-nowrap badge-accent">
                   {filter.filterType === 'equals' && `= "${filter.value}"`}
                   {filter.filterType === 'starts_with' && `starts with "${filter.value}"`}
                   {filter.filterType === 'ends_with' && `ends with "${filter.value}"`}
@@ -39,14 +39,14 @@ export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: Li
                   {filter.filterType === 'is_not_empty' && `is not empty`}
                   <button
                     type="button"
-                    className="btn-xs btn-circle btn-ghost"
+                    className="btn-circle btn-ghost btn-xs"
                     onClick={() => removeFilter(filter.fieldId, filter.filterType)}
                   >
                     ✕
                   </button>
                 </span>
               ))}
-            <button type="button" className="button" onClick={() => clearFieldFilters(field.id)}>
+            <button type="button" className="btn" onClick={() => clearFieldFilters(field.id)}>
               x
             </button>
           </div>

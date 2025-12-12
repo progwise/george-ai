@@ -1,17 +1,17 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
-@plugin "daisyui" {
+@plugin 'daisyui' {
   themes:
     light --default,
     dark --prefersdark;
 }
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
   name: 'light';
   default: true;
   --depth: 0;
   --color-primary: var(--color-blue-700);
 }
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
   name: 'dark';
   --depth: 0;
   --color-primary: var(--color-blue-500);

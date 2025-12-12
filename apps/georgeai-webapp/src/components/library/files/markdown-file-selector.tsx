@@ -68,7 +68,7 @@ export const MarkdownFileSelector = ({ file, onChange, selectedFileName }: Markd
             </form>
             <button
               type="button"
-              className="btn btn-error btn-sm"
+              className="btn btn-sm btn-error"
               onClick={() => {
                 dropOutdatedMarkdownFiles(file.id)
                 confirmDropOutdatedFilesDialog.current?.close()
@@ -83,7 +83,7 @@ export const MarkdownFileSelector = ({ file, onChange, selectedFileName }: Markd
         </form>
       </dialog>
 
-      <ul className="menu menu-horizontal menu-xs z-49 border-base-content/20 items-center rounded-full border py-0">
+      <ul className="menu menu-horizontal z-49 items-center menu-xs rounded-full border border-base-content/20 py-0">
         <li>
           <details ref={detailsRef}>
             <summary>{selectedFileName || 'Select a file'}</summary>

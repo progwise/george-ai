@@ -34,19 +34,19 @@ function RouteComponent() {
   }
 
   return (
-    <div className="bg-base-100 flex min-h-screen items-start justify-center pt-32">
+    <div className="flex min-h-screen items-start justify-center bg-base-100 pt-32">
       <div className="max-w-md space-y-8 p-8 text-center">
         <div className="mx-auto flex flex-col items-center">
           <BowlerLogoIcon className="size-32" gradientColors={['#1d4ed8', '#d946ef']} />
         </div>
         <div className="space-y-4">
-          <h1 className="text-base-content text-5xl font-bold">George-AI</h1>
+          <h1 className="text-5xl font-bold text-base-content">George-AI</h1>
         </div>
         <button
           type="button"
           onClick={handleLogin}
           disabled={!isReady}
-          className="btn btn-lg btn-wide from-primary to-secondary hover:from-primary-focus hover:to-secondary-focus border-0 bg-gradient-to-r text-white"
+          className="btn btn-wide border-0 bg-linear-to-r from-primary to-secondary text-white transition duration-500 btn-lg hover:from-secondary hover:to-primary"
         >
           {t('welcome.signIn')}
         </button>

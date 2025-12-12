@@ -23,7 +23,7 @@ export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialog
   return (
     <>
       <button type="button" onClick={() => dialogRef.current?.showModal()} disabled={totalItems === 0}>
-        <TrashIcon className="h-5 w-5" />
+        <TrashIcon className="size-5" />
         {textOfDropButton}
       </button>
 

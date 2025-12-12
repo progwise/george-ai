@@ -30,7 +30,7 @@ function RouteComponent() {
       <div>
         <LibraryMenu library={aiLibrary} selectableLibraries={aiLibraries} />
       </div>
-      <div role="tablist" className="tabs tabs-lift justify-end">
+      <div role="tablist" className="tabs-lift tabs justify-end">
         <a className="tab tab-disabled flex-1 cursor-default text-center">
           {/* Placeholder empty tab for filling up the line... */}
         </a>
@@ -95,7 +95,7 @@ function RouteComponent() {
           {t('labels.updates')}
         </Link>
       </div>
-      <div className="bg-base-100 min-h-0 w-full p-3">
+      <div className="min-h-0 w-full bg-base-100 p-3">
         <Outlet />
       </div>
     </div>

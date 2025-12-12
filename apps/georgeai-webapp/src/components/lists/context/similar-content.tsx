@@ -39,7 +39,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
 
   return (
     <div className="space-y-4">
-      <p className="text-base-content/60 text-sm">{t('lists.contextSources.similarContentHelp')}</p>
+      <p className="text-sm text-base-content/60">{t('lists.contextSources.similarContentHelp')}</p>
 
       {/* Display existing vector searches with inline editing */}
       {items.length > 0 && (
@@ -47,7 +47,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
           {items.map((search, index) => {
             const query = search.contextQuery ? JSON.parse(search.contextQuery) : {}
             return (
-              <div key={search.id} className="bg-base-200 rounded p-3">
+              <div key={search.id} className="rounded-sm bg-base-200 p-3">
                 <input type="hidden" name={`vectorSearch_id_${index}`} value={search.id} />
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">
@@ -55,7 +55,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                   </span>
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs text-error"
+                    className="btn text-error btn-ghost btn-xs"
                     onClick={() => {
                       setItems((prevItems) => prevItems.filter((_, i) => i !== index))
                     }}
@@ -126,7 +126,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
       {/* Add new vector searches */}
       <div className="space-y-2">
         {newItems.map((itemId, newIndex) => (
-          <div key={itemId} className="border-base-300 bg-base-100 rounded border p-4">
+          <div key={itemId} className="rounded-sm border border-base-300 bg-base-100 p-4">
             <div className="mb-3 flex items-center justify-between">
               <h4 className="text-sm font-medium">
                 {newIndex === 0
@@ -136,7 +136,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
               {newItems.length > 1 && (
                 <button
                   type="button"
-                  className="btn btn-ghost btn-xs text-error"
+                  className="btn text-error btn-ghost btn-xs"
                   onClick={() => removeNewItem(newIndex)}
                 >
                   {t('actions.delete')}
@@ -156,7 +156,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                   aria-label={t('lists.contextSources.queryTemplate')}
                 />
                 {newIndex === 0 && (
-                  <p className="text-base-content/60 mt-1 text-xs">{t('lists.contextSources.templateHelp')}</p>
+                  <p className="mt-1 text-xs text-base-content/60">{t('lists.contextSources.templateHelp')}</p>
                 )}
               </div>
 
@@ -210,13 +210,13 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
             </div>
           </div>
         ))}
-        <button type="button" className="btn btn-ghost btn-sm w-full" onClick={addNewItem}>
+        <button type="button" className="btn w-full btn-ghost btn-sm" onClick={addNewItem}>
           + {t('lists.contextSources.addVectorSearch')}
         </button>
       </div>
 
       {vectorSearches.length === 0 && (
-        <p className="text-base-content/50 py-2 text-center text-sm">{t('lists.contextSources.noVectorSearches')}</p>
+        <p className="py-2 text-center text-sm text-base-content/50">{t('lists.contextSources.noVectorSearches')}</p>
       )}
     </div>
   )

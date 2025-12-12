@@ -90,7 +90,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col items-center justify-center gap-1">
       <div className="text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary btn-sm" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
+      <button className="btn btn-sm btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
         {redirectUrlQuery ? 'Start Google Login' : 'Loading...'}
       </button>
     </div>

@@ -79,13 +79,13 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
   return (
     <div
       ref={dropdownRef}
-      className="bg-base-100 border-base-300 absolute right-0 top-full z-[9999] mt-1 w-60 rounded-lg border shadow-lg"
+      className="absolute top-full right-0 z-9999 mt-1 w-60 rounded-lg border border-base-300 bg-base-100 shadow-lg"
     >
       <div className="py-2">
         {canEnrich && (
           <>
-            <div className="border-base-300 border-b px-3">
-              <div className="text-base-content/60 mb-1 text-xs font-semibold uppercase">
+            <div className="border-b border-base-300 px-3">
+              <div className="mb-1 text-xs font-semibold text-base-content/60 uppercase">
                 {field.pendingItemsCount > 0 || field.processingItemsCount > 0 ? (
                   <div className="flex items-center gap-2">
                     <div className="loading loading-ring text-primary"></div>
@@ -100,7 +100,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
                 )}
               </div>
             </div>
-            <div className="border-base-300 border-b">
+            <div className="border-b border-base-300">
               <EnrichmentControls
                 listId={field.listId}
                 fieldId={field.id}
@@ -112,7 +112,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
         {canEdit && (
           <button
             type="button"
-            className="hover:bg-base-200 flex w-full items-center px-4 py-2 text-sm transition-colors"
+            className="flex w-full items-center px-4 py-2 text-sm transition-colors hover:bg-base-200"
             aria-label={`Edit field ${field.name}`}
             onClick={handleEdit}
           >
@@ -125,7 +125,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
           <button
             type="button"
             className={`flex w-full items-center px-4 py-2 text-sm transition-colors ${
-              isConfirmingDelete ? 'text-error bg-error/10 hover:bg-error/20' : 'hover:bg-base-200 text-base-content'
+              isConfirmingDelete ? 'bg-error/10 text-error hover:bg-error/20' : 'text-base-content hover:bg-base-200'
             }`}
             aria-label={isConfirmingDelete ? `Confirm delete field ${field.name}` : `Delete field ${field.name}`}
             onClick={handleDelete}
@@ -133,7 +133,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
           >
             {removeFieldMutation.isPending ? (
               <>
-                <span className="loading loading-spinner loading-sm mr-2" />
+                <span className="loading mr-2 loading-sm loading-spinner" />
                 {t('lists.fields.deleting')}
               </>
             ) : (
@@ -146,7 +146,7 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
         )}
 
         {!canEdit && !canDelete && !canEnrich && (
-          <div className="text-base-content/60 px-4 py-2 text-sm">{t('lists.fields.filePropertyReadOnly')}</div>
+          <div className="px-4 py-2 text-sm text-base-content/60">{t('lists.fields.filePropertyReadOnly')}</div>
         )}
       </div>
     </div>

@@ -5,7 +5,7 @@ import { formatDuration } from '@george-ai/web-utils'
 import { useNow } from '../../../hooks/use-now'
 
 export const StopWatch = ({ start, refreshMs, format }: { start: Date; refreshMs: number; format: 'text' | 'lcd' }) => {
-  const { now } = useNow(1000)
+  const { now } = useNow()
   const [elapsedTime, setElapsedTime] = useState(now - start.getTime())
 
   useEffect(() => {

@@ -49,7 +49,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
 
   // Show loading skeleton while fetching workspaces
   if (isLoading) {
-    return <div className="skeleton h-9 w-32" />
+    return <div className="h-9 w-32 skeleton" />
   }
 
   // Hide if no workspaces available
@@ -66,14 +66,14 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
       <ul className="menu menu-horizontal items-center gap-2">
         <li>
           <details ref={detailsRef} aria-label={t('workspace.selectWorkspace')}>
-            <summary className="btn btn-ghost btn-sm max-w-52 gap-1 truncate p-2 text-sm font-normal normal-case">
+            <summary className="btn max-w-52 gap-1 truncate p-2 text-sm font-normal normal-case btn-ghost btn-sm">
               {currentWorkspace?.name ?? t('workspace.noWorkspaceSelected')}
             </summary>
             <ul role="listbox" className="right-0 max-h-96 overflow-y-auto p-2">
               {workspaces.map((workspace: { id: string; name: string; isDefault: boolean }) => (
                 <li
                   key={workspace.id}
-                  className="hover:bg-base-200 cursor-pointer"
+                  className="cursor-pointer hover:bg-base-200"
                   role="option"
                   tabIndex={0}
                   aria-selected={currentWorkspace?.id === workspace.id}
@@ -94,7 +94,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
           <button
             type="button"
             onClick={() => membersDialogRef.current?.showModal()}
-            className="btn btn-xs btn-square btn-ghost tooltip tooltip-bottom"
+            className="tooltip btn tooltip-bottom btn-square btn-ghost btn-xs"
             data-tip={t('workspace.members.title')}
             aria-label={t('workspace.members.title')}
           >
@@ -105,7 +105,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
           <button
             type="button"
             onClick={() => createDialogRef.current?.showModal()}
-            className="btn btn-xs btn-square btn-ghost tooltip tooltip-bottom"
+            className="tooltip btn tooltip-bottom btn-square btn-ghost btn-xs"
             data-tip={t('workspace.createLong')}
             aria-label={t('workspace.createTitle')}
           >
@@ -118,7 +118,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
             <button
               type="button"
               onClick={handleDeleteWorkspaceClick}
-              className="btn btn-xs btn-square btn-ghost tooltip tooltip-bottom text-error hover:bg-error hover:text-error-content"
+              className="tooltip btn tooltip-bottom btn-square text-error btn-ghost btn-xs hover:bg-error hover:text-error-content"
               data-tip={t('workspace.deleteTitle')}
               aria-label={t('workspace.deleteTitle')}
             >

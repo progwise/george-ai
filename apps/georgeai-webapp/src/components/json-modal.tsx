@@ -23,7 +23,7 @@ export const ObjectBranch = (props: { title: string; path: string[]; data: objec
         <button type="button" onClick={() => setIsOpen((prev) => !prev)} className="btn btn-ghost btn-xs">
           {isOpen ? '▼' : '▶'}
         </button>
-        <div className="border-base-content/20 flex justify-between border-b border-dotted">
+        <div className="flex justify-between border-b border-dotted border-base-content/20">
           <div className="flex items-center gap-2">
             <ObjectIcon className="size-4" />
             {title}
@@ -57,7 +57,7 @@ export const ArrayBranch = (props: { title: string; path: string[]; data: Array<
         <button type="button" onClick={() => setIsOpen((prev) => !prev)} className="btn btn-ghost btn-xs">
           {isOpen ? '▼' : '▶'}
         </button>
-        <div className="border-base-content/20 flex justify-between border-b border-dotted">
+        <div className="flex justify-between border-b border-dotted border-base-content/20">
           <div className="flex items-center gap-2">
             <ArrayIcon className="size-4" />
             {title}
@@ -93,7 +93,7 @@ export const Branch = ({ title, path, data }: { title: string; path: string[]; d
   return (
     <li className="max-w-full">
       <div className="ml-4 flex flex-wrap items-center gap-2 font-mono text-xs">
-        <div className="badge badge-xs badge-outline">{title}</div>
+        <div className="badge badge-outline badge-xs">{title}</div>
         <div className="max-h-50 overflow-auto overflow-x-auto">
           <pre className="whitespace-pre-line">{textValue}</pre>
         </div>
@@ -116,7 +116,7 @@ export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
           <h3 className="text-lg font-bold">{title}</h3>
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
-            <div className="tabs tabs-boxed tabs-sm">
+            <div className="tabs-box tabs tabs-sm">
               <button
                 type="button"
                 className={`tab ${viewMode === 'structured' ? 'tab-active' : ''}`}
@@ -137,10 +137,10 @@ export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
 
         {/* Status Alert */}
         {!isValidJson && (
-          <div className="alert alert-error mb-4 shrink-0">
+          <div className="mb-4 alert shrink-0 alert-error">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0 stroke-current"
+              className="size-6 shrink-0 stroke-current"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -156,15 +156,15 @@ export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
         )}
 
         {/* Content */}
-        <div className="bg-base-200 min-h-0 flex-1 overflow-auto rounded-lg p-4">
+        <div className="min-h-0 flex-1 overflow-auto rounded-lg bg-base-200 p-4">
           {viewMode === 'structured' && isValidJson ? (
-            <ul className="menu menu-sm w-full">
+            <ul className="menu w-full menu-sm">
               {Object.keys(jsonData).map((key) => (
                 <Branch key={key} title={key} data={jsonData[key]} path={[]} />
               ))}
             </ul>
           ) : (
-            <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed">
+            <pre className="overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
               {isValidJson ? JSON.stringify(jsonData, null, 2) : data}
             </pre>
           )}
@@ -173,7 +173,7 @@ export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
         {/* Footer */}
         <div className="modal-action shrink-0">
           {isValidJson && (
-            <div className="text-base-content/60 mr-auto text-sm">
+            <div className="mr-auto text-sm text-base-content/60">
               {typeof jsonData === 'object' && jsonData !== null
                 ? `${Object.keys(jsonData).length} properties`
                 : `Type: ${typeof jsonData}`}

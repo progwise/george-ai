@@ -38,7 +38,7 @@ export const GoogleFilesTable = ({
   if (viewMode === 'list') {
     return (
       <div className="overflow-x-auto">
-        <table className="table-zebra table-sm table">
+        <table className="table table-zebra table-sm">
           <thead>
             <tr>
               <th className="w-10"></th>
@@ -58,7 +58,7 @@ export const GoogleFilesTable = ({
               return (
                 <tr
                   key={file.id}
-                  className={`hover:bg-base-200 cursor-pointer ${isSelected ? 'bg-primary/10' : ''}`}
+                  className={`cursor-pointer hover:bg-base-200 ${isSelected ? 'bg-primary/10' : ''}`}
                   onClick={() => (isFolder ? onOpenFolder(file.id, file.name) : onToggleFile(file))}
                 >
                   <td>
@@ -81,7 +81,7 @@ export const GoogleFilesTable = ({
                         <FileIcon className={iconClass} />
                       )}
                       <span
-                        className={`truncate ${isFolder ? 'text-primary font-medium' : ''}`}
+                        className={`truncate ${isFolder ? 'font-medium text-primary' : ''}`}
                         title={file.name}
                         style={{ maxWidth: '300px' }}
                       >
@@ -139,7 +139,7 @@ export const GoogleFilesTable = ({
             }`}
           >
             {/* Checkbox in top-left corner */}
-            <div className="absolute left-1 top-1">
+            <div className="absolute top-1 left-1">
               <input
                 type="checkbox"
                 className="checkbox checkbox-xs"
@@ -154,23 +154,23 @@ export const GoogleFilesTable = ({
             <div className="flex flex-col items-center pt-3">
               {/* Icon */}
               {file.iconLink ? (
-                <img src={file.iconLink} alt="" className="h-8 w-8 object-contain" />
+                <img src={file.iconLink} alt="" className="size-8 object-contain" />
               ) : isFolder ? (
-                <FolderIcon className="h-8 w-8" />
+                <FolderIcon className="size-8" />
               ) : (
-                <FileIcon className="h-8 w-8" />
+                <FileIcon className="size-8" />
               )}
 
               {/* File name */}
               <div className="tooltip tooltip-bottom w-full" data-tip={file.name}>
-                <p className={`mt-1 w-full truncate text-center text-xs ${isFolder ? 'text-primary font-medium' : ''}`}>
+                <p className={`mt-1 w-full truncate text-center text-xs ${isFolder ? 'font-medium text-primary' : ''}`}>
                   {file.name}
                 </p>
               </div>
 
               {/* Size and date - only for files */}
               {!isFolder && (
-                <div className="text-base-content/50 mt-0.5 text-center text-[10px]">
+                <div className="mt-0.5 text-center text-[10px] text-base-content/50">
                   {sizeValue > 0 && <span>{formatBytes(sizeValue)}</span>}
                   {sizeValue > 0 && file.modifiedTime && <span> · </span>}
                   {file.modifiedTime && <ClientDate date={file.modifiedTime} format="dateTime" />}

@@ -83,20 +83,19 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
   const isPending = isAddingSource || isRemovingSource
 
   return (
-    <div className="card bg-base-100 p-6 shadow-md">
+    <div className="flex flex-col gap-2">
       <LoadingSpinner isLoading={isPending} />
 
-      <div className="mb-4">
-        <h3 className="mb-2 text-lg font-semibold">{t('lists.sources.title')}</h3>
-        <p className="text-base-content/70 text-sm">{t('lists.sources.description')}</p>
-      </div>
+      {/* Add Source Section */}
+      <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+        <h3 className="mb-2 text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+          {t('lists.sources.addLibrary')}
+        </h3>
+        <p className="mb-4 text-sm text-base-content/70">{t('lists.sources.description')}</p>
 
-      {/* Add new source */}
-      <div className="mb-6">
-        <h4 className="text-md mb-3 font-medium">{t('lists.sources.addLibrary')}</h4>
         <div className="flex gap-2">
           <select
-            className="select select-bordered flex-1"
+            className="select flex-1"
             value={selectedLibraryId}
             onChange={(e) => setSelectedLibraryId(e.target.value)}
             disabled={isPending}
@@ -110,7 +109,7 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
           </select>
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-sm btn-primary"
             onClick={handleAddSource}
             disabled={!selectedLibraryId || isPending}
           >
@@ -119,50 +118,64 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
         </div>
       </div>
 
-      {/* Current sources */}
-      <div>
-        <h4 className="text-md mb-3 font-medium">
-          {t('lists.sources.currentSources')} ({list.sources.length})
-        </h4>
+      {/* Current Sources Section */}
+      <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold tracking-wide text-base-content/60 uppercase">
+            {t('lists.sources.currentSources')}
+          </h3>
+          <span className="badge badge-lg badge-primary">{list.sources.length}</span>
+        </div>
 
         {list.sources.length === 0 ? (
-          <div className="text-base-content/70 py-4 text-sm">{t('lists.sources.noSources')}</div>
+          <div className="rounded-lg border-2 border-dashed border-base-300 bg-base-200/30 p-8 text-center">
+            <div className="text-sm font-medium text-base-content/60">{t('lists.sources.noSources')}</div>
+            <div className="mt-1 text-xs text-base-content/50">Use the section above to add a library as a source</div>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {list.sources.map((source) => (
-              <div key={source.id} className="border-base-300 rounded-lg border p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{source.library?.name}</div>
-                    <div className="text-base-content/70 text-sm">
-                      {t('lists.sources.ownedBy')} {source.library?.owner.name}
+              <div
+                key={source.id}
+                className="group rounded-lg border-2 border-primary/20 bg-linear-to-r from-primary/5 to-transparent p-5 transition-all hover:border-primary/40 hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-primary">{source.library?.name}</span>
+                      <span className="badge badge-sm badge-success">Active</span>
+                    </div>
+                    <div className="mt-1 text-sm text-base-content/70">
+                      Owner: <span className="font-medium">{source.library?.owner.name}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-semibold tracking-wide text-base-content/60 uppercase">
+                        Extraction:
+                      </span>
+                      <span className="badge badge-outline">
+                        {t(`lists.sources.strategies.${source.extractionStrategy || 'per_file'}`)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 flex-col gap-2">
                     <button
                       type="button"
-                      className="btn btn-sm btn-ghost"
+                      className="btn gap-2 btn-sm btn-primary"
                       onClick={() => setConfigureSourceId(source.id)}
                       disabled={isPending}
-                      title={t('lists.sources.configureExtraction')}
                     >
                       <GearIcon className="size-4" />
+                      {t('lists.sources.configureExtraction')}
                     </button>
                     <button
                       type="button"
-                      className="btn btn-sm btn-error btn-outline"
+                      className="btn btn-outline btn-sm btn-error"
                       onClick={() => handleRemoveSource(source.id)}
                       disabled={isPending}
                     >
                       {t('lists.sources.remove')}
                     </button>
                   </div>
-                </div>
-                <div className="mt-2 text-xs">
-                  <span className="text-base-content/60">{t('lists.sources.extractionStrategy')}:</span>{' '}
-                  <span className="badge badge-sm badge-outline">
-                    {t(`lists.sources.strategies.${source.extractionStrategy || 'per_file'}`)}
-                  </span>
                 </div>
               </div>
             ))}

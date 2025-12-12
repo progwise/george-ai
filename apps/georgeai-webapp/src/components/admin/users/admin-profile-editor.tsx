@@ -88,11 +88,11 @@ export function AdminProfileEditor({
   return (
     <article className="flex w-full flex-col items-center gap-4">
       {username && email && (
-        <h1 className="w-full break-words px-2 text-center">
+        <h1 className="w-full px-2 text-center wrap-break-word">
           <div className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-center">
             <span className="md:mr-1">{t('labels.adminProfileActivation')}:</span>
             <span className="font-medium">{username}</span>
-            <span className="break-all text-sm font-normal md:ml-1 md:break-normal md:text-base">({email})</span>
+            <span className="text-sm font-normal break-all md:ml-1 md:text-base md:break-normal">({email})</span>
           </div>
         </h1>
       )}
@@ -113,13 +113,13 @@ export function AdminProfileEditor({
           <div className="flex w-full gap-2">
             <button
               type="button"
-              className="btn btn-ghost btn-sm tooltip"
+              className="tooltip btn btn-ghost btn-sm"
               data-tip={t('actions.save')}
               onClick={handleSaveProfile}
             >
               <SaveIcon className="size-6" />
             </button>
-            <button type="button" className="btn btn-primary btn-sm" onClick={handleActivateProfile}>
+            <button type="button" className="btn btn-sm btn-primary" onClick={handleActivateProfile}>
               {t('actions.activateProfile')}
             </button>
           </div>

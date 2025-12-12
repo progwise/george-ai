@@ -32,10 +32,10 @@ export const UserTable = ({
   })
 
   return (
-    <div className="border-base-300 relative max-h-[65vh] overflow-auto rounded-lg border">
+    <div className="relative max-h-[65vh] overflow-auto rounded-lg border border-base-300">
       {isPending && <LoadingSpinner />}
       <table className="table w-full table-auto">
-        <thead className="bg-base-200 sticky top-0 z-10">
+        <thead className="sticky top-0 z-10 bg-base-200">
           <tr>
             <th className="cursor-pointer p-2 md:p-4">{t('labels.username')}</th>
             <th className="cursor-pointer p-2 md:p-4">{t('labels.email')}</th>
@@ -50,14 +50,10 @@ export const UserTable = ({
           {users.map((user) => (
             <tr key={user.id} className="hover:bg-base-100/50">
               <td className="p-2 md:p-4">
-                <div className="max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap md:max-w-none">
-                  {user.username}
-                </div>
+                <div className="max-w-30 truncate md:max-w-none">{user.username}</div>
               </td>
               <td className="p-2 md:p-4">
-                <div className="max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap md:max-w-none">
-                  {user.email}
-                </div>
+                <div className="max-w-30 truncate md:max-w-none">{user.email}</div>
               </td>
               <td className="hidden p-2 sm:table-cell md:p-4">
                 <div className="flex items-center gap-2">
@@ -67,7 +63,7 @@ export const UserTable = ({
               </td>
               <td className="hidden p-2 md:table-cell md:p-4">{dateString(user.createdAt, language)}</td>
               <td className="hidden p-2 sm:table-cell md:p-4">
-                <div className="gap-u2 flex items-center">
+                <div className="flex items-center gap-2">
                   <div
                     className="tooltip tooltip-left"
                     data-tip={user?.confirmationDate ? t('labels.confirmed') : t('labels.unconfirmed')}

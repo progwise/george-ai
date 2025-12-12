@@ -108,13 +108,13 @@ export const RiskAreasIdentification = ({ assessment }: RiskAreasIdentificationP
   }
 
   return (
-    <div className="bg-base-100 mx-auto flex max-w-2xl flex-col gap-4 rounded-lg p-4 shadow-sm">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow-sm">
       <h3 className="text-xl font-bold">
         <span>{identifyRiskInfo.title[language]}</span>
       </h3>
 
       {/* Legal disclaimer */}
-      <div className="bg-error/40 border-error rounded-sm border p-3 text-sm">
+      <div className="rounded-sm border border-error bg-error/40 p-3 text-sm">
         <p className="font-bold">{identifyRiskInfo.legalDisclaimer.title[language]}:</p>
         <p>{identifyRiskInfo.legalDisclaimer.text[language]}</p>
       </div>
@@ -129,7 +129,7 @@ export const RiskAreasIdentification = ({ assessment }: RiskAreasIdentificationP
             <p className="text-lg font-medium">{riskIndicator.description[language]}</p>
 
             {!euOperation && (
-              <div className="bg-base-300/80 text-base-content rounded-sm p-3">
+              <div className="rounded-sm bg-base-300/80 p-3 text-base-content">
                 <p className="font-semibold">{t('aiAct.notesOnApplicabilityHeadline')}:</p>
                 <p>{t('aiAct.notesOnApplicability')}</p>
               </div>
@@ -150,18 +150,18 @@ export const RiskAreasIdentification = ({ assessment }: RiskAreasIdentificationP
       </div>
 
       {/* System characteristics summary */}
-      <div className="bg-base-200 rounded-lg border p-4">
-        <h4 className="text-md mb-3 font-semibold">{t('aiAct.systemProperties')}</h4>
+      <div className="rounded-lg border bg-base-200 p-4">
+        <h4 className="mb-3 font-semibold">{t('aiAct.systemProperties')}</h4>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {questions.map((question) => {
             // Find selected option
             const selectedOption = question.options.find((opt) => opt.id === question.value)
             return (
-              <div key={question.id} className="bg-base-100 flex flex-col gap-2 rounded-lg border p-3 text-sm">
+              <div key={question.id} className="flex flex-col gap-2 rounded-lg border bg-base-100 p-3 text-sm">
                 <p className="font-medium">{question.title[language]}</p>
                 <p className="text-info">{selectedOption ? selectedOption.title[language] : question.value}</p>
                 {question.notes && (
-                  <p className="text-base-content text-xs italic opacity-70">
+                  <p className="text-xs text-base-content italic opacity-70">
                     {t('labels.note')}: {question.notes}
                   </p>
                 )}
@@ -175,7 +175,7 @@ export const RiskAreasIdentification = ({ assessment }: RiskAreasIdentificationP
       <h2 className="text-lg font-semibold">{t('aiAct.suggestedDetailedEvaluationHeadline')}</h2>
 
       {!euOperation ? (
-        <div className="bg-info/40 border-info rounded-lg border p-4">
+        <div className="rounded-lg border border-info bg-info/40 p-4">
           <p className="font-medium">{t('aiAct.notApplicableHeadline')}</p>
           <p className="mt-2 text-sm">{t('aiAct.notApplicableText')}</p>
         </div>
