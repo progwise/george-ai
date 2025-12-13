@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 import { getFileDir } from '@george-ai/file-management'
@@ -18,13 +17,6 @@ import {
 } from '../../domain/file/markdown'
 
 console.log('Setting up: AiLibraryFile')
-
-const MarkdownResult = builder.objectRef<{ fileName: string; content: string }>('MarkdownResult').implement({
-  fields: (t) => ({
-    fileName: t.exposeString('fileName', { nullable: false }),
-    content: t.exposeString('content', { nullable: false }),
-  }),
-})
 
 const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('SourceFileLink').implement({
   fields: (t) => ({
@@ -252,31 +244,6 @@ builder.prismaObject('AiLibraryFile', {
       nullable: { list: false, items: false },
       resolve: async (file) => {
         return await getLatestExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
-      },
-    }),
-    markdown: t.field({
-      type: MarkdownResult,
-      nullable: true,
-      args: {
-        markdownFileName: t.arg.string({ required: false }),
-      },
-      resolve: async (file, { markdownFileName }) => {
-        if (!markdownFileName) {
-          const latestFileNames = await getLatestExtractionMarkdownFileNames({
-            fileId: file.id,
-            libraryId: file.libraryId,
-          })
-          if (latestFileNames.length === 0) {
-            return null
-          }
-          markdownFileName = latestFileNames[0]
-        }
-        console.log('Fetching markdown file:', markdownFileName)
-        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
-        const filePath = path.resolve(fileDir, markdownFileName)
-        const content = await fs.promises.readFile(filePath, 'utf-8')
-        console.log('Markdown file content length:', content.length)
-        return { fileName: markdownFileName, content }
       },
     }),
   }),

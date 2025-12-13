@@ -662,7 +662,6 @@ export type AiLibraryFile = {
   latestExtractionMarkdownFileNames: Array<Scalars['String']['output']>
   library: AiLibrary
   libraryId: Scalars['String']['output']
-  markdown?: Maybe<MarkdownResult>
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originModificationDate?: Maybe<Scalars['DateTime']['output']>
@@ -675,10 +674,6 @@ export type AiLibraryFile = {
   taskCount: Scalars['Int']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type AiLibraryFileMarkdownArgs = {
-  markdownFileName?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AiLibraryFileInput = {
@@ -1443,12 +1438,6 @@ export type ManagedUsersResponse = {
   take: Scalars['Int']['output']
   userStatistics: UserStatistic
   users: Array<ManagedUser>
-}
-
-export type MarkdownResult = {
-  __typename?: 'MarkdownResult'
-  content: Scalars['String']['output']
-  fileName: Scalars['String']['output']
 }
 
 export type ModelUsageByType = {
@@ -4982,6 +4971,7 @@ export type GetFileInfoQuery = {
     uploadedAt?: string | null
     taskCount: number
     status: string
+    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
     lastUpdate?: {
       __typename?: 'AiLibraryUpdate'
       id: string
@@ -5010,7 +5000,6 @@ export type GetFileInfoQuery = {
       processingStatus: ProcessingStatus
       chunksCount?: number | null
     } | null
-    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
     crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType } | null
   }
 }
@@ -5085,19 +5074,6 @@ export type EmbeddingsTableQuery = {
         chunksSize?: number | null
       } | null
     }>
-  }
-}
-
-export type GetMarkdownQueryVariables = Exact<{
-  fileId: Scalars['String']['input']
-  markdownFileName?: InputMaybe<Scalars['String']['input']>
-}>
-
-export type GetMarkdownQuery = {
-  __typename?: 'Query'
-  aiLibraryFile: {
-    __typename?: 'AiLibraryFile'
-    markdown?: { __typename?: 'MarkdownResult'; fileName: string; content: string } | null
   }
 }
 
@@ -17638,6 +17614,17 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'sourceFiles' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'lastUpdate' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -18027,67 +18014,6 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
-export const GetMarkdownDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'getMarkdown' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'markdownFileName' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraryFile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'markdown' },
-                  arguments: [
-                    {
-                      kind: 'Argument',
-                      name: { kind: 'Name', value: 'markdownFileName' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'markdownFileName' } },
-                    },
-                  ],
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'content' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetMarkdownQuery, GetMarkdownQueryVariables>
 export const GetApiKeysDocument = {
   kind: 'Document',
   definitions: [

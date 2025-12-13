@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { FormattedMarkdown } from '../../../../../../components/formatted-markdown'
+import { FileMarkdownViewer } from '../../../../../../components/library/files/file-markdown-viewer'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { getMarkdownQueryOptions } from '../../../../../../components/library/files/get-markdown'
 import { MarkdownFileSelector } from '../../../../../../components/library/files/markdown-file-selector'
+import { useMarkdownDownload } from '../../../../../../components/library/files/use-markdown-download'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
@@ -18,13 +18,8 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loaderDeps: ({ search: { markdownFileName } }) => ({
     markdownFileName,
   }),
-  loader: async ({ context, params, deps }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
-      context.queryClient.ensureQueryData(
-        getMarkdownQueryOptions({ fileId: params.fileId, markdownFileName: deps.markdownFileName }),
-      ),
-    ])
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))
   },
 })
 
@@ -41,16 +36,20 @@ function RouteComponent() {
   const {
     data: { aiLibraryFile },
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
-  const {
-    data: {
-      aiLibraryFile: { markdown: markdown },
-    },
-  } = useSuspenseQuery(getMarkdownQueryOptions({ fileId: fileId, markdownFileName }))
 
-  const selectedMarkdownFileName = markdownFileName || (markdown?.fileName ? markdown.fileName : undefined)
+  const selectedMarkdownFileName = markdownFileName || aiLibraryFile.latestExtractionMarkdownFileNames?.[0] || undefined
   const isLatestFileSelected =
     selectedMarkdownFileName &&
     aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === selectedMarkdownFileName)
+
+  // Get the markdown file URL from sourceFiles (provided by GraphQL backend)
+  const markdownFileUrl = selectedMarkdownFileName
+    ? aiLibraryFile.sourceFiles?.find((file) => file.fileName === selectedMarkdownFileName)?.url
+    : undefined
+
+  const { content, isLoading, progress, error } = useMarkdownDownload({
+    url: markdownFileUrl,
+  })
   return (
     <div className="flex h-full flex-col gap-2 bg-base-100">
       <div className="flex items-center justify-between">
@@ -84,18 +83,31 @@ function RouteComponent() {
       </div>
 
       <div className="min-h-0 min-w-0 overflow-auto rounded-box bg-base-300 p-5">
-        {!markdown ? (
-          <span>No markdown</span>
-        ) : viewMarkdownSource ? (
-          <pre className="text-sm whitespace-pre-wrap">
-            <code lang="markdown">{markdown.content || t('files.noContentAvailable')}</code>
-          </pre>
-        ) : (
-          <FormattedMarkdown
-            markdown={markdown.content || t('files.noContentAvailable')}
-            className="text-sm font-semibold"
-          />
+        {error && (
+          <div className="alert alert-error">
+            <span>Error loading markdown: {error.message}</span>
+          </div>
         )}
+        {!error &&
+          (viewMarkdownSource ? (
+            isLoading ? (
+              <div className="flex items-center gap-4 p-8">
+                <div className="loading loading-spinner"></div>
+                <div>Loading... {progress > 0 && `${Math.round(progress)}%`}</div>
+              </div>
+            ) : (
+              <pre className="text-sm whitespace-pre-wrap">
+                <code lang="markdown">{content || t('files.noContentAvailable')}</code>
+              </pre>
+            )
+          ) : (
+            <FileMarkdownViewer
+              markdown={content || t('files.noContentAvailable')}
+              className="text-sm font-semibold"
+              isLoading={isLoading}
+              progress={progress}
+            />
+          ))}
       </div>
     </div>
   )
