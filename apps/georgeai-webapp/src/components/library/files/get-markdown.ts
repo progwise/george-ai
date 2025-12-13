@@ -14,20 +14,26 @@ const getMarkdown = createServerFn({ method: 'GET' })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const result = await backendRequest(
-      graphql(`
-        query getMarkdown($fileId: String!, $markdownFileName: String) {
-          aiLibraryFile(fileId: $fileId) {
-            markdown(markdownFileName: $markdownFileName) {
-              fileName
-              content
+    console.log('getMarkdown called with', data)
+    try {
+      const result = await backendRequest(
+        graphql(`
+          query getMarkdown($fileId: String!, $markdownFileName: String) {
+            aiLibraryFile(fileId: $fileId) {
+              markdown(markdownFileName: $markdownFileName) {
+                fileName
+                content
+              }
             }
           }
-        }
-      `),
-      { fileId: data.fileId, markdownFileName: data.markdownFileName },
-    )
-    return result
+        `),
+        { fileId: data.fileId, markdownFileName: data.markdownFileName },
+      )
+      return result
+    } catch (error) {
+      console.error('Error in getMarkdown:', error)
+      throw error
+    }
   })
 
 export const getMarkdownQueryOptions = (params: { fileId: string; markdownFileName?: string }) => ({

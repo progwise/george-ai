@@ -271,9 +271,11 @@ builder.prismaObject('AiLibraryFile', {
           }
           markdownFileName = latestFileNames[0]
         }
+        console.log('Fetching markdown file:', markdownFileName)
         const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
         const filePath = path.resolve(fileDir, markdownFileName)
         const content = await fs.promises.readFile(filePath, 'utf-8')
+        console.log('Markdown file content length:', content.length)
         return { fileName: markdownFileName, content }
       },
     }),
