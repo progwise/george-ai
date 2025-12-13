@@ -12,6 +12,8 @@ export const libraryFiles = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
   const fileName = request.query['filename'] as string
 
+  console.log(`Received request for library file: libraryId=${libraryId}, fileId=${fileId}, fileName=${fileName}`)
+
   const context = await getUserContext(() => ({
     jwtToken: request.headers['x-user-jwt']?.toString() || request.cookies['keycloak-token'] || null,
     bearerToken: request.headers['authorization']?.toString().startsWith('Bearer ')
@@ -69,6 +71,8 @@ export const libraryFiles = async (request: Request, response: Response) => {
     if (mimeType.startsWith('text/') || mimeType.includes('json') || mimeType.includes('xml')) {
       response.setHeader('Content-Type', `${mimeType}; charset=utf-8`)
     }
+
+    console.log(`Serving file ${fullFilePath} with mime type ${mimeType}`)
 
     // Stream the file content
     const fileStream = fs.createReadStream(fullFilePath)
