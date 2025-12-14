@@ -1,4 +1,4 @@
-import { twMerge } from 'tailwind-merge'
+import { FormattedMarkdown } from '../../formatted-markdown'
 
 interface FileMarkdownViewerProps {
   markdown: string
@@ -23,9 +23,5 @@ export const FileMarkdownViewer = ({
     )
   }
 
-  return (
-    <pre className={twMerge('whitespace-pre-wrap wrap-break-word font-mono text-sm', className)}>
-      <code>{markdown}</code>
-    </pre>
-  )
+  return <FormattedMarkdown markdown={markdown} className={className} />
 }

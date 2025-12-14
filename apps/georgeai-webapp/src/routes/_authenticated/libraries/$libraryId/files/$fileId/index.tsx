@@ -8,15 +8,18 @@ import { FileMarkdownViewer } from '../../../../../../components/library/files/f
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { MarkdownFileSelector } from '../../../../../../components/library/files/markdown-file-selector'
 import { useMarkdownDownload } from '../../../../../../components/library/files/use-markdown-download'
+import { Pagination } from '../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
   component: RouteComponent,
   validateSearch: z.object({
-    markdownFileName: z.string().optional(),
+    markdownUrl: z.string().optional(),
+    part: z.coerce.number().optional(),
   }),
-  loaderDeps: ({ search: { markdownFileName } }) => ({
-    markdownFileName,
+  loaderDeps: ({ search: { markdownUrl, part } }) => ({
+    markdownUrl,
+    part,
   }),
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))
@@ -27,7 +30,7 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { fileId } = Route.useParams()
   const navigate = Route.useNavigate()
-  const { markdownFileName } = Route.useSearch()
+  const { markdownUrl, part } = Route.useSearch()
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
 
   const toggleViewMarkdownSource = () => {
@@ -37,18 +40,25 @@ function RouteComponent() {
     data: { aiLibraryFile },
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
 
-  const selectedMarkdownFileName = markdownFileName || aiLibraryFile.latestExtractionMarkdownFileNames?.[0] || undefined
-  const isLatestFileSelected =
-    selectedMarkdownFileName &&
-    aiLibraryFile.latestExtractionMarkdownFileNames?.some((fileName) => fileName === selectedMarkdownFileName)
+  // Select the first available extraction by default
+  const selectedMarkdownUrl = markdownUrl || (aiLibraryFile.availableExtractions?.[0]?.mainFileUrl ?? undefined)
 
-  // Get the markdown file URL from sourceFiles (provided by GraphQL backend)
-  const markdownFileUrl = selectedMarkdownFileName
-    ? aiLibraryFile.sourceFiles?.find((file) => file.fileName === selectedMarkdownFileName)?.url
-    : undefined
+  // Find the selected extraction for pagination
+  const selectedExtraction = aiLibraryFile.availableExtractions.find(
+    (extraction) => extraction.mainFileUrl === selectedMarkdownUrl,
+  )
+
+  // Build URL with part parameter if specified
+  let urlToLoad = selectedMarkdownUrl
+  if (part && selectedMarkdownUrl) {
+    // Add part as query parameter to the main file URL
+    const url = new URL(selectedMarkdownUrl)
+    url.searchParams.set('part', part.toString())
+    urlToLoad = url.toString()
+  }
 
   const { content, isLoading, progress, error } = useMarkdownDownload({
-    url: markdownFileUrl,
+    url: urlToLoad,
   })
   return (
     <div className="flex h-full flex-col gap-2 bg-base-100">
@@ -56,20 +66,20 @@ function RouteComponent() {
         <div className="flex items-center gap-2">
           <MarkdownFileSelector
             file={aiLibraryFile}
-            selectedFileName={selectedMarkdownFileName}
-            onChange={(fileName) => navigate({ search: { markdownFileName: fileName || undefined } })}
+            selectedUrl={selectedMarkdownUrl}
+            onChange={(url) => navigate({ search: { markdownUrl: url || undefined } })}
           />
+          {part && selectedExtraction && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => navigate({ search: { markdownUrl: selectedMarkdownUrl } })}
+            >
+              ← Back to Summary
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          {isLatestFileSelected ? (
-            <span className="badge badge-sm badge-primary" title="You are viewing the latest extraction file">
-              Active
-            </span>
-          ) : (
-            <span className="badge badge-sm badge-warning" title="You are viewing the latest extraction file">
-              Outdated
-            </span>
-          )}
           <label className="flex items-center gap-1 text-sm">
             <input
               type="checkbox"
@@ -81,6 +91,28 @@ function RouteComponent() {
           </label>
         </div>
       </div>
+
+      {!part && selectedExtraction && selectedExtraction.isBucketed && (
+        <div className="flex items-center justify-center">
+          <Pagination
+            totalItems={selectedExtraction.totalParts}
+            currentPage={1}
+            itemsPerPage={1}
+            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
+          />
+        </div>
+      )}
+
+      {part && selectedExtraction && selectedExtraction.isBucketed && (
+        <div className="flex items-center justify-center">
+          <Pagination
+            totalItems={selectedExtraction.totalParts}
+            currentPage={part}
+            itemsPerPage={1}
+            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
+          />
+        </div>
+      )}
 
       <div className="min-h-0 min-w-0 overflow-auto rounded-box bg-base-300 p-5">
         {error && (

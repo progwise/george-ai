@@ -4,11 +4,9 @@ import { useState } from 'react'
 import { graphql } from '../../gql'
 import { ListSourcesManager_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { GearIcon } from '../../icons/gear-icon'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getLibrariesQueryOptions } from '../library/queries/get-libraries'
 import { LoadingSpinner } from '../loading-spinner'
-import { ExtractionStrategyModal } from './extraction-strategy-modal'
 import { getListQueryOptions } from './queries'
 import { addListSource, removeListSource } from './server-functions'
 
@@ -19,8 +17,6 @@ graphql(`
     sources {
       id
       libraryId
-      extractionStrategy
-      extractionConfig
       library {
         id
         name
@@ -40,7 +36,6 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [selectedLibraryId, setSelectedLibraryId] = useState('')
-  const [configureSourceId, setConfigureSourceId] = useState<string | null>(null)
 
   const {
     data: { aiLibraries },
@@ -148,25 +143,8 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
                     <div className="mt-1 text-sm text-base-content/70">
                       Owner: <span className="font-medium">{source.library?.owner.name}</span>
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-semibold tracking-wide text-base-content/60 uppercase">
-                        Extraction:
-                      </span>
-                      <span className="badge badge-outline">
-                        {t(`lists.sources.strategies.${source.extractionStrategy || 'per_file'}`)}
-                      </span>
-                    </div>
                   </div>
-                  <div className="flex shrink-0 flex-col gap-2">
-                    <button
-                      type="button"
-                      className="btn gap-2 btn-sm btn-primary"
-                      onClick={() => setConfigureSourceId(source.id)}
-                      disabled={isPending}
-                    >
-                      <GearIcon className="size-4" />
-                      {t('lists.sources.configureExtraction')}
-                    </button>
+                  <div className="flex shrink-0">
                     <button
                       type="button"
                       className="btn btn-outline btn-sm btn-error"
@@ -182,19 +160,6 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
           </div>
         )}
       </div>
-
-      {/* Extraction Strategy Configuration Modal */}
-      {configureSourceId && (
-        <ExtractionStrategyModal
-          listId={list.id}
-          source={list.sources.find((s) => s.id === configureSourceId)!}
-          onClose={() => setConfigureSourceId(null)}
-          onSuccess={() => {
-            setConfigureSourceId(null)
-            queryClient.invalidateQueries(getListQueryOptions(list.id))
-          }}
-        />
-      )}
     </div>
   )
 }

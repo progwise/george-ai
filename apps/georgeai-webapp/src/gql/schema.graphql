@@ -437,20 +437,6 @@ type AiEnrichmentTaskProcessingDataOutput {
   similarChunks: [EnrichmentTaskSimilarChunk!]
 }
 
-type AiFileExtraction {
-  createdAt: DateTime!
-  error: String
-  extractionInput: String
-  extractionOutput: String
-  file: AiLibraryFile!
-  fileId: String!
-  id: ID!
-  itemsCreated: Int!
-  source: AiListSource!
-  sourceId: String!
-  updatedAt: DateTime!
-}
-
 type AiLanguageModel {
   adminNotes: String
   assistantsUsingAsChat: [AiAssistant!]
@@ -596,6 +582,10 @@ type AiLibraryCrawlerRun {
 type AiLibraryFile {
   archivedAt: DateTime
   availableExtractionMarkdownFileNames: [String!]!
+  """
+  Available extractions for this file (e.g., CSV, PDF with different models)
+  """
+  availableExtractions: [ExtractionInfo!]!
   crawledByCrawler: AiLibraryCrawler
   crawler: AiLibraryCrawler
   createdAt: DateTime!
@@ -851,7 +841,6 @@ input AiListInput {
 type AiListItem {
   content: String
   createdAt: DateTime!
-  extraction: AiFileExtraction
   extractionIndex: Int
   id: ID!
   itemName: String!
@@ -887,9 +876,6 @@ input AiListSortingInput {
 
 type AiListSource {
   createdAt: DateTime!
-  extractionConfig: String
-  extractionStrategy: String!
-  extractions: [AiFileExtraction!]!
   id: ID!
   library: AiLibrary
   libraryId: String
@@ -1204,6 +1190,19 @@ type EnrichmentTaskSimilarChunk {
   text: String!
 }
 
+"""
+Information about an available extraction for a file
+"""
+type ExtractionInfo {
+  displayName: String!
+  extractionMethod: String!
+  extractionMethodParameter: String
+  isBucketed: Boolean!
+  mainFileUrl: String!
+  totalParts: Int!
+  totalSize: Int!
+}
+
 enum ExtractionStatus {
   completed
   failed
@@ -1211,14 +1210,6 @@ enum ExtractionStatus {
   pending
   running
   skipped
-}
-
-input ExtractionStrategyInput {
-  """
-  JSON configuration for the extraction strategy
-  """
-  extractionConfig: String
-  extractionStrategy: String!
 }
 
 type FieldValueResult {
@@ -1550,7 +1541,6 @@ type Mutation {
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
-  updateListSourceExtractionStrategy(data: ExtractionStrategyInput!, sourceId: String!): AiListSource!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile

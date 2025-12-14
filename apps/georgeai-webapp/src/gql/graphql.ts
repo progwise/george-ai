@@ -465,21 +465,6 @@ export type AiEnrichmentTaskProcessingDataOutput = {
   similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
 }
 
-export type AiFileExtraction = {
-  __typename?: 'AiFileExtraction'
-  createdAt: Scalars['DateTime']['output']
-  error?: Maybe<Scalars['String']['output']>
-  extractionInput?: Maybe<Scalars['String']['output']>
-  extractionOutput?: Maybe<Scalars['String']['output']>
-  file: AiLibraryFile
-  fileId: Scalars['String']['output']
-  id: Scalars['ID']['output']
-  itemsCreated: Scalars['Int']['output']
-  source: AiListSource
-  sourceId: Scalars['String']['output']
-  updatedAt: Scalars['DateTime']['output']
-}
-
 export type AiLanguageModel = {
   __typename?: 'AiLanguageModel'
   adminNotes?: Maybe<Scalars['String']['output']>
@@ -645,6 +630,8 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   archivedAt?: Maybe<Scalars['DateTime']['output']>
   availableExtractionMarkdownFileNames: Array<Scalars['String']['output']>
+  /** Available extractions for this file (e.g., CSV, PDF with different models) */
+  availableExtractions: Array<ExtractionInfo>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
   crawler?: Maybe<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
@@ -900,7 +887,6 @@ export type AiListItem = {
   __typename?: 'AiListItem'
   content?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
-  extraction?: Maybe<AiFileExtraction>
   extractionIndex?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   itemName: Scalars['String']['output']
@@ -938,9 +924,6 @@ export type AiListSortingInput = {
 export type AiListSource = {
   __typename?: 'AiListSource'
   createdAt: Scalars['DateTime']['output']
-  extractionConfig?: Maybe<Scalars['String']['output']>
-  extractionStrategy: Scalars['String']['output']
-  extractions: Array<AiFileExtraction>
   id: Scalars['ID']['output']
   library?: Maybe<AiLibrary>
   libraryId?: Maybe<Scalars['String']['output']>
@@ -1257,6 +1240,18 @@ export type EnrichmentTaskSimilarChunk = {
   text: Scalars['String']['output']
 }
 
+/** Information about an available extraction for a file */
+export type ExtractionInfo = {
+  __typename?: 'ExtractionInfo'
+  displayName: Scalars['String']['output']
+  extractionMethod: Scalars['String']['output']
+  extractionMethodParameter?: Maybe<Scalars['String']['output']>
+  isBucketed: Scalars['Boolean']['output']
+  mainFileUrl: Scalars['String']['output']
+  totalParts: Scalars['Int']['output']
+  totalSize: Scalars['Int']['output']
+}
+
 export enum ExtractionStatus {
   Completed = 'completed',
   Failed = 'failed',
@@ -1264,12 +1259,6 @@ export enum ExtractionStatus {
   Pending = 'pending',
   Running = 'running',
   Skipped = 'skipped',
-}
-
-export type ExtractionStrategyInput = {
-  /** JSON configuration for the extraction strategy */
-  extractionConfig?: InputMaybe<Scalars['String']['input']>
-  extractionStrategy: Scalars['String']['input']
 }
 
 export type FieldValueResult = {
@@ -1557,7 +1546,6 @@ export type Mutation = {
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
   updateListField: AiListField
-  updateListSourceExtractionStrategy: AiListSource
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
@@ -1980,11 +1968,6 @@ export type MutationUpdateListArgs = {
 export type MutationUpdateListFieldArgs = {
   data: AiListFieldInput
   id: Scalars['String']['input']
-}
-
-export type MutationUpdateListSourceExtractionStrategyArgs = {
-  data: ExtractionStrategyInput
-  sourceId: Scalars['String']['input']
 }
 
 export type MutationUpdateMessageArgs = {
@@ -4963,15 +4946,12 @@ export type GetFileInfoQuery = {
     processingStatus: ProcessingStatus
     extractionStatus: ExtractionStatus
     embeddingStatus: EmbeddingStatus
-    latestExtractionMarkdownFileNames: Array<string>
     libraryId: string
-    availableExtractionMarkdownFileNames: Array<string>
     isLegacyFile: boolean
     supportedExtractionMethods: Array<string>
     uploadedAt?: string | null
     taskCount: number
     status: string
-    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
     lastUpdate?: {
       __typename?: 'AiLibraryUpdate'
       id: string
@@ -4979,6 +4959,16 @@ export type GetFileInfoQuery = {
       message?: string | null
       updateType: string
     } | null
+    availableExtractions: Array<{
+      __typename?: 'ExtractionInfo'
+      extractionMethod: string
+      extractionMethodParameter?: string | null
+      totalParts: number
+      totalSize: number
+      isBucketed: boolean
+      mainFileUrl: string
+      displayName: string
+    }>
     lastSuccessfulExtraction?: {
       __typename?: 'AiContentProcessingTask'
       id: string
@@ -5000,6 +4990,7 @@ export type GetFileInfoQuery = {
       processingStatus: ProcessingStatus
       chunksCount?: number | null
     } | null
+    sourceFiles: Array<{ __typename?: 'SourceFileLink'; fileName: string; url: string }>
     crawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType } | null
   }
 }
@@ -5081,8 +5072,16 @@ export type AiLibraryFile_MarkdownFileSelectorFragment = {
   __typename?: 'AiLibraryFile'
   id: string
   libraryId: string
-  latestExtractionMarkdownFileNames: Array<string>
-  availableExtractionMarkdownFileNames: Array<string>
+  availableExtractions: Array<{
+    __typename?: 'ExtractionInfo'
+    extractionMethod: string
+    extractionMethodParameter?: string | null
+    totalParts: number
+    totalSize: number
+    isBucketed: boolean
+    mainFileUrl: string
+    displayName: string
+  }>
 }
 
 export type AiLibraryForm_LibraryFragment = {
@@ -5937,8 +5936,6 @@ export type ListSourcesManager_ListFragment = {
     __typename?: 'AiListSource'
     id: string
     libraryId?: string | null
-    extractionStrategy: string
-    extractionConfig?: string | null
     library?: {
       __typename?: 'AiLibrary'
       id: string
@@ -6091,14 +6088,6 @@ export type GetItemDetailQuery = {
     metadata?: string | null
     sourceFileId: string
     sourceFile: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
-    extraction?: {
-      __typename?: 'AiFileExtraction'
-      id: string
-      extractionInput?: string | null
-      extractionOutput?: string | null
-      error?: string | null
-      itemsCreated: number
-    } | null
   } | null
 }
 
@@ -6201,8 +6190,6 @@ export type GetListQuery = {
       __typename?: 'AiListSource'
       id: string
       libraryId?: string | null
-      extractionStrategy: string
-      extractionConfig?: string | null
       library?: {
         __typename?: 'AiLibrary'
         id: string
@@ -6454,21 +6441,6 @@ export type StopListEnrichmentMutation = {
     cleanedUpTasksCount?: number | null
     cleanedUpEnrichmentsCount?: number | null
     createdTasksCount?: number | null
-  }
-}
-
-export type UpdateListSourceExtractionStrategyMutationVariables = Exact<{
-  sourceId: Scalars['String']['input']
-  data: ExtractionStrategyInput
-}>
-
-export type UpdateListSourceExtractionStrategyMutation = {
-  __typename?: 'Mutation'
-  updateListSourceExtractionStrategy: {
-    __typename?: 'AiListSource'
-    id: string
-    extractionStrategy: string
-    extractionConfig?: string | null
   }
 }
 
@@ -10199,8 +10171,22 @@ export const AiLibraryFile_MarkdownFileSelectorFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'availableExtractions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethodParameter' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalParts' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalSize' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isBucketed' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mainFileUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'displayName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -11793,8 +11779,6 @@ export const ListSourcesManager_ListFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },
@@ -17611,18 +17595,6 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'processingStatus' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionStatus' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'embeddingStatus' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'sourceFiles' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                    ],
-                  },
-                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'lastUpdate' },
@@ -17791,8 +17763,22 @@ export const GetFileInfoDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'latestExtractionMarkdownFileNames' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'availableExtractionMarkdownFileNames' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'availableExtractions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethodParameter' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalParts' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalSize' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isBucketed' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mainFileUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'displayName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -19785,20 +19771,6 @@ export const GetItemDetailDocument = {
                     ],
                   },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'extraction' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionInput' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionOutput' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'itemsCreated' } },
-                    ],
-                  },
-                },
               ],
             },
           },
@@ -20227,8 +20199,6 @@ export const GetListDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'library' },
@@ -21296,63 +21266,6 @@ export const StopListEnrichmentDocument = {
     },
   ],
 } as unknown as DocumentNode<StopListEnrichmentMutation, StopListEnrichmentMutationVariables>
-export const UpdateListSourceExtractionStrategyDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'UpdateListSourceExtractionStrategy' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sourceId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionStrategyInput' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateListSourceExtractionStrategy' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'sourceId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'sourceId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionStrategy' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionConfig' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateListSourceExtractionStrategyMutation,
-  UpdateListSourceExtractionStrategyMutationVariables
->
 export const UpdateListFieldDocument = {
   kind: 'Document',
   definitions: [

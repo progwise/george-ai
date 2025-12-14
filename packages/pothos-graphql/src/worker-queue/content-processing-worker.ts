@@ -52,6 +52,7 @@ type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
         originUri: true
         mimeType: true
         libraryId: true
+        createdAt: true
       }
     }
   }
@@ -106,6 +107,7 @@ const updateProcessingTask = async (args: {
           originUri: true,
           mimeType: true,
           libraryId: true,
+          createdAt: true,
         },
       },
     },
@@ -255,6 +257,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             timeoutSignal,
             fileId: task.fileId,
             libraryId: task.file.libraryId,
+            fileName: task.file.name,
+            fileCreatedAt: task.file.createdAt,
             extractionMethod: subTask.extractionMethod as ExtractionMethodId,
             extractionOptions: validated.extractionOptions,
             uploadFilePath: validated.uploadFilePath!,
@@ -676,6 +680,8 @@ const performContentExtraction = async (args: {
   timeoutSignal: AbortSignal
   fileId: string
   libraryId: string
+  fileName: string
+  fileCreatedAt: Date
   extractionMethod: ExtractionMethodId
   extractionOptions: FileConverterOptions
   uploadFilePath: string
@@ -700,7 +706,13 @@ const performContentExtraction = async (args: {
         break
 
       case 'csv-extraction':
-        result = await transformCsvToMarkdown(args.uploadFilePath, args.timeoutSignal)
+        result = await transformCsvToMarkdown(
+          args.uploadFilePath,
+          args.timeoutSignal,
+          args.libraryId,
+          args.fileId,
+          args.fileName,
+        )
         break
 
       case 'html-extraction':
@@ -754,7 +766,7 @@ const performContentExtraction = async (args: {
       libraryId: args.libraryId,
       extractionMethod: args.extractionMethod,
       markdown: result.markdownContent,
-      model:
+      extractionMethodParameter:
         args.extractionMethod === 'pdf-image-llm' ? `${args.ocrModel?.provider}:${args.ocrModel?.name}` : undefined,
     })
 
@@ -798,6 +810,7 @@ async function processQueue() {
             originUri: true,
             mimeType: true,
             libraryId: true,
+            createdAt: true,
           },
         },
       },

@@ -27,13 +27,6 @@ const getItemDetail = createServerFn({ method: 'GET' })
               name
               libraryId
             }
-            extraction {
-              id
-              extractionInput
-              extractionOutput
-              error
-              itemsCreated
-            }
           }
         }
       `),

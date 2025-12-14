@@ -31,7 +31,6 @@ import {
   EmbeddingStatus,
   EnrichmentStatus,
   ExtractionStatus,
-  ExtractionStrategyInput,
   LibrarySortOrder,
   ListFieldContextType,
   ListFieldFileProperty,
@@ -288,13 +287,6 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
-  })
-}
-
-export function ExtractionStrategyInputSchema(): z.ZodObject<Properties<ExtractionStrategyInput>> {
-  return z.object({
-    extractionConfig: z.string().nullish(),
-    extractionStrategy: z.string(),
   })
 }
 

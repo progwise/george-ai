@@ -58,9 +58,6 @@ export const ItemDetailSidePanel = ({
 
   // Parse metadata JSON if available
   const metadata = item?.metadata ? JSON.parse(item.metadata) : null
-  // Parse extraction input/output if available
-  const extractionInput = item?.extraction?.extractionInput ? JSON.parse(item.extraction.extractionInput) : null
-  const extractionOutput = item?.extraction?.extractionOutput ? JSON.parse(item.extraction.extractionOutput) : null
 
   return (
     <>
@@ -185,69 +182,12 @@ export const ItemDetailSidePanel = ({
                 </section>
               )}
 
-              {/* Extraction Details Section */}
-              {(extractionInput || extractionOutput) && (
-                <section aria-label={t('lists.itemDetail.extraction')}>
-                  <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extraction')}</h4>
-
-                  {/* Extraction Input */}
-                  {extractionInput && (
-                    <div className="mb-3">
-                      <div className="mb-1 flex items-center justify-between">
-                        <h5 className="text-sm font-medium text-base-content/70">
-                          {t('lists.itemDetail.extractionInput')}
-                        </h5>
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-xs"
-                          onClick={() => handleCopy(JSON.stringify(extractionInput, null, 2), 'extractionInput')}
-                          aria-label={t('lists.itemDetail.copy')}
-                        >
-                          <CopyIcon className="size-3" />
-                          {copied === 'extractionInput' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
-                        </button>
-                      </div>
-                      <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
-                        <pre className="text-xs whitespace-pre-wrap text-base-content/80">
-                          {JSON.stringify(extractionInput, null, 2)}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Extraction Output */}
-                  {extractionOutput && (
-                    <div>
-                      <div className="mb-1 flex items-center justify-between">
-                        <h5 className="text-sm font-medium text-base-content/70">
-                          {t('lists.itemDetail.extractionOutput')}
-                        </h5>
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-xs"
-                          onClick={() => handleCopy(JSON.stringify(extractionOutput, null, 2), 'extractionOutput')}
-                          aria-label={t('lists.itemDetail.copy')}
-                        >
-                          <CopyIcon className="size-3" />
-                          {copied === 'extractionOutput' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
-                        </button>
-                      </div>
-                      <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
-                        <pre className="text-xs whitespace-pre-wrap text-base-content/80">
-                          {JSON.stringify(extractionOutput, null, 2)}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-                </section>
-              )}
-
-              {/* No extraction details message */}
-              {!extractionInput && !extractionOutput && !metadata && (
-                <section aria-label={t('lists.itemDetail.extraction')}>
-                  <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extraction')}</h4>
+              {/* No metadata message */}
+              {!metadata && (
+                <section aria-label={t('lists.itemDetail.metadata')}>
+                  <h4 className="mb-2 font-semibold">{t('lists.itemDetail.metadata')}</h4>
                   <div className="rounded-lg bg-base-200 p-3">
-                    <p className="text-base-content/50 italic">{t('lists.itemDetail.noExtraction')}</p>
+                    <p className="text-base-content/50 italic">{t('lists.itemDetail.noMetadata')}</p>
                   </div>
                 </section>
               )}

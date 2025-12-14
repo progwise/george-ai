@@ -428,6 +428,9 @@ importers:
       '@george-ai/ai-service-client':
         specifier: workspace:*
         version: link:../ai-service-client
+      '@george-ai/file-management':
+        specifier: workspace:*
+        version: link:../file-management
       '@kingsword/node-html-markdown':
         specifier: ^1.3.3
         version: 1.3.3

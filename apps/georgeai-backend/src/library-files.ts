@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { getFileDir } from '@george-ai/file-management'
+import { getBucketPath, getFileDir, parseExtractionMainName } from '@george-ai/file-management'
 import { canAccessFileOrThrow } from '@george-ai/pothos-graphql'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
@@ -11,8 +11,11 @@ import { getUserContext } from './getUserContext'
 export const libraryFiles = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
   const fileName = request.query['filename'] as string
+  const part = request.query['part'] ? Number(request.query['part']) : undefined
 
-  console.log(`Received request for library file: libraryId=${libraryId}, fileId=${fileId}, fileName=${fileName}`)
+  console.log(
+    `Received request for library file: libraryId=${libraryId}, fileId=${fileId}, fileName=${fileName}, part=${part}`,
+  )
 
   const context = await getUserContext(() => ({
     jwtToken: request.headers['x-user-jwt']?.toString() || request.cookies['keycloak-token'] || null,
@@ -36,6 +39,58 @@ export const libraryFiles = async (request: Request, response: Response) => {
       return
     }
 
+    // Handle bucketed parts (e.g., CSV rows)
+    if (part && fileName.endsWith('.md')) {
+      // Parse extraction method from filename
+      const mainName = fileName.replace(/\.md$/, '')
+      const { extractionMethod, extractionMethodParameter } = parseExtractionMainName(mainName)
+
+      // Get bucket path and construct part file path
+      const bucketPath = getBucketPath({
+        libraryId,
+        fileId,
+        extractionMethod,
+        extractionMethodParameter: extractionMethodParameter || undefined,
+        part,
+      })
+
+      const partFileName = `part-${part.toString().padStart(7, '0')}.md`
+      const fullFilePath = path.join(bucketPath, partFileName)
+
+      // Check if part file exists
+      try {
+        await fs.promises.access(fullFilePath, fs.constants.R_OK)
+      } catch (error) {
+        console.warn(`Part file not readable: ${fullFilePath}`, error)
+        response.status(404).end()
+        return
+      }
+
+      // Get file stats
+      const stats = await fs.promises.stat(fullFilePath)
+
+      // Set headers for markdown file
+      response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+      response.setHeader('Content-Length', stats.size)
+      response.setHeader('Content-Disposition', `inline; filename="${partFileName}"`)
+
+      console.log(`Serving part file ${fullFilePath} (${stats.size} bytes)`)
+
+      // Stream the file content
+      const fileStream = fs.createReadStream(fullFilePath)
+      fileStream.pipe(response)
+
+      fileStream.on('error', (error) => {
+        console.error(`Error streaming part file ${fullFilePath}:`, error)
+        if (!response.headersSent) {
+          response.status(500).end()
+        }
+      })
+
+      return
+    }
+
+    // Regular file serving (main markdown or upload file)
     if (!fileNames.some((name) => name === fileName)) {
       response.status(404).end()
       return
