@@ -1,456 +1,24 @@
 /**
- * List item extraction logic.
+ * List item extraction logic (Simplified Architecture)
  *
- * Handles creating AiListItem records from library files based on extraction strategy:
- * - per_file: 1 file → 1 item (default, uses file markdown directly)
- * - per_row: 1 file → N items (one per table row, content stored as .md files)
- * - per_column: 1 file → N items (one per table column, content stored as .md files)
- * - llm_prompt: 1 file → N items (LLM extracts items based on prompt, content stored as .md files)
+ * Creates AiListItem records from library files:
+ * - One list item per file part (for bucketed files like CSV rows)
+ * - One list item per whole file (for unbucketed files)
+ * - AiListItem.extractionIndex points to part number (or null for whole file)
  *
- * Content storage:
- * - per_file: No .md file, content comes from file's markdown
- * - per_row/per_column/llm_prompt: <fileDir>/listItems/<listId>/<itemId>.md
- *
- * All extraction results are logged to AiFileExtraction for debugging/transparency.
+ * Content is read directly from file parts - no markdown duplication.
  */
 import fs from 'fs'
+import path from 'node:path'
 
-import { type ServiceProviderType, chat } from '@george-ai/ai-service-client'
-import { deleteListItemDir, getFileDir, saveListItemContent } from '@george-ai/file-management'
+import { getAvailableExtractions, getBucketPath, getExtractionFileInfo, getFileDir } from '@george-ai/file-management'
 
-import { Prisma } from '../../../prisma/generated/client'
 import { prisma } from '../../prisma'
 import { syncAutomationItemsForList } from '../automation'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
-import { logModelUsage } from '../languageModel'
-import { getLibraryWorkspace } from '../workspace'
-
-export const EXTRACTION_STRATEGIES = ['per_file', 'per_row', 'per_column', 'llm_prompt'] as const
-export type ExtractionStrategy = (typeof EXTRACTION_STRATEGIES)[number]
-
-// Internal interfaces - not exported
-interface ExtractedRow {
-  rowIndex: number
-  headers: string[]
-  values: string[]
-  data: Record<string, string>
-  markdown: string
-}
-
-interface ExtractedColumn {
-  columnIndex: number
-  columnName: string
-  rowTitles: string[]
-  values: string[]
-  markdown: string
-}
-
-interface ExtractedLlmItem {
-  itemIndex: number
-  itemName: string
-  content: string
-}
 
 /**
- * Parse a markdown table row into cells.
- */
-function parseTableRow(row: string): string[] {
-  const trimmed = row.trim().replace(/^\||\|$/g, '')
-  const cells: string[] = []
-  let currentCell = ''
-  let i = 0
-
-  while (i < trimmed.length) {
-    if (trimmed[i] === '\\' && i + 1 < trimmed.length && trimmed[i + 1] === '|') {
-      currentCell += '|'
-      i += 2
-    } else if (trimmed[i] === '|') {
-      cells.push(currentCell.trim())
-      currentCell = ''
-      i++
-    } else {
-      currentCell += trimmed[i]
-      i++
-    }
-  }
-  cells.push(currentCell.trim())
-  return cells
-}
-
-/**
- * Check if a row is a separator row (contains only dashes and pipes).
- */
-function isSeparatorRow(row: string): boolean {
-  const trimmed = row.trim()
-  return /^[\s|:-]+$/.test(trimmed) && trimmed.includes('-')
-}
-
-/**
- * Format a single row as a standalone markdown table.
- */
-function formatRowAsMarkdown(headers: string[], values: string[]): string {
-  const escapedHeaders = headers.map((h) => h.replace(/\|/g, '\\|'))
-  const escapedValues = values.map((v) => (v || '').replace(/\|/g, '\\|'))
-
-  while (escapedValues.length < escapedHeaders.length) {
-    escapedValues.push('')
-  }
-
-  const headerRow = '| ' + escapedHeaders.join(' | ') + ' |'
-  const separatorRow = '| ' + escapedHeaders.map(() => '---').join(' | ') + ' |'
-  const dataRow = '| ' + escapedValues.join(' | ') + ' |'
-
-  return `${headerRow}\n${separatorRow}\n${dataRow}`
-}
-
-/**
- * Find contiguous table blocks in markdown.
- * A valid table must have:
- * 1. A header row with |
- * 2. A separator row with |---| pattern
- * 3. At least one data row with |
- */
-function findTableBlocks(markdown: string): string[][] {
-  const lines = markdown.split('\n')
-  const tableBlocks: string[][] = []
-  let currentBlock: string[] = []
-  let foundSeparator = false
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    const hasTable = trimmed.includes('|')
-
-    if (hasTable) {
-      currentBlock.push(trimmed)
-      if (isSeparatorRow(trimmed)) {
-        foundSeparator = true
-      }
-    } else if (currentBlock.length > 0) {
-      // Non-table line encountered, check if we have a valid table
-      if (foundSeparator && currentBlock.length >= 3) {
-        tableBlocks.push([...currentBlock])
-      }
-      currentBlock = []
-      foundSeparator = false
-    }
-  }
-
-  // Check final block
-  if (foundSeparator && currentBlock.length >= 3) {
-    tableBlocks.push(currentBlock)
-  }
-
-  return tableBlocks
-}
-
-/**
- * Extract rows from a markdown table.
- * Requires proper markdown table format:
- * | Header1 | Header2 |
- * |---------|---------|
- * | Value1  | Value2  |
- */
-function extractRowsFromMarkdownTable(markdown: string): ExtractedRow[] {
-  if (!markdown || typeof markdown !== 'string') {
-    return []
-  }
-
-  const tableBlocks = findTableBlocks(markdown)
-  if (tableBlocks.length === 0) {
-    return []
-  }
-
-  // Process all table blocks and combine rows
-  const allRows: ExtractedRow[] = []
-
-  for (const tableLines of tableBlocks) {
-    // First line is headers
-    const headers = parseTableRow(tableLines[0])
-    if (headers.length === 0) continue
-
-    // Find separator row index
-    let dataStartIndex = 1
-    for (let i = 1; i < tableLines.length; i++) {
-      if (isSeparatorRow(tableLines[i])) {
-        dataStartIndex = i + 1
-        break
-      }
-    }
-
-    // Extract data rows
-    for (let i = dataStartIndex; i < tableLines.length; i++) {
-      const line = tableLines[i]
-      if (isSeparatorRow(line)) continue
-
-      const values = parseTableRow(line)
-      const data: Record<string, string> = {}
-      for (let j = 0; j < headers.length; j++) {
-        data[headers[j]] = values[j] || ''
-      }
-
-      allRows.push({
-        rowIndex: allRows.length,
-        headers,
-        values,
-        data,
-        markdown: formatRowAsMarkdown(headers, values),
-      })
-    }
-  }
-
-  return allRows
-}
-
-/**
- * Format a column as markdown with row titles.
- * Output format:
- * # ColumnName
- * - RowTitle1: value1
- * - RowTitle2: value2
- */
-function formatColumnAsMarkdown(columnName: string, rowTitles: string[], values: string[]): string {
-  const lines = [`# ${columnName}`, '']
-  for (let i = 0; i < values.length; i++) {
-    const title = rowTitles[i] || `Row ${i + 1}`
-    const value = values[i] || ''
-    lines.push(`- ${title}: ${value}`)
-  }
-  return lines.join('\n')
-}
-
-/**
- * Extract columns from a markdown table.
- * First row = column headers (become item names)
- * First column = row titles (become labels for each value)
- * Each column (except first) becomes one item.
- * Requires proper markdown table format with separator row.
- */
-function extractColumnsFromMarkdownTable(markdown: string): ExtractedColumn[] {
-  if (!markdown || typeof markdown !== 'string') {
-    return []
-  }
-
-  const tableBlocks = findTableBlocks(markdown)
-  if (tableBlocks.length === 0) {
-    return []
-  }
-
-  // Process all table blocks and combine columns
-  const allColumns: ExtractedColumn[] = []
-
-  for (const tableLines of tableBlocks) {
-    const headers = parseTableRow(tableLines[0])
-    if (headers.length < 2) {
-      // Need at least 2 columns (first for row titles, rest for items)
-      continue
-    }
-
-    // Find separator row index
-    let dataStartIndex = 1
-    for (let i = 1; i < tableLines.length; i++) {
-      if (isSeparatorRow(tableLines[i])) {
-        dataStartIndex = i + 1
-        break
-      }
-    }
-
-    // Collect all row data
-    const rowTitles: string[] = []
-    const rowData: string[][] = []
-
-    for (let i = dataStartIndex; i < tableLines.length; i++) {
-      const line = tableLines[i]
-      if (isSeparatorRow(line)) continue
-
-      const values = parseTableRow(line)
-      rowTitles.push(values[0] || `Row ${rowData.length + 1}`)
-      rowData.push(values)
-    }
-
-    // Create columns (skip first column which contains row titles)
-    for (let colIndex = 1; colIndex < headers.length; colIndex++) {
-      const columnName = headers[colIndex]
-      const values = rowData.map((row) => row[colIndex] || '')
-
-      allColumns.push({
-        columnIndex: allColumns.length,
-        columnName,
-        rowTitles,
-        values,
-        markdown: formatColumnAsMarkdown(columnName, rowTitles, values),
-      })
-    }
-  }
-
-  return allColumns
-}
-
-/**
- * Parse LLM response into items.
- * Expected format: Each item starts with "## ItemName" followed by content until next "##".
- */
-function extractItemsFromLlmResponse(llmResponse: string): ExtractedLlmItem[] {
-  if (!llmResponse || typeof llmResponse !== 'string') {
-    return []
-  }
-
-  const items: ExtractedLlmItem[] = []
-  // Split by ## at the start of a line
-  const sections = llmResponse.split(/^## /m).filter((s) => s.trim().length > 0)
-
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i]
-    const firstNewline = section.indexOf('\n')
-
-    if (firstNewline === -1) {
-      // Single line - item name only, no content
-      items.push({
-        itemIndex: i,
-        itemName: section.trim(),
-        content: `## ${section.trim()}`,
-      })
-    } else {
-      const itemName = section.substring(0, firstNewline).trim()
-      const content = section.substring(firstNewline + 1).trim()
-      items.push({
-        itemIndex: i,
-        itemName,
-        content: `## ${itemName}\n\n${content}`,
-      })
-    }
-  }
-
-  return items
-}
-
-/**
- * Call LLM to extract items from file content.
- * Returns extracted items or throws an error.
- */
-async function callLlmForExtraction({
-  workspaceId,
-  libraryId,
-  listId,
-  fileContent,
-  userPrompt,
-  modelId,
-  modelName,
-  modelProvider,
-}: {
-  workspaceId: string
-  libraryId: string
-  listId: string
-  fileContent: string
-  userPrompt: string
-  modelId: string
-  modelName: string
-  modelProvider: string
-}): Promise<{ items: ExtractedLlmItem[]; rawResponse: string; tokensInput?: number; tokensOutput?: number }> {
-  const systemPrompt = `You are an item extraction assistant. Your task is to analyze the provided content and extract individual items based on the user's instructions.
-
-IMPORTANT: Format your response as a series of items, where each item starts with "## " followed by the item name, then the item content on subsequent lines.
-
-Example output format:
-## Item Name 1
-Content for item 1 goes here.
-Can span multiple lines.
-
-## Item Name 2
-Content for item 2 goes here.
-
-Rules:
-- Each item MUST start with "## " (h2 markdown heading)
-- The item name should be descriptive and unique
-- Include all relevant content for each item
-- Do not include any text before the first "## " heading
-- Do not include explanations or meta-commentary`
-
-  const userMessage = `${userPrompt}
-
-Here is the content to process:
-
-${fileContent}`
-
-  const startTime = Date.now()
-
-  const response = await chat(workspaceId, modelProvider as ServiceProviderType, {
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userMessage },
-    ],
-    modelName,
-  })
-
-  const durationMs = Date.now() - startTime
-
-  // Log model usage
-  await logModelUsage({
-    modelId,
-    libraryId,
-    listId,
-    usageType: 'chat',
-    tokensInput: response.metadata?.promptTokens || response.metadata?.tokensProcessed,
-    tokensOutput: response.metadata?.completionTokens,
-    durationMs,
-  })
-
-  if (response.error) {
-    throw new Error(`LLM error: ${response.error}`)
-  }
-
-  const rawResponse = response.content.trim()
-  const items = extractItemsFromLlmResponse(rawResponse)
-
-  return {
-    items,
-    rawResponse,
-    tokensInput: response.metadata?.promptTokens || response.metadata?.tokensProcessed,
-    tokensOutput: response.metadata?.completionTokens,
-  }
-}
-
-/**
- * Save extraction metadata to AiFileExtraction table.
- */
-async function saveFileExtraction({
-  sourceId,
-  fileId,
-  extractionInput,
-  extractionOutput,
-  error,
-  itemsCreated,
-}: {
-  sourceId: string
-  fileId: string
-  extractionInput: Prisma.InputJsonValue
-  extractionOutput?: Prisma.InputJsonValue
-  error?: string
-  itemsCreated: number
-}): Promise<void> {
-  await prisma.aiFileExtraction.upsert({
-    where: {
-      sourceId_fileId: { sourceId, fileId },
-    },
-    create: {
-      sourceId,
-      fileId,
-      extractionInput,
-      extractionOutput,
-      error,
-      itemsCreated,
-    },
-    update: {
-      extractionInput,
-      extractionOutput,
-      error,
-      itemsCreated,
-      updatedAt: new Date(),
-    },
-  })
-}
-
-/**
- * Get markdown content for a file.
+ * Get markdown content for a file (whole file, not parts).
  */
 export async function getFileMarkdownContent(fileId: string, libraryId: string): Promise<string | null> {
   const markdownFileNames = await getLatestExtractionMarkdownFileNames({ fileId, libraryId })
@@ -470,335 +38,131 @@ export async function getFileMarkdownContent(fileId: string, libraryId: string):
 }
 
 /**
- * Create list items for a file based on extraction strategy.
+ * Create list items for a file.
  *
- * Behavior on re-processing:
- * - per_file: Skip if item exists (item is just a reference to file markdown)
- * - per_row/per_column/llm_prompt: Delete existing items and .md files, recreate
+ * Logic:
+ * 1. Check available extractions for the file
+ * 2. For each extraction, get file info (total parts, etc.)
+ * 3. Create one list item per part (or one item for whole file if no parts)
  *
- * All extraction results are logged to AiFileExtraction for debugging.
+ * @returns Number of items created
  */
-export async function createListItemsForFile({
+async function createListItemsForFile({
   sourceId,
   fileId,
   fileName,
   listId,
   libraryId,
-  extractionStrategy,
-  extractionConfig,
-  extractionModel,
 }: {
   sourceId: string
   fileId: string
   fileName: string
   listId: string
   libraryId: string
-  extractionStrategy: ExtractionStrategy
-  extractionConfig?: { prompt?: string } | null
-  extractionModel?: { id: string; name: string; provider: string } | null
-}): Promise<{ created: number; deleted: number; strategy: ExtractionStrategy; error?: string }> {
+}): Promise<number> {
   // Check if items already exist for this file/source combination
   const existingItemCount = await prisma.aiListItem.count({
     where: { sourceId, sourceFileId: fileId },
   })
 
-  // For per_file: skip if item exists (it's just a reference)
-  // For other strategies: delete existing and recreate (content stored in .md files)
+  // Skip if items already exist
   if (existingItemCount > 0) {
-    if (extractionStrategy === 'per_file') {
-      return { created: 0, deleted: 0, strategy: extractionStrategy }
-    }
-
-    // Delete existing items and their .md files
-    await prisma.aiListItem.deleteMany({
-      where: { sourceId, sourceFileId: fileId },
-    })
-    await deleteListItemDir({ fileId, libraryId, listId })
+    return 0
   }
 
-  const deletedCount = extractionStrategy !== 'per_file' ? existingItemCount : 0
-  const markdown = extractionStrategy !== 'per_file' ? await getFileMarkdownContent(fileId, libraryId) : null
+  // Get available extractions for this file
+  const extractions = await getAvailableExtractions({ fileId, libraryId })
 
-  // Build extraction input for logging
-  const extractionInput = {
-    strategy: extractionStrategy,
+  if (extractions.length === 0) {
+    // No extractions found - file not processed yet
+    return 0
+  }
+
+  // Use first extraction (typically there's only one)
+  const extraction = extractions[0]
+
+  // Get extraction metadata
+  const extractionInfo = await getExtractionFileInfo({
     fileId,
-    fileName,
-    contentLength: markdown?.length || 0,
-    contentPreview: markdown?.substring(0, 500),
-    ...(extractionStrategy === 'llm_prompt' && {
-      llmPrompt: extractionConfig?.prompt,
-      llmModel: extractionModel?.name,
-      llmProvider: extractionModel?.provider,
-    }),
+    libraryId,
+    extractionMethod: extraction.extractionMethod,
+    extractionMethodParameter: extraction.extractionMethodParameter || undefined,
+  })
+
+  if (!extractionInfo) {
+    // No metadata found - file not processed correctly
+    return 0
   }
 
-  // === per_file strategy ===
-  if (extractionStrategy === 'per_file') {
-    await prisma.aiListItem.create({
-      data: { listId, sourceId, sourceFileId: fileId, itemName: fileName },
-    })
-    await saveFileExtraction({
-      sourceId,
-      fileId,
-      extractionInput,
-      extractionOutput: { itemsFound: 1, itemNames: [fileName] },
-      itemsCreated: 1,
-    })
-    return { created: 1, deleted: deletedCount, strategy: 'per_file' }
-  }
+  let itemsCreated = 0
 
-  // For other strategies, we need markdown content
-  if (!markdown) {
+  if (extractionInfo.isBucketed && extractionInfo.totalParts > 0) {
+    // Bucketed file - create one item per part
+    for (let partIndex = 1; partIndex <= extractionInfo.totalParts; partIndex++) {
+      // Read the part to get a meaningful item name (first line or first heading)
+      let itemName = `${fileName} - Part ${partIndex}`
+
+      try {
+        // Read the part markdown file directly
+        const bucketPath = getBucketPath({
+          libraryId,
+          fileId,
+          extractionMethod: extraction.extractionMethod,
+          extractionMethodParameter: extraction.extractionMethodParameter || undefined,
+          part: partIndex,
+        })
+        const partFileName = `part-${partIndex.toString().padStart(7, '0')}.md`
+        const partFilePath = path.join(bucketPath, partFileName)
+        const partContent = await fs.promises.readFile(partFilePath, 'utf-8')
+
+        if (partContent) {
+          // Try to extract a meaningful name from the first heading
+          const firstHeadingMatch = partContent.match(/^##?\s+(.+)$/m)
+          if (firstHeadingMatch) {
+            itemName = firstHeadingMatch[1].trim()
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to read part ${partIndex} for file ${fileId}:`, error)
+        // Continue with default name
+      }
+
+      await prisma.aiListItem.create({
+        data: {
+          listId,
+          sourceId,
+          sourceFileId: fileId,
+          extractionIndex: partIndex,
+          itemName,
+          metadata: {
+            extractionMethod: extraction.extractionMethod,
+            extractionMethodParameter: extraction.extractionMethodParameter || undefined,
+          },
+        },
+      })
+
+      itemsCreated++
+    }
+  } else {
+    // Unbucketed file - create one item for whole file
     await prisma.aiListItem.create({
       data: {
         listId,
         sourceId,
         sourceFileId: fileId,
+        extractionIndex: null, // Whole file
         itemName: fileName,
-        metadata: { fallback: 'no_markdown_content' },
+        metadata: {
+          extractionMethod: extraction.extractionMethod,
+          extractionMethodParameter: extraction.extractionMethodParameter || undefined,
+        },
       },
     })
-    await saveFileExtraction({
-      sourceId,
-      fileId,
-      extractionInput,
-      extractionOutput: {
-        itemsFound: 1,
-        itemNames: [fileName],
-        warnings: ['no_markdown_content, fell back to per_file'],
-      },
-      itemsCreated: 1,
-    })
-    return { created: 1, deleted: deletedCount, strategy: 'per_file' }
+
+    itemsCreated++
   }
 
-  // === per_row strategy ===
-  if (extractionStrategy === 'per_row') {
-    const rows = extractRowsFromMarkdownTable(markdown)
-
-    if (rows.length === 0) {
-      await prisma.aiListItem.create({
-        data: { listId, sourceId, sourceFileId: fileId, itemName: fileName, metadata: { fallback: 'no_table_rows' } },
-      })
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        extractionOutput: { itemsFound: 1, itemNames: [fileName], warnings: ['no_table_rows, fell back to per_file'] },
-        itemsCreated: 1,
-      })
-      return { created: 1, deleted: deletedCount, strategy: 'per_file' }
-    }
-
-    const itemNames: string[] = []
-    for (const row of rows) {
-      const itemName = row.values[0] || `Row ${row.rowIndex + 1}`
-      const item = await prisma.aiListItem.create({
-        data: {
-          listId,
-          sourceId,
-          sourceFileId: fileId,
-          extractionIndex: row.rowIndex,
-          itemName,
-          metadata: { headers: row.headers, values: row.values },
-        },
-      })
-      await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: row.markdown })
-      itemNames.push(itemName)
-    }
-
-    await saveFileExtraction({
-      sourceId,
-      fileId,
-      extractionInput,
-      extractionOutput: { itemsFound: rows.length, itemNames },
-      itemsCreated: rows.length,
-    })
-    return { created: rows.length, deleted: deletedCount, strategy: 'per_row' }
-  }
-
-  // === per_column strategy ===
-  if (extractionStrategy === 'per_column') {
-    const columns = extractColumnsFromMarkdownTable(markdown)
-
-    if (columns.length === 0) {
-      await prisma.aiListItem.create({
-        data: {
-          listId,
-          sourceId,
-          sourceFileId: fileId,
-          itemName: fileName,
-          metadata: { fallback: 'no_table_columns' },
-        },
-      })
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        extractionOutput: {
-          itemsFound: 1,
-          itemNames: [fileName],
-          warnings: ['no_table_columns, fell back to per_file'],
-        },
-        itemsCreated: 1,
-      })
-      return { created: 1, deleted: deletedCount, strategy: 'per_file' }
-    }
-
-    const itemNames: string[] = []
-    for (const column of columns) {
-      const itemName = column.columnName
-      const item = await prisma.aiListItem.create({
-        data: {
-          listId,
-          sourceId,
-          sourceFileId: fileId,
-          extractionIndex: column.columnIndex,
-          itemName,
-          metadata: { columnName: column.columnName, rowTitles: column.rowTitles, values: column.values },
-        },
-      })
-      await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: column.markdown })
-      itemNames.push(itemName)
-    }
-
-    await saveFileExtraction({
-      sourceId,
-      fileId,
-      extractionInput,
-      extractionOutput: { itemsFound: columns.length, itemNames },
-      itemsCreated: columns.length,
-    })
-    return { created: columns.length, deleted: deletedCount, strategy: 'per_column' }
-  }
-
-  // === llm_prompt strategy ===
-  if (extractionStrategy === 'llm_prompt') {
-    const userPrompt = extractionConfig?.prompt
-    if (!userPrompt) {
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        error: 'No extraction prompt configured',
-        itemsCreated: 0,
-      })
-      return { created: 0, deleted: deletedCount, strategy: 'llm_prompt', error: 'No extraction prompt configured' }
-    }
-
-    if (!extractionModel) {
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        error: 'No extraction model configured on library',
-        itemsCreated: 0,
-      })
-      return {
-        created: 0,
-        deleted: deletedCount,
-        strategy: 'llm_prompt',
-        error: 'No extraction model configured on library',
-      }
-    }
-
-    // Get workspace for LLM call
-    const workspaceId = await getLibraryWorkspace(libraryId)
-    if (!workspaceId) {
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        error: 'Library has no workspace',
-        itemsCreated: 0,
-      })
-      return { created: 0, deleted: deletedCount, strategy: 'llm_prompt', error: 'Library has no workspace' }
-    }
-
-    try {
-      const llmResult = await callLlmForExtraction({
-        workspaceId,
-        libraryId,
-        listId,
-        fileContent: markdown,
-        userPrompt,
-        modelId: extractionModel.id,
-        modelName: extractionModel.name,
-        modelProvider: extractionModel.provider,
-      })
-
-      if (llmResult.items.length === 0) {
-        await saveFileExtraction({
-          sourceId,
-          fileId,
-          extractionInput,
-          extractionOutput: {
-            itemsFound: 0,
-            rawLlmResponse: llmResult.rawResponse,
-            warnings: ['LLM returned no valid items (no ## headings found)'],
-          },
-          itemsCreated: 0,
-        })
-        return { created: 0, deleted: deletedCount, strategy: 'llm_prompt', error: 'LLM returned no valid items' }
-      }
-
-      const itemNames: string[] = []
-      for (const llmItem of llmResult.items) {
-        const itemName = llmItem.itemName
-        const item = await prisma.aiListItem.create({
-          data: {
-            listId,
-            sourceId,
-            sourceFileId: fileId,
-            extractionIndex: llmItem.itemIndex,
-            itemName,
-            metadata: { itemName: llmItem.itemName },
-          },
-        })
-        await saveListItemContent({ fileId, libraryId, listId, itemId: item.id, content: llmItem.content })
-        itemNames.push(itemName)
-      }
-
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        extractionOutput: {
-          itemsFound: llmResult.items.length,
-          itemNames,
-          rawLlmResponse: llmResult.rawResponse,
-          tokensInput: llmResult.tokensInput,
-          tokensOutput: llmResult.tokensOutput,
-        },
-        itemsCreated: llmResult.items.length,
-      })
-      return { created: llmResult.items.length, deleted: deletedCount, strategy: 'llm_prompt' }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown LLM error'
-      await saveFileExtraction({
-        sourceId,
-        fileId,
-        extractionInput,
-        error: errorMessage,
-        itemsCreated: 0,
-      })
-      return { created: 0, deleted: deletedCount, strategy: 'llm_prompt', error: errorMessage }
-    }
-  }
-
-  // Unknown strategy, default to per_file
-  await prisma.aiListItem.create({
-    data: { listId, sourceId, sourceFileId: fileId, itemName: fileName },
-  })
-  await saveFileExtraction({
-    sourceId,
-    fileId,
-    extractionInput: { ...extractionInput, warnings: ['unknown_strategy, fell back to per_file'] },
-    extractionOutput: { itemsFound: 1, itemNames: [fileName] },
-    itemsCreated: 1,
-  })
-  return { created: 1, deleted: deletedCount, strategy: 'per_file' }
+  return itemsCreated
 }
 
 /**
@@ -807,16 +171,9 @@ export async function createListItemsForFile({
 export async function createListItemsForSource(sourceId: string): Promise<{ created: number; files: number }> {
   const source = await prisma.aiListSource.findUniqueOrThrow({
     where: { id: sourceId },
-    include: {
-      library: {
-        include: {
-          extractionModel: { select: { id: true, name: true, provider: true } },
-        },
-      },
-    },
   })
 
-  if (!source.libraryId || !source.library) {
+  if (!source.libraryId) {
     return { created: 0, files: 0 }
   }
 
@@ -829,22 +186,16 @@ export async function createListItemsForSource(sourceId: string): Promise<{ crea
   })
 
   let totalCreated = 0
-  const strategy = (source.extractionStrategy as ExtractionStrategy) || 'per_file'
-  const extractionConfig = source.extractionConfig as { prompt?: string } | null
-  const extractionModel = source.library.extractionModel
 
   for (const file of files) {
-    const result = await createListItemsForFile({
+    const created = await createListItemsForFile({
       sourceId,
       fileId: file.id,
       fileName: file.name,
       listId: source.listId,
       libraryId: source.libraryId,
-      extractionStrategy: strategy,
-      extractionConfig,
-      extractionModel,
     })
-    totalCreated += result.created
+    totalCreated += created
   }
 
   return { created: totalCreated, files: files.length }
@@ -852,26 +203,14 @@ export async function createListItemsForSource(sourceId: string): Promise<{ crea
 
 /**
  * Refresh list items for a source (delete existing and recreate).
- * Also cleans up .md files for per_row items.
  */
 export async function refreshListItemsForSource(sourceId: string): Promise<{ created: number; deleted: number }> {
   const source = await prisma.aiListSource.findUniqueOrThrow({
     where: { id: sourceId },
-    include: {
-      items: { select: { sourceFileId: true } },
-    },
   })
 
   if (!source.libraryId) {
     return { created: 0, deleted: 0 }
-  }
-
-  // Get unique file IDs for cleanup
-  const fileIds = [...new Set(source.items.map((item) => item.sourceFileId))]
-
-  // Delete .md files for each file's listItems/<listId>/ directory
-  for (const fileId of fileIds) {
-    await deleteListItemDir({ fileId, libraryId: source.libraryId, listId: source.listId })
   }
 
   // Delete existing items from database
@@ -906,16 +245,9 @@ export async function createListItemsForProcessedFile(
     return { created: 0, sources: 0 }
   }
 
-  // Find all list sources that link to this library, with library extraction model
+  // Find all list sources that link to this library
   const sources = await prisma.aiListSource.findMany({
     where: { libraryId },
-    include: {
-      library: {
-        include: {
-          extractionModel: { select: { id: true, name: true, provider: true } },
-        },
-      },
-    },
   })
 
   if (sources.length === 0) {
@@ -925,21 +257,14 @@ export async function createListItemsForProcessedFile(
   let totalCreated = 0
 
   for (const source of sources) {
-    const strategy = (source.extractionStrategy as ExtractionStrategy) || 'per_file'
-    const extractionConfig = source.extractionConfig as { prompt?: string } | null
-    const extractionModel = source.library?.extractionModel
-
-    const result = await createListItemsForFile({
+    const created = await createListItemsForFile({
       sourceId: source.id,
       fileId,
       fileName: file.name,
       listId: source.listId,
       libraryId,
-      extractionStrategy: strategy,
-      extractionConfig,
-      extractionModel,
     })
-    totalCreated += result.created
+    totalCreated += created
 
     // Sync automation items for the list
     await syncAutomationItemsForList(source.listId)

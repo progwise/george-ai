@@ -19,7 +19,14 @@ import {
   transformTextToMarkdown,
   validateOptionsForExtractionMethod,
 } from '@george-ai/file-converter'
-import { getFileDir, getUploadFilePath, saveMarkdownContent } from '@george-ai/file-management'
+import {
+  getExtractionFileInfo,
+  getFileDir,
+  getUploadFilePath,
+  iterateExtractionFiles,
+  parseExtractionMainName,
+  saveMarkdownContent,
+} from '@george-ai/file-management'
 import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain-chat'
 import { createLogger } from '@george-ai/web-utils'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
@@ -52,6 +59,7 @@ type ProcessingTaskRecord = Prisma.AiContentProcessingTaskGetPayload<{
         originUri: true
         mimeType: true
         libraryId: true
+        createdAt: true
       }
     }
   }
@@ -106,6 +114,7 @@ const updateProcessingTask = async (args: {
           originUri: true,
           mimeType: true,
           libraryId: true,
+          createdAt: true,
         },
       },
     },
@@ -255,6 +264,8 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
             timeoutSignal,
             fileId: task.fileId,
             libraryId: task.file.libraryId,
+            fileName: task.file.name,
+            fileCreatedAt: task.file.createdAt,
             extractionMethod: subTask.extractionMethod as ExtractionMethodId,
             extractionOptions: validated.extractionOptions,
             uploadFilePath: validated.uploadFilePath!,
@@ -512,6 +523,89 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
   }
 }
 
+// Batch processing constants for large bucketed extractions
+const PARTS_PER_BATCH = 1000 // Process 1000 parts per batch
+const MIN_PARTS_FOR_BATCHING = 500 // Only use batching for 500+ parts
+
+/**
+ * Process a single batch of parts in parallel
+ * This helper function encapsulates the embedding logic for a range of parts
+ */
+const processPartBatch = async (args: {
+  batchNumber: number
+  startPart: number
+  endPart: number
+  taskId: string
+  timeoutSignal: AbortSignal
+  fileId: string
+  fileName: string
+  originUri: string | null
+  mimeType: string
+  libraryId: string
+  extractionMethod: string
+  extractionMethodParameter?: string
+  embeddingModelProvider: ServiceProviderType
+  embeddingModelName: string
+  workspaceId: string
+}) => {
+  logger.info(`[Batch ${args.batchNumber}] Starting parts ${args.startPart}-${args.endPart}`)
+
+  let batchChunks = 0
+  let batchSize = 0
+  let batchTimeout = false
+  const batchChunkErrors: Array<{ chunk: unknown; errorMessage: string }> = []
+  let partCount = 0
+
+  // Iterate through parts in this batch
+  for await (const { filePath, part } of iterateExtractionFiles({
+    fileId: args.fileId,
+    libraryId: args.libraryId,
+    extractionMethod: args.extractionMethod,
+    extractionMethodParameter: args.extractionMethodParameter,
+    startPart: args.startPart,
+    endPart: args.endPart,
+  })) {
+    if (args.timeoutSignal.aborted) {
+      logger.warn(`[Batch ${args.batchNumber}] Aborted after ${partCount} parts`)
+      batchTimeout = true
+      break
+    }
+
+    partCount++
+
+    // Embed this part
+    const embeddedFile = await embedMarkdownFile({
+      timeoutSignal: args.timeoutSignal,
+      workspaceId: args.workspaceId,
+      libraryId: args.libraryId,
+      embeddingModelProvider: args.embeddingModelProvider,
+      embeddingModelName: args.embeddingModelName,
+      fileId: args.fileId,
+      fileName: args.fileName,
+      originUri: args.originUri || '',
+      mimeType: args.mimeType,
+      markdownFilePath: filePath,
+      part,
+    })
+
+    batchChunks += embeddedFile.chunks
+    batchSize += embeddedFile.size
+    batchTimeout = batchTimeout || embeddedFile.timeout || false
+    batchChunkErrors.push(...embeddedFile.chunkErrors)
+  }
+
+  logger.info(`[Batch ${args.batchNumber}] Completed ${partCount} parts: ${batchChunks} chunks, ${batchSize} bytes`)
+
+  return {
+    batchNumber: args.batchNumber,
+    partCount,
+    chunks: batchChunks,
+    size: batchSize,
+    timeout: batchTimeout,
+    chunkErrors: batchChunkErrors,
+  }
+}
+
 const processEmbeddingPhase = async (args: {
   taskId: string
   timeoutSignal: AbortSignal
@@ -533,25 +627,124 @@ const processEmbeddingPhase = async (args: {
     throw new Error(`Library ${args.libraryId} has no workspace`)
   }
 
-  // Get markdown file path
-  const markdownPath = path.join(getFileDir({ fileId: args.fileId, libraryId: args.libraryId }), args.markdownFileName)
+  // Parse extraction method from filename
+  const mainName = args.markdownFileName.replace(/\.md$/, '')
+  const { extractionMethod, extractionMethodParameter } = parseExtractionMainName(mainName)
 
-  // Track start time for usage logging
-  const startTime = Date.now()
-
-  // Use embedFile function (embeddingModelName validated in validation phase)
-  const embeddedFile = await embedMarkdownFile({
-    timeoutSignal: args.timeoutSignal,
-    workspaceId,
-    libraryId: args.libraryId,
-    embeddingModelProvider: args.embeddingModelProvider,
-    embeddingModelName: args.embeddingModelName,
+  // Check if this is a large bucketed extraction that should use batch processing
+  const extractionInfo = await getExtractionFileInfo({
     fileId: args.fileId,
-    fileName: args.fileName,
-    originUri: args.originUri || '',
-    mimeType: args.mimeType,
-    markdownFilePath: markdownPath,
+    libraryId: args.libraryId,
+    extractionMethod,
+    extractionMethodParameter: extractionMethodParameter || undefined,
   })
+
+  const startTime = Date.now()
+  let totalChunks = 0
+  let totalSize = 0
+  let totalTimeout = false
+  const allChunkErrors: Array<{ chunk: unknown; errorMessage: string }> = []
+  let fileCount = 0
+
+  // Use batch processing for large bucketed extractions
+  if (extractionInfo.isBucketed && extractionInfo.totalParts >= MIN_PARTS_FOR_BATCHING) {
+    logger.info(
+      `Large bucketed extraction detected: ${extractionInfo.totalParts} parts. Using batch processing with ${PARTS_PER_BATCH} parts per batch.`,
+    )
+
+    // Split into batches
+    const batches: Array<{ batchNumber: number; startPart: number; endPart: number }> = []
+    for (let startPart = 1; startPart <= extractionInfo.totalParts; startPart += PARTS_PER_BATCH) {
+      const endPart = Math.min(startPart + PARTS_PER_BATCH - 1, extractionInfo.totalParts)
+      batches.push({
+        batchNumber: Math.floor((startPart - 1) / PARTS_PER_BATCH) + 1,
+        startPart,
+        endPart,
+      })
+    }
+
+    logger.info(`Split into ${batches.length} batches for parallel processing`)
+
+    // Process batches in parallel
+    const batchResults = await Promise.allSettled(
+      batches.map((batch) =>
+        processPartBatch({
+          ...batch,
+          taskId: args.taskId,
+          timeoutSignal: args.timeoutSignal,
+          fileId: args.fileId,
+          fileName: args.fileName,
+          originUri: args.originUri,
+          mimeType: args.mimeType,
+          libraryId: args.libraryId,
+          extractionMethod,
+          extractionMethodParameter: extractionMethodParameter || undefined,
+          embeddingModelProvider: args.embeddingModelProvider,
+          embeddingModelName: args.embeddingModelName,
+          workspaceId,
+        }),
+      ),
+    )
+
+    // Aggregate results from all batches
+    for (const result of batchResults) {
+      if (result.status === 'fulfilled') {
+        fileCount += result.value.partCount
+        totalChunks += result.value.chunks
+        totalSize += result.value.size
+        totalTimeout = totalTimeout || result.value.timeout
+        allChunkErrors.push(...result.value.chunkErrors)
+      } else {
+        logger.error(`Batch failed with error: ${result.reason}`)
+        // Continue processing other batches even if one fails
+      }
+    }
+
+    logger.info(`Batch processing complete: ${fileCount} parts, ${totalChunks} chunks, ${totalSize} bytes`)
+  } else {
+    // Sequential processing for small extractions or non-bucketed files
+    logger.info(`Using sequential processing for ${extractionInfo.totalParts} parts`)
+
+    for await (const { filePath, part } of iterateExtractionFiles({
+      fileId: args.fileId,
+      libraryId: args.libraryId,
+      extractionMethod,
+      extractionMethodParameter: extractionMethodParameter || undefined,
+    })) {
+      if (args.timeoutSignal.aborted) {
+        logger.warn(`Embedding aborted after processing ${fileCount} files`)
+        totalTimeout = true
+        break
+      }
+
+      fileCount++
+
+      // Embed this file (could be main file or a part)
+      const embeddedFile = await embedMarkdownFile({
+        timeoutSignal: args.timeoutSignal,
+        workspaceId,
+        libraryId: args.libraryId,
+        embeddingModelProvider: args.embeddingModelProvider,
+        embeddingModelName: args.embeddingModelName,
+        fileId: args.fileId,
+        fileName: args.fileName,
+        originUri: args.originUri || '',
+        mimeType: args.mimeType,
+        markdownFilePath: filePath,
+        part,
+      })
+
+      totalChunks += embeddedFile.chunks
+      totalSize += embeddedFile.size
+      totalTimeout = totalTimeout || embeddedFile.timeout || false
+      allChunkErrors.push(...embeddedFile.chunkErrors)
+
+      // Log progress every 100 files
+      if (part && part % 100 === 0) {
+        logger.info(`Embedded ${part} parts: ${totalChunks} chunks, ${totalSize} bytes`)
+      }
+    }
+  }
 
   // Log usage for embeddings (async, non-blocking)
   const durationMs = Date.now() - startTime
@@ -560,16 +753,18 @@ const processEmbeddingPhase = async (args: {
     libraryId: args.libraryId,
     usageType: 'embedding',
     durationMs,
-    tokensInput: embeddedFile.size, // Use text size as proxy for input tokens
-    tokensOutput: embeddedFile.chunks, // Number of embeddings generated
+    tokensInput: totalSize,
+    tokensOutput: totalChunks,
   })
 
+  logger.info(`Completed embedding ${fileCount} files: ${totalChunks} chunks, ${totalSize} bytes`)
+
   return {
-    success: true, //TODO: Is it a success if there are chunkErrors?
-    timeout: embeddedFile.timeout || false,
-    chunks: embeddedFile.chunks,
-    chunkErrors: embeddedFile.chunkErrors,
-    size: embeddedFile.size,
+    success: true,
+    timeout: totalTimeout,
+    chunks: totalChunks,
+    chunkErrors: allChunkErrors,
+    size: totalSize,
   }
 }
 
@@ -676,6 +871,8 @@ const performContentExtraction = async (args: {
   timeoutSignal: AbortSignal
   fileId: string
   libraryId: string
+  fileName: string
+  fileCreatedAt: Date
   extractionMethod: ExtractionMethodId
   extractionOptions: FileConverterOptions
   uploadFilePath: string
@@ -700,7 +897,13 @@ const performContentExtraction = async (args: {
         break
 
       case 'csv-extraction':
-        result = await transformCsvToMarkdown(args.uploadFilePath, args.timeoutSignal)
+        result = await transformCsvToMarkdown(
+          args.uploadFilePath,
+          args.timeoutSignal,
+          args.libraryId,
+          args.fileId,
+          args.fileName,
+        )
         break
 
       case 'html-extraction':
@@ -754,7 +957,7 @@ const performContentExtraction = async (args: {
       libraryId: args.libraryId,
       extractionMethod: args.extractionMethod,
       markdown: result.markdownContent,
-      model:
+      extractionMethodParameter:
         args.extractionMethod === 'pdf-image-llm' ? `${args.ocrModel?.provider}:${args.ocrModel?.name}` : undefined,
     })
 
@@ -798,6 +1001,7 @@ async function processQueue() {
             originUri: true,
             mimeType: true,
             libraryId: true,
+            createdAt: true,
           },
         },
       },

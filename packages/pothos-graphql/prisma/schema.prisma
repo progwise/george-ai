@@ -244,7 +244,6 @@ model AiLibraryFile {
   library                AiLibrary                 @relation(fields: [libraryId], references: [id])
   updates                AiLibraryUpdate[]
   listItems              AiListItem[]
-  extractions            AiFileExtraction[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
@@ -390,16 +389,13 @@ model AiList {
 }
 
 model AiListSource {
-  id                 String             @id @default(cuid())
-  createdAt          DateTime           @default(now())
-  listId             String
-  libraryId          String?
-  extractionStrategy String             @default("per_file") // per_file, per_row, per_column, llm_prompt
-  extractionConfig   Json? // Strategy-specific config (column for naming, LLM prompt, etc.)
-  library            AiLibrary?         @relation(fields: [libraryId], references: [id])
-  list               AiList             @relation(fields: [listId], references: [id])
-  items              AiListItem[]
-  extractions        AiFileExtraction[]
+  id        String        @id @default(cuid())
+  createdAt DateTime      @default(now())
+  listId    String
+  libraryId String?
+  library   AiLibrary?    @relation(fields: [libraryId], references: [id])
+  list      AiList        @relation(fields: [listId], references: [id])
+  items     AiListItem[]
 }
 
 model AiListItem {
@@ -426,22 +422,6 @@ model AiListItem {
   @@index([itemName])
 }
 
-model AiFileExtraction {
-  id               String        @id @default(cuid())
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  sourceId         String
-  fileId           String
-  extractionInput  Json? // Input context sent to extraction (strategy, prompt, file content preview)
-  extractionOutput Json? // Output from extraction (parsed items, raw LLM response for llm_prompt)
-  error            String? // Error message if extraction failed
-  itemsCreated     Int           @default(0) // Number of items created from this extraction
-  source           AiListSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-  file             AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
-
-  @@unique([sourceId, fileId])
-  @@index([fileId])
-}
 
 model AiListField {
   id              String               @id @default(cuid())

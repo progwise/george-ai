@@ -31,6 +31,7 @@ const getFileChunks = createServerFn({ method: 'GET' })
               headingPath
               chunkIndex
               subChunkIndex
+              part
             }
           }
         }

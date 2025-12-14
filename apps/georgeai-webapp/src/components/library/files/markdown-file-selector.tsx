@@ -3,133 +3,85 @@ import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../../gql'
 import { AiLibraryFile_MarkdownFileSelectorFragment } from '../../../gql/graphql'
-import { useFileActions } from './use-file-actions'
 
 graphql(`
   fragment AiLibraryFile_MarkdownFileSelector on AiLibraryFile {
     id
     libraryId
-    latestExtractionMarkdownFileNames
-    availableExtractionMarkdownFileNames
+    availableExtractions {
+      extractionMethod
+      extractionMethodParameter
+      totalParts
+      totalSize
+      isBucketed
+      mainFileUrl
+      displayName
+    }
   }
 `)
 
 interface MarkdownFileSelectorProps {
   file: AiLibraryFile_MarkdownFileSelectorFragment
-  onChange: (fileName: string | null) => void
-  selectedFileName?: string
+  onChange: (url: string | null) => void
+  selectedUrl?: string
 }
 
-export const MarkdownFileSelector = ({ file, onChange, selectedFileName }: MarkdownFileSelectorProps) => {
+export const MarkdownFileSelector = ({ file, onChange, selectedUrl }: MarkdownFileSelectorProps) => {
   const detailsRef = useRef<HTMLDetailsElement>(null)
-  const confirmDropOutdatedFilesDialog = useRef<HTMLDialogElement>(null)
 
-  const { dropOutdatedMarkdownFiles, fileActionPending } = useFileActions({
-    libraryId: file.libraryId,
-  })
-
-  const handleChange = (fileName: string | null) => {
+  const handleChange = (url: string | null) => {
     detailsRef.current?.removeAttribute('open')
-    onChange(fileName)
+    onChange(url)
   }
 
-  const handleDropOutdated = async () => {
-    if (!confirmDropOutdatedFilesDialog.current) return
-    confirmDropOutdatedFilesDialog.current.showModal()
+  const selectedExtraction = useMemo(() => {
+    return file.availableExtractions.find((e) => e.mainFileUrl === selectedUrl)
+  }, [file.availableExtractions, selectedUrl])
+
+  if (file.availableExtractions.length === 0) {
+    return <div className="text-sm text-base-content/60">No extractions available</div>
   }
 
-  const activeFiles = useMemo(() => {
-    return file.latestExtractionMarkdownFileNames
-  }, [file.latestExtractionMarkdownFileNames])
-  const oldFiles = useMemo(() => {
-    return file.availableExtractionMarkdownFileNames.filter(
-      (fileName) => file.latestExtractionMarkdownFileNames.indexOf(fileName) === -1,
+  if (file.availableExtractions.length === 1) {
+    // Only one extraction, no need for a selector
+    return (
+      <div className="text-sm text-base-content/80">
+        {file.availableExtractions[0].displayName}
+        {file.availableExtractions[0].isBucketed && (
+          <span className="ml-2 text-base-content/60">
+            ({file.availableExtractions[0].totalParts.toLocaleString()} parts)
+          </span>
+        )}
+      </div>
     )
-  }, [file.availableExtractionMarkdownFileNames, file.latestExtractionMarkdownFileNames])
+  }
 
   return (
-    <>
-      <dialog ref={confirmDropOutdatedFilesDialog} className="modal">
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">Clear Markdown Data</h3>
-          <p className="py-4">
-            You are about to delete all outdated markdown files from the server. This action cannot be undone. Are you
-            sure?
-          </p>
-          <div className="modal-action gap-2">
-            <form method="dialog">
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={() => confirmDropOutdatedFilesDialog.current?.close()}
-              >
-                Cancel
-              </button>
-            </form>
-            <button
-              type="button"
-              className="btn btn-sm btn-error"
-              onClick={() => {
-                dropOutdatedMarkdownFiles(file.id)
-                confirmDropOutdatedFilesDialog.current?.close()
-              }}
-            >
-              Delete Outdated Files
-            </button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="submit">close</button>
-        </form>
-      </dialog>
-
-      <ul className="menu menu-horizontal z-49 items-center menu-xs rounded-full border border-base-content/20 py-0">
-        <li>
-          <details ref={detailsRef}>
-            <summary>{selectedFileName || 'Select a file'}</summary>
-            <ul style={{ marginTop: '0.125rem' }}>
-              {activeFiles.map((fileName) => (
-                <li key={`active-${fileName}`}>
-                  <button
-                    type="button"
-                    className={twMerge('text-primary', selectedFileName === fileName && 'btn-active')}
-                    onClick={() => handleChange(fileName)}
-                  >
-                    <span className="text-nowrap">{fileName || 'no-name'}</span>
-                  </button>
-                </li>
-              ))}
-              {oldFiles.length > 0 && (
-                <li>
-                  <button
-                    type="button"
-                    className="btn btn-xs"
-                    onClick={handleDropOutdated}
-                    disabled={fileActionPending}
-                  >
-                    Clear outdated files...
-                  </button>
-                </li>
-              )}
-              {oldFiles.length < 1 ? (
-                <li className="opacity-50">No old files</li>
-              ) : (
-                oldFiles.map((fileName) => (
-                  <li key={`all-${fileName}`}>
-                    <button
-                      type="button"
-                      className={twMerge(selectedFileName === fileName && 'btn-active')}
-                      onClick={() => handleChange(fileName)}
-                    >
-                      <span className="text-nowrap">{fileName || 'no-name'}</span>
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-          </details>
-        </li>
-      </ul>
-    </>
+    <ul className="menu menu-horizontal z-49 items-center menu-xs rounded-full border border-base-content/20 py-0">
+      <li>
+        <details ref={detailsRef}>
+          <summary>{selectedExtraction?.displayName || 'Select extraction'}</summary>
+          <ul style={{ marginTop: '0.125rem' }}>
+            {file.availableExtractions.map((extraction) => (
+              <li key={`${extraction.extractionMethod}-${extraction.extractionMethodParameter || 'default'}`}>
+                <button
+                  type="button"
+                  className={twMerge(
+                    'flex flex-col items-start',
+                    selectedUrl === extraction.mainFileUrl && 'btn-active',
+                  )}
+                  onClick={() => handleChange(extraction.mainFileUrl)}
+                >
+                  <span className="font-medium text-nowrap">{extraction.displayName}</span>
+                  {extraction.isBucketed && (
+                    <span className="text-xs text-base-content/60">{extraction.totalParts.toLocaleString()} parts</span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </li>
+    </ul>
   )
 }

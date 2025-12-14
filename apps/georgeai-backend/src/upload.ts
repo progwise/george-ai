@@ -3,8 +3,11 @@ import * as fs from 'fs'
 
 import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
 import { getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
+import { createLogger } from '@george-ai/web-utils'
 
 import { getUserContext } from './getUserContext'
+
+const logger = createLogger('Upload')
 
 // Simple in-memory lock for file uploads to prevent race conditions
 const uploadLocks = new Set<string>()
@@ -135,10 +138,10 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
             })
             releaseLock()
             httpResponse.statusCode = 200
-            console.log('File upload and processing completed (base64):', fileInfo.id, fileInfo.name)
+            logger.info('File upload and processing completed (base64):', fileInfo.id, fileInfo.name)
             httpResponse.end(JSON.stringify({ status: 'success' }))
           } catch (error) {
-            console.error('Error during file processing:', error)
+            logger.error('Error during file processing:', error)
             releaseLock()
             const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
             httpResponse.statusCode = 500
@@ -171,10 +174,10 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
           })
           releaseLock()
           httpResponse.statusCode = 200
-          console.log('File upload and processing completed:', fileInfo.id, fileInfo.name)
+          logger.info('File upload and processing completed:', fileInfo.id, fileInfo.name)
           httpResponse.end(JSON.stringify({ status: 'success' }))
         } catch (error) {
-          console.error('Error during file processing:', error)
+          logger.error('Error during file processing:', error)
           releaseLock()
           const errorMessage = error instanceof Error ? error.message : 'Error during file processing'
           httpResponse.statusCode = 500
