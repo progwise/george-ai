@@ -1281,6 +1281,7 @@ export type FileChunk = {
   headingPath: Scalars['String']['output']
   id: Scalars['String']['output']
   originUri?: Maybe<Scalars['String']['output']>
+  part?: Maybe<Scalars['Int']['output']>
   points?: Maybe<Scalars['Int']['output']>
   section: Scalars['String']['output']
   subChunkIndex: Scalars['Int']['output']
@@ -4921,6 +4922,7 @@ export type GetFileChunksQuery = {
       headingPath: string
       chunkIndex: number
       subChunkIndex: number
+      part?: number | null
     }>
   }
 }
@@ -17539,6 +17541,7 @@ export const GetFileChunksDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'headingPath' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'chunkIndex' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'part' } },
                     ],
                   },
                 },

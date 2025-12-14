@@ -19,6 +19,7 @@ interface FileChunkType {
   subChunkIndex: number
   distance?: number
   points?: number
+  part?: number
 }
 export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
   fields: (t) => ({
@@ -33,6 +34,7 @@ export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement
     subChunkIndex: t.exposeInt('subChunkIndex', { nullable: false }),
     distance: t.exposeFloat('distance', { nullable: true }),
     points: t.exposeInt('points', { nullable: true }),
+    part: t.exposeInt('part', { nullable: true }),
   }),
 })
 
@@ -90,6 +92,7 @@ builder.queryField('aiFileChunks', (t) =>
         take,
         count: result.count,
         chunks: result.chunks,
+        part: result.part,
       }
     },
   }),

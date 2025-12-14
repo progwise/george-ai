@@ -488,17 +488,24 @@ export const deleteExistingExtraction = async ({
  * - For non-bucketed extractions: yields the main file
  *
  * This encapsulates all the complexity of bucket paths, part numbering, etc.
+ *
+ * @param startPart - Optional starting part number (inclusive, for batch processing)
+ * @param endPart - Optional ending part number (inclusive, for batch processing)
  */
 export async function* iterateExtractionFiles({
   fileId,
   libraryId,
   extractionMethod,
   extractionMethodParameter,
+  startPart,
+  endPart,
 }: {
   fileId: string
   libraryId: string
   extractionMethod: string
   extractionMethodParameter?: string
+  startPart?: number
+  endPart?: number
 }): AsyncGenerator<{ filePath: string; part?: number }> {
   const mainName = getExtractionMainName({ extractionMethod, extractionMethodParameter })
   const fileDir = getFileDir({ fileId, libraryId })
@@ -513,8 +520,12 @@ export async function* iterateExtractionFiles({
     })
 
     if (info.isBucketed && info.totalParts > 0) {
-      // Yield each part file
-      for (let partNumber = 1; partNumber <= info.totalParts; partNumber++) {
+      // Determine range to process
+      const firstPart = startPart || 1
+      const lastPart = endPart || info.totalParts
+
+      // Yield each part file in the specified range
+      for (let partNumber = firstPart; partNumber <= lastPart; partNumber++) {
         const bucketPath = getBucketPath({
           libraryId,
           fileId,
@@ -533,7 +544,7 @@ export async function* iterateExtractionFiles({
         }
       }
     } else {
-      // Non-bucketed: yield main file
+      // Non-bucketed: yield main file (ignore range parameters)
       const mainFilePath = path.join(fileDir, `${mainName}.md`)
       if (fs.existsSync(mainFilePath)) {
         yield { filePath: mainFilePath }

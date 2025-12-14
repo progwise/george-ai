@@ -317,7 +317,7 @@ export const getFileChunks = async ({
     .search({
       q: '*',
       filter_by: `docId: \`${fileId}\``,
-      sort_by: 'chunkIndex:asc',
+      sort_by: 'chunkIndex:asc, part:asc, subChunkIndex:asc',
       per_page: take,
       page: 1 + skip / take,
     })
@@ -339,6 +339,7 @@ export const getFileChunks = async ({
       chunkIndex: hit.document.chunkIndex || 0,
       subChunkIndex: hit.document.subChunkIndex || 0,
       points: hit.document.points || 0,
+      part: hit.document.part,
     })),
   }
 }

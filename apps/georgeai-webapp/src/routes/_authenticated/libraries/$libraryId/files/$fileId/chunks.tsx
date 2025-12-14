@@ -76,8 +76,9 @@ function RouteComponent() {
               <div className="mb-2">
                 <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunkIndex + 1}</div>
                 {chunk.subChunkIndex > 0 && (
-                  <span className="ml-1 badge badge-ghost badge-xs">part {chunk.subChunkIndex + 1}</span>
+                  <span className="ml-1 badge badge-ghost badge-xs">sub {chunk.subChunkIndex + 1}</span>
                 )}
+                {chunk.part !== undefined && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.part}</span>}
               </div>
 
               {/* Path information */}

@@ -1230,6 +1230,7 @@ type FileChunk {
   headingPath: String!
   id: String!
   originUri: String
+  part: Int
   points: Int
   section: String!
   subChunkIndex: Int!
