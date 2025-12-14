@@ -92,7 +92,6 @@ builder.queryField('aiFileChunks', (t) =>
         take,
         count: result.count,
         chunks: result.chunks,
-        part: result.part,
       }
     },
   }),
