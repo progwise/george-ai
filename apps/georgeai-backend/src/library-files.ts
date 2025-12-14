@@ -4,16 +4,18 @@ import path from 'node:path'
 
 import { getBucketPath, getFileDir, parseExtractionMainName } from '@george-ai/file-management'
 import { canAccessFileOrThrow } from '@george-ai/pothos-graphql'
-import { getMimeTypeFromExtension } from '@george-ai/web-utils'
+import { createLogger, getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { getUserContext } from './getUserContext'
+
+const logger = createLogger('Library Files')
 
 export const libraryFiles = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
   const fileName = request.query['filename'] as string
   const part = request.query['part'] ? Number(request.query['part']) : undefined
 
-  console.log(
+  logger.debug(
     `Received request for library file: libraryId=${libraryId}, fileId=${fileId}, fileName=${fileName}, part=${part}`,
   )
 
@@ -74,7 +76,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
       response.setHeader('Content-Length', stats.size)
       response.setHeader('Content-Disposition', `inline; filename="${partFileName}"`)
 
-      console.log(`Serving part file ${fullFilePath} (${stats.size} bytes)`)
+      logger.debug(`Serving part file ${fullFilePath} (${stats.size} bytes)`)
 
       // Stream the file content
       const fileStream = fs.createReadStream(fullFilePath)
@@ -127,7 +129,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
       response.setHeader('Content-Type', `${mimeType}; charset=utf-8`)
     }
 
-    console.log(`Serving file ${fullFilePath} with mime type ${mimeType}`)
+    logger.debug(`Serving file ${fullFilePath} with mime type ${mimeType}`)
 
     // Stream the file content
     const fileStream = fs.createReadStream(fullFilePath)

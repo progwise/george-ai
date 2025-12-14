@@ -1,7 +1,9 @@
 import { Request, Response } from 'express'
 
 import { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from '@george-ai/pothos-graphql'
+import { createLogger } from '@george-ai/web-utils'
 
+const logger = createLogger('SSE')
 const eventIds = new Map<string, number>()
 
 export const conversationMessagesSSE = async (request: Request, response: Response) => {
@@ -17,7 +19,7 @@ export const conversationMessagesSSE = async (request: Request, response: Respon
   })
 
   const conversationId = request.query['conversationId'] as string
-  console.log('SSE connection opened', conversationId)
+  logger.debug('SSE connection opened', conversationId)
   const conversationMessagesUpdateSubscriptionId = subscribeConversationMessagesUpdate(
     conversationId,
     ({ messageId, sequenceNumber, content, createdAt, updatedAt, sender }) => {
@@ -33,8 +35,8 @@ export const conversationMessagesSSE = async (request: Request, response: Respon
   )
 
   request.on('close', () => {
-    console.log('SSE connection closed by client', conversationId)
-    console.log('Cancel Subscription', conversationMessagesUpdateSubscriptionId)
+    logger.debug('SSE connection closed by client', conversationId)
+    logger.debug('Cancel Subscription', conversationMessagesUpdateSubscriptionId)
     unsubscribeConversationMessagesUpdates({
       conversationId,
       subscriptionId: conversationMessagesUpdateSubscriptionId,
