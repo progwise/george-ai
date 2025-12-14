@@ -139,7 +139,8 @@ export async function transformCsvToMarkdown(
   })
 
   // Streaming CSV parser
-  const parser = createReadStream(csvPath).pipe(
+  const readStream = createReadStream(csvPath)
+  const parser = readStream.pipe(
     parse({
       bom: true,
       relax_quotes: true,
@@ -148,12 +149,18 @@ export async function transformCsvToMarkdown(
     }),
   )
 
+  // Handle read stream errors
+  readStream.on('error', (error) => {
+    console.error(`[CSV Converter] Read stream error:`, error)
+    parser.destroy(error)
+  })
+
   let headers: string[] = []
   let rowNumber = 0
   let lastProcessedRow = 0
 
   return new Promise((resolve, reject) => {
-    parser.on('data', async (record: string[]) => {
+    parser.on('data', (record: string[]) => {
       rowNumber++
 
       // First row is headers
@@ -166,34 +173,38 @@ export async function transformCsvToMarkdown(
       // Pause stream while processing row (backpressure)
       parser.pause()
 
-      try {
-        // Generate markdown for this row (totalRows is undefined during streaming)
-        const rowMarkdown = generateRowMarkdown(headers, record, rowNumber - 1, fileName)
+      // Process asynchronously but don't await in the event handler
+      // This prevents race conditions while still maintaining proper backpressure
+      ;(async () => {
+        try {
+          // Generate markdown for this row (totalRows is undefined during streaming)
+          const rowMarkdown = generateRowMarkdown(headers, record, rowNumber - 1, fileName)
 
-        // Save to bucketed file using new architecture
-        // Part numbers start at 1 (row 2 in CSV = part 1, since row 1 is headers)
-        await saveMarkdownContent({
-          fileId,
-          libraryId,
-          extractionMethod: 'csv-extraction',
-          extractionMethodParameter: undefined,
-          markdown: rowMarkdown,
-          part: rowNumber - 1, // rowNumber-1 because row 1 is headers
-        })
+          // Save to bucketed file using new architecture
+          // Part numbers start at 1 (row 2 in CSV = part 1, since row 1 is headers)
+          await saveMarkdownContent({
+            fileId,
+            libraryId,
+            extractionMethod: 'csv-extraction',
+            extractionMethodParameter: undefined,
+            markdown: rowMarkdown,
+            part: rowNumber - 1, // rowNumber-1 because row 1 is headers
+          })
 
-        lastProcessedRow = rowNumber - 1
+          lastProcessedRow = rowNumber - 1
 
-        // Log progress every 1000 rows
-        if (lastProcessedRow % 1000 === 0) {
-          console.log(`[CSV Converter] Processed ${lastProcessedRow.toLocaleString()} rows`)
+          // Log progress every 1000 rows
+          if (lastProcessedRow % 1000 === 0) {
+            console.log(`[CSV Converter] Processed ${lastProcessedRow.toLocaleString()} rows`)
+          }
+
+          // Resume stream after processing completes
+          parser.resume()
+        } catch (error) {
+          console.error(`[CSV Converter] Error processing row ${rowNumber}:`, error)
+          parser.destroy(error as Error)
         }
-
-        // Resume stream
-        parser.resume()
-      } catch (error) {
-        console.error(`[CSV Converter] Error processing row ${rowNumber}:`, error)
-        parser.destroy(error as Error)
-      }
+      })()
     })
 
     parser.on('end', async () => {

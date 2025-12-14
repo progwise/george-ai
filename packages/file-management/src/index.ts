@@ -557,3 +557,50 @@ export async function* iterateExtractionFiles({
     throw error
   }
 }
+
+/**
+ * Get bucketed part file path for serving
+ * Validates extraction method and parameter to prevent path traversal
+ * Returns null if validation fails or file doesn't exist
+ */
+export const getBucketedPartFilePath = async (args: {
+  libraryId: string
+  fileId: string
+  extractionMethod: string
+  extractionMethodParameter: string | null
+  part: number
+}): Promise<{ filePath: string; fileName: string } | null> => {
+  const { libraryId, fileId, extractionMethod, extractionMethodParameter, part } = args
+
+  // Validate extraction method and parameter to prevent path traversal
+  const safePattern = /^[a-zA-Z0-9\-_]+$/
+  if (!safePattern.test(extractionMethod)) {
+    console.warn(`[File Management] Invalid extraction method: ${extractionMethod}`)
+    return null
+  }
+  if (extractionMethodParameter && !safePattern.test(extractionMethodParameter)) {
+    console.warn(`[File Management] Invalid extraction method parameter: ${extractionMethodParameter}`)
+    return null
+  }
+
+  // Get bucket path and construct part file path
+  const bucketPath = getBucketPath({
+    libraryId,
+    fileId,
+    extractionMethod,
+    extractionMethodParameter: extractionMethodParameter || undefined,
+    part,
+  })
+
+  const partFileName = `part-${part.toString().padStart(7, '0')}.md`
+  const fullFilePath = path.join(bucketPath, partFileName)
+
+  // Check if part file exists and is readable
+  try {
+    await fs.promises.access(fullFilePath, fs.constants.R_OK)
+    return { filePath: fullFilePath, fileName: partFileName }
+  } catch (error) {
+    console.warn(`[File Management] Part file not readable: ${fullFilePath}`, error)
+    return null
+  }
+}

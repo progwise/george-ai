@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { getBucketPath, getFileDir, parseExtractionMainName } from '@george-ai/file-management'
+import { getBucketedPartFilePath, getFileDir, parseExtractionMainName } from '@george-ai/file-management'
 import { canAccessFileOrThrow } from '@george-ai/pothos-graphql'
 import { createLogger, getMimeTypeFromExtension } from '@george-ai/web-utils'
 
@@ -47,26 +47,22 @@ export const libraryFiles = async (request: Request, response: Response) => {
       const mainName = fileName.replace(/\.md$/, '')
       const { extractionMethod, extractionMethodParameter } = parseExtractionMainName(mainName)
 
-      // Get bucket path and construct part file path
-      const bucketPath = getBucketPath({
+      // Use file-management to get and validate part file path
+      const partFileInfo = await getBucketedPartFilePath({
         libraryId,
         fileId,
         extractionMethod,
-        extractionMethodParameter: extractionMethodParameter || undefined,
+        extractionMethodParameter,
         part,
       })
 
-      const partFileName = `part-${part.toString().padStart(7, '0')}.md`
-      const fullFilePath = path.join(bucketPath, partFileName)
-
-      // Check if part file exists
-      try {
-        await fs.promises.access(fullFilePath, fs.constants.R_OK)
-      } catch (error) {
-        console.warn(`Part file not readable: ${fullFilePath}`, error)
+      if (!partFileInfo) {
+        logger.warn(`Invalid or inaccessible part file: ${fileName}, part ${part}`)
         response.status(404).end()
         return
       }
+
+      const { filePath: fullFilePath, fileName: partFileName } = partFileInfo
 
       // Get file stats
       const stats = await fs.promises.stat(fullFilePath)
