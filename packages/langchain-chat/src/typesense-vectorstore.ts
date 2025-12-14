@@ -348,12 +348,24 @@ export const getSimilarChunks = async (params: {
   workspaceId: string
   libraryId: string
   fileId?: string
+  part?: number | null
+  scope?: 'library' | 'file' | 'file-part'
   term: string
   embeddingsModelProvider: ServiceProviderType
   embeddingsModelName: string
   hits?: number
 }) => {
-  const { workspaceId, libraryId, fileId, term, embeddingsModelProvider, embeddingsModelName, hits } = params
+  const {
+    workspaceId,
+    libraryId,
+    fileId,
+    part,
+    scope = 'file-part',
+    term,
+    embeddingsModelProvider,
+    embeddingsModelName,
+    hits,
+  } = params
   const questionAsVector = await getEmbeddingWithCache({
     workspaceId,
     embeddingModelProvider: embeddingsModelProvider,
@@ -362,13 +374,25 @@ export const getSimilarChunks = async (params: {
   })
   const sanitizedVector = sanitizeVector(questionAsVector)
   await ensureVectorStore(libraryId)
+
+  // Build filter based on scope
+  let filterBy = ''
+  if (scope === 'file-part' && fileId && part !== null && part !== undefined) {
+    // Filter by file AND part
+    filterBy = `docId: \`${fileId}\` && part:=${part}`
+  } else if ((scope === 'file' || scope === 'file-part') && fileId) {
+    // Filter by file only (fallback when no part or scope is 'file')
+    filterBy = `docId: \`${fileId}\``
+  }
+  // scope === 'library': no filter (search entire library)
+
   const searchParams = {
     collection: getTypesenseSchemaName(libraryId),
     q: '*',
     query_by: 'vec',
     vector_query: `vec:([${sanitizedVector.join(',')}], k:${hits || 10})`,
     exclude_fields: 'vec',
-    ...(fileId ? { filter_by: `docId: \`${fileId}\`` } : {}),
+    ...(filterBy ? { filter_by: filterBy } : {}),
   }
   const multiSearchParams = {
     searches: [searchParams],

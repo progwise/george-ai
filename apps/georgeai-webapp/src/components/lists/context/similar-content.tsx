@@ -116,6 +116,19 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                       aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                     />
                   </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.scope')}</label>
+                    <select
+                      name={`vectorSearch_scope_${index}`}
+                      className="select w-full select-sm"
+                      defaultValue={query.scope || 'file-part'}
+                      aria-label={t('lists.contextSources.scope')}
+                    >
+                      <option value="library">{t('lists.contextSources.scopeLibrary')}</option>
+                      <option value="file">{t('lists.contextSources.scopeFile')}</option>
+                      <option value="file-part">{t('lists.contextSources.scopeFilePart')}</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             )
@@ -206,6 +219,21 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                   defaultValue="1000"
                   aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                 />
+              </div>
+
+              {/* Scope */}
+              <div>
+                <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.scope')}</label>
+                <select
+                  name={`vectorSearch_scope_new_${newIndex}`}
+                  className="select w-full select-sm"
+                  defaultValue="file-part"
+                  aria-label={t('lists.contextSources.scope')}
+                >
+                  <option value="library">{t('lists.contextSources.scopeLibrary')}</option>
+                  <option value="file">{t('lists.contextSources.scopeFile')}</option>
+                  <option value="file-part">{t('lists.contextSources.scopeFilePart')}</option>
+                </select>
               </div>
             </div>
           </div>

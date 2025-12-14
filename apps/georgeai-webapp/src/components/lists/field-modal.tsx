@@ -191,6 +191,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       const maxTokens = formData.get(`vectorSearch_maxTokens_${vectorSearchIndex}`) as string
       const maxChunks = formData.get(`vectorSearch_maxChunks_${vectorSearchIndex}`) as string
       const maxDistance = formData.get(`vectorSearch_maxDistance_${vectorSearchIndex}`) as string
+      const scope = formData.get(`vectorSearch_scope_${vectorSearchIndex}`) as string
 
       if (queryTemplate?.trim()) {
         contextVectorSearches.push({
@@ -199,6 +200,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
             queryTemplate: queryTemplate.trim(),
             maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
             maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+            scope: scope || 'file-part',
           }),
           maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
         })
@@ -213,6 +215,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       const maxTokens = formData.get(`vectorSearch_maxTokens_new_${newVectorSearchIndex}`) as string
       const maxChunks = formData.get(`vectorSearch_maxChunks_new_${newVectorSearchIndex}`) as string
       const maxDistance = formData.get(`vectorSearch_maxDistance_new_${newVectorSearchIndex}`) as string
+      const scope = formData.get(`vectorSearch_scope_new_${newVectorSearchIndex}`) as string
 
       if (queryTemplate?.trim()) {
         contextVectorSearches.push({
@@ -220,6 +223,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
             queryTemplate: queryTemplate.trim(),
             maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
             maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+            scope: scope || 'file-part',
           }),
           maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
         })

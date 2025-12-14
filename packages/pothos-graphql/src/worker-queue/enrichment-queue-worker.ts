@@ -121,11 +121,14 @@ async function processQueueItem({
             // Execute vector search
             const maxChunks = vectorSearch.maxChunks || 5
             const maxDistance = vectorSearch.maxDistance || 0.5
+            const scope = vectorSearch.scope || 'file-part'
 
             const allChunks = await getSimilarChunks({
               workspaceId,
               libraryId: metadata.input.libraryId,
               fileId: metadata.input.fileId,
+              part: metadata.input.itemExtractionIndex,
+              scope,
               term: query,
               embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
               embeddingsModelName: metadata.input.libraryEmbeddingModel,

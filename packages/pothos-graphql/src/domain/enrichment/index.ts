@@ -62,6 +62,7 @@ export const EnrichmentMetadataSchema = z.object({
       failureTerms: z.string().nullable().optional(),
       libraryId: z.string(),
       libraryName: z.string(),
+      itemExtractionIndex: z.number().nullable().optional(),
       aiModelId: z.string(),
       aiModelProvider: z.string().nullable().optional(),
       aiModelName: z.string(),
@@ -81,6 +82,7 @@ export const EnrichmentMetadataSchema = z.object({
             maxChunks: z.number().optional(),
             maxDistance: z.number().optional(),
             maxContentTokens: z.number().optional(),
+            scope: z.enum(['library', 'file', 'file-part']).optional(),
           }),
         )
         .optional(),
@@ -210,12 +212,18 @@ export const getEnrichmentTaskInputMetadata = ({
   const contextVectorSearches = validatedField.context
     .filter((ctx) => ctx.contextType === 'vectorSearch' && ctx.contextQuery)
     .map((ctx) => {
-      const query = ctx.contextQuery as { queryTemplate?: string; maxChunks?: number; maxDistance?: number }
+      const query = ctx.contextQuery as {
+        queryTemplate?: string
+        maxChunks?: number
+        maxDistance?: number
+        scope?: 'library' | 'file' | 'file-part'
+      }
       return {
         queryTemplate: query.queryTemplate || '',
         maxChunks: query.maxChunks || undefined,
         maxDistance: query.maxDistance || undefined,
         maxContentTokens: ctx.maxContentTokens || undefined,
+        scope: query.scope || 'file-part',
       }
     })
 
@@ -243,6 +251,7 @@ export const getEnrichmentTaskInputMetadata = ({
     libraryEmbeddingModelProvider: item.sourceFile.library.embeddingModel?.provider || undefined,
     fileId: item.sourceFile.id,
     fileName: item.sourceFile.name,
+    itemExtractionIndex: item.extractionIndex,
     fieldId: validatedField.id,
     fieldName: validatedField.name,
     failureTerms: validatedField.failureTerms,
