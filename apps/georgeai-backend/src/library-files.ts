@@ -62,17 +62,14 @@ export const libraryFiles = async (request: Request, response: Response) => {
         return
       }
 
-      const { filePath: fullFilePath, fileName: partFileName } = partFileInfo
-
-      // Get file stats
-      const stats = await fs.promises.stat(fullFilePath)
+      const { filePath: fullFilePath, fileName: partFileName, size } = partFileInfo
 
       // Set headers for markdown file
       response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
-      response.setHeader('Content-Length', stats.size)
+      response.setHeader('Content-Length', size)
       response.setHeader('Content-Disposition', `inline; filename="${partFileName}"`)
 
-      logger.debug(`Serving part file ${fullFilePath} (${stats.size} bytes)`)
+      logger.debug(`Serving part file ${fullFilePath} (${size} bytes)`)
 
       // Stream the file content
       const fileStream = fs.createReadStream(fullFilePath)

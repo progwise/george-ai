@@ -560,8 +560,8 @@ export async function* iterateExtractionFiles({
 
 /**
  * Get bucketed part file path for serving
- * Validates extraction method and parameter to prevent path traversal
- * Returns null if validation fails or file doesn't exist
+ * Validates extraction method, parameter, and part number to prevent path traversal
+ * Returns file path, name, and stats - or null if validation fails or file doesn't exist
  */
 export const getBucketedPartFilePath = async (args: {
   libraryId: string
@@ -569,8 +569,14 @@ export const getBucketedPartFilePath = async (args: {
   extractionMethod: string
   extractionMethodParameter: string | null
   part: number
-}): Promise<{ filePath: string; fileName: string } | null> => {
+}): Promise<{ filePath: string; fileName: string; size: number } | null> => {
   const { libraryId, fileId, extractionMethod, extractionMethodParameter, part } = args
+
+  // Validate part number
+  if (!Number.isInteger(part) || part < 1) {
+    console.warn(`[File Management] Invalid part number: ${part}`)
+    return null
+  }
 
   // Validate extraction method and parameter to prevent path traversal
   const safePattern = /^[a-zA-Z0-9\-_]+$/
@@ -595,10 +601,17 @@ export const getBucketedPartFilePath = async (args: {
   const partFileName = `part-${part.toString().padStart(7, '0')}.md`
   const fullFilePath = path.join(bucketPath, partFileName)
 
-  // Check if part file exists and is readable
+  // Check if part file exists and is readable, get stats in one operation
   try {
-    await fs.promises.access(fullFilePath, fs.constants.R_OK)
-    return { filePath: fullFilePath, fileName: partFileName }
+    const stats = await fs.promises.stat(fullFilePath)
+
+    // Verify it's a file and readable
+    if (!stats.isFile()) {
+      console.warn(`[File Management] Path is not a file: ${fullFilePath}`)
+      return null
+    }
+
+    return { filePath: fullFilePath, fileName: partFileName, size: stats.size }
   } catch (error) {
     console.warn(`[File Management] Part file not readable: ${fullFilePath}`, error)
     return null

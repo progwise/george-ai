@@ -158,6 +158,7 @@ export async function transformCsvToMarkdown(
   let headers: string[] = []
   let rowNumber = 0
   let lastProcessedRow = 0
+  let currentProcessing: Promise<void> | null = null
 
   return new Promise((resolve, reject) => {
     parser.on('data', (record: string[]) => {
@@ -174,8 +175,8 @@ export async function transformCsvToMarkdown(
       parser.pause()
 
       // Process asynchronously but don't await in the event handler
-      // This prevents race conditions while still maintaining proper backpressure
-      ;(async () => {
+      // Track the promise to ensure 'end' waits for the last row
+      currentProcessing = (async () => {
         try {
           // Generate markdown for this row (totalRows is undefined during streaming)
           const rowMarkdown = generateRowMarkdown(headers, record, rowNumber - 1, fileName)
@@ -209,6 +210,11 @@ export async function transformCsvToMarkdown(
 
     parser.on('end', async () => {
       try {
+        // Wait for the last row to finish processing
+        if (currentProcessing) {
+          await currentProcessing
+        }
+
         const totalRows = lastProcessedRow
 
         console.log(`[CSV Converter] Finished processing ${totalRows.toLocaleString()} rows`)
