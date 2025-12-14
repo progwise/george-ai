@@ -19,7 +19,13 @@ import {
   transformTextToMarkdown,
   validateOptionsForExtractionMethod,
 } from '@george-ai/file-converter'
-import { getFileDir, getUploadFilePath, saveMarkdownContent } from '@george-ai/file-management'
+import {
+  getFileDir,
+  getUploadFilePath,
+  iterateExtractionFiles,
+  parseExtractionMainName,
+  saveMarkdownContent,
+} from '@george-ai/file-management'
 import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain-chat'
 import { createLogger } from '@george-ai/web-utils'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
@@ -537,25 +543,58 @@ const processEmbeddingPhase = async (args: {
     throw new Error(`Library ${args.libraryId} has no workspace`)
   }
 
-  // Get markdown file path
-  const markdownPath = path.join(getFileDir({ fileId: args.fileId, libraryId: args.libraryId }), args.markdownFileName)
+  // Parse extraction method from filename
+  const mainName = args.markdownFileName.replace(/\.md$/, '')
+  const { extractionMethod, extractionMethodParameter } = parseExtractionMainName(mainName)
 
-  // Track start time for usage logging
+  // Track metrics across all files/parts
+  let totalChunks = 0
+  let totalSize = 0
+  let totalTimeout = false
+  const allChunkErrors: Array<{ chunk: unknown; errorMessage: string }> = []
   const startTime = Date.now()
 
-  // Use embedFile function (embeddingModelName validated in validation phase)
-  const embeddedFile = await embedMarkdownFile({
-    timeoutSignal: args.timeoutSignal,
-    workspaceId,
-    libraryId: args.libraryId,
-    embeddingModelProvider: args.embeddingModelProvider,
-    embeddingModelName: args.embeddingModelName,
+  // Iterate through all files (main file or all parts)
+  let fileCount = 0
+  for await (const { filePath, part } of iterateExtractionFiles({
     fileId: args.fileId,
-    fileName: args.fileName,
-    originUri: args.originUri || '',
-    mimeType: args.mimeType,
-    markdownFilePath: markdownPath,
-  })
+    libraryId: args.libraryId,
+    extractionMethod,
+    extractionMethodParameter: extractionMethodParameter || undefined,
+  })) {
+    if (args.timeoutSignal.aborted) {
+      logger.warn(`Embedding aborted after processing ${fileCount} files`)
+      totalTimeout = true
+      break
+    }
+
+    fileCount++
+
+    // Embed this file (could be main file or a part)
+    const embeddedFile = await embedMarkdownFile({
+      timeoutSignal: args.timeoutSignal,
+      workspaceId,
+      libraryId: args.libraryId,
+      embeddingModelProvider: args.embeddingModelProvider,
+      embeddingModelName: args.embeddingModelName,
+      fileId: args.fileId,
+      fileName: args.fileName,
+      originUri: args.originUri || '',
+      mimeType: args.mimeType,
+      markdownFilePath: filePath,
+      part,
+    })
+
+    totalChunks += embeddedFile.chunks
+    totalSize += embeddedFile.size
+    totalTimeout = totalTimeout || embeddedFile.timeout || false
+    allChunkErrors.push(...embeddedFile.chunkErrors)
+
+    // Log progress every 100 files
+    if (part && part % 100 === 0) {
+      logger.info(`Embedded ${part} parts: ${totalChunks} chunks, ${totalSize} bytes`)
+    }
+  }
 
   // Log usage for embeddings (async, non-blocking)
   const durationMs = Date.now() - startTime
@@ -564,16 +603,18 @@ const processEmbeddingPhase = async (args: {
     libraryId: args.libraryId,
     usageType: 'embedding',
     durationMs,
-    tokensInput: embeddedFile.size, // Use text size as proxy for input tokens
-    tokensOutput: embeddedFile.chunks, // Number of embeddings generated
+    tokensInput: totalSize,
+    tokensOutput: totalChunks,
   })
 
+  logger.info(`Completed embedding ${fileCount} files: ${totalChunks} chunks, ${totalSize} bytes`)
+
   return {
-    success: true, //TODO: Is it a success if there are chunkErrors?
-    timeout: embeddedFile.timeout || false,
-    chunks: embeddedFile.chunks,
-    chunkErrors: embeddedFile.chunkErrors,
-    size: embeddedFile.size,
+    success: true,
+    timeout: totalTimeout,
+    chunks: totalChunks,
+    chunkErrors: allChunkErrors,
+    size: totalSize,
   }
 }
 

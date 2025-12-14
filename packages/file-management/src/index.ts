@@ -481,3 +481,68 @@ export const deleteExistingExtraction = async ({
     console.log(`[File Management] Deleted main file: ${mainFilePath}`)
   }
 }
+
+/**
+ * Iterator that yields all markdown files for an extraction
+ * - For bucketed extractions: yields each part file with its part number
+ * - For non-bucketed extractions: yields the main file
+ *
+ * This encapsulates all the complexity of bucket paths, part numbering, etc.
+ */
+export async function* iterateExtractionFiles({
+  fileId,
+  libraryId,
+  extractionMethod,
+  extractionMethodParameter,
+}: {
+  fileId: string
+  libraryId: string
+  extractionMethod: string
+  extractionMethodParameter?: string
+}): AsyncGenerator<{ filePath: string; part?: number }> {
+  const mainName = getExtractionMainName({ extractionMethod, extractionMethodParameter })
+  const fileDir = getFileDir({ fileId, libraryId })
+
+  // Check if extraction exists and is bucketed
+  try {
+    const info = await getExtractionFileInfo({
+      fileId,
+      libraryId,
+      extractionMethod,
+      extractionMethodParameter,
+    })
+
+    if (info.isBucketed && info.totalParts > 0) {
+      // Yield each part file
+      for (let partNumber = 1; partNumber <= info.totalParts; partNumber++) {
+        const bucketPath = getBucketPath({
+          libraryId,
+          fileId,
+          extractionMethod,
+          extractionMethodParameter,
+          part: partNumber,
+        })
+
+        const partFileName = `part-${partNumber.toString().padStart(7, '0')}.md`
+        const partFilePath = path.join(bucketPath, partFileName)
+
+        if (fs.existsSync(partFilePath)) {
+          yield { filePath: partFilePath, part: partNumber }
+        } else {
+          console.warn(`[File Management] Part file not found: ${partFilePath}`)
+        }
+      }
+    } else {
+      // Non-bucketed: yield main file
+      const mainFilePath = path.join(fileDir, `${mainName}.md`)
+      if (fs.existsSync(mainFilePath)) {
+        yield { filePath: mainFilePath }
+      } else {
+        console.warn(`[File Management] Main file not found: ${mainFilePath}`)
+      }
+    }
+  } catch (error) {
+    console.error(`[File Management] Error iterating extraction files:`, error)
+    throw error
+  }
+}

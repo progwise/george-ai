@@ -41,6 +41,7 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
     { name: 'headingPath', type: 'string' },
     { name: 'chunkIndex', type: 'int32' },
     { name: 'subChunkIndex', type: 'int32' },
+    { name: 'part', type: 'int32', optional: true },
   ],
   default_sorting_field: 'points',
 })
@@ -62,6 +63,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
       'headingPath',
       'chunkIndex',
       'subChunkIndex',
+      'part',
     ],
   },
 
@@ -120,6 +122,7 @@ export const embedMarkdownFile = async ({
   originUri,
   mimeType,
   markdownFilePath,
+  part,
 }: {
   timeoutSignal: AbortSignal
   workspaceId: string
@@ -131,6 +134,7 @@ export const embedMarkdownFile = async ({
   originUri: string
   mimeType: string
   markdownFilePath: string
+  part?: number
 }) => {
   await ensureVectorStore(libraryId)
 
@@ -151,6 +155,7 @@ export const embedMarkdownFile = async ({
       docId: fileId,
       docPath: markdownFilePath,
       originUri: originUri,
+      ...(part !== undefined ? { part } : {}),
     },
   }))
 
@@ -189,6 +194,7 @@ export const embedMarkdownFile = async ({
             points: 1,
             chunkIndex: chunk.metadata.chunkIndex,
             subChunkIndex: chunk.metadata.subChunkIndex,
+            ...(part !== undefined ? { part } : {}),
           })
         successfulCreatedChunks.push(chunk)
       } catch (error) {
