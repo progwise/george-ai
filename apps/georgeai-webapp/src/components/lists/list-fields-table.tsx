@@ -357,7 +357,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               aria-label={`Actions for ${field.name} in ${item.origin.name}`}
                               onClick={(e) => {
                                 e.stopPropagation()
-                                const itemKey = `${item.origin.id}-${field.id}`
+                                const itemKey = `${item.id}-${field.id}`
                                 setItemDropdownOpen(itemDropdownOpen === itemKey ? null : itemKey)
                               }}
                             >
@@ -369,7 +369,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                               itemId={item.id}
                               fieldName={field.name}
                               fileName={item.origin.name}
-                              isOpen={itemDropdownOpen === `${item.origin.id}-${field.id}`}
+                              isOpen={itemDropdownOpen === `${item.id}-${field.id}`}
                               onClose={() => setItemDropdownOpen(null)}
                               queueStatus={queueStatus}
                               error={error}
