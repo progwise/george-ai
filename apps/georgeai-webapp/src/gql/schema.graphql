@@ -1259,6 +1259,26 @@ type FileChunkQueryResponse {
   take: Int!
 }
 
+type FileUsage {
+  chunkCount: Int!
+  createdAt: DateTime!
+  extractionIndex: Int
+  id: ID!
+  itemName: String!
+  listId: String!
+  listName: String!
+}
+
+type FileUsageQueryResponse {
+  count: Int!
+  fileId: String!
+  fileName: String!
+  libraryId: String!
+  skip: Int!
+  take: Int!
+  usages: [FileUsage!]!
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -1612,6 +1632,7 @@ type Query {
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
   aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileUsages(fileId: String!, skip: Int!, take: Int!): FileUsageQueryResponse!
   aiLanguageModels(
     canDoChatCompletion: Boolean
     canDoEmbedding: Boolean

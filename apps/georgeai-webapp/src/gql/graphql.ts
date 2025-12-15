@@ -1305,6 +1305,28 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+export type FileUsage = {
+  __typename?: 'FileUsage'
+  chunkCount: Scalars['Int']['output']
+  createdAt: Scalars['DateTime']['output']
+  extractionIndex?: Maybe<Scalars['Int']['output']>
+  id: Scalars['ID']['output']
+  itemName: Scalars['String']['output']
+  listId: Scalars['String']['output']
+  listName: Scalars['String']['output']
+}
+
+export type FileUsageQueryResponse = {
+  __typename?: 'FileUsageQueryResponse'
+  count: Scalars['Int']['output']
+  fileId: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  usages: Array<FileUsage>
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -2057,6 +2079,7 @@ export type Query = {
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
   aiFileChunks: FileChunkQueryResponse
+  aiFileUsages: FileUsageQueryResponse
   aiLanguageModels: AiLanguageModelsResult
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
@@ -2140,6 +2163,12 @@ export type QueryAiConversationsArgs = {
 }
 
 export type QueryAiFileChunksArgs = {
+  fileId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}
+
+export type QueryAiFileUsagesArgs = {
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
@@ -5025,6 +5054,34 @@ export type GetSimilarFileChunksQuery = {
     distance?: number | null
     points?: number | null
   }>
+}
+
+export type GetFileUsagesQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type GetFileUsagesQuery = {
+  __typename?: 'Query'
+  aiFileUsages: {
+    __typename?: 'FileUsageQueryResponse'
+    fileId: string
+    fileName: string
+    skip: number
+    take: number
+    count: number
+    usages: Array<{
+      __typename?: 'FileUsage'
+      id: string
+      listId: string
+      listName: string
+      itemName: string
+      extractionIndex?: number | null
+      createdAt: string
+      chunkCount: number
+    }>
+  }
 }
 
 export type EmbeddingsTableQueryVariables = Exact<{
@@ -17871,6 +17928,85 @@ export const GetSimilarFileChunksDocument = {
     },
   ],
 } as unknown as DocumentNode<GetSimilarFileChunksQuery, GetSimilarFileChunksQueryVariables>
+export const GetFileUsagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileUsages' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileUsages' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'usages' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'listName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileUsagesQuery, GetFileUsagesQueryVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [

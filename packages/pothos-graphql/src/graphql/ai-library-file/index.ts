@@ -9,6 +9,7 @@ import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 
 import './file-chunks'
+import './file-usages'
 import './queries'
 import './mutations'
 
