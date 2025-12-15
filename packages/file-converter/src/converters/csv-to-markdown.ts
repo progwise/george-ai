@@ -38,12 +38,7 @@ import type { ConverterResult } from './types'
  * Stock: 45
  * ```
  */
-function generateRowMarkdown(
-  headers: string[],
-  row: string[],
-  rowNumber: number,
-  fileName: string,
-): string {
+function generateRowMarkdown(headers: string[], row: string[], rowNumber: number, fileName: string): string {
   const lines: string[] = []
 
   // Single heading with file context
