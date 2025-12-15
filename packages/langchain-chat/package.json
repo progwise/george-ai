@@ -16,19 +16,19 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/client-s3": "^3.952.0",
     "@george-ai/ai-service-client": "workspace:*",
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
-    "@langchain/community": "^1.0.3",
-    "@langchain/core": "^1.0.5",
-    "@langchain/ollama": "^1.0.1",
-    "@langchain/openai": "^1.1.1",
-    "langchain": "^1.0.4",
-    "read-excel-file": "^5.8.7",
-    "typesense": "^2.0.3",
-    "zod": "^3.23.8"
+    "@langchain/community": "^1.1.0",
+    "@langchain/core": "^1.1.5",
+    "@langchain/ollama": "^1.1.0",
+    "@langchain/openai": "^1.2.0",
+    "langchain": "^1.2.0",
+    "read-excel-file": "^6.0.1",
+    "typesense": "^2.1.0",
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",

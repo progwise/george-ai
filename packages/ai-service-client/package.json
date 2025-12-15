@@ -18,13 +18,13 @@
   },
   "dependencies": {
     "@george-ai/web-utils": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@george-ai/package-configs": "workspace:*",
     "@types/node": "^22.10.7",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "vitest": "^3.1.1",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
