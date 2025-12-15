@@ -7,6 +7,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { useMarkdownDownload } from '../library/files/use-markdown-download'
 import { getItemDetailQueryOptions } from './queries/get-item-detail'
 
 interface ItemDetailSidePanelProps {
@@ -32,12 +33,22 @@ export const ItemDetailSidePanel = ({
   const [copied, setCopied] = useState<string | null>(null)
 
   // Fetch item details when panel opens
-  const { data, isLoading } = useQuery({
+  const { data, isLoading: isLoadingMeta } = useQuery({
     ...getItemDetailQueryOptions(itemId),
     enabled: isOpen,
   })
 
-  const item = data?.aiListItem
+  const item = data
+
+  // Fetch markdown content from backend
+  const {
+    content,
+    isLoading: isLoadingContent,
+    progress,
+    error,
+  } = useMarkdownDownload({
+    url: item?.contentUrl,
+  })
 
   // Close on escape key
   useEffect(() => {
@@ -67,7 +78,7 @@ export const ItemDetailSidePanel = ({
       {/* Side Panel */}
       <div
         className={twMerge(
-          'fixed top-0 right-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-140 max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
@@ -96,7 +107,7 @@ export const ItemDetailSidePanel = ({
 
         {/* Content - scrollable */}
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {isLoading ? (
+          {isLoadingMeta ? (
             <div className="flex items-center justify-center py-8">
               <span className="loading loading-md loading-spinner" />
               <span className="ml-2">{t('lists.itemDetail.loading')}</span>
@@ -122,8 +133,25 @@ export const ItemDetailSidePanel = ({
                 </div>
               </section>
 
-              {/* Extraction Index */}
-              {item?.extractionIndex !== null && item?.extractionIndex !== undefined && (
+              {/* Extraction Method */}
+              {item?.extraction && (
+                <section aria-label="Extraction Method">
+                  <h4 className="mb-2 font-semibold">Extraction Method</h4>
+                  <div className="rounded-lg bg-base-200 p-3">
+                    <p className="font-mono text-base-content">{item.extraction.displayName}</p>
+                    {item.extraction.isBucketed &&
+                      item?.extractionIndex !== null &&
+                      item?.extractionIndex !== undefined && (
+                        <p className="mt-1 text-sm text-base-content/60">
+                          Part {item.extractionIndex + 1} of {item.extraction.totalParts}
+                        </p>
+                      )}
+                  </div>
+                </section>
+              )}
+
+              {/* Extraction Index (fallback if no extraction info) */}
+              {!item?.extraction && item?.extractionIndex !== null && item?.extractionIndex !== undefined && (
                 <section aria-label={t('lists.itemDetail.extractionIndex')}>
                   <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extractionIndex')}</h4>
                   <div className="rounded-lg bg-base-200 p-3">
@@ -132,15 +160,25 @@ export const ItemDetailSidePanel = ({
                 </section>
               )}
 
+              {/* Chunk Count */}
+              {item?.chunkCount !== null && item?.chunkCount !== undefined && (
+                <section aria-label="Chunk Count">
+                  <h4 className="mb-2 font-semibold">Chunk Count</h4>
+                  <div className="rounded-lg bg-base-200 p-3">
+                    <p className="font-mono text-base-content">{item.chunkCount.toLocaleString()}</p>
+                  </div>
+                </section>
+              )}
+
               {/* Content Section */}
               <section aria-label={t('lists.itemDetail.content')}>
                 <div className="mb-2 flex items-center justify-between">
                   <h4 className="font-semibold">{t('lists.itemDetail.content')}</h4>
-                  {item?.content && (
+                  {content && !isLoadingContent && !error && (
                     <button
                       type="button"
                       className="btn btn-ghost btn-xs"
-                      onClick={() => handleCopy(item.content || '', 'content')}
+                      onClick={() => handleCopy(content, 'content')}
                       aria-label={t('lists.itemDetail.copy')}
                     >
                       <CopyIcon className="size-3" />
@@ -149,9 +187,18 @@ export const ItemDetailSidePanel = ({
                   )}
                 </div>
                 <div className="max-h-80 overflow-y-auto rounded-lg bg-base-200 p-3">
-                  {item?.content ? (
+                  {error ? (
+                    <div className="alert alert-error">
+                      <span>Error loading content: {error.message}</span>
+                    </div>
+                  ) : isLoadingContent ? (
+                    <div className="flex items-center gap-4 py-4">
+                      <div className="loading loading-sm loading-spinner"></div>
+                      <div>Loading content... {progress > 0 && `${Math.round(progress)}%`}</div>
+                    </div>
+                  ) : content ? (
                     <div className="prose prose-sm max-w-none">
-                      <FormattedMarkdown markdown={item.content} />
+                      <FormattedMarkdown markdown={content} />
                     </div>
                   ) : (
                     <p className="text-base-content/50 italic">{t('lists.itemDetail.noContent')}</p>

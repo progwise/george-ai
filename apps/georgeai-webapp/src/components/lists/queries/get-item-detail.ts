@@ -11,28 +11,38 @@ const getItemDetailArgsSchema = z.object({
 
 const getItemDetail = createServerFn({ method: 'GET' })
   .inputValidator((data: z.infer<typeof getItemDetailArgsSchema>) => getItemDetailArgsSchema.parse(data))
-  .handler(async (ctx) =>
-    backendRequest(
+  .handler(async (ctx) => {
+    const data = await backendRequest(
       graphql(`
         query getItemDetail($itemId: String!) {
           aiListItem(id: $itemId) {
             id
             itemName
+            chunkCount
             extractionIndex
-            content
             metadata
+            contentUrl
             sourceFileId
             sourceFile {
               id
               name
               libraryId
             }
+            extraction {
+              extractionMethod
+              extractionMethodParameter
+              displayName
+              isBucketed
+              totalParts
+            }
           }
         }
       `),
       { itemId: ctx.data.itemId },
-    ),
-  )
+    )
+
+    return data.aiListItem
+  })
 
 export const getItemDetailQueryOptions = (itemId: string) =>
   queryOptions({

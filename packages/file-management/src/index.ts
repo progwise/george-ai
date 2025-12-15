@@ -450,6 +450,60 @@ export const getAvailableExtractions = async ({
 }
 
 /**
+ * Get detailed information about all available extractions for a file.
+ * Returns structured data WITHOUT URLs (URLs should be added by the caller as they are context-specific).
+ */
+export const getAvailableExtractionsWithInfo = async ({
+  fileId,
+  libraryId,
+}: {
+  fileId: string
+  libraryId: string
+}): Promise<
+  Array<{
+    extractionMethod: string
+    extractionMethodParameter: string | null
+    totalParts: number
+    totalSize: number
+    isBucketed: boolean
+    mainFileName: string
+  }>
+> => {
+  const availableExtractions = await getAvailableExtractions({ fileId, libraryId })
+
+  const extractionInfos = await Promise.all(
+    availableExtractions.map(async (extraction) => {
+      const info = await getExtractionFileInfo({
+        fileId,
+        libraryId,
+        extractionMethod: extraction.extractionMethod,
+        extractionMethodParameter: extraction.extractionMethodParameter || undefined,
+      })
+
+      if (!info) {
+        return null
+      }
+
+      const mainName =
+        extraction.extractionMethod +
+        (extraction.extractionMethodParameter ? `_${extraction.extractionMethodParameter}` : '')
+      const mainFileName = `${mainName}.md`
+
+      return {
+        extractionMethod: extraction.extractionMethod,
+        extractionMethodParameter: extraction.extractionMethodParameter,
+        totalParts: info.totalParts,
+        totalSize: info.totalSize,
+        isBucketed: info.isBucketed,
+        mainFileName,
+      }
+    }),
+  )
+
+  return extractionInfos.filter((info): info is NonNullable<typeof info> => info !== null)
+}
+
+/**
  * Delete existing bucketed extraction (both buckets directory and main file)
  * Call this before starting a new extraction to avoid appending to old data
  */

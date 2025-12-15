@@ -283,17 +283,15 @@ export const queryVectorStore = async (
   }
 }
 
-export const getFileChunkCount = async (libraryId: string, fileId: string): Promise<number> => {
+export const getFileChunkCount = async (libraryId: string, fileId: string, part?: number): Promise<number> => {
   await ensureVectorStore(libraryId)
-  const documents = await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(libraryId))
-    .documents()
-    .search({
-      q: '*',
-      filter_by: `docId:=${fileId}`,
-      per_page: 1,
-      page: 1,
-    })
+  const filter_by = part !== undefined ? `docId:=${fileId} && part:=${part}` : `docId:=${fileId}`
+  const documents = await vectorTypesenseClient.collections(getTypesenseSchemaName(libraryId)).documents().search({
+    q: '*',
+    filter_by,
+    per_page: 1,
+    page: 1,
+  })
   return documents.found
 }
 
@@ -397,7 +395,14 @@ export const getSimilarChunks = async (params: {
   const multiSearchParams = {
     searches: [searchParams],
   }
+
+  const count = await getFileChunkCount(libraryId, fileId || '', part || undefined)
+
+  console.log(`🔍 Typesense search params:`, count)
+
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
+
+  console.log(`🔍 Typesense search response:`, JSON.stringify(searchResponse, null, 2))
 
   const resultHits = searchResponse.results[0].hits
   if (!resultHits || resultHits.length === 0) {

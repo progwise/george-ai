@@ -839,8 +839,20 @@ input AiListInput {
 }
 
 type AiListItem {
-  content: String
+  """
+  Available extractions for the source file of this list item
+  """
+  availableExtractions: [ExtractionInfo!]!
+  chunkCount: Int!
+  """
+  URL to fetch the markdown content for this list item from the backend
+  """
+  contentUrl: String!
   createdAt: DateTime!
+  """
+  The extraction this list item uses (based on what exists in file system)
+  """
+  extraction: ExtractionInfo
   extractionIndex: Int
   id: ID!
   itemName: String!
@@ -1642,7 +1654,7 @@ type Query {
     take: Int = 20
   ): EnrichmentQueueResult!
   aiListEnrichmentsStatistics(listId: String!): [AiListFieldStatistics!]!
-  aiListItem(id: String!): AiListItem
+  aiListItem(id: String!): AiListItem!
   aiListItems(
     fieldIds: [String!]!
     filters: [AiListFilterInput!]

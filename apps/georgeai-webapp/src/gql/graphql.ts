@@ -885,8 +885,14 @@ export type AiListInput = {
 
 export type AiListItem = {
   __typename?: 'AiListItem'
-  content?: Maybe<Scalars['String']['output']>
+  /** Available extractions for the source file of this list item */
+  availableExtractions: Array<ExtractionInfo>
+  chunkCount: Scalars['Int']['output']
+  /** URL to fetch the markdown content for this list item from the backend */
+  contentUrl: Scalars['String']['output']
   createdAt: Scalars['DateTime']['output']
+  /** The extraction this list item uses (based on what exists in file system) */
+  extraction?: Maybe<ExtractionInfo>
   extractionIndex?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   itemName: Scalars['String']['output']
@@ -2064,7 +2070,7 @@ export type Query = {
   aiList: AiList
   aiListEnrichments: EnrichmentQueueResult
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
-  aiListItem?: Maybe<AiListItem>
+  aiListItem: AiListItem
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
@@ -6081,16 +6087,25 @@ export type GetItemDetailQueryVariables = Exact<{
 
 export type GetItemDetailQuery = {
   __typename?: 'Query'
-  aiListItem?: {
+  aiListItem: {
     __typename?: 'AiListItem'
     id: string
     itemName: string
+    chunkCount: number
     extractionIndex?: number | null
-    content?: string | null
     metadata?: string | null
+    contentUrl: string
     sourceFileId: string
     sourceFile: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
-  } | null
+    extraction?: {
+      __typename?: 'ExtractionInfo'
+      extractionMethod: string
+      extractionMethodParameter?: string | null
+      displayName: string
+      isBucketed: boolean
+      totalParts: number
+    } | null
+  }
 }
 
 export type GetListItemsQueryVariables = Exact<{
@@ -19758,9 +19773,10 @@ export const GetItemDetailDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceFileId' } },
                 {
                   kind: 'Field',
@@ -19771,6 +19787,20 @@ export const GetItemDetailDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'extraction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethodParameter' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'displayName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBucketed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'totalParts' } },
                     ],
                   },
                 },
