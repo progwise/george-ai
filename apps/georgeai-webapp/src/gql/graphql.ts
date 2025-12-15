@@ -2164,6 +2164,7 @@ export type QueryAiConversationsArgs = {
 
 export type QueryAiFileChunksArgs = {
   fileId: Scalars['String']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
 }
@@ -2297,7 +2298,9 @@ export type QueryAiServiceProvidersArgs = {
 export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
+  part?: InputMaybe<Scalars['Int']['input']>
   term?: InputMaybe<Scalars['String']['input']>
+  useQuery?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type QueryApiKeysArgs = {
@@ -4938,6 +4941,7 @@ export type GetFileChunksQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetFileChunksQuery = {
@@ -5036,6 +5040,8 @@ export type GetSimilarFileChunksQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   term?: InputMaybe<Scalars['String']['input']>
   hits: Scalars['Int']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
+  useQuery?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetSimilarFileChunksQuery = {
@@ -5053,6 +5059,7 @@ export type GetSimilarFileChunksQuery = {
     subChunkIndex: number
     distance?: number | null
     points?: number | null
+    part?: number | null
   }>
 }
 
@@ -17569,6 +17576,11 @@ export const GetFileChunksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -17591,6 +17603,11 @@ export const GetFileChunksDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'take' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'part' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
               },
             ],
             selectionSet: {
@@ -17882,6 +17899,16 @@ export const GetSimilarFileChunksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'useQuery' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -17905,6 +17932,16 @@ export const GetSimilarFileChunksDocument = {
                 name: { kind: 'Name', value: 'hits' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'part' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'useQuery' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'useQuery' } },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
@@ -17920,6 +17957,7 @@ export const GetSimilarFileChunksDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'points' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'part' } },
               ],
             },
           },

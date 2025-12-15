@@ -1,5 +1,5 @@
 import type { ServiceProviderType } from '@george-ai/ai-service-client'
-import { getFileChunks, getSimilarChunks } from '@george-ai/langchain-chat'
+import { getFileChunks, getSimilarChunks, querySimilarChunks } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
 import { prisma } from '../../prisma'
@@ -74,8 +74,9 @@ builder.queryField('aiFileChunks', (t) =>
       fileId: t.arg.string({ required: true }),
       take: t.arg.int({ required: true }),
       skip: t.arg.int({ required: true }),
+      part: t.arg.int({ required: false }),
     },
-    resolve: async (_source, { fileId, skip, take }, context) => {
+    resolve: async (_source, { fileId, skip, take, part }, context) => {
       const file = await canAccessFileOrThrow(fileId, context.session.user.id)
 
       const result = await getFileChunks({
@@ -83,6 +84,7 @@ builder.queryField('aiFileChunks', (t) =>
         fileId,
         skip,
         take,
+        part: part ?? null,
       })
       return {
         libraryId: file.libraryId,
@@ -105,8 +107,10 @@ builder.queryField('aiSimilarFileChunks', (t) =>
       fileId: t.arg.string({ required: true }),
       term: t.arg.string({ required: false }),
       hits: t.arg.int({ required: false, defaultValue: 20 }),
+      part: t.arg.int({ required: false }),
+      useQuery: t.arg.boolean({ required: false, defaultValue: false }),
     },
-    resolve: async (_source, { fileId, term, hits }, context) => {
+    resolve: async (_source, { fileId, term, hits, part, useQuery }, context) => {
       const file = await canAccessFileOrThrow(fileId, context.session.user.id)
 
       // Load library with embeddingModel relation
@@ -129,6 +133,16 @@ builder.queryField('aiSimilarFileChunks', (t) =>
         return []
       }
 
+      if (useQuery) {
+        return await querySimilarChunks({
+          fileId,
+          libraryId: file.libraryId,
+          term,
+          hits: hits || undefined,
+          part: part ?? null,
+        })
+      }
+
       const result = await getSimilarChunks({
         workspaceId: library.workspaceId,
         fileId,
@@ -137,6 +151,7 @@ builder.queryField('aiSimilarFileChunks', (t) =>
         embeddingsModelName: library.embeddingModel.name,
         term,
         hits: hits || undefined,
+        part: part ?? null,
       })
 
       return result

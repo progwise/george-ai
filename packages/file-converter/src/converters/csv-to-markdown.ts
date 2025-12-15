@@ -25,26 +25,17 @@ import type { ConverterResult } from './types'
  */
 
 /**
- * Generate markdown content for a single row
- * Uses headings format instead of table (handles HTML/code in cells)
+ * Generate markdown content for a single row (optimized for single-chunk embedding)
+ * Flat structure ensures entire row stays as one semantic chunk in vector store
  *
  * Example output:
  * ```
- * # CSV Row 123
+ * # CSV Row 123 (products.csv)
  *
- * **Source File:** products.csv
- * **Row Number:** 123 of 30,000
- * **Extracted:** 2025-12-14 11:30:45
- *
- * ---
- *
- * ## Product Name
- * Widget XL-2000
- *
- * ## Description
- * ```html
- * <p>Premium widget with <strong>advanced</strong> features</p>
- * ```
+ * Product Name: Widget XL-2000
+ * Description: Premium widget with advanced features
+ * Price: $299.99
+ * Stock: 45
  * ```
  */
 function generateRowMarkdown(
@@ -52,49 +43,23 @@ function generateRowMarkdown(
   row: string[],
   rowNumber: number,
   fileName: string,
-  totalRows?: number,
 ): string {
-  const sections: string[] = []
+  const lines: string[] = []
 
-  // Add metadata header
-  sections.push(`# CSV Row ${rowNumber}`)
-  sections.push('')
-  sections.push(`**Source File:** ${fileName}`)
-  sections.push(`**Row Number:** ${rowNumber.toLocaleString()}${totalRows ? ` of ${totalRows.toLocaleString()}` : ''}`)
-  sections.push(`**Extracted:** ${new Date().toLocaleString()}`)
-  sections.push('')
-  sections.push('---')
-  sections.push('')
+  // Single heading with file context
+  lines.push(`# CSV Row ${rowNumber} (${fileName})`)
+  lines.push('')
 
-  // Add row data
+  // All columns as simple key-value pairs
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i] || `Column ${i + 1}`
     const value = row[i] || ''
 
-    // Detect HTML content
-    const hasHtml = /<[^>]+>/.test(value)
-
-    // Detect code-like content (curly braces, brackets)
-    const hasCode = /[{}[\]]/.test(value) && value.length > 20
-
-    sections.push(`## ${header}`)
-
-    if (hasHtml) {
-      sections.push('```html')
-      sections.push(value)
-      sections.push('```')
-    } else if (hasCode) {
-      sections.push('```')
-      sections.push(value)
-      sections.push('```')
-    } else {
-      sections.push(value)
-    }
-
-    sections.push('') // Empty line between sections
+    // Simple format: "Header: value" - no sub-sections
+    lines.push(`**${header}:** ${value}`)
   }
 
-  return sections.join('\n')
+  return lines.join('\n')
 }
 
 /**
@@ -178,7 +143,7 @@ export async function transformCsvToMarkdown(
       // Track the promise to ensure 'end' waits for the last row
       currentProcessing = (async () => {
         try {
-          // Generate markdown for this row (totalRows is undefined during streaming)
+          // Generate markdown for this row
           const rowMarkdown = generateRowMarkdown(headers, record, rowNumber - 1, fileName)
 
           // Save to bucketed file using new architecture

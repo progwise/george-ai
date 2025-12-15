@@ -1631,7 +1631,7 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
-  aiFileChunks(fileId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileChunks(fileId: String!, part: Int, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiFileUsages(fileId: String!, skip: Int!, take: Int!): FileUsageQueryResponse!
   aiLanguageModels(
     canDoChatCompletion: Boolean
@@ -1701,7 +1701,13 @@ type Query {
   aiServiceProvider(id: ID!): AiServiceProvider!
   aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
   aiServiceStatus: AiServiceClusterStatus!
-  aiSimilarFileChunks(fileId: String!, hits: Int = 20, term: String): [FileChunk!]!
+  aiSimilarFileChunks(
+    fileId: String!
+    hits: Int = 20
+    part: Int
+    term: String
+    useQuery: Boolean = false
+  ): [FileChunk!]!
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
   apiKeys(libraryId: String!): [ApiKey!]!
   automation(id: ID!): AiAutomation!

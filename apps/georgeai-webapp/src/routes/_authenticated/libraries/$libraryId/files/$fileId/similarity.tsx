@@ -1,23 +1,27 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import React, { ChangeEvent, useEffect, useMemo, useRef } from 'react'
+import React, { useRef } from 'react'
 import { z } from 'zod'
 
-import { debounce } from '@george-ai/web-utils'
-
+import { toastSuccess } from '../../../../../../components/georgeToaster'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { getSimilarFileChunksOptions } from '../../../../../../components/library/files/get-file-similarity'
 import { getContentQueriesQueryOptions } from '../../../../../../components/lists/queries'
+import { CopyIcon } from '../../../../../../icons/copy-icon'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/similarity')({
   component: RouteComponent,
   validateSearch: z.object({
     term: z.string().optional(),
     hits: z.coerce.number().default(20),
+    part: z.coerce.number().optional(),
+    useQuery: z.coerce.boolean().default(false),
   }),
-  loaderDeps: ({ search: { hits, term } }) => ({
+  loaderDeps: ({ search: { hits, term, part, useQuery } }) => ({
     hits,
     term,
+    part,
+    useQuery,
   }),
   loader: async ({ context, params, deps }) => {
     await Promise.all([
@@ -26,6 +30,8 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
           fileId: params.fileId,
           term: deps.term,
           hits: deps.hits,
+          part: deps.part,
+          useQuery: deps.useQuery,
         }),
       ),
       context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
@@ -37,7 +43,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 function RouteComponent() {
   const termInputRef = useRef<HTMLTextAreaElement>(null)
   const { fileId } = Route.useParams()
-  const { hits, term } = Route.useSearch()
+  const { hits, term, part, useQuery } = Route.useSearch()
   const navigate = Route.useNavigate()
   const {
     data: { aiSimilarFileChunks },
@@ -46,6 +52,8 @@ function RouteComponent() {
       fileId,
       term: term,
       hits: hits,
+      part: part,
+      useQuery: useQuery,
     }),
   )
 
@@ -57,26 +65,32 @@ function RouteComponent() {
     }),
   )
 
-  const handleTermChange = useMemo(
-    () =>
-      debounce(async (event: ChangeEvent<HTMLTextAreaElement>) => {
-        const term = event.target.value
-        if (!term || term.length === 0) return
-        await navigate({ search: { term, hits } })
-      }, 500),
-    [navigate, hits],
-  )
-  useEffect(() => {
-    return () => {
-      handleTermChange.cancel()
+  const handleTermSubmit = async () => {
+    if (!termInputRef.current) return
+    const term = termInputRef.current.value.trim()
+    if (!term || term.length === 0) return
+    await navigate({ search: { term, hits, part, useQuery } })
+  }
+
+  const handleTermKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Trigger search on Ctrl+Enter or Cmd+Enter
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault()
+      await handleTermSubmit()
     }
-  }, [handleTermChange])
+  }
+
   const handleChunkClick = async (chunkText: string) => {
     if (!termInputRef.current) return
     // Use first 100 characters of chunk text as search term
     const searchTerm = chunkText.slice(0, 100).trim()
     termInputRef.current.value = searchTerm
-    await navigate({ search: { term: searchTerm, hits } })
+    await navigate({ search: { term: searchTerm, hits, part, useQuery } })
+  }
+
+  const handleCopyChunk = async (text: string) => {
+    await navigator.clipboard.writeText(text)
+    toastSuccess('Copied to clipboard')
   }
 
   return (
@@ -85,8 +99,75 @@ function RouteComponent() {
       <div className="mb-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-base-content">Similarity</h1>
+            <h1 className="text-3xl font-bold text-base-content">
+              Similarity
+              {part !== undefined && <span className="ml-2 badge badge-primary">Part {part}</span>}
+            </h1>
             <p className="mt-2 text-base-content/70">Find semantically similar content in your documents</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="input input-xs w-36">
+              <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </g>
+              </svg>
+              <input
+                type="search"
+                required
+                placeholder="Part#"
+                value={part ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value
+                  navigate({
+                    search: {
+                      term,
+                      hits,
+                      part: value ? parseInt(value, 10) : undefined,
+                      useQuery,
+                    },
+                  })
+                }}
+              />
+            </label>
+            <select
+              className="select select-xs"
+              value={hits}
+              onChange={(e) => {
+                const newHits = parseInt(e.target.value, 10)
+                navigate({
+                  search: {
+                    term,
+                    hits: newHits,
+                    part,
+                    useQuery,
+                  },
+                })
+              }}
+            >
+              <option value={20}>20 hits</option>
+              <option value={100}>100 hits</option>
+              <option value={200}>200 hits</option>
+            </select>
+            <label className="flex cursor-pointer items-center gap-2">
+              <span className="text-xs">Vector</span>
+              <input
+                type="checkbox"
+                className="toggle toggle-xs"
+                checked={!useQuery}
+                onChange={(e) => {
+                  navigate({
+                    search: {
+                      term,
+                      hits,
+                      part,
+                      useQuery: !e.target.checked,
+                    },
+                  })
+                }}
+              />
+            </label>
           </div>
         </div>
 
@@ -134,7 +215,7 @@ function RouteComponent() {
                             onClick={async () => {
                               if (!termInputRef.current) return
                               termInputRef.current.value = cq.contentQuery || ''
-                              await navigate({ search: { term: cq.contentQuery || '', hits } })
+                              await navigate({ search: { term: cq.contentQuery || '', hits, part, useQuery } })
                             }}
                           >
                             Take
@@ -153,9 +234,18 @@ function RouteComponent() {
                 defaultValue={term || ''}
                 placeholder="What did Michael say? You can enter multiple lines or paste larger text blocks here..."
                 className="textarea max-h-32 min-h-16 flex-1 resize-y focus:textarea-primary"
-                onChange={handleTermChange}
+                onKeyDown={handleTermKeyDown}
+                onBlur={handleTermSubmit}
                 rows={2}
               />
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleTermSubmit}
+                title="Search (or press Ctrl+Enter)"
+              >
+                Search
+              </button>
             </div>
           </div>
         </div>
@@ -218,12 +308,18 @@ function RouteComponent() {
                       {/* Header with chunk info and similarity score */}
                       <div className="mb-2">
                         <div className="mb-1 flex items-start justify-between">
-                          <div
-                            className="badge cursor-pointer badge-outline badge-sm transition-colors badge-primary hover:text-primary-content hover:badge-primary"
-                            onClick={() => handleChunkClick(chunk.text)}
-                            title="Click to search for similar content"
-                          >
-                            #{chunk.chunkIndex + 1}
+                          <div>
+                            <div
+                              className="badge cursor-pointer badge-outline badge-sm transition-colors badge-primary hover:text-primary-content hover:badge-primary"
+                              onClick={() => handleChunkClick(chunk.text)}
+                              title="Click to search for similar content"
+                            >
+                              #{chunk.chunkIndex + 1}
+                            </div>
+                            {chunk.subChunkIndex > 0 && (
+                              <span className="ml-1 badge badge-ghost badge-xs">sub {chunk.subChunkIndex + 1}</span>
+                            )}
+                            {chunk.part && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.part}</span>}
                           </div>
                           <div className="text-right">
                             <div className="font-mono text-xs font-bold">
@@ -233,18 +329,33 @@ function RouteComponent() {
                             </div>
                           </div>
                         </div>
-                        {chunk.fileName && (
-                          <div className="truncate text-xs text-base-content/70" title={chunk.fileName}>
-                            {chunk.fileName}
-                          </div>
-                        )}
+                      </div>
+
+                      {/* Path information */}
+                      <div className="mb-2">
+                        <div className="truncate text-xs text-base-content/70" title={chunk.headingPath}>
+                          {chunk.headingPath}
+                        </div>
                       </div>
 
                       {/* Content preview - more compact */}
                       <div className="flex-1">
-                        <div className="max-h-20 overflow-y-auto rounded-sm bg-base-200 p-2">
+                        <div className="relative max-h-20 overflow-y-auto rounded-sm bg-base-200 p-2">
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-xs absolute right-1 top-1 opacity-50 hover:opacity-100"
+                            onClick={() => handleCopyChunk(chunk.text)}
+                            title="Copy to clipboard"
+                          >
+                            <CopyIcon className="size-3" />
+                          </button>
                           <pre className="text-xs leading-tight text-base-content/90">{chunk.text}</pre>
                         </div>
+                      </div>
+
+                      {/* Footer with debug info */}
+                      <div className="mt-2 border-t border-base-300 pt-2">
+                        <div className="font-mono text-[10px] text-base-content/40">ID: {chunk.id}</div>
                       </div>
                     </div>
                   </div>
