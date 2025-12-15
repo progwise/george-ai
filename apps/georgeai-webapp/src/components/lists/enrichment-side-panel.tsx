@@ -258,8 +258,10 @@ export const EnrichmentSidePanel = ({
                       {processingData.input.contextFields.map(
                         (ctx: { fieldId: string; fieldName: string; value: string | null }) => (
                           <div key={ctx.fieldId} className="border-l-2 border-base-300 pl-2">
-                            <span className="text-base-content/60">{ctx.fieldName}:</span>
-                            <span className="ml-2">{ctx.value || '-'}</span>
+                            <span className="text-xs text-base-content/60">{ctx.fieldName}:</span>
+                            <pre className="mt-1 max-h-40 overflow-auto text-xs text-base-content/70">
+                              {ctx.value || '-'}
+                            </pre>
                           </div>
                         ),
                       )}
@@ -292,7 +294,7 @@ export const EnrichmentSidePanel = ({
                                 {t('lists.enrichment.sidePanel.distance')}: {chunk.distance.toFixed(3)}
                               </span>
                             </div>
-                            <p className="mt-1 line-clamp-3 text-xs text-base-content/70">{chunk.text}</p>
+                            <pre className="mt-1 max-h-40 overflow-auto text-xs text-base-content/70">{chunk.text}</pre>
                           </div>
                         ),
                       )}
@@ -300,9 +302,48 @@ export const EnrichmentSidePanel = ({
                   </div>
                 )}
 
+                {/* Web Fetch Results */}
+                {processingData?.output?.webFetchResults && processingData.output.webFetchResults.length > 0 && (
+                  <div className="mb-2 rounded-lg bg-base-200 p-3">
+                    <h5 className="mb-2 text-xs font-semibold text-base-content/70 uppercase">Web Fetch</h5>
+                    <div className="space-y-2 text-sm">
+                      {processingData.output.webFetchResults.map((result: { url: string; content: string }) => (
+                        <div key={result.url} className="border-l-2 border-base-300 pl-2">
+                          <a
+                            href={result.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="link text-xs link-primary"
+                          >
+                            {result.url}
+                          </a>
+                          <pre className="mt-1 max-h-40 overflow-auto text-xs text-base-content/70">
+                            {result.content}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Full Content */}
+                {processingData?.output?.fullContent && (
+                  <div className="mb-2 rounded-lg bg-base-200 p-3">
+                    <h5 className="mb-2 text-xs font-semibold text-base-content/70 uppercase">Full Content</h5>
+                    <div className="border-l-2 border-base-300 pl-2 text-sm">
+                      <span className="text-xs text-base-content/60">{processingData.output.fullContent.fileName}</span>
+                      <pre className="mt-1 max-h-60 overflow-auto text-xs text-base-content/70">
+                        {processingData.output.fullContent.content}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
                 {/* No Context */}
                 {(!processingData?.input?.contextFields || processingData.input.contextFields.length === 0) &&
-                  (!processingData?.output?.similarChunks || processingData.output.similarChunks.length === 0) && (
+                  (!processingData?.output?.similarChunks || processingData.output.similarChunks.length === 0) &&
+                  (!processingData?.output?.webFetchResults || processingData.output.webFetchResults.length === 0) &&
+                  !processingData?.output?.fullContent && (
                     <div className="rounded-lg bg-base-200 p-3">
                       <p className="text-sm text-base-content/50 italic">{t('lists.enrichment.sidePanel.noContext')}</p>
                     </div>

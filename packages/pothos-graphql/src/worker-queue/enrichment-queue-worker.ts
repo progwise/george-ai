@@ -6,6 +6,7 @@ import { createLogger } from '@george-ai/web-utils'
 import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
+import { getFileMarkdownContent, getFilePartMarkdownContent } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
 import { prisma } from '../prisma'
 
@@ -62,6 +63,7 @@ async function processQueueItem({
     const outputMetaData: EnrichmentMetadata['output'] = {
       messages: [],
       similarChunks: [],
+      webFetchResults: [],
       issues: [],
     }
 
@@ -205,8 +207,87 @@ async function processQueueItem({
               role: 'user' as const,
               content: `Here is context from web fetch (URL: "${url}"):\n${content}`,
             })
+
+            // Store web fetch result in output metadata
+            outputMetaData.webFetchResults?.push({
+              url,
+              content,
+            })
           } catch (error) {
             const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            logger.warn(issue)
+            outputMetaData.issues.push(issue)
+          }
+        }
+      }
+
+      // Process full content context sources
+      if (metadata.input.contextFullContents && metadata.input.contextFullContents.length > 0) {
+        for (const fullContent of metadata.input.contextFullContents) {
+          try {
+            let markdown: string | null = null
+
+            // Load markdown based on whether it's a part or whole file
+            if (metadata.input.itemExtractionIndex !== null && metadata.input.itemExtractionIndex !== undefined) {
+              // Bucketed file - load specific part markdown
+              const extractionInfo = metadata.input.itemMetadata as
+                | { extractionMethod: string; extractionMethodParameter?: string }
+                | undefined
+
+              if (!extractionInfo) {
+                const issue = `fullContentSkipped: no extraction info in metadata for file ${metadata.input.fileId}`
+                logger.warn(issue)
+                outputMetaData.issues.push(issue)
+                continue
+              }
+
+              markdown = await getFilePartMarkdownContent({
+                fileId: metadata.input.fileId,
+                libraryId: metadata.input.libraryId,
+                partIndex: metadata.input.itemExtractionIndex,
+                extractionMethod: extractionInfo.extractionMethod,
+                extractionMethodParameter: extractionInfo.extractionMethodParameter,
+              })
+
+              if (!markdown) {
+                const issue = `fullContentSkipped: cannot read part ${metadata.input.itemExtractionIndex} for file ${metadata.input.fileId}`
+                logger.warn(issue)
+                outputMetaData.issues.push(issue)
+                continue
+              }
+            } else {
+              // Whole file - load full file markdown
+              markdown = await getFileMarkdownContent(metadata.input.fileId, metadata.input.libraryId)
+
+              if (!markdown) {
+                const issue = `fullContentSkipped: no markdown found for file ${metadata.input.fileId}`
+                logger.warn(issue)
+                outputMetaData.issues.push(issue)
+                continue
+              }
+            }
+
+            // Truncate content if maxContentTokens is specified
+            // Rough estimate: 1 token ≈ 4 characters
+            let content = markdown
+            const maxChars = fullContent.maxContentTokens ? fullContent.maxContentTokens * 4 : undefined
+            if (maxChars && content.length > maxChars) {
+              content = content.slice(0, maxChars) + '...'
+              logger.debug(`Full content truncated from ${markdown.length} to ${maxChars} chars`)
+            }
+
+            messages.push({
+              role: 'user' as const,
+              content: `Here is the complete content from the source file "${metadata.input.fileName}":\n${content}`,
+            })
+
+            // Store full content in output metadata
+            outputMetaData.fullContent = {
+              fileName: metadata.input.fileName,
+              content,
+            }
+          } catch (error) {
+            const issue = `fullContentFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
             logger.warn(issue)
             outputMetaData.issues.push(issue)
           }

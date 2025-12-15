@@ -60,6 +60,17 @@ builder.prismaObject('AiListField', {
         })
       },
     }),
+    contextFullContents: t.prismaField({
+      type: ['AiListFieldContext'],
+      nullable: false,
+      resolve: async (query, parent) => {
+        return await prisma.aiListFieldContext.findMany({
+          ...query,
+          where: { fieldId: parent.id, contextType: 'fullContent' },
+          orderBy: { createdAt: 'asc' },
+        })
+      },
+    }),
     pendingItemsCount: t.field({
       type: 'Int',
       nullable: false,

@@ -432,9 +432,11 @@ type AiEnrichmentTaskProcessingDataInput {
 type AiEnrichmentTaskProcessingDataOutput {
   aiInstance: String
   enrichedValue: String
+  fullContent: EnrichmentTaskFullContent
   issues: [String!]!
   messages: [EnrichmentTaskMessage!]!
   similarChunks: [EnrichmentTaskSimilarChunk!]
+  webFetchResults: [EnrichmentTaskWebFetchResult!]
 }
 
 type AiLanguageModel {
@@ -741,6 +743,7 @@ type AiList {
 type AiListField {
   context: [AiListFieldContext!]!
   contextFieldReferences: [AiListFieldContext!]!
+  contextFullContents: [AiListFieldContext!]!
   contextVectorSearches: [AiListFieldContext!]!
   contextWebFetches: [AiListFieldContext!]!
   failureTerms: String
@@ -1189,6 +1192,11 @@ type EnrichmentTaskContextField {
   value: String
 }
 
+type EnrichmentTaskFullContent {
+  content: String!
+  fileName: String!
+}
+
 type EnrichmentTaskMessage {
   content: String!
   role: String!
@@ -1200,6 +1208,11 @@ type EnrichmentTaskSimilarChunk {
   fileName: String!
   id: String!
   text: String!
+}
+
+type EnrichmentTaskWebFetchResult {
+  content: String!
+  url: String!
 }
 
 """
@@ -1309,6 +1322,7 @@ enum LibrarySortOrder {
 
 enum ListFieldContextType {
   fieldReference
+  fullContent
   vectorSearch
   webFetch
 }

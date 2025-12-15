@@ -8,7 +8,7 @@ export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'er
 export type EnrichmentStatusType = (typeof EnrichmentStatusValues)[number]
 
 export const ContextFieldSchema = z.object({
-  contextType: z.enum(['fieldReference', 'vectorSearch', 'webFetch']),
+  contextType: z.enum(['fieldReference', 'vectorSearch', 'webFetch', 'fullContent']),
   contextQuery: z.any().nullable().optional(),
   maxContentTokens: z.number().nullable().optional(),
   contextField: z
@@ -94,6 +94,13 @@ export const EnrichmentMetadataSchema = z.object({
           }),
         )
         .optional(),
+      contextFullContents: z
+        .array(
+          z.object({
+            maxContentTokens: z.number().optional(),
+          }),
+        )
+        .optional(),
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
       libraryEmbeddingModelProvider: z.string().optional(),
@@ -113,6 +120,20 @@ export const EnrichmentMetadataSchema = z.object({
             distance: z.number(),
           }),
         )
+        .optional(),
+      webFetchResults: z
+        .array(
+          z.object({
+            url: z.string(),
+            content: z.string(),
+          }),
+        )
+        .optional(),
+      fullContent: z
+        .object({
+          fileName: z.string(),
+          content: z.string(),
+        })
         .optional(),
       messages: z.array(
         z.object({
@@ -238,6 +259,13 @@ export const getEnrichmentTaskInputMetadata = ({
       }
     })
 
+  // Process full content context sources
+  const contextFullContents = validatedField.context
+    .filter((ctx) => ctx.contextType === 'fullContent')
+    .map((ctx) => ({
+      maxContentTokens: ctx.maxContentTokens || undefined,
+    }))
+
   return {
     aiModelId: validatedField.languageModelId,
     aiModelProvider: validatedField.languageProvider,
@@ -246,6 +274,7 @@ export const getEnrichmentTaskInputMetadata = ({
     contextFields,
     contextVectorSearches: contextVectorSearches.length > 0 ? contextVectorSearches : undefined,
     contextWebFetches: contextWebFetches.length > 0 ? contextWebFetches : undefined,
+    contextFullContents: contextFullContents.length > 0 ? contextFullContents : undefined,
     dataType: validatedField.type,
     libraryEmbeddingModel: item.sourceFile.library.embeddingModel?.name || undefined,
     libraryEmbeddingModelProvider: item.sourceFile.library.embeddingModel?.provider || undefined,

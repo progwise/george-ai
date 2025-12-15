@@ -633,6 +633,14 @@ export default {
     contextSources: {
       addVectorSearch: 'Add Vector Search',
       addWebFetch: 'Add Web Fetch',
+      fullContent: 'Full Content',
+      fullContentDescription: 'Include the complete markdown content from the source file as context',
+      fullContentDisabled: 'Full content context is disabled',
+      fullContentHelp:
+        'Include the entire content of the source file as context. This provides the most complete information but may exceed token limits for large files.',
+      fullContentMaxTokens: 'Maximum tokens for full content',
+      fullContentTokensHelp: 'Large files will be truncated to fit within this limit',
+      includeFullContent: 'Include full file content as context',
       maxChunks: 'Max Chunks',
       maxDistance: 'Max Distance',
       maxTokens: 'Maximum tokens for this context source',

@@ -83,8 +83,8 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                       className="input input-sm w-full"
                       defaultValue={fetch.maxContentTokens || 1000}
                       min="100"
-                      max="10000"
-                      step="100"
+                      max="200000"
+                      step="1000"
                       aria-label={t('lists.contextSources.webFetchMaxTokens')}
                     />
                   </div>
@@ -142,9 +142,9 @@ export const WebFetch = ({ webFetches }: WebFetchProps) => {
                   placeholder="1000"
                   aria-label={t('lists.contextSources.webFetchMaxTokens')}
                   min="100"
-                  max="10000"
-                  step="100"
-                  defaultValue="1000"
+                  max="200000"
+                  step="1000"
+                  defaultValue={1000}
                 />
               </div>
             </div>

@@ -111,8 +111,8 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                       className="input input-sm w-full"
                       defaultValue={search.maxContentTokens || 1000}
                       min="100"
-                      max="10000"
-                      step="100"
+                      max="200000"
+                      step="1000"
                       aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                     />
                   </div>
@@ -185,7 +185,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                     min="1"
                     max="20"
                     step="1"
-                    defaultValue="5"
+                    defaultValue={5}
                     aria-label={t('lists.contextSources.maxChunks')}
                   />
                 </div>
@@ -199,7 +199,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                     min="0"
                     max="1"
                     step="0.05"
-                    defaultValue="0.5"
+                    defaultValue={0.5}
                     aria-label={t('lists.contextSources.maxDistance')}
                   />
                 </div>
@@ -214,9 +214,9 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                   className="input input-sm w-full"
                   placeholder="1000"
                   min="100"
-                  max="10000"
-                  step="100"
-                  defaultValue="1000"
+                  max="200000"
+                  step="1000"
+                  defaultValue={1000}
                   aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                 />
               </div>

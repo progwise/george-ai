@@ -71,6 +71,34 @@ const AiEnrichmentTaskProcessingDataOutput = builder
         nullable: true,
         resolve: (parent) => parent?.similarChunks,
       }),
+      webFetchResults: t.field({
+        type: [
+          builder
+            .objectRef<
+              NonNullable<NonNullable<EnrichmentMetadata['output']>['webFetchResults']>[number]
+            >('EnrichmentTaskWebFetchResult')
+            .implement({
+              fields: (t) => ({
+                url: t.exposeString('url', { nullable: false }),
+                content: t.exposeString('content', { nullable: false }),
+              }),
+            }),
+        ],
+        nullable: true,
+        resolve: (parent) => parent?.webFetchResults,
+      }),
+      fullContent: t.field({
+        type: builder
+          .objectRef<NonNullable<NonNullable<EnrichmentMetadata['output']>['fullContent']>>('EnrichmentTaskFullContent')
+          .implement({
+            fields: (t) => ({
+              fileName: t.exposeString('fileName', { nullable: false }),
+              content: t.exposeString('content', { nullable: false }),
+            }),
+          }),
+        nullable: true,
+        resolve: (parent) => parent?.fullContent,
+      }),
       aiInstance: t.exposeString('aiInstance', { nullable: true }),
       enrichedValue: t.exposeString('enrichedValue', { nullable: true }),
       issues: t.exposeStringList('issues', { nullable: false }),
