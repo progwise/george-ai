@@ -185,7 +185,7 @@ export const embedMarkdownFile = async ({
       const vector = embeddingResult.embeddings[0]
       try {
         // Generate deterministic ID to prevent duplicates on re-processing
-        const chunkId = `${fileId}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
+        const chunkId = `${fileId}-${chunk.metadata.extractionMethod}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
 
         await vectorTypesenseClient
           .collections(typesenseVectorStoreConfig.schemaName)
@@ -386,7 +386,6 @@ export const querySimilarChunks = async (params: {
 
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
-  console.log(`🔍 Typesense filter :`, filterBy)
   const resultHits = searchResponse.results[0].hits
   if (!resultHits || resultHits.length === 0) {
     return []
@@ -466,7 +465,6 @@ export const getSimilarChunks = async (params: {
 
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
-  console.log(`🔍 Typesense filter :`, filterBy)
   const resultHits = searchResponse.results[0].hits
   if (!resultHits || resultHits.length === 0) {
     return []
