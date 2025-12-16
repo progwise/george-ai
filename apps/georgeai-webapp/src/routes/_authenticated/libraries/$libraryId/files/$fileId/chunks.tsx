@@ -132,7 +132,7 @@ function RouteComponent() {
                 <div className="relative max-h-20 overflow-y-auto rounded-sm bg-base-200 p-2">
                   <button
                     type="button"
-                    className="btn btn-ghost btn-xs absolute right-1 top-1 opacity-50 hover:opacity-100"
+                    className="btn absolute top-1 right-1 opacity-50 btn-ghost btn-xs hover:opacity-100"
                     onClick={() => handleCopyChunk(chunk.text)}
                     title="Copy to clipboard"
                   >
