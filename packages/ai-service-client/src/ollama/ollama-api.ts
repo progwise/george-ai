@@ -1,6 +1,9 @@
+import { createLogger } from '@george-ai/web-utils'
 import { z } from 'zod'
 
 import { Message } from '../types'
+
+const logger = createLogger('Ollama API')
 
 const OllamaModelSchema = z.object({
   name: z.string(),
@@ -151,7 +154,7 @@ async function ollamaApiGet<T>(
 
   if (!response.ok) {
     const responseText = await response.text()
-    console.warn(`Failed to fetch OLLAMA API ${endpoint}: ${response.status} - ${responseText}`)
+    logger.warn(`Failed to fetch ${endpoint}:`, { status: response.status, responseText })
     throw new Error(`Failed to fetch OLLAMA API ${endpoint}: ${response.status}`)
   }
 
@@ -176,7 +179,7 @@ async function ollamaApiPost<T>(
 
   if (!response.ok) {
     const responseText = await response.text()
-    console.warn(`Failed to POST OLLAMA API ${endpoint}: ${response.status} - ${responseText}`)
+    logger.warn(`Failed to POST ${endpoint}:`, { status: response.status, responseText })
     throw new Error(`Failed to POST OLLAMA API ${endpoint}: ${response.status}`)
   }
 
@@ -224,24 +227,50 @@ async function getChatResponseStream(
   messages: Message[],
   abortSignal?: AbortSignal,
 ): Promise<ReadableStream<OllamaStreamChunk>> {
-  const response = await fetch(`${params.url}/api/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(params.apiKey ? { 'X-API-Key': params.apiKey } : {}),
-    },
-    body: JSON.stringify({ model: modelName, stream: true, messages }),
-    signal: abortSignal,
-  })
+  let response: Response
+  try {
+    response = await fetch(`${params.url}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(params.apiKey ? { 'X-API-Key': params.apiKey } : {}),
+      },
+      body: JSON.stringify({ model: modelName, stream: true, messages }),
+      signal: abortSignal,
+    })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.warn('Network error connecting:', {
+      error: errorMessage,
+      model: modelName,
+      url: params.url,
+    })
+    throw new Error(`Network error connecting to Ollama at ${params.url}: ${errorMessage}\nModel: ${modelName}`)
+  }
 
   if (!response.ok) {
-    const responseText = await response.text()
-    console.warn(`Failed to receive stream from Ollama: ${response.status} - ${responseText}`)
-    throw new Error(`Failed to receive stream from Ollama: ${response.status} - ${responseText}`)
+    let responseText = ''
+    try {
+      responseText = await response.text()
+    } catch (error) {
+      logger.warn('Failed to read error response body:', error)
+    }
+    logger.warn('Failed to receive stream:', {
+      status: response.status,
+      statusText: response.statusText,
+      responseText,
+      model: modelName,
+      url: params.url,
+    })
+    throw new Error(
+      `Failed to receive stream from Ollama: ${response.status} ${response.statusText}\n` +
+        `Model: ${modelName}\nURL: ${params.url}\n` +
+        `Response: ${responseText}`,
+    )
   }
 
   if (!response.body) {
-    throw new Error('No response body stream from Ollama')
+    throw new Error(`No response body stream from Ollama (URL: ${params.url}, Model: ${modelName})`)
   }
 
   // Create a transform stream that parses JSON chunks and respects abort signal
@@ -268,7 +297,7 @@ async function getChatResponseStream(
           const parsedChunk = OllamaStreamChunkSchema.parse({ ...jsonData, modelName: modelName })
           controller.enqueue(parsedChunk)
         } catch (error) {
-          console.warn('Failed to parse JSON chunk:', line, error)
+          logger.warn('Failed to parse JSON chunk:', { line, error })
           // Skip invalid chunks but continue processing
         }
       }
@@ -279,7 +308,7 @@ async function getChatResponseStream(
 }
 
 async function loadOllamaModel(params: FetchParams, modelName: string): Promise<{ done: boolean }> {
-  console.log(`Loading Ollama model ${modelName}...`)
+  logger.info(`Loading model ${modelName}...`)
   const data = ollamaApiPost(params, '/api/chat', { model: modelName }, z.object({ done: z.boolean() }))
   return data
 }

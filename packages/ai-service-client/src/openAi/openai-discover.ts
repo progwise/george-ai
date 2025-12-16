@@ -1,5 +1,9 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import type { ServiceProviderConfig } from '../types'
 import { getOpenAIModels } from './openai-api'
+
+const logger = createLogger('OpenAI Discover')
 
 /**
  * Discover models from OpenAI provider in the workspace
@@ -23,7 +27,7 @@ export const discoverOpenAIModels = async (providers: ServiceProviderConfig[]): 
     })
     return result.data.map((model) => model.id)
   } catch (error) {
-    console.warn('Failed to get models from OpenAI:', error)
+    logger.warn('Failed to get models from OpenAI:', error)
     return []
   }
 }

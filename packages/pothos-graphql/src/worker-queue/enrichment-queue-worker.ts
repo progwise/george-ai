@@ -75,12 +75,38 @@ async function processQueueItem({
     if (metadata.input.dataType === 'markdown') {
       messages.push({
         role: 'user',
-        content: `Output your response in Markdown format. Use appropriate headings, lists, code blocks, and formatting as needed. Return only the Markdown content without any wrapper or explanation.`,
+        content: `Output your response in Markdown format. Use appropriate headings, lists, code blocks, and formatting as needed.
+
+CRITICAL FORMATTING RULES - YOU MUST FOLLOW THESE EXACTLY:
+
+1. NEVER wrap your response in code fences. Do NOT use \`\`\`markdown, \`\`\`, or any code block syntax.
+2. NEVER include introductory sentences like "Here's a product description..." or "Based on the data...".
+3. Start IMMEDIATELY with the actual markdown content (e.g., ## Title or plain text).
+
+WRONG (DO NOT DO THIS):
+\`\`\`markdown
+## Product Name
+Description here...
+\`\`\`
+
+CORRECT (DO THIS):
+## Product Name
+Description here...
+
+WRONG (DO NOT DO THIS):
+Here's a product description based on the data:
+
+## Product Name
+
+CORRECT (DO THIS):
+## Product Name`,
       })
     } else {
       messages.push({
         role: 'user',
-        content: `The data type you must return is: ${metadata.input.dataType}`,
+        content: `The data type you must return is: ${metadata.input.dataType}
+
+CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.input.dataType}..." or "Based on the data...". Return ONLY the requested ${metadata.input.dataType} value directly, without any preamble or explanation.`,
       })
     }
 
@@ -330,13 +356,24 @@ async function processQueueItem({
         outputMetaData.issues.push('partialResult')
       }
       if (chatResponse.error) {
-        outputMetaData.issues.push(`error: ${chatResponse.error}`)
+        // Extract error message from error object
+        const errorMsg =
+          typeof chatResponse.error === 'object' && chatResponse.error && 'message' in chatResponse.error
+            ? String(chatResponse.error.message)
+            : JSON.stringify(chatResponse.error)
+        outputMetaData.issues.push(`error: ${errorMsg}`)
       }
 
       logger.debug(`Enrichment succeeded for item ${enrichmentTask.id}`)
     } catch (error) {
       enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
-      logger.warn(`Enrichment failed for item ${enrichmentTask.id}: ${enrichmentError}`)
+      logger.warn(`Enrichment failed for item ${enrichmentTask.id}:`, {
+        error: enrichmentError,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+        listId: enrichmentTask.listId,
+        fieldId: enrichmentTask.fieldId,
+      })
     }
 
     let failedEnrichmentValue: string | null = null
@@ -419,7 +456,17 @@ async function processQueueItem({
 
     logger.debug(`Processed enrichment queue item ${enrichmentTask.id}`)
   } catch (error) {
-    logger.error(`Error processing queue item ${enrichmentTask.id}:`, error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : undefined
+
+    logger.error(`Error processing queue item ${enrichmentTask.id}:`, {
+      error: errorMessage,
+      stack: errorStack,
+      fullError: error,
+      listId: enrichmentTask.listId,
+      fieldId: enrichmentTask.fieldId,
+      itemId: enrichmentTask.itemId,
+    })
 
     // Mark as failed - use updateMany to handle race conditions
     const failedItem = await prisma.aiEnrichmentTask.updateMany({
@@ -430,7 +477,7 @@ async function processQueueItem({
       data: {
         status: 'error',
         completedAt: new Date(),
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
       },
     })
 

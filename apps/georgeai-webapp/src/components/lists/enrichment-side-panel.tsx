@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { duration } from '@george-ai/web-utils'
+import { duration, simpleHash } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import {
@@ -71,7 +71,12 @@ export const EnrichmentSidePanel = ({
   const { name: fileName } = origin
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
+  const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
+
+  const toggleViewMarkdownSource = () => {
+    setViewMarkdownSource((prev) => !prev)
+  }
 
   // Fetch enrichment details when panel opens
   const { data, isLoading } = useQuery({
@@ -160,7 +165,35 @@ export const EnrichmentSidePanel = ({
             <>
               {/* Value Section */}
               <section aria-label={t('lists.enrichment.sidePanel.value')}>
-                <h4 className="mb-2 font-semibold">{t('lists.enrichment.sidePanel.value')}</h4>
+                <div className="mb-2 flex items-center justify-between">
+                  <h4 className="font-semibold">{t('lists.enrichment.sidePanel.value')}</h4>
+                  <div className="flex items-center gap-2">
+                    {isMarkdown && (
+                      <label className="flex items-center gap-1 text-sm">
+                        <input
+                          type="checkbox"
+                          className={twMerge(
+                            'toggle toggle-sm',
+                            viewMarkdownSource ? 'toggle-primary' : 'toggle-secondary',
+                          )}
+                          checked={viewMarkdownSource}
+                          onChange={toggleViewMarkdownSource}
+                        />
+                        <span className={twMerge(viewMarkdownSource ? 'text-primary' : 'opacity-50')}>Source</span>
+                      </label>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      onClick={handleCopy}
+                      disabled={!displayValue}
+                      aria-label={t('lists.enrichment.sidePanel.copy')}
+                    >
+                      <CopyIcon className="size-4" />
+                      {copied ? t('lists.enrichment.sidePanel.copied') : t('lists.enrichment.sidePanel.copy')}
+                    </button>
+                  </div>
+                </div>
                 <div className="rounded-lg bg-base-200 p-3">
                   {error ? (
                     <div className="text-error">
@@ -174,9 +207,15 @@ export const EnrichmentSidePanel = ({
                     </div>
                   ) : displayValue ? (
                     isMarkdown ? (
-                      <div className="prose prose-sm max-w-none">
-                        <FormattedMarkdown markdown={displayValue} />
-                      </div>
+                      viewMarkdownSource ? (
+                        <pre className="text-sm whitespace-pre-wrap">
+                          <code lang="markdown">{displayValue}</code>
+                        </pre>
+                      ) : (
+                        <div className="prose prose-sm max-w-none">
+                          <FormattedMarkdown markdown={displayValue} />
+                        </div>
+                      )
                     ) : (
                       <p className="whitespace-pre-wrap text-base-content">{displayValue}</p>
                     )
@@ -361,23 +400,34 @@ export const EnrichmentSidePanel = ({
                   </div>
                 </section>
               )}
+
+              {/* All Messages Section */}
+              {processingData?.output?.messages && processingData.output.messages.length > 0 && (
+                <section aria-label="Complete messages sent to LLM">
+                  <h4 className="mb-2 font-semibold">Complete Messages Sent to LLM</h4>
+                  <div className="space-y-2">
+                    {processingData.output.messages.map((message: { role: string; content: string }, index: number) => (
+                      <div key={`${message.role}-${simpleHash(message.content)}`} className="rounded-lg bg-base-200 p-3">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="rounded-sm bg-primary/20 px-2 py-0.5 text-xs font-semibold text-primary uppercase">
+                            {message.role}
+                          </span>
+                          <span className="text-xs text-base-content/50">Message {index + 1}</span>
+                        </div>
+                        <pre className="max-h-60 overflow-auto text-xs whitespace-pre-wrap text-base-content/80">
+                          {message.content}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </>
           )}
         </div>
 
         {/* Actions - fixed at bottom */}
         <div className="flex shrink-0 gap-2 border-t border-base-300 p-4">
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={handleCopy}
-            disabled={!displayValue}
-            aria-label={t('lists.enrichment.sidePanel.copy')}
-          >
-            <CopyIcon className="size-4" />
-            {copied ? t('lists.enrichment.sidePanel.copied') : t('lists.enrichment.sidePanel.copy')}
-          </button>
-          <div className="flex-1" />
           <button
             type="button"
             className="btn text-error btn-ghost btn-sm"
@@ -388,6 +438,7 @@ export const EnrichmentSidePanel = ({
             <TrashIcon className="size-4" />
             {t('lists.enrichment.sidePanel.clear')}
           </button>
+          <div className="flex-1" />
           <button
             type="button"
             className="btn btn-sm btn-primary"

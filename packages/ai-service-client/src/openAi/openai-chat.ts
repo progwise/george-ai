@@ -1,7 +1,9 @@
-import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
+import { checkLineRepetition, createLogger, getErrorObject } from '@george-ai/web-utils'
 
 import type { AIResponse, ChatOptions } from '../types.js'
 import { OpenAIChatCompletionChunkSchema } from './openai-api.js'
+
+const logger = createLogger('OpenAI Chat')
 
 export async function openAIChat(options: ChatOptions, apiKey: string): Promise<AIResponse> {
   let allContent = ''
@@ -22,29 +24,55 @@ export async function openAIChat(options: ChatOptions, apiKey: string): Promise<
   const startTimeout = Date.now()
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    let response: Response
+    try {
+      response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: options.modelName,
+          messages: options.messages,
+          stream: true,
+          stream_options: { include_usage: true }, // CRITICAL: Required for usage tracking
+        }),
+        signal: options.abortSignal,
+      })
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      logger.warn('Network error connecting to OpenAI:', {
+        error: errorMessage,
         model: options.modelName,
-        messages: options.messages,
-        stream: true,
-        stream_options: { include_usage: true }, // CRITICAL: Required for usage tracking
-      }),
-      signal: options.abortSignal,
-    })
+        url: baseUrl,
+      })
+      throw new Error(`Network error connecting to OpenAI at ${baseUrl}: ${errorMessage}\nModel: ${options.modelName}`)
+    }
 
     if (!response.ok) {
-      const responseText = await response.text()
-      console.warn(`Failed to receive stream from OpenAI: ${response.status} - ${responseText}`)
-      throw new Error(`Failed to receive stream from OpenAI: ${response.status} - ${responseText}`)
+      let responseText = ''
+      try {
+        responseText = await response.text()
+      } catch (error) {
+        logger.warn('Failed to read error response body:', error)
+      }
+      logger.warn('Failed to receive stream from OpenAI:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseText,
+        model: options.modelName,
+        url: baseUrl,
+      })
+      throw new Error(
+        `Failed to receive stream from OpenAI: ${response.status} ${response.statusText}\n` +
+          `Model: ${options.modelName}\nURL: ${baseUrl}\n` +
+          `Response: ${responseText}`,
+      )
     }
 
     if (!response.body) {
-      throw new Error('No response body stream from OpenAI')
+      throw new Error(`No response body stream from OpenAI (URL: ${baseUrl}, Model: ${options.modelName})`)
     }
 
     const reader = response.body.getReader()
@@ -87,7 +115,7 @@ export async function openAIChat(options: ChatOptions, apiKey: string): Promise<
                 options.abortOnConsecutiveRepeats &&
                 checkLineRepetition(allContent.split('\n'), options.abortOnConsecutiveRepeats)
               ) {
-                console.warn('Detected line repetition, stopping further processing.', allContent)
+                logger.warn('Detected line repetition, stopping further processing', { contentLength: allContent.length })
                 throw new Error(
                   `Aborted due to detected line repetition in response. Max allowed repetitions of ${options.abortOnConsecutiveRepeats} exceeded.`,
                 )
@@ -107,7 +135,7 @@ export async function openAIChat(options: ChatOptions, apiKey: string): Promise<
               completionTokens = parsedChunk.usage.completion_tokens
             }
           } catch (error) {
-            console.warn('Failed to parse OpenAI SSE chunk:', line, error)
+            logger.warn('Failed to parse OpenAI SSE chunk:', { line, error })
             // Skip invalid chunks but continue processing
           }
         }
@@ -135,7 +163,7 @@ export async function openAIChat(options: ChatOptions, apiKey: string): Promise<
   } catch (error) {
     const errorObject = getErrorObject(error)
 
-    console.error('OpenAI chat request finally failed:', errorObject)
+    logger.error('OpenAI chat request failed:', errorObject)
 
     return {
       content: allContent,

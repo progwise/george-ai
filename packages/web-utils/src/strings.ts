@@ -47,3 +47,17 @@ export const checkLineRepetition = (lines: string[], minConsecutiveRepeats: numb
   }
   return false
 }
+
+/**
+ * Simple, fast hash function for strings (djb2 algorithm)
+ * Browser-compatible, non-cryptographic hash suitable for generating React keys
+ * @param str String to hash
+ * @returns Numeric hash value
+ */
+export const simpleHash = (str: string): number => {
+  let hash = 5381
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) + hash + str.charCodeAt(i) // hash * 33 + char
+  }
+  return hash >>> 0 // Convert to unsigned 32-bit integer
+}
