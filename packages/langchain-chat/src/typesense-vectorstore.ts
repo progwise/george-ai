@@ -185,7 +185,7 @@ export const embedMarkdownFile = async ({
       const vector = embeddingResult.embeddings[0]
       try {
         // Generate deterministic ID to prevent duplicates on re-processing
-        const chunkId = `${fileId}-${chunk.metadata.extractionMethod}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
+        const chunkId = `${fileId}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
 
         await vectorTypesenseClient
           .collections(typesenseVectorStoreConfig.schemaName)
