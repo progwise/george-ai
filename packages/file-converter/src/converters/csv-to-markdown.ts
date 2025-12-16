@@ -25,26 +25,6 @@ import type { ConverterResult } from './types'
  */
 
 /**
- * Escape special Markdown characters to prevent unintended formatting
- */
-function escapeMarkdown(text: string): string {
-  return text
-    .replace(/\\/g, '\\\\') // Backslash first
-    .replace(/\*/g, '\\*') // Asterisk
-    .replace(/_/g, '\\_') // Underscore
-    .replace(/`/g, '\\`') // Backtick
-    .replace(/\[/g, '\\[') // Square brackets
-    .replace(/\]/g, '\\]') // Square brackets
-    .replace(/\(/g, '\\(') // Parentheses
-    .replace(/\)/g, '\\)') // Parentheses
-    .replace(/#/g, '\\#') // Hash
-    .replace(/\+/g, '\\+') // Plus
-    .replace(/-/g, '\\-') // Minus
-    .replace(/\./g, '\\.') // Dot
-    .replace(/!/g, '\\!') // Exclamation
-}
-
-/**
  * Generate markdown content for a single row (optimized for single-chunk embedding)
  * Flat structure ensures entire row stays as one semantic chunk in vector store
  *
@@ -70,8 +50,8 @@ function generateRowMarkdown(headers: string[], row: string[], rowNumber: number
     const header = headers[i] || `Column ${i + 1}`
     const value = row[i] || ''
 
-    // Simple format: "Header: value" - escape special Markdown characters in values
-    lines.push(`**${header}:** ${escapeMarkdown(value)}`)
+    // Simple format: "Header: value" - no sub-sections
+    lines.push(`**${header}:** ${value}`)
   }
 
   return lines.join('\n')
