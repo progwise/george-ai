@@ -407,7 +407,10 @@ export const EnrichmentSidePanel = ({
                   <h4 className="mb-2 font-semibold">Complete Messages Sent to LLM</h4>
                   <div className="space-y-2">
                     {processingData.output.messages.map((message: { role: string; content: string }, index: number) => (
-                      <div key={`${message.role}-${simpleHash(message.content)}`} className="rounded-lg bg-base-200 p-3">
+                      <div
+                        key={`${message.role}-${simpleHash(message.content)}`}
+                        className="rounded-lg bg-base-200 p-3"
+                      >
                         <div className="mb-1 flex items-center gap-2">
                           <span className="rounded-sm bg-primary/20 px-2 py-0.5 text-xs font-semibold text-primary uppercase">
                             {message.role}

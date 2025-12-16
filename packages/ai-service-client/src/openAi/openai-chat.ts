@@ -115,7 +115,9 @@ export async function openAIChat(options: ChatOptions, apiKey: string): Promise<
                 options.abortOnConsecutiveRepeats &&
                 checkLineRepetition(allContent.split('\n'), options.abortOnConsecutiveRepeats)
               ) {
-                logger.warn('Detected line repetition, stopping further processing', { contentLength: allContent.length })
+                logger.warn('Detected line repetition, stopping further processing', {
+                  contentLength: allContent.length,
+                })
                 throw new Error(
                   `Aborted due to detected line repetition in response. Max allowed repetitions of ${options.abortOnConsecutiveRepeats} exceeded.`,
                 )
