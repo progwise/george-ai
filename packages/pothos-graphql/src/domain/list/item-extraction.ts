@@ -38,6 +38,40 @@ export async function getFileMarkdownContent(fileId: string, libraryId: string):
 }
 
 /**
+ * Get markdown content for a file part (bucketed files).
+ */
+export async function getFilePartMarkdownContent({
+  fileId,
+  libraryId,
+  partIndex,
+  extractionMethod,
+  extractionMethodParameter,
+}: {
+  fileId: string
+  libraryId: string
+  partIndex: number
+  extractionMethod: string
+  extractionMethodParameter?: string
+}): Promise<string | null> {
+  const bucketPath = getBucketPath({
+    libraryId,
+    fileId,
+    extractionMethod,
+    extractionMethodParameter,
+    part: partIndex,
+  })
+
+  const partFileName = `part-${partIndex.toString().padStart(7, '0')}.md`
+  const partFilePath = path.join(bucketPath, partFileName)
+
+  try {
+    return await fs.promises.readFile(partFilePath, 'utf-8')
+  } catch {
+    return null
+  }
+}
+
+/**
  * Create list items for a file.
  *
  * Logic:

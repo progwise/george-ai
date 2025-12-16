@@ -1,13 +1,15 @@
 import fs from 'fs'
 
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
-import { getAvailableExtractions, getExtractionFileInfo, getFileDir } from '@george-ai/file-management'
+import { getAvailableExtractionsWithInfo, getFileDir } from '@george-ai/file-management'
 
 import { BACKEND_PUBLIC_URL } from '../../global-config'
 import { prisma } from '../../prisma'
+import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 
 import './file-chunks'
+import './file-usages'
 import './queries'
 import './mutations'
 
@@ -24,37 +26,6 @@ const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('Sou
     url: t.exposeString('url', { nullable: false }),
   }),
 })
-
-const ExtractionInfo = builder
-  .objectRef<{
-    extractionMethod: string
-    extractionMethodParameter: string | null
-    totalParts: number
-    totalSize: number
-    isBucketed: boolean
-    mainFileUrl: string
-  }>('ExtractionInfo')
-  .implement({
-    description: 'Information about an available extraction for a file',
-    fields: (t) => ({
-      extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
-      extractionMethodParameter: t.exposeString('extractionMethodParameter', { nullable: true }),
-      totalParts: t.exposeInt('totalParts', { nullable: false }),
-      totalSize: t.exposeInt('totalSize', { nullable: false }),
-      isBucketed: t.exposeBoolean('isBucketed', { nullable: false }),
-      mainFileUrl: t.exposeString('mainFileUrl', { nullable: false }),
-      displayName: t.string({
-        nullable: false,
-        resolve: (extraction) => {
-          const method = extraction.extractionMethod.replace('-extraction', '').toUpperCase()
-          if (extraction.extractionMethodParameter) {
-            return `${method} (${extraction.extractionMethodParameter})`
-          }
-          return method
-        },
-      }),
-    }),
-  })
 
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -96,41 +67,16 @@ builder.prismaObject('AiLibraryFile', {
       nullable: { list: false, items: false },
       description: 'Available extractions for this file (e.g., CSV, PDF with different models)',
       resolve: async (file) => {
-        const extractions = await getAvailableExtractions({
+        const extractionInfos = await getAvailableExtractionsWithInfo({
           fileId: file.id,
           libraryId: file.libraryId,
         })
 
-        const extractionInfos = await Promise.all(
-          extractions.map(async (extraction) => {
-            const info = await getExtractionFileInfo({
-              fileId: file.id,
-              libraryId: file.libraryId,
-              extractionMethod: extraction.extractionMethod,
-              extractionMethodParameter: extraction.extractionMethodParameter || undefined,
-            })
-
-            if (!info) {
-              return null
-            }
-
-            const mainName =
-              extraction.extractionMethod +
-              (extraction.extractionMethodParameter ? `_${extraction.extractionMethodParameter}` : '')
-            const mainFileName = `${mainName}.md`
-
-            return {
-              extractionMethod: extraction.extractionMethod,
-              extractionMethodParameter: extraction.extractionMethodParameter,
-              totalParts: info.totalParts,
-              totalSize: info.totalSize,
-              isBucketed: info.isBucketed,
-              mainFileUrl: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${mainFileName}`,
-            }
-          }),
-        )
-
-        return extractionInfos.filter((info): info is NonNullable<typeof info> => info !== null)
+        // Add mainFileUrl to each extraction
+        return extractionInfos.map((info) => ({
+          ...info,
+          mainFileUrl: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${info.mainFileName}`,
+        }))
       },
     }),
     supportedExtractionMethods: t.field({

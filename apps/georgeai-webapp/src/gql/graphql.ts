@@ -460,9 +460,11 @@ export type AiEnrichmentTaskProcessingDataOutput = {
   __typename?: 'AiEnrichmentTaskProcessingDataOutput'
   aiInstance?: Maybe<Scalars['String']['output']>
   enrichedValue?: Maybe<Scalars['String']['output']>
+  fullContent?: Maybe<EnrichmentTaskFullContent>
   issues: Array<Scalars['String']['output']>
   messages: Array<EnrichmentTaskMessage>
   similarChunks?: Maybe<Array<EnrichmentTaskSimilarChunk>>
+  webFetchResults?: Maybe<Array<EnrichmentTaskWebFetchResult>>
 }
 
 export type AiLanguageModel = {
@@ -792,6 +794,7 @@ export type AiListField = {
   __typename?: 'AiListField'
   context: Array<AiListFieldContext>
   contextFieldReferences: Array<AiListFieldContext>
+  contextFullContents: Array<AiListFieldContext>
   contextVectorSearches: Array<AiListFieldContext>
   contextWebFetches: Array<AiListFieldContext>
   failureTerms?: Maybe<Scalars['String']['output']>
@@ -885,8 +888,14 @@ export type AiListInput = {
 
 export type AiListItem = {
   __typename?: 'AiListItem'
-  content?: Maybe<Scalars['String']['output']>
+  /** Available extractions for the source file of this list item */
+  availableExtractions: Array<ExtractionInfo>
+  chunkCount: Scalars['Int']['output']
+  /** URL to fetch the markdown content for this list item from the backend */
+  contentUrl: Scalars['String']['output']
   createdAt: Scalars['DateTime']['output']
+  /** The extraction this list item uses (based on what exists in file system) */
+  extraction?: Maybe<ExtractionInfo>
   extractionIndex?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   itemName: Scalars['String']['output']
@@ -1225,6 +1234,12 @@ export type EnrichmentTaskContextField = {
   value?: Maybe<Scalars['String']['output']>
 }
 
+export type EnrichmentTaskFullContent = {
+  __typename?: 'EnrichmentTaskFullContent'
+  content: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+}
+
 export type EnrichmentTaskMessage = {
   __typename?: 'EnrichmentTaskMessage'
   content: Scalars['String']['output']
@@ -1238,6 +1253,12 @@ export type EnrichmentTaskSimilarChunk = {
   fileName: Scalars['String']['output']
   id: Scalars['String']['output']
   text: Scalars['String']['output']
+}
+
+export type EnrichmentTaskWebFetchResult = {
+  __typename?: 'EnrichmentTaskWebFetchResult'
+  content: Scalars['String']['output']
+  url: Scalars['String']['output']
 }
 
 /** Information about an available extraction for a file */
@@ -1299,6 +1320,28 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+export type FileUsage = {
+  __typename?: 'FileUsage'
+  chunkCount: Scalars['Int']['output']
+  createdAt: Scalars['DateTime']['output']
+  extractionIndex?: Maybe<Scalars['Int']['output']>
+  id: Scalars['ID']['output']
+  itemName: Scalars['String']['output']
+  listId: Scalars['String']['output']
+  listName: Scalars['String']['output']
+}
+
+export type FileUsageQueryResponse = {
+  __typename?: 'FileUsageQueryResponse'
+  count: Scalars['Int']['output']
+  fileId: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  usages: Array<FileUsage>
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -1331,6 +1374,7 @@ export enum LibrarySortOrder {
 
 export enum ListFieldContextType {
   FieldReference = 'fieldReference',
+  FullContent = 'fullContent',
   VectorSearch = 'vectorSearch',
   WebFetch = 'webFetch',
 }
@@ -2051,6 +2095,7 @@ export type Query = {
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
   aiFileChunks: FileChunkQueryResponse
+  aiFileUsages: FileUsageQueryResponse
   aiLanguageModels: AiLanguageModelsResult
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
@@ -2064,7 +2109,7 @@ export type Query = {
   aiList: AiList
   aiListEnrichments: EnrichmentQueueResult
   aiListEnrichmentsStatistics: Array<AiListFieldStatistics>
-  aiListItem?: Maybe<AiListItem>
+  aiListItem: AiListItem
   aiListItems: ListItemsQueryResult
   aiLists: Array<AiList>
   aiModelUsageByType: Array<ModelUsageByType>
@@ -2134,6 +2179,13 @@ export type QueryAiConversationsArgs = {
 }
 
 export type QueryAiFileChunksArgs = {
+  fileId: Scalars['String']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}
+
+export type QueryAiFileUsagesArgs = {
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
@@ -2262,7 +2314,9 @@ export type QueryAiServiceProvidersArgs = {
 export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
+  part?: InputMaybe<Scalars['Int']['input']>
   term?: InputMaybe<Scalars['String']['input']>
+  useQuery?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type QueryApiKeysArgs = {
@@ -4903,6 +4957,7 @@ export type GetFileChunksQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetFileChunksQuery = {
@@ -5001,6 +5056,8 @@ export type GetSimilarFileChunksQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   term?: InputMaybe<Scalars['String']['input']>
   hits: Scalars['Int']['input']
+  part?: InputMaybe<Scalars['Int']['input']>
+  useQuery?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetSimilarFileChunksQuery = {
@@ -5018,7 +5075,36 @@ export type GetSimilarFileChunksQuery = {
     subChunkIndex: number
     distance?: number | null
     points?: number | null
+    part?: number | null
   }>
+}
+
+export type GetFileUsagesQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type GetFileUsagesQuery = {
+  __typename?: 'Query'
+  aiFileUsages: {
+    __typename?: 'FileUsageQueryResponse'
+    fileId: string
+    fileName: string
+    skip: number
+    take: number
+    count: number
+    usages: Array<{
+      __typename?: 'FileUsage'
+      id: string
+      listId: string
+      listName: string
+      itemName: string
+      extractionIndex?: number | null
+      createdAt: string
+      chunkCount: number
+    }>
+  }
 }
 
 export type EmbeddingsTableQueryVariables = Exact<{
@@ -5573,6 +5659,12 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
+export type FullContent_FullContentsFragment = {
+  __typename?: 'AiListFieldContext'
+  id: string
+  maxContentTokens?: number | null
+}
+
 export type ReferencedFields_FieldReferencesFragment = {
   __typename?: 'AiListFieldContext'
   id: string
@@ -5656,6 +5748,8 @@ export type EnrichmentAccordionItem_EnrichmentFragment = {
         text: string
         distance: number
       }> | null
+      webFetchResults?: Array<{ __typename?: 'EnrichmentTaskWebFetchResult'; url: string; content: string }> | null
+      fullContent?: { __typename?: 'EnrichmentTaskFullContent'; fileName: string; content: string } | null
       messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
     } | null
   } | null
@@ -5737,6 +5831,7 @@ export type FieldModal_FieldFragment = {
     contextQuery?: string | null
     maxContentTokens?: number | null
   }>
+  contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
 }
 
 export type ListExport_FieldFragment = {
@@ -5811,6 +5906,7 @@ export type ListFieldsTableMenu_FieldFragment = {
     contextQuery?: string | null
     maxContentTokens?: number | null
   }>
+  contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
 }
 
 export type ListFilesTable_FilesQueryResultFragment = {
@@ -5883,6 +5979,7 @@ export type ListFieldsTable_ListFragment = {
       contextQuery?: string | null
       maxContentTokens?: number | null
     }>
+    contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
   }>
 }
 
@@ -5924,6 +6021,7 @@ export type ListFieldsTable_FieldFragment = {
     contextQuery?: string | null
     maxContentTokens?: number | null
   }>
+  contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
 }
 
 export type ListMenu_AiListFragment = { __typename?: 'AiList'; id: string; name: string; ownerId: string }
@@ -6056,6 +6154,8 @@ export type GetEnrichmentsQuery = {
             text: string
             distance: number
           }> | null
+          webFetchResults?: Array<{ __typename?: 'EnrichmentTaskWebFetchResult'; url: string; content: string }> | null
+          fullContent?: { __typename?: 'EnrichmentTaskFullContent'; fileName: string; content: string } | null
           messages: Array<{ __typename?: 'EnrichmentTaskMessage'; role: string; content: string }>
         } | null
       } | null
@@ -6081,16 +6181,25 @@ export type GetItemDetailQueryVariables = Exact<{
 
 export type GetItemDetailQuery = {
   __typename?: 'Query'
-  aiListItem?: {
+  aiListItem: {
     __typename?: 'AiListItem'
     id: string
     itemName: string
+    chunkCount: number
     extractionIndex?: number | null
-    content?: string | null
     metadata?: string | null
+    contentUrl: string
     sourceFileId: string
     sourceFile: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
-  } | null
+    extraction?: {
+      __typename?: 'ExtractionInfo'
+      extractionMethod: string
+      extractionMethodParameter?: string | null
+      displayName: string
+      isBucketed: boolean
+      totalParts: number
+    } | null
+  }
 }
 
 export type GetListItemsQueryVariables = Exact<{
@@ -6187,6 +6296,7 @@ export type GetListQuery = {
         contextQuery?: string | null
         maxContentTokens?: number | null
       }>
+      contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
     }>
     sources: Array<{
       __typename?: 'AiListSource'
@@ -6512,6 +6622,7 @@ export type ListFieldSettings_FieldFragment = {
     contextQuery?: string | null
     maxContentTokens?: number | null
   }>
+  contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
 }
 
 export type AiLanguageModelsForEmbeddingQueryVariables = Exact<{
@@ -10655,6 +10766,28 @@ export const EnrichmentAccordionItem_EnrichmentFragmentDoc = {
                       },
                       {
                         kind: 'Field',
+                        name: { kind: 'Name', value: 'webFetchResults' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'fullContent' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
                         name: { kind: 'Name', value: 'messages' },
                         selectionSet: {
                           kind: 'SelectionSet',
@@ -10937,6 +11070,23 @@ export const WebFetch_WebFetchesFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<WebFetch_WebFetchesFragment, unknown>
+export const FullContent_FullContentsFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FullContent_FullContentsFragment, unknown>
 export const FieldModal_FieldFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10991,6 +11141,14 @@ export const FieldModal_FieldFragmentDoc = {
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
+            },
+          },
         ],
       },
     },
@@ -11041,6 +11199,18 @@ export const FieldModal_FieldFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'contextQuery' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
         ],
       },
@@ -11120,6 +11290,18 @@ export const ListFieldsTable_FieldFragmentDoc = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
@@ -11167,6 +11349,14 @@ export const ListFieldsTable_FieldFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
             },
           },
         ],
@@ -11243,6 +11433,18 @@ export const ListFieldSettings_FieldFragmentDoc = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
@@ -11290,6 +11492,14 @@ export const ListFieldSettings_FieldFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
             },
           },
         ],
@@ -11384,6 +11594,18 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
@@ -11431,6 +11653,14 @@ export const ListFieldsTableMenu_FieldFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
             },
           },
         ],
@@ -11631,6 +11861,18 @@ export const ListFieldsTable_ListFragmentDoc = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
@@ -11678,6 +11920,14 @@ export const ListFieldsTable_ListFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
             },
           },
         ],
@@ -17497,6 +17747,11 @@ export const GetFileChunksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -17519,6 +17774,11 @@ export const GetFileChunksDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'take' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'part' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
               },
             ],
             selectionSet: {
@@ -17810,6 +18070,16 @@ export const GetSimilarFileChunksDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'useQuery' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -17833,6 +18103,16 @@ export const GetSimilarFileChunksDocument = {
                 name: { kind: 'Name', value: 'hits' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'part' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'part' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'useQuery' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'useQuery' } },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
@@ -17848,6 +18128,7 @@ export const GetSimilarFileChunksDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'points' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'part' } },
               ],
             },
           },
@@ -17856,6 +18137,85 @@ export const GetSimilarFileChunksDocument = {
     },
   ],
 } as unknown as DocumentNode<GetSimilarFileChunksQuery, GetSimilarFileChunksQueryVariables>
+export const GetFileUsagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileUsages' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileUsages' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'usages' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'listName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileUsagesQuery, GetFileUsagesQueryVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -19648,6 +20008,28 @@ export const GetEnrichmentsDocument = {
                       },
                       {
                         kind: 'Field',
+                        name: { kind: 'Name', value: 'webFetchResults' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'fullContent' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
                         name: { kind: 'Name', value: 'messages' },
                         selectionSet: {
                           kind: 'SelectionSet',
@@ -19758,9 +20140,10 @@ export const GetItemDetailDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'itemName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionIndex' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'metadata' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceFileId' } },
                 {
                   kind: 'Field',
@@ -19771,6 +20154,20 @@ export const GetItemDetailDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'extraction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethodParameter' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'displayName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBucketed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'totalParts' } },
                     ],
                   },
                 },
@@ -20063,6 +20460,18 @@ export const GetListDocument = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'FullContent_FullContents' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldContext' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxContentTokens' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FieldModal_Field' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListField' } },
       selectionSet: {
@@ -20110,6 +20519,14 @@ export const GetListDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'WebFetch_WebFetches' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'contextFullContents' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullContent_FullContents' } }],
             },
           },
         ],

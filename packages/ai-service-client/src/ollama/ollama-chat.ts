@@ -1,8 +1,10 @@
-import { checkLineRepetition, getErrorObject } from '@george-ai/web-utils'
+import { checkLineRepetition, createLogger, getErrorObject } from '@george-ai/web-utils'
 
 import type { AIResponse, ChatOptions } from '../types.js'
 import { getChatResponseStream } from './ollama-api.js'
 import { ollamaResourceManager } from './ollama-resource-manager.js'
+
+const logger = createLogger('Ollama Chat')
 
 export async function ollamaChat(
   options: ChatOptions,
@@ -15,7 +17,7 @@ export async function ollamaChat(
 
   // Select best OLLAMA instance based on current GPU memory usage and model availability
   const { instance, semaphore } = await ollamaResourceManager.getBestInstance(endpoints, options.modelName)
-  console.log(`Using OLLAMA instance ${instance.config.url} for model ${options.modelName}`)
+  logger.info(`Using instance ${instance.config.url} for model ${options.modelName}`)
 
   let isAborted = false
   let hasTimeout = false
@@ -50,8 +52,18 @@ export async function ollamaChat(
         }
 
         if (chunk.error) {
-          console.warn(`Error chunk received from OLLAMA ${instance.config.url}:`, chunk.error)
-          throw new Error(`Error chunk received from OLLAMA: ${chunk.error}`)
+          // Log the full chunk to capture all error details
+          logger.warn('Error chunk received:', {
+            error: chunk.error,
+            model: chunk.model,
+            modelName: chunk.modelName,
+            done: chunk.done,
+            instance: instance.config.url,
+            fullChunk: chunk,
+          })
+          throw new Error(
+            `Error chunk received from OLLAMA: ${chunk.error}\nModel: ${chunk.modelName || chunk.model}\nInstance: ${instance.config.url}`,
+          )
         }
         const content = chunk.message?.content || ''
 
@@ -61,7 +73,7 @@ export async function ollamaChat(
             options.abortOnConsecutiveRepeats &&
             checkLineRepetition(allContent.split('\n'), options.abortOnConsecutiveRepeats)
           ) {
-            console.warn('Detected line repetition, stopping further processing.', allContent)
+            logger.warn('Detected line repetition, stopping further processing', { contentLength: allContent.length })
             throw new Error(
               `Aborted due to detected line repetition in response. Max allowed repetitions of ${options.abortOnConsecutiveRepeats} exceeded.`,
             )
@@ -101,7 +113,7 @@ export async function ollamaChat(
 
     const errorObject = getErrorObject(error)
 
-    console.error('OLLAMA chat request finally failed:', errorObject)
+    logger.error('Chat request failed:', errorObject)
 
     return {
       content: allContent,

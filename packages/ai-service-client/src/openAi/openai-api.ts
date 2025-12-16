@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+import { createLogger } from '@george-ai/web-utils'
+
+const logger = createLogger('OpenAI API')
+
 const OpenAIModelSchema = z.object({
   id: z.string(),
   object: z.literal('model'),
@@ -66,17 +70,43 @@ async function openAIApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const response = await fetch(`${instance.url}${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${instance.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-  })
+  let response: Response
+  try {
+    response = await fetch(`${instance.url}${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${instance.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.warn('Network error connecting to OpenAI:', {
+      error: errorMessage,
+      endpoint,
+      url: instance.url,
+    })
+    throw new Error(`Network error connecting to OpenAI at ${instance.url}: ${errorMessage}\nEndpoint: ${endpoint}`)
+  }
 
   if (!response.ok) {
-    const responseText = await response.text()
-    console.warn(`Failed to fetch OpenAI API ${endpoint}: ${response.status} - ${responseText}`)
-    throw new Error(`Failed to fetch OpenAI API ${endpoint}: ${response.status}`)
+    let responseText = ''
+    try {
+      responseText = await response.text()
+    } catch (error) {
+      logger.warn('Failed to read error response body:', error)
+    }
+    logger.warn('Failed to fetch OpenAI API:', {
+      status: response.status,
+      statusText: response.statusText,
+      responseText,
+      endpoint,
+      url: instance.url,
+    })
+    throw new Error(
+      `Failed to fetch OpenAI API: ${response.status} ${response.statusText}\n` +
+        `Endpoint: ${endpoint}\nURL: ${instance.url}\n` +
+        `Response: ${responseText}`,
+    )
   }
 
   const data = await response.json()
@@ -89,19 +119,45 @@ async function openAIApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const response = await fetch(`${instance.url}${endpoint}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${instance.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params),
-  })
+  let response: Response
+  try {
+    response = await fetch(`${instance.url}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${instance.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.warn('Network error connecting to OpenAI:', {
+      error: errorMessage,
+      endpoint,
+      url: instance.url,
+    })
+    throw new Error(`Network error connecting to OpenAI at ${instance.url}: ${errorMessage}\nEndpoint: ${endpoint}`)
+  }
 
   if (!response.ok) {
-    const responseText = await response.text()
-    console.warn(`Failed to POST OpenAI API ${endpoint}: ${response.status} - ${responseText}`)
-    throw new Error(`Failed to POST OpenAI API ${endpoint}: ${response.status}`)
+    let responseText = ''
+    try {
+      responseText = await response.text()
+    } catch (error) {
+      logger.warn('Failed to read error response body:', error)
+    }
+    logger.warn('Failed to POST OpenAI API:', {
+      status: response.status,
+      statusText: response.statusText,
+      responseText,
+      endpoint,
+      url: instance.url,
+    })
+    throw new Error(
+      `Failed to POST OpenAI API: ${response.status} ${response.statusText}\n` +
+        `Endpoint: ${endpoint}\nURL: ${instance.url}\n` +
+        `Response: ${responseText}`,
+    )
   }
 
   const data = await response.json()

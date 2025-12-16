@@ -18,6 +18,7 @@ import { Input } from '../form/input'
 import { ModelSelect } from '../form/model-select'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { FullContent } from './context/full-content'
 import { ReferencedFields } from './context/referenced-fields'
 import { SimilarContent } from './context/similar-content'
 import { WebFetch } from './context/web-fetch'
@@ -89,6 +90,9 @@ graphql(`
     contextWebFetches {
       ...WebFetch_WebFetches
     }
+    contextFullContents {
+      ...FullContent_FullContents
+    }
   }
 `)
 
@@ -105,12 +109,13 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
 
   const tablistName = useId()
   const [activeTab, setActiveTab] = useState<'instruction' | 'context'>('instruction')
-  const [contextSubTab, setContextSubTab] = useState<'fields' | 'similarity' | 'webFetch'>('fields')
+  const [contextSubTab, setContextSubTab] = useState<'fields' | 'similarity' | 'webFetch' | 'fullContent'>('fields')
 
   const fieldId = useMemo(() => editField?.id || '', [editField])
   const fieldReferences = useMemo(() => editField?.contextFieldReferences || [], [editField])
   const vectorSearches = useMemo(() => editField?.contextVectorSearches || [], [editField])
   const webFetches = useMemo(() => editField?.contextWebFetches || [], [editField])
+  const fullContents = useMemo(() => editField?.contextFullContents || [], [editField])
 
   const isEditMode = useMemo(() => !!editField, [editField])
 
@@ -191,6 +196,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       const maxTokens = formData.get(`vectorSearch_maxTokens_${vectorSearchIndex}`) as string
       const maxChunks = formData.get(`vectorSearch_maxChunks_${vectorSearchIndex}`) as string
       const maxDistance = formData.get(`vectorSearch_maxDistance_${vectorSearchIndex}`) as string
+      const scope = formData.get(`vectorSearch_scope_${vectorSearchIndex}`) as string
 
       if (queryTemplate?.trim()) {
         contextVectorSearches.push({
@@ -199,6 +205,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
             queryTemplate: queryTemplate.trim(),
             maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
             maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+            scope: scope || 'file-part',
           }),
           maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
         })
@@ -213,6 +220,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       const maxTokens = formData.get(`vectorSearch_maxTokens_new_${newVectorSearchIndex}`) as string
       const maxChunks = formData.get(`vectorSearch_maxChunks_new_${newVectorSearchIndex}`) as string
       const maxDistance = formData.get(`vectorSearch_maxDistance_new_${newVectorSearchIndex}`) as string
+      const scope = formData.get(`vectorSearch_scope_new_${newVectorSearchIndex}`) as string
 
       if (queryTemplate?.trim()) {
         contextVectorSearches.push({
@@ -220,6 +228,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
             queryTemplate: queryTemplate.trim(),
             maxChunks: maxChunks ? parseInt(maxChunks, 10) : 5,
             maxDistance: maxDistance ? parseFloat(maxDistance) : 0.5,
+            scope: scope || 'file-part',
           }),
           maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 1000,
         })
@@ -259,6 +268,23 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
       newWebFetchIndex++
     }
 
+    // Extract full content context
+    const contextFullContents: Array<{
+      id?: string
+      maxContentTokens: number
+    }> = []
+
+    const fullContentEnabled = formData.get('fullContent_enabled') === 'on'
+    if (fullContentEnabled) {
+      const existingId = formData.get('fullContent_id') as string | null
+      const maxTokens = formData.get('fullContent_maxTokens') as string
+
+      contextFullContents.push({
+        ...(existingId ? { id: existingId } : {}),
+        maxContentTokens: maxTokens ? parseInt(maxTokens, 10) : 32000,
+      })
+    }
+
     // Merge all context sources into a single array with proper structure
     const contextSources: Array<{
       contextType: string
@@ -279,6 +305,10 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
         contextType: 'webFetch',
         contextQuery: fetch.contextQuery,
         maxContentTokens: fetch.maxContentTokens,
+      })),
+      ...contextFullContents.map((fullContent) => ({
+        contextType: 'fullContent',
+        maxContentTokens: fullContent.maxContentTokens,
       })),
     ]
 
@@ -309,7 +339,8 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
   )
 
   // Calculate total context sources count
-  const totalContextCount = (fieldReferences.length || 0) + (vectorSearches.length || 0) + (webFetches.length || 0)
+  const totalContextCount =
+    (fieldReferences.length || 0) + (vectorSearches.length || 0) + (webFetches.length || 0) + (fullContents.length || 0)
 
   return (
     <dialog ref={ref} className="modal">
@@ -318,7 +349,7 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
           {t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}
         </h3>
 
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+        <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
           {/* Hidden Fields */}
           <input type="hidden" name="id" value={fieldId} />
           <input type="hidden" name="listId" value={list.id} />
@@ -465,6 +496,16 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                       >
                         {t('lists.contextSources.webFetch')}
                       </button>
+                      <button
+                        type="button"
+                        className={twMerge(
+                          'btn justify-start rounded-none text-sm btn-ghost',
+                          contextSubTab === 'fullContent' && 'btn-active',
+                        )}
+                        onClick={() => setContextSubTab('fullContent')}
+                      >
+                        {t('lists.contextSources.fullContent')}
+                      </button>
                     </nav>
 
                     {/* Sub-Tab Content */}
@@ -477,6 +518,9 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                       </div>
                       <div className={twMerge(contextSubTab !== 'webFetch' && 'hidden')}>
                         <WebFetch webFetches={webFetches} />
+                      </div>
+                      <div className={twMerge(contextSubTab !== 'fullContent' && 'hidden')}>
+                        <FullContent fullContents={fullContents} />
                       </div>
                     </div>
                   </div>

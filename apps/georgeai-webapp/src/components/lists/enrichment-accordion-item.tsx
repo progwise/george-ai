@@ -51,6 +51,14 @@ graphql(`
           text
           distance
         }
+        webFetchResults {
+          url
+          content
+        }
+        fullContent {
+          fileName
+          content
+        }
         messages {
           role
           content

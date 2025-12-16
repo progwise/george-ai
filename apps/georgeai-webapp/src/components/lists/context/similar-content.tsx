@@ -111,10 +111,23 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                       className="input input-sm w-full"
                       defaultValue={search.maxContentTokens || 1000}
                       min="100"
-                      max="10000"
-                      step="100"
+                      max="200000"
+                      step="1000"
                       aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                     />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.scope')}</label>
+                    <select
+                      name={`vectorSearch_scope_${index}`}
+                      className="select w-full select-sm"
+                      defaultValue={query.scope || 'file-part'}
+                      aria-label={t('lists.contextSources.scope')}
+                    >
+                      <option value="library">{t('lists.contextSources.scopeLibrary')}</option>
+                      <option value="file">{t('lists.contextSources.scopeFile')}</option>
+                      <option value="file-part">{t('lists.contextSources.scopeFilePart')}</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -172,7 +185,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                     min="1"
                     max="20"
                     step="1"
-                    defaultValue="5"
+                    defaultValue={5}
                     aria-label={t('lists.contextSources.maxChunks')}
                   />
                 </div>
@@ -186,7 +199,7 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                     min="0"
                     max="1"
                     step="0.05"
-                    defaultValue="0.5"
+                    defaultValue={0.5}
                     aria-label={t('lists.contextSources.maxDistance')}
                   />
                 </div>
@@ -201,11 +214,26 @@ export const SimilarContent = ({ vectorSearches }: SimilarContentProps) => {
                   className="input input-sm w-full"
                   placeholder="1000"
                   min="100"
-                  max="10000"
-                  step="100"
-                  defaultValue="1000"
+                  max="200000"
+                  step="1000"
+                  defaultValue={1000}
                   aria-label={t('lists.contextSources.vectorSearchMaxTokens')}
                 />
+              </div>
+
+              {/* Scope */}
+              <div>
+                <label className="mb-1 block text-xs font-medium">{t('lists.contextSources.scope')}</label>
+                <select
+                  name={`vectorSearch_scope_new_${newIndex}`}
+                  className="select w-full select-sm"
+                  defaultValue="file-part"
+                  aria-label={t('lists.contextSources.scope')}
+                >
+                  <option value="library">{t('lists.contextSources.scopeLibrary')}</option>
+                  <option value="file">{t('lists.contextSources.scopeFile')}</option>
+                  <option value="file-part">{t('lists.contextSources.scopeFilePart')}</option>
+                </select>
               </div>
             </div>
           </div>

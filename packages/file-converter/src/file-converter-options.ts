@@ -118,7 +118,7 @@ export const parseFileConverterOptions = (optionsString: string | null | undefin
       if (!isNaN(parsed)) {
         options[key] = parsed
       }
-    } else if (key === 'ocrPrompt' || key === 'ocrModel') {
+    } else if (key === 'ocrPrompt') {
       // Keep as string, but only if not empty
       if (value) {
         options[key] = decodeURIComponent(value)

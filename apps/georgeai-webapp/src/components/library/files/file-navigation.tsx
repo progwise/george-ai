@@ -52,6 +52,17 @@ export const FileNavigation = ({ file }: FileNavigationProps) => {
           Similarity
         </Link>
       </li>
+      <li>
+        <Link
+          className="btn rounded-full btn-xs"
+          activeProps={{ className: 'btn-active btn-primary' }}
+          activeOptions={{ exact: false }}
+          to="/libraries/$libraryId/files/$fileId/usages"
+          params={{ libraryId: file.libraryId, fileId: file.id }}
+        >
+          Usages
+        </Link>
+      </li>
     </ul>
   )
 }

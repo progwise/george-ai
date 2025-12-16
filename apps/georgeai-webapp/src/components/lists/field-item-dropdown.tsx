@@ -158,14 +158,13 @@ export const FieldItemDropdown = ({
           )}
         </div>
       )}
-
       <div className="py-2">
         <button
           type="button"
-          className={`flex w-full items-center px-4 py-2 transition-colors ${
+          className={`flex w-full items-center px-4 py-2 text-sm transition-colors ${
             enrichSingleMutation.isPending || isEnrichmentDisabled
               ? 'cursor-not-allowed text-base-content/40 opacity-50'
-              : 'btn btn-xs hover:bg-base-200'
+              : 'hover:bg-base-200'
           }`}
           onClick={handleEnrichSingle}
           disabled={enrichSingleMutation.isPending || isEnrichmentDisabled}

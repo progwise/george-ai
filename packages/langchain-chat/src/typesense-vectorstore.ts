@@ -184,10 +184,14 @@ export const embedMarkdownFile = async ({
       }
       const vector = embeddingResult.embeddings[0]
       try {
+        // Generate deterministic ID to prevent duplicates on re-processing
+        const chunkId = `${fileId}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
+
         await vectorTypesenseClient
           .collections(typesenseVectorStoreConfig.schemaName)
           .documents()
-          .create({
+          .upsert({
+            id: chunkId,
             ...chunk.metadata,
             vec: sanitizeVector(vector), // Do not use cache for file chunks
             text: chunk.pageContent,
@@ -283,17 +287,15 @@ export const queryVectorStore = async (
   }
 }
 
-export const getFileChunkCount = async (libraryId: string, fileId: string): Promise<number> => {
+export const getFileChunkCount = async (libraryId: string, fileId: string, part?: number): Promise<number> => {
   await ensureVectorStore(libraryId)
-  const documents = await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(libraryId))
-    .documents()
-    .search({
-      q: '*',
-      filter_by: `docId:=${fileId}`,
-      per_page: 1,
-      page: 1,
-    })
+  const filter_by = part !== undefined ? `docId:=${fileId} && part:=${part}` : `docId:=${fileId}`
+  const documents = await vectorTypesenseClient.collections(getTypesenseSchemaName(libraryId)).documents().search({
+    q: '*',
+    filter_by,
+    per_page: 1,
+    page: 1,
+  })
   return documents.found
 }
 
@@ -302,21 +304,29 @@ export const getFileChunks = async ({
   fileId,
   skip,
   take,
+  part,
 }: {
   libraryId: string
   fileId: string
   skip: number
   take: number
+  part?: number | null
 }) => {
   await ensureVectorStore(libraryId)
   const collectionName = getTypesenseSchemaName(libraryId)
+
+  // Build filter: always filter by fileId, optionally by part
+  let filterBy = `docId: \`${fileId}\``
+  if (part !== undefined && part !== null) {
+    filterBy += ` && part:=${part}`
+  }
 
   const documents = await vectorTypesenseClient
     .collections(collectionName)
     .documents()
     .search({
       q: '*',
-      filter_by: `docId: \`${fileId}\``,
+      filter_by: filterBy,
       sort_by: 'chunkIndex:asc, part:asc, subChunkIndex:asc',
       per_page: take,
       page: 1 + skip / take,
@@ -344,35 +354,36 @@ export const getFileChunks = async ({
   }
 }
 
-export const getSimilarChunks = async (params: {
-  workspaceId: string
+export const querySimilarChunks = async (params: {
   libraryId: string
   fileId?: string
+  part?: number | null
+  scope?: 'library' | 'file' | 'file-part'
   term: string
-  embeddingsModelProvider: ServiceProviderType
-  embeddingsModelName: string
   hits?: number
 }) => {
-  const { workspaceId, libraryId, fileId, term, embeddingsModelProvider, embeddingsModelName, hits } = params
-  const questionAsVector = await getEmbeddingWithCache({
-    workspaceId,
-    embeddingModelProvider: embeddingsModelProvider,
-    embeddingModelName: embeddingsModelName,
-    question: term,
-  })
-  const sanitizedVector = sanitizeVector(questionAsVector)
-  await ensureVectorStore(libraryId)
+  const { libraryId, fileId, part, scope = 'file-part', term, hits } = params
+  // Build filter based on scope
+  let filterBy = ''
+  if (scope === 'file-part' && fileId && part !== null && part !== undefined) {
+    // Filter by file AND part
+    filterBy = `docId: \`${fileId}\` && part:=${part}`
+  } else if ((scope === 'file' || scope === 'file-part') && fileId) {
+    // Filter by file only (fallback when no part or scope is 'file')
+    filterBy = `docId: \`${fileId}\``
+  }
   const searchParams = {
     collection: getTypesenseSchemaName(libraryId),
-    q: '*',
-    query_by: 'vec',
-    vector_query: `vec:([${sanitizedVector.join(',')}], k:${hits || 10})`,
+    q: `${term}`,
+    query_by: 'text,docName',
     exclude_fields: 'vec',
-    ...(fileId ? { filter_by: `docId: \`${fileId}\`` } : {}),
+    per_page: hits || 10,
+    ...(filterBy ? { filter_by: filterBy } : {}),
   }
   const multiSearchParams = {
     searches: [searchParams],
   }
+
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
   const resultHits = searchResponse.results[0].hits
@@ -391,6 +402,86 @@ export const getSimilarChunks = async (params: {
     subChunkIndex: hit.document.subChunkIndex || 0,
     distance: hit.vector_distance || 0,
     points: hit.document.points || 0,
+    part: hit.document.part || 0,
+  }))
+  return chunks
+}
+
+export const getSimilarChunks = async (params: {
+  workspaceId: string
+  libraryId: string
+  fileId?: string
+  part?: number | null
+  scope?: 'library' | 'file' | 'file-part'
+  term: string
+  embeddingsModelProvider: ServiceProviderType
+  embeddingsModelName: string
+  hits?: number
+}) => {
+  const {
+    workspaceId,
+    libraryId,
+    fileId,
+    part,
+    scope = 'file-part',
+    term,
+    embeddingsModelProvider,
+    embeddingsModelName,
+    hits,
+  } = params
+  const questionAsVector = await getEmbeddingWithCache({
+    workspaceId,
+    embeddingModelProvider: embeddingsModelProvider,
+    embeddingModelName: embeddingsModelName,
+    question: term,
+  })
+
+  const sanitizedVector = sanitizeVector(questionAsVector)
+  await ensureVectorStore(libraryId)
+
+  // Build filter based on scope
+  let filterBy = ''
+  if (scope === 'file-part' && fileId && part !== null && part !== undefined) {
+    // Filter by file AND part
+    filterBy = `docId: \`${fileId}\` && part:=${part}`
+  } else if ((scope === 'file' || scope === 'file-part') && fileId) {
+    // Filter by file only (fallback when no part or scope is 'file')
+    filterBy = `docId: \`${fileId}\``
+  }
+  // scope === 'library': no filter (search entire library)
+
+  const searchParams = {
+    collection: getTypesenseSchemaName(libraryId),
+    q: '*',
+    query_by: 'vec',
+    vector_query: `vec:([${sanitizedVector.join(',')}], k:${hits || 10})`,
+    exclude_fields: 'vec',
+    per_page: hits || 10,
+    ...(filterBy ? { filter_by: filterBy } : {}),
+  }
+  const multiSearchParams = {
+    searches: [searchParams],
+  }
+
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
+
+  const resultHits = searchResponse.results[0].hits
+  if (!resultHits || resultHits.length === 0) {
+    return []
+  }
+  const chunks = resultHits.map((hit: DocumentSchema) => ({
+    id: hit.document.id || 'no-id',
+    fileName: hit.document.docName || 'no-name',
+    fileId: hit.document.docId || 'no-file-id',
+    originUri: hit.document.originUri || 'no-uri',
+    text: hit.document.text || 'no-txt',
+    section: hit.document.section || 'no-section',
+    headingPath: hit.document.headingPath || 'no-path',
+    chunkIndex: hit.document.chunkIndex || 0,
+    subChunkIndex: hit.document.subChunkIndex || 0,
+    distance: hit.vector_distance || 0,
+    points: hit.document.points || 0,
+    part: hit.document.part || 0,
   }))
   return chunks
 }

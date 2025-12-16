@@ -1,10 +1,13 @@
-import fs from 'fs'
-import path from 'node:path'
+import {
+  getAvailableExtractions,
+  getAvailableExtractionsWithInfo,
+  getExtractionFileInfo,
+} from '@george-ai/file-management'
+import { getFileChunkCount } from '@george-ai/langchain-chat'
 
-import { getBucketPath } from '@george-ai/file-management'
-
-import { getFileMarkdownContent } from '../../domain/list/item-extraction'
+import { BACKEND_PUBLIC_URL } from '../../global-config'
 import { prisma } from '../../prisma'
+import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 
 import './queries'
@@ -56,53 +59,197 @@ builder.prismaObject('AiListItem', {
     list: t.relation('list', { nullable: false }),
     source: t.relation('source', { nullable: false }),
     sourceFile: t.relation('sourceFile', { nullable: false }),
-    /**
-     * Content is loaded from file system:
-     * - extractionIndex is null: Uses source file's whole markdown
-     * - extractionIndex is set: Reads from bucketed part file
-     */
-    content: t.field({
-      type: 'String',
-      nullable: true,
+
+    chunkCount: t.field({
+      type: 'Int',
+      nullable: false,
       resolve: async (item) => {
-        // Get libraryId from source file
-        const sourceFile = await prisma.aiLibraryFile.findUnique({
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
           where: { id: item.sourceFileId },
           select: { libraryId: true },
         })
-        if (!sourceFile) return null
+        const count = await getFileChunkCount(
+          sourceFile.libraryId,
+          item.sourceFileId,
+          item.extractionIndex === null ? undefined : item.extractionIndex,
+        )
+        return count
+      },
+    }),
 
-        // Whole file: use source file's markdown directly
-        if (item.extractionIndex === null) {
-          return getFileMarkdownContent(item.sourceFileId, sourceFile.libraryId)
-        }
+    availableExtractions: t.field({
+      type: [ExtractionInfo],
+      nullable: { list: false, items: false },
+      description: 'Available extractions for the source file of this list item',
+      resolve: async (item) => {
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
+          where: { id: item.sourceFileId },
+          select: { id: true, libraryId: true },
+        })
 
-        // Bucketed file: read from part file
-        // Extract extraction method info from metadata
-        const metadata = item.metadata as Record<string, unknown> | null
-        const extractionMethod = metadata?.extractionMethod as string | undefined
-        const extractionMethodParameter = metadata?.extractionMethodParameter as string | undefined
+        const extractionInfos = await getAvailableExtractionsWithInfo({
+          fileId: sourceFile.id,
+          libraryId: sourceFile.libraryId,
+        })
 
-        if (!extractionMethod) {
-          // Fallback to whole file if metadata is missing
-          return getFileMarkdownContent(item.sourceFileId, sourceFile.libraryId)
-        }
+        // Add mainFileUrl to each extraction
+        return extractionInfos.map((info) => ({
+          ...info,
+          mainFileUrl:
+            BACKEND_PUBLIC_URL +
+            `/library-files/${sourceFile.libraryId}/${sourceFile.id}?filename=${info.mainFileName}`,
+        }))
+      },
+    }),
 
-        try {
-          const bucketPath = getBucketPath({
-            libraryId: sourceFile.libraryId,
-            fileId: item.sourceFileId,
-            extractionMethod,
-            extractionMethodParameter,
-            part: item.extractionIndex,
-          })
-          const partFileName = `part-${item.extractionIndex.toString().padStart(7, '0')}.md`
-          const partFilePath = path.join(bucketPath, partFileName)
-          return await fs.promises.readFile(partFilePath, 'utf-8')
-        } catch (error) {
-          console.error(`Failed to read part ${item.extractionIndex} for file ${item.sourceFileId}:`, error)
+    extraction: t.field({
+      type: ExtractionInfo,
+      nullable: true,
+      description: 'The extraction this list item uses (based on what exists in file system)',
+      resolve: async (item) => {
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
+          where: { id: item.sourceFileId },
+          select: { id: true, libraryId: true },
+        })
+
+        // Get what actually exists in file system
+        const availableExtractions = await getAvailableExtractions({
+          fileId: sourceFile.id,
+          libraryId: sourceFile.libraryId,
+        })
+
+        if (availableExtractions.length === 0) {
           return null
         }
+
+        // If item has extractionIndex (is a part), find the bucketed extraction
+        // Otherwise, find the unbucketed extraction
+        const hasPart = item.extractionIndex !== null && item.extractionIndex !== undefined
+
+        // Check each extraction to find the right one (bucketed vs unbucketed)
+        for (const ext of availableExtractions) {
+          const info = await getExtractionFileInfo({
+            fileId: sourceFile.id,
+            libraryId: sourceFile.libraryId,
+            extractionMethod: ext.extractionMethod,
+            extractionMethodParameter: ext.extractionMethodParameter || undefined,
+          })
+
+          if (!info) continue
+
+          // If item is a part, use bucketed extraction
+          // If item is whole file, use unbucketed extraction
+          if ((hasPart && info.isBucketed) || (!hasPart && !info.isBucketed)) {
+            const mainName =
+              ext.extractionMethod + (ext.extractionMethodParameter ? `_${ext.extractionMethodParameter}` : '')
+            const mainFileName = `${mainName}.md`
+
+            return {
+              extractionMethod: ext.extractionMethod,
+              extractionMethodParameter: ext.extractionMethodParameter || null,
+              totalParts: info.totalParts,
+              totalSize: info.totalSize,
+              isBucketed: info.isBucketed,
+              mainFileUrl:
+                BACKEND_PUBLIC_URL + `/library-files/${sourceFile.libraryId}/${sourceFile.id}?filename=${mainFileName}`,
+            }
+          }
+        }
+
+        // Fallback: use first available extraction if no match found
+        const fallbackExtraction = availableExtractions[0]
+        const fallbackInfo = await getExtractionFileInfo({
+          fileId: sourceFile.id,
+          libraryId: sourceFile.libraryId,
+          extractionMethod: fallbackExtraction.extractionMethod,
+          extractionMethodParameter: fallbackExtraction.extractionMethodParameter || undefined,
+        })
+
+        if (!fallbackInfo) {
+          return null
+        }
+
+        const mainName =
+          fallbackExtraction.extractionMethod +
+          (fallbackExtraction.extractionMethodParameter ? `_${fallbackExtraction.extractionMethodParameter}` : '')
+        const mainFileName = `${mainName}.md`
+
+        return {
+          extractionMethod: fallbackExtraction.extractionMethod,
+          extractionMethodParameter: fallbackExtraction.extractionMethodParameter || null,
+          totalParts: fallbackInfo.totalParts,
+          totalSize: fallbackInfo.totalSize,
+          isBucketed: fallbackInfo.isBucketed,
+          mainFileUrl:
+            BACKEND_PUBLIC_URL + `/library-files/${sourceFile.libraryId}/${sourceFile.id}?filename=${mainFileName}`,
+        }
+      },
+    }),
+
+    contentUrl: t.string({
+      nullable: false,
+      description: 'URL to fetch the markdown content for this list item from the backend',
+      resolve: async (item) => {
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
+          where: { id: item.sourceFileId },
+          select: { id: true, libraryId: true },
+        })
+
+        // Get what actually exists in file system
+        const availableExtractions = await getAvailableExtractions({
+          fileId: sourceFile.id,
+          libraryId: sourceFile.libraryId,
+        })
+
+        // Determine which extraction to use based on whether this item is a part
+        const hasPart = item.extractionIndex !== null && item.extractionIndex !== undefined
+        let extraction: { extractionMethod: string; extractionMethodParameter: string | null } | null = null
+
+        // Find the right extraction (bucketed for parts, unbucketed for whole files)
+        for (const ext of availableExtractions) {
+          const info = await getExtractionFileInfo({
+            fileId: sourceFile.id,
+            libraryId: sourceFile.libraryId,
+            extractionMethod: ext.extractionMethod,
+            extractionMethodParameter: ext.extractionMethodParameter || undefined,
+          })
+
+          if (!info) continue
+
+          // If item is a part, use bucketed extraction
+          // If item is whole file, use unbucketed extraction
+          if ((hasPart && info.isBucketed) || (!hasPart && !info.isBucketed)) {
+            extraction = {
+              extractionMethod: ext.extractionMethod,
+              extractionMethodParameter: ext.extractionMethodParameter || null,
+            }
+            break
+          }
+        }
+
+        // Fallback: use first available extraction, or markdown-extraction
+        if (!extraction) {
+          extraction = availableExtractions[0] || {
+            extractionMethod: 'markdown-extraction',
+            extractionMethodParameter: null,
+          }
+        }
+
+        // Build filename from extraction method and parameter
+        const mainName =
+          extraction.extractionMethod +
+          (extraction.extractionMethodParameter ? `_${extraction.extractionMethodParameter}` : '')
+        const mainFileName = `${mainName}.md`
+
+        // Build the base URL
+        const baseUrl = `${BACKEND_PUBLIC_URL}/library-files/${sourceFile.libraryId}/${sourceFile.id}?filename=${mainFileName}`
+
+        // Add part parameter if this item has an extraction index
+        if (item.extractionIndex !== null && item.extractionIndex !== undefined) {
+          return `${baseUrl}&part=${item.extractionIndex}`
+        }
+
+        return baseUrl
       },
     }),
   }),
