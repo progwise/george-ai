@@ -2,5 +2,6 @@ packages:
   - 'apps/georgeai-web'
   - 'apps/georgeai-webapp'
   - 'apps/georgeai-backend'
+  - 'apps/smb-crawler'
   - 'packages/*'
   - '!packages/ai-models'

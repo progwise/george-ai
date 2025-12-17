@@ -28,6 +28,7 @@
     "@george-ai/file-management": "workspace:*",
     "@george-ai/html-crawler": "workspace:*",
     "@george-ai/langchain-chat": "workspace:*",
+    "@george-ai/smb-crawler": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
     "@pothos/core": "^4.9.0",
     "@pothos/plugin-prisma": "^4.10.0",

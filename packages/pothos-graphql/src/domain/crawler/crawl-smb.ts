@@ -1,24 +1,24 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
 import { getUploadFilePath } from '@george-ai/file-management'
-import { getMimeTypeFromExtension } from '@george-ai/web-utils'
+import { SmbCrawlerClient } from '@george-ai/smb-crawler'
+import type { SmbFileMetadata } from '@george-ai/smb-crawler'
+import { createLogger } from '@george-ai/web-utils'
 
 import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
-import { calculateFileHash } from '../file/file-hash'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
-import { uriToMountedPath } from './smb-mount-manager'
 
-interface SmbFileToProcess {
-  uri: string
-  name: string
-  size: number
-  modifiedTime: Date
-  depth: number
-}
+// SMB Crawler Service URL from environment
+const SMB_CRAWLER_URL = process.env.SMB_CRAWLER_URL || 'http://localhost:3006'
+
+// Logger instance
+const logger = createLogger('SMB Crawler')
 
 const recordOmittedFile = async ({
   libraryId,
@@ -80,7 +80,10 @@ const saveSmbCrawlerFile = async ({
   mimeType,
   fileSize,
   fileModifiedTime,
-  mountedFilePath,
+  fileHash,
+  jobId,
+  fileId,
+  client,
   processingError,
 }: {
   fileName: string
@@ -90,7 +93,10 @@ const saveSmbCrawlerFile = async ({
   mimeType: string
   fileSize: number
   fileModifiedTime: Date
-  mountedFilePath: string
+  fileHash: string
+  jobId: string
+  fileId: string
+  client: SmbCrawlerClient
   processingError?: string
 }) => {
   // Check if file already exists
@@ -111,97 +117,86 @@ const saveSmbCrawlerFile = async ({
     },
   })
 
-  let fileHash: string | undefined
   let skipProcessing = false
   let wasUpdated = false
 
-  // If no processing error, handle file hash calculation and skip logic
+  // If no processing error, handle file download and hash logic
   if (!processingError) {
-    // Check if existing file has a hash stored
-    if (existingFile && !existingFile.originFileHash) {
-      // Try to generate hash from existing uploaded file
-      const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
-      try {
-        await fs.promises.access(existingFilePath)
-        fileHash = await calculateFileHash(existingFilePath)
-        console.log(`Generated hash for existing SMB file ${fileName}: ${fileHash}`)
+    // Check if this file was already processed with the same hash
+    if (existingFile && existingFile.originFileHash === fileHash) {
+      logger.info(`Skipping SMB file ${fileName} - already processed with same hash ${fileHash}`)
+      skipProcessing = true
 
-        // Update the existing file with the hash
-        await prisma.aiLibraryFile.update({
-          where: { id: existingFile.id },
-          data: { originFileHash: fileHash },
-        })
-      } catch {
-        console.log(`Existing file not found on disk for ${fileName}, will copy from SMB`)
-      }
-    }
-
-    // If we don't have a hash yet, calculate it from the mounted file
-    if (!fileHash) {
-      fileHash = await calculateFileHash(mountedFilePath)
-
-      // Check if this file was already processed with the same hash
-      if (existingFile && existingFile.originFileHash === fileHash) {
-        console.log(`Skipping SMB file ${fileName} - already processed with same hash`)
-        skipProcessing = true
-
-        // Update modification date even if skipping
-        await prisma.aiLibraryFile.update({
-          where: { id: existingFile.id },
-          data: {
-            originModificationDate: fileModifiedTime,
-            updatedAt: new Date(),
-          },
-        })
-
-        return { ...existingFile, skipProcessing, wasUpdated }
-      }
-
-      // Determine if this is an update or new file
-      wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
-
-      // Create/update file with hash
-      const file = await prisma.aiLibraryFile.upsert({
-        where: {
-          crawledByCrawlerId_originUri: {
-            crawledByCrawlerId: crawlerId,
-            originUri: fileUri,
-          },
-        },
-        create: {
-          name: `${fileName}`,
-          libraryId: libraryId,
-          mimeType,
-          size: fileSize,
-          updatedAt: fileModifiedTime,
-          originUri: fileUri,
-          crawledByCrawlerId: crawlerId,
+      // Update modification date even if skipping
+      await prisma.aiLibraryFile.update({
+        where: { id: existingFile.id },
+        data: {
           originModificationDate: fileModifiedTime,
-          originFileHash: fileHash,
-        },
-        update: {
-          name: `${fileName}`,
-          libraryId: libraryId,
-          mimeType,
-          size: fileSize,
-          updatedAt: fileModifiedTime,
-          originModificationDate: fileModifiedTime,
-          originFileHash: fileHash,
+          updatedAt: new Date(),
         },
       })
 
-      // Copy file to final location
-      const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-      await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
-      await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
-
-      return { ...file, skipProcessing, wasUpdated }
-    } else if (existingFile) {
-      // We have a hash from the existing file, check if it needs reprocessing
-      console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
-      skipProcessing = true
       return { ...existingFile, skipProcessing, wasUpdated }
     }
+
+    // Determine if this is an update or new file
+    wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
+
+    // Create/update file with hash to get file ID
+    const file = await prisma.aiLibraryFile.upsert({
+      where: {
+        crawledByCrawlerId_originUri: {
+          crawledByCrawlerId: crawlerId,
+          originUri: fileUri,
+        },
+      },
+      create: {
+        name: `${fileName}`,
+        libraryId: libraryId,
+        mimeType,
+        size: fileSize,
+        updatedAt: fileModifiedTime,
+        originUri: fileUri,
+        crawledByCrawlerId: crawlerId,
+        originModificationDate: fileModifiedTime,
+        originFileHash: fileHash,
+      },
+      update: {
+        name: `${fileName}`,
+        libraryId: libraryId,
+        mimeType,
+        size: fileSize,
+        updatedAt: fileModifiedTime,
+        originModificationDate: fileModifiedTime,
+        originFileHash: fileHash,
+      },
+    })
+
+    // Download file directly to final location
+    const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+    await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
+
+    logger.info(`Downloading file ${fileName} from crawler service to ${uploadedFilePath}...`)
+    const fileStream = await client.downloadFile(jobId, fileId)
+    const writeStream = fs.createWriteStream(uploadedFilePath)
+
+    // Convert ReadableStream to Node.js Readable and pipe to file
+    const reader = fileStream.getReader()
+    const nodeStream = new Readable({
+      async read() {
+        const { done, value } = await reader.read()
+        if (done) {
+          this.push(null)
+        } else {
+          this.push(Buffer.from(value))
+        }
+      },
+    })
+
+    await pipeline(nodeStream, writeStream)
+    logger.debug(`File ${fileName} saved to ${uploadedFilePath}`)
+
+    return { ...file, skipProcessing, wasUpdated }
   }
 
   // For processing errors, just update database without copying
@@ -244,219 +239,205 @@ export async function* crawlSmb({
   libraryId,
   crawlerRunId,
   filterConfig,
+  credentials,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
-  console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
-  console.log(`Using mount for crawler: ${crawlerId}`)
+  logger.info(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
+  logger.info(`Using SMB crawler service at: ${SMB_CRAWLER_URL}`)
 
-  let processedPages = 0
-  const queue: SmbFileToProcess[] = []
-  const processedUris = new Set<string>()
-
-  try {
-    // Start by discovering files and directories at the specified URI
-    await discoverMountedFilesAndDirectories(uri, 0, queue, processedUris, maxDepth, crawlerId)
-
-    console.log(`Discovery complete. Found ${queue.length} files to process`)
-
-    // Process files in the queue
-    while (queue.length > 0 && processedPages < maxPages) {
-      const fileToProcess = queue.shift()!
-      processedPages++
-
-      try {
-        console.log(`Processing SMB file: ${fileToProcess.uri}`)
-
-        // Convert URI to mounted filesystem path and determine MIME type
-        const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
-        const mimeType = getMimeTypeFromExtension(fileToProcess.name)
-
-        // Apply file filters if configured
-        if (filterConfig) {
-          const fileInfo: FileInfo = {
-            fileName: fileToProcess.name,
-            filePath: fileToProcess.uri,
-            fileSize: fileToProcess.size,
-            modificationDate: fileToProcess.modifiedTime,
-          }
-
-          const filterResult = applyFileFilters(fileInfo, filterConfig)
-          if (!filterResult.allowed) {
-            console.log(`SMB file filtered out: ${fileToProcess.uri} - ${filterResult.reason}`)
-
-            // Record the omitted file
-            await recordOmittedFile({
-              libraryId,
-              crawlerRunId,
-              filePath: fileToProcess.uri,
-              fileName: fileToProcess.name,
-              fileSize: fileToProcess.size,
-              reason: filterResult.reason || 'File filtered',
-              filterType: filterResult.filterType || 'unknown',
-              filterValue: filterResult.filterValue,
-            })
-
-            // Skip this file but continue processing others
-            continue
-          }
-        }
-
-        // Check file size limits before processing
-        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
-
-        if (!sizeCheck.acceptable) {
-          console.warn(`SMB file too large ${fileToProcess.uri}: ${sizeCheck.reason}`)
-
-          // Still create file record but mark as failed due to size
-          const fileInfo = await saveSmbCrawlerFile({
-            fileName: fileToProcess.name,
-            crawlerId,
-            libraryId,
-            fileModifiedTime: fileToProcess.modifiedTime,
-            fileSize: fileToProcess.size,
-            mimeType,
-            fileUri: fileToProcess.uri,
-            mountedFilePath,
-            processingError: `File too large: ${sizeCheck.reason}`,
-          })
-
-          yield {
-            id: fileInfo.id,
-            name: fileInfo.name,
-            originUri: fileInfo.originUri,
-            mimeType: fileInfo.mimeType,
-            skipProcessing: false,
-            hints: `SMB Crawler ${crawlerId} - file ${fileInfo.name} skipped due to size limit`,
-          }
-          continue
-        }
-
-        if (sizeCheck.shouldWarn) {
-          console.warn(`SMB file ${fileToProcess.uri}: ${sizeCheck.reason}`)
-        }
-
-        const fileInfo = await saveSmbCrawlerFile({
-          fileName: fileToProcess.name,
-          crawlerId,
-          libraryId,
-          fileModifiedTime: fileToProcess.modifiedTime,
-          fileSize: fileToProcess.size,
-          mimeType,
-          fileUri: fileToProcess.uri,
-          mountedFilePath,
-        })
-
-        // Check if we should skip processing
-        if (fileInfo.skipProcessing) {
-          console.log(`Skipping processing for SMB file ${fileToProcess.name} - file unchanged`)
-
-          const fileSizeMB = (fileToProcess.size / (1024 * 1024)).toFixed(2)
-          const skipHints = [
-            `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
-            `Size: ${fileSizeMB} MB`,
-            `Origin: ${fileToProcess.uri}`,
-          ].join(' | ')
-
-          yield {
-            id: fileInfo.id,
-            name: fileInfo.name,
-            originUri: fileInfo.originUri,
-            mimeType: fileInfo.mimeType,
-            skipProcessing: true,
-            hints: skipHints,
-          }
-        } else {
-          yield {
-            id: fileInfo.id,
-            name: fileInfo.name,
-            originUri: fileInfo.originUri,
-            mimeType: fileInfo.mimeType,
-            skipProcessing: false,
-            wasUpdated: fileInfo.wasUpdated,
-            downloadUrl: mountedFilePath, // Provide local file path for SMB files
-            hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
-          }
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        const hints = `Error processing SMB file ${fileToProcess.uri} in crawler ${crawlerId}`
-        console.error(hints, errorMessage)
-        yield { errorMessage, hints }
-      }
-    }
-
-    console.log(`Finished SMB crawling. Processed ${processedPages} files.`)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    const hints = `Error in SMB crawler ${crawlerId}`
-    console.error(hints, errorMessage)
-    yield { errorMessage, hints }
-  }
-}
-
-async function discoverMountedFilesAndDirectories(
-  currentUri: string,
-  currentDepth: number,
-  queue: SmbFileToProcess[],
-  processedUris: Set<string>,
-  maxDepth: number,
-  crawlerId: string,
-): Promise<void> {
-  if (currentDepth > maxDepth || processedUris.has(currentUri)) {
+  if (!credentials?.username || !credentials?.password) {
+    const errorMessage = 'SMB credentials (username/password) are required'
+    logger.error(errorMessage)
+    yield { errorMessage, hints: 'Missing SMB credentials' }
     return
   }
 
-  processedUris.add(currentUri)
-  console.log(`Discovering files in: ${currentUri} (depth: ${currentDepth})`)
+  let processedPages = 0
+  const client = new SmbCrawlerClient({ baseUrl: SMB_CRAWLER_URL })
 
   try {
-    // Convert URI to mounted filesystem path
-    const mountedPath = uriToMountedPath(currentUri, crawlerId)
+    // Start crawl job on SMB crawler service
+    logger.info(`Starting crawl job on SMB crawler service...`)
+    const { jobId, streamUrl } = await client.startCrawl({
+      uri,
+      username: credentials.username,
+      password: credentials.password,
+      // Note: File filtering will be done in backend, not in crawler service
+      // The crawler service discovers all files and we filter them here
+    })
 
-    // Check if the path exists
+    logger.info(`Crawl job started: ${jobId}, stream URL: ${streamUrl}`)
+
     try {
-      await fs.promises.access(mountedPath)
-    } catch (error) {
-      console.error(`SMB mount not found at ${mountedPath}.`, error)
-      throw new Error(
-        `SMB mount not found at ${mountedPath}. Ensure crawler has been updated with SMB credentials to create the mount.`,
-      )
-    }
-
-    // List directory contents using fs
-    console.log(`Listing files in mounted path: ${mountedPath}`)
-    const entries = await fs.promises.readdir(mountedPath, { withFileTypes: true })
-    console.log(`Found ${entries.length} entries in ${mountedPath}`)
-
-    for (const entry of entries) {
-      const entryUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${entry.name}`
-      const entryPath = path.join(mountedPath, entry.name)
-
-      if (entry.isFile() && !processedUris.has(entryUri)) {
-        // Process all files - let the processor decide what to do with them
-        try {
-          const stats = await fs.promises.stat(entryPath)
-          queue.push({
-            uri: entryUri,
-            name: entry.name,
-            size: stats.size,
-            modifiedTime: stats.mtime,
-            depth: currentDepth,
-          })
-        } catch (error) {
-          console.warn(`Failed to stat file ${entryPath}:`, error)
+      // Stream events from crawler service
+      for await (const event of client.streamCrawl(jobId)) {
+        if (processedPages >= maxPages) {
+          logger.info(`Reached max pages limit (${maxPages}), stopping crawl`)
+          await client.cancelCrawl(jobId)
+          break
         }
-      } else if (entry.isDirectory() && currentDepth < maxDepth) {
-        // Recursively explore subdirectories
-        await discoverMountedFilesAndDirectories(entryUri, currentDepth + 1, queue, processedUris, maxDepth, crawlerId)
+
+        if (event.type === 'file-found') {
+          processedPages++
+          const fileMetadata = event.data as SmbFileMetadata
+
+          try {
+            logger.debug(`Processing SMB file: ${fileMetadata.relativePath}`)
+
+            // Build full URI for the file
+            const fileUri = `${uri}${uri.endsWith('/') ? '' : '/'}${fileMetadata.relativePath}`
+
+            // Apply file filters if configured
+            if (filterConfig) {
+              const fileInfo: FileInfo = {
+                fileName: fileMetadata.name,
+                filePath: fileUri,
+                fileSize: fileMetadata.size,
+                modificationDate: fileMetadata.lastModified,
+              }
+
+              const filterResult = applyFileFilters(fileInfo, filterConfig)
+              if (!filterResult.allowed) {
+                logger.debug(`SMB file filtered out: ${fileUri} - ${filterResult.reason}`)
+
+                // Record the omitted file
+                await recordOmittedFile({
+                  libraryId,
+                  crawlerRunId,
+                  filePath: fileUri,
+                  fileName: fileMetadata.name,
+                  fileSize: fileMetadata.size,
+                  reason: filterResult.reason || 'File filtered',
+                  filterType: filterResult.filterType || 'unknown',
+                  filterValue: filterResult.filterValue,
+                })
+
+                // Skip this file but continue processing others
+                continue
+              }
+            }
+
+            // Check file size limits before processing
+            const sizeCheck = isFileSizeAcceptable(fileMetadata.size)
+
+            if (!sizeCheck.acceptable) {
+              logger.warn(`SMB file too large ${fileUri}: ${sizeCheck.reason}`)
+
+              // Still create file record but mark as failed due to size
+              const fileInfo = await saveSmbCrawlerFile({
+                fileName: fileMetadata.name,
+                crawlerId,
+                libraryId,
+                fileModifiedTime: fileMetadata.lastModified,
+                fileSize: fileMetadata.size,
+                mimeType: fileMetadata.mimeType || 'application/octet-stream',
+                fileUri,
+                fileHash: fileMetadata.hash,
+                jobId,
+                fileId: fileMetadata.fileId,
+                client,
+                processingError: `File too large: ${sizeCheck.reason}`,
+              })
+
+              yield {
+                id: fileInfo.id,
+                name: fileInfo.name,
+                originUri: fileInfo.originUri,
+                mimeType: fileInfo.mimeType,
+                skipProcessing: false,
+                hints: `SMB Crawler ${crawlerId} - file ${fileInfo.name} skipped due to size limit`,
+              }
+              continue
+            }
+
+            if (sizeCheck.shouldWarn) {
+              logger.warn(`SMB file ${fileUri}: ${sizeCheck.reason}`)
+            }
+
+            const fileInfo = await saveSmbCrawlerFile({
+              fileName: fileMetadata.name,
+              crawlerId,
+              libraryId,
+              fileModifiedTime: fileMetadata.lastModified,
+              fileSize: fileMetadata.size,
+              mimeType: fileMetadata.mimeType || 'application/octet-stream',
+              fileUri,
+              fileHash: fileMetadata.hash,
+              jobId,
+              fileId: fileMetadata.fileId,
+              client,
+            })
+
+            // Check if we should skip processing
+            if (fileInfo.skipProcessing) {
+              logger.info(`Skipping processing for SMB file ${fileMetadata.name} - file unchanged`)
+
+              const fileSizeMB = (fileMetadata.size / (1024 * 1024)).toFixed(2)
+              const skipHints = [
+                `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+                `Size: ${fileSizeMB} MB`,
+                `Origin: ${fileUri}`,
+              ].join(' | ')
+
+              yield {
+                id: fileInfo.id,
+                name: fileInfo.name,
+                originUri: fileInfo.originUri,
+                mimeType: fileInfo.mimeType,
+                skipProcessing: true,
+                hints: skipHints,
+              }
+            } else {
+              yield {
+                id: fileInfo.id,
+                name: fileInfo.name,
+                originUri: fileInfo.originUri,
+                mimeType: fileInfo.mimeType,
+                skipProcessing: false,
+                wasUpdated: fileInfo.wasUpdated,
+                hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
+              }
+            }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            const hints = `Error processing SMB file ${fileMetadata.relativePath} in crawler ${crawlerId}`
+            logger.error(hints, errorMessage)
+            yield { errorMessage, hints }
+          }
+        } else if (event.type === 'progress') {
+          // Log progress updates
+          const progress = event.data
+          logger.debug(`SMB crawl progress: ${progress.filesMatched} files matched, ${progress.filesFound} total found`)
+        } else if (event.type === 'complete') {
+          const complete = event.data
+          logger.info(`SMB crawl complete: ${complete.totalMatched} files in ${complete.durationMs}ms`)
+        } else if (event.type === 'error') {
+          const error = event.data
+          const errorMessage = error.message
+          const hints = `Error from SMB crawler service`
+          logger.error(hints, errorMessage)
+          yield { errorMessage, hints }
+        }
       }
+
+      logger.info(`Finished SMB crawling. Processed ${processedPages} files.`)
+
+      // Clean up crawler job
+      try {
+        await client.cancelCrawl(jobId)
+        logger.info(`Cleaned up crawler job ${jobId}`)
+      } catch (error) {
+        logger.warn(`Failed to clean up crawler job ${jobId}:`, error)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const hints = `Error streaming from SMB crawler service`
+      logger.error(hints, errorMessage)
+      yield { errorMessage, hints }
     }
   } catch (error) {
-    // Re-throw mount errors so they propagate to the main function
-    if (error instanceof Error && error.message.includes('SMB mount not found')) {
-      throw error
-    }
-
-    console.error(`Error listing directory ${currentUri}:`, error)
-    // Continue with other directories even if this one fails
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const hints = `Error in SMB crawler ${crawlerId}`
+    logger.error(hints, errorMessage)
+    yield { errorMessage, hints }
   }
 }

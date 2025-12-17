@@ -8,6 +8,7 @@ import { crawlHttp } from './crawl-http'
 import { crawlSharePoint } from './crawl-sharepoint'
 import { crawlSmb } from './crawl-smb'
 import { CrawledFileInfo } from './crawled-file-info'
+import { getCrawlerCredentials } from './crawler-credentials-manager'
 import { CrawlerConfig } from './crawler-options'
 
 interface RunOptions {
@@ -31,6 +32,10 @@ type CrawlFunction = (options: {
     allowedMimeTypes?: string[]
   }
   crawlerConfig?: CrawlerConfig | null
+  credentials?: {
+    username: string
+    password: string
+  }
 }) => AsyncGenerator<CrawledFileInfo, void, void>
 
 export const stopCrawler = async ({ crawlerId, userId }: RunOptions) => {
@@ -145,6 +150,13 @@ const startCrawling = async (
     throw new Error(`Crawler for type ${crawler.uriType} not implemented`)
   }
 
+  // Retrieve credentials for crawlers that need them (SMB, SharePoint, Box)
+  const storedCredentials = await getCrawlerCredentials(crawler.id)
+  const credentials =
+    storedCredentials.username && storedCredentials.password
+      ? { username: storedCredentials.username, password: storedCredentials.password }
+      : undefined
+
   try {
     for await (const crawledPage of crawl({
       uri: crawler.uri,
@@ -155,6 +167,7 @@ const startCrawling = async (
       crawlerRunId: newRun.id,
       filterConfig,
       crawlerConfig: crawler.crawlerConfig as never, // TODO: improve typing
+      credentials, // Pass credentials to crawl functions
     })) {
       try {
         const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })

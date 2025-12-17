@@ -1,0 +1,33 @@
+{
+  "name": "@george-ai/smb-crawler-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Michael Vogt <info@george-ai.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/progwise/george-ai"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@george-ai/smb-crawler": "workspace:*",
+    "express": "^4.21.2",
+    "mime-types": "^2.1.35",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@george-ai/package-configs": "workspace:*",
+    "@types/express": "^5.0.0",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

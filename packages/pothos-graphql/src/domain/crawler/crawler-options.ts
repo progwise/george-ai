@@ -1,6 +1,12 @@
 import { FileFilterConfig } from '../file/file-filter'
 
 export type CrawlerConfig = unknown
+
+export interface CrawlerCredentials {
+  username: string
+  password: string
+}
+
 export interface CrawlOptions {
   uri: string
   maxDepth: number
@@ -10,4 +16,5 @@ export interface CrawlOptions {
   crawlerRunId?: string
   filterConfig?: FileFilterConfig
   crawlerConfig?: CrawlerConfig
+  credentials?: CrawlerCredentials
 }
