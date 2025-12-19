@@ -5,6 +5,7 @@ const E2E_EMAIL = process.env.E2E_EMAIL!
 const DATABASE_URL = process.env.DATABASE_URL
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL
+const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY
 const OLLAMA_VRAM_GB = process.env.OLLAMA_VRAM_GB ? parseInt(process.env.OLLAMA_VRAM_GB) : 16
 const SHARED_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001'
 
@@ -202,7 +203,13 @@ async function globalSetup() {
     if (OLLAMA_BASE_URL && OLLAMA_BASE_URL.length > 0) {
       try {
         console.log('  🔍 Discovering Ollama models...')
-        const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`)
+        const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
+          headers: OLLAMA_API_KEY
+            ? {
+                Authorization: `Bearer ${OLLAMA_API_KEY}`,
+              }
+            : {},
+        })
 
         if (!response.ok) {
           throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`)

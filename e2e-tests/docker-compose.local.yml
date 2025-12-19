@@ -139,8 +139,8 @@ services:
   # SMB Test Server (for testing SMB crawling)
   gai-e2e-smb-test:
     build:
-      context: ../apps/smb-test-server
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/smb-test-server/Dockerfile
     container_name: gai-e2e-smb-test
     hostname: gai-e2e-smb-test
     networks:
