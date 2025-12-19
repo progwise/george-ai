@@ -54,6 +54,9 @@ export const DATABASE_URL = requireEnv('DATABASE_URL')
 /** Path for file uploads (user avatars, library files, etc.) */
 export const UPLOADS_PATH = optionalEnv('UPLOADS_PATH')
 
+/** Directory for crawler credentials storage - REQUIRED */
+export const CRAWLER_CREDENTIALS_DIR = requireEnv('CRAWLER_CREDENTIALS_DIR')
+
 // =============================================================================
 // SMTP / EMAIL (Feature-required)
 // =============================================================================

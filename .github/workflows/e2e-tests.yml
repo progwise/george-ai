@@ -303,6 +303,7 @@ jobs:
           BACKEND_PUBLIC_URL: http://localhost:3003
           PUBLIC_APP_URL: http://localhost:3001
           UPLOADS_PATH: /tmp/uploads
+          CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
           AUTOSTART_ENRICHMENT_WORKER: true
           AUTOSTART_CONTENT_PROCESSING_WORKER: true
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
