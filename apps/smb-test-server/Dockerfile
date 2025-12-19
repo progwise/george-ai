@@ -2,9 +2,9 @@ FROM ghcr.io/servercontainers/samba:smbd-wsdd2-latest
 
 WORKDIR /app
 
-# Copy scripts first
-COPY scripts/setup-testdata.sh ./setup-testdata.sh
-COPY scripts/setup-samba.sh ./setup-samba.sh
+# Copy scripts first (use paths relative to repo root for CI builds)
+COPY apps/smb-test-server/scripts/setup-testdata.sh ./setup-testdata.sh
+COPY apps/smb-test-server/scripts/setup-samba.sh ./setup-samba.sh
 
 # Set proper permissions
 RUN chmod +x ./setup-samba.sh && \
@@ -17,12 +17,12 @@ RUN /bin/sh ./setup-testdata.sh && \
     chown root:root /
 
 # Some additional test files added
-COPY test-files /shares/documents
+COPY apps/smb-test-server/test-files /shares/documents
 
 # Run samba setup (this must happen after the base image sets up samba)
 RUN /bin/sh ./setup-samba.sh
 
 # Copy our custom smb.conf to a temporary location
-COPY config/smb.conf /container/config/samba/smb.conf
+COPY apps/smb-test-server/config/smb.conf /container/config/samba/smb.conf
 
 EXPOSE 445 139 137/udp 138/udp
