@@ -39,6 +39,7 @@ COPY packages/langchain-chat/package.json ./packages/langchain-chat/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/web-utils/package.json ./packages/web-utils/
+COPY packages/smb-crawler/package.json ./packages/smb-crawler/
 COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
 RUN pnpm i --frozen-lockfile
@@ -58,6 +59,7 @@ COPY packages/langchain-chat ./packages/langchain-chat
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/web-utils ./packages/web-utils
+COPY packages/smb-crawler ./packages/smb-crawler
 COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # Generate Prisma client only (doesn't need DB connection)

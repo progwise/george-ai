@@ -8,14 +8,12 @@ import { SmbCrawlerClient } from '@george-ai/smb-crawler'
 import type { SmbFileMetadata } from '@george-ai/smb-crawler'
 import { createLogger } from '@george-ai/web-utils'
 
+import { SMB_CRAWLER_URL } from '../../global-config'
 import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
-
-// SMB Crawler Service URL from environment
-const SMB_CRAWLER_URL = process.env.SMB_CRAWLER_URL || 'http://localhost:3006'
 
 // Logger instance
 const logger = createLogger('SMB Crawler')
@@ -243,6 +241,13 @@ export async function* crawlSmb({
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   logger.info(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   logger.info(`Using SMB crawler service at: ${SMB_CRAWLER_URL}`)
+
+  if (!SMB_CRAWLER_URL) {
+    const errorMessage = 'SMB_CRAWLER_URL is not configured'
+    logger.error(errorMessage)
+    yield { errorMessage, hints: 'Missing SMB_CRAWLER_URL configuration' }
+    return
+  }
 
   if (!credentials?.username || !credentials?.password) {
     const errorMessage = 'SMB credentials (username/password) are required'

@@ -106,6 +106,9 @@ export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
 /** OpenAI base URL (optional - custom endpoint) */
 export const OPENAI_BASE_URL = optionalEnv('OPENAI_BASE_URL')
 
+/** SMB Crawler service URL (optional - enables SMB crawling) */
+export const SMB_CRAWLER_URL = optionalEnv('SMB_CRAWLER_URL')
+
 // =============================================================================
 // OLLAMA INSTANCES (Optional)
 // =============================================================================

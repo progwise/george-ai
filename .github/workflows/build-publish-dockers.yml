@@ -51,6 +51,7 @@ jobs:
       webapp_hash: ${{ steps.hash.outputs.webapp }}
       webcrawler_hash: ${{ steps.hash.outputs.webcrawler }}
       web_hash: ${{ steps.hash.outputs.web }}
+      smb_crawler_hash: ${{ steps.hash.outputs.smb_crawler }}
 
     steps:
       - name: Checkout repository
@@ -87,6 +88,12 @@ jobs:
           echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Web hash: ${WEB_HASH_SHORT}"
 
+          # SMB Crawler hash (depends on smb-crawler app + smb-crawler package)
+          SMB_CRAWLER_HASH=$(find apps/smb-crawler packages/smb-crawler pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          SMB_CRAWLER_HASH_SHORT="${SMB_CRAWLER_HASH:0:12}"
+          echo "smb_crawler=${SMB_CRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "SMB Crawler hash: ${SMB_CRAWLER_HASH_SHORT}"
+
   # Job 3: Check which images need building
   check-images:
     needs: calculate-hashes
@@ -100,6 +107,7 @@ jobs:
       build_webapp: ${{ steps.check.outputs.build_webapp }}
       build_webcrawler: ${{ steps.check.outputs.build_webcrawler }}
       build_web: ${{ steps.check.outputs.build_web }}
+      build_smb_crawler: ${{ steps.check.outputs.build_smb_crawler }}
 
     steps:
       - name: Log in to GitHub Container Registry
@@ -116,6 +124,7 @@ jobs:
           WEBAPP_HASH: ${{ needs.calculate-hashes.outputs.webapp_hash }}
           WEBCRAWLER_HASH: ${{ needs.calculate-hashes.outputs.webcrawler_hash }}
           WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
+          SMB_CRAWLER_HASH: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
         run: |
           echo "Checking which images need to be built..."
 
@@ -159,10 +168,20 @@ jobs:
             echo "build_web=true" >> $GITHUB_OUTPUT
           fi
 
+          # Check smb-crawler
+          SMB_CRAWLER_TAG="${{ env.REGISTRY_PATH }}/smb-crawler:${SMB_CRAWLER_HASH}"
+          if docker manifest inspect "${SMB_CRAWLER_TAG}" > /dev/null 2>&1; then
+            echo "✓ SMB Crawler image exists (${SMB_CRAWLER_HASH})"
+            echo "build_smb_crawler=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ SMB Crawler image needs building (${SMB_CRAWLER_HASH})"
+            echo "build_smb_crawler=true" >> $GITHUB_OUTPUT
+          fi
+
   # Job 4: Build and publish Docker images (matrix strategy)
   build-and-publish:
     needs: [calculate-hashes, check-images]
-    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_webcrawler == 'true' || needs.check-images.outputs.build_web == 'true'
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_webcrawler == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     permissions:
@@ -190,6 +209,10 @@ jobs:
             dockerfile: apps/georgeai-web/Dockerfile
             build: ${{ needs.check-images.outputs.build_web }}
             hash: ${{ needs.calculate-hashes.outputs.web_hash }}
+          - name: smb-crawler
+            dockerfile: apps/smb-crawler/Dockerfile
+            build: ${{ needs.check-images.outputs.build_smb_crawler }}
+            hash: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
 
     steps:
       - name: Checkout repository
