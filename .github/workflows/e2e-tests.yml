@@ -476,8 +476,8 @@ jobs:
           DEBUG: pw:api
           # Expected Discord URL for E2E tests
           EXPECTED_DISCORD_URL: https://discord.gg/GbQFKb2MNJ
-          # SMB test server hostname (from docker-compose.local.yml)
-          E2E_SMB_TEST_SERVER: gai-e2e-smb-test
+          # SMB test server hostname (matches service name in this workflow)
+          E2E_SMB_TEST_SERVER: smb-test
 
       - name: Upload Playwright report
         if: failure()
