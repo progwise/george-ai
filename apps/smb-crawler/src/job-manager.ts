@@ -18,6 +18,9 @@ const jobs = new Map<string, CrawlJob>()
 // Cleanup jobs after 1 hour of inactivity
 const JOB_CLEANUP_TIMEOUT_MS = 60 * 60 * 1000
 
+// Store cleanup timeouts to prevent unbounded recursion
+const cleanupTimeouts = new Map<string, NodeJS.Timeout>()
+
 /**
  * Create a new crawl job
  */
@@ -148,6 +151,13 @@ export async function cancelJob(jobId: string): Promise<void> {
   console.log(`[JobManager] Cancelling job ${jobId}`)
   job.status = 'cancelled'
 
+  // Clear cleanup timeout to prevent memory leaks
+  const timeout = cleanupTimeouts.get(jobId)
+  if (timeout) {
+    clearTimeout(timeout)
+    cleanupTimeouts.delete(jobId)
+  }
+
   // Close all SSE connections
   for (const client of job.clients) {
     try {
@@ -240,21 +250,31 @@ function sendEventToClient(client: ServerSentEventClient, event: string, data: u
  * Schedule job cleanup after timeout
  */
 function scheduleJobCleanup(jobId: string): void {
-  setTimeout(async () => {
+  // Clear any existing cleanup timeout for this job
+  const existingTimeout = cleanupTimeouts.get(jobId)
+  if (existingTimeout) {
+    clearTimeout(existingTimeout)
+  }
+
+  const timeout = setTimeout(async () => {
     const job = jobs.get(jobId)
     if (!job) {
+      cleanupTimeouts.delete(jobId)
       return
     }
 
     // Only clean up if no clients are connected and job is done
     if (job.clients.size === 0 && (job.status === 'completed' || job.status === 'failed')) {
       console.log(`[JobManager] Cleaning up inactive job ${jobId}`)
+      cleanupTimeouts.delete(jobId)
       await cancelJob(jobId)
     } else {
-      // Reschedule cleanup
+      // Reschedule cleanup (will replace the current timeout)
       scheduleJobCleanup(jobId)
     }
   }, JOB_CLEANUP_TIMEOUT_MS)
+
+  cleanupTimeouts.set(jobId, timeout)
 }
 
 /**

@@ -145,7 +145,7 @@ Start a new SMB crawl job.
 - `jobId` - Unique job identifier
 - `streamUrl` - SSE stream endpoint URL
 
-##### `streamEvents(jobId: string): AsyncGenerator<SmbCrawlEvent>`
+##### `streamCrawl(jobId: string): AsyncGenerator<SmbCrawlEvent>`
 
 Stream crawl events via SSE.
 
@@ -279,7 +279,7 @@ import type { SmbCrawlEvent, SmbCrawlOptions, SmbCrawlProgress, SmbFileMetadata 
 1. **Limit file size** - Use `maxFileSizeBytes` to skip large files
 2. **Use specific patterns** - More specific `includePatterns` = faster crawls
 3. **Parallel downloads** - Download files in batches for better throughput
-4. **Cleanup jobs** - Always call `cancelJob()` to free resources
+4. **Cleanup jobs** - Always call `cancelCrawl()` to free resources
 
 ## Architecture
 

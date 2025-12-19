@@ -117,17 +117,27 @@ export class SmbCrawlerClient {
 
       // Handle error events
       eventSource.addEventListener('error', (event: MessageEvent) => {
-        try {
-          const data = JSON.parse(event.data) as SmbCrawlError
-          const crawlEvent: SmbCrawlEvent = { type: 'error', data }
-          if (resolveNext) {
-            resolveNext({ value: crawlEvent, done: false })
-            resolveNext = null
-          } else {
-            eventQueue.push(crawlEvent)
+        // Check if this is an application error (has data) or native EventSource error
+        if (event.data) {
+          try {
+            const data = JSON.parse(event.data) as SmbCrawlError
+            const crawlEvent: SmbCrawlEvent = { type: 'error', data }
+            if (resolveNext) {
+              resolveNext({ value: crawlEvent, done: false })
+              resolveNext = null
+            } else {
+              eventQueue.push(crawlEvent)
+            }
+          } catch {
+            // Failed to parse application error
+            error = new Error('Invalid error event format')
+            if (resolveNext) {
+              resolveNext({ value: undefined as never, done: true })
+              resolveNext = null
+            }
           }
-        } catch {
-          // If we can't parse the error, treat it as a connection error
+        } else {
+          // Native EventSource error (connection failure, no data property)
           error = new Error('SSE connection error')
           if (resolveNext) {
             resolveNext({ value: undefined as never, done: true })

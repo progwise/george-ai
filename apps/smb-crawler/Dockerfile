@@ -44,9 +44,6 @@ COPY LICENSE ./
 COPY packages/smb-crawler ./packages/smb-crawler
 COPY apps/smb-crawler ./apps/smb-crawler
 
-# Build the service
-RUN pnpm --filter @george-ai/smb-crawler-service run build
-
 # Deploy creates a clean directory with resolved dependencies
 RUN pnpm --filter @george-ai/smb-crawler-service deploy --prod /app/deploy
 

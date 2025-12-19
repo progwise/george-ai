@@ -4,6 +4,7 @@
  * Walks mounted SMB shares and discovers files matching criteria
  */
 import { lookup } from 'mime-types'
+import { minimatch } from 'minimatch'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -42,11 +43,8 @@ function matchesPatterns(filename: string, patterns?: string[]): boolean {
   }
 
   return patterns.some((pattern) => {
-    // Convert glob pattern to regex
-    const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.')
-
-    const regex = new RegExp(`^${regexPattern}$`, 'i')
-    return regex.test(filename)
+    // Use minimatch for proper glob pattern support (including ** for recursive matching)
+    return minimatch(filename, pattern, { nocase: true })
   })
 }
 
