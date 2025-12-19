@@ -13,6 +13,7 @@ env:
   MODEL_NAME_CHAT: qwen3:latest
   MODEL_NAME_VL: gemma3:latest
   MODEL_NAME_EMBEDDING: bge-m3:latest
+  CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
 
 jobs:
   eslint:
