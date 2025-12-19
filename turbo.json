@@ -18,7 +18,8 @@
         "MODEL_NAME_CHAT",
         "MODEL_NAME_VL",
         "MODEL_NAME_EMBEDDING",
-        "GITHUB_TOKEN"
+        "GITHUB_TOKEN",
+        "CRAWLER_CREDENTIALS_DIR"
       ]
     },
     "lint": {
