@@ -4,7 +4,7 @@ import { deleteField, switchList } from './webapp-utils/list-util'
 import { loginToWebapp } from './webapp-utils/login-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
-const TEST_LIST = 'E2E Test List - Field Modal'
+const TEST_LIST = 'E2E Test List'
 
 /**
  * E2E tests for List Field Modal - CRUD operations

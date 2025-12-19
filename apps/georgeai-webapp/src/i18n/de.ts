@@ -634,6 +634,7 @@ export default {
     saveSuccess: 'Bibliothek {name} erfolgreich gespeichert',
     searchGoogleDrive: 'Dateien suchen...',
     searchingAllFiles: 'Durchsuche alle Dateien',
+    selectLibrary: 'Bibliothek auswählen',
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
     title: 'Bibliothek',

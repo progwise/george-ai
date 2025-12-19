@@ -1,12 +1,37 @@
 /**
  * File filtering utilities for AI Library Crawlers
- * Supports regex patterns, file size limits, and MIME type filtering
+ * Supports glob patterns, file size limits, and MIME type filtering
  */
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
+/**
+ * Convert a glob pattern to a regex pattern
+ * Supports: *, ?, **, and literal characters
+ */
+function globToRegex(glob: string): RegExp {
+  // Escape special regex characters except * and ?
+  let pattern = glob
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&') // Escape regex special chars
+    .replace(/\*\*/g, '<!DOUBLESTAR!>') // Temporarily mark ** to handle separately
+    .replace(/\*/g, '[^/]*') // * matches any chars except path separator
+    .replace(/<!DOUBLESTAR!>/g, '.*') // ** matches any chars including /
+    .replace(/\?/g, '.') // ? matches single character
+
+  // Match glob pattern anywhere in the path (not just at start)
+  // But if pattern doesn't start with **, anchor it to filename only
+  if (!glob.startsWith('**')) {
+    // Match just the filename part (after last /)
+    pattern = `(^|/)${pattern}$`
+  } else {
+    pattern = `${pattern}$`
+  }
+
+  return new RegExp(pattern, 'i')
+}
+
 export interface FileFilterConfig {
-  includePatterns?: string[] // Regex patterns to include (if empty, include all)
-  excludePatterns?: string[] // Regex patterns to exclude
+  includePatterns?: string[] // Glob patterns to include (if empty, include all)
+  excludePatterns?: string[] // Glob patterns to exclude
   maxFileSize?: number // Maximum file size in MB
   minFileSize?: number // Minimum file size in MB
   allowedMimeTypes?: string[] // Allowed MIME types (if empty, allow all)
@@ -37,14 +62,14 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
     let included = false
     for (const pattern of config.includePatterns) {
       try {
-        const regex = new RegExp(pattern, 'i')
+        const regex = globToRegex(pattern)
         if (regex.test(filePath) || regex.test(fileName)) {
           included = true
           break
         }
       } catch (error) {
         console.warn(`Invalid include pattern "${pattern}":`, error)
-        // Skip invalid regex patterns
+        // Skip invalid patterns
       }
     }
 
@@ -71,7 +96,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
   if (config.excludePatterns && config.excludePatterns.length > 0) {
     for (const pattern of config.excludePatterns) {
       try {
-        const regex = new RegExp(pattern, 'i')
+        const regex = globToRegex(pattern)
         if (regex.test(filePath) || regex.test(fileName)) {
           return {
             allowed: false,
@@ -82,7 +107,7 @@ export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): 
         }
       } catch (error) {
         console.warn(`Invalid exclude pattern "${pattern}":`, error)
-        // Skip invalid regex patterns
+        // Skip invalid patterns
       }
     }
   }

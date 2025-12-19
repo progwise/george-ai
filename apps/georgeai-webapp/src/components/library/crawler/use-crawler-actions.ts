@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
@@ -16,6 +17,7 @@ interface UseCrawlerActionsProps {
 
 export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const invalidateRelatedQueries = async (crawlerId: string) => {
@@ -38,8 +40,9 @@ export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
     onError: (error) => {
       toastError(error.message || t('crawlers.startFailed'))
     },
-    onSuccess: () => {
+    onSuccess: (_data, crawlerId) => {
       toastSuccess(t('crawlers.startSuccess'))
+      navigate({ to: '/libraries/$libraryId/crawlers/$crawlerId/runs', params: { libraryId, crawlerId } })
     },
     onSettled: async (_, __, crawlerId) => {
       await invalidateRelatedQueries(crawlerId)

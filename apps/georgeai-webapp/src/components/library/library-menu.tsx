@@ -67,13 +67,13 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
           <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('libraries.title')}</span>
         </li>
         <li>
-          <details ref={librarySelectorDetailsRef} className="z-40">
+          <details aria-label={t('libraries.selectLibrary')} ref={librarySelectorDetailsRef} className="z-40">
             <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
               {library.name}
             </summary>
-            <ul className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
+            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
               {selectableLibraries.map((library) => (
-                <li key={library.id}>
+                <li role="option" key={library.id}>
                   <Link
                     to={
                       params.crawlerId
@@ -85,6 +85,9 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
                     className="text-nowrap"
                     params={{ libraryId: library.id }}
                     activeProps={{ className: 'font-bold' }}
+                    onClick={() => {
+                      librarySelectorDetailsRef.current?.removeAttribute('open')
+                    }}
                   >
                     {library.name}
                   </Link>
