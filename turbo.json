@@ -13,6 +13,8 @@
       "env": [
         "DATABASE_URL_TEST",
         "OLLAMA_BASE_URL",
+        "OLLAMA_API_KEY",
+        "OPENAI_API_KEY",
         "MODEL_NAME_CHAT",
         "MODEL_NAME_VL",
         "MODEL_NAME_EMBEDDING",
