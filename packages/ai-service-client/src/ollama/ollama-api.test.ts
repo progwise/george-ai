@@ -21,6 +21,13 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
     const modelNameEmbedding = process.env.MODEL_NAME_EMBEDDING!
     const modelNameChat = process.env.MODEL_NAME_CHAT!
 
+    // Debug: Check if API key is provided
+    console.log('🔍 OLLAMA_API_KEY debug:', {
+      isDefined: process.env.OLLAMA_API_KEY !== undefined,
+      isEmpty: process.env.OLLAMA_API_KEY === '',
+      length: process.env.OLLAMA_API_KEY?.length || 0,
+    })
+
     describe('getOllamaVersion', () => {
       it('should fetch version successfully', async () => {
         const result = await getOllamaVersion(instance)

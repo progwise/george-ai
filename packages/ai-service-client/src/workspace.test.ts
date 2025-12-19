@@ -9,6 +9,13 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL)('Ollama workspace functions', () =
   const ollamaUrl = process.env.OLLAMA_BASE_URL!
   const ollamaApiKey = process.env.OLLAMA_API_KEY
 
+  // Debug: Check if API key is provided
+  console.log('🔍 OLLAMA_API_KEY debug:', {
+    isDefined: ollamaApiKey !== undefined,
+    isEmpty: ollamaApiKey === '',
+    length: ollamaApiKey?.length || 0,
+  })
+
   describe('testOllamaConnection', () => {
     it('should successfully connect to Ollama', async () => {
       const result = await testOllamaConnection({ url: ollamaUrl, apiKey: ollamaApiKey })
