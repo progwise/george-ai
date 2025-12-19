@@ -118,6 +118,11 @@ jobs:
         with:
           version: 9.15.4
           run_install: true
+      - name: Debug environment variables
+        run: |
+          echo "OLLAMA_API_KEY length: ${#OLLAMA_API_KEY}"
+          echo "OLLAMA_BASE_URL length: ${#OLLAMA_BASE_URL}"
+          [ -z "$OLLAMA_API_KEY" ] && echo "OLLAMA_API_KEY is empty!" || echo "OLLAMA_API_KEY is set"
       - name: Run database migrations
         run: pnpm --filter @george-ai/pothos-graphql prisma:migrate
       - name: Generate Prisma Client
