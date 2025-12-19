@@ -209,33 +209,17 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_VL)('oll
       const invalidImage =
         'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQIHWP8//8/AzYwiqHBgA0OAABCWgEHw8oWBQAAAABJRU5ErkJggg=='
 
-      const stream = await getChatResponseStream(instance, modelName, [
-        {
-          role: 'user',
-          content: 'Describe this image',
-          images: [invalidImage],
-        },
-      ])
-
-      expect(stream).toBeDefined()
-
-      // Process the stream - this should throw when an error chunk is received
-      const reader = stream.getReader()
-
-      await expect(async () => {
-        try {
-          while (true) {
-            const { value, done } = await reader.read()
-            if (done) break
-
-            if (value?.error) {
-              throw new Error(`Ollama vision model error: ${value.error}`)
-            }
-          }
-        } finally {
-          reader.releaseLock()
-        }
-      }).rejects.toThrow(/Ollama vision model error/)
+      // With the updated Ollama server, invalid images now fail immediately
+      // with a 500 error, rather than returning a stream with an error chunk
+      await expect(
+        getChatResponseStream(instance, modelName, [
+          {
+            role: 'user',
+            content: 'Describe this image',
+            images: [invalidImage],
+          },
+        ]),
+      ).rejects.toThrow(/Failed to receive stream from Ollama|invalid format|too much pixel data/)
     }, 30000)
   })
 })
