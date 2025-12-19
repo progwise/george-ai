@@ -105,10 +105,13 @@ export async function mountShare(options: MountOptions): Promise<MountResult> {
     // - uid=$(id -u),gid=$(id -g): Files appear owned by the current user (dynamic)
     // - iocharset=utf8: Support Unicode filenames
     // - file_mode/dir_mode: Set appropriate permissions
-    const mountCmd = `sudo mount -t cifs ${smbPath} ${mountPoint} -o credentials=${credFile},uid=$(id -u),gid=$(id -g),iocharset=utf8,file_mode=0644,dir_mode=0755`
+    // Note: When running as root (e.g., in Docker), we don't need sudo
+    const isRoot = process.getuid?.() === 0
+    const mountPrefix = isRoot ? '' : 'sudo '
+    const mountCmd = `${mountPrefix}mount -t cifs ${smbPath} ${mountPoint} -o credentials=${credFile},uid=$(id -u),gid=$(id -g),iocharset=utf8,file_mode=0644,dir_mode=0755`
 
     console.log(
-      `[Mount] Executing: sudo mount -t cifs ${smbPath} ${mountPoint} -o credentials=***,uid=$(id -u),gid=$(id -g),iocharset=utf8,file_mode=0644,dir_mode=0755`,
+      `[Mount] Executing: ${mountPrefix}mount -t cifs ${smbPath} ${mountPoint} -o credentials=***,uid=$(id -u),gid=$(id -g),iocharset=utf8,file_mode=0644,dir_mode=0755`,
     )
     await execAsync(mountCmd)
 
@@ -165,8 +168,11 @@ export async function unmountShare(crawlerId: string): Promise<UnmountResult> {
     }
 
     // Unmount
-    console.log(`[Unmount] Executing: sudo umount ${mountPoint}`)
-    await execAsync(`sudo umount ${mountPoint}`)
+    // Note: When running as root (e.g., in Docker), we don't need sudo
+    const isRoot = process.getuid?.() === 0
+    const umountPrefix = isRoot ? '' : 'sudo '
+    console.log(`[Unmount] Executing: ${umountPrefix}umount ${mountPoint}`)
+    await execAsync(`${umountPrefix}umount ${mountPoint}`)
 
     // Wait for unmount to complete
     let retries = 5
@@ -177,8 +183,10 @@ export async function unmountShare(crawlerId: string): Promise<UnmountResult> {
 
     // Force unmount if still mounted
     if (await isMounted(mountPoint)) {
+      const isRoot = process.getuid?.() === 0
+      const umountPrefix = isRoot ? '' : 'sudo '
       console.warn(`[Unmount] Force unmounting: ${mountPoint}`)
-      await execAsync(`sudo umount -f ${mountPoint}`)
+      await execAsync(`${umountPrefix}umount -f ${mountPoint}`)
     }
 
     // Clean up mount point
