@@ -11,13 +11,6 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_VL)('oll
   // const fileNames = ['cat-medium.png', 'page-1.png', 'page-2.png', 'page-3.png']
   const fileNames = ['cat-medium.png']
 
-  // Debug: Check if API key is provided
-  console.log('🔍 OLLAMA_API_KEY debug (vision):', {
-    isDefined: process.env.OLLAMA_API_KEY !== undefined,
-    isEmpty: process.env.OLLAMA_API_KEY === '',
-    length: process.env.OLLAMA_API_KEY?.length || 0,
-  })
-
   describe('vision model streaming', () => {
     it('should analyze a photo', async () => {
       const catImage = await getTestImage('cat-medium.png')
