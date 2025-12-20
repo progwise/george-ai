@@ -30,8 +30,8 @@ export interface SMB2Header {
   nextCommand: number
   /** Message ID (unique per connection) */
   messageId: bigint
-  /** Process ID (deprecated, use 0) */
-  processId: number
+  /** Reserved (MUST be 0) */
+  reserved: number
   /** Tree ID (for tree connect) */
   treeId: number
   /** Session ID */

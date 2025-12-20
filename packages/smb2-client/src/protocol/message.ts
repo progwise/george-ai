@@ -92,8 +92,8 @@ export class SMB2Message {
     buffer.writeBigUInt64LE(this.header.messageId, offset)
     offset += 8
 
-    // Process ID (4 bytes) - deprecated, use 0
-    buffer.writeUInt32LE(this.header.processId ?? 0, offset)
+    // Reserved (4 bytes) - MUST be 0
+    buffer.writeUInt32LE(0, offset)
     offset += 4
 
     // Tree ID (4 bytes)
@@ -200,8 +200,8 @@ export class SMB2Message {
     const messageId = buffer.readBigUInt64LE(offset)
     offset += 8
 
-    // Process ID (4 bytes)
-    const processId = buffer.readUInt32LE(offset)
+    // Reserved (4 bytes) - MUST be 0
+    const reserved = buffer.readUInt32LE(offset)
     offset += 4
 
     // Tree ID (4 bytes)
@@ -227,7 +227,7 @@ export class SMB2Message {
       flags,
       nextCommand,
       messageId,
-      processId,
+      reserved,
       treeId,
       sessionId,
       signature,
@@ -308,7 +308,7 @@ export class SMB2Message {
       flags: options.flags ?? 0,
       nextCommand: 0,
       messageId: options.messageId ?? 0n,
-      processId: 0,
+      reserved: 0,
       treeId: options.treeId ?? 0,
       sessionId: options.sessionId ?? 0n,
       signature: Buffer.alloc(16),
