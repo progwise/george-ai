@@ -1,0 +1,45 @@
+{
+  "name": "@george-ai/smb2-client",
+  "version": "0.1.0",
+  "description": "Zero-dependency SMB2/3 client for Node.js with NTLM authentication",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Michael Vogt <info@george-ai.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/progwise/george-ai"
+  },
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "keywords": [
+    "smb",
+    "smb2",
+    "smb3",
+    "cifs",
+    "samba",
+    "ntlm",
+    "file-sharing",
+    "network",
+    "protocol",
+    "zero-dependencies"
+  ]
+}
