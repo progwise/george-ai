@@ -16,13 +16,11 @@ import type { SessionSetupResponse } from '../types'
 /**
  * Create SESSION_SETUP request with NTLM Type 1 (NEGOTIATE)
  *
- * @param domain - Domain name
- * @param workstation - Workstation name
  * @returns SMB2 SESSION_SETUP request with NTLM Type 1
  */
-export function createSessionSetupRequest1(domain: string, workstation: string): SMB2Message {
+export function createSessionSetupRequest1(): SMB2Message {
   // Create NTLM Type 1 message
-  const ntlmType1 = createType1Message(domain, workstation)
+  const ntlmType1 = createType1Message()
 
   // Calculate offsets
   const structureSize = 25
@@ -75,21 +73,19 @@ export function createSessionSetupRequest1(domain: string, workstation: string):
 /**
  * Create SESSION_SETUP request with NTLM Type 3 (AUTHENTICATE)
  *
- * @param credentials - User credentials
- * @param workstation - Workstation name
+ * @param credentials - User credentials (including workstation)
  * @param type2Response - SESSION_SETUP response containing NTLM Type 2
  * @returns SMB2 SESSION_SETUP request with NTLM Type 3
  */
 export function createSessionSetupRequest3(
   credentials: NTLMCredentials,
-  workstation: string,
   type2Response: SessionSetupResponse,
 ): SMB2Message {
   // Parse NTLM Type 2 from response
   const ntlmType2 = parseType2Message(type2Response.securityBuffer)
 
   // Create NTLM Type 3 message
-  const ntlmType3 = createType3Message(credentials, ntlmType2, workstation)
+  const ntlmType3 = createType3Message(credentials, ntlmType2)
 
   // Calculate offsets
   const structureSize = 25

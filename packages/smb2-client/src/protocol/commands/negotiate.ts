@@ -20,9 +20,9 @@ import type { NegotiateResponse } from '../types'
  * @returns SMB2 NEGOTIATE request message
  */
 export function createNegotiateRequest(dialects?: SMB2Dialect[]): SMB2Message {
-  // Default: negotiate all supported dialects (highest to lowest)
+  // Default: negotiate SMB 2.x and 3.x dialects (highest to lowest)
+  // Note: SMB 3.1.1 requires negotiate contexts which we don't support yet
   const dialectsToNegotiate = dialects ?? [
-    SMB2Dialect.SMB_3_1_1,
     SMB2Dialect.SMB_3_0_2,
     SMB2Dialect.SMB_3_0,
     SMB2Dialect.SMB_2_1,

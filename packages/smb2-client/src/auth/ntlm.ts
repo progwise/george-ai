@@ -24,20 +24,21 @@ const NTLM_SIGNATURE = Buffer.from('NTLMSSP\0', 'binary')
 /**
  * Create NTLM Type 1 (NEGOTIATE) message
  *
- * @param domain - Domain name
- * @param workstation - Workstation name
+ * Modern NTLM does not include domain/workstation fields in Type 1 messages.
+ *
  * @returns NTLM Type 1 message buffer
  */
-export function createType1Message(domain: string, workstation: string): Buffer {
+export function createType1Message(): Buffer {
   // Flags for NTLMv2
   const flags =
-    NTLMFlags.NEGOTIATE_UNICODE |
-    NTLMFlags.NEGOTIATE_NTLM |
-    NTLMFlags.REQUEST_TARGET |
-    NTLMFlags.NEGOTIATE_EXTENDED_SECURITY |
-    NTLMFlags.NEGOTIATE_ALWAYS_SIGN |
-    NTLMFlags.NEGOTIATE_128 |
-    NTLMFlags.NEGOTIATE_56
+    (NTLMFlags.NEGOTIATE_UNICODE |
+      NTLMFlags.NEGOTIATE_NTLM |
+      NTLMFlags.REQUEST_TARGET |
+      NTLMFlags.NEGOTIATE_EXTENDED_SECURITY |
+      NTLMFlags.NEGOTIATE_ALWAYS_SIGN |
+      NTLMFlags.NEGOTIATE_128 |
+      NTLMFlags.NEGOTIATE_56) >>>
+    0
 
   // Calculate message length (no domain/workstation in modern NTLM)
   const messageLength = 32 // Fixed size for Type 1
@@ -144,16 +145,11 @@ export function parseType2Message(buffer: Buffer): NTLMChallenge {
 /**
  * Create NTLM Type 3 (AUTHENTICATE) message
  *
- * @param credentials - User credentials
+ * @param credentials - User credentials (including workstation)
  * @param challenge - Challenge from Type 2 message
- * @param workstation - Workstation name
  * @returns NTLM Type 3 message buffer
  */
-export function createType3Message(
-  credentials: NTLMCredentials,
-  challenge: NTLMChallenge,
-  workstation: string,
-): Buffer {
+export function createType3Message(credentials: NTLMCredentials, challenge: NTLMChallenge): Buffer {
   // Calculate NT hash
   const ntHashValue = ntHash(credentials.password)
 
@@ -179,7 +175,7 @@ export function createType3Message(
   // Convert strings to UTF-16LE
   const domainBuffer = Buffer.from(credentials.domain.toUpperCase(), 'utf16le')
   const usernameBuffer = Buffer.from(credentials.username, 'utf16le')
-  const workstationBuffer = Buffer.from(workstation.toUpperCase(), 'utf16le')
+  const workstationBuffer = Buffer.from(credentials.workstation.toUpperCase(), 'utf16le')
 
   // Empty encrypted session key
   const encryptedSessionKey = Buffer.alloc(0)
@@ -256,13 +252,14 @@ export function createType3Message(
 
   // Flags
   const flags =
-    NTLMFlags.NEGOTIATE_UNICODE |
-    NTLMFlags.NEGOTIATE_NTLM |
-    NTLMFlags.REQUEST_TARGET |
-    NTLMFlags.NEGOTIATE_EXTENDED_SECURITY |
-    NTLMFlags.NEGOTIATE_ALWAYS_SIGN |
-    NTLMFlags.NEGOTIATE_128 |
-    NTLMFlags.NEGOTIATE_56
+    (NTLMFlags.NEGOTIATE_UNICODE |
+      NTLMFlags.NEGOTIATE_NTLM |
+      NTLMFlags.REQUEST_TARGET |
+      NTLMFlags.NEGOTIATE_EXTENDED_SECURITY |
+      NTLMFlags.NEGOTIATE_ALWAYS_SIGN |
+      NTLMFlags.NEGOTIATE_128 |
+      NTLMFlags.NEGOTIATE_56) >>>
+    0
   buffer.writeUInt32LE(flags, offset)
   offset += 4
 

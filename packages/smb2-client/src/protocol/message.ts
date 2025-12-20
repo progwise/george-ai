@@ -266,7 +266,9 @@ export class SMB2Message {
    * Get status code as string
    */
   getStatusString(): string {
-    return NTStatus[this.header.status] ?? `Unknown (0x${this.header.status.toString(16)})`
+    const statusName = NTStatus[this.header.status] ?? 'Unknown'
+    const statusHex = `0x${this.header.status.toString(16).padStart(8, '0')}`
+    return `${statusName} (${statusHex})`
   }
 
   /**

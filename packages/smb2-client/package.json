@@ -20,15 +20,19 @@
     "dist"
   ],
   "scripts": {
+    "lint": "eslint .",
     "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "NODE_OPTIONS='--openssl-legacy-provider' vitest run",
+    "test:watch": "NODE_OPTIONS='--openssl-legacy-provider' vitest",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@types/node": "^22.10.7",
+    "@eslint/js": "^9.16.0",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^3.1.1"
   },
   "keywords": [
     "smb",

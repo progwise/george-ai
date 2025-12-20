@@ -226,7 +226,7 @@ export class SMB2Connection extends EventEmitter {
    * Get next message ID
    */
   private nextMessageId(): bigint {
-    return ++this.messageIdCounter
+    return this.messageIdCounter++
   }
 
   /**
