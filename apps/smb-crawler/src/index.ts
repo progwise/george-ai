@@ -47,7 +47,7 @@ app.post('/crawl/start', async (req, res) => {
   try {
     const options = crawlOptionsSchema.parse(req.body) as SmbCrawlOptions
 
-    // Create job and mount share (but don't start crawling yet)
+    // Create job and connect to share (but don't start crawling yet)
     const jobId = await createJob(options)
 
     // Note: Crawling will start when first client connects to SSE stream
