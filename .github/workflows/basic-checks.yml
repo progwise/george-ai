@@ -219,5 +219,15 @@ jobs:
         run: pnpm --filter @george-ai/pothos-graphql prisma:migrate
       - name: Generate Prisma Client
         run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+      - name: Wait for SMB test server to be ready
+        run: |
+          echo "Waiting for SMB test server to be ready..."
+          timeout 60 bash -c '
+            until nc -z gai-smb-test 445 2>/dev/null; do
+              echo "Waiting for SMB server on gai-smb-test:445..."
+              sleep 2
+            done
+          '
+          echo "✓ SMB test server is ready"
       - name: Run Tests
         run: pnpm run test
