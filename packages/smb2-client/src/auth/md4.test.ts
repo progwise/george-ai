@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { md4 } from '../md4'
+import { md4 } from './md4'
 
 describe('MD4 Hash', () => {
   it('should compute correct MD4 hash for known test vectors', () => {

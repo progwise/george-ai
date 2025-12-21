@@ -100,6 +100,50 @@ export enum SMB2SecurityMode {
 }
 
 /**
+ * SMB2 Share Types
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/e8fb45c1-a03d-44ca-b7ae-47385cfd7997
+ */
+export enum SMB2ShareType {
+  DISK = 0x01, // Disk share
+  PIPE = 0x02, // Named pipe
+  PRINT = 0x03, // Printer share
+}
+
+/**
+ * SMB2 Share Flags
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/e8fb45c1-a03d-44ca-b7ae-47385cfd7997
+ */
+export enum SMB2ShareFlags {
+  MANUAL_CACHING = 0x00000000,
+  AUTO_CACHING = 0x00000010,
+  VDO_CACHING = 0x00000020,
+  NO_CACHING = 0x00000030,
+  DFS = 0x00000001, // Share is in DFS
+  DFS_ROOT = 0x00000002, // Share is DFS root
+  RESTRICT_EXCLUSIVE_OPENS = 0x00000100,
+  FORCE_SHARED_DELETE = 0x00000200,
+  ALLOW_NAMESPACE_CACHING = 0x00000400,
+  ACCESS_BASED_DIRECTORY_ENUM = 0x00000800,
+  FORCE_LEVELII_OPLOCK = 0x00001000,
+  ENABLE_HASH_V1 = 0x00002000,
+  ENABLE_HASH_V2 = 0x00004000,
+  ENCRYPT_DATA = 0x00008000,
+}
+
+/**
+ * SMB2 Share Capabilities
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/e8fb45c1-a03d-44ca-b7ae-47385cfd7997
+ */
+export enum SMB2ShareCapabilities {
+  DFS = 0x00000008, // Share is in DFS
+  CONTINUOUS_AVAILABILITY = 0x00000010, // Continuously available
+  SCALEOUT = 0x00000020, // Scale-out share
+  CLUSTER = 0x00000040, // Clustered share
+  ASYMMETRIC = 0x00000080, // Asymmetric share
+  REDIRECT_TO_OWNER = 0x00000100,
+}
+
+/**
  * NT Status Codes (Common)
  * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
  */

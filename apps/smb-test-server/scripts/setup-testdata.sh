@@ -80,7 +80,9 @@ EOF
 
 # Create public share structure
 echo "Creating public share..."
-mkdir -p "$BASE_DIR/public"/{announcements,policies,templates}
+mkdir -p "$BASE_DIR/public/announcements"
+mkdir -p "$BASE_DIR/public/policies"
+mkdir -p "$BASE_DIR/public/templates"
 create_sample_files "$BASE_DIR/public" "public"
 create_sample_files "$BASE_DIR/public/announcements" "announcement"
 create_sample_files "$BASE_DIR/public/policies" "policy"
@@ -97,20 +99,25 @@ EOF
 
 # Create documents share structure
 echo "Creating documents share..."
-mkdir -p "$BASE_DIR/documents"/{projects,reports,presentations}
+mkdir -p "$BASE_DIR/documents/projects"
+mkdir -p "$BASE_DIR/documents/reports"
+mkdir -p "$BASE_DIR/documents/presentations"
 create_sample_files "$BASE_DIR/documents" "docs"
 create_sample_files "$BASE_DIR/documents/projects" "project"
 create_sample_files "$BASE_DIR/documents/reports" "report"
 
 # Create private share structure
 echo "Creating private share..."
-mkdir -p "$BASE_DIR/private"/{confidential,personal}
+mkdir -p "$BASE_DIR/private/confidential"
+mkdir -p "$BASE_DIR/private/personal"
 create_sample_files "$BASE_DIR/private" "private"
 echo "CONFIDENTIAL: This information is sensitive and should not be shared" > "$BASE_DIR/private/confidential/secret.txt"
 
 # Create engineering share structure
 echo "Creating engineering share..."
-mkdir -p "$BASE_DIR/engineering"/{code,documentation,specs}
+mkdir -p "$BASE_DIR/engineering/code"
+mkdir -p "$BASE_DIR/engineering/documentation"
+mkdir -p "$BASE_DIR/engineering/specs"
 create_sample_files "$BASE_DIR/engineering" "eng"
 
 cat > "$BASE_DIR/engineering/code/sample_script.py" << 'EOF'
@@ -131,7 +138,9 @@ EOF
 
 # Create marketing share structure
 echo "Creating marketing share..."
-mkdir -p "$BASE_DIR/marketing"/{campaigns,assets,analytics}
+mkdir -p "$BASE_DIR/marketing/campaigns"
+mkdir -p "$BASE_DIR/marketing/assets"
+mkdir -p "$BASE_DIR/marketing/analytics"
 create_sample_files "$BASE_DIR/marketing" "marketing"
 
 cat > "$BASE_DIR/marketing/campaigns/q1_campaign.txt" << EOF

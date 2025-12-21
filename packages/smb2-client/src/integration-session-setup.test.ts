@@ -1,77 +1,27 @@
 /**
- * Integration tests against gai-smb-test server
- *
- * These tests require the gai-smb-test Docker container to be running.
- * The container is automatically started in the devcontainer environment.
- *
- * Test server configuration:
- * - Hostname: gai-smb-test
- * - Port: 445
- * - Username: testuser1
- * - Password: password123
- * - Domain: WORKGROUP
+ * Integration test: SESSION_SETUP command (NTLM v2 authentication)
  */
 import { describe, expect, it } from 'vitest'
 
-import { createNegotiateRequest, parseNegotiateResponse } from '../protocol/commands/negotiate'
+import { createNegotiateRequest } from './protocol/commands/negotiate'
 import {
   createSessionSetupRequest1,
   createSessionSetupRequest3,
   parseSessionSetupResponse,
-} from '../protocol/commands/session-setup'
-import { SMB2Connection } from '../protocol/connection'
+} from './protocol/commands/session-setup'
+import { SMB2Connection } from './protocol/connection'
 
-describe('Integration: gai-smb-test server', () => {
-  const testConfig = {
-    host: 'gai-smb-test',
-    port: 445,
-    timeout: 10000,
-    domain: 'WORKGROUP',
-    username: 'testuser1',
-    password: 'password123',
-    workstation: 'TESTCLIENT',
-  }
+const testConfig = {
+  host: 'gai-smb-test',
+  port: 445,
+  timeout: 10000,
+  domain: 'WORKGROUP',
+  username: 'testuser1',
+  password: 'password123',
+  workstation: 'TESTCLIENT',
+}
 
-  it('should connect to SMB server', async () => {
-    const connection = new SMB2Connection({
-      host: testConfig.host,
-      port: testConfig.port,
-      timeout: testConfig.timeout,
-    })
-
-    await connection.connect()
-    expect(connection.isConnected()).toBe(true)
-
-    await connection.close()
-    expect(connection.isConnected()).toBe(false)
-  })
-
-  it('should negotiate SMB2 protocol', async () => {
-    const connection = new SMB2Connection({
-      host: testConfig.host,
-      port: testConfig.port,
-      timeout: testConfig.timeout,
-    })
-
-    try {
-      await connection.connect()
-
-      // Send NEGOTIATE request
-      const negotiateRequest = createNegotiateRequest()
-      const negotiateResponse = await connection.sendMessage(negotiateRequest)
-
-      expect(negotiateResponse.isSuccess()).toBe(true)
-
-      // Parse NEGOTIATE response
-      const negotiateData = parseNegotiateResponse(negotiateResponse)
-
-      // Server should negotiate one of the dialects we offered
-      expect(negotiateData.dialectRevision).toBeGreaterThan(0)
-    } finally {
-      await connection.close()
-    }
-  }, 15000)
-
+describe('SESSION_SETUP', () => {
   it('should authenticate with NTLM v2', async () => {
     const connection = new SMB2Connection({
       host: testConfig.host,

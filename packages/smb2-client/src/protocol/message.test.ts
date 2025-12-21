@@ -5,8 +5,8 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { NTStatus, SMB2Command } from '../constants'
-import { SMB2Message } from '../message'
+import { NTStatus, SMB2Command } from './constants'
+import { SMB2Message } from './message'
 
 describe('SMB2Message', () => {
   describe('Message Structure', () => {

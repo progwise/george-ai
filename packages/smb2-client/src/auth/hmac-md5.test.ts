@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { hmacMd5 } from '../hmac-md5'
+import { hmacMd5 } from './hmac-md5'
 
 describe('HMAC-MD5', () => {
   it('should compute correct HMAC-MD5 for RFC 2104 test case 1', () => {
