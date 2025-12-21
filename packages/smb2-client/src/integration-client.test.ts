@@ -58,6 +58,34 @@ describe('SMB2Client Integration', () => {
     }
   }, 20000)
 
+  it('should list root directory contents', async () => {
+    const client = new SMB2Client({
+      host: testConfig.host,
+      port: testConfig.port,
+      domain: testConfig.domain,
+      username: testConfig.username,
+      password: testConfig.password,
+      share: testConfig.share,
+    })
+
+    try {
+      // List root directory (empty path or '/')
+      const files = await client.readdir('/')
+
+      // Verify we got files
+      expect(files).toBeDefined()
+      expect(Array.isArray(files)).toBe(true)
+      expect(files.length).toBeGreaterThan(0)
+
+      // Should include known directories like 'announcements' and 'policies'
+      const dirNames = files.map((f) => f.name)
+      expect(dirNames).toContain('announcements')
+      expect(dirNames).toContain('policies')
+    } finally {
+      await client.disconnect()
+    }
+  }, 20000)
+
   it('should read file contents', async () => {
     const client = new SMB2Client({
       host: testConfig.host,

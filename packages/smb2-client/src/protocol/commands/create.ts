@@ -50,8 +50,14 @@ export function createCreateRequest(options: CreateFileOptions, sessionId: bigin
     requestedOplockLevel = 0x00, // NONE
   } = options
 
+  // Normalize path for SMB2:
+  // - Replace forward slashes with backslashes
+  // - Treat '/' as root (convert to empty string)
+  // - Remove leading/trailing slashes
+  const normalizedPath = path.replace(/\//g, '\\').replace(/^\\+|\\+$/g, '')
+
   // Convert path to UTF-16LE
-  const nameBuffer = Buffer.from(path, 'utf16le')
+  const nameBuffer = Buffer.from(normalizedPath, 'utf16le')
 
   // Calculate offsets
   const structureSize = 57 // Per spec, includes first byte of variable buffer
@@ -59,7 +65,9 @@ export function createCreateRequest(options: CreateFileOptions, sessionId: bigin
   const nameOffset = 64 + fixedSize // SMB2 header + fixed fields
   const nameLength = nameBuffer.length
 
-  const body = Buffer.alloc(fixedSize + nameLength)
+  // Per spec: Buffer field MUST be at least one byte in length
+  // even when NameLength is 0 (opening root of share)
+  const body = Buffer.alloc(fixedSize + Math.max(nameLength, 1))
   let offset = 0
 
   // StructureSize (2 bytes): MUST be 57

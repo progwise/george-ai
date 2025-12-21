@@ -67,7 +67,9 @@ export async function* crawlDirectory(
   // Parse the URI to get the subpath if any
   const uriMatch = options.uri.match(/^(?:smb:)?\/\/[^/]+\/[^/]+(?:\/(.*))?$/)
   const subPath = uriMatch?.[1] || ''
-  const startPath = subPath ? path.posix.join(basePath, subPath) : basePath
+  // Use '/' as default if basePath is empty (root of share)
+  const normalizedBasePath = basePath || '/'
+  const startPath = subPath ? path.posix.join(normalizedBasePath, subPath) : normalizedBasePath
 
   async function* walk(dirPath: string): AsyncGenerator<DiscoveredFile, void, unknown> {
     stats.currentDirectory = dirPath
@@ -130,7 +132,7 @@ export async function* crawlDirectory(
         }
 
         // Generate file metadata
-        const relativePath = path.posix.relative(basePath, fullPath)
+        const relativePath = path.posix.relative(normalizedBasePath, fullPath)
         const fileId = Buffer.from(relativePath).toString('base64url')
         const mimeType = lookup(entry.name) || undefined
 
