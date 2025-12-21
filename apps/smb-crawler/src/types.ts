@@ -30,7 +30,7 @@ export interface DiscoveredFile {
   fileId: string
   /** File name */
   name: string
-  /** Relative path from mount point */
+  /** Relative path from share root */
   relativePath: string
   /** Absolute path on filesystem */
   absolutePath: string
@@ -47,24 +47,4 @@ export interface DiscoveredFile {
 export interface ServerSentEventClient {
   response: import('express').Response
   jobId: string
-}
-
-export interface MountOptions {
-  crawlerId: string
-  uri: string
-  username: string
-  password: string
-}
-
-export interface MountResult {
-  success: boolean
-  mountPoint?: string
-  alreadyMounted?: boolean
-  error?: string
-}
-
-export interface UnmountResult {
-  success: boolean
-  alreadyUnmounted?: boolean
-  error?: string
 }
