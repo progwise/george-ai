@@ -7,7 +7,7 @@
 import { EventEmitter } from 'node:events'
 import { Socket } from 'node:net'
 
-import { NETBIOS_HEADER_SIZE } from './constants'
+import { NETBIOS_HEADER_SIZE, NTStatus } from './constants'
 import { SMB2Message } from './message'
 
 /**
@@ -217,6 +217,15 @@ export class SMB2Connection extends EventEmitter {
     // Check if this is a response to a pending request
     const handler = this.pendingResponses.get(message.header.messageId)
     if (handler) {
+      // Check if this is an interim STATUS_PENDING response
+      // According to SMB2 spec, STATUS_PENDING means the server is processing asynchronously
+      // and will send the final response later with the same MessageId
+      if (message.header.status === NTStatus.PENDING) {
+        // Don't delete the handler - wait for the final response
+        return
+      }
+
+      // Final response received - delete handler and resolve promise
       this.pendingResponses.delete(message.header.messageId)
       handler(message)
     }
