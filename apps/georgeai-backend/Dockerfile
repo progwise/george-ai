@@ -89,6 +89,9 @@ COPY --from=builder --chown=server:nodejs /app/deploy .
 # pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
 COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
 
+# Create crawler credentials directory with proper permissions
+RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
+
 USER server
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=90s \
