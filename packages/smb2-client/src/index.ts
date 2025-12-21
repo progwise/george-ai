@@ -96,4 +96,9 @@ export { TreeManager, type TreeConnection } from './session/tree-manager'
 /**
  * Connection pool for managing multiple connections
  */
-export { ConnectionPool, type ConnectionPoolOptions } from './session/connection-pool'
+export {
+  ConnectionPool,
+  type ConnectionPoolOptions,
+  type ConnectionCredentials,
+  type PooledConnection,
+} from './session/connection-pool'
