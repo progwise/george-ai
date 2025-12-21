@@ -127,9 +127,6 @@ services:
 
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
-    cap_add:
-      - SYS_ADMIN
-      - DAC_READ_SEARCH
     depends_on:
       gai-e2e-backend:
         condition: service_started

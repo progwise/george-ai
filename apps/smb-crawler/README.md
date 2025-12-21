@@ -1,12 +1,12 @@
 # SMB Crawler Service
 
-HTTP + SSE microservice for crawling SMB/CIFS file shares. Runs as root to enable filesystem mounting.
+HTTP + SSE microservice for crawling SMB/CIFS file shares using native SMB2 protocol.
 
 ## Features
 
 - 🔌 **REST API** - Simple HTTP endpoints
 - 📡 **SSE Streaming** - Real-time file discovery events
-- 🔒 **Secure Mounting** - Isolated per-job credentials
+- 🔒 **Direct SMB2 Access** - Native protocol, no filesystem mounts
 - 🗄️ **Job Management** - Automatic cleanup after 1 hour
 - 📊 **Health Checks** - Production-ready monitoring
 - 🐳 **Docker Ready** - Containerized deployment
@@ -19,8 +19,8 @@ HTTP + SSE microservice for crawling SMB/CIFS file shares. Runs as root to enabl
 # Install dependencies
 pnpm install
 
-# Start service (requires root for mounting)
-sudo pnpm start
+# Start service
+pnpm start
 
 # Service runs on http://localhost:3006
 ```
@@ -31,8 +31,8 @@ sudo pnpm start
 # Build image
 docker build -t smb-crawler .
 
-# Run container (requires privileged mode for mounting)
-docker run -p 3006:3006 --privileged smb-crawler
+# Run container
+docker run -p 3006:3006 smb-crawler
 ```
 
 ## API Reference
@@ -82,8 +82,8 @@ Content-Type: application/json
 
 **Request Body:**
 
-- `uri` (required) - SMB share URI (e.g., `//server/share/path`)
-- `username` (required) - SMB username
+- `uri` (required) - SMB share URI (e.g., `//server/share/path` or `smb://server/share/path`)
+- `username` (required) - SMB username (supports `DOMAIN\user` format)
 - `password` (required) - SMB password
 - `includePatterns` (optional) - Array of glob patterns
 - `excludePatterns` (optional) - Array of glob patterns
@@ -93,7 +93,7 @@ Content-Type: application/json
 
 - `200` - Success
 - `400` - Invalid request (validation error)
-- `500` - Server error (mount failed, etc.)
+- `500` - Server error (connection failed, etc.)
 
 ---
 
@@ -111,21 +111,21 @@ GET /crawl/:jobId/stream
 
 ```
 event: file-found
-data: {"fileId":"abc123","name":"document.pdf","path":"/folder/document.pdf","size":5242880,"mimeType":"application/pdf","lastModified":"2024-01-15T10:30:00Z","downloadUrl":"/files/550e8400-e29b-41d4-a716-446655440000/abc123"}
+data: {"fileId":"abc123","name":"document.pdf","relativePath":"folder/document.pdf","size":5242880,"mimeType":"application/pdf","lastModified":"2024-01-15T10:30:00Z","hash":"sha256...","downloadUrl":"/files/550e8400-e29b-41d4-a716-446655440000/abc123"}
 ```
 
 #### `progress`
 
 ```
 event: progress
-data: {"filesFound":150,"filesProcessed":75}
+data: {"filesFound":150,"filesMatched":75,"totalBytes":52428800,"currentDirectory":"/folder"}
 ```
 
 #### `complete`
 
 ```
 event: complete
-data: {"totalFiles":200}
+data: {"totalFiles":200,"totalMatched":150,"totalBytes":104857600,"durationMs":5000}
 ```
 
 #### `error`
@@ -170,7 +170,7 @@ GET /files/:jobId/:fileId
 DELETE /crawl/:jobId
 ```
 
-Cancels job, unmounts share, and cleans up temporary files.
+Cancels job, closes SMB connection, and cleans up resources.
 
 **Response:**
 
@@ -187,22 +187,21 @@ Cancels job, unmounts share, and cleans up temporary files.
 
 ---
 
-### List Active Mounts (Debug)
+### List Active Connections (Debug)
 
 ```http
-GET /mounts
+GET /connections
 ```
 
 **Response:**
 
 ```json
 {
-  "mounts": [
+  "success": true,
+  "connections": [
     {
-      "jobId": "550e8400-e29b-41d4-a716-446655440000",
-      "uri": "//fileserver/share",
-      "mountPath": "/app/.smb-mounts/550e8400-e29b-41d4-a716-446655440000",
-      "createdAt": "2024-01-15T10:30:00Z"
+      "crawlerId": "550e8400-e29b-41d4-a716-446655440000",
+      "sharePath": ""
     }
   ]
 }
@@ -220,12 +219,13 @@ GET /jobs
 
 ```json
 {
+  "success": true,
   "jobs": [
     {
       "jobId": "550e8400-e29b-41d4-a716-446655440000",
       "status": "running",
       "filesFound": 150,
-      "createdAt": "2024-01-15T10:30:00Z"
+      "clients": 1
     }
   ]
 }
@@ -264,19 +264,20 @@ GET /jobs
 - Handles automatic cleanup (1 hour TTL)
 - Stores file metadata for downloads
 
-#### 2. **Mount Manager** (`mount-manager.ts`)
+#### 2. **Connection Manager** (`connection-manager.ts`)
 
-- Mounts SMB shares using `cifs-utils`
-- Manages credentials securely (per-job files)
-- Unmounts and cleans up after job completion
-- Prevents mount conflicts
+- Manages SMB2 client connections
+- Parses SMB URIs and credentials
+- Handles connection lifecycle (connect/disconnect)
+- Connection pooling per crawler job
 
 #### 3. **File Crawler** (`file-crawler.ts`)
 
-- Walks directory trees recursively
+- Walks directory trees recursively using SMB2 protocol
 - Filters files by patterns (include/exclude)
 - Respects file size limits
-- Emits SSE events for discovered files
+- Calculates SHA-256 hashes via SMB2 streams
+- Emits progress events
 
 #### 4. **HTTP API** (`index.ts`)
 
@@ -303,9 +304,6 @@ services:
     image: ghcr.io/progwise/george-ai/smb-crawler:latest
     ports:
       - '3006:3006'
-    privileged: true # Required for mounting filesystems
-    volumes:
-      - ./smb-temp:/app/temp # Persistent temp storage
     environment:
       PORT: 3006
       NODE_ENV: production
@@ -325,8 +323,6 @@ services:
     image: ghcr.io/progwise/george-ai/smb-crawler:latest
     networks:
       - george-ai-network
-    volumes:
-      - /data/smb-temp:/app/temp
     deploy:
       replicas: 1
       resources:
@@ -352,27 +348,14 @@ services:
 
 ## Security Considerations
 
-### Running as Root
+### SMB2 Protocol Security
 
-The service **must run as root** to mount filesystems. This is required for:
+The service uses native SMB2/3 protocol with the following security features:
 
-- Mounting SMB shares with `mount.cifs`
-- Creating mount points in `/app/.smb-mounts/`
-
-**Mitigation strategies:**
-
-1. Run in isolated container (Docker/Podman)
-2. Use least-privilege volume mounts
-3. Sanitize all user inputs
-4. Automatic job cleanup prevents resource leaks
-
-### Credential Storage
-
-Credentials are stored temporarily in per-job files:
-
-- Location: `/app/.smb-credentials/:jobId`
-- Permissions: `0600` (owner read/write only)
-- Cleanup: Deleted when job completes or times out
+- **NTLM Authentication** - Secure authentication with domain support
+- **Connection Isolation** - Each job has its own SMB2 connection
+- **Credential Protection** - Credentials only in memory, never written to disk
+- **Automatic Cleanup** - Connections closed after job completion or timeout
 
 ### Input Validation
 
@@ -382,6 +365,12 @@ All requests are validated using Zod schemas:
 - Pattern sanitization
 - File size limits
 - Path traversal prevention
+
+### Network Security
+
+- **Firewall**: Ensure SMB port 445/tcp is accessible from container
+- **VPN**: Use VPN or private network for remote SMB shares
+- **TLS**: SMB3 encryption supported (enabled by server)
 
 ## Monitoring
 
@@ -394,8 +383,8 @@ curl http://localhost:3006/health
 # List active jobs
 curl http://localhost:3006/jobs
 
-# List mounted shares
-curl http://localhost:3006/mounts
+# List active connections
+curl http://localhost:3006/connections
 ```
 
 ### Logs
@@ -403,26 +392,25 @@ curl http://localhost:3006/mounts
 The service logs to stdout/stderr:
 
 - `[API]` - HTTP request/response logs
-- `[Job]` - Job lifecycle events
-- `[Mount]` - Mount/unmount operations
+- `[JobManager]` - Job lifecycle events
+- `[Connection]` - SMB2 connection operations
 - `[Crawler]` - File discovery progress
 
 Example:
 
 ```
 [API] POST /crawl/start
-[Job] Created job 550e8400-e29b-41d4-a716-446655440000
-[Mount] Mounting //fileserver/share
-[Mount] Successfully mounted to /app/.smb-mounts/550e8400-e29b-41d4-a716-446655440000
-[Crawler] Starting crawl...
+[JobManager] Creating job 550e8400-e29b-41d4-a716-446655440000
+[Connection] Connecting to fileserver:445, share: share
+[Connection] Success: 550e8400-e29b-41d4-a716-446655440000
 [Crawler] Found file: document.pdf (5242880 bytes)
-[Job] Completed job 550e8400-e29b-41d4-a716-446655440000 (200 files)
-[Mount] Unmounting /app/.smb-mounts/550e8400-e29b-41d4-a716-446655440000
+[JobManager] Job 550e8400-e29b-41d4-a716-446655440000 completed: 200 files in 5000ms
+[Disconnect] Success: 550e8400-e29b-41d4-a716-446655440000
 ```
 
 ## Troubleshooting
 
-### Mount Fails with "Permission Denied"
+### Connection Fails with "Permission Denied"
 
 **Problem:** SMB credentials invalid or share not accessible
 
@@ -431,15 +419,18 @@ Example:
 - Verify username/password
 - Test connectivity: `smbclient //server/share -U username`
 - Check firewall rules (port 445/tcp)
+- Verify SMB server allows SMB2/3 protocol
 
-### "sudo: command not found"
+### "ECONNREFUSED" or "ETIMEDOUT"
 
-**Problem:** Container doesn't have root privileges
+**Problem:** Cannot reach SMB server
 
 **Solution:**
 
-- Add `privileged: true` to Docker Compose
-- Or use `cap_add: [SYS_ADMIN]` for least privilege
+- Check network connectivity: `ping server`
+- Verify SMB port is open: `telnet server 445`
+- Check Docker network configuration
+- Ensure SMB server is running
 
 ### Jobs Not Cleaning Up
 
@@ -448,8 +439,8 @@ Example:
 **Solution:**
 
 - Restart service - automatic cleanup on startup
-- Manually unmount: `sudo umount /app/.smb-mounts/*`
-- Delete temp files: `rm -rf /app/.smb-credentials/*`
+- Check logs for errors
+- Manually cancel jobs via API: `DELETE /crawl/:jobId`
 
 ### SSE Connection Drops
 
@@ -461,6 +452,16 @@ Example:
 - Increase timeout settings
 - Use HTTP/2 for better connection handling
 
+### "Hash Calculation Failed"
+
+**Problem:** File read error during hash calculation
+
+**Solution:**
+
+- Check file permissions on SMB share
+- Verify file is not locked by another process
+- Check available memory (large files need buffering)
+
 ## Development
 
 ### Project Structure
@@ -468,12 +469,12 @@ Example:
 ```
 apps/smb-crawler/
 ├── src/
-│   ├── index.ts           # HTTP API + Express server
-│   ├── job-manager.ts     # Job lifecycle management
-│   ├── mount-manager.ts   # SMB mount operations
-│   ├── file-crawler.ts    # Directory walking + filtering
-│   └── types.ts           # TypeScript types
-├── Dockerfile             # Multi-stage build
+│   ├── index.ts              # HTTP API + Express server
+│   ├── job-manager.ts        # Job lifecycle management
+│   ├── connection-manager.ts # SMB2 connection management
+│   ├── file-crawler.ts       # Directory walking + filtering
+│   └── types.ts              # TypeScript types
+├── Dockerfile                # Multi-stage build
 ├── package.json
 └── tsconfig.json
 ```
@@ -482,7 +483,7 @@ apps/smb-crawler/
 
 ```bash
 # Start service
-sudo pnpm start
+pnpm start
 
 # In another terminal, test API
 curl -X POST http://localhost:3006/crawl/start \
@@ -503,12 +504,14 @@ curl http://localhost:3006/files/:jobId/:fileId -o file.pdf
 
 ### Local Development with Test Server
 
-```bash
-# Start SMB test server (in separate terminal)
-docker run -p 445:445 progwise/smb-test-server
+The development environment includes a test SMB server:
 
-# Use test credentials
-URI: //localhost/share
+```bash
+# Test server runs on port 10445 (mapped from container port 445)
+# Access via: //localhost:10445/share
+
+# Use test credentials from docker-compose.yml:
+URI: //gai-smb-test/share
 Username: testuser
 Password: testpass
 ```
@@ -526,9 +529,10 @@ Tested on:
 
 **Results:**
 
-- Discovery: ~2,000 files/sec
+- Discovery: ~500-1,000 files/sec (depends on network latency)
 - Download: Limited by network bandwidth
-- Memory: ~100 MB baseline + 10 MB per active job
+- Memory: ~100 MB baseline + 5-10 MB per active job
+- Hash calculation: ~200 MB/s per file
 
 ### Tuning
 
@@ -537,9 +541,28 @@ Adjust resource limits in Docker Compose:
 ```yaml
 resources:
   limits:
-    cpus: '1.0' # More CPU = faster crawling
+    cpus: '1.0' # More CPU = faster hash calculation
     memory: 1G # More RAM = more concurrent jobs
 ```
+
+## SMB2 Protocol Details
+
+This service uses a pure TypeScript SMB2/3 client implementation:
+
+- **Protocol**: SMB 2.1 / 3.0 / 3.1.1
+- **Authentication**: NTLM (NTLMv2)
+- **Features**:
+  - Directory listing
+  - File reading via streams
+  - Metadata queries (size, dates, attributes)
+  - SHA-256 hash calculation
+
+**Supported SMB Servers:**
+
+- Windows Server 2008 R2 and later
+- Windows 10/11 file shares
+- Samba 4.x and later
+- NAS devices with SMB2/3 support
 
 ## License
 
