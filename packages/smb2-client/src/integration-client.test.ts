@@ -5,8 +5,12 @@ import { describe, expect, it } from 'vitest'
 
 import { SMB2Client } from './client'
 
+// In CI (GitHub Actions), services are accessible via localhost
+// In devcontainer, use the service name
+const SMB_HOST = process.env.SMB_TEST_HOST || 'gai-smb-test'
+
 const testConfig = {
-  host: 'gai-smb-test',
+  host: SMB_HOST,
   port: 445,
   domain: 'WORKGROUP',
   username: 'testuser1',

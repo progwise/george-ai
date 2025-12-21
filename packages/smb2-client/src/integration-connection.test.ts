@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import { SMB2Connection } from './protocol/connection'
 
 const testConfig = {
-  host: 'gai-smb-test',
+  host: process.env.SMB_TEST_HOST || 'gai-smb-test',
   port: 445,
   timeout: 10000,
 }

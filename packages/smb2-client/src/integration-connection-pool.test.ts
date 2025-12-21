@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { type ConnectionCredentials, ConnectionPool } from './session/connection-pool'
 
 const testConfig: ConnectionCredentials = {
-  host: 'gai-smb-test',
+  host: process.env.SMB_TEST_HOST || 'gai-smb-test',
   port: 445,
   domain: 'WORKGROUP',
   username: 'testuser1',

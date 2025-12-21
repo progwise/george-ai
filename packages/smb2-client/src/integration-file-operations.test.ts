@@ -23,7 +23,7 @@ import { SMB2Connection } from './protocol/connection'
 import { CreateDisposition, DesiredAccess, FileAttributes, ShareAccess } from './protocol/constants'
 
 const testConfig = {
-  host: 'gai-smb-test',
+  host: process.env.SMB_TEST_HOST || 'gai-smb-test',
   port: 445,
   timeout: 10000,
   domain: 'WORKGROUP',
