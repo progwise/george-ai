@@ -19,7 +19,8 @@
         "MODEL_NAME_VL",
         "MODEL_NAME_EMBEDDING",
         "GITHUB_TOKEN",
-        "CRAWLER_CREDENTIALS_DIR"
+        "CRAWLER_CREDENTIALS_DIR",
+        "SMB_TEST_HOST"
       ]
     },
     "lint": {
