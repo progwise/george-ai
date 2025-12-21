@@ -89,10 +89,8 @@ COPY --from=builder --chown=server:nodejs /app/deploy .
 # pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
 COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
 
-# Configure crawler credentials to be stored in a tmpfs-backed (non-persistent) directory
-# This prevents credentials from being persisted to disk/backups
-ENV CRAWLER_CREDENTIALS_DIR=/dev/shm/.crawler-credentials
-RUN mkdir -p "$CRAWLER_CREDENTIALS_DIR" && chown -R server:nodejs "$CRAWLER_CREDENTIALS_DIR"
+# Create crawler credentials directory with proper permissions
+RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
 
 USER server
 
