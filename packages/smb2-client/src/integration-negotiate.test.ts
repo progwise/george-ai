@@ -36,4 +36,4 @@ it('should negotiate SMB2 protocol', async () => {
   } finally {
     await connection.close()
   }
-}, 15000)
+})

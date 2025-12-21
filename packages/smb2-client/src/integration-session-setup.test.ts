@@ -74,7 +74,7 @@ describe('SESSION_SETUP', () => {
     } finally {
       await connection.close()
     }
-  }, 20000)
+  })
 
   it('should reject invalid credentials', async () => {
     const connection = new SMB2Connection({
@@ -118,5 +118,5 @@ describe('SESSION_SETUP', () => {
     } finally {
       await connection.close()
     }
-  }, 20000)
+  })
 })

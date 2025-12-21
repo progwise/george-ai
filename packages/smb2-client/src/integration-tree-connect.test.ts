@@ -78,4 +78,4 @@ it('should connect to a share with TREE_CONNECT', async () => {
   } finally {
     await connection.close()
   }
-}, 20000)
+})

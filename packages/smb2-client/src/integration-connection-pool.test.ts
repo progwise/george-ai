@@ -41,7 +41,7 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 20000)
+  })
 
   it('should handle multiple concurrent connections', async () => {
     const pool = new ConnectionPool({ maxConnections: 3 })
@@ -85,7 +85,7 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 30000)
+  })
 
   it('should enforce max connections limit', async () => {
     const pool = new ConnectionPool({ maxConnections: 2 })
@@ -111,7 +111,7 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 30000)
+  })
 
   it('should provide accurate statistics', async () => {
     const pool = new ConnectionPool()
@@ -143,7 +143,7 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 30000)
+  })
 
   it('should cleanup idle connections after timeout', async () => {
     const pool = new ConnectionPool({
@@ -169,7 +169,7 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 10000)
+  })
 
   it('should maintain separate pools for different users', async () => {
     const pool = new ConnectionPool()
@@ -197,5 +197,5 @@ describe('ConnectionPool Integration', () => {
     } finally {
       await pool.cleanup()
     }
-  }, 30000)
+  })
 })

@@ -143,7 +143,7 @@ describe('File Operations', () => {
     } finally {
       await connection.close()
     }
-  }, 20000)
+  })
 
   it('should list directory contents', async () => {
     const connection = new SMB2Connection({
@@ -237,7 +237,7 @@ describe('File Operations', () => {
     } finally {
       await connection.close()
     }
-  }, 20000)
+  })
 
   it('should query file information', async () => {
     const connection = new SMB2Connection({
@@ -335,5 +335,5 @@ describe('File Operations', () => {
     } finally {
       await connection.close()
     }
-  }, 20000)
+  })
 })

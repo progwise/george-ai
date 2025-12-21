@@ -56,7 +56,7 @@ describe('SMB2Client Integration', () => {
       await client.disconnect()
       expect(client.isConnected()).toBe(false)
     }
-  }, 20000)
+  })
 
   it('should list root directory contents', async () => {
     const client = new SMB2Client({
@@ -84,7 +84,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should read file contents', async () => {
     const client = new SMB2Client({
@@ -111,7 +111,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should read file with offset and length', async () => {
     const client = new SMB2Client({
@@ -134,7 +134,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should create read stream', async () => {
     const client = new SMB2Client({
@@ -168,7 +168,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should get file metadata with stat', async () => {
     const client = new SMB2Client({
@@ -195,7 +195,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should handle errors gracefully - file not found', async () => {
     const client = new SMB2Client({
@@ -213,7 +213,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should handle errors gracefully - invalid credentials', async () => {
     const client = new SMB2Client({
@@ -227,7 +227,7 @@ describe('SMB2Client Integration', () => {
 
     // Should throw on first operation
     await expect(client.readdir('/')).rejects.toThrow()
-  }, 20000)
+  })
 
   it('should support manual connect', async () => {
     const client = new SMB2Client({
@@ -252,7 +252,7 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 
   it('should handle multiple operations on same connection', async () => {
     const client = new SMB2Client({
@@ -283,5 +283,5 @@ describe('SMB2Client Integration', () => {
     } finally {
       await client.disconnect()
     }
-  }, 20000)
+  })
 })
