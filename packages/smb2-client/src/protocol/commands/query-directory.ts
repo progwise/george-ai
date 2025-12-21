@@ -7,6 +7,7 @@
  * - MS-SMB2 Section 2.2.33: SMB2 QUERY_DIRECTORY Request
  * - MS-SMB2 Section 2.2.34: SMB2 QUERY_DIRECTORY Response
  */
+import { SMB2ClientError } from '../../utils/errors'
 import { SMB2Command } from '../constants'
 import { SMB2Message } from '../message'
 import type { QueryDirectoryResponse } from '../types'
@@ -76,7 +77,12 @@ export function createQueryDirectoryRequest(
   } = options
 
   if (fileId.length !== 16) {
-    throw new Error(`Invalid fileId length: ${fileId.length} (expected 16)`)
+    throw new SMB2ClientError(
+      `Invalid fileId length: ${fileId.length} (expected 16)`,
+      'EINVAL',
+      undefined,
+      'queryDirectory',
+    )
   }
 
   // Convert search pattern to UTF-16LE

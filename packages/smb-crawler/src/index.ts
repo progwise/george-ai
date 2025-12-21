@@ -5,14 +5,4 @@
  */
 
 export { SmbCrawlerClient } from './client'
-export type { SmbCrawlerClientOptions } from './client'
-export type {
-  SmbCrawlComplete,
-  SmbCrawlError,
-  SmbCrawlEvent,
-  SmbCrawlOptions,
-  SmbCrawlProgress,
-  SmbFileMetadata,
-  StartCrawlResponse,
-  CrawlerServiceResponse,
-} from './types'
+export type { SmbCrawlOptions, SmbFileMetadata } from './types'

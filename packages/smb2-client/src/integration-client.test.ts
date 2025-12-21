@@ -54,8 +54,6 @@ describe('SMB2Client Integration', () => {
         expect(firstFile).toHaveProperty('modifiedAt')
         expect(firstFile).toHaveProperty('attributes')
       }
-    } catch (err) {
-      assert.fail(`Unexpected error during readdir: ${(err as Error).message}`)
     } finally {
       await client.disconnect()
       expect(client.isConnected()).toBe(false)
