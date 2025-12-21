@@ -1,6 +1,7 @@
 /**
  * Internal types for the SMB crawler service
  */
+import type { SMB2Client } from '@george-ai/smb2-client'
 import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
 
 export interface CrawlJob {
@@ -8,10 +9,10 @@ export interface CrawlJob {
   jobId: string
   /** Crawl options */
   options: SmbCrawlOptions
-  /** Mount point for this job */
-  mountPoint: string
-  /** Credentials file path */
-  credentialsFile: string
+  /** SMB2 client connection */
+  client: SMB2Client
+  /** Base path within the share */
+  sharePath: string
   /** Job creation timestamp */
   createdAt: Date
   /** Job status */

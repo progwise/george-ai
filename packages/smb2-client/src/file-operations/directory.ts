@@ -29,7 +29,7 @@ export interface FileMetadata {
   /** Is directory? */
   isDirectory: boolean
   /** File size in bytes */
-  size: bigint
+  size: number
   /** Creation time */
   createdAt: Date
   /** Last modification time */
@@ -116,7 +116,7 @@ function parseDirectoryInformation(buffer: Buffer, basePath: string): FileMetada
       name: fileName,
       path: fullPath,
       isDirectory: (fileAttributes & FileAttributes.DIRECTORY) !== 0,
-      size: endOfFile,
+      size: Number(endOfFile),
       createdAt,
       modifiedAt,
       attributes: fileAttributes,
@@ -299,7 +299,7 @@ export async function stat(
       name: fileName,
       path,
       isDirectory: (fileAttributes & FileAttributes.DIRECTORY) !== 0,
-      size: endOfFile,
+      size: Number(endOfFile),
       createdAt,
       modifiedAt,
       attributes: fileAttributes,

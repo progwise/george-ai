@@ -8,8 +8,8 @@ import { randomUUID } from 'node:crypto'
 
 import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
 
+import { closeConnection, createConnection } from './connection-manager'
 import { crawlDirectory } from './file-crawler'
-import { mountShare, unmountShare } from './mount-manager'
 import type { CrawlJob, DiscoveredFile, ServerSentEventClient } from './types'
 
 // Store active jobs
@@ -29,24 +29,24 @@ export async function createJob(options: SmbCrawlOptions): Promise<string> {
 
   console.log(`[JobManager] Creating job ${jobId}`)
 
-  // Mount the SMB share
-  const mountResult = await mountShare({
+  // Create SMB2 connection
+  const connectionResult = await createConnection({
     crawlerId: jobId,
     uri: options.uri,
     username: options.username,
     password: options.password,
   })
 
-  if (!mountResult.success) {
-    throw new Error(`Failed to mount SMB share: ${mountResult.error}`)
+  if (!connectionResult.success) {
+    throw new Error(`Failed to connect to SMB share: ${connectionResult.error}`)
   }
 
   // Create job
   const job: CrawlJob = {
     jobId,
     options,
-    mountPoint: mountResult.mountPoint!,
-    credentialsFile: `/app/.smb-credentials/${jobId}.creds`,
+    client: connectionResult.client!,
+    sharePath: connectionResult.sharePath!,
     createdAt: new Date(),
     status: 'pending',
     files: new Map(),
@@ -95,7 +95,7 @@ export async function startCrawl(jobId: string): Promise<void> {
     })
 
     // Crawl directory and emit events
-    for await (const file of crawlDirectory(job.mountPoint, job.options, (stats) => {
+    for await (const file of crawlDirectory(job.client, job.sharePath, job.options, (stats) => {
       // Send progress update
       sendEventToClients(job, 'progress', stats)
     })) {
@@ -168,8 +168,8 @@ export async function cancelJob(jobId: string): Promise<void> {
   }
   job.clients.clear()
 
-  // Unmount share
-  await unmountShare(jobId)
+  // Close SMB2 connection
+  await closeConnection(jobId)
 
   // Remove job
   jobs.delete(jobId)

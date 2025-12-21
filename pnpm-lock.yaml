@@ -326,6 +326,9 @@ importers:
       '@george-ai/smb-crawler':
         specifier: workspace:*
         version: link:../../packages/smb-crawler
+      '@george-ai/smb2-client':
+        specifier: workspace:*
+        version: link:../../packages/smb2-client
       express:
         specifier: ^4.21.2
         version: 4.21.2

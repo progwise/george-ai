@@ -1,17 +1,15 @@
 /**
  * SMB Crawler Service
  *
- * HTTP + SSE service for crawling SMB shares
- * Runs as root to enable mounting filesystems
+ * HTTP + SSE service for crawling SMB shares using SMB2 protocol
  */
 import express from 'express'
-import fs from 'node:fs'
 import { z } from 'zod'
 
 import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
 
+import { initializeConnectionManager, listConnections } from './connection-manager'
 import { addClient, cancelJob, createJob, getActiveJobs, getFile, getJob, startCrawl } from './job-manager'
-import { initializeMountManager, listMounts } from './mount-manager'
 
 const app = express()
 app.use(express.json())
@@ -122,6 +120,14 @@ app.get('/files/:jobId/:fileId', async (req, res) => {
   const { jobId, fileId } = req.params
 
   try {
+    const job = getJob(jobId)
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        error: 'Job not found',
+      })
+    }
+
     const file = getFile(jobId, fileId)
     if (!file) {
       return res.status(404).json({
@@ -130,26 +136,16 @@ app.get('/files/:jobId/:fileId', async (req, res) => {
       })
     }
 
-    // Check if file exists
-    try {
-      await fs.promises.access(file.absolutePath)
-    } catch {
-      return res.status(404).json({
-        success: false,
-        error: 'File no longer accessible',
-      })
-    }
-
     // Set headers
     res.setHeader('Content-Type', file.mimeType || 'application/octet-stream')
     res.setHeader('Content-Length', file.size)
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.name)}"`)
 
-    // Stream file
-    const fileStream = fs.createReadStream(file.absolutePath)
+    // Stream file using SMB2 client
+    const fileStream = job.client.createReadStream(file.absolutePath)
     fileStream.pipe(res)
 
-    fileStream.on('error', (error) => {
+    fileStream.on('error', (error: Error) => {
       console.error(`[API] Error streaming file ${fileId}:`, error)
       if (!res.headersSent) {
         res.status(500).json({
@@ -190,18 +186,18 @@ app.delete('/crawl/:jobId', async (req, res) => {
 })
 
 /**
- * List all active mounts (debugging)
- * GET /mounts
+ * List all active connections (debugging)
+ * GET /connections
  */
-app.get('/mounts', async (_req, res) => {
+app.get('/connections', async (_req, res) => {
   try {
-    const mounts = await listMounts()
+    const connections = listConnections()
     res.json({
       success: true,
-      mounts,
+      connections,
     })
   } catch (error) {
-    console.error('[API] /mounts error:', error)
+    console.error('[API] /connections error:', error)
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -234,8 +230,8 @@ app.get('/jobs', (_req, res) => {
  */
 async function start(): Promise<void> {
   try {
-    // Initialize mount manager
-    await initializeMountManager()
+    // Initialize connection manager
+    await initializeConnectionManager()
 
     // Start server
     app.listen(PORT, () => {

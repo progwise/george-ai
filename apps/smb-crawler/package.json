@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@george-ai/smb-crawler": "workspace:*",
+    "@george-ai/smb2-client": "workspace:*",
     "express": "^4.21.2",
     "mime-types": "^2.1.35",
     "minimatch": "^10.1.1",
