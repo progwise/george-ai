@@ -199,7 +199,7 @@ jobs:
     if: always() && needs.check-smb-test-image.result == 'success' && (needs.build-smb-test.result == 'success' || needs.build-smb-test.result == 'skipped')
     services:
       postgres: *postgres_service
-      smb-test:
+      gai-smb-test:
         image: ${{ needs.check-smb-test-image.outputs.image_tag }}
         credentials:
           username: ${{ github.actor }}
