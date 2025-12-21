@@ -77,11 +77,11 @@ test.describe('Workspace Switching - All Pages', () => {
     await page.waitForLoadState('networkidle')
 
     await switchWorkspace(page, 'E2E Test Workspace 1')
-    await expect(page.getByText('E2E Test Library - Field Modal')).toBeVisible()
+    await expect(page.getByText('E2E Test Library', { exact: true })).toBeVisible()
 
     await switchWorkspace(page, 'E2E Test Workspace 2')
     await expect(page.getByText('E2E Test Library - WS2')).toBeVisible()
-    await expect(page.getByText('E2E Test Library - Field Modal')).not.toBeVisible()
+    await expect(page.getByText('E2E Test Library', { exact: true })).not.toBeVisible()
 
     expectNoErrors()
   })
@@ -93,7 +93,7 @@ test.describe('Workspace Switching - All Pages', () => {
     await switchWorkspace(page, 'E2E Test Workspace 1')
 
     // Go to library detail
-    await page.getByText('E2E Test Library - Field Modal').click()
+    await page.getByText('E2E Test Library', { exact: true }).click()
     await page.waitForLoadState('networkidle')
     expect(page.url()).toContain('/libraries/')
 
@@ -112,10 +112,11 @@ test.describe('Workspace Switching - All Pages', () => {
     await page.waitForLoadState('networkidle')
 
     await switchWorkspace(page, 'E2E Test Workspace 1')
-    await expect(page.getByText('E2E Test List - Field Modal').first()).toBeVisible()
+    await expect(page.getByText('E2E Test List', { exact: true })).toBeVisible()
 
     await switchWorkspace(page, 'E2E Test Workspace 2')
-    await expect(page.getByText('E2E Test List - WS2').first()).toBeVisible()
+    await expect(page.getByText('E2E Test List - WS2')).toBeVisible()
+    await expect(page.getByText('E2E Test List', { exact: true })).not.toBeVisible()
 
     expectNoErrors()
   })

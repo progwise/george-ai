@@ -57,6 +57,7 @@ services:
       # This is a test key - DO NOT use in production
       ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 
+      CRAWLER_CREDENTIALS_DIR: ./.crawler-credentials
       # Typesense
       TYPESENSE_API_HOST: gai-e2e-typesense
       TYPESENSE_API_PORT: 8108
@@ -90,6 +91,9 @@ services:
       # OPENAI_API_KEY
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
+      # SMB Crawler Service
+      SMB_CRAWLER_URL: http://gai-e2e-smb-crawler:3006
+
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
     ports:
@@ -99,6 +103,44 @@ services:
         condition: service_healthy
       gai-e2e-typesense:
         condition: service_started
+    networks:
+      - george-ai-e2e
+
+  # SMB Crawler Service (for SMB/Windows file share crawling)
+  gai-e2e-smb-crawler:
+    build:
+      context: ..
+      dockerfile: apps/smb-crawler/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    container_name: gai-e2e-smb-crawler
+    environment:
+      # Node environment
+      NODE_ENV: production
+
+      # Server port
+      PORT: 3006
+
+      # Backend API
+      BACKEND_URL: http://gai-e2e-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3013
+      GRAPHQL_API_KEY: TestKey
+
+      # Git
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    depends_on:
+      gai-e2e-backend:
+        condition: service_started
+    networks:
+      - george-ai-e2e
+
+  # SMB Test Server (for testing SMB crawling)
+  gai-e2e-smb-test:
+    build:
+      context: ..
+      dockerfile: apps/smb-test-server/Dockerfile
+    container_name: gai-e2e-smb-test
+    hostname: gai-e2e-smb-test
     networks:
       - george-ai-e2e
 

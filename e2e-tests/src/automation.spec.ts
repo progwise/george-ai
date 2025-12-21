@@ -4,7 +4,7 @@ import { automationSwitcher, createAutomation } from './webapp-utils/automation-
 import { loginToWebapp } from './webapp-utils/login-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
-const TEST_LIST = 'E2E Test List - Field Modal'
+const TEST_LIST = 'E2E Test List'
 const TEST_CONNECTOR = 'E2E Test Connector'
 
 test.describe('Automations', () => {

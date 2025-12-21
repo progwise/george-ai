@@ -150,7 +150,7 @@ async function ollamaApiGet<T>(
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
   const response = await fetch(`${instance.url}${endpoint}`, {
-    headers: instance.apiKey ? { 'X-API-Key': instance.apiKey } : {},
+    headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
   })
 
   if (!response.ok) {
@@ -173,7 +173,7 @@ async function ollamaApiPost<T>(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(instance.apiKey ? { 'X-API-Key': instance.apiKey } : {}),
+      ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
     },
     body: JSON.stringify(params),
   })
@@ -234,7 +234,7 @@ async function getChatResponseStream(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(params.apiKey ? { 'X-API-Key': params.apiKey } : {}),
+        ...(params.apiKey ? { Authorization: `Bearer ${params.apiKey}` } : {}),
       },
       body: JSON.stringify({ model: modelName, stream: true, messages }),
       signal: abortSignal,

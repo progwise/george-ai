@@ -68,7 +68,7 @@ export const getConditionIsTrue = async (
 
   const headers = new Headers()
   if (process.env.OLLAMA_API_KEY) {
-    headers.append('X-API-Key', process.env.OLLAMA_API_KEY)
+    headers.append('Authorization', `Bearer ${process.env.OLLAMA_API_KEY}`)
   }
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})

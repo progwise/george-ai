@@ -3,11 +3,6 @@ import { GraphQLError } from 'graphql'
 import { deleteFile } from '../../domain'
 import { canAccessLibraryOrThrow, runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'
-import {
-  ensureCrawlerSmbShareMount,
-  ensureCrawlerSmbShareUnmount,
-  updateCrawlerSmbMount,
-} from '../../domain/crawler/smb-mount-manager'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
@@ -75,36 +70,28 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       })
 
       if (data.uriType === 'http') {
-        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
         await removeCrawlerCredentials(crawler.id)
       } else if (data.uriType === 'smb') {
         if (!credentials?.username || !credentials?.password) {
           throw new GraphQLError('Must provide username and password for uri type SMB')
         }
-        await ensureCrawlerSmbShareMount({
-          crawlerId: crawler.id,
-          uri: data.uri,
-          username: credentials.username,
-          password: credentials.password,
-        })
-        await removeCrawlerCredentials(crawler.id)
+        // Store credentials for use during crawl (new SMB crawler service architecture)
+        await updateCrawlerCredentials(crawler.id, credentials)
+        // Clean up old SMB mount if it exists (from previous architecture)
       } else if (data.uriType === 'sharepoint') {
         if (!credentials?.sharepointAuth) {
           throw new GraphQLError('Must provide sharepointAuth for uri type SharePoint')
         }
         await updateCrawlerCredentials(crawler.id, credentials)
-        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
       } else if (data.uriType === 'box') {
         if (!credentials?.boxCustomerId || !credentials?.boxToken) {
           throw new GraphQLError('Must provide box credentials for uri type Box')
         }
         await updateCrawlerCredentials(crawler.id, credentials)
-        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
       } else if (data.uriType === 'api') {
         if (!crawlerConfig) {
           throw new GraphQLError('Must provide crawlerConfig for uri type API')
         }
-        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
         await removeCrawlerCredentials(crawler.id)
       }
 
@@ -136,37 +123,28 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       await canAccessLibraryOrThrow(existingCrawler?.libraryId, context.session.user.id)
 
       if (data.uriType === 'http') {
-        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
         await removeCrawlerCredentials(id)
       } else if (data.uriType === 'smb') {
         if (!credentials?.username || !credentials?.password) {
           throw new GraphQLError('Must provide username and password for uri type SMB')
         }
-        // Update SMB mount with new credentials
-        await updateCrawlerSmbMount({
-          crawlerId: id,
-          uri: data.uri,
-          username: credentials.username,
-          password: credentials.password,
-        })
-        await removeCrawlerCredentials(id)
+        // Store credentials for use during crawl (new SMB crawler service architecture)
+        await updateCrawlerCredentials(id, credentials)
+        // Clean up old SMB mount if it exists (from previous architecture)
       } else if (data.uriType === 'sharepoint') {
         if (!credentials?.sharepointAuth) {
           throw new GraphQLError('Must provide sharepointAuth for uri type SharePoint')
         }
         await updateCrawlerCredentials(id, credentials)
-        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
       } else if (data.uriType === 'box') {
         if (!credentials?.boxCustomerId || !credentials?.boxToken) {
           throw new GraphQLError('Must provide box credentials for uri type Box')
         }
         await updateCrawlerCredentials(id, credentials)
-        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
       } else if (data.uriType === 'api') {
         if (!crawlerConfig) {
           throw new GraphQLError('Must provide crawlerConfig for uri type API')
         }
-        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
         await removeCrawlerCredentials(id)
       }
 
@@ -251,7 +229,6 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
         await stopCronJob(crawler.cronJob)
       }
 
-      await ensureCrawlerSmbShareUnmount({ crawlerId: id })
       await removeCrawlerCredentials(id)
 
       return crawler

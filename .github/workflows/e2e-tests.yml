@@ -39,6 +39,8 @@ jobs:
       backend_hash: ${{ steps.hash.outputs.backend }}
       webapp_hash: ${{ steps.hash.outputs.webapp }}
       web_hash: ${{ steps.hash.outputs.web }}
+      smb_crawler_hash: ${{ steps.hash.outputs.smb_crawler }}
+      smb_test_hash: ${{ steps.hash.outputs.smb_test }}
 
     steps:
       - name: Checkout repository
@@ -69,6 +71,18 @@ jobs:
           echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Web hash: ${WEB_HASH_SHORT}"
 
+          # SMB Crawler hash (depends on smb-crawler app + smb-crawler package + smb2-client package)
+          SMB_CRAWLER_HASH=$(find apps/smb-crawler packages/smb-crawler packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          SMB_CRAWLER_HASH_SHORT="${SMB_CRAWLER_HASH:0:12}"
+          echo "smb_crawler=${SMB_CRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "SMB Crawler hash: ${SMB_CRAWLER_HASH_SHORT}"
+
+          # SMB Test Server hash (depends on smb-test-server app only)
+          SMB_TEST_HASH=$(find apps/smb-test-server -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          SMB_TEST_HASH_SHORT="${SMB_TEST_HASH:0:12}"
+          echo "smb_test=${SMB_TEST_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "SMB Test Server hash: ${SMB_TEST_HASH_SHORT}"
+
   # Job 2: Check which images need building
   check-images:
     needs: calculate-hashes
@@ -81,9 +95,13 @@ jobs:
       build_backend: ${{ steps.check.outputs.build_backend }}
       build_webapp: ${{ steps.check.outputs.build_webapp }}
       build_web: ${{ steps.check.outputs.build_web }}
+      build_smb_crawler: ${{ steps.check.outputs.build_smb_crawler }}
+      build_smb_test: ${{ steps.check.outputs.build_smb_test }}
       backend_tag: ${{ steps.check.outputs.backend_tag }}
       webapp_tag: ${{ steps.check.outputs.webapp_tag }}
       web_tag: ${{ steps.check.outputs.web_tag }}
+      smb_crawler_tag: ${{ steps.check.outputs.smb_crawler_tag }}
+      smb_test_tag: ${{ steps.check.outputs.smb_test_tag }}
 
     steps:
       - name: Log in to GitHub Container Registry
@@ -99,6 +117,8 @@ jobs:
           BACKEND_HASH: ${{ needs.calculate-hashes.outputs.backend_hash }}
           WEBAPP_HASH: ${{ needs.calculate-hashes.outputs.webapp_hash }}
           WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
+          SMB_CRAWLER_HASH: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
+          SMB_TEST_HASH: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
         run: |
           echo "Checking which images need to be built..."
 
@@ -135,10 +155,32 @@ jobs:
             echo "build_web=true" >> $GITHUB_OUTPUT
           fi
 
+          # Check smb-crawler
+          SMB_CRAWLER_TAG="${{ env.IMAGE_PREFIX }}-smb-crawler:${SMB_CRAWLER_HASH}"
+          echo "smb_crawler_tag=${SMB_CRAWLER_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${SMB_CRAWLER_TAG}" > /dev/null 2>&1; then
+            echo "✓ SMB Crawler image exists (${SMB_CRAWLER_HASH})"
+            echo "build_smb_crawler=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ SMB Crawler image needs building (${SMB_CRAWLER_HASH})"
+            echo "build_smb_crawler=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check smb-test
+          SMB_TEST_TAG="${{ env.IMAGE_PREFIX }}-smb-test:${SMB_TEST_HASH}"
+          echo "smb_test_tag=${SMB_TEST_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${SMB_TEST_TAG}" > /dev/null 2>&1; then
+            echo "✓ SMB Test Server image exists (${SMB_TEST_HASH})"
+            echo "build_smb_test=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ SMB Test Server image needs building (${SMB_TEST_HASH})"
+            echo "build_smb_test=true" >> $GITHUB_OUTPUT
+          fi
+
   # Job 3: Build Docker images (only those that changed)
   build-images:
     needs: [calculate-hashes, check-images]
-    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true'
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true' || needs.check-images.outputs.build_smb_test == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
@@ -160,6 +202,14 @@ jobs:
             dockerfile: apps/georgeai-web/Dockerfile
             build: ${{ needs.check-images.outputs.build_web }}
             hash: ${{ needs.calculate-hashes.outputs.web_hash }}
+          - name: smb-crawler
+            dockerfile: apps/smb-crawler/Dockerfile
+            build: ${{ needs.check-images.outputs.build_smb_crawler }}
+            hash: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
+          - name: smb-test
+            dockerfile: apps/smb-test-server/Dockerfile
+            build: ${{ needs.check-images.outputs.build_smb_test }}
+            hash: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
 
     steps:
       - name: Checkout repository
@@ -253,14 +303,37 @@ jobs:
           BACKEND_PUBLIC_URL: http://localhost:3003
           PUBLIC_APP_URL: http://localhost:3001
           UPLOADS_PATH: /tmp/uploads
+          CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
           AUTOSTART_ENRICHMENT_WORKER: true
           AUTOSTART_CONTENT_PROCESSING_WORKER: true
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OLLAMA_VRAM_GB: 16
+          SMB_CRAWLER_URL: http://smb-crawler:3006
           GIT_COMMIT_SHA: ${{ github.sha }}
         ports:
           - 3003:3003
+
+      # SMB Crawler Service
+      smb-crawler:
+        image: ${{ needs.check-images.outputs.smb_crawler_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NODE_ENV: production
+          PORT: 3006
+          BACKEND_URL: http://backend:3003
+          BACKEND_PUBLIC_URL: http://localhost:3003
+          GRAPHQL_API_KEY: TestKey
+          GIT_COMMIT_SHA: ${{ github.sha }}
+
+      # SMB Test Server
+      smb-test:
+        image: ${{ needs.check-images.outputs.smb_test_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Frontend webapp
       webapp:
@@ -400,6 +473,8 @@ jobs:
           DEBUG: pw:api
           # Expected Discord URL for E2E tests
           EXPECTED_DISCORD_URL: https://discord.gg/GbQFKb2MNJ
+          # SMB test server hostname (matches service name in this workflow)
+          E2E_SMB_TEST_SERVER: smb-test
 
       - name: Upload Playwright report
         if: failure()

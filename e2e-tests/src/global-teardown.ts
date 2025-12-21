@@ -1,3 +1,5 @@
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { Client } from 'pg'
 
 const DATABASE_URL = process.env.DATABASE_URL
@@ -70,11 +72,15 @@ async function globalTeardown() {
       console.log('  ✅ No test connectors to clean up')
     }
 
-    // Delete test assistants
+    // Delete ALL assistants in test workspaces
+    // These are recreated fresh in global-setup.ts, so safe to delete everything
     const assistantResult = await client.query(
       `
       DELETE FROM "AiAssistant"
-      WHERE name LIKE 'E2E Test%'
+      WHERE "workspaceId" IN (
+        '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000003'
+      )
       RETURNING name
     `,
     )
@@ -127,7 +133,26 @@ async function globalTeardown() {
       console.log('  ✅ No test lists to clean up')
     }
 
-    // Delete library files first (foreign key constraint)
+    // Delete crawlers first (foreign key constraint - crawlers reference libraries)
+    const crawlerResult = await client.query(
+      `
+      DELETE FROM "AiLibraryCrawler"
+      WHERE "libraryId" IN (
+        SELECT id FROM "AiLibrary"
+        WHERE "workspaceId" IN (
+          '00000000-0000-0000-0000-000000000002',
+          '00000000-0000-0000-0000-000000000003'
+        )
+      )
+      RETURNING id
+    `,
+    )
+
+    if (crawlerResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${crawlerResult.rows.length} test crawlers`)
+    }
+
+    // Delete library files (foreign key constraint)
     await client.query(
       `
       DELETE FROM "AiLibraryFile"
@@ -159,6 +184,19 @@ async function globalTeardown() {
       libraryResult.rows.forEach((row) => console.log(`     - ${row.name}`))
     } else {
       console.log('  ✅ No test libraries to clean up')
+    }
+
+    // Clean up crawler credentials directory (orphaned files from deleted crawlers)
+    const credentialsDir = path.resolve('./.crawler-credentials')
+    try {
+      const files = await fs.promises.readdir(credentialsDir)
+      if (files.length > 0) {
+        await Promise.all(files.map((file) => fs.promises.unlink(path.join(credentialsDir, file))))
+        console.log(`  ✅ Cleaned up ${files.length} crawler credential files`)
+      }
+    } catch {
+      // Directory doesn't exist or is empty - that's fine
+      console.log('  ✅ No crawler credentials to clean up')
     }
 
     // Delete workspaces created during tests (but NOT the permanent E2E Test Workspace 1 and 2)

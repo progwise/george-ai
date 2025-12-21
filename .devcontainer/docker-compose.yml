@@ -121,8 +121,8 @@ services:
 
   gai-smb-test:
     build:
-      context: ../apps/smb-test-server
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/smb-test-server/Dockerfile
     container_name: gai-smb-test
     hostname: gai-smb-test
     ports:

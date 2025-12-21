@@ -5,6 +5,7 @@ const E2E_EMAIL = process.env.E2E_EMAIL!
 const DATABASE_URL = process.env.DATABASE_URL
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL
+const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY
 const OLLAMA_VRAM_GB = process.env.OLLAMA_VRAM_GB ? parseInt(process.env.OLLAMA_VRAM_GB) : 16
 const SHARED_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001'
 
@@ -202,7 +203,13 @@ async function globalSetup() {
     if (OLLAMA_BASE_URL && OLLAMA_BASE_URL.length > 0) {
       try {
         console.log('  🔍 Discovering Ollama models...')
-        const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`)
+        const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
+          headers: OLLAMA_API_KEY
+            ? {
+                Authorization: `Bearer ${OLLAMA_API_KEY}`,
+              }
+            : {},
+        })
 
         if (!response.ok) {
           throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`)
@@ -256,15 +263,55 @@ async function globalSetup() {
     const workspace2Id = '00000000-0000-0000-0000-000000000003'
 
     // Helper function to create test data for a workspace
-    const createWorkspaceTestData = async (workspaceId: string, workspaceNum: number, ownerId: string) => {
-      const librarySuffix = workspaceNum === 1 ? ' - Field Modal' : ` - WS${workspaceNum}`
-      const listSuffix = workspaceNum === 1 ? ' - Field Modal' : ` - WS${workspaceNum}`
+    const createWorkspaceTestData = async (
+      workspaceId: string,
+      workspaceNum: number,
+      ownerId: string,
+      preferredProvider: 'openai' | 'ollama',
+    ) => {
+      const librarySuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
+      const listSuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
+
+      // Find embedding model for this workspace's provider
+      let embeddingModelId: string | null = null
+      try {
+        const embeddingModelResult = await client.query(
+          `
+          SELECT id, name FROM "AiLanguageModel"
+          WHERE "canDoEmbedding" = true
+            AND enabled = true
+            AND provider = $1
+          ORDER BY
+            CASE
+              WHEN name LIKE '%text-embedding-3-small%' THEN 1
+              WHEN name LIKE '%nomic-embed-text%' THEN 2
+              ELSE 3
+            END,
+            name
+          LIMIT 1
+        `,
+          [preferredProvider],
+        )
+
+        if (embeddingModelResult.rows.length > 0) {
+          embeddingModelId = embeddingModelResult.rows[0].id
+          console.log(
+            `  ✅ Workspace ${workspaceNum} using embedding model: ${embeddingModelResult.rows[0].name} (${preferredProvider})`,
+          )
+        } else {
+          console.log(
+            `  ⚠️  No ${preferredProvider} embedding model found for Workspace ${workspaceNum} - library will be created without embedding`,
+          )
+        }
+      } catch (error) {
+        console.log(`  ⚠️  Failed to find embedding model for Workspace ${workspaceNum}:`, error)
+      }
 
       // Create the test library
       const libraryResult = await client.query(
         `
-        INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "createdAt", "updatedAt")
-        VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
+        INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "embeddingModelId", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW(), NOW())
         ON CONFLICT DO NOTHING
         RETURNING id
       `,
@@ -273,6 +320,7 @@ async function globalSetup() {
           ownerId,
           `E2E Test Library${librarySuffix}`,
           `Test library for E2E tests in workspace ${workspaceNum}`,
+          embeddingModelId,
         ],
       )
 
@@ -287,6 +335,14 @@ async function globalSetup() {
         )
         libraryId = existingLibrary.rows[0].id
         console.log(`  ℹ️  Test library already exists: E2E Test Library${librarySuffix}`)
+      }
+
+      // Update library to ensure it has the embedding model set
+      if (embeddingModelId) {
+        await client.query('UPDATE "AiLibrary" SET "embeddingModelId" = $1 WHERE id = $2', [
+          embeddingModelId,
+          libraryId,
+        ])
       }
 
       // Delete existing files in the library (clean slate)
@@ -390,8 +446,10 @@ async function globalSetup() {
     }
 
     // Create test data for both workspaces
-    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, userId)
-    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, userId)
+    // Workspace 1: Uses OpenAI provider (for model filtering tests)
+    // Workspace 2: Uses Ollama provider (for model filtering tests)
+    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, userId, 'openai')
+    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, userId, 'ollama')
 
     // Step 6: Create test connectors and automations for E2E tests
     console.log('  🔌 Creating test connectors and automations...')

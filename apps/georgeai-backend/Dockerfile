@@ -39,6 +39,7 @@ COPY packages/langchain-chat/package.json ./packages/langchain-chat/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/web-utils/package.json ./packages/web-utils/
+COPY packages/smb-crawler/package.json ./packages/smb-crawler/
 COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
 RUN pnpm i --frozen-lockfile
@@ -58,6 +59,7 @@ COPY packages/langchain-chat ./packages/langchain-chat
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/web-utils ./packages/web-utils
+COPY packages/smb-crawler ./packages/smb-crawler
 COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # Generate Prisma client only (doesn't need DB connection)
@@ -86,6 +88,9 @@ COPY --from=builder --chown=server:nodejs /app/deploy .
 # Copy tsconfig.base.json for prisma generate --sql at runtime
 # pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
 COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
+
+# Create crawler credentials directory with proper permissions
+RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
 
 USER server
 
