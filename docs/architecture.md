@@ -124,6 +124,15 @@ flowchart TD
 - **Purpose**: Marketing pages, documentation, contact forms
 - **Deployment**: Serves as public-facing website at george-ai.net
 
+### smb-crawler (SMB Crawler Service)
+
+- **Runtime**: Node.js with TypeScript
+- **Framework**: Express server
+- **Purpose**: SMB/Windows file share crawler with real-time file discovery
+- **Features**: Server-Sent Events (SSE) streaming, MD5-based incremental updates, glob pattern filtering
+- **Dependencies**: Uses smb2-client for direct SMB2/3 protocol access
+- **Port**: Configured via environment (runs as microservice)
+
 ### webcrawler (Web Crawler)
 
 - **Runtime**: Python with FastAPI
@@ -176,11 +185,45 @@ flowchart TD
 - Production-ready with comprehensive tests against real SMB servers
 - **Key Differentiator**: Pure TypeScript, no native dependencies
 
+### smb-crawler
+
+- Client library for SMB crawler service integration
+- Server-Sent Events (SSE) streaming for real-time file discovery
+- Uses smb2-client for Windows file share access
+- Supports incremental updates via MD5 hash comparison
+
 ### html-crawler
 
 - Web page crawling and content extraction
 - Integration with file-converter for markdown conversion
 - Scheduled crawler runs with incremental updates
+
+### api-crawler
+
+- REST API data ingestion with pre-configured templates
+- Templates: Shopware 6, Weclapp, Generic REST
+- OAuth2 and API token authentication support
+- JSON path extraction and pagination handling
+- **Note**: Will be replaced by automation + connector system for bidirectional sync
+
+### connector-types
+
+- TypeScript type definitions for automation connectors
+- Connector registry and action execution framework
+- Validation schemas for connector configurations
+- Field mapping and transformation utilities
+
+### ai-act
+
+- EU AI Act compliance features
+- Risk assessment and documentation generation
+- Compliance tracking and reporting
+
+### ai-models
+
+- AI model definitions and configurations
+- Model capability detection (embedding, chat, vision, function calling)
+- Provider integration abstractions
 
 ### web-utils
 
