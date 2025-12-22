@@ -7,8 +7,12 @@ George AI is built as a monorepo using pnpm workspaces, with a modern stack focu
 - [High-Level Architecture](#high-level-architecture)
 - [Applications](#applications)
 - [Core Packages](#core-packages)
+- [Multi-Provider AI Architecture](#multi-provider-ai-architecture)
 - [External Services](#external-services)
 - [Document Processing Flow](#document-processing-flow)
+  - [Markdown Processing Pipeline](#markdown-processing-pipeline)
+  - [Enrichment Processing](#enrichment-processing)
+  - [Automation Processing](#automation-processing)
 - [GraphQL Schema Generation](#graphql-schema-generation)
 - [Authentication Flow](#authentication-flow)
 - [Development Workflows](#development-workflows)
@@ -19,7 +23,7 @@ George AI is built as a monorepo using pnpm workspaces, with a modern stack focu
 
 ## High-Level Architecture
 
-The core concept of George AI: Collect data from any source, convert everything to Markdown, then chunk and embed for semantic search.
+The core concept of George AI: Collect data from any source, convert everything to Markdown, enrich with AI, then automate business workflows.
 
 ```mermaid
 flowchart TD
@@ -39,38 +43,55 @@ flowchart TD
         EnrichWorker["✨ Background Worker<br/>LLM Structured Data Extraction"]
     end
 
+    subgraph Automation["🤖 George AI - Automation"]
+        direction TB
+        AutomationConfig["⚙️ Automation Configuration<br/>Triggers, Field Mapping, Filters"]
+        AutomationWorker["🚀 Background Worker<br/>Sync to External Systems"]
+    end
+
     Storage["💾 Storage<br/>PostgreSQL (Metadata) + Typesense (Vectors) + Lists"]
+
+    ExternalSystems["🌐 External Systems<br/>Shopware, APIs, CRMs, E-commerce"]
 
     Consumption["🎯 Consumption<br/>Business Users, Workflows, AI Agents, Apps"]
 
     Sources --> George
     UI --> LibraryConfig
     UI --> ListConfig
+    UI --> AutomationConfig
     LibraryConfig -.configures.-> Processing
     Processing --> Storage
     Storage --> EnrichWorker
     ListConfig -.configures.-> EnrichWorker
     EnrichWorker --> Storage
+    Storage --> AutomationWorker
+    AutomationConfig -.configures.-> AutomationWorker
+    AutomationWorker --> ExternalSystems
     Storage --> Consumption
 
     style Sources fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
     style UI fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000
     style George fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000
     style Enrichment fill:#e1f5fe,stroke:#0277bd,stroke-width:3px,color:#000
-    style Storage fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#000
-    style Consumption fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000
+    style Automation fill:#f3e5f5,stroke:#6a1b9a,stroke-width:3px,color:#000
+    style Storage fill:#fff9c4,stroke:#f57f17,stroke-width:3px,color:#000
+    style ExternalSystems fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000
+    style Consumption fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#000
 
     style LibraryConfig fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
     style Processing fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
     style ListConfig fill:#b3e5fc,stroke:#01579b,stroke-width:2px,color:#000
     style EnrichWorker fill:#b3e5fc,stroke:#01579b,stroke-width:2px,color:#000
+    style AutomationConfig fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000
+    style AutomationWorker fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000
 ```
 
 **Key Insights**:
 
 - **Markdown-First**: All content is converted to Markdown for consistent, high-quality vector generation
-- **Dual Output**: Documents become both searchable vectors AND structured data (Lists) via enrichments
-- **Single Source of Truth**: One unified platform for unstructured (vectors) and structured (Lists) data
+- **Triple Output**: Documents become searchable vectors, structured data (Lists), AND automated business workflows
+- **Single Source of Truth**: One unified platform for unstructured (vectors), structured (Lists), and automated (External Systems) data
+- **Collect → Enrich → Automate**: Complete business workflow from data ingestion to external system integration
 
 ---
 
@@ -145,6 +166,21 @@ flowchart TD
 - File upload and storage management
 - Metadata extraction
 - File access control
+
+### smb2-client
+
+- Zero-dependency SMB2/3 protocol implementation for Windows file shares
+- Direct binary protocol (no mounting required, works in Docker/Kubernetes)
+- NTLM v2 authentication with connection pooling
+- Streaming support for memory-efficient large file handling
+- Production-ready with comprehensive tests against real SMB servers
+- **Key Differentiator**: Pure TypeScript, no native dependencies
+
+### html-crawler
+
+- Web page crawling and content extraction
+- Integration with file-converter for markdown conversion
+- Scheduled crawler runs with incremental updates
 
 ### web-utils
 
@@ -365,6 +401,90 @@ All services communicate via Docker network (`george-ai-network`):
 2. **Enrichment worker processes documents** in background using LLM
 3. **Structured data extracted** and stored in PostgreSQL Lists
 4. **Validation and statistics** tracked for quality monitoring
+
+### Automation Processing
+
+George AI's automation system provides the final step in the **Collect → Enrich → Automate** lifecycle, pushing enriched data to external systems automatically.
+
+#### Architecture Overview
+
+**Database Tables**:
+
+- `AiAutomation` - Automation configuration (name, trigger type, filters, field mappings)
+- `AiConnector` - External system integration definitions (Shopware 6, APIs, etc.)
+- `AiAutomationRun` - Execution history and logs
+- `AiAutomationFieldMapping` - Maps list fields to connector fields
+
+**Components**:
+
+1. **Automation Configuration UI** (`/lists/[id]/automations`)
+   - No-code automation builder
+   - Visual field mapping interface
+   - Filter configuration (process subset of list items)
+   - Trigger selection (manual, on field update, scheduled)
+
+2. **Connectors** (`packages/pothos-graphql/src/graphql/connectors/`)
+   - Pre-built integrations with external systems
+   - Authentication handling (OAuth2, API keys, bearer tokens)
+   - Action definitions (e.g., "Product Upsert" for Shopware 6)
+   - Error management and retry logic
+
+3. **Automation Worker** (background process)
+   - Monitors trigger conditions
+   - Executes automations based on triggers
+   - Batch processing for efficiency
+   - Detailed execution logging
+
+#### Workflow
+
+1. **User Configuration**:
+   - Business user creates automation in Lists UI
+   - Selects connector and action (e.g., Shopware 6 → Product Upsert)
+   - Maps list fields to connector fields (e.g., "Product Name" → `name`)
+   - Configures filters (e.g., only items where "Status" = "Approved")
+   - Sets trigger (manual, on field update, scheduled)
+
+2. **Trigger Activation**:
+   - **Manual**: User clicks "Run" button
+   - **On Field Update**: Triggered when specified field changes
+   - **Scheduled**: Runs at configured intervals (hourly, daily, etc.)
+
+3. **Execution**:
+   - Worker fetches list items matching filters
+   - Applies field mappings to transform data
+   - Calls connector action with transformed data
+   - Logs success/failure for each item
+
+4. **Monitoring**:
+   - Execution logs show which items succeeded/failed
+   - Retry failed items with exponential backoff
+   - Statistics track success rate, processing time
+
+#### Supported Connectors
+
+**Active Connectors**:
+
+- **Shopware 6** - E-commerce platform integration
+  - Action: Product Upsert (create or update products)
+  - Authentication: OAuth2 client credentials
+  - Idempotent updates via product number matching
+
+**Planned Connectors**:
+
+- **Webhooks** - Send data to any HTTP endpoint
+- **REST APIs** - Generic REST API connector
+- **Google Sheets** - Write data to spreadsheets
+- **CSV Export** - Generate and deliver CSV files
+
+**Code Location**: `packages/pothos-graphql/src/graphql/connectors/`
+
+#### Migration from API Crawlers
+
+API crawlers (for Shopware 6, Weclapp, etc.) will be replaced by the automation + connector system:
+
+- **Old**: API crawler pulls data → stores as library files
+- **New**: Automation pushes enriched data → external systems via connectors
+- **Benefits**: Bidirectional sync, better error handling, no-code configuration
 
 ---
 
