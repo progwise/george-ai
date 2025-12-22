@@ -129,6 +129,27 @@ import Layout from '../../layouts/Layout.astro'
             </div>
           </div>
         </div>
+
+        <!-- API / REST -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-base">
+              <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.5 18.31L3.5 15V9l5-3.31V12m6.5 6.31L20.5 15V9l-5-3.31V12M12 22.5L9 20.69V17l3 2.31l3-2.31v3.69M12 2L9 4.31V8l3-2.31L15 8V4.31"/>
+              </svg>
+              API / REST
+            </h3>
+            <p class="text-sm mb-3">Crawl REST APIs and e-commerce platforms with pre-configured templates</p>
+            <div class="text-xs space-y-1 break-words">
+              <p><strong>Templates:</strong> Shopware 6, Weclapp, Generic REST</p>
+              <p><strong>Authentication:</strong> OAuth2, API Key, Bearer Token, Basic Auth</p>
+            </div>
+            <div class="alert alert-warning mt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span class="text-xs">API crawlers will soon be replaced with <a href="/docs/connectors" class="link">Connectors</a> for more powerful automation.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -142,12 +163,12 @@ import Layout from '../../layouts/Layout.astro'
         <li class="step step-primary">
           <div class="text-left">
             <div class="font-bold">Select Source Type</div>
-            <div class="text-xs">SharePoint, SMB, HTTP, or Box</div>
+            <div class="text-xs">SharePoint, SMB, HTTP, Box, or API</div>
           </div>
         </li>
         <li class="step step-primary">
           <div class="text-left">
-            <div class="font-bold">Configure URI & Limits</div>
+            <div class="font-bold">Configure URI &amp; Limits</div>
             <div class="text-xs">URL, depth, max pages</div>
           </div>
         </li>
@@ -395,7 +416,7 @@ import Layout from '../../layouts/Layout.astro'
 
     <!-- Crawler Runs -->
     <section class="mb-12">
-      <h2 class="text-3xl font-bold mb-6">Crawler Runs & Monitoring</h2>
+      <h2 class="text-3xl font-bold mb-6">Crawler Runs &amp; Monitoring</h2>
 
       <p class="mb-4">Each time a crawler executes, it creates a "crawler run" with detailed statistics:</p>
 
@@ -483,6 +504,760 @@ import Layout from '../../layouts/Layout.astro'
           <div>
             <h3 class="font-bold">4. Automatic Processing</h3>
             <p class="text-sm">If "Auto-process crawled files" is enabled in Library settings, new files are automatically queued for extraction and embedding</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SMB / Windows File Share Details -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">SMB / Windows File Share Details</h2>
+
+      <p class="mb-6">
+        George AI provides direct SMB2 protocol support for accessing Windows file shares and network storage. No mounting required—works seamlessly in Docker and cloud environments.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- Feature 1 -->
+        <div class="card bg-base-200 border-l-4 border-primary">
+          <div class="card-body">
+            <h3 class="card-title text-primary">Direct SMB2 Protocol</h3>
+            <p class="text-sm">
+              Native SMB2/3 protocol implementation—no CIFS kernel modules or system mounts needed. Works in Docker, Kubernetes, and serverless environments.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="card bg-base-200 border-l-4 border-secondary">
+          <div class="card-body">
+            <h3 class="card-title text-secondary">Large File Support</h3>
+            <p class="text-sm">
+              Stream files directly without Base64 encoding overhead. Efficiently handle multi-GB files with constant memory usage.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="card bg-base-200 border-l-4 border-accent">
+          <div class="card-body">
+            <h3 class="card-title text-accent">Real-Time Progress</h3>
+            <p class="text-sm">
+              Server-Sent Events (SSE) provide live file discovery updates. See files as they're found during the crawl.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="card bg-base-200 border-l-4 border-success">
+          <div class="card-body">
+            <h3 class="card-title text-success">Incremental Updates</h3>
+            <p class="text-sm">
+              MD5 hash comparison detects file changes. Only new and modified files are downloaded and processed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="join join-vertical w-full">
+        <!-- URI Format -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="smb-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            URI Format &amp; Examples
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">SMB crawler URIs follow the standard UNC path format:</p>
+
+              <div class="mockup-code text-xs mb-4">
+                <pre data-prefix="Format:"><code>//server/share/optional/path</code></pre>
+                <pre data-prefix=""><code></code></pre>
+                <pre data-prefix="Example 1:"><code>//fileserver.company.com/departments/marketing</code></pre>
+                <pre data-prefix="Example 2:"><code>//10.0.1.50/shared/documents</code></pre>
+                <pre data-prefix="Example 3:"><code>//nas-001/public/reports/2024</code></pre>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Component</th>
+                      <th>Description</th>
+                      <th>Required</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>//</td>
+                      <td>UNC path prefix</td>
+                      <td>Yes</td>
+                    </tr>
+                    <tr>
+                      <td>server</td>
+                      <td>Hostname, FQDN, or IP address</td>
+                      <td>Yes</td>
+                    </tr>
+                    <tr>
+                      <td>share</td>
+                      <td>SMB share name</td>
+                      <td>Yes</td>
+                    </tr>
+                    <tr>
+                      <td>path</td>
+                      <td>Subdirectory within share</td>
+                      <td>No</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-warning mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div>
+                  <h3 class="font-bold">Backslashes Not Supported</h3>
+                  <div class="text-sm">Use forward slashes only. Windows UNC format \\server\share should be written as //server/share</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="smb-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Authentication
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">SMB crawlers support username and password authentication:</p>
+
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Format</th>
+                      <th>Example</th>
+                      <th>Use Case</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Username only</td>
+                      <td>john</td>
+                      <td>Local account on file server</td>
+                    </tr>
+                    <tr>
+                      <td>Domain\Username</td>
+                      <td>COMPANY\john</td>
+                      <td>Active Directory domain account</td>
+                    </tr>
+                    <tr>
+                      <td>username@domain.com</td>
+                      <td>john@company.com</td>
+                      <td>UPN format (modern AD)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Credentials Storage</p>
+                  <p class="text-sm">Credentials are securely encrypted in the database. Only the crawler service can decrypt and use them for SMB connections.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Patterns -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="smb-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            File Filtering with Glob Patterns
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">Use glob patterns to control which files are crawled:</p>
+
+              <div class="card bg-base-200 mb-4">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Include Patterns</h4>
+                  <p class="text-sm mb-2">Only files matching these patterns are crawled:</p>
+                  <div class="mockup-code text-xs">
+                    <pre data-prefix=""><code>*.pdf                 # All PDF files</code></pre>
+                    <pre data-prefix=""><code>*.docx                # Word files</code></pre>
+                    <pre data-prefix=""><code>report-*.pdf          # PDFs starting with "report-"</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card bg-base-200 mb-4">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Exclude Patterns</h4>
+                  <p class="text-sm mb-2">Files matching these patterns are skipped:</p>
+                  <div class="mockup-code text-xs">
+                    <pre data-prefix=""><code>**/~$*            # Office temporary files</code></pre>
+                    <pre data-prefix=""><code>**/.git/**        # Git directories</code></pre>
+                    <pre data-prefix=""><code>**/temp/**        # Temp folders</code></pre>
+                    <pre data-prefix=""><code>**/archive/**     # Archived content</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Pattern</th>
+                      <th>Matches</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>*</code></td>
+                      <td>Any characters except <code>/</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>**</code></td>
+                      <td>Any characters including <code>/</code> (recursive)</td>
+                    </tr>
+                    <tr>
+                      <td><code>?</code></td>
+                      <td>Single character</td>
+                    </tr>
+                    <tr>
+                      <td><code>[abc]</code></td>
+                      <td>Any character in set</td>
+                    </tr>
+                    <tr>
+                      <td>*.pdf or *.doc</td>
+                      <td>Multiple extensions (use separate patterns)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance & Limits -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="smb-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Performance &amp; File Size Limits
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">SMB crawlers handle large files efficiently with streaming architecture:</p>
+
+              <div class="stats shadow mb-4 w-full">
+                <div class="stat">
+                  <div class="stat-title">Memory Usage</div>
+                  <div class="stat-value text-primary">~1 KB</div>
+                  <div class="stat-desc">Constant per file, regardless of size</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-title">Max File Size</div>
+                  <div class="stat-value text-secondary">100 MB</div>
+                  <div class="stat-desc">Default limit (configurable)</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-title">Download Speed</div>
+                  <div class="stat-value text-accent">Network</div>
+                  <div class="stat-desc">Limited by SMB connection speed</div>
+                </div>
+              </div>
+
+              <div class="alert alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span><strong>Streaming Architecture:</strong> Files are processed as they're downloaded. No need to buffer entire files in memory.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting SMB -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="smb-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Common SMB Issues
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="space-y-4">
+                <!-- Issue 1 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-error">Error: "Authentication failed"</h4>
+                    <p class="text-sm mb-2"><strong>Causes:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Incorrect username or password</li>
+                      <li>Account locked or disabled</li>
+                      <li>Domain name incorrect</li>
+                    </ul>
+                    <p class="text-sm mt-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Verify credentials can access the share from another computer</li>
+                      <li>Use correct domain format (DOMAIN\user or user@domain.com)</li>
+                      <li>Check with IT if account has SMB access permissions</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 2 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-error">Error: "Share not found" or "Connection refused"</h4>
+                    <p class="text-sm mb-2"><strong>Causes:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Server hostname/IP incorrect</li>
+                      <li>Share name misspelled</li>
+                      <li>Firewall blocking SMB ports (445)</li>
+                      <li>Server not accessible from George AI network</li>
+                    </ul>
+                    <p class="text-sm mt-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Verify URI format: //server/share (forward slashes)</li>
+                      <li>Test network connectivity (ping server from George AI container)</li>
+                      <li>Ensure port 445 is open in firewall rules</li>
+                      <li>Use IP address instead of hostname if DNS resolution fails</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 3 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-warning">Issue: No files found</h4>
+                    <p class="text-sm mb-2"><strong>Causes:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Include patterns too restrictive</li>
+                      <li>Path doesn't exist within share</li>
+                      <li>User doesn't have read permissions</li>
+                    </ul>
+                    <p class="text-sm mt-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Try without include patterns first to see all files</li>
+                      <li>Verify path exists by accessing share manually</li>
+                      <li>Check user has at least read permissions on the folder</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 4 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-warning">Issue: Slow crawl performance</h4>
+                    <p class="text-sm mb-2"><strong>Causes:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Crawling thousands of files</li>
+                      <li>Slow network connection to file server</li>
+                      <li>Large files being downloaded</li>
+                    </ul>
+                    <p class="text-sm mt-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Use more specific paths to reduce file count</li>
+                      <li>Add exclude patterns for unnecessary folders</li>
+                      <li>Set maxFileSizeBytes to skip very large files</li>
+                      <li>Improve network bandwidth between George AI and file server</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- API / REST Crawler Details -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">API / REST Crawler Details</h2>
+
+      <p class="mb-6">
+        George AI supports crawling REST APIs with pre-configured templates for popular e-commerce platforms and a generic REST template for custom APIs. API crawlers handle pagination, authentication, and data mapping automatically.
+      </p>
+
+      <div class="alert alert-warning mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Migration to Connectors</h3>
+          <div class="text-sm">API crawlers will soon be replaced with <a href="/docs/connectors" class="link">Connectors</a>, which provide more powerful automation capabilities including bidirectional sync, field mapping UIs, and write operations. For new integrations, consider using Connectors instead.</div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- Feature 1 -->
+        <div class="card bg-base-200 border-l-4 border-primary">
+          <div class="card-body">
+            <h3 class="card-title text-primary">Pre-Configured Templates</h3>
+            <p class="text-sm">
+              Ready-to-use templates for Shopware 6 and Weclapp e-commerce platforms, plus a generic REST template for custom APIs.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="card bg-base-200 border-l-4 border-secondary">
+          <div class="card-body">
+            <h3 class="card-title text-secondary">Multiple Auth Methods</h3>
+            <p class="text-sm">
+              Supports OAuth2, API keys, Bearer tokens, and Basic authentication. Credentials securely encrypted in database.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="card bg-base-200 border-l-4 border-accent">
+          <div class="card-body">
+            <h3 class="card-title text-accent">Automatic Pagination</h3>
+            <p class="text-sm">
+              Handles API pagination automatically, collecting all records across multiple API calls with configurable delays and concurrency.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="card bg-base-200 border-l-4 border-success">
+          <div class="card-body">
+            <h3 class="card-title text-success">Data Transformation</h3>
+            <p class="text-sm">
+              Converts API responses to markdown format automatically. Each product/record becomes a searchable document.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="join join-vertical w-full">
+        <!-- Available Templates -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="api-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            Available Templates
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="space-y-6">
+                <!-- Shopware 6 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">
+                      <span class="badge badge-primary mr-2">Shopware 6</span>
+                    </h4>
+                    <p class="text-sm mb-3">E-commerce platform integration for product catalog crawling.</p>
+
+                    <div class="overflow-x-auto">
+                      <table class="table table-sm">
+                        <tbody>
+                          <tr>
+                            <th class="w-1/3">Provider</th>
+                            <td>shopware6</td>
+                          </tr>
+                          <tr>
+                            <th>Endpoint</th>
+                            <td>/api/product</td>
+                          </tr>
+                          <tr>
+                            <th>Authentication</th>
+                            <td>OAuth2 (Client Credentials)</td>
+                          </tr>
+                          <tr>
+                            <th>Configuration</th>
+                            <td>
+                              <ul class="text-xs space-y-1">
+                                <li><strong>Client ID:</strong> OAuth2 integration client ID</li>
+                                <li><strong>Client Secret:</strong> OAuth2 integration client secret</li>
+                                <li><strong>Token URL:</strong> OAuth2 token endpoint</li>
+                                <li><strong>Associations:</strong> Related data to include (manufacturer, categories, cover.media, properties, etc.)</li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Rate Limiting</th>
+                            <td>100ms delay between requests, max 3 concurrent requests</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="mockup-code text-xs mt-4">
+                      <pre data-prefix="Example URL:"><code>https://shop.example.com/api/product</code></pre>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Weclapp -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">
+                      <span class="badge badge-secondary mr-2">Weclapp</span>
+                    </h4>
+                    <p class="text-sm mb-3">ERP platform integration for product and inventory data.</p>
+
+                    <div class="overflow-x-auto">
+                      <table class="table table-sm">
+                        <tbody>
+                          <tr>
+                            <th class="w-1/3">Provider</th>
+                            <td>weclapp</td>
+                          </tr>
+                          <tr>
+                            <th>Endpoint</th>
+                            <td>Configured per template</td>
+                          </tr>
+                          <tr>
+                            <th>Authentication</th>
+                            <td>API Token</td>
+                          </tr>
+                          <tr>
+                            <th>Configuration</th>
+                            <td>
+                              <ul class="text-xs space-y-1">
+                                <li><strong>API Token:</strong> Weclapp API authentication token</li>
+                                <li><strong>Tenant:</strong> Weclapp tenant/instance name</li>
+                              </ul>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Generic REST -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">
+                      <span class="badge badge-accent mr-2">Generic REST</span>
+                    </h4>
+                    <p class="text-sm mb-3">Flexible template for any REST API with custom configuration.</p>
+
+                    <div class="overflow-x-auto">
+                      <table class="table table-sm">
+                        <tbody>
+                          <tr>
+                            <th class="w-1/3">Provider</th>
+                            <td>custom</td>
+                          </tr>
+                          <tr>
+                            <th>Endpoint</th>
+                            <td>Fully customizable API URL</td>
+                          </tr>
+                          <tr>
+                            <th>Authentication</th>
+                            <td>API Key, Bearer Token, Basic Auth, or None</td>
+                          </tr>
+                          <tr>
+                            <th>Configuration</th>
+                            <td>
+                              <ul class="text-xs space-y-1">
+                                <li><strong>Base URL:</strong> API base URL</li>
+                                <li><strong>Endpoint:</strong> API endpoint path</li>
+                                <li><strong>Headers:</strong> Custom HTTP headers (JSON format)</li>
+                                <li><strong>Pagination:</strong> Define how API handles pagination</li>
+                                <li><strong>Response Path:</strong> JSON path to data array in response</li>
+                              </ul>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="mockup-code text-xs mt-4">
+                      <pre data-prefix="URL:"><code>https://api.example.com/products</code></pre>
+                      <pre data-prefix="Headers:"><code>Authorization: Bearer your-token</code></pre>
+                      <pre data-prefix="Path:"><code>data.products</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authentication Types -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="api-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Authentication Types
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="space-y-4">
+                <!-- OAuth2 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">OAuth2 (Client Credentials)</h4>
+                    <p class="text-sm mb-3">Used by Shopware 6 template for secure API access.</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                      <li><strong>Client ID:</strong> OAuth2 application/integration ID</li>
+                      <li><strong>Client Secret:</strong> OAuth2 application secret</li>
+                      <li><strong>Token URL:</strong> OAuth2 token endpoint</li>
+                      <li><strong>Scope:</strong> Optional - OAuth2 scopes to request</li>
+                    </ul>
+                    <p class="text-sm mt-2">Access tokens are automatically refreshed when expired.</p>
+                  </div>
+                </div>
+
+                <!-- API Key -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">API Key</h4>
+                    <p class="text-sm mb-3">Simple key-based authentication via header or query parameter.</p>
+                    <div class="mockup-code text-xs">
+                      <pre data-prefix="Header:"><code>X-API-Key: your-api-key-here</code></pre>
+                      <pre data-prefix="Query:"><code>?api_key=your-api-key-here</code></pre>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bearer Token -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">Bearer Token</h4>
+                    <p class="text-sm mb-3">Token-based authentication in Authorization header.</p>
+                    <div class="mockup-code text-xs">
+                      <pre data-prefix="Header:"><code>Authorization: Bearer your-token-here</code></pre>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Basic Auth -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold mb-2">Basic Authentication</h4>
+                    <p class="text-sm mb-3">Username and password encoded in Authorization header.</p>
+                    <div class="mockup-code text-xs">
+                      <pre data-prefix="Header:"><code>Authorization: Basic base64(username:password)</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuration Options -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="api-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Configuration Options
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Option</th>
+                      <th>Description</th>
+                      <th>Default</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>requestDelay</td>
+                      <td>Milliseconds to wait between API requests</td>
+                      <td>100ms</td>
+                    </tr>
+                    <tr>
+                      <td>maxConcurrency</td>
+                      <td>Maximum number of concurrent API requests</td>
+                      <td>3</td>
+                    </tr>
+                    <tr>
+                      <td>pageSize</td>
+                      <td>Number of records per API page/request</td>
+                      <td>50</td>
+                    </tr>
+                    <tr>
+                      <td>maxPages</td>
+                      <td>Maximum number of pages to crawl</td>
+                      <td>10</td>
+                    </tr>
+                    <tr>
+                      <td>associations</td>
+                      <td>Related data to include (Shopware 6 only)</td>
+                      <td>Empty</td>
+                    </tr>
+                    <tr>
+                      <td>responsePath</td>
+                      <td>JSON path to data array in API response</td>
+                      <td>Varies</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Rate Limiting</p>
+                  <p class="text-sm">Use requestDelay and maxConcurrency to respect API rate limits and avoid being blocked.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Migration to Connectors -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="api-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Migration to Connectors
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">API crawlers are being phased out in favor of <a href="/docs/connectors" class="link">Connectors</a>, which provide:</p>
+
+              <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div class="card bg-success/10 border border-success">
+                  <div class="card-body">
+                    <h4 class="font-bold text-success mb-2">Connectors Advantages</h4>
+                    <ul class="text-sm space-y-1">
+                      <li>✓ Bidirectional sync (read and write)</li>
+                      <li>✓ Field mapping UI (no code required)</li>
+                      <li>✓ Write operations (create/update records)</li>
+                      <li>✓ Automation workflows</li>
+                      <li>✓ Error handling and retry logic</li>
+                      <li>✓ Real-time sync triggers</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="card bg-warning/10 border border-warning">
+                  <div class="card-body">
+                    <h4 class="font-bold text-warning mb-2">API Crawler Limitations</h4>
+                    <ul class="text-sm space-y-1">
+                      <li>✗ Read-only (no write operations)</li>
+                      <li>✗ Manual configuration (JSON/code)</li>
+                      <li>✗ Limited error handling</li>
+                      <li>✗ No field mapping UI</li>
+                      <li>✗ Manual scheduling only</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div>
+                  <h3 class="font-bold">Recommendation</h3>
+                  <div class="text-sm">
+                    <p>For new integrations, we recommend using <a href="/docs/connectors" class="link">Connectors</a> instead of API crawlers. Connectors provide a better user experience, more features, and easier maintenance.</p>
+                    <p class="mt-2">See the <a href="/docs/connectors/shopware6" class="link">Shopware 6 Connector documentation</a> for an example of the new approach.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
