@@ -1,0 +1,222 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Connectors - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Connectors</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-secondary mb-4">Integrations</div>
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Connectors</h1>
+          <p class="text-lg sm:text-xl">
+            Connect George AI to external systems for automated data workflows
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Connectors?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Connectors enable George AI to write enriched data to external systems automatically. After AI extracts structured information from your documents, connectors push that data to e-commerce platforms, CMS systems, webhooks, APIs, and more.
+        </p>
+        <p>
+          Each connector provides pre-configured actions (like "Create Product" or "Update Record") with field mapping UIs, authentication handling, and error management.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Available Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Available Connectors</h2>
+
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Shopware 6 -->
+        <div class="card bg-base-200 border-2 border-primary">
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="card-title text-2xl mb-2">
+                  Shopware 6
+                  <div class="badge badge-success">Active</div>
+                </h3>
+                <p class="mb-4">
+                  E-commerce platform integration for automated product management. Turn PDF catalogs into live store products.
+                </p>
+
+                <div class="mb-4">
+                  <p class="font-semibold mb-2">Available Actions:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Product Upsert (create or update products)</li>
+                    <li>Idempotent updates via product number matching</li>
+                    <li>Support for name, description, price, stock, tax rate</li>
+                  </ul>
+                </div>
+
+                <div class="mb-4">
+                  <p class="font-semibold mb-2">Use Cases:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Import supplier product catalogs from PDFs</li>
+                    <li>Sync inventory data from spreadsheets</li>
+                    <li>Update product descriptions from marketing materials</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-4">
+              <a href="/docs/connectors/shopware6" class="btn btn-primary">View Documentation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Coming Soon -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Coming Soon</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Webhooks -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Webhooks
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Send enriched data to any HTTP endpoint via POST requests</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Custom headers and authentication</li>
+              <li>• JSON payload mapping</li>
+              <li>• Retry logic for failed requests</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- REST APIs -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              REST APIs
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Generic REST API connector with configurable endpoints</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Multiple HTTP methods (GET, POST, PUT, PATCH)</li>
+              <li>• OAuth 2.0 and API key authentication</li>
+              <li>• Request/response transformations</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Google Sheets -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Google Sheets
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Write enriched data directly to Google Sheets</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Append rows or update existing rows</li>
+              <li>• Column mapping from list fields</li>
+              <li>• Sheet selection and range configuration</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CSV Export -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              CSV Export
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Export enriched data to CSV with automated delivery</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Scheduled CSV generation</li>
+              <li>• Email delivery or file storage</li>
+              <li>• Custom delimiter and encoding options</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How to Use Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How to Use Connectors</h2>
+
+      <ul class="steps steps-vertical w-full mb-8">
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">Configure Connector</div>
+            <div class="text-xs">Navigate to Admin → AI Services → Connectors</div>
+            <div class="text-xs">Add connector and enter credentials</div>
+          </div>
+        </li>
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">Test Connection</div>
+            <div class="text-xs">Validate credentials and API access</div>
+          </div>
+        </li>
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">Create Automation</div>
+            <div class="text-xs">Navigate to Lists → Automations → Create</div>
+            <div class="text-xs">Select connector and action</div>
+          </div>
+        </li>
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">Map Fields</div>
+            <div class="text-xs">Map list fields to connector fields</div>
+            <div class="text-xs">Configure filters and triggers</div>
+          </div>
+        </li>
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">Execute & Monitor</div>
+            <div class="text-xs">Run automation and track results</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Documentation -->
+    <div class="card bg-primary text-primary-content">
+      <div class="card-body">
+        <h2 class="card-title">Related Documentation</h2>
+        <p class="mb-4">Learn more about the automation workflow:</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="/docs/automations" class="btn btn-sm btn-secondary">Automations</a>
+          <a href="/docs/lists" class="btn btn-sm btn-secondary">Lists</a>
+          <a href="/docs/enrichments" class="btn btn-sm btn-secondary">Enrichments</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
