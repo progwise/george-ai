@@ -48,16 +48,16 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
+    "@eslint/js": "^9.39.2",
     "@george-ai/package-configs": "workspace:*",
-    "@graphql-tools/executor-http": "^2.0.0",
+    "@graphql-tools/executor-http": "^3.0.7",
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/nodemailer": "^6.4.17",
     "dotenv": "^16.4.5",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1",
-    "vitest": "^3.1.1"
+    "typescript-eslint": "^8.50.0",
+    "vitest": "^4.0.16"
   }
 }
