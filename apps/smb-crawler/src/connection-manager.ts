@@ -82,6 +82,10 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     }
 
     console.log(`[Connection] Connecting to ${hostname}:${port}, share: ${share}`)
+    console.log(`[Connection] Auth details - Original username: "${username}"`)
+    console.log(`[Connection] Auth details - Parsed username: "${actualUsername}"`)
+    console.log(`[Connection] Auth details - Parsed domain: "${domain || 'WORKGROUP'}"`)
+    console.log(`[Connection] Auth details - Password length: ${password.length} chars`)
 
     // Create SMB2 client (share is required in constructor)
     const client = new SMB2Client({
