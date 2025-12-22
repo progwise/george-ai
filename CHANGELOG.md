@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [unreleased]
 
+## [2024-12-22]
+
+### Added
+
+- **CSV/Spreadsheet File Splitting** - Automatically splits large CSV/Excel files into individual rows. Search finds exactly what you need, even in files with 700K+ rows.
+- **Dynamic Enrichment Contexts** - Use {{FieldName}} in prompts to reference other fields, fetch from web APIs, or search your libraries. Build complex data enrichment workflows without code.
+- **Automations** - Complete the cycle: Load data → Enrich with AI → Write back to external systems. Configure once, run automatically or on schedule.
+- **Shopware 6 Connector** - Turn PDF catalogs into live Shopware products. Automatic product creation and updates with field mapping UI.
+- **Enrichment Details** - Click any list cell to see how it was extracted, view token usage, inspect errors, and retry failed extractions.
+- **Google Drive Upload** - Modern file picker with search, batch selection, and automatic Google Docs to PDF conversion.
+- **Large File Support** - Upload and process 100MB+ files without memory issues. Automatic chunking with smart pagination.
+- **SMB Network Shares** - Direct SMB2 protocol support for Windows file shares. No mounting required, works in Docker.
+
 ## [2025-11-21]
 
 ### Added
