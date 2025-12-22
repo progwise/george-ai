@@ -18,11 +18,11 @@
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
     "dotenv": "^16.4.5",
-    "vitest": "^3.1.1"
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "zod": "^3.23.8"
