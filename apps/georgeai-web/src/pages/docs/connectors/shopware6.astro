@@ -180,9 +180,9 @@ import Layout from '../../../layouts/Layout.astro'
                 </tr>
                 <tr>
                   <td><strong>Description</strong></td>
-                  <td>Text</td>
+                  <td>Text / Markdown</td>
                   <td><div class="badge badge-ghost">No</div></td>
-                  <td>Product description (supports HTML)</td>
+                  <td>Product description (supports HTML). Markdown enrichments are automatically converted to HTML.</td>
                 </tr>
                 <tr>
                   <td><strong>Price</strong></td>
@@ -208,8 +208,45 @@ import Layout from '../../../layouts/Layout.astro'
                   <td><div class="badge badge-ghost">No</div></td>
                   <td>Tax percentage (e.g., 19 for 19%)</td>
                 </tr>
+                <tr class="bg-base-300">
+                  <td colspan="4" class="font-bold">SEO Fields</td>
+                </tr>
+                <tr>
+                  <td><strong>Meta Title</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO meta title for search engines (recommended: 50-60 characters)</td>
+                </tr>
+                <tr>
+                  <td><strong>Meta Description</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO meta description for search results (recommended: 150-160 characters)</td>
+                </tr>
+                <tr>
+                  <td><strong>Keywords</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO keywords (comma-separated)</td>
+                </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">SEO Support</h3>
+              <p class="text-sm">The Product Upsert action supports SEO fields (meta title, meta description, keywords) to automatically optimize products for search engines. This is especially useful when enriching products from supplier catalogs that lack SEO data.</p>
+            </div>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">Markdown to HTML Conversion</h3>
+              <p class="text-sm">If your enrichment fields use the <strong>markdown</strong> data type, George AI automatically converts markdown formatting to HTML when syncing to Shopware. This enables rich product descriptions with headings, lists, bold text, and links without manual HTML coding.</p>
+            </div>
           </div>
 
           <div class="alert alert-info mt-4">
