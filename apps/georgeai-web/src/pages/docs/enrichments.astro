@@ -163,12 +163,13 @@ import Layout from '../../layouts/Layout.astro'
                         <div class="flex flex-wrap gap-1 mt-2">
                           <div class="badge badge-outline">string</div>
                           <div class="badge badge-outline">text</div>
+                          <div class="badge badge-outline">markdown</div>
                           <div class="badge badge-outline">number</div>
                           <div class="badge badge-outline">date</div>
                           <div class="badge badge-outline">datetime</div>
                           <div class="badge badge-outline">boolean</div>
                         </div>
-                        <p class="text-sm text-base-content/70 mt-2">Choose the type that matches your data. Use <strong>text</strong> for long content, <strong>string</strong> for short values.</p>
+                        <p class="text-sm text-base-content/70 mt-2">Choose the type that matches your data. Use <strong>text</strong> for long content, <strong>markdown</strong> for formatted text, <strong>string</strong> for short values.</p>
                       </td>
                     </tr>
                     <tr>
@@ -291,6 +292,168 @@ import Layout from '../../layouts/Layout.astro'
 
     <div class="divider"></div>
 
+    <!-- Dynamic Context Sources -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Dynamic Context Sources</h2>
+
+      <p class="mb-6">
+        Context sources give your enrichment fields dynamic data. Instead of static prompts, you can reference other fields with {'{{FieldName}}'} syntax, search libraries, or fetch data from web APIs—all without writing code.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Field References -->
+        <div class="card bg-base-200 border-2 border-primary">
+          <div class="card-body">
+            <h3 class="card-title">
+              Field References
+              <div class="badge badge-primary">Most Common</div>
+            </h3>
+            <p class="text-sm mb-4">Use values from other enrichment fields in your prompts</p>
+
+            <div class="mockup-code text-xs mb-4">
+              <pre data-prefix=""><code>Query Template:</code></pre>
+              <pre data-prefix=""><code>"Find technical specs for {'{{ProductName}}'}"</code></pre>
+            </div>
+
+            <div class="text-xs space-y-1">
+              <p><strong>Example:</strong></p>
+              <p>• Field 1: Extract "Product Name" → "iPhone 15 Pro"</p>
+              <p>• Field 2: Use {'{{ProductName}}'} to search specs</p>
+              <p>• Result: Finds "iPhone 15 Pro specifications" in docs</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vector Search Context -->
+        <div class="card bg-base-200 border-2 border-secondary">
+          <div class="card-body">
+            <h3 class="card-title">
+              Vector Search Context
+            </h3>
+            <p class="text-sm mb-4">Dynamically search your library for relevant content</p>
+
+            <div class="text-xs space-y-2 mb-4">
+              <p><strong>Configuration:</strong></p>
+              <ul class="list-disc list-inside">
+                <li>Query template with {'{{Variables}}'}</li>
+                <li>Max tokens (default: 2000)</li>
+                <li>Library selection</li>
+              </ul>
+            </div>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix=""><code>Example Query:</code></pre>
+              <pre data-prefix=""><code>"{'{{ProductName}}'} safety warnings"</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Web Fetch Context -->
+        <div class="card bg-base-200 border-2 border-accent">
+          <div class="card-body">
+            <h3 class="card-title">
+              Web Fetch Context
+            </h3>
+            <p class="text-sm mb-4">Fetch data from web APIs with dynamic URLs</p>
+
+            <div class="mockup-code text-xs mb-4">
+              <pre data-prefix=""><code>URL Template:</code></pre>
+              <pre data-prefix=""><code>https://api.example.com/products/{'{{SKU}}'}</code></pre>
+            </div>
+
+            <div class="text-xs space-y-1">
+              <p><strong>Supports:</strong></p>
+              <p>• JSON APIs (auto-converted to markdown)</p>
+              <p>• HTML pages (cleaned and formatted)</p>
+              <p>• Authentication headers</p>
+              <p>• Custom max tokens</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Static Markdown -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Static Markdown
+            </h3>
+            <p class="text-sm mb-4">Provide the same context for all list items</p>
+
+            <div class="text-xs space-y-2">
+              <p><strong>Use cases:</strong></p>
+              <ul class="list-disc list-inside">
+                <li>Company glossary or terminology</li>
+                <li>Extraction guidelines</li>
+                <li>Classification categories</li>
+                <li>Reference tables</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title">Real-World Example: Product Data Sheet Generation</h3>
+          <p class="text-sm mb-4">Generate comprehensive product data sheets by combining multiple context sources:</p>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Context Type</th>
+                  <th>Configuration</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Product Name</strong></td>
+                  <td>None</td>
+                  <td>Direct extraction from document</td>
+                  <td>"Premium Widget X200"</td>
+                </tr>
+                <tr>
+                  <td><strong>Specifications</strong></td>
+                  <td>Vector Search</td>
+                  <td>Query: "{'{{ProductName}}'} technical specifications"</td>
+                  <td>Finds spec sheet in library → formatted markdown</td>
+                </tr>
+                <tr>
+                  <td><strong>Market Price</strong></td>
+                  <td>Web Fetch</td>
+                  <td>URL: "https://api.prices.example/{'{{SKU}}'}"</td>
+                  <td>Fetches current price from API → "$299.99"</td>
+                </tr>
+                <tr>
+                  <td><strong>Category</strong></td>
+                  <td>Static Markdown</td>
+                  <td>Product taxonomy (20 categories)</td>
+                  <td>AI classifies based on taxonomy → "Electronics > Widgets"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><strong>Result:</strong> Four enrichment fields working together create complete, accurate product data sheets automatically</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <div>
+          <h3 class="font-bold">Automatic Markdown Conversion</h3>
+          <div class="text-sm">JSON API responses and HTML pages are automatically converted to well-formatted markdown. This improves LLM extraction accuracy.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
     <!-- Tips for Good Prompts -->
     <section class="mb-12">
       <h2 class="text-3xl font-bold mb-6">Tips for Writing Effective Prompts</h2>
@@ -385,6 +548,11 @@ import Layout from '../../layouts/Layout.astro'
               <td><code>text</code></td>
               <td>Long text content (descriptions, notes)</td>
               <td>Product descriptions, comments, summaries</td>
+            </tr>
+            <tr>
+              <td><code>markdown</code></td>
+              <td>Formatted text with markdown syntax</td>
+              <td>Rich text content, formatted specifications, documentation</td>
             </tr>
             <tr>
               <td><code>number</code></td>
