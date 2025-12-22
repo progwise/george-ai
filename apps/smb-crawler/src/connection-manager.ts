@@ -80,15 +80,21 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     let actualUsername = username
 
     if (username.includes('\\')) {
-      // Format: DOMAIN\username
-      const parts = username.split('\\')
-      domain = parts[0]
-      actualUsername = parts[1]
+      // Format: DOMAIN\username (NetBIOS)
+      // Use lastIndexOf to handle edge cases with multiple backslashes
+      const lastBackslashIndex = username.lastIndexOf('\\')
+      if (lastBackslashIndex > 0 && lastBackslashIndex < username.length - 1) {
+        domain = username.slice(0, lastBackslashIndex)
+        actualUsername = username.slice(lastBackslashIndex + 1)
+      }
     } else if (username.includes('@')) {
       // Format: username@domain.com (UPN)
-      const parts = username.split('@')
-      actualUsername = parts[0]
-      domain = parts[1]
+      // Use lastIndexOf to handle edge cases with multiple @ symbols
+      const lastAtIndex = username.lastIndexOf('@')
+      if (lastAtIndex > 0 && lastAtIndex < username.length - 1) {
+        actualUsername = username.slice(0, lastAtIndex)
+        domain = username.slice(lastAtIndex + 1)
+      }
     }
     // else: plain username, domain stays empty (defaults to WORKGROUP below)
 
@@ -96,7 +102,7 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     console.log(`[Connection] Auth details - Original username: "${username}"`)
     console.log(`[Connection] Auth details - Parsed username: "${actualUsername}"`)
     console.log(`[Connection] Auth details - Parsed domain: "${domain || 'WORKGROUP'}"`)
-    console.log(`[Connection] Auth details - Password length: ${password.length} chars`)
+    console.log(`[Connection] Auth details - Password: ${password.length > 0 ? 'provided' : 'empty'}`)
 
     // Create SMB2 client (share is required in constructor)
     const client = new SMB2Client({

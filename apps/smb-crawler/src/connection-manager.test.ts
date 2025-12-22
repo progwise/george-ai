@@ -3,27 +3,32 @@
  *
  * Tests verify correct username/domain parsing for various formats
  */
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createConnection } from './connection-manager'
 
 // Mock dependencies
 vi.mock('@george-ai/smb2-client', () => ({
-  SMB2Client: vi.fn().mockImplementation(() => ({
-    connect: vi.fn().mockResolvedValue(undefined),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-  })),
+  SMB2Client: vi.fn(),
 }))
 
 describe('Connection Manager - Username Parsing', () => {
-  it('should parse DOMAIN\\username format (NetBIOS)', async () => {
-    const { SMB2Client } = await import('@george-ai/smb2-client')
-    const mockConnect = vi.fn().mockResolvedValue(undefined)
-    ;(SMB2Client as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
+  let SMB2Client: ReturnType<typeof vi.fn>
+  let mockConnect: ReturnType<typeof vi.fn>
+
+  beforeEach(async () => {
+    // Reset and configure mock for each test
+    const module = await import('@george-ai/smb2-client')
+    SMB2Client = module.SMB2Client as unknown as ReturnType<typeof vi.fn>
+    mockConnect = vi.fn().mockResolvedValue(undefined)
+
+    SMB2Client.mockImplementation(() => ({
       connect: mockConnect,
       disconnect: vi.fn(),
     }))
+  })
 
+  it('should parse DOMAIN\\username format (NetBIOS)', async () => {
     await createConnection({
       crawlerId: 'test-1',
       uri: '//server/share',
@@ -43,13 +48,6 @@ describe('Connection Manager - Username Parsing', () => {
   })
 
   it('should parse username@domain.com format (UPN)', async () => {
-    const { SMB2Client } = await import('@george-ai/smb2-client')
-    const mockConnect = vi.fn().mockResolvedValue(undefined)
-    ;(SMB2Client as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-      connect: mockConnect,
-      disconnect: vi.fn(),
-    }))
-
     await createConnection({
       crawlerId: 'test-2',
       uri: '//server/share',
@@ -69,13 +67,6 @@ describe('Connection Manager - Username Parsing', () => {
   })
 
   it('should use WORKGROUP for plain username', async () => {
-    const { SMB2Client } = await import('@george-ai/smb2-client')
-    const mockConnect = vi.fn().mockResolvedValue(undefined)
-    ;(SMB2Client as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-      connect: mockConnect,
-      disconnect: vi.fn(),
-    }))
-
     await createConnection({
       crawlerId: 'test-3',
       uri: '//server/share',
@@ -95,13 +86,6 @@ describe('Connection Manager - Username Parsing', () => {
   })
 
   it('should handle custom port in URI', async () => {
-    const { SMB2Client } = await import('@george-ai/smb2-client')
-    const mockConnect = vi.fn().mockResolvedValue(undefined)
-    ;(SMB2Client as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-      connect: mockConnect,
-      disconnect: vi.fn(),
-    }))
-
     await createConnection({
       crawlerId: 'test-4',
       uri: '//server:1445/share',
@@ -121,13 +105,6 @@ describe('Connection Manager - Username Parsing', () => {
   })
 
   it('should handle paths in URI', async () => {
-    const { SMB2Client } = await import('@george-ai/smb2-client')
-    const mockConnect = vi.fn().mockResolvedValue(undefined)
-    ;(SMB2Client as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-      connect: mockConnect,
-      disconnect: vi.fn(),
-    }))
-
     const result = await createConnection({
       crawlerId: 'test-5',
       uri: '//server/share/path/to/folder',
@@ -137,5 +114,25 @@ describe('Connection Manager - Username Parsing', () => {
 
     // Verify path is extracted correctly
     expect(result.sharePath).toBe('path/to/folder')
+  })
+
+  it('should handle username with backslash precedence (DOMAIN\\user@email)', async () => {
+    // When username contains both \ and @, backslash format takes precedence
+    await createConnection({
+      crawlerId: 'test-6',
+      uri: '//server/share',
+      username: 'DOMAIN\\user@email',
+      password: 'test-pass',
+    })
+
+    // Verify backslash parsing takes precedence
+    expect(SMB2Client).toHaveBeenCalledWith({
+      host: 'server',
+      port: 445,
+      share: 'share',
+      username: 'user@email', // Everything after last backslash
+      password: 'test-pass',
+      domain: 'DOMAIN', // Everything before last backslash
+    })
   })
 })
