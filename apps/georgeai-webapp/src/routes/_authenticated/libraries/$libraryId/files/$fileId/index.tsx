@@ -41,8 +41,7 @@ function RouteComponent() {
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
 
   // Check if there are no available extractions
-  const hasNoExtractions =
-    !aiLibraryFile.availableExtractions || aiLibraryFile.availableExtractions.length === 0
+  const hasNoExtractions = !aiLibraryFile.availableExtractions || aiLibraryFile.availableExtractions.length === 0
 
   // Select the first available extraction by default
   const selectedMarkdownUrl = markdownUrl || (aiLibraryFile.availableExtractions?.[0]?.mainFileUrl ?? undefined)
