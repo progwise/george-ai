@@ -57,197 +57,6 @@ import Layout from '../../layouts/Layout.astro'
 
     <div class="divider"></div>
 
-    <!-- Google Drive Upload -->
-    <section class="mb-12">
-      <h2 class="text-3xl font-bold mb-6">Google Drive Upload</h2>
-
-      <p class="mb-6">
-        Upload files directly from Google Drive with a modern file picker that includes search, batch selection, and automatic Google Docs conversion to PDF.
-      </p>
-
-      <div class="grid md:grid-cols-2 gap-6 mb-8">
-        <!-- Feature 1 -->
-        <div class="card bg-base-200 border-l-4 border-primary">
-          <div class="card-body">
-            <h3 class="card-title text-primary">Search Across All Files</h3>
-            <p class="text-sm">
-              Search your entire Google Drive by file name. Results appear instantly with debounced search—no need to navigate through folders.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="card bg-base-200 border-l-4 border-secondary">
-          <div class="card-body">
-            <h3 class="card-title text-secondary">Batch Selection</h3>
-            <p class="text-sm">
-              Select multiple files at once with checkboxes. Upload entire folders or curated document sets in a single operation.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="card bg-base-200 border-l-4 border-accent">
-          <div class="card-body">
-            <h3 class="card-title text-accent">Folder Navigation</h3>
-            <p class="text-sm">
-              Browse your Drive with folder navigation and breadcrumbs. Folders are sorted first, then files alphabetically.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="card bg-base-200 border-l-4 border-success">
-          <div class="card-body">
-            <h3 class="card-title text-success">Auto PDF Conversion</h3>
-            <p class="text-sm">
-              Google Docs, Sheets, and Slides are automatically converted to PDF during upload. Original formatting preserved.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="join join-vertical w-full">
-        <!-- How to Use -->
-        <div class="collapse collapse-arrow join-item border border-base-300">
-          <input type="radio" name="google-drive-accordion" checked />
-          <div class="collapse-title text-xl font-medium">
-            How to Upload from Google Drive
-          </div>
-          <div class="collapse-content">
-            <div class="mt-4">
-              <ol class="list-decimal list-inside space-y-3">
-                <li><strong>Open Library</strong> → Navigate to the Library where you want to upload files</li>
-                <li><strong>Click "Upload from Google Drive"</strong> button in the Files section</li>
-                <li><strong>Sign in to Google</strong> (first time only) → Grant George AI read-only access to your Drive</li>
-                <li><strong>Browse or Search</strong> → Navigate folders or use search to find files</li>
-                <li><strong>Select Files</strong> → Check the boxes next to files you want to upload</li>
-                <li><strong>Click "Upload"</strong> → Selected files are downloaded and processed automatically</li>
-              </ol>
-
-              <div class="alert alert-info mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div>
-                  <p class="font-bold">View Modes</p>
-                  <p class="text-sm">Switch between list view (detailed) and grid view (visual icons) using the toggle buttons.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Auto Conversion Details -->
-        <div class="collapse collapse-arrow join-item border border-base-300">
-          <input type="radio" name="google-drive-accordion" />
-          <div class="collapse-title text-xl font-medium">
-            Automatic PDF Conversion
-          </div>
-          <div class="collapse-content">
-            <div class="mt-4">
-              <p class="mb-4">When uploading Google Workspace files, George AI automatically exports them as PDF to ensure compatibility:</p>
-
-              <div class="overflow-x-auto">
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th>Google File Type</th>
-                      <th>Converted To</th>
-                      <th>Result</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Google Docs</td>
-                      <td>PDF</td>
-                      <td>Text, formatting, images preserved</td>
-                    </tr>
-                    <tr>
-                      <td>Google Sheets</td>
-                      <td>PDF</td>
-                      <td>Tables, charts, formatting preserved</td>
-                    </tr>
-                    <tr>
-                      <td>Google Slides</td>
-                      <td>PDF</td>
-                      <td>Slides, images, layouts preserved</td>
-                    </tr>
-                    <tr>
-                      <td>Other files (PDF, JPG, etc.)</td>
-                      <td>No conversion</td>
-                      <td>Downloaded as-is in original format</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="alert alert-success mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span><strong>Automatic Detection:</strong> The system automatically detects file type and chooses the right conversion method—no configuration needed.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Metadata Preservation -->
-        <div class="collapse collapse-arrow join-item border border-base-300">
-          <input type="radio" name="google-drive-accordion" />
-          <div class="collapse-title text-xl font-medium">
-            Metadata Preservation
-          </div>
-          <div class="collapse-content">
-            <div class="mt-4">
-              <p class="mb-4">Files uploaded from Google Drive preserve important metadata:</p>
-
-              <ul class="list-disc list-inside space-y-2">
-                <li><strong>File name:</strong> Original Google Drive file name (with .pdf extension added if converted)</li>
-                <li><strong>Modified date:</strong> Last modification date from Google Drive</li>
-                <li><strong>Origin URI:</strong> Link back to the original file in Google Drive (e.g., <code class="text-xs">https://drive.google.com/file/d/...</code>)</li>
-                <li><strong>File size:</strong> Actual file size from Google Drive</li>
-              </ul>
-
-              <div class="alert alert-info mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div>
-                  <p class="font-bold">Traceability</p>
-                  <p class="text-sm">The Origin URI allows you to trace back to the source file in Google Drive for verification or updates.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="collapse collapse-arrow join-item border border-base-300">
-          <input type="radio" name="google-drive-accordion" />
-          <div class="collapse-title text-xl font-medium">
-            Pagination & Large Drives
-          </div>
-          <div class="collapse-content">
-            <div class="mt-4">
-              <p class="mb-4">The Google Drive picker handles large drives efficiently:</p>
-
-              <ul class="list-disc list-inside space-y-2">
-                <li><strong>50 files per page:</strong> Fast loading even with thousands of files</li>
-                <li><strong>Forward/backward navigation:</strong> Browse through pages with previous/next buttons</li>
-                <li><strong>Search resets pagination:</strong> Searching automatically returns to first page of results</li>
-                <li><strong>Folder navigation resets pagination:</strong> Entering a folder starts from page 1</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="alert alert-warning mt-6">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        <div>
-          <h3 class="font-bold">One-Time Authentication</h3>
-          <div class="text-sm">You only need to sign in to Google Drive once per browser. Your access token is stored securely in your browser's local storage and expires after 1 hour. Re-authenticate when needed.</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
     <!-- File Lifecycle -->
     <section class="mb-12">
       <h2 class="text-3xl font-bold mb-6">File Lifecycle</h2>
@@ -654,6 +463,197 @@ import Layout from '../../layouts/Layout.astro'
         <div>
           <p class="font-bold">Need Additional Format Support?</p>
           <p class="text-sm">We can add support for any file format for paying customers. Alternatively, you can build automation workflows to transform files with your own automation and ingest them into George AI. <a href="/contact" class="link link-hover font-semibold">Contact us</a> to discuss your specific requirements.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Advanced: Google Drive Upload -->
+    <section class="mb-12">
+      <div class="badge badge-info mb-4">Optional Feature</div>
+      <h2 class="text-3xl font-bold mb-6">Google Drive Upload (Optional)</h2>
+
+      <p class="mb-6">
+        For users who store documents in Google Drive, you can upload files directly with a modern file picker that includes search, batch selection, and automatic Google Docs conversion to PDF.
+      </p>
+
+      <div class="join join-vertical w-full">
+        <!-- Overview -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="google-drive-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Features & Capabilities
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h3 class="card-title text-sm">Search Across All Files</h3>
+                    <p class="text-sm">Search your entire Google Drive by file name with instant results.</p>
+                  </div>
+                </div>
+
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h3 class="card-title text-sm">Batch Selection</h3>
+                    <p class="text-sm">Select multiple files at once with checkboxes.</p>
+                  </div>
+                </div>
+
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h3 class="card-title text-sm">Folder Navigation</h3>
+                    <p class="text-sm">Browse your Drive with folder navigation and breadcrumbs.</p>
+                  </div>
+                </div>
+
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h3 class="card-title text-sm">Auto PDF Conversion</h3>
+                    <p class="text-sm">Google Docs, Sheets, and Slides automatically converted to PDF.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="google-drive-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            How to Upload from Google Drive
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <ol class="list-decimal list-inside space-y-3">
+                <li><strong>Open Library</strong> → Navigate to the Library where you want to upload files</li>
+                <li><strong>Click "Upload from Google Drive"</strong> button in the Files section</li>
+                <li><strong>Sign in to Google</strong> (first time only) → Grant George AI read-only access to your Drive</li>
+                <li><strong>Browse or Search</strong> → Navigate folders or use search to find files</li>
+                <li><strong>Select Files</strong> → Check the boxes next to files you want to upload</li>
+                <li><strong>Click "Upload"</strong> → Selected files are downloaded and processed automatically</li>
+              </ol>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">View Modes</p>
+                  <p class="text-sm">Switch between list view (detailed) and grid view (visual icons) using the toggle buttons.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto Conversion Details -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="google-drive-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Automatic PDF Conversion
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">When uploading Google Workspace files, George AI automatically exports them as PDF to ensure compatibility:</p>
+
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Google File Type</th>
+                      <th>Converted To</th>
+                      <th>Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Google Docs</td>
+                      <td>PDF</td>
+                      <td>Text, formatting, images preserved</td>
+                    </tr>
+                    <tr>
+                      <td>Google Sheets</td>
+                      <td>PDF</td>
+                      <td>Tables, charts, formatting preserved</td>
+                    </tr>
+                    <tr>
+                      <td>Google Slides</td>
+                      <td>PDF</td>
+                      <td>Slides, images, layouts preserved</td>
+                    </tr>
+                    <tr>
+                      <td>Other files (PDF, JPG, etc.)</td>
+                      <td>No conversion</td>
+                      <td>Downloaded as-is in original format</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-success mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span><strong>Automatic Detection:</strong> The system automatically detects file type and chooses the right conversion method—no configuration needed.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metadata Preservation -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="google-drive-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Metadata Preservation
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">Files uploaded from Google Drive preserve important metadata:</p>
+
+              <ul class="list-disc list-inside space-y-2">
+                <li><strong>File name:</strong> Original Google Drive file name (with .pdf extension added if converted)</li>
+                <li><strong>Modified date:</strong> Last modification date from Google Drive</li>
+                <li><strong>Origin URI:</strong> Link back to the original file in Google Drive (e.g., <code class="text-xs">https://drive.google.com/file/d/...</code>)</li>
+                <li><strong>File size:</strong> Actual file size from Google Drive</li>
+              </ul>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">Traceability</p>
+                  <p class="text-sm">The Origin URI allows you to trace back to the source file in Google Drive for verification or updates.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="google-drive-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Pagination & Large Drives
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">The Google Drive picker handles large drives efficiently:</p>
+
+              <ul class="list-disc list-inside space-y-2">
+                <li><strong>50 files per page:</strong> Fast loading even with thousands of files</li>
+                <li><strong>Forward/backward navigation:</strong> Browse through pages with previous/next buttons</li>
+                <li><strong>Search resets pagination:</strong> Searching automatically returns to first page of results</li>
+                <li><strong>Folder navigation resets pagination:</strong> Entering a folder starts from page 1</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <h3 class="font-bold">One-Time Authentication</h3>
+          <div class="text-sm">You only need to sign in to Google Drive once per browser. Your access token is stored securely in your browser's local storage and expires after 1 hour. Re-authenticate when needed.</div>
         </div>
       </div>
     </section>
