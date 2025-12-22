@@ -1,0 +1,290 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Connectors - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Connectors</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-secondary mb-4">Integrations</div>
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Connectors</h1>
+          <p class="text-lg sm:text-xl">
+            Connect George AI to external systems for automated data workflows
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Connectors?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Connectors are pre-built integrations used by <a href="/docs/automations" class="link link-primary">Automations</a> to write enriched data to external systems. After you extract structured data using <a href="/docs/enrichments" class="link link-primary">Enrichments</a>, automations use connectors to push that data to e-commerce platforms, CMS systems, webhooks, APIs, and more.
+        </p>
+        <p>
+          Each connector provides pre-configured actions (like "Create Product" or "Update Record") with field mapping UIs, authentication handling, and error management.
+        </p>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Connectors are used through Automations</h3>
+          <p class="text-sm">Connectors are not standalone features. They are configured once in Admin settings, then selected when creating an Automation to define where enriched data should be sent.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Available Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Available Connectors</h2>
+
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Shopware 6 -->
+        <div class="card bg-base-200 border-2 border-primary">
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="card-title text-2xl mb-2">
+                  Shopware 6
+                  <div class="badge badge-success">Active</div>
+                </h3>
+                <p class="mb-4">
+                  E-commerce platform integration for automated product management. Turn PDF catalogs into live store products.
+                </p>
+
+                <div class="mb-4">
+                  <p class="font-semibold mb-2">Available Actions:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Product Upsert (create or update products)</li>
+                    <li>Idempotent updates via product number matching</li>
+                    <li>Support for name, description, price, stock, tax rate</li>
+                  </ul>
+                </div>
+
+                <div class="mb-4">
+                  <p class="font-semibold mb-2">Use Cases:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Import supplier product catalogs from PDFs</li>
+                    <li>Sync inventory data from spreadsheets</li>
+                    <li>Update product descriptions from marketing materials</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-4">
+              <a href="/docs/connectors/shopware6" class="btn btn-primary">View Documentation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Coming Soon -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Coming Soon</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Webhooks -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Webhooks
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Send enriched data to any HTTP endpoint via POST requests</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Custom headers and authentication</li>
+              <li>• JSON payload mapping</li>
+              <li>• Retry logic for failed requests</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- REST APIs -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              REST APIs
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Generic REST API connector with configurable endpoints</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Multiple HTTP methods (GET, POST, PUT, PATCH)</li>
+              <li>• OAuth 2.0 and API key authentication</li>
+              <li>• Request/response transformations</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Google Sheets -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Google Sheets
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Write enriched data directly to Google Sheets</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Append rows or update existing rows</li>
+              <li>• Column mapping from list fields</li>
+              <li>• Sheet selection and range configuration</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CSV Export -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              CSV Export
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Export enriched data to CSV with automated delivery</p>
+            <ul class="text-xs space-y-1 mt-2 opacity-70">
+              <li>• Scheduled CSV generation</li>
+              <li>• Email delivery or file storage</li>
+              <li>• Custom delimiter and encoding options</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Complete Workflow -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Complete Workflow: From Files to External Systems</h2>
+      <p class="mb-6">
+        Connectors are the final step in the <strong>Collect → Enrich → Automate</strong> lifecycle. Here's the complete workflow:
+      </p>
+
+      <ul class="steps steps-vertical w-full mb-8">
+        <li class="step step-primary">
+          <div class="text-left ml-4">
+            <div class="font-bold">1. Create Library &amp; Upload Files</div>
+            <div class="text-xs">Upload documents or configure crawlers</div>
+            <div class="text-xs">See: <a href="/docs/libraries" class="link">Libraries</a>, <a href="/docs/files" class="link">Files</a>, <a href="/docs/crawlers" class="link">Crawlers</a></div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left ml-4">
+            <div class="font-bold">2. Create List</div>
+            <div class="text-xs">Organize files into a business view</div>
+            <div class="text-xs">See: <a href="/docs/lists" class="link">Lists</a></div>
+          </div>
+        </li>
+        <li class="step step-secondary">
+          <div class="text-left ml-4">
+            <div class="font-bold">3. Add Enrichment Fields</div>
+            <div class="text-xs">Extract structured data with AI (e.g., "Product Name", "Price", "Description")</div>
+            <div class="text-xs">See: <a href="/docs/enrichments" class="link">Enrichments</a></div>
+          </div>
+        </li>
+        <li class="step step-accent">
+          <div class="text-left ml-4">
+            <div class="font-bold">4. Configure Connector (one-time setup)</div>
+            <div class="text-xs">Admin → AI Services → Connectors</div>
+            <div class="text-xs">Enter credentials for external system (e.g., Shopware API)</div>
+          </div>
+        </li>
+        <li class="step step-accent">
+          <div class="text-left ml-4">
+            <div class="font-bold">5. Create Automation</div>
+            <div class="text-xs">Lists → Your List → Automations → Create</div>
+            <div class="text-xs">Select connector, map enrichment fields to connector fields</div>
+            <div class="text-xs">See: <a href="/docs/automations" class="link">Automations</a></div>
+          </div>
+        </li>
+        <li class="step step-accent">
+          <div class="text-left ml-4">
+            <div class="font-bold">6. Execute &amp; Monitor</div>
+            <div class="text-xs">Run automation and track results</div>
+            <div class="text-xs">View execution logs and retry failed items</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Example: PDF Catalog to Shopware Products</h3>
+          <p class="text-sm">
+            Upload supplier PDF catalog → Create list → Add enrichments for "Product Name", "Price", "SKU" → Configure Shopware connector (once) → Create automation with field mappings → Products sync automatically to your store
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Connector Configuration -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Connector Configuration (Admin)</h2>
+      <p class="mb-6">
+        Connectors are configured once by administrators and then available for use in automations across all lists.
+      </p>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Configuration Steps</h3>
+          <ol class="list-decimal list-inside space-y-2 text-sm">
+            <li>Navigate to <strong>Admin → AI Services → Connectors</strong></li>
+            <li>Click <strong>Add Connector</strong> and select the connector type (e.g., Shopware 6)</li>
+            <li>Enter connection details:
+              <ul class="list-disc list-inside ml-6 mt-1">
+                <li>Name (for identification in automations)</li>
+                <li>API URL / Endpoint</li>
+                <li>Authentication credentials (OAuth2, API key, etc.)</li>
+              </ul>
+            </li>
+            <li>Click <strong>Test Connection</strong> to verify credentials</li>
+            <li>Save connector - now available for use in automations</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <h3 class="font-bold">Admin Permissions Required</h3>
+          <p class="text-sm">Only workspace administrators can configure connectors. Regular users can create automations using existing connectors.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Documentation -->
+    <div class="card bg-primary text-primary-content">
+      <div class="card-body">
+        <h2 class="card-title">Related Documentation</h2>
+        <p class="mb-4">Learn more about the automation workflow:</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="/docs/automations" class="btn btn-sm btn-secondary">Automations</a>
+          <a href="/docs/lists" class="btn btn-sm btn-secondary">Lists</a>
+          <a href="/docs/enrichments" class="btn btn-sm btn-secondary">Enrichments</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,508 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="Automations - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>Automations</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-accent/10 to-accent/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-accent mb-4">No-Code Workflows</div>
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Automations</h1>
+          <p class="text-lg sm:text-xl">
+            Complete the Load → Enrich → Write-Back cycle to external systems
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What are Automations -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What are Automations?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          Automations complete the data lifecycle by automatically writing enriched data to external systems. After George AI extracts structured data from your documents, automations push that data to Shopware, webhooks, APIs, or other platforms—without code.
+        </p>
+        <p>
+          Configure once, then run manually, on schedule, or automatically whenever new data is enriched.
+        </p>
+      </div>
+
+      <div class="stats shadow mt-6 w-full">
+        <div class="stat">
+          <div class="stat-title">No-Code Setup</div>
+          <div class="stat-value text-primary">5 Min</div>
+          <div class="stat-desc">Average configuration time</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Processing</div>
+          <div class="stat-value text-secondary">Real-Time</div>
+          <div class="stat-desc">Or scheduled/manual</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Connectors</div>
+          <div class="stat-value">1+ Active</div>
+          <div class="stat-desc">Shopware 6, more coming</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How It Works -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How It Works</h2>
+
+      <ul class="steps steps-vertical lg:steps-horizontal w-full mb-8">
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Create Library</div>
+            <div class="text-xs">Organize your data</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Upload/Crawl Files</div>
+            <div class="text-xs">Add documents</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Enrich Fields</div>
+            <div class="text-xs">AI extracts data in lists</div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left">
+            <div class="font-bold">Write Data</div>
+            <div class="text-xs">Automations to external systems</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span><strong>Tip:</strong> Start with manual execution to test field mapping, then enable scheduling or real-time triggers.</span>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Supported Connectors -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Supported Connectors</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Shopware 6 -->
+        <div class="card bg-base-200 border-2 border-primary">
+          <div class="card-body">
+            <h3 class="card-title">
+              Shopware 6
+              <div class="badge badge-success">Active</div>
+            </h3>
+            <p class="text-sm">Create or update products from enriched list data</p>
+            <div class="mt-4">
+              <p class="font-semibold text-sm mb-2">Available Actions:</p>
+              <ul class="text-sm space-y-1">
+                <li>• Product Upsert (create or update)</li>
+                <li>• Field mapping for name, description, price, stock</li>
+                <li>• Product number matching for idempotent updates</li>
+              </ul>
+            </div>
+            <div class="card-actions justify-end mt-4">
+              <a href="/docs/connectors/shopware6" class="btn btn-sm btn-primary">Documentation</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coming Soon -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Coming Soon
+              <div class="badge badge-ghost">Planned</div>
+            </h3>
+            <p class="text-sm">Future connectors in development</p>
+            <div class="mt-4">
+              <p class="font-semibold text-sm mb-2">Planned Connectors:</p>
+              <ul class="text-sm space-y-1">
+                <li>• Webhooks (HTTP POST)</li>
+                <li>• REST APIs (custom endpoints)</li>
+                <li>• Google Sheets</li>
+                <li>• CSV Export with automation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Configuration Options -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Configuration Options</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- Field Mapping -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="config-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            Field Mapping
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">Map enrichment fields from your List to target system fields:</p>
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>List Field</th>
+                      <th>Maps To</th>
+                      <th>Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Product Name</td>
+                      <td>Shopware: name</td>
+                      <td>"Premium T-Shirt"</td>
+                    </tr>
+                    <tr>
+                      <td>Description</td>
+                      <td>Shopware: description</td>
+                      <td>"High-quality cotton..."</td>
+                    </tr>
+                    <tr>
+                      <td>Price</td>
+                      <td>Shopware: price</td>
+                      <td>29.99</td>
+                    </tr>
+                    <tr>
+                      <td>Stock</td>
+                      <td>Shopware: stock</td>
+                      <td>100</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-warning mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span><strong>Type Validation:</strong> George AI validates data types match (text→text, number→number)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="config-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Filters
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">Control which list items are processed:</p>
+              <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><strong>All Items</strong> - Process entire list</li>
+                <li><strong>New Items Only</strong> - Skip previously processed items</li>
+                <li><strong>Failed Items</strong> - Retry only items that failed last time</li>
+                <li><strong>Custom Query</strong> - Advanced filtering (coming soon)</li>
+              </ul>
+              <div class="alert alert-info">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span><strong>Best Practice:</strong> Use "New Items Only" for scheduled runs to avoid duplicate processing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Triggers -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="config-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Triggers
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="card bg-base-300">
+                  <div class="card-body p-4">
+                    <h4 class="font-bold">Manual</h4>
+                    <p class="text-sm">Click "Run Now" button</p>
+                    <p class="text-xs mt-2 opacity-70">Best for: Testing, one-time imports</p>
+                  </div>
+                </div>
+                <div class="card bg-base-300">
+                  <div class="card-body p-4">
+                    <h4 class="font-bold">Scheduled</h4>
+                    <p class="text-sm">CRON expressions (e.g., daily at 2 AM)</p>
+                    <p class="text-xs mt-2 opacity-70">Best for: Batch updates, reports</p>
+                  </div>
+                </div>
+                <div class="card bg-base-300">
+                  <div class="card-body p-4">
+                    <h4 class="font-bold">Real-Time</h4>
+                    <p class="text-sm">Execute when enrichment completes</p>
+                    <p class="text-xs mt-2 opacity-70">Best for: Live data sync</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mockup-code">
+                <pre data-prefix="$"><code>CRON Examples:</code></pre>
+                <pre data-prefix="1"><code>0 2 * * *    # Daily at 2:00 AM</code></pre>
+                <pre data-prefix="2"><code>0 */6 * * *  # Every 6 hours</code></pre>
+                <pre data-prefix="3"><code>0 0 * * 1    # Every Monday at midnight</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch Settings -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="config-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Batch Settings
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <ul class="list-disc list-inside space-y-2">
+                <li><strong>Batch Size</strong> - Number of items per batch (default: 100)</li>
+                <li><strong>Concurrency</strong> - Parallel API calls (default: 5)</li>
+                <li><strong>Error Handling</strong> - Continue on error vs stop immediately</li>
+                <li><strong>Retry Policy</strong> - Auto-retry failed items (0-3 retries)</li>
+              </ul>
+              <div class="alert alert-warning mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span><strong>Rate Limiting:</strong> Reduce concurrency if target API has rate limits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Real-World Examples -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Real-World Examples</h2>
+
+      <div class="space-y-6">
+        <!-- E-commerce Example -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">E-commerce: PDF Product Catalogs → Shopware</h3>
+            <p class="text-sm mb-4">Import product data from supplier PDFs directly into your Shopware store.</p>
+
+            <div class="overflow-x-auto">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1. Upload</td>
+                    <td>Drop 500 product PDFs into Library</td>
+                  </tr>
+                  <tr>
+                    <td>2. Enrich</td>
+                    <td>Extract: Product Name, SKU, Price, Description, Stock</td>
+                  </tr>
+                  <tr>
+                    <td>3. Automate</td>
+                    <td>Map fields to Shopware Product Upsert connector</td>
+                  </tr>
+                  <tr>
+                    <td>4. Execute</td>
+                    <td>Run automation → 500 products created/updated in Shopware</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="alert alert-success mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span><strong>Time Saved:</strong> Manual entry: ~50 hours → Automation: 10 minutes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Management Example -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">Content Management: Document Metadata → CMS</h3>
+            <p class="text-sm mb-4">Extract metadata from Word docs and sync to your content management system.</p>
+
+            <ul class="list-disc list-inside text-sm space-y-1">
+              <li>Upload: 1,000 Word documents from multiple authors</li>
+              <li>Enrich: Extract title, author, keywords, summary, category</li>
+              <li>Automate: Push metadata to CMS via webhook</li>
+              <li>Schedule: Daily at 3 AM to process new documents</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Monitoring & Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Monitoring & Troubleshooting</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="stat bg-base-200 rounded-box">
+          <div class="stat-title">Batch History</div>
+          <div class="stat-value text-sm">View All Runs</div>
+          <div class="stat-desc">Timestamp, duration, counts</div>
+        </div>
+        <div class="stat bg-base-200 rounded-box">
+          <div class="stat-title">Per-Item Status</div>
+          <div class="stat-value text-sm">Success/Warning/Failed</div>
+          <div class="stat-desc">Click to see error logs</div>
+        </div>
+        <div class="stat bg-base-200 rounded-box">
+          <div class="stat-title">Quick Actions</div>
+          <div class="stat-value text-sm">Stop/Retry/Clear</div>
+          <div class="stat-desc">Manage active batches</div>
+        </div>
+      </div>
+
+      <div class="join join-vertical w-full">
+        <!-- Common Errors -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshoot-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            Common Errors & Solutions
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Error</th>
+                      <th>Cause</th>
+                      <th>Solution</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Authentication Failed</td>
+                      <td>Invalid API credentials</td>
+                      <td>Re-enter credentials in connector settings</td>
+                    </tr>
+                    <tr>
+                      <td>Required Field Missing</td>
+                      <td>Enrichment field not populated</td>
+                      <td>Check enrichment status, retry extraction</td>
+                    </tr>
+                    <tr>
+                      <td>Rate Limit Exceeded</td>
+                      <td>Too many API calls</td>
+                      <td>Reduce concurrency in batch settings</td>
+                    </tr>
+                    <tr>
+                      <td>Product Number Conflict</td>
+                      <td>Duplicate SKU in target system</td>
+                      <td>Review field mapping, check for duplicates</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Retry Mechanisms -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshoot-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Retry Mechanisms
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <ul class="list-disc list-inside space-y-2">
+                <li><strong>Automatic Retry</strong> - Configure 0-3 retries with exponential backoff</li>
+                <li><strong>Manual Retry</strong> - Click "Retry Failed" button to reprocess failed items</li>
+                <li><strong>Selective Retry</strong> - Choose specific items to retry from batch history</li>
+                <li><strong>Clear and Re-run</strong> - Reset batch status and start fresh</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Best Practices</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Start Small</h3>
+            <div class="text-sm">Test with 5-10 items before running full batch</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Use Filters</h3>
+            <div class="text-sm">Control scope to avoid processing unnecessary items</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Monitor First Runs</h3>
+            <div class="text-sm">Watch the first few executions for errors</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 class="font-bold">Off-Peak Scheduling</h3>
+            <div class="text-sm">Run large batches during low-traffic hours</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Documentation -->
+    <div class="card bg-primary text-primary-content">
+      <div class="card-body">
+        <h2 class="card-title">Related Documentation</h2>
+        <p class="mb-4">Learn more about the complete workflow:</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="/docs/lists" class="btn btn-sm btn-secondary">Lists</a>
+          <a href="/docs/enrichments" class="btn btn-sm btn-secondary">Enrichments</a>
+          <a href="/docs/connectors/shopware6" class="btn btn-sm btn-secondary">Shopware 6 Connector</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

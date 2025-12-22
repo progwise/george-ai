@@ -28,7 +28,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const { t } = useTranslation()
-  const { fileId } = Route.useParams()
+  const { fileId, libraryId } = Route.useParams()
   const navigate = Route.useNavigate()
   const { markdownUrl, part } = Route.useSearch()
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
@@ -39,6 +39,9 @@ function RouteComponent() {
   const {
     data: { aiLibraryFile },
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
+
+  // Check if there are no available extractions
+  const hasNoExtractions = !aiLibraryFile.availableExtractions || aiLibraryFile.availableExtractions.length === 0
 
   // Select the first available extraction by default
   const selectedMarkdownUrl = markdownUrl || (aiLibraryFile.availableExtractions?.[0]?.mainFileUrl ?? undefined)
@@ -115,31 +118,54 @@ function RouteComponent() {
       )}
 
       <div className="min-h-0 min-w-0 overflow-auto rounded-box bg-base-300 p-5">
-        {error && (
-          <div className="alert alert-error">
-            <span>Error loading markdown: {error.message}</span>
+        {hasNoExtractions ? (
+          <div className="alert alert-info">
+            <div className="flex flex-col gap-2">
+              <span className="font-semibold">{t('files.noProcessedFiles')}</span>
+              <span className="text-sm">{t('files.checkTasksRunning')}</span>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary w-fit"
+                onClick={() =>
+                  navigate({
+                    to: '/libraries/$libraryId/files/$fileId/tasks',
+                    params: { libraryId, fileId },
+                  })
+                }
+              >
+                {t('files.viewTasks')}
+              </button>
+            </div>
           </div>
-        )}
-        {!error &&
-          (viewMarkdownSource ? (
-            isLoading ? (
-              <div className="flex items-center gap-4 p-8">
-                <div className="loading loading-spinner"></div>
-                <div>Loading... {progress > 0 && `${Math.round(progress)}%`}</div>
+        ) : (
+          <>
+            {error && (
+              <div className="alert alert-error">
+                <span>Error loading markdown: {error.message}</span>
               </div>
-            ) : (
-              <pre className="text-sm whitespace-pre-wrap">
-                <code lang="markdown">{content || t('files.noContentAvailable')}</code>
-              </pre>
-            )
-          ) : (
-            <FileMarkdownViewer
-              markdown={content || t('files.noContentAvailable')}
-              className="text-sm font-semibold"
-              isLoading={isLoading}
-              progress={progress}
-            />
-          ))}
+            )}
+            {!error &&
+              (viewMarkdownSource ? (
+                isLoading ? (
+                  <div className="flex items-center gap-4 p-8">
+                    <div className="loading loading-spinner"></div>
+                    <div>Loading... {progress > 0 && `${Math.round(progress)}%`}</div>
+                  </div>
+                ) : (
+                  <pre className="text-sm whitespace-pre-wrap">
+                    <code lang="markdown">{content || t('files.noContentAvailable')}</code>
+                  </pre>
+                )
+              ) : (
+                <FileMarkdownViewer
+                  markdown={content || t('files.noContentAvailable')}
+                  className="text-sm font-semibold"
+                  isLoading={isLoading}
+                  progress={progress}
+                />
+              ))}
+          </>
+        )}
       </div>
     </div>
   )

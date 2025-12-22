@@ -163,12 +163,13 @@ import Layout from '../../layouts/Layout.astro'
                         <div class="flex flex-wrap gap-1 mt-2">
                           <div class="badge badge-outline">string</div>
                           <div class="badge badge-outline">text</div>
+                          <div class="badge badge-outline">markdown</div>
                           <div class="badge badge-outline">number</div>
                           <div class="badge badge-outline">date</div>
                           <div class="badge badge-outline">datetime</div>
                           <div class="badge badge-outline">boolean</div>
                         </div>
-                        <p class="text-sm text-base-content/70 mt-2">Choose the type that matches your data. Use <strong>text</strong> for long content, <strong>string</strong> for short values.</p>
+                        <p class="text-sm text-base-content/70 mt-2">Choose the type that matches your data. Use <strong>text</strong> for long content, <strong>markdown</strong> for formatted text, <strong>string</strong> for short values.</p>
                       </td>
                     </tr>
                     <tr>
@@ -291,6 +292,168 @@ import Layout from '../../layouts/Layout.astro'
 
     <div class="divider"></div>
 
+    <!-- Dynamic Context Sources -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Dynamic Context Sources</h2>
+
+      <p class="mb-6">
+        Context sources give your enrichment fields dynamic data. Instead of static prompts, you can reference other fields with {'{{FieldName}}'} syntax, search libraries, or fetch data from web APIs—all without writing code.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Field References -->
+        <div class="card bg-base-200 border-2 border-primary">
+          <div class="card-body">
+            <h3 class="card-title">
+              Field References
+              <div class="badge badge-primary">Most Common</div>
+            </h3>
+            <p class="text-sm mb-4">Use values from other enrichment fields in your prompts</p>
+
+            <div class="mockup-code text-xs mb-4">
+              <pre data-prefix=""><code>Query Template:</code></pre>
+              <pre data-prefix=""><code>"Find technical specs for {'{{ProductName}}'}"</code></pre>
+            </div>
+
+            <div class="text-xs space-y-1">
+              <p><strong>Example:</strong></p>
+              <p>• Field 1: Extract "Product Name" → "iPhone 15 Pro"</p>
+              <p>• Field 2: Use {'{{ProductName}}'} to search specs</p>
+              <p>• Result: Finds "iPhone 15 Pro specifications" in docs</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vector Search Context -->
+        <div class="card bg-base-200 border-2 border-secondary">
+          <div class="card-body">
+            <h3 class="card-title">
+              Vector Search Context
+            </h3>
+            <p class="text-sm mb-4">Dynamically search your library for relevant content</p>
+
+            <div class="text-xs space-y-2 mb-4">
+              <p><strong>Configuration:</strong></p>
+              <ul class="list-disc list-inside">
+                <li>Query template with {'{{Variables}}'}</li>
+                <li>Max tokens (default: 2000)</li>
+                <li>Library selection</li>
+              </ul>
+            </div>
+
+            <div class="mockup-code text-xs">
+              <pre data-prefix=""><code>Example Query:</code></pre>
+              <pre data-prefix=""><code>"{'{{ProductName}}'} safety warnings"</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Web Fetch Context -->
+        <div class="card bg-base-200 border-2 border-accent">
+          <div class="card-body">
+            <h3 class="card-title">
+              Web Fetch Context
+            </h3>
+            <p class="text-sm mb-4">Fetch data from web APIs with dynamic URLs</p>
+
+            <div class="mockup-code text-xs mb-4">
+              <pre data-prefix=""><code>URL Template:</code></pre>
+              <pre data-prefix=""><code>https://api.example.com/products/{'{{SKU}}'}</code></pre>
+            </div>
+
+            <div class="text-xs space-y-1">
+              <p><strong>Supports:</strong></p>
+              <p>• JSON APIs (auto-converted to markdown)</p>
+              <p>• HTML pages (cleaned and formatted)</p>
+              <p>• Authentication headers</p>
+              <p>• Custom max tokens</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Static Markdown -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">
+              Static Markdown
+            </h3>
+            <p class="text-sm mb-4">Provide the same context for all list items</p>
+
+            <div class="text-xs space-y-2">
+              <p><strong>Use cases:</strong></p>
+              <ul class="list-disc list-inside">
+                <li>Company glossary or terminology</li>
+                <li>Extraction guidelines</li>
+                <li>Classification categories</li>
+                <li>Reference tables</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title">Real-World Example: Product Data Sheet Generation</h3>
+          <p class="text-sm mb-4">Generate comprehensive product data sheets by combining multiple context sources:</p>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Context Type</th>
+                  <th>Configuration</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Product Name</strong></td>
+                  <td>None</td>
+                  <td>Direct extraction from document</td>
+                  <td>"Premium Widget X200"</td>
+                </tr>
+                <tr>
+                  <td><strong>Specifications</strong></td>
+                  <td>Vector Search</td>
+                  <td>Query: "{'{{ProductName}}'} technical specifications"</td>
+                  <td>Finds spec sheet in library → formatted markdown</td>
+                </tr>
+                <tr>
+                  <td><strong>Market Price</strong></td>
+                  <td>Web Fetch</td>
+                  <td>URL: "https://api.prices.example/{'{{SKU}}'}"</td>
+                  <td>Fetches current price from API → "$299.99"</td>
+                </tr>
+                <tr>
+                  <td><strong>Category</strong></td>
+                  <td>Static Markdown</td>
+                  <td>Product taxonomy (20 categories)</td>
+                  <td>AI classifies based on taxonomy → "Electronics > Widgets"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><strong>Result:</strong> Four enrichment fields working together create complete, accurate product data sheets automatically</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <div>
+          <h3 class="font-bold">Automatic Markdown Conversion</h3>
+          <div class="text-sm">JSON API responses and HTML pages are automatically converted to well-formatted markdown. This improves LLM extraction accuracy.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
     <!-- Tips for Good Prompts -->
     <section class="mb-12">
       <h2 class="text-3xl font-bold mb-6">Tips for Writing Effective Prompts</h2>
@@ -387,6 +550,11 @@ import Layout from '../../layouts/Layout.astro'
               <td>Product descriptions, comments, summaries</td>
             </tr>
             <tr>
+              <td><code>markdown</code></td>
+              <td>Formatted text with markdown syntax</td>
+              <td>Rich text content, formatted specifications, documentation</td>
+            </tr>
+            <tr>
               <td><code>number</code></td>
               <td>Numeric values (integers or decimals)</td>
               <td>Prices, quantities, dimensions, percentages</td>
@@ -413,31 +581,236 @@ import Layout from '../../layouts/Layout.astro'
 
     <div class="divider"></div>
 
-    <!-- Monitoring -->
+    <!-- Enrichment Details & Troubleshooting -->
     <section class="mb-12">
-      <h2 class="text-3xl font-bold mb-6">Monitoring Enrichment Progress</h2>
+      <h2 class="text-3xl font-bold mb-6">Enrichment Details & Troubleshooting</h2>
 
-      <div class="prose max-w-none">
-        <p>Track enrichment processing in real-time:</p>
+      <p class="mb-6">
+        Click any cell in a List to view detailed enrichment information, inspect how values were extracted, debug errors, and retry failed extractions.
+      </p>
 
-        <div class="grid md:grid-cols-2 gap-4 mt-4 not-prose">
-          <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">Field Header Status</div>
-            <div class="stat-value text-primary text-2xl">3 processing</div>
-            <div class="stat-desc">12 pending • Click header for controls</div>
+      <div class="join join-vertical w-full">
+        <!-- Viewing Enrichment Details -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            Viewing Enrichment Details
           </div>
-          <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">Enrichment Queue</div>
-            <div class="stat-value text-2xl">Admin Panel</div>
-            <div class="stat-desc">View all enrichment tasks across all Lists</div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">The enrichment side panel provides complete transparency into how each value was extracted:</p>
+
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Section</th>
+                      <th>What It Shows</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Value</strong></td>
+                      <td>The extracted value, error message, or failure term. For markdown fields, toggle between rendered and source views.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Metadata</strong></td>
+                      <td>Status, AI model used, processing duration, requested/completed timestamps</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Issues</strong></td>
+                      <td>Warnings or validation issues encountered during extraction</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Context</strong></td>
+                      <td>Field references, vector search results, web fetch data, or full content used for extraction</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Prompt</strong></td>
+                      <td>The exact prompt sent to the LLM (after template variable substitution)</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Complete Messages</strong></td>
+                      <td>All messages (system, user, assistant) sent to the LLM for debugging complex prompts</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                  <p class="font-bold">How to Access</p>
+                  <p class="text-sm">Click any cell in the List table to open the enrichment details side panel. Close with ESC key or close button.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="mt-6">
-        <a href="/docs/admin/enrichment-queue" class="btn btn-outline btn-primary">
-          Learn about the Enrichment Queue →
-        </a>
+        <!-- Retry Failed Enrichments -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Retry Failed Enrichments
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">If an enrichment fails or returns an incorrect value, you can retry it:</p>
+
+              <div class="card bg-base-200 mb-4">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Single Retry</h4>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click the cell with the failed enrichment to open the side panel</li>
+                    <li>Review the error message or issues section to understand what went wrong</li>
+                    <li>Click the <strong>Retry</strong> button at the bottom</li>
+                    <li>The enrichment will be added back to the queue and processed again</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div class="card bg-base-200 mb-4">
+                <div class="card-body">
+                  <h4 class="font-bold mb-2">Batch Retry</h4>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click the field header to open the field menu</li>
+                    <li>Select <strong>Start Enrichment</strong></li>
+                    <li>By default, only missing and failed enrichments are retried</li>
+                    <li>Check "Overwrite existing enrichments" to re-process all items</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div>
+                  <p class="font-bold">Edit Prompt Before Retry</p>
+                  <p class="text-sm">If the prompt is incorrect, edit the field first, then use <strong>Clean Enrichments</strong> and <strong>Start Enrichment</strong> to re-process with the new prompt.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Common Issues -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Common Issues & Solutions
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="space-y-4">
+                <!-- Issue 1 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-error">Error: "Failure term detected"</h4>
+                    <p class="text-sm mb-2"><strong>Cause:</strong> The AI returned one of your configured failure terms (e.g., "not found", "N/A")</p>
+                    <p class="text-sm"><strong>Solution:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Check if the data actually exists in the document (view extraction)</li>
+                      <li>Improve the prompt to be more specific about where to find the data</li>
+                      <li>Add context sources (vector search, field references) to provide more information</li>
+                      <li>If the term is actually valid data, remove it from the failure terms list</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 2 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-error">Error: "Timeout" or "Processing error"</h4>
+                    <p class="text-sm mb-2"><strong>Cause:</strong> LLM took too long or encountered an error</p>
+                    <p class="text-sm"><strong>Solution:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Reduce context size (lower max tokens for vector search/web fetch)</li>
+                      <li>Simplify the prompt to require less reasoning</li>
+                      <li>Try a faster AI model</li>
+                      <li>Retry the enrichment (temporary infrastructure issues)</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 3 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-warning">Issue: Incorrect values extracted</h4>
+                    <p class="text-sm mb-2"><strong>Cause:</strong> Prompt ambiguity or insufficient context</p>
+                    <p class="text-sm"><strong>Solution:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Review the "Prompt Sent to LLM" section to see what the AI actually received</li>
+                      <li>Check the "Context" section to verify the right data was provided</li>
+                      <li>Make prompt more specific (add examples, describe format, mention location)</li>
+                      <li>Add field references to provide clarifying context</li>
+                      <li>Verify vector search queries are returning relevant chunks</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Issue 4 -->
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold text-warning">Issue: Slow processing</h4>
+                    <p class="text-sm mb-2"><strong>Cause:</strong> Large files, complex prompts, or high queue load</p>
+                    <p class="text-sm"><strong>Solution:</strong></p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-4">
+                      <li>Check Admin Panel → Enrichment Queue for queue status</li>
+                      <li>Reduce max tokens for context sources</li>
+                      <li>Process in smaller batches (filter list before starting enrichment)</li>
+                      <li>Use faster AI models for simple extractions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitoring Progress -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="troubleshooting-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Monitoring Processing Progress
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">Track enrichment progress in real-time:</p>
+
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold">Field Header Status</h4>
+                    <p class="text-sm mb-2">Each field header shows:</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                      <li>Number of processing items</li>
+                      <li>Number of pending items</li>
+                      <li>Click header for field controls (start, stop, clean)</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="card bg-base-200">
+                  <div class="card-body">
+                    <h4 class="font-bold">Enrichment Queue (Admin Panel)</h4>
+                    <p class="text-sm mb-2">Global queue view showing:</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                      <li>All enrichment tasks across all Lists</li>
+                      <li>Queue status and worker health</li>
+                      <li>Failed tasks with error details</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <a href="/docs/admin/enrichment-queue" class="btn btn-outline btn-primary">
+                  Learn about the Enrichment Queue →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

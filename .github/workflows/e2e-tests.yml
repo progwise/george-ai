@@ -4,10 +4,33 @@ on:
   push:
     branches:
       - main
+    # Skip E2E tests for documentation-only changes
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/CODEOWNERS'
+      - '.github/FUNDING.yml'
+      - 'LICENSE'
+      - '.vscode/**'
   pull_request:
     branches:
       - main
+    # Skip E2E tests for documentation-only changes
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/CODEOWNERS'
+      - '.github/FUNDING.yml'
+      - 'LICENSE'
+      - '.vscode/**'
   workflow_dispatch:
+
+# Cancel in-progress runs when a new run is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   # Git
@@ -249,7 +272,12 @@ jobs:
   # Job 4: Run E2E tests using service containers
   e2e-tests:
     needs: [check-images, build-images]
-    if: always() && needs.check-images.result == 'success' && (needs.build-images.result == 'success' || needs.build-images.result == 'skipped')
+    # Skip E2E tests for draft PRs (saves ~30 min per draft PR push)
+    if: |
+      always() &&
+      needs.check-images.result == 'success' &&
+      (needs.build-images.result == 'success' || needs.build-images.result == 'skipped') &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-22.04
     timeout-minutes: 30
 

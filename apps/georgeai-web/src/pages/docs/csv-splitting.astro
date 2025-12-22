@@ -1,0 +1,404 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout title="CSV File Splitting - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li>CSV File Splitting</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-info/10 to-info/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-info mb-4">Automatic</div>
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">CSV File Splitting</h1>
+          <p class="text-lg sm:text-xl">
+            Handle massive spreadsheets with automatic row-by-row splitting for perfect search results
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What is CSV Splitting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">What is CSV File Splitting?</h2>
+      <div class="prose max-w-none">
+        <p class="text-lg">
+          When you upload large CSV or Excel files, George AI automatically splits them into individual markdown files—one per row. This ensures that when you search, you find exactly the row you're looking for, not an entire massive file.
+        </p>
+        <p>
+          No configuration needed. Upload a 100,000-row product catalog, and George AI handles everything automatically.
+        </p>
+      </div>
+
+      <div class="stats shadow mt-6 w-full">
+        <div class="stat">
+          <div class="stat-title">Maximum Tested</div>
+          <div class="stat-value text-primary">732K Rows</div>
+          <div class="stat-desc">Largest successfully processed file</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Memory Usage</div>
+          <div class="stat-value text-secondary">~1 KB</div>
+          <div class="stat-desc">Constant, regardless of file size</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Search Precision</div>
+          <div class="stat-value text-accent">1 Row</div>
+          <div class="stat-desc">Each search result = 1 record</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- How It Works -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">How It Works</h2>
+
+      <ul class="steps steps-vertical lg:steps-horizontal w-full mb-8">
+        <li class="step step-info">
+          <div class="text-left">
+            <div class="font-bold">Upload CSV</div>
+            <div class="text-xs">Any size file</div>
+          </div>
+        </li>
+        <li class="step step-info">
+          <div class="text-left">
+            <div class="font-bold">Auto-Split</div>
+            <div class="text-xs">One file per row</div>
+          </div>
+        </li>
+        <li class="step step-info">
+          <div class="text-left">
+            <div class="font-bold">Embed</div>
+            <div class="text-xs">Vector search enabled</div>
+          </div>
+        </li>
+        <li class="step step-info">
+          <div class="text-left">
+            <div class="font-bold">Search</div>
+            <div class="text-xs">Find exact rows</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Example: Product Catalog (10,000 Products)</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <p class="font-semibold mb-2">Input:</p>
+              <div class="mockup-code text-xs">
+                <pre data-prefix="1"><code>SKU,Name,Price,Stock</code></pre>
+                <pre data-prefix="2"><code>P-001,Widget A,29.99,150</code></pre>
+                <pre data-prefix="3"><code>P-002,Widget B,39.99,75</code></pre>
+                <pre data-prefix="..."><code>...</code></pre>
+                <pre data-prefix="10000"><code>P-10000,Widget Z,19.99,200</code></pre>
+              </div>
+            </div>
+
+            <div>
+              <p class="font-semibold mb-2">Output (File Structure):</p>
+              <div class="mockup-code text-xs">
+                <pre data-prefix="📄"><code>products.md (summary)</code></pre>
+                <pre data-prefix="📁"><code>parts/</code></pre>
+                <pre data-prefix=" 📁"><code>  0/ (rows 1-100)</code></pre>
+                <pre data-prefix="  📄"><code>    1.md, 2.md, ..., 100.md</code></pre>
+                <pre data-prefix=" 📁"><code>  1/ (rows 101-200)</code></pre>
+                <pre data-prefix=" 📁"><code>  2/ (rows 201-300)</code></pre>
+                <pre data-prefix=" ..."><code>  ...</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><strong>Bucketed Storage:</strong> Files organized into folders of 100 for efficient access</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Benefits -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Benefits</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Benefit 1 -->
+        <div class="card bg-base-200 border-l-4 border-success">
+          <div class="card-body">
+            <h3 class="card-title text-success">Semantic Search Precision</h3>
+            <p class="text-sm">
+              Each row becomes one semantic chunk. When you search "red t-shirt size M", you get that exact product row—not a 50,000-row file.
+            </p>
+          </div>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="card bg-base-200 border-l-4 border-primary">
+          <div class="card-body">
+            <h3 class="card-title text-primary">Memory Efficiency</h3>
+            <p class="text-sm">
+              Streaming architecture processes files with constant ~1KB memory usage, regardless of file size. Handle 700K+ rows without performance degradation.
+            </p>
+          </div>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="card bg-base-200 border-l-4 border-secondary">
+          <div class="card-body">
+            <h3 class="card-title text-secondary">Fast Pagination</h3>
+            <p class="text-sm">
+              Bucketed storage (100 files per directory) enables fast UI navigation. Metadata caching makes browsing split files instant.
+            </p>
+          </div>
+        </div>
+
+        <!-- Benefit 4 -->
+        <div class="card bg-base-200 border-l-4 border-accent">
+          <div class="card-body">
+            <h3 class="card-title text-accent">Enrichment-Ready</h3>
+            <p class="text-sm">
+              Each row is a list item. Add enrichment fields to extract additional data (e.g., "Product Category" from description). Perfect for data cleaning.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Viewing Split Files -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Viewing Split Files</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- File Browser -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="view-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            Markdown File Selector
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">After upload, navigate to the file in your library:</p>
+              <ol class="list-decimal list-inside space-y-2">
+                <li>Open the library containing your CSV file</li>
+                <li>Click on the file name</li>
+                <li>Use the <strong>Markdown File Selector</strong> dropdown to choose which row to view</li>
+                <li>Dropdown shows: "Summary", "Row 1", "Row 2", etc.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="view-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Pagination Controls
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-4">For files with many rows, pagination controls appear automatically:</p>
+              <ul class="list-disc list-inside space-y-2">
+                <li>Navigate between rows using previous/next buttons</li>
+                <li>Jump to specific row numbers</li>
+                <li>View summary file to see total row count and column names</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Configuration -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Configuration</h2>
+
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Automatic - No configuration needed!</h3>
+          <div class="text-sm">CSV file splitting is enabled by default for all libraries. Just upload and go.</div>
+        </div>
+      </div>
+
+      <div class="card bg-base-200 mt-6">
+        <div class="card-body">
+          <h3 class="card-title">Advanced: Library Settings</h3>
+          <p class="text-sm mb-4">For power users, the setting is controlled in library configuration:</p>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Setting</th>
+                  <th>Default Value</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>splitByCsvRows</code></td>
+                  <td><div class="badge badge-success">Enabled</div></td>
+                  <td>Automatically split CSV/Excel files by rows</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Technical Details -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Technical Details</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- File Storage Structure -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="technical-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            File Storage Structure
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <div class="mockup-code">
+                <pre data-prefix="$"><code>Storage Layout:</code></pre>
+                <pre data-prefix=""><code>/storage/libraries/{'{libraryId}'}/files/{'{fileId}'}/</code></pre>
+                <pre data-prefix=""><code>  main.md                  # Summary file</code></pre>
+                <pre data-prefix=""><code>  parts/0/1.md             # Row 1</code></pre>
+                <pre data-prefix=""><code>  parts/0/2.md             # Row 2</code></pre>
+                <pre data-prefix=""><code>  ...</code></pre>
+                <pre data-prefix=""><code>  parts/0/100.md           # Row 100</code></pre>
+                <pre data-prefix=""><code>  parts/1/101.md           # Row 101 (new bucket)</code></pre>
+                <pre data-prefix=""><code>  ...</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markdown Format per Row -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="technical-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Markdown Format per Row
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <p class="mb-2">Each row becomes a structured markdown file:</p>
+              <div class="mockup-code">
+                <pre data-prefix=""><code># Row 1</code></pre>
+                <pre data-prefix=""><code></code></pre>
+                <pre data-prefix=""><code>**SKU:** P-001</code></pre>
+                <pre data-prefix=""><code>**Name:** Widget A</code></pre>
+                <pre data-prefix=""><code>**Price:** 29.99</code></pre>
+                <pre data-prefix=""><code>**Stock:** 150</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embedding Strategy -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="technical-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            Embedding Strategy
+          </div>
+          <div class="collapse-content">
+            <div class="mt-4">
+              <ul class="list-disc list-inside space-y-2">
+                <li><strong>One Chunk per Row:</strong> Each markdown file = one semantic chunk</li>
+                <li><strong>Batch Processing:</strong> Embeddings generated in parallel batches for speed</li>
+                <li><strong>Part Number Tracking:</strong> Each embedding stores its row number for retrieval</li>
+                <li><strong>Summary Embedding:</strong> Main file (column headers + stats) also embedded</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Use Cases -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Common Use Cases</h2>
+
+      <div class="space-y-4">
+        <!-- Product Catalogs -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">Product Catalogs</h3>
+            <p class="text-sm">
+              Upload supplier product lists (50,000+ products). Search finds exact SKUs. Enrich to extract missing data (category, brand). Export to e-commerce platform via automations.
+            </p>
+          </div>
+        </div>
+
+        <!-- Inventory Lists -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">Inventory Lists</h3>
+            <p class="text-sm">
+              Process warehouse inventory spreadsheets. Search by location, product code, or description. Track stock levels across multiple warehouses.
+            </p>
+          </div>
+        </div>
+
+        <!-- Customer Data -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">Customer & Contact Lists</h3>
+            <p class="text-sm">
+              Import CRM exports. Search by name, company, or email. Enrich with additional data from web APIs. Clean and deduplicate records.
+            </p>
+          </div>
+        </div>
+
+        <!-- Transaction Logs -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title">Transaction & Order Logs</h3>
+            <p class="text-sm">
+              Process order history CSVs (100K+ transactions). Search by order number, customer, or date. Analyze patterns with AI enrichments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Documentation -->
+    <div class="card bg-primary text-primary-content">
+      <div class="card-body">
+        <h2 class="card-title">Related Documentation</h2>
+        <p class="mb-4">Learn more about working with files and data:</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="/docs/files" class="btn btn-sm btn-secondary">Files</a>
+          <a href="/docs/processing" class="btn btn-sm btn-secondary">Processing</a>
+          <a href="/docs/enrichments" class="btn btn-sm btn-secondary">Enrichments</a>
+          <a href="/docs/lists" class="btn btn-sm btn-secondary">Lists</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

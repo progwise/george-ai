@@ -1,0 +1,516 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout title="Shopware 6 Connector - George-AI Documentation">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><a href="/docs">Documentation</a></li>
+        <li><a href="/docs/connectors">Connectors</a></li>
+        <li>Shopware 6</li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero bg-gradient-to-br from-success/10 to-success/5 rounded-box mb-12">
+      <div class="hero-content text-center py-8 sm:py-12">
+        <div class="max-w-2xl">
+          <div class="badge badge-success mb-4">E-commerce Integration</div>
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">Shopware 6 Connector</h1>
+          <p class="text-lg sm:text-xl">
+            Automatically create and update Shopware products from enriched document data
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Prerequisites -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Prerequisites</h2>
+
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Before configuring the Shopware 6 connector, ensure you have the following:</span>
+      </div>
+
+      <ul class="list-disc list-inside space-y-2">
+        <li>Shopware 6 store with API access enabled</li>
+        <li>Admin account with product management permissions</li>
+        <li>API credentials (Base URL, Access Key ID, Secret Access Key)</li>
+        <li>Knowledge of your product number format for matching</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Setup Guide -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Setup Guide</h2>
+
+      <div class="join join-vertical w-full">
+        <!-- Step 1 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="setup-accordion" checked />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">1</div>
+            Navigate to Connector Settings
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10 mt-4">
+              <ol class="list-decimal list-inside space-y-2">
+                <li>Go to <strong>Admin → AI Services → Connectors</strong></li>
+                <li>Click <strong>"Add Connector"</strong> button</li>
+                <li>Select <strong>"Shopware 6"</strong> from the connector type dropdown</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="setup-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">2</div>
+            Enter API Credentials
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10 mt-4">
+              <div class="overflow-x-auto mb-4">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Description</th>
+                      <th>Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Name</strong></td>
+                      <td>Connector display name</td>
+                      <td>My Shopware Store</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Base URL</strong></td>
+                      <td>Shopware API endpoint</td>
+                      <td>https://shop.example.com</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Access Key ID</strong></td>
+                      <td>API access key</td>
+                      <td>SWSCXXX...</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Secret Access Key</strong></td>
+                      <td>API secret key</td>
+                      <td>••••••••••</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span><strong>Security:</strong> Credentials are encrypted and never exposed to the frontend</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="setup-accordion" />
+          <div class="collapse-title text-xl font-medium">
+            <div class="badge badge-primary mr-2">3</div>
+            Test Connection
+          </div>
+          <div class="collapse-content">
+            <div class="ml-10 mt-4">
+              <p class="mb-4">Before saving, test the connection to ensure credentials are correct:</p>
+              <ol class="list-decimal list-inside space-y-2">
+                <li>Click <strong>"Test Connection"</strong> button</li>
+                <li>Wait for validation (checks API access and permissions)</li>
+                <li>Review any error messages if test fails</li>
+                <li>Fix credentials and test again if needed</li>
+                <li>Click <strong>"Save"</strong> when test succeeds</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Available Actions -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Available Actions</h2>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-2xl">Product Upsert</h3>
+          <p class="mb-4">Creates a new product if it doesn't exist, or updates an existing product. Idempotent operation based on product number matching.</p>
+
+          <h4 class="font-bold mb-2">Supported Fields:</h4>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Shopware Field</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Product Number</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-error">Yes</div></td>
+                  <td>Unique identifier for matching (e.g., SKU, article number)</td>
+                </tr>
+                <tr>
+                  <td><strong>Name</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-error">Yes</div></td>
+                  <td>Product display name</td>
+                </tr>
+                <tr>
+                  <td><strong>Description</strong></td>
+                  <td>Text / Markdown</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>Product description (supports HTML). Markdown enrichments are automatically converted to HTML.</td>
+                </tr>
+                <tr>
+                  <td><strong>Price</strong></td>
+                  <td>Number</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>Product price (gross price)</td>
+                </tr>
+                <tr>
+                  <td><strong>Stock Quantity</strong></td>
+                  <td>Number</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>Available stock amount</td>
+                </tr>
+                <tr>
+                  <td><strong>Active</strong></td>
+                  <td>Boolean</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>Whether product is visible in store</td>
+                </tr>
+                <tr>
+                  <td><strong>Tax Rate</strong></td>
+                  <td>Number</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>Tax percentage (e.g., 19 for 19%)</td>
+                </tr>
+                <tr class="bg-base-300">
+                  <td colspan="4" class="font-bold">SEO Fields</td>
+                </tr>
+                <tr>
+                  <td><strong>Meta Title</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO meta title for search engines (recommended: 50-60 characters)</td>
+                </tr>
+                <tr>
+                  <td><strong>Meta Description</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO meta description for search results (recommended: 150-160 characters)</td>
+                </tr>
+                <tr>
+                  <td><strong>Keywords</strong></td>
+                  <td>Text</td>
+                  <td><div class="badge badge-ghost">No</div></td>
+                  <td>SEO keywords (comma-separated)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">SEO Support</h3>
+              <p class="text-sm">The Product Upsert action supports SEO fields (meta title, meta description, keywords) to automatically optimize products for search engines. This is especially useful when enriching products from supplier catalogs that lack SEO data.</p>
+            </div>
+          </div>
+
+          <div class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">Markdown to HTML Conversion</h3>
+              <p class="text-sm">If your enrichment fields use the <strong>markdown</strong> data type, George AI automatically converts markdown formatting to HTML when syncing to Shopware. This enables rich product descriptions with headings, lists, bold text, and links without manual HTML coding.</p>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><strong>Idempotent:</strong> Running the same automation twice with the same data won't create duplicates—it will update the existing product.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Field Mapping -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Field Mapping</h2>
+
+      <p class="mb-6">When creating an automation, map your List enrichment fields to Shopware product fields:</p>
+
+      <div class="card bg-base-200 mb-6">
+        <div class="card-body">
+          <h3 class="card-title">Example Mapping</h3>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Your List Field</th>
+                  <th>→</th>
+                  <th>Shopware Field</th>
+                  <th>Sample Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Article Number</td>
+                  <td>→</td>
+                  <td>Product Number</td>
+                  <td>ART-12345</td>
+                </tr>
+                <tr>
+                  <td>Product Title</td>
+                  <td>→</td>
+                  <td>Name</td>
+                  <td>Premium Cotton T-Shirt</td>
+                </tr>
+                <tr>
+                  <td>Product Details</td>
+                  <td>→</td>
+                  <td>Description</td>
+                  <td>Made from 100% organic cotton...</td>
+                </tr>
+                <tr>
+                  <td>Retail Price</td>
+                  <td>→</td>
+                  <td>Price</td>
+                  <td>29.99</td>
+                </tr>
+                <tr>
+                  <td>Available Quantity</td>
+                  <td>→</td>
+                  <td>Stock Quantity</td>
+                  <td>150</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <span><strong>Type Validation:</strong> Text fields must map to text, numbers to numbers. George AI validates types before execution.</span>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- End-to-End Example -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Complete End-to-End Example</h2>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Scenario: Import Product Catalog from Supplier PDFs</h3>
+
+          <div class="space-y-4 mt-4">
+            <!-- Step 1 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 1</div>
+                <h4 class="font-bold">Create Library & Upload PDFs</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Create library: "Supplier Product Catalogs"</li>
+                <li>Upload 200 product specification PDFs from supplier</li>
+                <li>Wait for automatic processing and OCR</li>
+              </ul>
+            </div>
+
+            <!-- Step 2 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 2</div>
+                <h4 class="font-bold">Create List with Enrichment Fields</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Create list linked to the library</li>
+                <li>Add enrichment fields:
+                  <ul class="list-circle list-inside ml-6 mt-1">
+                    <li>Product Number (extract SKU/article number)</li>
+                    <li>Product Name (extract product title)</li>
+                    <li>Description (extract detailed description)</li>
+                    <li>Price (extract price in EUR)</li>
+                    <li>Stock (extract available quantity)</li>
+                  </ul>
+                </li>
+                <li>Wait for AI to enrich all 200 items</li>
+              </ul>
+            </div>
+
+            <!-- Step 3 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 3</div>
+                <h4 class="font-bold">Configure Shopware 6 Connector</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Navigate to Admin → AI Services → Connectors</li>
+                <li>Add Shopware 6 connector with store credentials</li>
+                <li>Test connection and save</li>
+              </ul>
+            </div>
+
+            <!-- Step 4 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 4</div>
+                <h4 class="font-bold">Create Automation with Field Mapping</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Go to Lists → Your List → Automations → Create</li>
+                <li>Select Shopware 6 connector and "Product Upsert" action</li>
+                <li>Map fields (see table above)</li>
+                <li>Set filter: "All Items"</li>
+                <li>Set trigger: "Manual" (for testing)</li>
+                <li>Save automation</li>
+              </ul>
+            </div>
+
+            <!-- Step 5 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 5</div>
+                <h4 class="font-bold">Test with Small Batch</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Update filter to process only 5 items</li>
+                <li>Click "Run Now"</li>
+                <li>Monitor execution: 5 products created in Shopware</li>
+                <li>Check Shopware admin to verify products look correct</li>
+              </ul>
+            </div>
+
+            <!-- Step 6 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 6</div>
+                <h4 class="font-bold">Execute Full Batch</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Update filter back to "All Items"</li>
+                <li>Click "Run Now"</li>
+                <li>Wait for completion: 200/200 products processed</li>
+                <li>Review batch history for any warnings/errors</li>
+              </ul>
+            </div>
+
+            <!-- Step 7 -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="badge badge-primary">Step 7</div>
+                <h4 class="font-bold">Verify in Shopware</h4>
+              </div>
+              <ul class="list-disc list-inside ml-8 text-sm">
+                <li>Open Shopware admin → Products</li>
+                <li>Verify 200 new products exist</li>
+                <li>Check sample products for accuracy</li>
+                <li>Publish products to storefront</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="alert alert-success mt-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><strong>Result:</strong> 200 products imported in ~15 minutes. Manual entry would have taken 40+ hours.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Troubleshooting</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Error</th>
+              <th>Possible Cause</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Authentication Failed</td>
+              <td>Invalid API credentials</td>
+              <td>Double-check Access Key ID and Secret Access Key, re-test connection</td>
+            </tr>
+            <tr>
+              <td>Product Number Conflict</td>
+              <td>Duplicate product numbers in your data</td>
+              <td>Review list for duplicate entries, ensure product numbers are unique</td>
+            </tr>
+            <tr>
+              <td>Required Field Missing</td>
+              <td>Product Number or Name not populated</td>
+              <td>Check enrichment status, retry failed extractions</td>
+            </tr>
+            <tr>
+              <td>Invalid Price Format</td>
+              <td>Price field contains text instead of number</td>
+              <td>Update enrichment prompt to extract numeric value only</td>
+            </tr>
+            <tr>
+              <td>Tax Rate Configuration</td>
+              <td>Tax rate not found in Shopware</td>
+              <td>Ensure tax rate exists in Shopware admin before importing</td>
+            </tr>
+            <tr>
+              <td>API Rate Limiting</td>
+              <td>Too many concurrent requests</td>
+              <td>Reduce concurrency setting in automation batch config</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Related Documentation -->
+    <div class="card bg-primary text-primary-content">
+      <div class="card-body">
+        <h2 class="card-title">Related Documentation</h2>
+        <p class="mb-4">Learn more about the automation workflow:</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="/docs/automations" class="btn btn-sm btn-secondary">Automations</a>
+          <a href="/docs/connectors" class="btn btn-sm btn-secondary">Connectors Overview</a>
+          <a href="/docs/enrichments" class="btn btn-sm btn-secondary">Enrichments</a>
+          <a href="/docs/lists" class="btn btn-sm btn-secondary">Lists</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
