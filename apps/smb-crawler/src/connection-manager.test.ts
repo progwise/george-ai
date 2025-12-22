@@ -32,7 +32,7 @@ describe('Connection Manager - Username Parsing', () => {
     await createConnection({
       crawlerId: 'test-1',
       uri: '//server/share',
-      username: 'CHEPLA-ZH\\s-crawler-georgeai',
+      username: 'TESTDOMAIN\\testuser',
       password: 'test-pass',
     })
 
@@ -41,9 +41,9 @@ describe('Connection Manager - Username Parsing', () => {
       host: 'server',
       port: 445,
       share: 'share',
-      username: 's-crawler-georgeai', // Username without domain
+      username: 'testuser', // Username without domain
       password: 'test-pass',
-      domain: 'CHEPLA-ZH', // Domain extracted
+      domain: 'TESTDOMAIN', // Domain extracted
     })
   })
 
@@ -51,7 +51,7 @@ describe('Connection Manager - Username Parsing', () => {
     await createConnection({
       crawlerId: 'test-2',
       uri: '//server/share',
-      username: 's-crawler-georgeai@chepla-zh.local',
+      username: 'testuser@testdomain.local',
       password: 'test-pass',
     })
 
@@ -60,9 +60,9 @@ describe('Connection Manager - Username Parsing', () => {
       host: 'server',
       port: 445,
       share: 'share',
-      username: 's-crawler-georgeai', // Username without domain
+      username: 'testuser', // Username without domain
       password: 'test-pass',
-      domain: 'chepla-zh.local', // Domain extracted from UPN
+      domain: 'testdomain.local', // Domain extracted from UPN
     })
   })
 

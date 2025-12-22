@@ -36,13 +36,13 @@ describe('File Crawler - Path Handling', () => {
 
     // Setup: Crawler options with full URI including subdirectories
     const options: SmbCrawlOptions = {
-      uri: '//Data.CHEPLA-ZH.local/QK-QS/000_Quality Assurance/04_Team Maintenance/05_Order_BANF_PO_QA-Maintenance',
+      uri: '//fileserver.example.com/documents/Department/Team/Projects',
       username: 'test-user',
       password: 'test-pass',
     }
 
     // Setup: basePath is the extracted subdirectory path (from connection-manager)
-    const basePath = '000_Quality Assurance/04_Team Maintenance/05_Order_BANF_PO_QA-Maintenance'
+    const basePath = 'Department/Team/Projects'
 
     // Execute: Crawl the directory
     const files: unknown[] = []
@@ -52,11 +52,10 @@ describe('File Crawler - Path Handling', () => {
 
     // Verify: readdir should be called with the CORRECT path (not duplicated)
     expect(readdirCalls).toHaveLength(1)
-    expect(readdirCalls[0]).toBe('000_Quality Assurance/04_Team Maintenance/05_Order_BANF_PO_QA-Maintenance')
+    expect(readdirCalls[0]).toBe('Department/Team/Projects')
 
     // Verify: readdir should NOT be called with the duplicated path (old buggy behavior)
-    const duplicatedPath =
-      '000_Quality Assurance/04_Team Maintenance/05_Order_BANF_PO_QA-Maintenance/000_Quality Assurance/04_Team Maintenance/05_Order_BANF_PO_QA-Maintenance'
+    const duplicatedPath = 'Department/Team/Projects/Department/Team/Projects'
     expect(readdirCalls[0]).not.toBe(duplicatedPath)
   })
 
@@ -71,7 +70,7 @@ describe('File Crawler - Path Handling', () => {
     } as unknown as SMB2Client
 
     const options: SmbCrawlOptions = {
-      uri: '//Data.CHEPLA-ZH.local/QK-QS',
+      uri: '//fileserver.example.com/documents',
       username: 'test-user',
       password: 'test-pass',
     }
@@ -100,12 +99,12 @@ describe('File Crawler - Path Handling', () => {
     } as unknown as SMB2Client
 
     const options: SmbCrawlOptions = {
-      uri: '//Data.CHEPLA-ZH.local/QK-QS/000_Quality Assurance',
+      uri: '//fileserver.example.com/documents/Sales Department',
       username: 'test-user',
       password: 'test-pass',
     }
 
-    const basePath = '000_Quality Assurance'
+    const basePath = 'Sales Department'
 
     const files: unknown[] = []
     for await (const file of crawlDirectory(mockClient, basePath, options)) {
@@ -113,6 +112,6 @@ describe('File Crawler - Path Handling', () => {
     }
 
     // Spaces should be preserved as-is
-    expect(readdirCalls[0]).toBe('000_Quality Assurance')
+    expect(readdirCalls[0]).toBe('Sales Department')
   })
 })
