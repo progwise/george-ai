@@ -119,7 +119,6 @@ export const Input = <T extends ZodRawShape>({
               else ref.current = el
             }
           }}
-          key={value}
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
@@ -146,7 +145,6 @@ export const Input = <T extends ZodRawShape>({
               else ref.current = el
             }
           }}
-          key={value}
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}

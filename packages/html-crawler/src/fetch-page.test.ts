@@ -92,9 +92,7 @@ describe('fetchPageAsMarkdown', () => {
   it('should throw HtmlCrawlError on connection refused', async () => {
     mockFetch.mockRejectedValueOnce(new Error('fetch failed: ECONNREFUSED'))
 
-    await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow(
-      new HtmlCrawlError('Crawl4AI service unavailable', 'https://example.com'),
-    )
+    await expect(fetchPageAsMarkdown('https://example.com')).rejects.toThrow('Crawl4AI service unavailable')
   })
 
   it('should throw HtmlCrawlError on timeout', async () => {

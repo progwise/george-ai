@@ -72,16 +72,37 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     const [hostname, portStr] = host.split(':')
     const port = portStr ? parseInt(portStr, 10) : 445
 
-    // Extract domain from username if in DOMAIN\user format
+    // Extract domain from username - supports multiple formats:
+    // 1. DOMAIN\username (NetBIOS format)
+    // 2. username@domain.com (UPN format)
+    // 3. username (plain, defaults to WORKGROUP)
     let domain = ''
     let actualUsername = username
+
     if (username.includes('\\')) {
-      const parts = username.split('\\')
-      domain = parts[0]
-      actualUsername = parts[1]
+      // Format: DOMAIN\username (NetBIOS)
+      // Use lastIndexOf to handle edge cases with multiple backslashes
+      const lastBackslashIndex = username.lastIndexOf('\\')
+      if (lastBackslashIndex > 0 && lastBackslashIndex < username.length - 1) {
+        domain = username.slice(0, lastBackslashIndex)
+        actualUsername = username.slice(lastBackslashIndex + 1)
+      }
+    } else if (username.includes('@')) {
+      // Format: username@domain.com (UPN)
+      // Use lastIndexOf to handle edge cases with multiple @ symbols
+      const lastAtIndex = username.lastIndexOf('@')
+      if (lastAtIndex > 0 && lastAtIndex < username.length - 1) {
+        actualUsername = username.slice(0, lastAtIndex)
+        domain = username.slice(lastAtIndex + 1)
+      }
     }
+    // else: plain username, domain stays empty (defaults to WORKGROUP below)
 
     console.log(`[Connection] Connecting to ${hostname}:${port}, share: ${share}`)
+    console.log(`[Connection] Auth details - Original username: "${username}"`)
+    console.log(`[Connection] Auth details - Parsed username: "${actualUsername}"`)
+    console.log(`[Connection] Auth details - Parsed domain: "${domain || 'WORKGROUP'}"`)
+    console.log(`[Connection] Auth details - Password: ${password.length > 0 ? 'provided' : 'empty'}`)
 
     // Create SMB2 client (share is required in constructor)
     const client = new SMB2Client({
