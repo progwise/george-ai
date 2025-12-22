@@ -50,12 +50,19 @@ export const useEmailInvitations = (conversationId: string) => {
         ),
       )
 
-      const failedEmails = invitationStatus
-        .map((result, index) => (result.status === 'rejected' ? emails[index] : null))
-        .filter((email) => email !== null)
+      const failedInvitations = invitationStatus
+        .map((result, index) => {
+          if (result.status === 'rejected') {
+            const errorMessage = result.reason instanceof Error ? result.reason.message : String(result.reason)
+            return `${emails[index]}: ${errorMessage}`
+          }
+          return null
+        })
+        .filter((item) => item !== null)
 
-      if (failedEmails.length > 0) {
-        toastError(t('invitations.failedToSendInvitation', { emails: failedEmails.join(', ') }))
+      if (failedInvitations.length > 0) {
+        const errorMessage = `${t('invitations.failedToSendInvitation')}\n\n${failedInvitations.join('\n')}`
+        toastError(errorMessage)
       } else {
         toastSuccess(t('invitations.invitationSent'))
       }

@@ -311,6 +311,24 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
         logger.error(`Failed extractions for task ${task.id}:`, failedExtractions)
       }
 
+      // Serialize error objects for failed extractions (Error objects don't JSON.stringify properly)
+      const extractionResultsSerializable = extractionResults.map((result) => {
+        if (result.status === 'rejected') {
+          return {
+            status: result.status,
+            reason:
+              result.reason instanceof Error
+                ? {
+                    message: result.reason.message,
+                    stack: result.reason.stack,
+                    name: result.reason.name,
+                  }
+                : result.reason,
+          }
+        }
+        return result
+      })
+
       const allSuccessful = extractionResultsFulfilled.every((result) => result.extractionResult.success)
       if (!allSuccessful) {
         task = await updateProcessingTask({
@@ -319,7 +337,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
           data: {
             extractionFailedAt: new Date(),
             processingFailedAt: new Date(),
-            metadata: mergeObjectToJsonString(task.metadata, { extractionResults }),
+            metadata: mergeObjectToJsonString(task.metadata, { extractionResults: extractionResultsSerializable }),
           },
         })
         logger.error(`Extraction phase failed for task ${task.id}`)
@@ -336,7 +354,7 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
                   result.extractionResult.error instanceof Error ? result.extractionResult.error.message : ''
                 return errorMessage.includes('timeout')
               }) || false,
-            metadata: mergeObjectToJsonString(task.metadata, { extractionResults }), // TODO: Not loosing metadata from previous steps
+            metadata: mergeObjectToJsonString(task.metadata, { extractionResults: extractionResultsSerializable }), // TODO: Not loosing metadata from previous steps
           },
         })
       }
@@ -411,7 +429,23 @@ async function processTask(args: { task: ProcessingTaskRecord }) {
     const successfulEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'fulfilled')
     const failedEmbeddingResults = embeddingResultsSettled.filter((r) => r.status === 'rejected')
 
-    const metadata = mergeObjectToJsonString(task.metadata, { successfulEmbeddingResults, failedEmbeddingResults })
+    // Serialize error objects for failed embeddings (Error objects don't JSON.stringify properly)
+    const failedEmbeddingResultsSerializable = failedEmbeddingResults.map((result) => ({
+      status: result.status,
+      reason:
+        result.reason instanceof Error
+          ? {
+              message: result.reason.message,
+              stack: result.reason.stack,
+              name: result.reason.name,
+            }
+          : result.reason,
+    }))
+
+    const metadata = mergeObjectToJsonString(task.metadata, {
+      successfulEmbeddingResults,
+      failedEmbeddingResults: failedEmbeddingResultsSerializable,
+    })
     const hasFailures = failedEmbeddingResults.length > 0
     const hasSuccess = successfulEmbeddingResults.length > 0
 

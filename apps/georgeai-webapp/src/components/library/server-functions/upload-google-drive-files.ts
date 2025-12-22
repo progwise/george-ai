@@ -112,7 +112,10 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
     const results = await Promise.allSettled(processFiles)
     const errors = results
       .filter((result) => result.status === 'rejected')
-      .map((result) => (result as PromiseRejectedResult).reason)
+      .map((result) => {
+        const reason = (result as PromiseRejectedResult).reason
+        return reason instanceof Error ? reason.message : String(reason)
+      })
     if (errors.length > 0) {
       throw new Error(`Failed to process some files:\n${errors.join('\n')}`)
     }
