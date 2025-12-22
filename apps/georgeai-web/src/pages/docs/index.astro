@@ -30,6 +30,74 @@ import Layout from '../../layouts/Layout.astro'
     </div>
   </div>
 
+  <!-- How George AI Works -->
+  <div class="mb-16">
+    <h2 class="text-3xl font-bold mb-6 text-center">How George AI Works</h2>
+    <p class="text-lg text-center text-base-content/70 max-w-3xl mx-auto mb-12">
+      George AI transforms your unstructured documents into structured, actionable data through three simple steps
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-8 mb-8">
+      <!-- Step 1: Collect -->
+      <div class="card bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary">
+        <div class="card-body text-center">
+          <div class="badge badge-primary badge-lg mb-4 mx-auto">Step 1</div>
+          <h3 class="card-title justify-center text-2xl mb-4">📥 Collect</h3>
+          <p class="text-sm mb-4">
+            Automatically gather documents from any source: SharePoint, file shares, emails, Google Drive, or manual upload.
+          </p>
+          <ul class="text-xs text-left space-y-2">
+            <li>• <a href="/docs/crawlers" class="link link-primary font-semibold">Crawlers</a> automatically sync from external sources</li>
+            <li>• <a href="/docs/files" class="link link-primary font-semibold">Files</a> are processed and converted to searchable format</li>
+            <li>• <a href="/docs/libraries" class="link link-primary font-semibold">Libraries</a> organize documents by team or project</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 2: Enrich -->
+      <div class="card bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary">
+        <div class="card-body text-center">
+          <div class="badge badge-secondary badge-lg mb-4 mx-auto">Step 2</div>
+          <h3 class="card-title justify-center text-2xl mb-4">✨ Enrich</h3>
+          <p class="text-sm mb-4">
+            AI extracts structured data from your documents—no coding required. Turn PDFs into searchable databases.
+          </p>
+          <ul class="text-xs text-left space-y-2">
+            <li>• <a href="/docs/lists" class="link link-secondary font-semibold">Lists</a> organize files into business views</li>
+            <li>• <a href="/docs/enrichments" class="link link-secondary font-semibold">Enrichments</a> extract custom data fields</li>
+            <li>• <strong>No-code</strong> configuration via simple prompts</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 3: Automate -->
+      <div class="card bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent">
+        <div class="card-body text-center">
+          <div class="badge badge-accent badge-lg mb-4 mx-auto">Step 3</div>
+          <h3 class="card-title justify-center text-2xl mb-4">🤖 Automate</h3>
+          <p class="text-sm mb-4">
+            Push enriched data to external systems automatically. Sync products to e-commerce, update CRMs, trigger workflows.
+          </p>
+          <ul class="text-xs text-left space-y-2">
+            <li>• <a href="/docs/automations" class="link link-accent font-semibold">Automations</a> sync data to external systems</li>
+            <li>• <a href="/docs/connectors" class="link link-accent font-semibold">Connectors</a> integrate with Shopware, APIs, etc.</li>
+            <li>• <strong>Real-time</strong> triggers and scheduled runs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-success shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div>
+        <h3 class="font-bold">Example: Product Catalog Management</h3>
+        <p class="text-sm">
+          Supplier sends PDF catalog → George AI extracts product data → Enrichments add categories and descriptions → Automation syncs to your Shopware store → Products go live automatically.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Core Concepts -->
   <div class="mb-16">
     <h2 class="text-3xl font-bold mb-8">Core Concepts</h2>
@@ -68,6 +136,15 @@ import Layout from '../../layouts/Layout.astro'
         </div>
       </a>
 
+      <!-- CSV Splitting -->
+      <a href="/docs/csv-splitting" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-info mb-2">Automatic</div>
+          <h3 class="card-title">CSV File Splitting</h3>
+          <p class="text-sm">Handle massive spreadsheets with automatic row-by-row splitting for perfect search results</p>
+        </div>
+      </a>
+
       <!-- Processing -->
       <a href="/docs/processing" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
         <div class="card-body">
@@ -98,6 +175,24 @@ import Layout from '../../layouts/Layout.astro'
           <div class="badge badge-success mb-2">No-Code</div>
           <h3 class="card-title">Enrichments</h3>
           <p class="text-sm">Extract custom data from documents without writing code</p>
+        </div>
+      </a>
+
+      <!-- Automations -->
+      <a href="/docs/automations" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-accent mb-2">Business</div>
+          <h3 class="card-title">Automations</h3>
+          <p class="text-sm">Automatically sync enriched data to external systems like e-commerce platforms and CRMs</p>
+        </div>
+      </a>
+
+      <!-- Connectors -->
+      <a href="/docs/connectors" class="card bg-base-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <div class="card-body">
+          <div class="badge badge-secondary mb-2">Integrations</div>
+          <h3 class="card-title">Connectors</h3>
+          <p class="text-sm">Pre-built integrations for Shopware, APIs, and other external systems</p>
         </div>
       </a>
 
