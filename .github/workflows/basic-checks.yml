@@ -2,6 +2,20 @@ name: Basic linting, formatting and building
 
 on:
   push:
+    # Skip basic checks for documentation-only changes
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/CODEOWNERS'
+      - '.github/FUNDING.yml'
+      - 'LICENSE'
+      - '.vscode/**'
+
+# Cancel in-progress runs when a new run is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DATABASE_URL: postgresql://chatweb:password@localhost:5432/chatweb?schema=public
