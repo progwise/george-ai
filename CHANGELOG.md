@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [unreleased]
 
+## [2025-11-21]
+
 ### Added
 
 - **Workspace Multi-Tenancy** - Complete workspace isolation for teams and organizations
