@@ -72,14 +72,25 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     const [hostname, portStr] = host.split(':')
     const port = portStr ? parseInt(portStr, 10) : 445
 
-    // Extract domain from username if in DOMAIN\user format
+    // Extract domain from username - supports multiple formats:
+    // 1. DOMAIN\username (NetBIOS format)
+    // 2. username@domain.com (UPN format)
+    // 3. username (plain, defaults to WORKGROUP)
     let domain = ''
     let actualUsername = username
+
     if (username.includes('\\')) {
+      // Format: DOMAIN\username
       const parts = username.split('\\')
       domain = parts[0]
       actualUsername = parts[1]
+    } else if (username.includes('@')) {
+      // Format: username@domain.com (UPN)
+      const parts = username.split('@')
+      actualUsername = parts[0]
+      domain = parts[1]
     }
+    // else: plain username, domain stays empty (defaults to WORKGROUP below)
 
     console.log(`[Connection] Connecting to ${hostname}:${port}, share: ${share}`)
     console.log(`[Connection] Auth details - Original username: "${username}"`)
