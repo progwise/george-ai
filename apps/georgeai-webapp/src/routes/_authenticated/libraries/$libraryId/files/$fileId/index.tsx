@@ -125,7 +125,7 @@ function RouteComponent() {
               <span className="text-sm">{t('files.checkTasksRunning')}</span>
               <button
                 type="button"
-                className="btn btn-sm btn-primary w-fit"
+                className="btn w-fit btn-sm btn-primary"
                 onClick={() =>
                   navigate({
                     to: '/libraries/$libraryId/files/$fileId/tasks',
