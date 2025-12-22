@@ -32,11 +32,19 @@ import Layout from '../../../layouts/Layout.astro'
       <h2 class="text-3xl font-bold mb-6">What are Connectors?</h2>
       <div class="prose max-w-none">
         <p class="text-lg">
-          Connectors enable George AI to write enriched data to external systems automatically. After AI extracts structured information from your documents, connectors push that data to e-commerce platforms, CMS systems, webhooks, APIs, and more.
+          Connectors are pre-built integrations used by <a href="/docs/automations" class="link link-primary">Automations</a> to write enriched data to external systems. After you extract structured data using <a href="/docs/enrichments" class="link link-primary">Enrichments</a>, automations use connectors to push that data to e-commerce platforms, CMS systems, webhooks, APIs, and more.
         </p>
         <p>
           Each connector provides pre-configured actions (like "Create Product" or "Update Record") with field mapping UIs, authentication handling, and error management.
         </p>
+      </div>
+
+      <div class="alert alert-info mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Connectors are used through Automations</h3>
+          <p class="text-sm">Connectors are not standalone features. They are configured once in Admin settings, then selected when creating an Automation to define where enriched data should be sent.</p>
+        </div>
       </div>
     </section>
 
@@ -163,45 +171,105 @@ import Layout from '../../../layouts/Layout.astro'
 
     <div class="divider"></div>
 
-    <!-- How to Use Connectors -->
+    <!-- Complete Workflow -->
     <section class="mb-12">
-      <h2 class="text-3xl font-bold mb-6">How to Use Connectors</h2>
+      <h2 class="text-3xl font-bold mb-6">Complete Workflow: From Files to External Systems</h2>
+      <p class="mb-6">
+        Connectors are the final step in the <strong>Collect → Enrich → Automate</strong> lifecycle. Here's the complete workflow:
+      </p>
 
       <ul class="steps steps-vertical w-full mb-8">
-        <li class="step step-secondary">
+        <li class="step step-primary">
           <div class="text-left ml-4">
-            <div class="font-bold">Configure Connector</div>
-            <div class="text-xs">Navigate to Admin → AI Services → Connectors</div>
-            <div class="text-xs">Add connector and enter credentials</div>
+            <div class="font-bold">1. Create Library &amp; Upload Files</div>
+            <div class="text-xs">Upload documents or configure crawlers</div>
+            <div class="text-xs">See: <a href="/docs/libraries" class="link">Libraries</a>, <a href="/docs/files" class="link">Files</a>, <a href="/docs/crawlers" class="link">Crawlers</a></div>
+          </div>
+        </li>
+        <li class="step step-primary">
+          <div class="text-left ml-4">
+            <div class="font-bold">2. Create List</div>
+            <div class="text-xs">Organize files into a business view</div>
+            <div class="text-xs">See: <a href="/docs/lists" class="link">Lists</a></div>
           </div>
         </li>
         <li class="step step-secondary">
           <div class="text-left ml-4">
-            <div class="font-bold">Test Connection</div>
-            <div class="text-xs">Validate credentials and API access</div>
+            <div class="font-bold">3. Add Enrichment Fields</div>
+            <div class="text-xs">Extract structured data with AI (e.g., "Product Name", "Price", "Description")</div>
+            <div class="text-xs">See: <a href="/docs/enrichments" class="link">Enrichments</a></div>
           </div>
         </li>
-        <li class="step step-secondary">
+        <li class="step step-accent">
           <div class="text-left ml-4">
-            <div class="font-bold">Create Automation</div>
-            <div class="text-xs">Navigate to Lists → Automations → Create</div>
-            <div class="text-xs">Select connector and action</div>
+            <div class="font-bold">4. Configure Connector (one-time setup)</div>
+            <div class="text-xs">Admin → AI Services → Connectors</div>
+            <div class="text-xs">Enter credentials for external system (e.g., Shopware API)</div>
           </div>
         </li>
-        <li class="step step-secondary">
+        <li class="step step-accent">
           <div class="text-left ml-4">
-            <div class="font-bold">Map Fields</div>
-            <div class="text-xs">Map list fields to connector fields</div>
-            <div class="text-xs">Configure filters and triggers</div>
+            <div class="font-bold">5. Create Automation</div>
+            <div class="text-xs">Lists → Your List → Automations → Create</div>
+            <div class="text-xs">Select connector, map enrichment fields to connector fields</div>
+            <div class="text-xs">See: <a href="/docs/automations" class="link">Automations</a></div>
           </div>
         </li>
-        <li class="step step-secondary">
+        <li class="step step-accent">
           <div class="text-left ml-4">
-            <div class="font-bold">Execute & Monitor</div>
+            <div class="font-bold">6. Execute &amp; Monitor</div>
             <div class="text-xs">Run automation and track results</div>
+            <div class="text-xs">View execution logs and retry failed items</div>
           </div>
         </li>
       </ul>
+
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">Example: PDF Catalog to Shopware Products</h3>
+          <p class="text-sm">
+            Upload supplier PDF catalog → Create list → Add enrichments for "Product Name", "Price", "SKU" → Configure Shopware connector (once) → Create automation with field mappings → Products sync automatically to your store
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Connector Configuration -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Connector Configuration (Admin)</h2>
+      <p class="mb-6">
+        Connectors are configured once by administrators and then available for use in automations across all lists.
+      </p>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title">Configuration Steps</h3>
+          <ol class="list-decimal list-inside space-y-2 text-sm">
+            <li>Navigate to <strong>Admin → AI Services → Connectors</strong></li>
+            <li>Click <strong>Add Connector</strong> and select the connector type (e.g., Shopware 6)</li>
+            <li>Enter connection details:
+              <ul class="list-disc list-inside ml-6 mt-1">
+                <li>Name (for identification in automations)</li>
+                <li>API URL / Endpoint</li>
+                <li>Authentication credentials (OAuth2, API key, etc.)</li>
+              </ul>
+            </li>
+            <li>Click <strong>Test Connection</strong> to verify credentials</li>
+            <li>Save connector - now available for use in automations</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <h3 class="font-bold">Admin Permissions Required</h3>
+          <p class="text-sm">Only workspace administrators can configure connectors. Regular users can create automations using existing connectors.</p>
+        </div>
+      </div>
     </section>
 
     <div class="divider"></div>
