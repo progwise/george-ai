@@ -487,6 +487,9 @@ export default {
     activeFilesForLibrary: '{count} Active files in library',
     allFilesForLibrary: '{count} Total files in library',
     noContentAvailable: 'No content available',
+    noProcessedFiles: 'No extracted files available yet',
+    checkTasksRunning: 'Check tasks running on this file to see processing status',
+    viewTasks: 'View Tasks',
   },
   googleDriveRootFolder: 'My Drive',
   invitations: {

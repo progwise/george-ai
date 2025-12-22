@@ -494,6 +494,9 @@ export default {
     activeFilesForLibrary: '{count} Aktive Dateien in der Bibliothek',
     allFilesForLibrary: '{count} Dateien gesamt in der Bibliothek',
     noContentAvailable: 'Kein Inhalt verfügbar',
+    noProcessedFiles: 'Noch keine extrahierten Dateien verfügbar',
+    checkTasksRunning: 'Überprüfen Sie die laufenden Aufgaben für diese Datei, um den Verarbeitungsstatus zu sehen',
+    viewTasks: 'Aufgaben anzeigen',
   },
   googleDriveRootFolder: 'Meine Ablage',
   invitations: {
