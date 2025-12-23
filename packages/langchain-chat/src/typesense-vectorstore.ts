@@ -203,6 +203,8 @@ export const embedMarkdownFile = async ({
           chunkLength: chunk.pageContent.length,
           errorMessage,
         })
+        // Log chunk content for debugging NaN issues (limited to first 500 chars)
+        console.error('📄 Problematic chunk content:', chunk.pageContent.substring(0, 500))
         failedChunks.push({ chunk, errorMessage: `Embedding failed: ${errorMessage}` })
         continue
       }
@@ -231,8 +233,9 @@ export const embedMarkdownFile = async ({
           chunkIndex: chunk.metadata.chunkIndex,
           subChunkIndex: chunk.metadata.subChunkIndex,
           chunkLength: chunk.pageContent.length,
-          chunkPreview: chunk.pageContent.substring(0, 100),
         })
+        // Log chunk content for debugging NaN issues (limited to first 500 chars)
+        console.error('📄 Problematic chunk content:', chunk.pageContent.substring(0, 500))
         failedChunks.push({ chunk, errorMessage: 'Embedding vector contains NaN values' })
         continue
       }
