@@ -67,6 +67,7 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.AiModelUsageStats] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceStatus] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),

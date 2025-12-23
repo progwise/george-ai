@@ -11,6 +11,7 @@ export const queryKeys = {
   AiServiceStatus: 'AiServiceStatus',
   FileUsages: 'FileUsages',
   AiLanguageModels: 'aiLanguageModels',
+  AiModelUsageStats: 'aiModelUsageStats',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
   Conversation: 'Conversation',

@@ -350,8 +350,11 @@ builder.queryField('aiModelUsageStats', (t) =>
       endDate: t.arg({ type: 'DateTime', required: false }),
     },
     resolve: async (_parent, args, ctx) => {
-      // Admin sees all, users see only their own usage
+      // Filter by workspace through model relation
       const where = {
+        model: {
+          workspaceId: ctx.workspaceId,
+        },
         ...(args.modelId && { modelId: args.modelId }),
         ...(args.libraryId && { libraryId: args.libraryId }),
         ...(args.assistantId && { assistantId: args.assistantId }),
@@ -412,6 +415,9 @@ builder.queryField('aiModelUsageByType', (t) =>
     },
     resolve: async (_parent, args, ctx) => {
       const where = {
+        model: {
+          workspaceId: ctx.workspaceId,
+        },
         ...(args.libraryId && { libraryId: args.libraryId }),
         ...(args.startDate || args.endDate
           ? {
