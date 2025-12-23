@@ -1,4 +1,3 @@
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // Generic AI model information
@@ -77,111 +76,13 @@ const AiServiceClusterStatus = builder.simpleObject('AiServiceClusterStatus', {
 
 // Query resolver for AI service status (workspace-scoped)
 builder.queryField('aiServiceStatus', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: AiServiceClusterStatus,
     nullable: false,
-    authScopes: {
-      isLoggedIn: true,
-    },
     resolve: async (_parent, _args, context) => {
       try {
-        // Get workspace-scoped Ollama providers from database
-        const providers = await prisma.aiServiceProvider.findMany({
-          where: {
-            workspaceId: context.workspaceId,
-            provider: 'ollama',
-            enabled: true,
-          },
-        })
-
-        // If no providers configured, return empty status
-        if (providers.length === 0) {
-          return {
-            instances: [],
-            totalInstances: 0,
-            availableInstances: 0,
-            healthyInstances: 0,
-            totalMemory: 0,
-            totalUsedMemory: 0,
-            totalMaxConcurrency: 0,
-            totalQueueLength: 0,
-          }
-        }
-
-        // Import health check function
-        const { testOllamaConnection } = await import('@george-ai/ai-service-client')
-
-        // Check health of each provider
-        const instanceChecks = await Promise.allSettled(
-          providers.map(async (provider) => {
-            // Skip providers without baseUrl configured
-            if (!provider.baseUrl) {
-              return {
-                name: provider.name,
-                url: '',
-                type: 'OLLAMA',
-                isOnline: false,
-                version: '',
-                availableModels: [],
-                runningModels: [],
-                modelQueues: [],
-                totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
-                usedVram: 0,
-              }
-            }
-
-            const healthCheck = await testOllamaConnection({
-              url: provider.baseUrl,
-              apiKey: provider.apiKey || undefined,
-            })
-
-            return {
-              name: provider.name,
-              url: provider.baseUrl,
-              type: 'OLLAMA',
-              isOnline: healthCheck.success,
-              version: '',
-              availableModels: [],
-              runningModels: [],
-              modelQueues: [],
-              totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
-              usedVram: 0,
-            }
-          }),
-        )
-
-        // Extract instances from settled promises
-        const instances = instanceChecks.map((result) => {
-          if (result.status === 'fulfilled') {
-            return result.value
-          }
-          // Shouldn't happen since we handle errors in the promise, but fallback just in case
-          return {
-            name: 'Unknown',
-            url: 'Unknown',
-            type: 'OLLAMA',
-            isOnline: false,
-            version: '',
-            availableModels: [],
-            runningModels: [],
-            modelQueues: [],
-            totalVram: 0,
-            usedVram: 0,
-          }
-        })
-
-        const healthyInstances = instances.filter((inst) => inst.isOnline).length
-
-        return {
-          instances,
-          totalInstances: instances.length,
-          availableInstances: healthyInstances,
-          healthyInstances,
-          totalMemory: instances.reduce((sum, inst) => sum + inst.totalVram, 0),
-          totalUsedMemory: 0,
-          totalMaxConcurrency: 0,
-          totalQueueLength: 0,
-        }
+        const { getOllamaClusterStatus } = await import('@george-ai/ai-service-client')
+        return getOllamaClusterStatus(context.workspaceId)
       } catch (error) {
         console.error('Error fetching AI service status:', error)
         throw new Error('Failed to fetch AI service status')

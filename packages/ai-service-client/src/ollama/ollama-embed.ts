@@ -1,13 +1,10 @@
 import { generateOllamaEmbeddings } from './ollama-api.js'
-import { ollamaResourceManager } from './ollama-resource-manager.js'
+import { getOllamaResourceManager } from './ollama-resource-manager.js'
 
-export const getOllamaEmbedding = async (
-  embeddingModelName: string,
-  question: string,
-  endpoints: { url: string; apiKey?: string; vramGB: number; name: string }[],
-) => {
-  // Get semaphore for this instance to throttle concurrent requests
-  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(endpoints, embeddingModelName)
+export const getOllamaEmbedding = async (workspaceId: string, embeddingModelName: string, question: string) => {
+  // Get workspace resource manager and best instance for this model
+  const manager = getOllamaResourceManager(workspaceId)
+  const { instance, semaphore } = await manager.getBestInstance(embeddingModelName)
 
   // Acquire semaphore before making embedding request
   await semaphore.acquire()

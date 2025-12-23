@@ -1,8 +1,9 @@
 import { getCapabilitiesForModel } from '../model-classifier'
-import { ollamaResourceManager } from './ollama-resource-manager'
+import { getOllamaResourceManager } from './ollama-resource-manager'
 
-export const getClusterStatus = async () => {
-  const instances = await ollamaResourceManager.getAllInstances()
+export const getClusterStatus = async (workspaceId: string) => {
+  const manager = getOllamaResourceManager(workspaceId)
+  const instances = await manager.getAllInstances()
 
   return {
     instances: instances.map((instance) => ({
@@ -30,7 +31,7 @@ export const getClusterStatus = async () => {
         modelName,
         queueLength: semaphore.queueLength(),
         maxConcurrency: semaphore.permitsAvailable() + semaphore.queueLength(),
-        estimatedRequestSize: ollamaResourceManager.getEstimatedSizePerRequest(modelName),
+        estimatedRequestSize: manager.getEstimatedSizePerRequest(modelName),
       })),
       totalVram: instance.config.vramGB * 1024 * 1024 * 1024,
       usedVram: instance.load?.totalVramUsage || 0,

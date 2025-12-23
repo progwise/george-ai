@@ -17,7 +17,7 @@ export {
   classifyModel,
 } from './model-classifier'
 
-export { getOllamaClusterStatus } from './ollama'
+export { getOllamaClusterStatus, getOllamaResourceManager, invalidateOllamaResourceManager } from './ollama'
 
 /**
  * Test Ollama provider connection

@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
+import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const aiProvidersQueryDocument = graphql(`
@@ -31,6 +32,6 @@ const getAiProviders = createServerFn({ method: 'GET' })
 
 export const getAiProvidersQueryOptions = (enabled?: boolean) =>
   queryOptions({
-    queryKey: ['aiServiceProviders', { enabled }],
+    queryKey: [queryKeys.AiServiceProviders, { enabled }],
     queryFn: () => getAiProviders({ data: { enabled } }),
   })
