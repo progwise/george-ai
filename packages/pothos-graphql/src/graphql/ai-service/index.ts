@@ -108,27 +108,75 @@ builder.queryField('aiServiceStatus', (t) =>
           }
         }
 
-        // TODO: Fetch real-time status from each provider's baseUrl
-        // For now, return basic provider info
-        // This will be implemented in the next step
-        const instances = providers.map((provider) => ({
-          name: provider.name,
-          url: provider.baseUrl || 'http://ollama:11434',
-          type: 'OLLAMA',
-          isOnline: false, // TODO: Query actual status
-          version: '',
-          availableModels: [],
-          runningModels: [],
-          modelQueues: [],
-          totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
-          usedVram: 0,
-        }))
+        // Import health check function
+        const { testOllamaConnection } = await import('@george-ai/ai-service-client')
+
+        // Check health of each provider
+        const instanceChecks = await Promise.allSettled(
+          providers.map(async (provider) => {
+            // Skip providers without baseUrl configured
+            if (!provider.baseUrl) {
+              return {
+                name: provider.name,
+                url: '',
+                type: 'OLLAMA',
+                isOnline: false,
+                version: '',
+                availableModels: [],
+                runningModels: [],
+                modelQueues: [],
+                totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
+                usedVram: 0,
+              }
+            }
+
+            const healthCheck = await testOllamaConnection({
+              url: provider.baseUrl,
+              apiKey: provider.apiKey || undefined,
+            })
+
+            return {
+              name: provider.name,
+              url: provider.baseUrl,
+              type: 'OLLAMA',
+              isOnline: healthCheck.success,
+              version: '',
+              availableModels: [],
+              runningModels: [],
+              modelQueues: [],
+              totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
+              usedVram: 0,
+            }
+          }),
+        )
+
+        // Extract instances from settled promises
+        const instances = instanceChecks.map((result) => {
+          if (result.status === 'fulfilled') {
+            return result.value
+          }
+          // Shouldn't happen since we handle errors in the promise, but fallback just in case
+          return {
+            name: 'Unknown',
+            url: 'Unknown',
+            type: 'OLLAMA',
+            isOnline: false,
+            version: '',
+            availableModels: [],
+            runningModels: [],
+            modelQueues: [],
+            totalVram: 0,
+            usedVram: 0,
+          }
+        })
+
+        const healthyInstances = instances.filter((inst) => inst.isOnline).length
 
         return {
           instances,
           totalInstances: instances.length,
-          availableInstances: 0, // TODO: Count online instances
-          healthyInstances: 0,
+          availableInstances: healthyInstances,
+          healthyInstances,
           totalMemory: instances.reduce((sum, inst) => sum + inst.totalVram, 0),
           totalUsedMemory: 0,
           totalMaxConcurrency: 0,
