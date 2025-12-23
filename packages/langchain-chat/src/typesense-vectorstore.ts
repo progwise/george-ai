@@ -164,6 +164,11 @@ export const embedMarkdownFile = async ({
   const successfulCreatedChunks: typeof chunks = []
   const failedChunks: Array<{ chunk: (typeof chunks)[number]; errorMessage: string }> = []
 
+  // Helper function to log problematic chunk content for debugging
+  const logProblematicChunk = (content: string) => {
+    console.error('📄 Problematic chunk content:', content.substring(0, 500))
+  }
+
   try {
     for (const chunk of chunks) {
       if (timeoutSignal.aborted) {
@@ -191,7 +196,7 @@ export const embedMarkdownFile = async ({
       try {
         embeddingResult = await getEmbedding(workspaceId, embeddingModelProvider, embeddingModelName, chunk.pageContent)
       } catch (error) {
-        const errorMessage = (error as Error).message
+        const errorMessage = error instanceof Error ? error.message : String(error)
         console.error('❌ Failed to generate embedding:', {
           workspaceId,
           embeddingModelProvider,
@@ -203,8 +208,7 @@ export const embedMarkdownFile = async ({
           chunkLength: chunk.pageContent.length,
           errorMessage,
         })
-        // Log chunk content for debugging NaN issues (limited to first 500 chars)
-        console.error('📄 Problematic chunk content:', chunk.pageContent.substring(0, 500))
+        logProblematicChunk(chunk.pageContent)
         failedChunks.push({ chunk, errorMessage: `Embedding failed: ${errorMessage}` })
         continue
       }
@@ -234,8 +238,7 @@ export const embedMarkdownFile = async ({
           subChunkIndex: chunk.metadata.subChunkIndex,
           chunkLength: chunk.pageContent.length,
         })
-        // Log chunk content for debugging NaN issues (limited to first 500 chars)
-        console.error('📄 Problematic chunk content:', chunk.pageContent.substring(0, 500))
+        logProblematicChunk(chunk.pageContent)
         failedChunks.push({ chunk, errorMessage: 'Embedding vector contains NaN values' })
         continue
       }
