@@ -164,25 +164,85 @@ export const embedMarkdownFile = async ({
   const successfulCreatedChunks: typeof chunks = []
   const failedChunks: Array<{ chunk: (typeof chunks)[number]; errorMessage: string }> = []
 
+  // Helper function to log problematic chunk content for debugging
+  const logProblematicChunk = (content: string) => {
+    console.error('📄 Problematic chunk content:', content.substring(0, 500))
+  }
+
   try {
     for (const chunk of chunks) {
       if (timeoutSignal.aborted) {
         console.warn('⚠️ Embedding process aborted due to timeout signal')
         break
       }
-      const embeddingResult = await getEmbedding(
-        workspaceId,
-        embeddingModelProvider,
-        embeddingModelName,
-        chunk.pageContent,
-      )
+
+      // Validate chunk content before sending to embedding model
+      // Empty or whitespace-only content can cause Ollama to return NaN embeddings
+      if (!chunk.pageContent.trim()) {
+        console.warn('⚠️ Skipping empty chunk:', {
+          workspaceId,
+          embeddingModelProvider,
+          embeddingModelName,
+          fileId,
+          fileName,
+          chunkIndex: chunk.metadata.chunkIndex,
+          subChunkIndex: chunk.metadata.subChunkIndex,
+        })
+        failedChunks.push({ chunk, errorMessage: 'Empty or whitespace-only content' })
+        continue
+      }
+
+      let embeddingResult
+      try {
+        embeddingResult = await getEmbedding(workspaceId, embeddingModelProvider, embeddingModelName, chunk.pageContent)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.error('❌ Failed to generate embedding:', {
+          workspaceId,
+          embeddingModelProvider,
+          embeddingModelName,
+          fileId,
+          fileName,
+          chunkIndex: chunk.metadata.chunkIndex,
+          subChunkIndex: chunk.metadata.subChunkIndex,
+          chunkLength: chunk.pageContent.length,
+          errorMessage,
+        })
+        logProblematicChunk(chunk.pageContent)
+        failedChunks.push({ chunk, errorMessage: `Embedding failed: ${errorMessage}` })
+        continue
+      }
 
       if (embeddingResult.embeddings.length === 0) {
-        console.error('❌ No embeddings returned from Ollama')
+        console.error('❌ No embeddings returned from model:', {
+          workspaceId,
+          embeddingModelProvider,
+          embeddingModelName,
+          fileId,
+          fileName,
+        })
         failedChunks.push({ chunk, errorMessage: 'No embeddings returned from model' })
         continue
       }
       const vector = embeddingResult.embeddings[0]
+
+      // Validate vector doesn't contain NaN values
+      if (vector.some((value) => Number.isNaN(value))) {
+        console.error('❌ Vector contains NaN values:', {
+          workspaceId,
+          embeddingModelProvider,
+          embeddingModelName,
+          fileId,
+          fileName,
+          chunkIndex: chunk.metadata.chunkIndex,
+          subChunkIndex: chunk.metadata.subChunkIndex,
+          chunkLength: chunk.pageContent.length,
+        })
+        logProblematicChunk(chunk.pageContent)
+        failedChunks.push({ chunk, errorMessage: 'Embedding vector contains NaN values' })
+        continue
+      }
+
       try {
         // Generate deterministic ID to prevent duplicates on re-processing
         const chunkId = `${fileId}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
