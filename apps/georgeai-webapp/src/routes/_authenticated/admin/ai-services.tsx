@@ -87,6 +87,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider created successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -102,6 +103,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -116,6 +118,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
     },
@@ -127,7 +130,10 @@ function AiServicesAdminPage() {
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
-    onSuccess: () => queryClient.invalidateQueries(getAiProvidersQueryOptions()),
+    onSuccess: () => {
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+    },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
       toastError(message || 'Failed to toggle provider')
@@ -170,6 +176,10 @@ function AiServicesAdminPage() {
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
       toastError(message || 'Connection test failed')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
     },
   })
 

@@ -1,5 +1,6 @@
 import { getOllamaModels } from './ollama/ollama-api'
 import { discoverOllamaModels } from './ollama/ollama-discover'
+import { invalidateOllamaResourceManager } from './ollama/ollama-resource-manager'
 import { getOpenAIModels } from './openAi/openai-api'
 import { discoverOpenAIModels } from './openAi/openai-discover'
 // Workspace provider cache management
@@ -101,6 +102,7 @@ export const getProviders = async (workspaceId: string): Promise<ServiceProvider
  */
 export const invalidateWorkspace = (workspaceId: string) => {
   providerCache.invalidate(workspaceId)
+  invalidateOllamaResourceManager(workspaceId)
 }
 
 /**
