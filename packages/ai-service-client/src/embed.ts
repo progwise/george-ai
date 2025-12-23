@@ -21,21 +21,8 @@ export const getEmbedding = async (
   }
 
   if (providerConfig.provider === 'ollama') {
-    if (
-      providerConfig.endpoints.length === 0 ||
-      providerConfig.endpoints.some((ep) => !ep.url || ep.url.length === 0)
-    ) {
-      throw new Error('No Ollama endpoints provided in the provider configuration')
-    }
-    const endpoints = providerConfig.endpoints.map((ep) => {
-      return {
-        url: ep.url!,
-        apiKey: ep.apiKey,
-        vramGB: ep.vramGB,
-        name: ep.name,
-      }
-    })
-    return getOllamaEmbedding(modelName, question, endpoints)
+    // Ollama embedding now uses workspace resource manager
+    return getOllamaEmbedding(workspaceId, modelName, question)
   } else if (providerConfig.provider === 'openai') {
     if (providerConfig.endpoints.length === 0 || !providerConfig.endpoints[0].apiKey) {
       throw new Error('OpenAI API key is not provided in the provider configuration')

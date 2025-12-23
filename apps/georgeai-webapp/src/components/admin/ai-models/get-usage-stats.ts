@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getUsageStats = createServerFn({ method: 'GET' })
@@ -62,6 +63,6 @@ const getUsageStats = createServerFn({ method: 'GET' })
 
 export const usageStatsQueryOptions = (period: 'week' | 'month' | 'year') =>
   queryOptions({
-    queryKey: ['usageStats', period],
+    queryKey: [queryKeys.AiModelUsageStats, period],
     queryFn: () => getUsageStats({ data: { period } }),
   })

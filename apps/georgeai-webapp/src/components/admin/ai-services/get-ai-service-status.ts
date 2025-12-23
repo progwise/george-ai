@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
+import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(async () => {
@@ -59,7 +60,7 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
 
 export const getAiServiceStatusQueryOptions = () =>
   queryOptions({
-    queryKey: ['ai-service-status'],
+    queryKey: [queryKeys.AiServiceStatus],
     queryFn: () => getAiServiceStatus(),
     staleTime: 30 * 1000, // 30 seconds - AI service status changes frequently
     refetchInterval: false, // Manual refresh only

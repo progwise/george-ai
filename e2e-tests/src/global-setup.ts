@@ -144,10 +144,10 @@ async function globalSetup() {
     // Step 4: Discover and sync models from providers
     console.log('  🔍 Discovering models from configured providers...')
 
-    // Discover OpenAI models
+    // Discover OpenAI models (workspace-scoped to Workspace 1)
     if (OPENAI_API_KEY && OPENAI_API_KEY.length > 0) {
       try {
-        console.log('  🔍 Discovering OpenAI models...')
+        console.log('  🔍 Discovering OpenAI models for E2E Test Workspace 1...')
         const response = await fetch('https://api.openai.com/v1/models', {
           headers: {
             Authorization: `Bearer ${OPENAI_API_KEY}`,
@@ -159,6 +159,7 @@ async function globalSetup() {
         }
 
         const data = await response.json()
+        const workspace1Id = '00000000-0000-0000-0000-000000000002'
 
         if (data.data) {
           for (const model of data.data) {
@@ -170,39 +171,39 @@ async function globalSetup() {
             const canDoVision = modelId.includes('gpt-4') && modelId.includes('vision')
             const canDoFunctionCalling = modelId.includes('gpt-4') || modelId.includes('gpt-3.5')
 
-            // Insert model into database
+            // Insert workspace-scoped model into database
             await client.query(
               `
               INSERT INTO "AiLanguageModel" (
-                id, name, provider, "canDoEmbedding", "canDoChatCompletion",
+                id, "workspaceId", name, provider, "canDoEmbedding", "canDoChatCompletion",
                 "canDoVision", "canDoFunctionCalling", enabled, "createdAt", "updatedAt"
               )
               VALUES (
-                gen_random_uuid(), $1, 'openai', $2, $3, $4, $5, true, NOW(), NOW()
+                gen_random_uuid(), $1, $2, 'openai', $3, $4, $5, $6, true, NOW(), NOW()
               )
-              ON CONFLICT (provider, name)
+              ON CONFLICT ("workspaceId", provider, name)
               DO UPDATE SET
-                "canDoEmbedding" = $2,
-                "canDoChatCompletion" = $3,
-                "canDoVision" = $4,
-                "canDoFunctionCalling" = $5,
+                "canDoEmbedding" = $3,
+                "canDoChatCompletion" = $4,
+                "canDoVision" = $5,
+                "canDoFunctionCalling" = $6,
                 enabled = true,
                 "updatedAt" = NOW()
             `,
-              [modelId, canDoEmbedding, canDoChatCompletion, canDoVision, canDoFunctionCalling],
+              [workspace1Id, modelId, canDoEmbedding, canDoChatCompletion, canDoVision, canDoFunctionCalling],
             )
           }
-          console.log(`  ✅ Synced ${data.data.length} OpenAI models`)
+          console.log(`  ✅ Synced ${data.data.length} OpenAI models to E2E Test Workspace 1`)
         }
       } catch (error) {
         console.log(`  ⚠️  Failed to discover OpenAI models:`, error)
       }
     }
 
-    // Discover Ollama models
+    // Discover Ollama models (workspace-scoped to Workspace 2)
     if (OLLAMA_BASE_URL && OLLAMA_BASE_URL.length > 0) {
       try {
-        console.log('  🔍 Discovering Ollama models...')
+        console.log('  🔍 Discovering Ollama models for E2E Test Workspace 2...')
         const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
           headers: OLLAMA_API_KEY
             ? {
@@ -216,6 +217,7 @@ async function globalSetup() {
         }
 
         const data = await response.json()
+        const workspace2Id = '00000000-0000-0000-0000-000000000003'
 
         if (data.models) {
           for (const model of data.models) {
@@ -228,29 +230,29 @@ async function globalSetup() {
               modelName.includes('vision') || modelName.includes('llava') || modelName.includes('bakllava')
             const canDoFunctionCalling = modelName.includes('llama3') || modelName.includes('mistral')
 
-            // Insert model into database
+            // Insert workspace-scoped model into database
             await client.query(
               `
               INSERT INTO "AiLanguageModel" (
-                id, name, provider, "canDoEmbedding", "canDoChatCompletion",
+                id, "workspaceId", name, provider, "canDoEmbedding", "canDoChatCompletion",
                 "canDoVision", "canDoFunctionCalling", enabled, "createdAt", "updatedAt"
               )
               VALUES (
-                gen_random_uuid(), $1, 'ollama', $2, $3, $4, $5, true, NOW(), NOW()
+                gen_random_uuid(), $1, $2, 'ollama', $3, $4, $5, $6, true, NOW(), NOW()
               )
-              ON CONFLICT (provider, name)
+              ON CONFLICT ("workspaceId", provider, name)
               DO UPDATE SET
-                "canDoEmbedding" = $2,
-                "canDoChatCompletion" = $3,
-                "canDoVision" = $4,
-                "canDoFunctionCalling" = $5,
+                "canDoEmbedding" = $3,
+                "canDoChatCompletion" = $4,
+                "canDoVision" = $5,
+                "canDoFunctionCalling" = $6,
                 enabled = true,
                 "updatedAt" = NOW()
             `,
-              [modelName, canDoEmbedding, canDoChatCompletion, canDoVision, canDoFunctionCalling],
+              [workspace2Id, modelName, canDoEmbedding, canDoChatCompletion, canDoVision, canDoFunctionCalling],
             )
           }
-          console.log(`  ✅ Synced ${data.models.length} Ollama models`)
+          console.log(`  ✅ Synced ${data.models.length} Ollama models to E2E Test Workspace 2`)
         }
       } catch (error) {
         console.log(`  ⚠️  Failed to discover Ollama models:`, error)
@@ -272,15 +274,16 @@ async function globalSetup() {
       const librarySuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
       const listSuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
 
-      // Find embedding model for this workspace's provider
+      // Find embedding model for this workspace's provider (workspace-scoped)
       let embeddingModelId: string | null = null
       try {
         const embeddingModelResult = await client.query(
           `
           SELECT id, name FROM "AiLanguageModel"
-          WHERE "canDoEmbedding" = true
+          WHERE "workspaceId" = $1
+            AND "canDoEmbedding" = true
             AND enabled = true
-            AND provider = $1
+            AND provider = $2
           ORDER BY
             CASE
               WHEN name LIKE '%text-embedding-3-small%' THEN 1
@@ -290,7 +293,7 @@ async function globalSetup() {
             name
           LIMIT 1
         `,
-          [preferredProvider],
+          [workspaceId, preferredProvider],
         )
 
         if (embeddingModelResult.rows.length > 0) {

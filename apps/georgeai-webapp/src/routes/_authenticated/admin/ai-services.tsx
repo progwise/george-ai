@@ -54,6 +54,17 @@ const getProviderIcon = (provider: string, className?: string) => {
   }
 }
 
+const getProviderHealthBadge = (isOnline: boolean | null) => {
+  if (isOnline === null) {
+    return <div className="badge badge-ghost badge-xs">Unknown</div>
+  }
+  return isOnline ? (
+    <div className="badge badge-xs badge-success">Healthy</div>
+  ) : (
+    <div className="badge badge-xs badge-error">Offline</div>
+  )
+}
+
 function AiServicesAdminPage() {
   const { queryClient } = Route.useRouteContext()
   const [autoRefresh, setAutoRefresh] = useState(true)
@@ -76,6 +87,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider created successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -91,6 +103,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -105,6 +118,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
       queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
     },
@@ -116,7 +130,10 @@ function AiServicesAdminPage() {
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
-    onSuccess: () => queryClient.invalidateQueries(getAiProvidersQueryOptions()),
+    onSuccess: () => {
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+    },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
       toastError(message || 'Failed to toggle provider')
@@ -159,6 +176,10 @@ function AiServicesAdminPage() {
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
       toastError(message || 'Connection test failed')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
     },
   })
 
@@ -287,63 +308,69 @@ function AiServicesAdminPage() {
               <span>No providers configured. Add your first provider to get started.</span>
             </div>
           ) : (
-            providers.map((provider) => (
-              <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
-                <div className="flex h-full flex-col items-start justify-between gap-2">
-                  <h3 className="flex w-full items-start justify-between gap-2 text-base font-bold">
-                    <div className="flex items-center gap-2">
-                      {getProviderIcon(provider.provider, 'h-6 w-6')}
-                      {provider.name}
-                    </div>
-                    <div className="flex justify-between gap-1">
-                      <div className={`badge badge-sm ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
-                        {provider.enabled ? 'Enabled' : 'Disabled'}
-                      </div>
-                      <div className="badge badge-outline badge-sm">{provider.provider}</div>
-                    </div>
-                  </h3>
-                  <div className="flex-1">
-                    {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
-                    {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
-                      <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
-                    )}
-                    {provider.apiKeyHint && (
-                      <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
-                    )}
-                  </div>
+            providers.map((provider) => {
+              // Find matching instance from service status
+              const instance = serviceStatus.instances.find((inst) => inst.url === provider.baseUrl)
+              const isOnline = instance ? instance.isOnline : null
 
-                  <div className="flex w-full justify-between gap-2">
-                    <div className="flex cursor-pointer items-center gap-2">
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-sm toggle-success"
-                        checked={provider.enabled}
-                        onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
-                      />
-                      <span className="text-sm">{provider.enabled ? 'Disable' : 'Enable'}</span>
+              return (
+                <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+                  <div className="flex h-full flex-col items-start justify-between gap-2">
+                    <h3 className="flex w-full items-start justify-between gap-2 text-base font-bold">
+                      <div className="flex items-center gap-2">
+                        {getProviderIcon(provider.provider, 'h-6 w-6')}
+                        {provider.name}
+                      </div>
+                      <div className="flex flex-wrap justify-end gap-1">
+                        <div className={`badge badge-xs ${provider.enabled ? 'badge-success' : 'badge-error'}`}>
+                          {provider.enabled ? 'Enabled' : 'Disabled'}
+                        </div>
+                        {getProviderHealthBadge(isOnline)}
+                      </div>
+                    </h3>
+                    <div className="flex-1">
+                      {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
+                      {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
+                        <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
+                      )}
+                      {provider.apiKeyHint && (
+                        <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
+                      )}
                     </div>
-                    <div>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => handleEditProvider(provider)}
-                        type="button"
-                      >
-                        <EditIcon className="mr-1 size-4" />
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm btn-error"
-                        onClick={() => handleDeleteProvider(provider.id)}
-                        type="button"
-                      >
-                        <TrashIcon className="mr-1 size-4" />
-                        Delete
-                      </button>
+
+                    <div className="flex w-full justify-between gap-2">
+                      <div className="flex cursor-pointer items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="toggle toggle-sm toggle-success"
+                          checked={provider.enabled}
+                          onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
+                        />
+                        <span className="text-sm">{provider.enabled ? 'Disable' : 'Enable'}</span>
+                      </div>
+                      <div>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => handleEditProvider(provider)}
+                          type="button"
+                        >
+                          <EditIcon className="mr-1 size-4" />
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm btn-error"
+                          onClick={() => handleDeleteProvider(provider.id)}
+                          type="button"
+                        >
+                          <TrashIcon className="mr-1 size-4" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </div>
@@ -364,7 +391,7 @@ function AiServicesAdminPage() {
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">
               Ollama Instances
             </div>
-            <div className="text-3xl font-bold text-secondary">{serviceStatus.availableInstances}</div>
+            <div className="text-3xl font-bold text-secondary">{serviceStatus.totalInstances}</div>
             <div className="mt-1 text-sm text-base-content/70">{serviceStatus.healthyInstances} healthy</div>
           </div>
 

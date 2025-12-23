@@ -1,6 +1,7 @@
 import { getErrorObject, getErrorString } from '@george-ai/web-utils'
 
 import { isEmbeddingModel, isVisionModel } from '../model-classifier'
+import { providerCache } from '../provider-cache'
 import { Semaphore } from '../semaphore'
 import {
   OllamaModel,
@@ -28,9 +29,38 @@ type OllamaInstance = {
 }
 
 class OllamaResourceManager {
+  private workspaceId: string
   private instances: Record<string, OllamaInstance> = {} // Keyed by instance URL
 
-  constructor() {}
+  constructor(workspaceId: string) {
+    this.workspaceId = workspaceId
+  }
+
+  /**
+   * Get workspace providers from cache
+   * Fetches Ollama providers for this workspace and converts to instance configurations
+   */
+  private async getWorkspaceProviders(): Promise<OllamaInstanceConfiguration[]> {
+    const providers = await providerCache.getProviders(this.workspaceId)
+    const ollamaProviders = providers.filter((p) => p.provider === 'ollama')
+
+    // Flatten all endpoints from all Ollama providers
+    const configurations: OllamaInstanceConfiguration[] = []
+    for (const provider of ollamaProviders) {
+      for (const endpoint of provider.endpoints) {
+        if (endpoint.url) {
+          configurations.push({
+            url: endpoint.url,
+            apiKey: endpoint.apiKey,
+            vramGB: endpoint.vramGB || 16,
+            name: endpoint.name,
+          })
+        }
+      }
+    }
+
+    return configurations
+  }
 
   /**
    * Ensure instances are initialized for the given provider configurations
@@ -89,12 +119,18 @@ class OllamaResourceManager {
   }
 
   public async getAllInstances(): Promise<OllamaInstance[]> {
-    // Ensure all instances are initialized
-    Object.keys(this.instances).map(async (url) => {
-      await this.updateInstanceStatus(url)
-      await this.updateInstanceModels(url)
-      await this.updateInstanceLoad(url)
-    })
+    // Fetch workspace providers and ensure instances are initialized
+    const providers = await this.getWorkspaceProviders()
+    await this.ensureInstances(providers)
+
+    // Update status, models, and load for all instances
+    await Promise.all(
+      Object.keys(this.instances).map(async (url) => {
+        await this.updateInstanceStatus(url)
+        await this.updateInstanceModels(url)
+        await this.updateInstanceLoad(url)
+      }),
+    )
     return Object.values(this.instances)
   }
 
@@ -206,12 +242,16 @@ class OllamaResourceManager {
     }
   }
 
-  async getBestInstance(
-    endpoints: { url: string; vramGB: number; name: string }[],
-    model: string,
-  ): Promise<{ instance: OllamaInstance; semaphore: Semaphore }> {
+  async getBestInstance(model: string): Promise<{ instance: OllamaInstance; semaphore: Semaphore }> {
+    // Fetch workspace providers from cache
+    const providers = await this.getWorkspaceProviders()
+
+    if (providers.length === 0) {
+      throw new Error(`No Ollama providers configured for workspace ${this.workspaceId}`)
+    }
+
     // Ensure instances are initialized for these providers
-    await this.ensureInstances(endpoints)
+    await this.ensureInstances(providers)
 
     // Refresh status, models, and load for all instances
     const updatePromises = Object.keys(this.instances).map(async (url) => {
@@ -295,6 +335,31 @@ class OllamaResourceManager {
   }
 }
 
-// Export singleton instance
-// Instances are initialized on-demand when getBestInstance() is called with provider configs
-export const ollamaResourceManager = new OllamaResourceManager()
+// Workspace-keyed cache of resource managers
+const resourceManagers = new Map<string, OllamaResourceManager>()
+
+/**
+ * Get or create a resource manager for a specific workspace
+ * Managers are cached and reused for the same workspace
+ */
+export const getOllamaResourceManager = (workspaceId: string): OllamaResourceManager => {
+  if (!resourceManagers.has(workspaceId)) {
+    resourceManagers.set(workspaceId, new OllamaResourceManager(workspaceId))
+  }
+  return resourceManagers.get(workspaceId)!
+}
+
+/**
+ * Invalidate cached resource manager for a workspace
+ * Call this when workspace providers are updated
+ */
+export const invalidateOllamaResourceManager = (workspaceId: string) => {
+  resourceManagers.delete(workspaceId)
+}
+
+/**
+ * Clear all workspace resource managers
+ */
+export const clearAllOllamaResourceManagers = () => {
+  resourceManagers.clear()
+}

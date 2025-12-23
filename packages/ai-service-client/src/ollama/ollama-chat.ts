@@ -2,21 +2,19 @@ import { checkLineRepetition, createLogger, getErrorObject } from '@george-ai/we
 
 import type { AIResponse, ChatOptions } from '../types.js'
 import { getChatResponseStream } from './ollama-api.js'
-import { ollamaResourceManager } from './ollama-resource-manager.js'
+import { getOllamaResourceManager } from './ollama-resource-manager.js'
 
 const logger = createLogger('Ollama Chat')
 
-export async function ollamaChat(
-  options: ChatOptions,
-  endpoints: { url: string; apiKey?: string; vramGB: number; name: string }[],
-): Promise<AIResponse> {
+export async function ollamaChat(workspaceId: string, options: ChatOptions): Promise<AIResponse> {
   let allContent = ''
   const startTime = Date.now()
   let tokenCount = 0
   let lastChunkTimestamp = startTime
 
   // Select best OLLAMA instance based on current GPU memory usage and model availability
-  const { instance, semaphore } = await ollamaResourceManager.getBestInstance(endpoints, options.modelName)
+  const manager = getOllamaResourceManager(workspaceId)
+  const { instance, semaphore } = await manager.getBestInstance(options.modelName)
   logger.info(`Using instance ${instance.config.url} for model ${options.modelName}`)
 
   let isAborted = false

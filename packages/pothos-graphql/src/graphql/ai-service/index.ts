@@ -1,4 +1,3 @@
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // Generic AI model information
@@ -77,63 +76,13 @@ const AiServiceClusterStatus = builder.simpleObject('AiServiceClusterStatus', {
 
 // Query resolver for AI service status (workspace-scoped)
 builder.queryField('aiServiceStatus', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: AiServiceClusterStatus,
     nullable: false,
-    authScopes: {
-      isLoggedIn: true,
-    },
     resolve: async (_parent, _args, context) => {
       try {
-        // Get workspace-scoped Ollama providers from database
-        const providers = await prisma.aiServiceProvider.findMany({
-          where: {
-            workspaceId: context.workspaceId,
-            provider: 'ollama',
-            enabled: true,
-          },
-        })
-
-        // If no providers configured, return empty status
-        if (providers.length === 0) {
-          return {
-            instances: [],
-            totalInstances: 0,
-            availableInstances: 0,
-            healthyInstances: 0,
-            totalMemory: 0,
-            totalUsedMemory: 0,
-            totalMaxConcurrency: 0,
-            totalQueueLength: 0,
-          }
-        }
-
-        // TODO: Fetch real-time status from each provider's baseUrl
-        // For now, return basic provider info
-        // This will be implemented in the next step
-        const instances = providers.map((provider) => ({
-          name: provider.name,
-          url: provider.baseUrl || 'http://ollama:11434',
-          type: 'OLLAMA',
-          isOnline: false, // TODO: Query actual status
-          version: '',
-          availableModels: [],
-          runningModels: [],
-          modelQueues: [],
-          totalVram: (provider.vramGb || 16) * 1024 * 1024 * 1024,
-          usedVram: 0,
-        }))
-
-        return {
-          instances,
-          totalInstances: instances.length,
-          availableInstances: 0, // TODO: Count online instances
-          healthyInstances: 0,
-          totalMemory: instances.reduce((sum, inst) => sum + inst.totalVram, 0),
-          totalUsedMemory: 0,
-          totalMaxConcurrency: 0,
-          totalQueueLength: 0,
-        }
+        const { getOllamaClusterStatus } = await import('@george-ai/ai-service-client')
+        return getOllamaClusterStatus(context.workspaceId)
       } catch (error) {
         console.error('Error fetching AI service status:', error)
         throw new Error('Failed to fetch AI service status')
