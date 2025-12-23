@@ -1,6 +1,6 @@
 import { getOllamaModels } from './ollama/ollama-api'
 import { discoverOllamaModels } from './ollama/ollama-discover'
-import { invalidateOllamaResourceManager } from './ollama/ollama-resource-manager'
+import { clearAllOllamaResourceManagers, invalidateOllamaResourceManager } from './ollama/ollama-resource-manager'
 import { getOpenAIModels } from './openAi/openai-api'
 import { discoverOpenAIModels } from './openAi/openai-discover'
 // Workspace provider cache management
@@ -18,7 +18,12 @@ export {
   classifyModel,
 } from './model-classifier'
 
-export { getOllamaClusterStatus, getOllamaResourceManager, invalidateOllamaResourceManager } from './ollama'
+export {
+  getOllamaClusterStatus,
+  getOllamaResourceManager,
+  invalidateOllamaResourceManager,
+  clearAllOllamaResourceManagers,
+} from './ollama'
 
 /**
  * Test Ollama provider connection
@@ -110,6 +115,7 @@ export const invalidateWorkspace = (workspaceId: string) => {
  */
 export const clearAllWorkspaceCache = () => {
   providerCache.clearAll()
+  clearAllOllamaResourceManagers()
 }
 
 /**

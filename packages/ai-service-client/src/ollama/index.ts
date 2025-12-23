@@ -7,4 +7,8 @@ export const getOllamaClusterStatus = (workspaceId: string) => {
 }
 
 export { getOllamaModels, type OllamaModel } from './ollama-api'
-export { getOllamaResourceManager, invalidateOllamaResourceManager } from './ollama-resource-manager'
+export {
+  getOllamaResourceManager,
+  invalidateOllamaResourceManager,
+  clearAllOllamaResourceManagers,
+} from './ollama-resource-manager'
