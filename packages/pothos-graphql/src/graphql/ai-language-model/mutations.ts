@@ -71,7 +71,7 @@ async function discoverModels(workspaceId: string): Promise<DiscoveredModel[]> {
  * Always updates capabilities on sync (auto-detection improvements propagate)
  * Disables models that are no longer available from their providers
  */
-async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promise<number> {
+async function syncModelsToDatabase(workspaceId: string, discoveredModels: DiscoveredModel[]): Promise<number> {
   let syncedCount = 0
 
   await prisma.$transaction(async (tx) => {
@@ -81,7 +81,13 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
     // Upsert all discovered models (enable them if they exist)
     for (const model of discoveredModels) {
       await tx.aiLanguageModel.upsert({
-        where: { provider_name: { provider: model.provider, name: model.name } },
+        where: {
+          workspaceId_provider_name: {
+            workspaceId,
+            provider: model.provider,
+            name: model.name,
+          },
+        },
         update: {
           canDoEmbedding: model.canDoEmbedding,
           canDoChatCompletion: model.canDoChatCompletion,
@@ -90,6 +96,7 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
           enabled: true, // Re-enable if it was previously disabled
         },
         create: {
+          workspaceId,
           name: model.name,
           provider: model.provider,
           canDoEmbedding: model.canDoEmbedding,
@@ -108,6 +115,7 @@ async function syncModelsToDatabase(discoveredModels: DiscoveredModel[]): Promis
 
     const existingModels = await tx.aiLanguageModel.findMany({
       where: {
+        workspaceId,
         provider: { in: activeProviders },
       },
       select: { id: true, provider: true, name: true },
@@ -148,7 +156,7 @@ builder.mutationField('syncModels', (t) =>
     resolve: async (_source, _args, context) => {
       try {
         const discoveredModels = await discoverModels(context.workspaceId)
-        const syncedCount = await syncModelsToDatabase(discoveredModels)
+        const syncedCount = await syncModelsToDatabase(context.workspaceId, discoveredModels)
 
         return {
           success: true,
@@ -185,10 +193,13 @@ builder.mutationField('updateAiLanguageModel', (t) =>
       id: t.arg.id({ required: true }),
       data: t.arg({ type: UpdateAiLanguageModelInput, required: true }),
     },
-    resolve: async (query, _root, { id, data }) => {
+    resolve: async (query, _root, { id, data }, context) => {
       return await prisma.aiLanguageModel.update({
         ...query,
-        where: { id },
+        where: {
+          id,
+          workspaceId: context.workspaceId,
+        },
         data: {
           adminNotes: data.adminNotes ?? null,
           enabled: data.enabled,
@@ -205,11 +216,14 @@ builder.mutationField('disableAiLanguageModel', (t) =>
     args: {
       id: t.arg.id({ required: true }),
     },
-    resolve: async (query, _root, { id }) => {
+    resolve: async (query, _root, { id }, context) => {
       // Disable the model (set enabled: false)
       return await prisma.aiLanguageModel.update({
         ...query,
-        where: { id },
+        where: {
+          id,
+          workspaceId: context.workspaceId,
+        },
         data: { enabled: false },
       })
     },
