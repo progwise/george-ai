@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const MARKETING_WEBSITE_URL = 'http://localhost:4321'
+const MARKETING_WEBSITE_URL = process.env.MARKETING_WEBSITE_URL || 'http://localhost:4321'
 const EXPECTED_DISCORD_URL = process.env.EXPECTED_DISCORD_URL || 'https://discord.gg/GbQFKb2MNJ'
 
 test.describe('Marketing Website', () => {
