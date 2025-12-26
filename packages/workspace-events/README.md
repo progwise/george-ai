@@ -1,4 +1,4 @@
-# @george-ai/events
+# @george-ai/workspace-events
 
 Event-driven architecture package for George AI, providing type-safe event definitions and NATS JetStream client utilities.
 
@@ -24,7 +24,7 @@ George AI uses NATS JetStream for event-driven communication between services:
 This package is part of the George AI monorepo and is available as a workspace package:
 
 ```bash
-pnpm add @george-ai/events
+pnpm add @george-ai/workspace-events
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ pnpm add @george-ai/events
 ### Connecting to NATS
 
 ```typescript
-import { createNatsClient } from '@george-ai/events'
+import { createNatsClient } from '@george-ai/workspace-events'
 
 const client = await createNatsClient({
   servers: 'nats://gai-nats:4222',
@@ -47,7 +47,7 @@ const client = await createNatsClient({
 ### Publishing Events
 
 ```typescript
-import { createFileExtractedEvent } from '@george-ai/events'
+import { createFileExtractedEvent } from '@george-ai/workspace-events'
 
 // Create event
 const event = createFileExtractedEvent({
@@ -69,7 +69,7 @@ await client.publish('workspace-123', event)
 ### Subscribing to Events
 
 ```typescript
-import type { FileExtractedEvent } from '@george-ai/events'
+import type { FileExtractedEvent } from '@george-ai/workspace-events'
 
 // Subscribe to specific event type
 const cleanup = await client.subscribe<FileExtractedEvent>(
@@ -94,7 +94,7 @@ await cleanup()
 ### Subscribing to All Events
 
 ```typescript
-import { isFileEmbeddedEvent, isFileExtractedEvent } from '@george-ai/events'
+import { isFileEmbeddedEvent, isFileExtractedEvent } from '@george-ai/workspace-events'
 
 const cleanup = await client.subscribeAll('workspace-123', 'all-events-consumer', async (event, msg) => {
   if (isFileExtractedEvent(event)) {
