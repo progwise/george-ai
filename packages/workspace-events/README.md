@@ -1,27 +1,28 @@
 # @george-ai/workspace-events
 
-Event-driven architecture package for George AI, providing type-safe event definitions and NATS JetStream client utilities.
+Event-driven architecture package for George AI's content processing pipeline.
 
 ## Features
 
-- ✅ Type-safe event definitions
-- ✅ NATS JetStream client with workspace isolation
-- ✅ Consumer groups for horizontal scaling
-- ✅ Durable event delivery with JetStream
-- ✅ Comprehensive test suite
+- ✅ **Simple API** - Just 2 functions: publish and subscribe
+- ✅ **Type-safe events** - Zod validation with TypeScript types
+- ✅ **Workspace isolation** - Each workspace has isolated event streams
+- ✅ **Competing consumers** - Horizontal scaling with load balancing
+- ✅ **Automatic retries** - Failed events are automatically redelivered
+- ✅ **Singleton connection** - Connection management handled internally
 
 ## Architecture
 
-George AI uses NATS JetStream for event-driven communication between services:
+George AI uses NATS JetStream for event-driven communication in the content processing pipeline:
 
-- **Workspace Isolation**: Each workspace has its own NATS stream (`workspace_{id}`)
-- **Event Types**: FileExtracted, FileEmbedded, FileEmbeddingFailed
-- **Subject Format**: `workspace_{id}.{event-type}` (e.g., `workspace_123.file-extracted`)
-- **Consumer Groups**: Competing consumers for horizontal scaling
+- **Subject Format**: `workspace.{workspaceId}.events.{eventName}`
+- **Stream per Workspace**: `workspace-{workspaceId}`
+- **Consumer Groups**: Multiple workers with same consumer name = competing consumers
+- **Connection Management**: Singleton connection from environment variables
 
 ## Installation
 
-This package is part of the George AI monorepo and is available as a workspace package:
+This package is part of the George AI monorepo:
 
 ```bash
 pnpm add @george-ai/workspace-events
@@ -29,298 +30,288 @@ pnpm add @george-ai/workspace-events
 
 ## Usage
 
-### Connecting to NATS
-
-```typescript
-import { createNatsClient } from '@george-ai/workspace-events'
-
-const client = await createNatsClient({
-  servers: 'nats://gai-nats:4222',
-  // Optional authentication
-  user: 'user',
-  pass: 'password',
-  // Or use token
-  token: 'my-token',
-})
-```
-
 ### Publishing Events
 
 ```typescript
-import { createFileExtractedEvent } from '@george-ai/workspace-events'
+import { publishEmbeddingRequest } from '@george-ai/workspace-events'
 
-// Create event
-const event = createFileExtractedEvent({
-  workspaceId: 'workspace-123',
+await publishEmbeddingRequest({
+  eventName: 'file-embedding-request',
+  timestamp: new Date().toISOString(),
+  timeoutMs: 600000, // 10 minutes
+  processingTaskId: 'task-123',
+  workspaceId: 'workspace-abc',
   libraryId: 'lib-456',
   fileId: 'file-789',
-  fileName: 'document.pdf',
-  markdownPath: 'file-789/markdown.md',
-  embeddingModelId: 'model-123',
-  embeddingModelName: 'text-embedding-ada-002',
-  embeddingModelProvider: 'openai',
-  embeddingDimensions: 1536,
+  markdownFilename: 'file-789/markdown.md',
+  fileEmbeddingOptions: {
+    embeddingModelName: 'text-embedding-3-small',
+    embeddingModelProvider: 'openai',
+  },
 })
-
-// Publish to workspace stream
-await client.publish('workspace-123', event)
 ```
 
 ### Subscribing to Events
 
 ```typescript
-import type { FileExtractedEvent } from '@george-ai/workspace-events'
+import { subscribeEmbeddingRequests } from '@george-ai/workspace-events'
 
-// Subscribe to specific event type
-const cleanup = await client.subscribe<FileExtractedEvent>(
-  'workspace-123',
-  'FileExtracted',
-  'my-consumer-name',
-  async (event, msg) => {
-    console.log('Received event:', event)
+const cleanup = await subscribeEmbeddingRequests({
+  consumerName: 'embedding-worker-1',
+  workspaceId: 'workspace-abc',
+  handler: async (event) => {
+    console.log('Processing embedding request:', event.fileId)
 
-    // Process event
-    await processFile(event)
+    // Your processing logic here
+    await generateEmbeddings(event)
 
-    // Message is automatically acknowledged after handler completes
-    // If handler throws, message is negatively acknowledged and will be redelivered
+    // Event is automatically acknowledged on success
+    // If handler throws, event is negatively acknowledged and redelivered
   },
-)
+})
 
-// Clean up when done
+// Clean up when shutting down
 await cleanup()
 ```
 
-### Subscribing to All Events
+## Competing Consumers (Horizontal Scaling)
 
-```typescript
-import { isFileEmbeddedEvent, isFileExtractedEvent } from '@george-ai/workspace-events'
-
-const cleanup = await client.subscribeAll('workspace-123', 'all-events-consumer', async (event, msg) => {
-  if (isFileExtractedEvent(event)) {
-    console.log('File extracted:', event.fileName)
-  } else if (isFileEmbeddedEvent(event)) {
-    console.log('File embedded:', event.chunksCount, 'chunks')
-  }
-})
-```
-
-### Consumer Groups (Competing Consumers)
-
-Multiple consumers with the **same consumer name** form a consumer group where only one consumer receives each message:
+Multiple workers with the **same consumer name** form a consumer group where only one worker receives each event:
 
 ```typescript
 // Worker 1
-await client.subscribe(
-  'workspace-123',
-  'FileExtracted',
-  'embedding-workers', // Same consumer name
-  async (event) => {
-    await generateEmbeddings(event)
+await subscribeEmbeddingRequests({
+  consumerName: 'embedding-workers', // Same name
+  workspaceId: 'workspace-abc',
+  handler: async (event) => {
+    await processEmbedding(event)
   },
-)
+})
 
 // Worker 2 (on different server)
-await client.subscribe(
-  'workspace-123',
-  'FileExtracted',
-  'embedding-workers', // Same consumer name
-  async (event) => {
-    await generateEmbeddings(event)
+await subscribeEmbeddingRequests({
+  consumerName: 'embedding-workers', // Same name
+  workspaceId: 'workspace-abc',
+  handler: async (event) => {
+    await processEmbedding(event)
   },
-)
+})
 
-// Events will be distributed between Worker 1 and Worker 2
+// Events are automatically load-balanced between Worker 1 and Worker 2
 ```
 
 ## Event Types
 
-### FileExtractedEvent
+### EmbeddingRequestEvent
 
-Published when a file has been successfully extracted to Markdown.
+Emitted when a file needs to be embedded (after extraction or on user request for re-embedding).
 
 ```typescript
-interface FileExtractedEvent {
-  type: 'FileExtracted'
+interface EmbeddingRequestEvent {
+  eventName: 'file-embedding-request'
+  timestamp: string
+  timeoutMs: number
+  processingTaskId: string
   workspaceId: string
   libraryId: string
   fileId: string
-  fileName: string
-  markdownPath: string // Relative path: 'fileId/markdown.md'
-
-  // Embedding configuration
-  embeddingModelId: string
-  embeddingModelName: string
-  embeddingModelProvider: string
-  embeddingDimensions: number
-
+  markdownFilename: string
+  fileEmbeddingOptions: {
+    embeddingModelName: string
+    embeddingModelProvider: string
+  }
   part?: number // For multi-part files
-  timestamp: string
 }
 ```
 
-### FileEmbeddedEvent
+### Other Event Types
 
-Published when a file has been successfully embedded in Qdrant.
+The package also supports:
+- `ContentExtractionRequestEvent` - File needs extraction to markdown
+- `ContentExtractionFinishedEvent` - Extraction completed
+- `FileEmbeddingFinishedEvent` - Embedding completed
 
-```typescript
-interface FileEmbeddedEvent {
-  type: 'FileEmbedded'
-  workspaceId: string
-  fileId: string
-  processingTaskId: string
+See `src/types.ts` for complete type definitions.
 
-  qdrantCollection: string // workspace_{workspaceId}
-  qdrantNamedVector: string // model_{embeddingModelId}
-  chunksCount: number
-  chunksSize: number
+## Error Handling
 
-  part?: number
-  timestamp: string
-}
-```
-
-### FileEmbeddingFailedEvent
-
-Published when embedding fails.
+Errors in event handlers trigger automatic retry with exponential backoff:
 
 ```typescript
-interface FileEmbeddingFailedEvent {
-  type: 'FileEmbeddingFailed'
-  workspaceId: string
-  fileId: string
-  processingTaskId: string
-  errorMessage: string
-  timestamp: string
-}
-```
-
-## Stream and Consumer Management
-
-### Create Stream Manually
-
-```typescript
-await client.createStream({
-  name: 'workspace_123',
-  subjects: ['workspace_123.*'],
-  description: 'Events for workspace 123',
-  maxAge: 7 * 24 * 60 * 60 * 1e9, // 7 days retention
+await subscribeEmbeddingRequests({
+  consumerName: 'worker',
+  workspaceId: 'workspace-abc',
+  handler: async (event) => {
+    try {
+      await processEmbedding(event)
+      // ✅ Success - event is automatically acknowledged
+    } catch (error) {
+      console.error('Processing failed:', error)
+      // ❌ Error - event is automatically negatively acknowledged
+      // NATS will redeliver the event after a delay
+      throw error
+    }
+  },
 })
 ```
 
-### Create Consumer Manually
+## Timeouts
+
+Each event can specify its own timeout via `timeoutMs`. For long-running operations (e.g., large file embeddings):
 
 ```typescript
-await client.createConsumer({
-  streamName: 'workspace_123',
-  consumerName: 'my-consumer',
-  filterSubject: 'workspace_123.file-extracted',
-  ackPolicy: AckPolicy.Explicit,
-  maxDeliver: -1, // Unlimited retries
-  ackWait: 30 * 1e9, // 30 seconds
+await publishEmbeddingRequest({
+  // ... other fields
+  timeoutMs: 3600000, // 1 hour for very large files
 })
-```
-
-## Testing
-
-The package includes comprehensive integration tests that require a running NATS server:
-
-```bash
-# Start NATS server (from monorepo root)
-docker-compose up gai-nats
-
-# Run tests
-cd packages/events
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
 ```
 
 ## Environment Variables
 
+Connection is automatically established using these environment variables:
+
 ```bash
 # NATS server URL (default: nats://gai-nats:4222)
-NATS_URL=nats://localhost:4222
+NATS_URL=nats://gai-nats:4222
 
 # Optional authentication
-NATS_USER=user
+NATS_USER=username
 NATS_PASSWORD=password
-# Or use token
-NATS_TOKEN=my-token
+# Or use token authentication
+NATS_TOKEN=my-secret-token
+
+# Service name for consumer naming (default: unknown-service)
+SERVICE_NAME=embedding-worker
+```
+
+## Testing
+
+```bash
+# Ensure NATS is running
+docker-compose up gai-nats -d
+
+# Run tests
+cd packages/workspace-events
+pnpm test
+
+# Type checking
+pnpm typecheck
+
+# Linting
+pnpm lint
 ```
 
 ## Best Practices
 
-### 1. Consumer Naming
-
-- Use **same consumer name** for competing consumers (horizontal scaling)
-- Use **different consumer names** for different consumers (all receive messages)
-
-### 2. Error Handling
+### 1. Consumer Naming Strategy
 
 ```typescript
-await client.subscribe('workspace-123', 'FileExtracted', 'worker', async (event, msg) => {
-  try {
-    await processFile(event)
-    // Message automatically acknowledged
-  } catch (error) {
-    console.error('Processing failed:', error)
-    // Message automatically negatively acknowledged (will be redelivered)
-    throw error
-  }
+// ✅ Good - Use service name + event type
+// Automatically generated: `${SERVICE_NAME}-${eventType}`
+SERVICE_NAME=embedding-worker
+// Consumer name becomes: "embedding-worker-file-embedding-request"
+
+// ✅ Good - Explicit consumer name for competing consumers
+consumerName: 'embedding-workers'
+
+// ❌ Bad - Random consumer names (creates too many consumers)
+consumerName: `worker-${Date.now()}`
+```
+
+### 2. Workspace Isolation
+
+Always subscribe to specific workspaces:
+
+```typescript
+// ✅ Good - workspace isolation
+await subscribeEmbeddingRequests({
+  workspaceId: 'workspace-abc',
+  // ...
 })
+
+// ❌ Bad - no package support for cross-workspace subscriptions
+// Each workspace is isolated for security and fair processing
 ```
 
 ### 3. Graceful Shutdown
 
 ```typescript
-// Store cleanup functions
-const cleanups: Array<() => Promise<void>> = []
+const cleanup = await subscribeEmbeddingRequests({ /* ... */ })
 
-cleanups.push(await client.subscribe('workspace-123', 'FileExtracted', 'worker', handler))
-
-// On shutdown
-for (const cleanup of cleanups) {
+// On SIGTERM or SIGINT
+process.on('SIGTERM', async () => {
+  console.log('Shutting down...')
   await cleanup()
-}
-
-await client.disconnect()
+  await disconnect()
+  process.exit(0)
+})
 ```
 
-### 4. Workspace Isolation
+### 4. Event Validation
 
-Always include `workspaceId` in events and use it for subscription filtering:
+Events are automatically validated with Zod schemas. Invalid events are logged and rejected:
 
 ```typescript
-// ✅ Good - workspace isolation
-await client.subscribe('workspace-123', 'FileExtracted', 'worker', handler)
-
-// ❌ Bad - no workspace isolation
-await client.subscribeAll('*', 'worker', handler)
+// This will be caught and logged automatically
+await publishEmbeddingRequest({
+  eventName: 'file-embedding-request',
+  // Missing required fields - will fail validation
+})
 ```
 
 ## Architecture Principles
 
 ### Database Access: Backend Only
 
-**🚨 ONLY BACKEND ACCESSES DATABASE (Prisma) 🚨**
+**🚨 ONLY BACKEND ACCESSES DATABASE 🚨**
 
-- **Backend API**: Has Prisma access, queries database for event data
-- **Workers**: NO database access, receive ALL data via events
-- **Events Package**: No database dependency
-
-**Why:** Workers remain stateless, scalable, and deployable anywhere without database credentials.
+- **Backend**: Queries database, publishes events with ALL necessary data
+- **Workers**: NO database access, receive complete data via events
+- **Benefits**: Workers are stateless, scalable, deployable anywhere
 
 ### Service Exposure: Internal by Default
 
 **🔒 ONLY BACKEND EXPOSED TO INTERNET 🔒**
 
-- **Backend API**: Only public service (GraphQL, REST)
-- **Workers**: Internal only (embedding, extraction, enrichment)
+- **Backend**: Public (GraphQL, REST, file serving)
+- **Workers**: Internal only (embedding, extraction)
 - **NATS**: Internal only (no internet exposure)
+- **Benefits**: Reduced attack surface, simpler authentication
 
-**Why:** Reduced attack surface, simpler services, centralized authentication.
+### Event-Driven Pipeline
+
+```
+User Upload → Backend → ContentExtractionRequestEvent → Extraction Worker
+                ↓
+         ContentExtractionFinishedEvent
+                ↓
+      EmbeddingRequestEvent → Embedding Worker
+                ↓
+     FileEmbeddingFinishedEvent → Backend updates DB
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+```typescript
+// Check NATS is running
+docker-compose ps gai-nats
+
+// Check connection from container
+docker exec -it gai-backend nc -zv gai-nats 4222
+```
+
+### Events Not Being Received
+
+1. Check consumer name matches between publisher expectations and subscriber
+2. Verify workspace ID is correct
+3. Check NATS streams: `docker exec gai-nats nats stream ls`
+4. Check consumers: `docker exec gai-nats nats consumer ls workspace-{id}`
+
+### Validation Errors
+
+Events failing Zod validation are logged. Check event structure matches schema in `src/types.ts`.
 
 ## License
 
