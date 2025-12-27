@@ -1,8 +1,8 @@
 import mammoth from 'mammoth'
 
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
-export async function transformDocxToMarkdown(docxPath: string): Promise<ConverterResult> {
+export async function transformDocxToMarkdown(docxPath: string): Promise<FileConverterResult> {
   const processingStart = Date.now()
 
   try {

@@ -32,6 +32,43 @@ services:
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
+  gai-nats:
+    image: nats:2.12-alpine
+    container_name: gai-nats
+    restart: unless-stopped
+    ports:
+      - '4222:4222' # Client connections
+      - '8222:8222' # HTTP monitoring
+      - '6222:6222' # Cluster routing (for future clustering)
+    volumes:
+      - ../.nats-data:/data
+      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
+    command:
+      - '--config'
+      - '/etc/nats/nats-server.conf'
+
+  gai-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: gai-qdrant
+    restart: unless-stopped
+    environment:
+      # Qdrant configuration
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      # Enable API key authentication (optional - uncomment for production)
+      # - QDRANT__SERVICE__API_KEY=your-secret-api-key-here
+      # Performance settings
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=4
+      - QDRANT__STORAGE__PERFORMANCE__MAX_OPTIMIZATION_THREADS=2
+      # Collection defaults
+      - QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR=1
+      - QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR=1
+    ports:
+      - '6333:6333' # HTTP API
+      - '6334:6334' # gRPC API
+    volumes:
+      - ../.qdrant-data:/qdrant/storage
+
   gai-typesense:
     image: typesense/typesense:27.1
     container_name: gai-typesense

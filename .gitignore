@@ -23,6 +23,8 @@ venv
 .home-node
 .temp
 .astro
+.nats-data
+.qdrant-data
 
 # Fine-tuning
 apps/fine-tuning/split_output

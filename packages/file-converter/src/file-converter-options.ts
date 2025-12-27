@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { SUPPORTED_MIME_TYPES, SupportedMimeType } from './constants'
+
 // Known option names - used for parsing and validation
 export const KNOWN_OPTIONS = [
   'enableTextExtraction',
@@ -215,23 +217,6 @@ export const validateFileConverterOptionsString = (optionsString: string | null 
   }
 }
 
-export const AVAILABLE_MIME_TYPES = [
-  'text/plain',
-  'text/markdown',
-  'text/x-markdown',
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
-  'application/vnd.ms-excel', // XLS
-  'text/csv',
-  'application/csv',
-  'text/html',
-  'application/xhtml+xml',
-  'message/rfc822', // Email files (.eml)
-] as const
-
-export type MimeType = (typeof AVAILABLE_MIME_TYPES)[number]
-
 /**
  * Available extraction methods with their requirements and supported MIME types
  */
@@ -254,7 +239,7 @@ export const EXTRACTION_METHODS: Record<
   {
     name: string
     description: string
-    supportedMimeTypes: Array<MimeType>
+    supportedMimeTypes: Array<SupportedMimeType>
     requiresOptions: Array<FileConverterSettingName>
   }
 > = {
@@ -356,7 +341,7 @@ export const isMethodAvailableForMimeType = (
   if (!mimeType) {
     return false // No MIME type provided
   }
-  const typedMimeType = AVAILABLE_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
+  const typedMimeType = SUPPORTED_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
   if (typedMimeType === undefined) {
     return false // MIME type not supported at all
   }
@@ -375,12 +360,12 @@ export const getAvailableMethodsForMimeType = (
   description: string
 }> => {
   // Check if the MIME type is supported
-  if (!AVAILABLE_MIME_TYPES.includes(mimeType as MimeType)) {
+  if (!SUPPORTED_MIME_TYPES.includes(mimeType as SupportedMimeType)) {
     return [] // Return empty array for unsupported MIME types
   }
 
   return Object.entries(EXTRACTION_METHODS)
-    .filter(([, config]) => config.supportedMimeTypes.includes(mimeType as MimeType))
+    .filter(([, config]) => config.supportedMimeTypes.includes(mimeType as SupportedMimeType))
     .map(([id, config]) => ({
       id: id as ExtractionMethodId,
       name: config.name,

@@ -1,9 +1,9 @@
 import { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } from '@kingsword/node-html-markdown'
 import fs from 'node:fs/promises'
 
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
-export async function transformHtmlToMarkdown(htmlPath: string): Promise<ConverterResult> {
+export async function transformHtmlToMarkdown(htmlPath: string): Promise<FileConverterResult> {
   const processingStart = Date.now()
 
   try {

@@ -3,13 +3,13 @@ import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 import { PDF_LAYOUT } from '../constants'
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
 //Advanced PDF to Markdown converter that preserves layout and structure
 export async function transformPdfToMarkdown(
   pdfFilePath: string,
   timeoutSignal: AbortSignal,
-): Promise<ConverterResult> {
+): Promise<FileConverterResult> {
   const require = createRequire(import.meta.url)
   const processingStart = Date.now()
   try {
