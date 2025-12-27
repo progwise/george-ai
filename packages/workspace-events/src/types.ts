@@ -1,86 +1,47 @@
-/**
- * Event type definitions for George AI event-driven architecture
- */
+import z from 'zod'
 
-/**
- * Base event interface with common properties
- */
-export interface BaseEvent {
-  type: string
-  workspaceId: string
-  timestamp: string
-}
+import { FileConverterOptionsSchema, FileConverterResultSchema } from '@george-ai/file-converter'
+import { FileEmbeddingOptionsSchema, FileEmbeddingResultSchema } from '@george-ai/vector-store'
 
-/**
- * Published when a file has been successfully extracted to Markdown
- * Triggers the embedding worker to generate embeddings
- */
-export interface FileExtractedEvent extends BaseEvent {
-  type: 'FileExtracted'
-  libraryId: string
-  fileId: string
-  fileName: string
-  markdownPath: string // Relative path: 'fileId/markdown.md'
+export const ContentProcessingEventBaseSchema = z.object({
+  eventName: z.string(),
+  timestamp: z.string(),
+  timeoutMs: z.number(),
+  processingTaskId: z.string(),
+  workspaceId: z.string(),
+  libraryId: z.string(),
+  fileId: z.string(),
+  part: z.number().optional(),
+})
 
-  // Embedding configuration (from backend database query)
-  embeddingModelId: string
-  embeddingModelName: string
-  embeddingModelProvider: string
-  embeddingDimensions: number
+export type ConntentProcessingEventBase = z.infer<typeof ContentProcessingEventBaseSchema>
 
-  part?: number // For multi-part files
-}
+export const ContentExtractionRequestEventSchema = ContentProcessingEventBaseSchema.extend({
+  eventName: z.literal('content-extraction-request'),
+  mimeType: z.string(),
+  fileConverterOptions: FileConverterOptionsSchema,
+})
 
-/**
- * Published when a file has been successfully embedded in Qdrant
- * Triggers backend to update task status
- */
-export interface FileEmbeddedEvent extends BaseEvent {
-  type: 'FileEmbedded'
-  fileId: string
-  processingTaskId: string // The embedding task ID
+export type ContentExtractionRequestEvent = z.infer<typeof ContentExtractionRequestEventSchema>
 
-  qdrantCollection: string // workspace_{workspaceId}
-  qdrantNamedVector: string // model_{embeddingModelId}
-  chunksCount: number
-  chunksSize: number
+export const ContentExtractionFinishedEventSchema = ContentProcessingEventBaseSchema.extend({
+  eventName: z.literal('content-extraction-finished'),
+  fileConverterResult: FileConverterResultSchema,
+})
 
-  part?: number // For multi-part files
-}
+export type ContentExtractionFinishedEvent = z.infer<typeof ContentExtractionFinishedEventSchema>
 
-/**
- * Published when embedding fails
- * Triggers backend to update task status and AI Service Manager to release semaphore
- */
-export interface FileEmbeddingFailedEvent extends BaseEvent {
-  type: 'FileEmbeddingFailed'
-  fileId: string
-  processingTaskId: string
-  errorMessage: string
-}
+export const EmbeddingRequestEventSchema = ContentProcessingEventBaseSchema.extend({
+  eventName: z.literal('file-embedding-request'),
+  markdownFilename: z.string(),
+  fileEmbeddingOptions: FileEmbeddingOptionsSchema,
+})
 
-/**
- * Union type of all event types
- */
-export type GeorgeAIEvent = FileExtractedEvent | FileEmbeddedEvent | FileEmbeddingFailedEvent
+export type EmbeddingRequestEvent = z.infer<typeof EmbeddingRequestEventSchema>
 
-/**
- * Type guard to check if an event is a FileExtractedEvent
- */
-export const isFileExtractedEvent = (event: GeorgeAIEvent): event is FileExtractedEvent => {
-  return event.type === 'FileExtracted'
-}
+export const FileEmbeddingFinishedEventSchema = ContentProcessingEventBaseSchema.extend({
+  eventName: z.literal('file-embedding-finished'),
+  fileEmbeddingResult: FileEmbeddingResultSchema,
+})
 
-/**
- * Type guard to check if an event is a FileEmbeddedEvent
- */
-export const isFileEmbeddedEvent = (event: GeorgeAIEvent): event is FileEmbeddedEvent => {
-  return event.type === 'FileEmbedded'
-}
-
-/**
- * Type guard to check if an event is a FileEmbeddingFailedEvent
- */
-export const isFileEmbeddingFailedEvent = (event: GeorgeAIEvent): event is FileEmbeddingFailedEvent => {
-  return event.type === 'FileEmbeddingFailed'
-}
+export type FileEmbeddingFinishedEvent = z.infer<typeof FileEmbeddingFinishedEventSchema>

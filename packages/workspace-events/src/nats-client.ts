@@ -15,15 +15,11 @@ import {
   DeliverPolicy,
   type JetStreamClient,
   type JetStreamManager,
-  type JetStreamPublishOptions,
-  type JsMsg,
   type NatsConnection,
   RetentionPolicy,
   StorageType,
   connect,
 } from 'nats'
-
-import type { GeorgeAIEvent } from './types'
 
 /**
  * NATS client configuration
@@ -62,11 +58,6 @@ export interface ConsumerConfig {
   maxDeliver?: number
   ackWait?: number // nanoseconds
 }
-
-/**
- * Event handler function type
- */
-export type EventHandler<T extends GeorgeAIEvent = GeorgeAIEvent> = (event: T, msg: JsMsg) => Promise<void>
 
 /**
  * NATS JetStream client for George AI events
@@ -161,35 +152,36 @@ export class NatsClient {
   /**
    * Publish an event to a workspace subject
    */
-  async publish(workspaceId: string, event: GeorgeAIEvent, options?: JetStreamPublishOptions): Promise<void> {
+  async publish(args: { subject: string; payload: string; timeout: number }): Promise<void> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
 
-    // Subject format: workspace_{id}.{event-type}
-    const subject = this.getSubject(workspaceId, event.type)
-
-    // Encode event as JSON
-    const payload = new TextEncoder().encode(JSON.stringify(event))
+    const { subject, payload, timeout } = args
 
     // Publish to JetStream
-    const ack = await this.js.publish(subject, payload, options)
+    const ack = await this.js.publish(subject, payload, {
+      msgID: crypto.randomUUID(),
+      timeout,
+    })
 
-    console.log(`Published event ${event.type} to ${subject} (seq: ${ack.seq})`)
+    console.log(`Published event ${subject} to ${subject} (seq: ${ack.seq})`)
   }
 
   /**
    * Subscribe to workspace events with a consumer group
    */
-  async subscribe<T extends GeorgeAIEvent = GeorgeAIEvent>(
-    workspaceId: string,
-    eventType: string,
-    consumerName: string,
-    handler: EventHandler<T>,
-  ): Promise<() => Promise<void>> {
+  async subscribe(args: {
+    workspaceId: string
+    consumerName: string
+    eventType: string
+    handler: (data: Uint8Array<ArrayBufferLike>) => Promise<void>
+  }): Promise<() => Promise<void>> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
+
+    const { workspaceId, consumerName, eventType, handler } = args
 
     const streamName = this.getStreamName(workspaceId)
     const subject = this.getSubject(workspaceId, eventType)
@@ -197,7 +189,7 @@ export class NatsClient {
     // Ensure stream and consumer exist
     await this.createStream({
       name: streamName,
-      subjects: [`workspace_${workspaceId}.*`],
+      subjects: [`workspace.${workspaceId}.events.*`],
       description: `Events for workspace ${workspaceId}`,
     })
 
@@ -217,12 +209,8 @@ export class NatsClient {
     const processMessages = async () => {
       for await (const msg of messages) {
         try {
-          // Decode event
-          const eventData = new TextDecoder().decode(msg.data)
-          const event = JSON.parse(eventData) as T
-
           // Call handler
-          await handler(event, msg)
+          await handler(msg.data)
 
           // Acknowledge message
           msg.ack()
@@ -244,83 +232,18 @@ export class NatsClient {
       messages.close()
     }
   }
-
-  /**
-   * Subscribe to all event types for a workspace
-   */
-  async subscribeAll(workspaceId: string, consumerName: string, handler: EventHandler): Promise<() => Promise<void>> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const streamName = this.getStreamName(workspaceId)
-    const subject = `workspace_${workspaceId}.*`
-
-    // Ensure stream and consumer exist
-    await this.createStream({
-      name: streamName,
-      subjects: [subject],
-      description: `Events for workspace ${workspaceId}`,
-    })
-
-    await this.createConsumer({
-      streamName,
-      consumerName,
-      filterSubject: subject,
-    })
-
-    // Get consumer
-    const consumer: Consumer = await this.js.consumers.get(streamName, consumerName)
-
-    // Consume messages
-    const messages: ConsumerMessages = await consumer.consume()
-
-    // Process messages
-    const processMessages = async () => {
-      for await (const msg of messages) {
-        try {
-          // Decode event
-          const eventData = new TextDecoder().decode(msg.data)
-          const event = JSON.parse(eventData) as GeorgeAIEvent
-
-          // Call handler
-          await handler(event, msg)
-
-          // Acknowledge message
-          msg.ack()
-        } catch (error) {
-          console.error(`Error processing event:`, error)
-          // Negative acknowledge to retry later
-          msg.nak()
-        }
-      }
-    }
-
-    // Start processing in background
-    processMessages().catch((error) => {
-      console.error('Error in message processing loop:', error)
-    })
-
-    // Return cleanup function
-    return async () => {
-      messages.close()
-    }
-  }
-
   /**
    * Get the stream name for a workspace
    */
   private getStreamName(workspaceId: string): string {
-    return `workspace_${workspaceId}`
+    return `workspace-${workspaceId}`
   }
 
   /**
    * Get the subject for a workspace event
    */
   private getSubject(workspaceId: string, eventType: string): string {
-    // Convert event type to kebab-case
-    const kebabEventType = eventType.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-    return `workspace_${workspaceId}.${kebabEventType}`
+    return `workspace.${workspaceId}.events.${eventType}`
   }
 
   /**

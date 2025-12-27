@@ -14,12 +14,17 @@ export const SUPPORTED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/csv',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel', // XLS
   'text/plain',
   'text/markdown',
+  'text/x-markdown',
+  'application/csv',
   'application/json',
+  'application/xhtml+xml',
   'application/xml',
   'application/javascript',
   'text/html',
+  'message/rfc822', // Email files (.eml)
 ] as const
 
 export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number]

@@ -2,9 +2,9 @@ import { NodeHtmlMarkdown } from '@kingsword/node-html-markdown'
 import { simpleParser } from 'mailparser'
 import fs from 'node:fs/promises'
 
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
-export async function transformEmlToMarkdown(emlPath: string): Promise<ConverterResult> {
+export async function transformEmlToMarkdown(emlPath: string): Promise<FileConverterResult> {
   const processingStart = Date.now()
 
   try {

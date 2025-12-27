@@ -1,7 +1,7 @@
 import { type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 
 import { transformPdfToImages } from './pdf-to-images.js'
-import { ConverterResult } from './types.js'
+import { FileConverterResult } from './types.js'
 
 // Concurrency is now dynamically managed by OLLAMA resource manager based on GPU memory
 
@@ -25,7 +25,7 @@ export const transformPdfToImageToMarkdown = async ({
   ocrModelName: string
   ocrTimeoutPerPage: number
   ocrMaxConsecutiveRepeats?: number
-}): Promise<ConverterResult> => {
+}): Promise<FileConverterResult> => {
   const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
   const startTime = Date.now()

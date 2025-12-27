@@ -3,9 +3,9 @@ import path from 'node:path'
 
 import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import {
-  type ConverterResult,
   type ExtractionMethodId,
   type FileConverterOptions,
+  type FileConverterResult,
   isMethodAvailableForMimeType,
   isValidExtractionMethod,
   parseFileConverterOptions,
@@ -919,7 +919,7 @@ const performContentExtraction = async (args: {
 }) => {
   try {
     // Process based on extraction method
-    let result: ConverterResult
+    let result: FileConverterResult
 
     switch (args.extractionMethod) {
       case 'docx-extraction':
