@@ -94,6 +94,9 @@ COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig
 # pnpm deploy stores packages in .pnpm with complex naming, so we copy to /app/prisma
 COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma /app/prisma
 
+# Copy Prisma config file for Prisma v7 (needed to find datasource URL)
+COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma.config.ts /app/prisma.config.ts
+
 # Create crawler credentials directory with proper permissions
 RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
 
