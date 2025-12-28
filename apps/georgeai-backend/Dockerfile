@@ -93,6 +93,10 @@ COPY --from=builder --chown=server:nodejs /app/deploy .
 # pnpm deploy doesn't include this config file, but prisma needs it for TypeScript compilation
 COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig.base.json ./node_modules/@george-ai/package-configs/
 
+# Copy Prisma directory to predictable location for runtime migrations
+# pnpm deploy stores packages in .pnpm with complex naming, so we copy to /app/prisma
+COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma /app/prisma
+
 # Create crawler credentials directory with proper permissions
 RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
 
@@ -101,4 +105,4 @@ USER server
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=90s \
   CMD curl -f -s http://localhost:3003/graphql > /dev/null || exit 1
 
-CMD [ "sh", "-c", "cd /app/node_modules/@george-ai/app-domain && pnpm prisma migrate deploy && pnpm prisma generate --sql && cd /app && pnpm start" ]
+CMD [ "sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema=/app/prisma/schema.prisma && ./node_modules/.bin/prisma generate --sql --schema=/app/prisma/schema.prisma && pnpm start" ]
