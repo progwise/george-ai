@@ -20,12 +20,12 @@ concurrency:
 env:
   DATABASE_URL: postgresql://chatweb:password@localhost:5432/chatweb?schema=public
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  TEST_DB_HOST: postgres
+  TEST_DB_HOST: localhost
   TEST_DB_PORT: 5432
   TEST_DB_USER: chatweb
   TEST_DB_PASSWORD: password
-  NATS_URL: nats://nats:4222
-  QDRANT_URL: http://qdrant:6333
+  NATS_URL: nats://localhost:4222
+  QDRANT_URL: http://localhost:6333
   OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
