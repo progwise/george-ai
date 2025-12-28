@@ -1,6 +1,5 @@
 import type { ServiceProviderConfig, ServiceProviderType } from '@george-ai/ai-service-client'
-
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 /**
  * Load workspace providers from database for provider cache

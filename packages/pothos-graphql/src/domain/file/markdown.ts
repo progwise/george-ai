@@ -1,8 +1,7 @@
 import fs from 'fs'
 
+import { prisma } from '@george-ai/app-domain'
 import { getFileDir } from '@george-ai/file-management'
-
-import { prisma } from '../../prisma'
 
 export const getLatestExtractionMarkdownFileNames = async ({
   fileId,

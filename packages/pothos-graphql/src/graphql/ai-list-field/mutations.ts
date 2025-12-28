@@ -1,5 +1,6 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessListOrThrow } from './../../domain'
-import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
 // Context source input for field references or external context

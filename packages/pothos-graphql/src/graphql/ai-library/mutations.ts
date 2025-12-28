@@ -1,11 +1,11 @@
 import * as fs from 'fs'
 
+import { prisma } from '@george-ai/app-domain'
 import { validateFileConverterOptionsString } from '@george-ai/file-converter'
 import { getLibraryDir } from '@george-ai/file-management'
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
 import { canAccessLibraryOrThrow } from '../../domain'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibrary Mutations')

@@ -1,8 +1,8 @@
 import type { ServiceProviderType } from '@george-ai/ai-service-client'
+import { prisma } from '@george-ai/app-domain'
 import { getFileChunks, getSimilarChunks, querySimilarChunks } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile FileChunks')

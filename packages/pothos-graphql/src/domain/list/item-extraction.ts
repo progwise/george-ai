@@ -11,9 +11,9 @@
 import fs from 'fs'
 import path from 'node:path'
 
+import { prisma } from '@george-ai/app-domain'
 import { getAvailableExtractions, getBucketPath, getExtractionFileInfo, getFileDir } from '@george-ai/file-management'
 
-import { prisma } from '../../prisma'
 import { syncAutomationItemsForList } from '../automation'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 

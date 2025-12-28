@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
+import { prisma } from '@george-ai/app-domain'
+
 import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { AiListFilterInput, AiListSortingInput, ListItemsQueryResult } from './field-values'
 

@@ -1,4 +1,5 @@
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 import '../../domain/crawler/sharepoint'

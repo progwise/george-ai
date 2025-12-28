@@ -1,3 +1,4 @@
+import { prisma } from '@george-ai/app-domain'
 import {
   getAvailableExtractions,
   getAvailableExtractionsWithInfo,
@@ -6,7 +7,6 @@ import {
 import { getFileChunkCount } from '@george-ai/langchain-chat'
 
 import { BACKEND_PUBLIC_URL } from '../../global-config'
-import { prisma } from '../../prisma'
 import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 

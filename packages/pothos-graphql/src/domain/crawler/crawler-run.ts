@@ -1,5 +1,6 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessLibraryOrThrow } from '..'
-import { prisma } from '../../prisma'
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { parseFilterConfig } from '../file/file-filter'
 import { crawlApi } from './crawl-api'

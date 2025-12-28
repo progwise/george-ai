@@ -1,7 +1,8 @@
 import fs from 'fs'
 
+import { prisma } from '@george-ai/app-domain'
+
 import { UPLOADS_PATH } from '../../global-config'
-import { prisma } from '../../prisma'
 
 export const checkUser = async (userId: string) => {
   const user = await prisma.user.findUnique({

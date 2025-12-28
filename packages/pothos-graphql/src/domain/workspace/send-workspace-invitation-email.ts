@@ -1,6 +1,7 @@
+import { prisma } from '@george-ai/app-domain'
+import { sendMail } from '@george-ai/mailer'
+
 import { PUBLIC_APP_URL } from '../../global-config'
-import { prisma } from '../../prisma'
-import { sendMail } from '../mailer'
 
 export const INVITATION_EXPIRY_DAYS = 7
 

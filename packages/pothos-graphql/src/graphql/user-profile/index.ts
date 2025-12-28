@@ -1,5 +1,6 @@
-import { sendMail } from '../../domain/mailer'
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
+import { sendMail } from '@george-ai/mailer'
+
 import { builder } from '../builder'
 
 console.log('Setting up: UserProfile')

@@ -1,7 +1,8 @@
 import { GraphQLError } from 'graphql'
 
+import { prisma } from '@george-ai/app-domain'
+
 import { requireWorkspaceAdmin } from '../../domain/workspace'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: Workspace queries')

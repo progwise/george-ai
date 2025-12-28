@@ -1,4 +1,4 @@
-import { AiLibraryCrawlerCronJob } from '../../../prisma/generated/client'
+import { AiLibraryCrawlerCronJob } from '@george-ai/app-domain'
 
 export const getCronExpression = (cronJob: AiLibraryCrawlerCronJob) => {
   if (!cronJob.active) {

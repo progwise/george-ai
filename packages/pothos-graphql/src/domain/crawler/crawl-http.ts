@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 
+import { prisma } from '@george-ai/app-domain'
 import { getUploadFilePath } from '@george-ai/file-management'
 import { crawlHtmlStream } from '@george-ai/html-crawler'
 
-import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 

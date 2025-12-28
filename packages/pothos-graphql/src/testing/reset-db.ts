@@ -1,6 +1,4 @@
-import { PrismaClient } from '../../prisma/generated/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@george-ai/app-domain'
 
 export default async () => {
   await prisma.$transaction([

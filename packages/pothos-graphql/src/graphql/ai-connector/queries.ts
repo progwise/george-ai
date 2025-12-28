@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-domain'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // Simple object for config field options (target fields, transforms, etc.)

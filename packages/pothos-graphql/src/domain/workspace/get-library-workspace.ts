@@ -1,4 +1,4 @@
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 /**
  * Get the workspace ID for a library (used for API key authentication)

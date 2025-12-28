@@ -1,5 +1,7 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessLibraryOrThrow } from '../../domain'
-import { builder, prisma } from '../builder'
+import { builder } from '../builder'
 
 builder.prismaObject('AiLibraryUpdate', {
   fields: (t) => ({

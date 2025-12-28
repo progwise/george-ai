@@ -2,7 +2,9 @@ import SchemaBuilder from '@pothos/core'
 import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
-import { Decimal } from '@prisma/client/runtime/library'
+
+import { Prisma, prisma } from '@george-ai/app-domain'
+import type { PothosTypes } from '@george-ai/app-domain'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
@@ -14,13 +16,11 @@ import {
   LIST_FIELD_TYPES,
 } from '../domain/list'
 import { IS_PRODUCTION } from '../global-config'
-import { prisma } from '../prisma'
 import { Context, LoggedInContext } from './context'
-import PrismaTypes from '.pothos/plugin-prisma/generated'
 
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
-  PrismaTypes: PrismaTypes
+  PrismaTypes: PothosTypes
   Context: Context
   AuthScopes: {
     isLoggedIn: boolean
@@ -82,8 +82,8 @@ const builder = new SchemaBuilder<{
       Output: Date
     }
     Decimal: {
-      Input: Decimal
-      Output: Decimal
+      Input: Prisma.Decimal
+      Output: Prisma.Decimal
     }
     BigInt: {
       Input: bigint
@@ -112,4 +112,4 @@ const builder = new SchemaBuilder<{
 builder.queryType()
 builder.mutationType()
 
-export { builder, prisma }
+export { builder }

@@ -1,5 +1,5 @@
+import { type EmbeddingRequestEvent, EmbeddingRequestEventSchema } from './event-types'
 import { NatsClient } from './nats-client'
-import { type EmbeddingRequestEvent, EmbeddingRequestEventSchema } from './types'
 
 let natsClient: NatsClient | null = null
 

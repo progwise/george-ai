@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { disconnect, publishEmbeddingRequest, subscribeEmbeddingRequests } from './api'
-import type { EmbeddingRequestEvent } from './types'
+import type { EmbeddingRequestEvent } from './event-types'
 
 const TEST_WORKSPACE_ID = 'test-workspace-api'
 

@@ -110,7 +110,7 @@ services:
   gai-e2e-smb-crawler:
     build:
       context: ..
-      dockerfile: apps/smb-crawler/Dockerfile
+      dockerfile: services/smb-crawler-service/Dockerfile
       args:
         GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
     container_name: gai-e2e-smb-crawler

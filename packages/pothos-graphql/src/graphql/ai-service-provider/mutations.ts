@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql'
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 
 import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 import { builder } from '../builder'
 
 // Input type for creating/updating AI service providers

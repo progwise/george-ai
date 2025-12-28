@@ -1,6 +1,5 @@
 import { AiActQuestion } from '@george-ai/ai-act'
-
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 export const getQuestionsWithAnswers = async (assistantId: string, questions: AiActQuestion[]) => {
   const answers = await prisma.aiAssistantEUActAnswers.findMany({

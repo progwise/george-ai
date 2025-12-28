@@ -1,6 +1,6 @@
 import { getDefaultAssistantSurvey } from '@george-ai/ai-act'
+import { prisma } from '@george-ai/app-domain'
 
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 builder.mutationField('resetAssessmentAnswers', (t) =>

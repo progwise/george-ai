@@ -1,4 +1,4 @@
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 /**
  * Check if a user is the last admin of a workspace

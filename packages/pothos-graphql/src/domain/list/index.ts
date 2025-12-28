@@ -1,5 +1,5 @@
-import type { Prisma } from '../../../prisma/generated/client'
-import { prisma } from '../../prisma'
+import type { Prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-domain'
 
 export * from './filter'
 export * from './item-extraction'

@@ -1,5 +1,5 @@
-import { Prisma } from '../../../prisma/generated/client'
-import { prisma } from '../../prisma'
+import { Prisma, prisma } from '@george-ai/app-domain'
+
 import {
   startAllWorkers,
   startAutomationQueueWorker,

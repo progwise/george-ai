@@ -1,7 +1,7 @@
+import { prisma } from '@george-ai/app-domain'
 import { getFileChunkCount } from '@george-ai/langchain-chat'
 
 import { canAccessFileOrThrow } from '../../domain/file'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile FileUsages')

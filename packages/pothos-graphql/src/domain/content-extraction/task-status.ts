@@ -1,5 +1,4 @@
-import { Prisma } from '../../../prisma/generated/client'
-import { ContentProcessingTask } from '../types'
+import { AiContentProcessingTask, Prisma } from '@george-ai/app-domain'
 
 export const PROCESSING_STATUS = [
   'none',
@@ -25,7 +24,7 @@ export type ExtractionStatus = (typeof EXTRACTION_STATUS)[number]
 export const EMBEDDING_STATUS = ['pending', 'running', 'completed', 'failed', 'skipped', 'none'] as const
 export type EmbeddingStatus = (typeof EMBEDDING_STATUS)[number]
 
-export const getExtractionStatus = (task: ContentProcessingTask | null): ExtractionStatus => {
+export const getExtractionStatus = (task: AiContentProcessingTask | null): ExtractionStatus => {
   if (!task) return 'none'
   if (task.extractionFailedAt) return 'failed'
   if (task.extractionFinishedAt) return 'completed'
@@ -35,7 +34,7 @@ export const getExtractionStatus = (task: ContentProcessingTask | null): Extract
   return 'pending'
 }
 
-export const getEmbeddingStatus = (task: ContentProcessingTask | null): EmbeddingStatus => {
+export const getEmbeddingStatus = (task: AiContentProcessingTask | null): EmbeddingStatus => {
   if (!task) return 'none'
   if (task.embeddingFailedAt) return 'failed'
   if (task.embeddingFinishedAt) return 'completed'
@@ -44,7 +43,7 @@ export const getEmbeddingStatus = (task: ContentProcessingTask | null): Embeddin
   return 'pending'
 }
 
-export const getProcessingStatus = (task: ContentProcessingTask | null): ProcessingStatus => {
+export const getProcessingStatus = (task: AiContentProcessingTask | null): ProcessingStatus => {
   if (!task) return 'none'
   if (task.processingCancelled) return 'cancelled' // Treat cancelled as failed for status purposes
   if (task.processingTimeout) return 'timedOut'

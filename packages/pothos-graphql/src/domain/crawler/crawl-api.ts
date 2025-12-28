@@ -3,9 +3,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { type ApiCrawlerConfig, crawlApiStream } from '@george-ai/api-crawler'
+import { prisma } from '@george-ai/app-domain'
 import { getUploadFilePath } from '@george-ai/file-management'
 
-import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 

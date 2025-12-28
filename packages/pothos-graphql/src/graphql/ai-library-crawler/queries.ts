@@ -1,7 +1,7 @@
 import { createShopwareConfig, createWeclappConfig, genericRestTemplate } from '@george-ai/api-crawler'
+import { prisma } from '@george-ai/app-domain'
 
 import { canAccessLibraryOrThrow } from '../../domain'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // API Crawler Template type for UI
