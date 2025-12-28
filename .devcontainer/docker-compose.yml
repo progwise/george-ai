@@ -102,7 +102,7 @@ services:
     container_name: gai-chatweb-db-test
     restart: unless-stopped
     environment:
-      POSTGRES_DB: chatweb-test
+      POSTGRES_DB: postgres
       POSTGRES_USER: chatweb-test
       POSTGRES_PASSWORD: password
 
