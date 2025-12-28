@@ -17,12 +17,14 @@
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate && prisma generate --sql",
     "prisma:generate:client": "prisma generate",
+    "prisma:generate:client-only": "prisma generate --generator client",
     "prisma:migrate": "prisma migrate deploy",
     "test": "vitest run"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
+    "@pothos/plugin-prisma": "^4.10.0",
     "@types/node": "^25.0.3",
     "@types/pg": "^8.16.0",
     "eslint": "^9.39.1",

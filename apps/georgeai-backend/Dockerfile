@@ -66,9 +66,6 @@ COPY packages/smb-crawler ./packages/smb-crawler
 COPY packages/web-utils ./packages/web-utils
 COPY apps/georgeai-backend ./apps/georgeai-backend
 
-# Generate Prisma client only (doesn't need DB connection)
-RUN pnpm --filter @george-ai/app-domain run prisma:generate:client
-
 # ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
@@ -105,4 +102,4 @@ USER server
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=90s \
   CMD curl -f -s http://localhost:3003/graphql > /dev/null || exit 1
 
-CMD [ "sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema=/app/prisma/schema.prisma && ./node_modules/.bin/prisma generate --sql --schema=/app/prisma/schema.prisma && pnpm start" ]
+CMD [ "sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema=/app/prisma/schema.prisma && pnpm start" ]
