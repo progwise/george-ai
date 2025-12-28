@@ -94,6 +94,14 @@ services:
       # SMB Crawler Service
       SMB_CRAWLER_URL: http://gai-e2e-smb-crawler:3006
 
+      # SMTP Email Configuration (optional - for notifications and contact forms)
+      SMTP_HOSTNAME: ${SMTP_HOSTNAME:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@george-ai.net}
+      SMTP_TEST_RECIPIENT: ${SMTP_TEST_RECIPIENT:-}
+
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
     ports:
