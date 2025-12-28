@@ -1,6 +1,0 @@
-node_modules
-# Keep environment variables out of version control
-.env
-
-# Commit all generated files (Prisma Client, Pothos types, TypedSQL types)
-# Client is generated at Docker build time for the target platform
