@@ -9,7 +9,7 @@ pnpm-lock.yaml
 .smb-mounts
 .smb-credentials
 .crawler-credentials
-packages/pothos-graphql/prisma/generated
+packages/app-domain/prisma/generated
 routeTree.gen.ts
 .dockerignore
 .gitignore

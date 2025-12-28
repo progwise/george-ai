@@ -1,17 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  SMTP_HOSTNAME,
-  SMTP_PASSWORD,
-  SMTP_TEST_RECIPIENT,
-  SMTP_USER,
-} from './global-config'
+import { SMTP_HOSTNAME, SMTP_PASSWORD, SMTP_TEST_RECIPIENT, SMTP_USER } from './global-config'
 import { sendMail } from './index'
 
 describe('Mailer Integration Test', () => {
-  it.skipIf(
-    !SMTP_HOSTNAME || !SMTP_USER || !SMTP_PASSWORD || !SMTP_TEST_RECIPIENT,
-  )(
+  it.skipIf(!SMTP_HOSTNAME || !SMTP_USER || !SMTP_PASSWORD || !SMTP_TEST_RECIPIENT)(
     'should send a real test email',
     { timeout: 10000 }, // 10 second timeout for email sending
     async () => {
@@ -40,8 +33,6 @@ describe('Mailer Integration Test', () => {
       return
     }
 
-    await expect(
-      sendMail('invalid-email', 'Test', 'Text', '<p>HTML</p>'),
-    ).rejects.toThrow()
+    await expect(sendMail('invalid-email', 'Test', 'Text', '<p>HTML</p>')).rejects.toThrow()
   })
 })

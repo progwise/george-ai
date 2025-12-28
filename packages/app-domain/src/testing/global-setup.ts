@@ -109,7 +109,7 @@ export default async () => {
   // Push schema to test database (with lock to prevent concurrent operations)
   const releaseLock = await acquireLock('prisma-db-push')
   try {
-    execSync('pnpm prisma db push --skip-generate --accept-data-loss', {
+    execSync('pnpm prisma db push --accept-data-loss', {
       stdio: 'inherit',
       env: { ...process.env, DATABASE_URL: TEST_DB_URL },
     })
@@ -120,8 +120,7 @@ export default async () => {
       error &&
       typeof error === 'object' &&
       ('signal' in error || 'status' in error) &&
-      ((error as { signal?: string }).signal === 'SIGINT' ||
-        (error as { status?: number | null }).status === null)
+      ((error as { signal?: string }).signal === 'SIGINT' || (error as { status?: number | null }).status === null)
 
     if (isSignalError) {
       console.warn('⚠️  Prisma db push was interrupted, but database may already be set up')
@@ -138,13 +137,17 @@ export default async () => {
   return async () => {
     console.log('Cleaning up test database...')
 
-    const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: TEST_DB_URL,
-        },
-      },
+    // Create PostgreSQL connection pool for test database
+    const { Pool } = await import('pg')
+    const { PrismaPg } = await import('@prisma/adapter-pg')
+
+    const pool = new Pool({
+      connectionString: TEST_DB_URL,
     })
+
+    const adapter = new PrismaPg(pool)
+
+    const prisma = new PrismaClient({ adapter })
 
     try {
       // Clean up all test data

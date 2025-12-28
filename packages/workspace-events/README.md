@@ -127,6 +127,7 @@ interface EmbeddingRequestEvent {
 ### Other Event Types
 
 The package also supports:
+
 - `ContentExtractionRequestEvent` - File needs extraction to markdown
 - `ContentExtractionFinishedEvent` - Extraction completed
 - `FileEmbeddingFinishedEvent` - Embedding completed
@@ -208,7 +209,7 @@ pnpm lint
 ```typescript
 // ✅ Good - Use service name + event type
 // Automatically generated: `${SERVICE_NAME}-${eventType}`
-SERVICE_NAME=embedding-worker
+SERVICE_NAME = embedding - worker
 // Consumer name becomes: "embedding-worker-file-embedding-request"
 
 // ✅ Good - Explicit consumer name for competing consumers
@@ -236,7 +237,9 @@ await subscribeEmbeddingRequests({
 ### 3. Graceful Shutdown
 
 ```typescript
-const cleanup = await subscribeEmbeddingRequests({ /* ... */ })
+const cleanup = await subscribeEmbeddingRequests({
+  /* ... */
+})
 
 // On SIGTERM or SIGINT
 process.on('SIGTERM', async () => {

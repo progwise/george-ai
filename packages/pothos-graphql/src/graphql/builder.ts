@@ -3,7 +3,7 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { Prisma, prisma } from '@george-ai/app-domain'
+import { Prisma, getDatamodel, prisma } from '@george-ai/app-domain'
 import type { PothosTypes } from '@george-ai/app-domain'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
@@ -95,6 +95,7 @@ const builder = new SchemaBuilder<{
   plugins: [ScopeAuthPlugin, SimpleObjectsPlugin, PrismaPlugin],
   prisma: {
     client: prisma,
+    dmmf: getDatamodel(),
     exposeDescriptions: true,
     filterConnectionTotalCount: true,
     onUnusedQuery: IS_PRODUCTION ? null : 'warn',

@@ -2,7 +2,6 @@ generator client {
   provider        = "prisma-client"
   output          = "./generated"
   previewFeatures = ["typedSql"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "darwin-arm64"]
 }
 
 generator pothos {
@@ -12,7 +11,6 @@ generator pothos {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {

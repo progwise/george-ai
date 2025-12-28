@@ -1,3 +1,6 @@
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
+
 import { createLogger } from '@george-ai/web-utils'
 
 import { Prisma, PrismaClient } from '../prisma/generated/client'
@@ -30,7 +33,16 @@ const getLogLevels = (): Prisma.LogLevel[] => {
 }
 
 const createPrismaClient = () => {
+  // Create PostgreSQL connection pool for Prisma v7 adapter
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+  })
+
+  // Create Prisma adapter for PostgreSQL
+  const adapter = new PrismaPg(pool)
+
   const client = new PrismaClient({
+    adapter,
     log: getLogLevels().map((level) => ({
       emit: 'event',
       level,

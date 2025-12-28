@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { prisma } from '@george-ai/app-domain'
 import { getUploadFilePath } from '@george-ai/file-management'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
-import { prisma } from '@george-ai/app-domain'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
 import { calculateFileHash } from '../file/file-hash'

@@ -110,7 +110,7 @@ export default async () => {
   // Use lock to prevent concurrent prisma operations across packages
   const releaseLock = await acquireLock('prisma-db-push')
   try {
-    execSync('pnpm prisma db push --skip-generate --accept-data-loss', {
+    execSync('pnpm prisma db push --accept-data-loss', {
       stdio: 'inherit',
       cwd: appDomainPath,
       env: { ...process.env, DATABASE_URL: TEST_DB_URL },
@@ -122,8 +122,7 @@ export default async () => {
       error &&
       typeof error === 'object' &&
       ('signal' in error || 'status' in error) &&
-      ((error as { signal?: string }).signal === 'SIGINT' ||
-        (error as { status?: number | null }).status === null)
+      ((error as { signal?: string }).signal === 'SIGINT' || (error as { status?: number | null }).status === null)
 
     if (isSignalError) {
       console.warn('⚠️  Prisma db push was interrupted, but database may already be set up')
