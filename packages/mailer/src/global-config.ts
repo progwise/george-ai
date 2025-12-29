@@ -39,7 +39,7 @@ export const SMTP_USER = optionalEnv('SMTP_USER')
 export const SMTP_PASSWORD = optionalEnv('SMTP_PASSWORD')
 
 /** Email address to use as sender (From field) */
-export const SMTP_FROM = optionalEnv('SMTP_FROM') ?? 'noreply@george-ai.net'
+export const SMTP_FROM = optionalEnv('SMTP_FROM') ?? 'info@george-ai.net'
 
 /** Test recipient email for integration tests (optional) */
 export const SMTP_TEST_RECIPIENT = optionalEnv('SMTP_TEST_RECIPIENT')

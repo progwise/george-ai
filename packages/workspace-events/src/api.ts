@@ -32,6 +32,15 @@ async function getNatsClient(): Promise<NatsClient> {
 
 export const publishEmbeddingRequest = async (request: EmbeddingRequestEvent) => {
   const client = await getNatsClient()
+
+  // Ensure stream exists for this workspace (cached after first call)
+  const streamName = `workspace-${request.workspaceId}`
+  await client.createStream({
+    name: streamName,
+    subjects: [`workspace.${request.workspaceId}.events.*`],
+    description: `Events for workspace ${request.workspaceId}`,
+  })
+
   const subject = `workspace.${request.workspaceId}.events.${request.eventName}`
   await client.publish({
     subject,
@@ -70,6 +79,38 @@ export const subscribeEmbeddingRequests = async ({
 
   return cleanup
 }
+/**
+ * Delete a workspace stream and all its consumers
+ */
+export async function deleteWorkspaceStream(workspaceId: string): Promise<void> {
+  const client = await getNatsClient()
+  const jsm = client.getJetStreamManager()
+
+  if (!jsm) {
+    throw new Error('Not connected to NATS')
+  }
+
+  const streamName = `workspace-${workspaceId}`
+  await jsm.streams.delete(streamName)
+  console.log(`Deleted stream: ${streamName}`)
+}
+
+/**
+ * Delete a specific consumer from a workspace stream
+ */
+export async function deleteConsumer(workspaceId: string, consumerName: string): Promise<void> {
+  const client = await getNatsClient()
+  const jsm = client.getJetStreamManager()
+
+  if (!jsm) {
+    throw new Error('Not connected to NATS')
+  }
+
+  const streamName = `workspace-${workspaceId}`
+  await jsm.consumers.delete(streamName, consumerName)
+  console.log(`Deleted consumer: ${consumerName} from stream: ${streamName}`)
+}
+
 /**
  * Disconnect from NATS (useful for graceful shutdown)
  */

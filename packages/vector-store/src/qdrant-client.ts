@@ -14,8 +14,8 @@ export const getCollection = async (collectionName: string) => {
 }
 
 export const ensureCollection = async (collectionName: string, vectorSize: number) => {
-  const collection = await getCollection(collectionName)
-  if (collection) {
+  const { exists } = await client.collectionExists(collectionName)
+  if (exists) {
     return
   }
 
@@ -26,4 +26,8 @@ export const ensureCollection = async (collectionName: string, vectorSize: numbe
       distance: 'Cosine',
     },
   })
+}
+
+export const deleteCollection = async (collectionName: string) => {
+  await client.deleteCollection(collectionName)
 }

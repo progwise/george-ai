@@ -66,6 +66,7 @@ export class NatsClient {
   private nc: NatsConnection | null = null
   private js: JetStreamClient | null = null
   private jsm: JetStreamManager | null = null
+  private createdStreams: Set<string> = new Set() // Track created streams to avoid redundant calls
 
   /**
    * Connect to NATS server
@@ -95,6 +96,7 @@ export class NatsClient {
       this.nc = null
       this.js = null
       this.jsm = null
+      this.createdStreams.clear() // Clear cache on disconnect
       console.log('Disconnected from NATS server')
     }
   }
@@ -105,6 +107,11 @@ export class NatsClient {
   async createStream(config: StreamConfig): Promise<void> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
+    }
+
+    // Skip if we've already created this stream in this client instance
+    if (this.createdStreams.has(config.name)) {
+      return
     }
 
     try {
@@ -119,9 +126,11 @@ export class NatsClient {
         storage: config.storageType || StorageType.File,
       })
       console.log(`Stream created/updated: ${config.name}`)
+      this.createdStreams.add(config.name) // Mark as created
     } catch (error) {
       // Stream might already exist with different config
       console.log(`Stream exists: ${config.name}`, error)
+      this.createdStreams.add(config.name) // Mark as existing
     }
   }
 

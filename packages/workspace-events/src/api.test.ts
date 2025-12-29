@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { disconnect, publishEmbeddingRequest, subscribeEmbeddingRequests } from './api'
+import { deleteWorkspaceStream, disconnect, publishEmbeddingRequest, subscribeEmbeddingRequests } from './api'
 import type { EmbeddingRequestEvent } from './event-types'
 
 const TEST_WORKSPACE_ID = 'test-workspace-api'
@@ -11,6 +11,13 @@ describe('Workspace Events API', () => {
   })
 
   afterAll(async () => {
+    // Clean up test streams before disconnecting
+    try {
+      await deleteWorkspaceStream(TEST_WORKSPACE_ID)
+    } catch (error) {
+      console.log('Error deleting test stream (might not exist):', error)
+    }
+
     await disconnect()
   })
 
