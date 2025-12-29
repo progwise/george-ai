@@ -26,8 +26,8 @@
   "dependencies": {
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/vector-store": "workspace:*",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "nats": "^2.29.3",
-    "zod": "^3.23.8"
+    "zod": "^4.2.1"
   }
 }

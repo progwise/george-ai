@@ -18,15 +18,15 @@
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "@types/nodemailer": "^6.4.17",
-    "dotenv": "^16.4.5",
+    "@types/nodemailer": "^7.0.4",
+    "dotenv": "^17.2.3",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {
-    "nodemailer": "^6.10.0",
-    "zod": "^3.23.8"
+    "nodemailer": "^7.0.12",
+    "zod": "^4.2.1"
   }
 }
