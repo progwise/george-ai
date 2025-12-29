@@ -77,7 +77,7 @@ jobs:
           echo "Webapp hash: ${WEBAPP_HASH_SHORT}"
 
           # Webcrawler hash (depends on webcrawler code only)
-          WEBCRAWLER_HASH=$(find apps/webcrawler pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          WEBCRAWLER_HASH=$(find services/webcrawler-service pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           WEBCRAWLER_HASH_SHORT="${WEBCRAWLER_HASH:0:12}"
           echo "webcrawler=${WEBCRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Webcrawler hash: ${WEBCRAWLER_HASH_SHORT}"
@@ -88,8 +88,8 @@ jobs:
           echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Web hash: ${WEB_HASH_SHORT}"
 
-          # SMB Crawler hash (depends on smb-crawler app + smb-crawler package + smb2-client package)
-          SMB_CRAWLER_HASH=$(find apps/smb-crawler packages/smb-crawler packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          # SMB Crawler hash (depends on smb-crawler service + smb-crawler package + smb2-client package)
+          SMB_CRAWLER_HASH=$(find services/smb-crawler-service packages/smb-crawler packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           SMB_CRAWLER_HASH_SHORT="${SMB_CRAWLER_HASH:0:12}"
           echo "smb_crawler=${SMB_CRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "SMB Crawler hash: ${SMB_CRAWLER_HASH_SHORT}"
@@ -129,7 +129,7 @@ jobs:
           echo "Checking which images need to be built..."
 
           # Check backend
-          BACKEND_TAG="${{ env.REGISTRY_PATH }}/backend:${BACKEND_HASH}"
+          BACKEND_TAG="${{ env.REGISTRY_PATH }}/apps/backend:${BACKEND_HASH}"
           if docker manifest inspect "${BACKEND_TAG}" > /dev/null 2>&1; then
             echo "✓ Backend image exists (${BACKEND_HASH})"
             echo "build_backend=false" >> $GITHUB_OUTPUT
@@ -139,7 +139,7 @@ jobs:
           fi
 
           # Check webapp
-          WEBAPP_TAG="${{ env.REGISTRY_PATH }}/webapp:${WEBAPP_HASH}"
+          WEBAPP_TAG="${{ env.REGISTRY_PATH }}/apps/webapp:${WEBAPP_HASH}"
           if docker manifest inspect "${WEBAPP_TAG}" > /dev/null 2>&1; then
             echo "✓ Webapp image exists (${WEBAPP_HASH})"
             echo "build_webapp=false" >> $GITHUB_OUTPUT
@@ -149,7 +149,7 @@ jobs:
           fi
 
           # Check webcrawler
-          WEBCRAWLER_TAG="${{ env.REGISTRY_PATH }}/webcrawler:${WEBCRAWLER_HASH}"
+          WEBCRAWLER_TAG="${{ env.REGISTRY_PATH }}/services/webcrawler-service:${WEBCRAWLER_HASH}"
           if docker manifest inspect "${WEBCRAWLER_TAG}" > /dev/null 2>&1; then
             echo "✓ Webcrawler image exists (${WEBCRAWLER_HASH})"
             echo "build_webcrawler=false" >> $GITHUB_OUTPUT
@@ -159,7 +159,7 @@ jobs:
           fi
 
           # Check web
-          WEB_TAG="${{ env.REGISTRY_PATH }}/web:${WEB_HASH}"
+          WEB_TAG="${{ env.REGISTRY_PATH }}/apps/web:${WEB_HASH}"
           if docker manifest inspect "${WEB_TAG}" > /dev/null 2>&1; then
             echo "✓ Web image exists (${WEB_HASH})"
             echo "build_web=false" >> $GITHUB_OUTPUT
@@ -169,7 +169,7 @@ jobs:
           fi
 
           # Check smb-crawler
-          SMB_CRAWLER_TAG="${{ env.REGISTRY_PATH }}/smb-crawler:${SMB_CRAWLER_HASH}"
+          SMB_CRAWLER_TAG="${{ env.REGISTRY_PATH }}/services/smb-crawler-service:${SMB_CRAWLER_HASH}"
           if docker manifest inspect "${SMB_CRAWLER_TAG}" > /dev/null 2>&1; then
             echo "✓ SMB Crawler image exists (${SMB_CRAWLER_HASH})"
             echo "build_smb_crawler=false" >> $GITHUB_OUTPUT
@@ -193,24 +193,24 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: backend
+          - name: apps/backend
             dockerfile: apps/georgeai-backend/Dockerfile
             build: ${{ needs.check-images.outputs.build_backend }}
             hash: ${{ needs.calculate-hashes.outputs.backend_hash }}
-          - name: webapp
+          - name: apps/webapp
             dockerfile: apps/georgeai-webapp/Dockerfile
             build: ${{ needs.check-images.outputs.build_webapp }}
             hash: ${{ needs.calculate-hashes.outputs.webapp_hash }}
-          - name: webcrawler
-            dockerfile: apps/webcrawler/Dockerfile
+          - name: services/webcrawler-service
+            dockerfile: services/webcrawler-service/Dockerfile
             build: ${{ needs.check-images.outputs.build_webcrawler }}
             hash: ${{ needs.calculate-hashes.outputs.webcrawler_hash }}
-          - name: web
+          - name: apps/web
             dockerfile: apps/georgeai-web/Dockerfile
             build: ${{ needs.check-images.outputs.build_web }}
             hash: ${{ needs.calculate-hashes.outputs.web_hash }}
-          - name: smb-crawler
-            dockerfile: apps/smb-crawler/Dockerfile
+          - name: services/smb-crawler-service
+            dockerfile: services/smb-crawler-service/Dockerfile
             build: ${{ needs.check-images.outputs.build_smb_crawler }}
             hash: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
 

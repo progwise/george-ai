@@ -1,10 +1,10 @@
 import fs from 'fs'
 
+import type { AiLibraryFile, Prisma as PrismaType } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-domain'
 import { deleteFileDir, fileDirIsEmpty, getFileDir, getLibraryDir, getUploadFilePath } from '@george-ai/file-management'
 import { dropFileFromVectorstore, dropVectorStore, getFileChunkCount } from '@george-ai/langchain-chat'
 
-import type { AiLibraryFile, Prisma as PrismaType } from '../../../prisma/generated/client'
-import { prisma } from '../../prisma'
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { canAccessLibraryOrThrow } from '../library'
 

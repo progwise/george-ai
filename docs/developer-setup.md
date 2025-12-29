@@ -172,69 +172,6 @@ Once both servers are running:
 
 ## Docker Build & Testing
 
-### Verifying Docker Builds
-
-The project includes `docker-compose.verify.yml` to verify Docker builds work correctly.
-
-#### Prerequisites
-
-- Devcontainer must be running (with all services: databases, Keycloak, Typesense)
-- Ports 3002 and 3004 must be available
-
-#### Build and Run
-
-```bash
-# Build only
-docker compose -f docker-compose.verify.yml build
-
-# Build and start both frontend and backend
-docker compose -f docker-compose.verify.yml up --build
-
-# Run in detached mode
-docker compose -f docker-compose.verify.yml up --build -d
-
-# Start only backend
-docker compose -f docker-compose.verify.yml up --build gai-verify-backend
-
-# Start only frontend
-docker compose -f docker-compose.verify.yml up --build gai-verify-webapp
-```
-
-#### Access Verify Services
-
-- **Verify Frontend**: http://localhost:3002
-- **Verify Backend GraphQL**: http://localhost:3004/graphql
-- **Keycloak**: http://localhost:8180 (shared with devcontainer)
-
-#### Network Configuration
-
-The verify containers connect to the devcontainer Docker network (`george-ai_devcontainer_default`) and communicate with services using container names:
-
-- Database: `gai-chatweb-db`
-- Typesense: `gai-typesense`
-- Keycloak: `gai-keycloak`
-
-Port mappings avoid conflicts:
-
-- Verify frontend: 3002 (instead of 3001)
-- Verify backend: 3004 (instead of 3003)
-
-#### Managing Verify Containers
-
-```bash
-# Stop services
-docker compose -f docker-compose.verify.yml down
-
-# Stop and remove volumes
-docker compose -f docker-compose.verify.yml down -v
-
-# Remove images as well
-docker compose -f docker-compose.verify.yml down --rmi all -v
-
-# View logs
-docker compose -f docker-compose.verify.yml logs -f
-```
-
 ### Building Individual Images
 
 Both images must be built from the **root directory** to include all monorepo dependencies:

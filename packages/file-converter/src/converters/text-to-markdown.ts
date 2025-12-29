@@ -1,8 +1,8 @@
 import fs from 'fs'
 
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
-export const transformTextToMarkdown = async (filePath: string, mimeType: string): Promise<ConverterResult> => {
+export const transformTextToMarkdown = async (filePath: string, mimeType: string): Promise<FileConverterResult> => {
   const processingStart = Date.now()
 
   try {

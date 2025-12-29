@@ -1,9 +1,10 @@
 import { GraphQLError } from 'graphql'
 
+import { prisma } from '@george-ai/app-domain'
+
 import { deleteFile } from '../../domain'
 import { canAccessLibraryOrThrow, runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'
-import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
 

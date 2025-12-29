@@ -1,14 +1,14 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
+import { Prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-domain'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 import { createLogger } from '@george-ai/web-utils'
 
-import { Prisma } from '../../prisma/generated/client'
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getFileMarkdownContent, getFilePartMarkdownContent } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
-import { prisma } from '../prisma'
 
 const logger = createLogger('Enrichment Worker')
 

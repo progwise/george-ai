@@ -1,10 +1,10 @@
 import fs from 'fs'
 
+import { prisma } from '@george-ai/app-domain'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 import { getAvailableExtractionsWithInfo, getFileDir } from '@george-ai/file-management'
 
 import { BACKEND_PUBLIC_URL } from '../../global-config'
-import { prisma } from '../../prisma'
 import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 

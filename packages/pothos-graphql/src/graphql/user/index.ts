@@ -1,10 +1,11 @@
+import { prisma } from '@george-ai/app-domain'
+
 import {
   SYSTEM_WORKSPACE_ID,
   extractAvatarFromToken,
   getPreferredAvatarUrl,
   shouldUpdateAvatarFromProvider,
 } from '../../domain'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './user-management'

@@ -1,4 +1,4 @@
-import { User, UserProfile } from '../../prisma/generated/client'
+import { User, UserProfile } from '@george-ai/app-domain'
 
 type AuthUser = Partial<Omit<User, 'id' | 'email' | 'username'>> & {
   id: string

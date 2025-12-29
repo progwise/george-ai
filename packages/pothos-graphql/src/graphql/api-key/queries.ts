@@ -1,5 +1,6 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessLibraryOrThrow } from '../../domain'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: ApiKey Queries')

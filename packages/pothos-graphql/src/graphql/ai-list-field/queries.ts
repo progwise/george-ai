@@ -1,5 +1,6 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { getAccessLibraryWhere, getCanAccessListWhere } from '../../domain'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 const ContentQueryResult = builder.simpleObject('ContentQueryResult', {

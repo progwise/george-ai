@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { AiListItemCache } from '../../../prisma/generated/client'
+import { AiListItemCache } from '@george-ai/app-domain'
+
 import { LIST_FIELD_TYPES, ListItemWithRelations, getFieldValue } from './index'
 
 describe('LIST_FIELD_TYPES', () => {

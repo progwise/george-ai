@@ -20,7 +20,12 @@ concurrency:
 env:
   DATABASE_URL: postgresql://chatweb:password@localhost:5432/chatweb?schema=public
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  DATABASE_URL_TEST: ${{ 'postgresql://chatweb:password@localhost:5432/chatweb?schema=public' }}
+  TEST_DB_HOST: localhost
+  TEST_DB_PORT: 5432
+  TEST_DB_USER: chatweb
+  TEST_DB_PASSWORD: password
+  NATS_URL: nats://localhost:4222
+  QDRANT_URL: http://localhost:6333
   OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -119,6 +124,93 @@ jobs:
         if: needs.check-smb-test-image.outputs.build_needed != 'true'
         run: echo "⏭️ Skipping SMB test server - image already exists"
 
+  calculate-nats-hash:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      nats_hash: ${{ steps.hash.outputs.nats }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Calculate NATS service hash
+        id: hash
+        run: |
+          NATS_HASH=$(find services/nats-service -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          NATS_HASH_SHORT="${NATS_HASH:0:12}"
+          echo "nats=${NATS_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "NATS Service hash: ${NATS_HASH_SHORT}"
+
+  check-nats-image:
+    needs: calculate-nats-hash
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      build_needed: ${{ steps.check.outputs.build_needed }}
+      image_tag: ${{ steps.check.outputs.image_tag }}
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if NATS service image exists
+        id: check
+        env:
+          NATS_HASH: ${{ needs.calculate-nats-hash.outputs.nats_hash }}
+        run: |
+          NATS_TAG="${{ env.IMAGE_PREFIX }}-nats:${NATS_HASH}"
+          echo "image_tag=${NATS_TAG}" >> $GITHUB_OUTPUT
+
+          if docker manifest inspect "${NATS_TAG}" > /dev/null 2>&1; then
+            echo "✓ NATS service image exists (${NATS_HASH})"
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ NATS service image needs building (${NATS_HASH})"
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+  build-nats:
+    needs: [calculate-nats-hash, check-nats-image]
+    if: needs.check-nats-image.outputs.build_needed == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push NATS service image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/nats-service
+          file: services/nats-service/Dockerfile
+          push: true
+          tags: ${{ needs.check-nats-image.outputs.image_tag }}
+          cache-from: type=gha,scope=nats
+          cache-to: type=gha,mode=max,scope=nats
+
+      - name: Skip NATS service build
+        if: needs.check-nats-image.outputs.build_needed != 'true'
+        run: echo "⏭️ Skipping NATS service - image already exists"
+
   eslint:
     runs-on: ubuntu-22.04
     steps:
@@ -177,9 +269,7 @@ jobs:
           version: 9.15.4
           run_install: true
       - name: Run database migrations
-        run: pnpm --filter @george-ai/pothos-graphql prisma:migrate
-      - name: Generate Prisma Client
-        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+        run: pnpm --filter @george-ai/app-domain prisma:migrate
       - run: pnpm run typecheck
 
   build:
@@ -201,18 +291,36 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run database migrations
-        run: pnpm --filter @george-ai/pothos-graphql prisma:migrate
-      - name: Generate Prisma Client
-        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+        run: pnpm --filter @george-ai/app-domain prisma:migrate
       - name: Build
         run: pnpm build
 
   test:
     runs-on: ubuntu-22.04
-    needs: [check-smb-test-image, build-smb-test]
-    if: always() && needs.check-smb-test-image.result == 'success' && (needs.build-smb-test.result == 'success' || needs.build-smb-test.result == 'skipped')
+    needs: [check-smb-test-image, build-smb-test, check-nats-image, build-nats]
+    if: always() && needs.check-smb-test-image.result == 'success' && (needs.build-smb-test.result == 'success' || needs.build-smb-test.result == 'skipped') && needs.check-nats-image.result == 'success' && (needs.build-nats.result == 'success' || needs.build-nats.result == 'skipped')
     services:
       postgres: *postgres_service
+      nats:
+        image: ${{ needs.check-nats-image.outputs.image_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        ports:
+          - 4222:4222
+          - 8222:8222
+      qdrant:
+        image: qdrant/qdrant:latest
+        env:
+          QDRANT__SERVICE__GRPC_PORT: 6334
+          QDRANT__SERVICE__HTTP_PORT: 6333
+          QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS: 4
+          QDRANT__STORAGE__PERFORMANCE__MAX_OPTIMIZATION_THREADS: 2
+          QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR: 1
+          QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR: 1
+        ports:
+          - 6333:6333
+          - 6334:6334
       gai-smb-test:
         image: ${{ needs.check-smb-test-image.outputs.image_tag }}
         credentials:
@@ -232,9 +340,7 @@ jobs:
           version: 9.15.4
           run_install: true
       - name: Run database migrations
-        run: pnpm --filter @george-ai/pothos-graphql prisma:migrate
-      - name: Generate Prisma Client
-        run: pnpm --filter @george-ai/pothos-graphql prisma:generate
+        run: pnpm --filter @george-ai/app-domain prisma:migrate
       - name: Run Tests
         run: pnpm run test
         env:

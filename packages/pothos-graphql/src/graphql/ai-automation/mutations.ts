@@ -1,10 +1,9 @@
 import { GraphQLError } from 'graphql'
 
+import { Prisma, prisma } from '@george-ai/app-domain'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
-import { Prisma } from '../../../prisma/generated/client'
 import { syncAutomationItems } from '../../domain/automation'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // Input type for creating/updating automations

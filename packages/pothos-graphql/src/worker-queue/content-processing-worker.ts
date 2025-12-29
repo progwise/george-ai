@@ -2,10 +2,12 @@ import fs from 'fs'
 import path from 'node:path'
 
 import type { ServiceProviderType } from '@george-ai/ai-service-client'
+import { Prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-domain'
 import {
-  type ConverterResult,
   type ExtractionMethodId,
   type FileConverterOptions,
+  type FileConverterResult,
   isMethodAvailableForMimeType,
   isValidExtractionMethod,
   parseFileConverterOptions,
@@ -31,11 +33,9 @@ import { dropFileFromVectorstore, embedMarkdownFile } from '@george-ai/langchain
 import { createLogger } from '@george-ai/web-utils'
 import { createTimeoutSignal, mergeObjectToJsonString } from '@george-ai/web-utils'
 
-import { Prisma } from '../../prisma/generated/client'
 import { logModelUsage } from '../domain/languageModel'
 import { createListItemsForProcessedFile } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
-import { prisma } from '../prisma'
 
 const logger = createLogger('Content Processing Worker')
 
@@ -919,7 +919,7 @@ const performContentExtraction = async (args: {
 }) => {
   try {
     // Process based on extraction method
-    let result: ConverterResult
+    let result: FileConverterResult
 
     switch (args.extractionMethod) {
       case 'docx-extraction':

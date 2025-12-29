@@ -4,9 +4,8 @@
  * Syncs list items to automation items, respecting filters.
  * Creates AiAutomationItem records for matching list items.
  */
+import { prisma } from '@george-ai/app-domain'
 import { createLogger } from '@george-ai/web-utils'
-
-import { prisma } from '../../prisma'
 
 const logger = createLogger('Automation Sync')
 

@@ -1,0 +1,762 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated"
+  previewFeatures = ["typedSql"]
+}
+
+generator pothos {
+  provider     = "prisma-pothos-types"
+  output       = "./generated/pothos.ts"
+  clientOutput = "./"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  lastLogin                  DateTime?
+  email                      String                      @unique
+  username                   String                      @unique
+  name                       String?
+  given_name                 String?
+  family_name                String?
+  isAdmin                    Boolean                     @default(false)
+  avatarUrl                  String?
+  defaultWorkspaceId         String
+  assistants                 AiAssistant[]
+  conversations              AiConversation[]
+  conversationInvitation     AiConversationInvitation[]
+  conversationParticipations AiConversationParticipant[]
+  libraries                  AiLibrary[]
+  crawlerRuns                AiLibraryCrawlerRun[]
+  lists                      AiList[]
+  modelUsageLogs             AiModelUsage[]
+  apiKeys                    ApiKey[]
+  profile                    UserProfile?
+  defaultWorkspace           Workspace                   @relation("DefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: Restrict)
+  workspaceMemberships       WorkspaceMember[]
+  workspaceInvitations       WorkspaceInvitation[]
+
+  @@index([defaultWorkspaceId])
+}
+
+model UserProfile {
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  expiresAt        DateTime?
+  email            String
+  firstName        String?
+  lastName         String?
+  freeMessages     Int       @default(20)
+  freeStorage      Int       @default(100000)
+  business         String?
+  position         String?
+  userId           String    @unique
+  confirmationDate DateTime?
+  activationDate   DateTime?
+  user             User      @relation(fields: [userId], references: [id])
+}
+
+model Workspace {
+  id              String                     @id @default(cuid())
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  name            String
+  slug            String                     @unique
+  aiProviders     AiServiceProvider[]
+  languageModels  AiLanguageModel[]
+  libraries       AiLibrary[]
+  assistants      AiAssistant[]
+  lists           AiList[]
+  conversations   AiConversation[]
+  members         WorkspaceMember[]
+  invitations     WorkspaceInvitation[]
+  defaultForUsers User[]                     @relation("DefaultWorkspace")
+  connectorTypes  AiConnectorTypeWorkspace[]
+  connectors      AiConnector[]
+  automations     AiAutomation[]
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspaceId String
+  userId      String
+  role        String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model WorkspaceInvitation {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  workspaceId String
+  email       String
+  inviterId   String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter     User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@index([email])
+}
+
+model AiServiceProvider {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspaceId String
+  provider    String
+  name        String
+  enabled     Boolean   @default(true)
+  baseUrl     String?
+  apiKey      String?
+  vramGb      Int?
+  createdBy   String?
+  updatedBy   String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, provider, name])
+  @@index([workspaceId, enabled])
+}
+
+model AiAssistant {
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  name                       String
+  description                String?
+  url                        String?
+  ownerId                    String
+  workspaceId                String
+  iconUrl                    String?
+  languageModelId            String?
+  languageModel              AiLanguageModel?            @relation("LanguageModel", fields: [languageModelId], references: [id], onDelete: Restrict)
+  owner                      User                        @relation(fields: [ownerId], references: [id])
+  workspace                  Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  baseCases                  AiAssistantBaseCase[]
+  euActAnswers               AiAssistantEUActAnswers[]
+  conversationParticipations AiConversationParticipant[]
+  usages                     AiLibraryUsage[]
+  modelUsageLogs             AiModelUsage[]
+
+  @@index([workspaceId])
+}
+
+model AiAssistantBaseCase {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  sequence    Int
+  assistantId String
+  condition   String?
+  instruction String?
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+}
+
+model AiAssistantEUActAnswers {
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  assistantId String
+  questionId  String
+  answer      String?
+  notes       String?
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+
+  @@id([assistantId, questionId])
+}
+
+model AiLibrary {
+  id                      String                    @id @default(cuid())
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  name                    String
+  description             String?
+  url                     String?
+  apiToken                String?
+  lastProcessed           DateTime?
+  ownerId                 String
+  workspaceId             String
+  isPublic                Boolean                   @default(true)
+  fileConverterOptions    String?
+  embeddingTimeoutMs      Int?                      @default(180000)
+  autoProcessCrawledFiles Boolean                   @default(true)
+  embeddingModelId        String?
+  ocrModelId              String?
+  extractionModelId       String?
+  contentExtractionTasks  AiContentProcessingTask[]
+  embeddingModel          AiLanguageModel?          @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
+  ocrModel                AiLanguageModel?          @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
+  extractionModel         AiLanguageModel?          @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
+  owner                   User                      @relation(fields: [ownerId], references: [id])
+  workspace               Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  crawlers                AiLibraryCrawler[]
+  files                   AiLibraryFile[]
+  updates                 AiLibraryUpdate[]
+  usages                  AiLibraryUsage[]
+  listSources             AiListSource[]
+  modelUsageLogs          AiModelUsage[]
+  apiKeys                 ApiKey[]
+
+  @@index([workspaceId])
+}
+
+model AiLibraryUsage {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  assistantId String
+  libraryId   String
+  updatedAt   DateTime    @default(now()) @updatedAt
+  usedFor     String?
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  library     AiLibrary   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  @@unique([assistantId, libraryId])
+}
+
+model AiLibraryFile {
+  id                     String                    @id @default(cuid())
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  libraryId              String
+  name                   String
+  originUri              String?
+  mimeType               String
+  size                   Int?
+  uploadedAt             DateTime?
+  dropError              String?
+  crawledByCrawlerId     String?
+  docPath                String?
+  originFileHash         String?
+  originModificationDate DateTime?
+  archivedAt             DateTime?
+  contentExtractionTasks AiContentProcessingTask[]
+  crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
+  library                AiLibrary                 @relation(fields: [libraryId], references: [id])
+  updates                AiLibraryUpdate[]
+  listItems              AiListItem[]
+
+  @@unique([crawledByCrawlerId, originUri])
+}
+
+model AiContentProcessingTask {
+  id                   String                       @id @default(cuid())
+  fileId               String
+  libraryId            String
+  createdAt            DateTime                     @default(now())
+  timeoutMs            Int?
+  embeddingModelId     String?
+  extractionOptions    String?
+  processingStartedAt  DateTime?
+  processingFinishedAt DateTime?
+  processingFailedAt   DateTime?
+  processingTimeout    Boolean                      @default(false)
+  extractionStartedAt  DateTime?
+  extractionFinishedAt DateTime?
+  extractionFailedAt   DateTime?
+  extractionTimeout    Boolean                      @default(false)
+  embeddingStartedAt   DateTime?
+  embeddingFinishedAt  DateTime?
+  embeddingFailedAt    DateTime?
+  embeddingTimeout     Boolean                      @default(false)
+  chunksCount          Int?
+  chunksSize           Int?
+  metadata             String?
+  processingCancelled  Boolean                      @default(false)
+  embeddingModel       AiLanguageModel?             @relation("ContentProcessingEmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
+  extractionSubTasks   AiContentExtractionSubTask[]
+  file                 AiLibraryFile                @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  library              AiLibrary                    @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  @@index([fileId, extractionStartedAt])
+  @@index([libraryId, fileId, extractionStartedAt])
+}
+
+model AiContentExtractionSubTask {
+  id                      String                  @id @default(cuid())
+  createdAt               DateTime                @default(now())
+  startedAt               DateTime?
+  finishedAt              DateTime?
+  failedAt                DateTime?
+  contentProcessingTaskId String
+  extractionMethod        String
+  markdownFileName        String?
+  contentProcessingTask   AiContentProcessingTask @relation(fields: [contentProcessingTaskId], references: [id], onDelete: Cascade)
+
+  @@index([contentProcessingTaskId])
+  @@index([extractionMethod, startedAt])
+}
+
+model AiLibraryCrawler {
+  id               String                   @id @default(cuid())
+  uri              String
+  libraryId        String
+  lastRun          DateTime?
+  maxDepth         Int
+  maxPages         Int
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  uriType          String
+  allowedMimeTypes String?
+  excludePatterns  String?
+  includePatterns  String?
+  maxFileSize      Int?
+  minFileSize      Int?
+  crawlerConfig    Json?
+  library          AiLibrary                @relation(fields: [libraryId], references: [id])
+  cronJob          AiLibraryCrawlerCronJob?
+  runs             AiLibraryCrawlerRun[]
+  files            AiLibraryFile[]
+}
+
+model AiLibraryCrawlerRun {
+  id            String            @id @default(cuid())
+  crawlerId     String
+  startedAt     DateTime          @default(now())
+  endedAt       DateTime?
+  success       Boolean?
+  runByUserId   String?
+  runByCronJob  Boolean           @default(false)
+  errorMessage  String?
+  stoppedByUser DateTime?
+  crawler       AiLibraryCrawler  @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+  runBy         User?             @relation(fields: [runByUserId], references: [id])
+  updates       AiLibraryUpdate[]
+}
+
+model AiLibraryCrawlerCronJob {
+  id        String           @id @default(cuid())
+  active    Boolean          @default(true)
+  hour      Int              @default(0)
+  minute    Int              @default(0)
+  monday    Boolean          @default(true)
+  tuesday   Boolean          @default(true)
+  wednesday Boolean          @default(true)
+  thursday  Boolean          @default(true)
+  friday    Boolean          @default(true)
+  saturday  Boolean          @default(true)
+  sunday    Boolean          @default(true)
+  crawlerId String           @unique
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  crawler   AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+}
+
+model AiLibraryUpdate {
+  id           String               @id @default(cuid())
+  libraryId    String
+  fileId       String?
+  crawlerRunId String?
+  message      String?
+  createdAt    DateTime             @default(now())
+  fileName     String?
+  filePath     String?
+  fileSize     Int?
+  filterType   String?
+  filterValue  String?
+  updateType   String               @default("added")
+  crawlerRun   AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
+  file         AiLibraryFile?       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  library      AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+}
+
+model AiList {
+  id              String             @id @default(cuid())
+  ownerId         String
+  workspaceId     String
+  name            String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  enrichmentTasks AiEnrichmentTask[]
+  owner           User               @relation(fields: [ownerId], references: [id])
+  workspace       Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  fields          AiListField[]
+  sources         AiListSource[]
+  items           AiListItem[]
+  modelUsageLogs  AiModelUsage[]
+  automations     AiAutomation[]
+
+  @@index([workspaceId])
+}
+
+model AiListSource {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  listId    String
+  libraryId String?
+  library   AiLibrary?   @relation(fields: [libraryId], references: [id])
+  list      AiList       @relation(fields: [listId], references: [id])
+  items     AiListItem[]
+}
+
+model AiListItem {
+  id              String             @id @default(cuid())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  listId          String
+  sourceId        String // Which AiListSource this item came from
+  sourceFileId    String // Which file this item was extracted from
+  extractionIndex Int? // Row number, column index, or LLM extraction index (null for per_file)
+  itemName        String // Display name for the item (first column for per_row, column name for per_column, etc.)
+  metadata        Json? // Extraction metadata (headers, original row data, etc.)
+  // Content stored on file system, path calculated by @george-ai/file-management getListItemContentPath()
+  list            AiList             @relation(fields: [listId], references: [id], onDelete: Cascade)
+  source          AiListSource       @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceFile      AiLibraryFile      @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
+  cache           AiListItemCache[]
+  enrichmentTasks AiEnrichmentTask[]
+  automationItems AiAutomationItem[]
+
+  @@unique([sourceId, sourceFileId, extractionIndex])
+  @@index([listId])
+  @@index([sourceFileId])
+  @@index([itemName])
+}
+
+model AiListField {
+  id              String               @id @default(cuid())
+  createdAt       DateTime             @default(now())
+  listId          String
+  name            String
+  type            String
+  order           Int                  @default(0)
+  sourceType      String
+  fileProperty    String?
+  prompt          String?
+  failureTerms    String?
+  languageModelId String?
+  enrichmentTasks AiEnrichmentTask[]
+  languageModel   AiLanguageModel?     @relation("ListFieldLanguageModel", fields: [languageModelId], references: [id], onDelete: Restrict)
+  list            AiList               @relation(fields: [listId], references: [id], onDelete: Cascade)
+  usedAsContext   AiListFieldContext[] @relation("contextFieldId")
+  context         AiListFieldContext[] @relation("fieldId")
+  cachedValues    AiListItemCache[]
+}
+
+model AiListFieldContext {
+  id               String                 @id @default(cuid())
+  fieldId          String
+  contextType      AiListFieldContextType @default(fieldReference)
+  contextFieldId   String?
+  contextQuery     Json?
+  maxContentTokens Int?
+  createdAt        DateTime               @default(now())
+  contextField     AiListField?           @relation("contextFieldId", fields: [contextFieldId], references: [id], onDelete: Cascade)
+  field            AiListField            @relation("fieldId", fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, contextFieldId])
+}
+
+enum AiListFieldContextType {
+  fieldReference
+  vectorSearch
+  webFetch
+  fullContent
+}
+
+model AiListItemCache {
+  id                     String      @id @default(cuid())
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  itemId                 String
+  fieldId                String
+  valueString            String?
+  valueNumber            Float?
+  valueDate              DateTime?
+  valueBoolean           Boolean?
+  enrichmentErrorMessage String?
+  failedEnrichmentValue  String?
+  field                  AiListField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  item                   AiListItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, fieldId])
+}
+
+model AiEnrichmentTask {
+  id          String      @id @default(cuid())
+  listId      String
+  fieldId     String
+  itemId      String
+  status      String
+  priority    Int         @default(0)
+  requestedAt DateTime    @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  error       String?
+  metadata    String?
+  field       AiListField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  item        AiListItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  list        AiList      @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, fieldId, itemId])
+  @@index([listId, status])
+  @@index([status, priority, requestedAt])
+}
+
+model AiConversation {
+  id                      String                      @id @default(cuid())
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  ownerId                 String
+  workspaceId             String
+  owner                   User                        @relation(fields: [ownerId], references: [id])
+  workspace               Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversationInvitations AiConversationInvitation[]
+  messages                AiConversationMessage[]
+  participants            AiConversationParticipant[]
+
+  @@index([workspaceId])
+}
+
+model AiConversationParticipant {
+  id                  String                  @id @default(cuid())
+  createdAt           DateTime                @default(now())
+  conversationId      String
+  userId              String?
+  assistantId         String?
+  conversationMessage AiConversationMessage[]
+  assistant           AiAssistant?            @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  conversation        AiConversation          @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user                User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AiConversationMessage {
+  id             String                    @id @default(cuid())
+  sequenceNumber BigInt                    @default(autoincrement())
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  senderId       String
+  content        String
+  source         String?
+  conversationId String
+  hidden         Boolean                   @default(false)
+  conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model AiConversationInvitation {
+  id                         String         @id @default(cuid())
+  email                      String
+  inviterId                  String
+  confirmedByEmail           String?
+  confirmationDate           DateTime?
+  conversationId             String
+  date                       DateTime       @default(now())
+  allowDifferentEmailAddress Boolean        @default(false)
+  allowMultipleParticipants  Boolean        @default(false)
+  isUsed                     Boolean        @default(false)
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
+  conversation               AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  inviter                    User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String    @unique
+  libraryId  String
+  userId     String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  library    AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([libraryId])
+}
+
+model AiLanguageModel {
+  id                          String                    @id @default(cuid())
+  createdAt                   DateTime                  @default(now())
+  updatedAt                   DateTime                  @updatedAt
+  workspaceId                 String
+  name                        String
+  provider                    String
+  canDoEmbedding              Boolean                   @default(false)
+  canDoChatCompletion         Boolean                   @default(false)
+  canDoVision                 Boolean                   @default(false)
+  canDoFunctionCalling        Boolean                   @default(false)
+  enabled                     Boolean                   @default(true)
+  adminNotes                  String?
+  lastUsedAt                  DateTime?
+  workspace                   Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assistantsUsing             AiAssistant[]             @relation("LanguageModel")
+  librariesUsingForEmbedding  AiLibrary[]               @relation("EmbeddingModel")
+  librariesUsingForOcr        AiLibrary[]               @relation("OcrModel")
+  librariesUsingForExtraction AiLibrary[]               @relation("ExtractionModel")
+  listFieldsUsing             AiListField[]             @relation("ListFieldLanguageModel")
+  contentProcessingTasks      AiContentProcessingTask[] @relation("ContentProcessingEmbeddingModel")
+  usageLogs                   AiModelUsage[]
+
+  @@unique([workspaceId, provider, name])
+  @@index([workspaceId, enabled])
+}
+
+model AiModelUsage {
+  id           String          @id @default(cuid())
+  createdAt    DateTime        @default(now())
+  modelId      String
+  userId       String?
+  libraryId    String?
+  assistantId  String?
+  listId       String?
+  usageType    String
+  tokensInput  Int?
+  tokensOutput Int?
+  requestCount Int             @default(1)
+  durationMs   Int?
+  assistant    AiAssistant?    @relation(fields: [assistantId], references: [id])
+  library      AiLibrary?      @relation(fields: [libraryId], references: [id])
+  list         AiList?         @relation(fields: [listId], references: [id])
+  model        AiLanguageModel @relation(fields: [modelId], references: [id])
+  user         User?           @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([modelId, createdAt])
+  @@index([libraryId, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// AUTOMATION MODELS
+// ============================================================================
+
+enum AutomationItemStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  WARNING
+  FAILED
+  SKIPPED
+}
+
+enum BatchStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+}
+
+enum TriggerType {
+  MANUAL
+  ENRICHMENT
+  SCHEDULE
+}
+
+model AiConnectorTypeWorkspace {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  workspaceId   String
+  connectorType String // "shopware6", "webhook", "restapi" - matches connector-types package
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, connectorType])
+  @@index([workspaceId])
+}
+
+model AiConnector {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  workspaceId   String
+  connectorType String // "shopware6" - matches connector-types package
+  baseUrl       String
+  name          String? // Optional display name (if null, show baseUrl)
+  config        Json // Config with sensitive fields encrypted (e.g., clientSecret: "encrypted:...")
+  isConnected   Boolean        @default(false)
+  lastTestedAt  DateTime?
+  lastError     String?
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  automations   AiAutomation[]
+
+  @@index([workspaceId])
+}
+
+model AiAutomation {
+  id                    String              @id @default(cuid())
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  workspaceId           String
+  name                  String
+  listId                String
+  connectorId           String
+  connectorAction       String // "writeProductDescription", "writeSEO"
+  connectorActionConfig Json // Field mappings, transforms
+  filter                Json? // Filter criteria for items
+  schedule              String? // CRON expression for scheduled runs
+  executeOnEnrichment   Boolean             @default(false)
+  workspace             Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  list                  AiList              @relation(fields: [listId], references: [id], onDelete: Cascade)
+  connector             AiConnector         @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  items                 AiAutomationItem[]
+  batches               AiAutomationBatch[]
+
+  @@index([workspaceId])
+  @@index([listId])
+}
+
+model AiAutomationItem {
+  id           String                      @id @default(cuid())
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  automationId String
+  listItemId   String
+  inScope      Boolean                     @default(true) // false = filtered out, history preserved
+  status       AutomationItemStatus        @default(PENDING)
+  automation   AiAutomation                @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  listItem     AiListItem                  @relation(fields: [listItemId], references: [id], onDelete: Cascade)
+  executions   AiAutomationItemExecution[]
+
+  @@unique([automationId, listItemId])
+  @@index([automationId, status])
+  @@index([automationId, inScope])
+  @@index([listItemId])
+}
+
+model AiAutomationItemExecution {
+  id               String               @id @default(cuid())
+  automationItemId String
+  batchId          String?
+  status           AutomationItemStatus
+  input            Json // What was sent to the action
+  output           Json? // What the action returned
+  startedAt        DateTime             @default(now())
+  finishedAt       DateTime?
+  automationItem   AiAutomationItem     @relation(fields: [automationItemId], references: [id], onDelete: Cascade)
+  batch            AiAutomationBatch?   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([automationItemId])
+  @@index([batchId])
+}
+
+model AiAutomationBatch {
+  id             String                      @id @default(cuid())
+  createdAt      DateTime                    @default(now())
+  automationId   String
+  status         BatchStatus                 @default(PENDING)
+  triggeredBy    TriggerType
+  itemsTotal     Int                         @default(0)
+  itemsProcessed Int                         @default(0)
+  itemsSuccess   Int                         @default(0)
+  itemsWarning   Int                         @default(0)
+  itemsFailed    Int                         @default(0)
+  itemsSkipped   Int                         @default(0)
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  automation     AiAutomation                @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  executions     AiAutomationItemExecution[]
+
+  @@index([automationId])
+  @@index([status])
+}

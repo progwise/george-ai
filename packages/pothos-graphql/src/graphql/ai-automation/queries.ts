@@ -1,8 +1,8 @@
 import { GraphQLError } from 'graphql'
 
-import { AutomationItemStatus } from '../../../prisma/generated/client'
+import { AutomationItemStatus, prisma } from '@george-ai/app-domain'
+
 import { canAccessAutomationOrThrow } from '../../domain/automation'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 // Query to get all automations for the current workspace

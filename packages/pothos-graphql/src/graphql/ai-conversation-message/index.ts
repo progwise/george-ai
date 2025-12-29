@@ -1,7 +1,7 @@
 import type { ServiceProviderType } from '@george-ai/ai-service-client'
+import { prisma } from '@george-ai/app-domain'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
-import { prisma } from '../../prisma'
 import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
 

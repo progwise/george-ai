@@ -1,4 +1,4 @@
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 export interface ModelUsageContext {
   modelId?: string

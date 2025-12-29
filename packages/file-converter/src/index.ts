@@ -9,4 +9,4 @@ export { transformTextToMarkdown } from './converters/text-to-markdown'
 export * from './file-converter-options'
 
 export { PDF_LAYOUT, SUPPORTED_MIME_TYPES, type SupportedMimeType } from './constants'
-export { type ConverterResult } from './converters/types'
+export { FileConverterResultSchema, type FileConverterResult } from './converters/types'

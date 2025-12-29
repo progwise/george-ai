@@ -1,6 +1,7 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessLibraryOrThrow } from '../../domain'
 import { ProcessingStatus, getTaskStatusWhereClause } from '../../domain/content-extraction/task-status'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiFileContentExtractionTask Queries')

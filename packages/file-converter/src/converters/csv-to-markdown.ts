@@ -4,7 +4,7 @@ import path from 'path'
 
 import { deleteExistingExtraction, getFileDir, saveMarkdownContent } from '@george-ai/file-management'
 
-import type { ConverterResult } from './types'
+import type { FileConverterResult } from './types'
 
 /**
  * CSV to Markdown Converter (Streaming, Bucketed Parts)
@@ -84,7 +84,7 @@ export async function transformCsvToMarkdown(
   libraryId: string,
   fileId: string,
   fileName: string,
-): Promise<ConverterResult> {
+): Promise<FileConverterResult> {
   const processingStart = Date.now()
 
   console.log(`[CSV Converter] Starting streaming conversion: ${fileName}`)

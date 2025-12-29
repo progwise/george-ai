@@ -1,10 +1,9 @@
+import { Prisma, prisma } from '@george-ai/app-domain'
 import { createLogger } from '@george-ai/web-utils'
 
-import { Prisma } from '../../../prisma/generated/client'
 import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
-import { prisma } from '../../prisma'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
 

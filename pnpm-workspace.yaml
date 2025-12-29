@@ -2,6 +2,7 @@ packages:
   - 'apps/georgeai-web'
   - 'apps/georgeai-webapp'
   - 'apps/georgeai-backend'
-  - 'apps/smb-crawler'
+  - 'services/smb-crawler-service'
+  - 'services/model-manager-service'
   - 'packages/*'
   - '!packages/ai-models'

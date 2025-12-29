@@ -1,6 +1,7 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { requireWorkspaceAdmin } from '../../domain/workspace'
 import { canAccessListOrThrow, createListItemsForSource } from './../../domain'
-import { prisma } from './../../prisma'
 import { builder } from './../builder'
 
 console.log('Setting up: AiList mutations')

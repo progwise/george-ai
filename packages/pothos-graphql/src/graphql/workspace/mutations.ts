@@ -1,6 +1,8 @@
 import { GraphQLError } from 'graphql'
 import { z } from 'zod'
 
+import { prisma } from '@george-ai/app-domain'
+
 import {
   INVITATION_EXPIRY_DAYS,
   isLastAdmin,
@@ -8,7 +10,6 @@ import {
   requireWorkspaceOwner,
   sendWorkspaceInvitationEmail,
 } from '../../domain/workspace'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: Workspace mutations')

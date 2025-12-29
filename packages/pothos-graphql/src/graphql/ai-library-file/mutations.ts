@@ -1,7 +1,8 @@
+import { prisma } from '@george-ai/app-domain'
+
 import { canAccessLibraryOrThrow, deleteFile } from '../../domain'
 import { canAccessFileOrThrow, dropAllLibraryFiles } from '../../domain/file'
 import { dropOutdatedMarkdowns } from '../../domain/file/markdown'
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile Mutations')

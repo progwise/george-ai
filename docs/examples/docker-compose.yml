@@ -65,6 +65,7 @@ services:
     image: ghcr.io/progwise/george-ai/backend:latest
     environment:
       DATABASE_URL: postgresql://george:${DB_PASSWORD}@postgres:5432/georgeai?schema=public&connection_limit=20&pool_timeout=30
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       KEYCLOAK_URL: https://auth.${HOST_NAME}
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_CLIENT_ID: george-ai-client
@@ -74,6 +75,11 @@ services:
       TYPESENSE_PROTOCOL: http
       CRAWL4AI_URL: http://webcrawler:11245
       FILE_STORAGE_PATH: /app/storage
+      SMTP_HOSTNAME: ${SMTP_HOSTNAME:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@george-ai.net}
     volumes:
       - backend_storage:/app/storage
     depends_on:

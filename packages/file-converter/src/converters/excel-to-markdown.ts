@@ -1,12 +1,12 @@
 import readXlsxFile, { readSheetNames } from 'read-excel-file/node'
 
-import { ConverterResult } from './types'
+import { FileConverterResult } from './types'
 
 // Convert Excel file to Markdown format with proper table structure
 export async function transformExcelToMarkdown(
   excelPath: string,
   timeoutSignal: AbortSignal,
-): Promise<ConverterResult> {
+): Promise<FileConverterResult> {
   const processingStart = Date.now()
 
   try {

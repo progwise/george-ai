@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { prisma } from '../../prisma'
+import { prisma } from '@george-ai/app-domain'
 
 /**
  * Verify that a user is an admin of a workspace

@@ -1,3 +1,5 @@
+import { AiContentProcessingTaskInclude, AiContentProcessingTaskSelect } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-domain'
 import {
   type ExtractionMethodId,
   isMethodAvailableForMimeType,
@@ -5,8 +7,6 @@ import {
   serializeFileConverterOptions,
 } from '@george-ai/file-converter'
 
-import { AiContentProcessingTaskInclude, AiContentProcessingTaskSelect } from '../../../prisma/generated/models'
-import { prisma } from '../../prisma'
 import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 
 interface TaskQuery {
