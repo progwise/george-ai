@@ -51,7 +51,7 @@ RUN pnpm --filter @george-ai/smb-crawler-service deploy --prod /app/deploy
 # Runner stage
 FROM base AS runner
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/smb-crawler-service
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/services/smb-crawler-service
 WORKDIR /app
 
 # Copy the deployed output (all dependencies resolved, no symlinks)

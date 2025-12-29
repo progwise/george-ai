@@ -21,12 +21,12 @@
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
-    "dotenv": "^16.4.5",
     "vitest": "^3.1.1"
   },
   "dependencies": {
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/vector-store": "workspace:*",
+    "dotenv": "^16.4.5",
     "nats": "^2.29.3",
     "zod": "^3.23.8"
   }

@@ -3,8 +3,6 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join } from 'node:path'
 import { Client } from 'pg'
 
-import { PrismaClient } from '../../prisma/generated/client'
-
 // Simple file-based lock to prevent concurrent prisma operations
 // Use /tmp for cross-package lock directory (works regardless of cwd)
 const LOCK_DIR = '/tmp/george-ai-test-locks'
@@ -132,37 +130,4 @@ export default async () => {
   }
 
   console.log('✅ Test database ready')
-
-  // Return teardown function
-  return async () => {
-    console.log('Cleaning up test database...')
-
-    // Create PostgreSQL connection pool for test database
-    const { Pool } = await import('pg')
-    const { PrismaPg } = await import('@prisma/adapter-pg')
-
-    const pool = new Pool({
-      connectionString: TEST_DB_URL,
-    })
-
-    const adapter = new PrismaPg(pool)
-
-    const prisma = new PrismaClient({ adapter })
-
-    try {
-      // Clean up all test data
-      // Delete in order to respect foreign key constraints
-      await prisma.aiModelUsage.deleteMany()
-      await prisma.workspaceMember.deleteMany()
-      await prisma.workspaceInvitation.deleteMany()
-      await prisma.user.deleteMany() // Delete users before workspaces (FK: User.defaultWorkspaceId)
-      await prisma.workspace.deleteMany()
-
-      console.log('✅ Test database cleaned')
-    } catch (error) {
-      console.error('Error cleaning test database:', error)
-    } finally {
-      await prisma.$disconnect()
-    }
-  }
 }

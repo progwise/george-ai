@@ -32,7 +32,7 @@ RUN pnpm --filter @george-ai/web build
 # Stage 2: Run with Node.js
 FROM node:22-slim
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/georgeai-web
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/web
 
 WORKDIR /app
 

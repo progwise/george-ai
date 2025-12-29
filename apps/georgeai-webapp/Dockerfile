@@ -52,7 +52,7 @@ RUN pnpm --filter @george-ai/webapp deploy --prod /app/deploy
 
 FROM base AS runner
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/georgeai-webapp
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/webapp
 
 WORKDIR /app
 

@@ -75,7 +75,7 @@ RUN pnpm --filter @george-ai/backend deploy --prod /app/deploy
 
 FROM base AS runner
 
-LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/backend
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/backend
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs \

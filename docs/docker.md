@@ -61,35 +61,7 @@ docker compose up -d
 
 **Use when:** Deploying to production. See [Self-Hosting Guide](./self-hosting.md).
 
-### 2. Local Verification (`docker-compose.verify.yml`)
-
-**Purpose:** Test local Docker builds before CI/CD
-
-**Includes:** Builds apps from source, connects to devcontainer services
-
-**Ports:** 3002 (frontend), 3004 (backend), 3005 (marketing website)
-
-```bash
-docker compose -f docker-compose.verify.yml up --build
-```
-
-**Requirements:**
-
-- Devcontainer services must be running (database, Keycloak, Typesense)
-- Connects to `george-ai_devcontainer_default` network
-- Access at http://localhost:3002 (webapp), http://localhost:3004/graphql (backend), http://localhost:3005 (marketing)
-
-**Using .env file:**
-
-To use values from your `.env` file (e.g., SMTP credentials for contact form):
-
-```bash
-source .env && docker compose -f docker-compose.verify.yml up --build
-```
-
-**Use when:** Testing Dockerfile changes locally.
-
-### 3. Development (`.devcontainer/docker-compose.yml`)
+### 2. Development (`.devcontainer/docker-compose.yml`)
 
 **Purpose:** Development environment with hot reload
 
@@ -118,10 +90,6 @@ source .env && docker compose -f docker-compose.verify.yml up --build
 # Development (inside devcontainer)
 pnpm dev
 
-# Docker testing (exit devcontainer first)
-# Ctrl+Shift+P -> "Reopen Folder Locally"
-docker compose -f docker-compose.verify.yml up --build
-
 # Production (on server, not devcontainer)
 docker compose up -d
 ```
@@ -135,8 +103,6 @@ docker compose up -d
 **Container can't connect to services**: Check environment variables and Docker network configuration
 
 **Out of memory**: Increase Docker memory in Docker Desktop settings (8GB+ recommended)
-
-**Port conflicts**: Use `docker-compose.verify.yml` (ports 3002, 3004)
 
 **Permission errors**: Frontend runs as user `nodejs` (uid 1001), ensure mounted volumes have correct permissions
 

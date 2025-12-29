@@ -25,7 +25,13 @@
         "MODEL_NAME_EMBEDDING",
         "GITHUB_TOKEN",
         "CRAWLER_CREDENTIALS_DIR",
-        "SMB_TEST_HOST"
+        "SMB_TEST_HOST",
+        "SMTP_HOSTNAME",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "SMTP_FROM",
+        "SMTP_TEST_RECIPIENT"
       ]
     },
     "lint": {

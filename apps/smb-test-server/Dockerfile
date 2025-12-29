@@ -1,5 +1,7 @@
 FROM ghcr.io/servercontainers/samba:smbd-wsdd2-latest
 
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/smb-test-server
+
 WORKDIR /app
 
 # Copy scripts first (use paths relative to repo root for CI builds)

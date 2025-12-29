@@ -188,7 +188,7 @@ services:
   gai-crawl4ai:
     build:
       context: ..
-      dockerfile: ./apps/webcrawler/Dockerfile
+      dockerfile: ./services/webcrawler-service/Dockerfile
     container_name: gai-crawl4ai
     restart: unless-stopped
     ports:
