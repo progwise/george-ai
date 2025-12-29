@@ -1,5 +1,5 @@
 {
-  "name": "@george-ai/ai-model-service",
+  "name": "@george-ai/ai-service-worker",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -18,7 +18,7 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@george-ai/ai-service-client": "workspace:*",
+    "@george-ai/workspace-events": "workspace:*",
     "tsx": "^4.19.2",
     "zod": "^3.23.8"
   },

@@ -185,12 +185,13 @@ export class NatsClient {
     consumerName: string
     eventType: string
     handler: (data: Uint8Array<ArrayBufferLike>) => Promise<void>
+    maxDeliver?: number // Maximum delivery attempts (default: unlimited)
   }): Promise<() => Promise<void>> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
 
-    const { workspaceId, consumerName, eventType, handler } = args
+    const { workspaceId, consumerName, eventType, handler, maxDeliver } = args
 
     const streamName = this.getStreamName(workspaceId)
     const subject = this.getSubject(workspaceId, eventType)
@@ -206,6 +207,7 @@ export class NatsClient {
       streamName,
       consumerName,
       filterSubject: subject,
+      maxDeliver,
     })
 
     // Get consumer

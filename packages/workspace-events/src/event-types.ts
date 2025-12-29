@@ -1,7 +1,8 @@
 import z from 'zod'
 
 import { FileConverterOptionsSchema, FileConverterResultSchema } from '@george-ai/file-converter'
-import { FileEmbeddingOptionsSchema, FileEmbeddingResultSchema } from '@george-ai/vector-store'
+
+import { FileEmbeddingOptionsSchema, FileEmbeddingResultSchema } from '../../vector-store-client/src'
 
 export const ContentProcessingEventBaseSchema = z.object({
   eventName: z.string(),

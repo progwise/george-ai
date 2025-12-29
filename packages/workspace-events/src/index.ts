@@ -1,1 +1,1 @@
-export { subscribeEmbeddingRequests, publishEmbeddingRequest, disconnect } from './api'
+export { subscribeEmbeddingRequests, publishEmbeddingRequest } from './api'

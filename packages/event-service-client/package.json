@@ -1,5 +1,5 @@
 {
-  "name": "@george-ai/workspace-events",
+  "name": "@george-ai/event-service-client",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "packageManager": "pnpm@9.15.4",
@@ -18,16 +18,15 @@
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
+    "dotenv": "^16.4.5",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {
-    "@george-ai/event-service-client": "workspace:*",
-    "@george-ai/file-converter": "workspace:*",
-    "@george-ai/vector-store-client": "workspace:*",
     "dotenv": "^16.4.5",
+    "nats": "^2.29.3",
     "zod": "^3.23.8"
   }
 }
