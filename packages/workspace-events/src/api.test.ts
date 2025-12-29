@@ -6,8 +6,9 @@ import { createEventClient } from '@george-ai/event-service-client'
 import { publishEmbeddingRequest, subscribeEmbeddingRequests } from './api'
 import type { EmbeddingRequestEvent } from './event-types'
 
-// Use unique workspace ID per test run to avoid interference
-const TEST_WORKSPACE_ID = `test-workspace-api-${Date.now()}`
+// Helper to generate unique workspace ID per test
+// Note: NATS stream names cannot contain '.' so we convert Math.random() to integer
+const getTestWorkspaceId = () => `test-workspace-api-${Date.now()}-${Math.floor(Math.random() * 1000000)}`
 
 describe('Workspace Events API', () => {
   let client: EventClient & EventClientAdmin
@@ -18,26 +19,33 @@ describe('Workspace Events API', () => {
   })
 
   afterAll(async () => {
-    // Clean up test streams before disconnecting
+    // Clean up all test workspace streams
     if (client) {
-      try {
-        await client.deleteWorkspaceStream(TEST_WORKSPACE_ID)
-      } catch (error) {
-        console.log('Error deleting test stream (might not exist):', error)
-      }
+      const allWorkspaceIds = await client.getWorkspaceStreams()
+      const testWorkspaceIds = allWorkspaceIds.filter((id) => id.startsWith('test-workspace-api-'))
 
+      for (const workspaceId of testWorkspaceIds) {
+        try {
+          await client.deleteWorkspaceStream(workspaceId)
+        } catch (error) {
+          // Ignore errors if stream doesn't exist
+          console.warn(`Error deleting test workspace stream ${workspaceId}:`, error)
+        }
+      }
       await client.disconnect()
     }
   })
 
   describe('publishEmbeddingRequest', () => {
     it('should publish a valid embedding request event', async () => {
+      const workspaceId = getTestWorkspaceId()
+
       const event: EmbeddingRequestEvent = {
         eventName: 'file-embedding-request',
         timestamp: new Date().toISOString(),
         timeoutMs: 60000,
         processingTaskId: 'task-123',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         libraryId: 'lib-456',
         fileId: 'file-789',
         markdownFilename: 'file-789/markdown.md',
@@ -51,12 +59,14 @@ describe('Workspace Events API', () => {
     })
 
     it('should publish event with optional part field', async () => {
+      const workspaceId = getTestWorkspaceId()
+
       const event: EmbeddingRequestEvent = {
         eventName: 'file-embedding-request',
         timestamp: new Date().toISOString(),
         timeoutMs: 120000,
         processingTaskId: 'task-multipart',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         libraryId: 'lib-456',
         fileId: 'file-multipart',
         part: 2,
@@ -73,11 +83,12 @@ describe('Workspace Events API', () => {
 
   describe('subscribeEmbeddingRequests', () => {
     it('should subscribe and receive published events', async () => {
+      const workspaceId = getTestWorkspaceId()
       const receivedEvents: EmbeddingRequestEvent[] = []
 
       const cleanup = await subscribeEmbeddingRequests(client, {
         consumerName: 'test-consumer-receive',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         handler: async (event) => {
           receivedEvents.push(event)
         },
@@ -88,7 +99,7 @@ describe('Workspace Events API', () => {
         timestamp: new Date().toISOString(),
         timeoutMs: 60000,
         processingTaskId: 'task-subscribe-test',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         libraryId: 'lib-sub-test',
         fileId: 'file-sub-test',
         markdownFilename: 'file-sub-test/markdown.md',
@@ -100,68 +111,41 @@ describe('Workspace Events API', () => {
 
       await publishEmbeddingRequest(client, event)
 
-      // Wait for event to be received
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Wait for event to be received (max 5 seconds)
+      let waitTime = 0
+      while (receivedEvents.length < 1 && waitTime < 5000) {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        waitTime += 100
+      }
 
-      expect(receivedEvents.length).toBeGreaterThan(0)
-      const receivedEvent = receivedEvents.find((e) => e.processingTaskId === 'task-subscribe-test')
-      expect(receivedEvent).toBeDefined()
-      expect(receivedEvent?.fileId).toBe('file-sub-test')
+      expect(receivedEvents.length).toBe(1)
+      expect(receivedEvents[0].processingTaskId).toBe('task-subscribe-test')
+      expect(receivedEvents[0].fileId).toBe('file-sub-test')
 
       await cleanup()
     })
 
     it('should handle multiple events in sequence', async () => {
+      const workspaceId = getTestWorkspaceId()
       const receivedEvents: EmbeddingRequestEvent[] = []
-      let consumerReady = false
 
+      // Subscribe first
       const cleanup = await subscribeEmbeddingRequests(client, {
         consumerName: 'test-consumer-multiple',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         handler: async (event) => {
-          consumerReady = true
           receivedEvents.push(event)
         },
       })
 
-      // Publish a ready check event and wait for consumer to process it
-      const readyEvent: EmbeddingRequestEvent = {
-        eventName: 'file-embedding-request',
-        timestamp: new Date().toISOString(),
-        timeoutMs: 60000,
-        processingTaskId: 'task-ready-check',
-        workspaceId: TEST_WORKSPACE_ID,
-        libraryId: 'lib-ready',
-        fileId: 'file-ready',
-        markdownFilename: 'ready.md',
-        fileEmbeddingOptions: {
-          embeddingModelName: 'ready-model',
-          embeddingModelProvider: 'test',
-        },
-      }
-
-      await publishEmbeddingRequest(client, readyEvent)
-
-      // Wait for consumer to be ready (max 5 seconds)
-      let waitTime = 0
-      while (!consumerReady && waitTime < 5000) {
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        waitTime += 100
-      }
-
-      expect(consumerReady).toBe(true)
-
-      // Clear the ready event
-      receivedEvents.length = 0
-
-      // Now publish the actual test events
+      // Now publish events one by one and verify each is received
       const events: EmbeddingRequestEvent[] = [
         {
           eventName: 'file-embedding-request',
           timestamp: new Date().toISOString(),
           timeoutMs: 60000,
           processingTaskId: 'task-multi-1',
-          workspaceId: TEST_WORKSPACE_ID,
+          workspaceId,
           libraryId: 'lib-multi',
           fileId: 'file-multi-1',
           markdownFilename: 'file-multi-1/markdown.md',
@@ -175,7 +159,7 @@ describe('Workspace Events API', () => {
           timestamp: new Date().toISOString(),
           timeoutMs: 60000,
           processingTaskId: 'task-multi-2',
-          workspaceId: TEST_WORKSPACE_ID,
+          workspaceId,
           libraryId: 'lib-multi',
           fileId: 'file-multi-2',
           markdownFilename: 'file-multi-2/markdown.md',
@@ -189,7 +173,7 @@ describe('Workspace Events API', () => {
           timestamp: new Date().toISOString(),
           timeoutMs: 60000,
           processingTaskId: 'task-multi-3',
-          workspaceId: TEST_WORKSPACE_ID,
+          workspaceId,
           libraryId: 'lib-multi',
           fileId: 'file-multi-3',
           markdownFilename: 'file-multi-3/markdown.md',
@@ -205,7 +189,7 @@ describe('Workspace Events API', () => {
       }
 
       // Wait for all 3 events to be received (max 5 seconds)
-      waitTime = 0
+      let waitTime = 0
       while (receivedEvents.length < 3 && waitTime < 5000) {
         await new Promise((resolve) => setTimeout(resolve, 100))
         waitTime += 100
@@ -221,12 +205,13 @@ describe('Workspace Events API', () => {
     })
 
     it('should support competing consumers', async () => {
+      const workspaceId = getTestWorkspaceId()
       const consumer1Events: EmbeddingRequestEvent[] = []
       const consumer2Events: EmbeddingRequestEvent[] = []
 
       const cleanup1 = await subscribeEmbeddingRequests(client, {
         consumerName: 'competing-consumer',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         handler: async (event) => {
           consumer1Events.push(event)
         },
@@ -234,7 +219,7 @@ describe('Workspace Events API', () => {
 
       const cleanup2 = await subscribeEmbeddingRequests(client, {
         consumerName: 'competing-consumer',
-        workspaceId: TEST_WORKSPACE_ID,
+        workspaceId,
         handler: async (event) => {
           consumer2Events.push(event)
         },
@@ -247,7 +232,7 @@ describe('Workspace Events API', () => {
           timestamp: new Date().toISOString(),
           timeoutMs: 60000,
           processingTaskId: `task-competing-${i}`,
-          workspaceId: TEST_WORKSPACE_ID,
+          workspaceId,
           libraryId: 'lib-competing',
           fileId: `file-competing-${i}`,
           markdownFilename: `file-competing-${i}/markdown.md`,
@@ -258,10 +243,15 @@ describe('Workspace Events API', () => {
         })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      // Wait for all events to be received (max 5 seconds)
+      let waitTime = 0
+      while (consumer1Events.length + consumer2Events.length < eventCount && waitTime < 5000) {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        waitTime += 100
+      }
 
       const totalReceived = consumer1Events.length + consumer2Events.length
-      expect(totalReceived).toBeGreaterThan(0)
+      expect(totalReceived).toBe(eventCount)
 
       console.log(`Consumer 1 received: ${consumer1Events.length} events`)
       console.log(`Consumer 2 received: ${consumer2Events.length} events`)

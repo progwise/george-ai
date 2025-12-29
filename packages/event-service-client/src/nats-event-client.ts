@@ -121,6 +121,25 @@ export class NatsEventClient implements EventClient, EventClientAdmin {
     await this.client.disconnect()
   }
 
+  async getWorkspaceStreams(): Promise<string[]> {
+    const jsm = this.client.getJetStreamManager()
+    if (!jsm) {
+      throw new Error('Not connected to event service')
+    }
+
+    const workspaceIds: string[] = []
+    const streams = jsm.streams.list()
+    for await (const stream of streams) {
+      // Extract workspace ID from stream name (format: workspace-{workspaceId})
+      if (stream.config.name.startsWith('workspace-')) {
+        const workspaceId = stream.config.name.substring('workspace-'.length)
+        workspaceIds.push(workspaceId)
+      }
+    }
+
+    return workspaceIds
+  }
+
   // Admin operations
   async deleteWorkspaceStream(workspaceId: string): Promise<void> {
     const jsm = this.client.getJetStreamManager()

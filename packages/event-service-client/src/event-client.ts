@@ -63,6 +63,11 @@ export interface EventClient {
  */
 export interface EventClientAdmin {
   /**
+   * get workspace streams
+   */
+  getWorkspaceStreams(): Promise<string[]>
+
+  /**
    * Delete a workspace's event stream
    */
   deleteWorkspaceStream(workspaceId: string): Promise<void>
