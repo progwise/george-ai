@@ -18,7 +18,8 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@george-ai/workspace-events": "workspace:*",
+    "@george-ai/events": "workspace:*",
+    "@george-ai/event-service-client": "workspace:*",
     "tsx": "^4.19.2",
     "zod": "^3.23.8"
   },

@@ -7,12 +7,11 @@
  *
  * IMPORTANT: Only import from this file, never from internal files
  */
-import type { EventClient, EventClientAdmin } from './event-client'
+import type { EventClient } from './event-client'
 import { NatsClient } from './nats-client'
-import { NatsEventClient } from './nats-event-client'
 
 // Export only the interface, not the implementation
-export type { EventClient, EventClientAdmin }
+export type { EventClient }
 
 /**
  * Connection configuration
@@ -27,7 +26,7 @@ export interface EventClientConfig {
 /**
  * Create a new event client with environment-based configuration
  */
-export async function createEventClient(config?: EventClientConfig): Promise<EventClient & EventClientAdmin> {
+export async function createEventClient(config?: EventClientConfig): Promise<EventClient> {
   // Create new NATS client
   const natsClient = new NatsClient()
 
@@ -45,5 +44,5 @@ export async function createEventClient(config?: EventClientConfig): Promise<Eve
   })
 
   // Wrap in EventClient interface
-  return new NatsEventClient(natsClient)
+  return natsClient
 }

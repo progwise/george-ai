@@ -1,12 +1,15 @@
 import type { EventClient } from '@george-ai/event-service-client'
 
 import { type EmbeddingRequestEvent, EmbeddingRequestEventSchema } from './event-types'
+import { ensureWorkspaceStream } from './workspace-setup'
 
 export const publishEmbeddingRequest = async (client: EventClient, request: EmbeddingRequestEvent) => {
-  await client.publishEvent({
-    workspaceId: request.workspaceId,
-    eventType: request.eventName,
-    payload: request as unknown as Record<string, unknown>,
+  await ensureWorkspaceStream(client, request.workspaceId)
+  const subject = `workspace.${request.workspaceId}.file-embedding-request`
+  const payload = new TextEncoder().encode(JSON.stringify(request))
+  await client.publish({
+    subject,
+    payload,
     timeoutMs: request.timeoutMs,
   })
 }
@@ -14,22 +17,24 @@ export const publishEmbeddingRequest = async (client: EventClient, request: Embe
 export const subscribeEmbeddingRequests = async (
   client: EventClient,
   {
-    consumerName,
+    subscriptionName,
     workspaceId,
     handler,
   }: {
-    consumerName: string
+    subscriptionName: string
     workspaceId: string
     handler: (event: EmbeddingRequestEvent) => Promise<void>
   },
 ) => {
+  const streamName = await ensureWorkspaceStream(client, workspaceId)
   const cleanup = await client.subscribe({
-    workspaceId,
-    consumerName,
-    eventType: 'file-embedding-request',
-    handler: async (payload: Record<string, unknown>) => {
+    subscriptionName,
+    streamName,
+    subjectFilter: `workspace.${workspaceId}.file-embedding-request`,
+    handler: async (payload) => {
       try {
-        const event = EmbeddingRequestEventSchema.parse(payload)
+        const decoded = new TextDecoder().decode(payload)
+        const event = EmbeddingRequestEventSchema.parse(JSON.parse(decoded))
         await handler(event)
       } catch (error) {
         console.error('Error handling embedding request event:', error)

@@ -12,68 +12,49 @@ export interface EventClient {
   /**
    * Check if connected to event service
    */
-  isConnected(): boolean
+  isConnected(): Promise<boolean>
 
-  /**
-   * Publish an event to a workspace
-   */
-  publishEvent(params: {
-    workspaceId: string
-    eventType: string
-    payload: Record<string, unknown>
+  ensureStream(args: { streamName: string; subjects: string[]; description?: string; persist: boolean }): Promise<void>
+
+  deleteStream(name: string): Promise<void>
+
+  publish(params: {
+    subject: string
+    payload: Uint8Array<ArrayBufferLike>
     timeoutMs?: number
-  }): Promise<void>
+  }): Promise<{ streamName: string; msgId: string }>
 
   /**
    * Subscribe to workspace events with a consumer group
    * Returns cleanup function to stop consuming
    */
+
   subscribe(params: {
-    workspaceId: string
-    eventType: string
-    consumerName: string
-    handler: (payload: Record<string, unknown>) => Promise<void>
+    subscriptionName: string
+    streamName: string
+    subjectFilter: string
+    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<void>
   }): Promise<() => Promise<void>>
 
   /**
    * Request/reply pattern for synchronous operations
    */
-  request<TRequest = Record<string, unknown>, TResponse = Record<string, unknown>>(params: {
+  request(params: {
     subject: string
-    payload: TRequest
+    payload: Uint8Array<ArrayBufferLike>
     timeoutMs?: number
-  }): Promise<TResponse>
+  }): Promise<Uint8Array<ArrayBufferLike>>
 
   /**
    * Respond to requests (for service workers)
    */
-  respond<TRequest = Record<string, unknown>, TResponse = Record<string, unknown>>(params: {
+  respond(params: {
     subject: string
-    handler: (payload: TRequest) => Promise<TResponse>
+    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<Uint8Array<ArrayBufferLike>>
   }): Promise<() => Promise<void>>
 
   /**
    * Disconnect from event service
    */
   disconnect(): Promise<void>
-}
-
-/**
- * Workspace management operations
- */
-export interface EventClientAdmin {
-  /**
-   * get workspace streams
-   */
-  getWorkspaceStreams(): Promise<string[]>
-
-  /**
-   * Delete a workspace's event stream
-   */
-  deleteWorkspaceStream(workspaceId: string): Promise<void>
-
-  /**
-   * Delete a specific consumer from a workspace
-   */
-  deleteConsumer(workspaceId: string, consumerName: string): Promise<void>
 }
