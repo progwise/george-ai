@@ -1,4 +1,4 @@
 {
   "prisma.pinToPrisma6": false,
-  "vitest.maximumConfigs": 20
+  "vitest.maximumConfigs": 40
 }
