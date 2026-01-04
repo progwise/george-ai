@@ -39,6 +39,7 @@ export const getWorkspaceProviders = async (workspaceId: string): Promise<Servic
 
   // Convert grouped map to ServiceProviderConfig array
   return Array.from(grouped.entries()).map(([provider, endpoints]) => ({
+    workspaceId,
     provider,
     endpoints,
   }))
