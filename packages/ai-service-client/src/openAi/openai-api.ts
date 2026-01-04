@@ -1,3 +1,4 @@
+import pRetry from 'p-retry'
 import { z } from 'zod'
 
 import { createLogger } from '@george-ai/web-utils'
@@ -72,12 +73,16 @@ async function openAIApiGet<T>(
 ): Promise<z.infer<typeof schema>> {
   let response: Response
   try {
-    response = await fetch(`${instance.url}${endpoint}`, {
-      headers: {
-        Authorization: `Bearer ${instance.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    response = await pRetry(
+      () =>
+        fetch(`${instance.url}${endpoint}`, {
+          headers: {
+            Authorization: `Bearer ${instance.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+      { retries: 3 },
+    )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.warn('Network error connecting to OpenAI:', {
@@ -121,14 +126,18 @@ async function openAIApiPost<T>(
 ): Promise<z.infer<typeof schema>> {
   let response: Response
   try {
-    response = await fetch(`${instance.url}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${instance.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    })
+    response = await pRetry(
+      () =>
+        fetch(`${instance.url}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${instance.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(params),
+        }),
+      { retries: 3 },
+    )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.warn('Network error connecting to OpenAI:', {

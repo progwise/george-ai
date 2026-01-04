@@ -1,11 +1,11 @@
-import { getOllamaModels } from './ollama/ollama-api'
 import { discoverOllamaModels } from './ollama/ollama-discover'
 import { clearAllOllamaResourceManagers, invalidateOllamaResourceManager } from './ollama/ollama-resource-manager'
-import { getOpenAIModels } from './openAi/openai-api'
 import { discoverOpenAIModels } from './openAi/openai-discover'
 // Workspace provider cache management
 import { providerCache } from './provider-cache'
 import type { ServiceProviderConfig, ServiceProviderType } from './types'
+
+export { getChunkVectors } from './instance-manager'
 
 export { getEmbedding } from './embed'
 export { chat } from './chat'
@@ -23,39 +23,10 @@ export {
   getOllamaResourceManager,
   invalidateOllamaResourceManager,
   clearAllOllamaResourceManagers,
+  testOllamaConnection,
 } from './ollama'
 
-/**
- * Test Ollama provider connection
- * Used for validating credentials before saving provider configuration
- */
-export const testOllamaConnection = async (params: {
-  url: string
-  apiKey?: string
-}): Promise<{ success: boolean; error?: string }> => {
-  try {
-    await getOllamaModels(params)
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-  }
-}
-
-/**
- * Test OpenAI provider connection
- * Used for validating credentials before saving provider configuration
- */
-export const testOpenAIConnection = async (params: {
-  apiKey: string
-}): Promise<{ success: boolean; error?: string }> => {
-  try {
-    await getOpenAIModels({ ...params, url: 'https://api.openai.com/v1' })
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-  }
-}
-
+export { testOpenAIConnection } from './openAi'
 /**
  * Discover models from a specific provider type for a workspace
  * Queries the workspace's configured providers and returns available model names
@@ -124,3 +95,5 @@ export const clearAllWorkspaceCache = () => {
 export const getWorkspaceCacheStats = () => {
   return providerCache.getStats()
 }
+
+export * as instanceManager from './instance-manager'

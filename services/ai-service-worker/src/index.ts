@@ -1,58 +1,43 @@
-import { workspace } from '@george-ai/events'
+import { admin } from '@george-ai/events'
 
+import { WORKER_ID, WORKSPACE_IDS } from './constants'
 import { eventClient } from './event-client'
-import { handleEmbeddingRequest } from './handlers/embed-handler'
-import { initProviderConfigSubscription } from './provider-cache'
-
-const WORKSPACE_ID = process.env.WORKSPACE_ID || ''
-const WORKER_ID = process.env.WORKER_ID || `ai-service-worker-${Date.now()}`
+import { cleanupWorkspaceCache, ensureWorkspaceInCache, removeWorkspaceFromCache } from './workspace-cache'
 
 async function main() {
   console.log(`Starting AI Service Worker (ID: ${WORKER_ID})`)
-  console.log(`Target workspace: ${WORKSPACE_ID || 'ALL'}`)
+  console.log(`Target workspaces: ${WORKSPACE_IDS}`)
 
-  if (!WORKSPACE_ID) {
-    throw new Error('WORKSPACE_ID environment variable is required')
-  }
-
-  // Subscribe to provider config events to keep cache updated
-  const cleanupProviderConfig = await initProviderConfigSubscription(WORKSPACE_ID)
-
-  // Subscribe to embedding requests for this workspace
-  // Using consumer group pattern (shared subscription name) for load balancing across multiple workers
-  const cleanupEmbedding = await workspace.subscribeEmbeddingRequests(eventClient, {
-    subscriptionName: 'ai-service-worker-pool', // All workers share this name = load balanced
-    workspaceId: WORKSPACE_ID,
+  const cleanupWorkspaceLifecycleEvents = await admin.subscribeWorkspaceLifecycle(eventClient, {
+    subscriptionName: `${WORKER_ID}-workspace-lifecycle-events`,
     handler: async (event) => {
-      console.log(
-        `Processing embedding request: ${event.processingTaskId} (file: ${event.fileId}, workspace: ${event.workspaceId})`,
-      )
-
-      try {
-        await handleEmbeddingRequest(event)
-        console.log(`Completed embedding request: ${event.processingTaskId}`)
-      } catch (error) {
-        console.error(`Failed to process embedding request ${event.processingTaskId}:`, error)
-        throw error // Reject message so NATS can retry
+      if (event.eventName === 'workspace-started') {
+        console.log(`Workspace started: ${event.workspaceId}`)
+        ensureWorkspaceInCache(event)
+      } else if (event.eventName === 'workspace-stopped') {
+        console.log(`Workspace stopped: ${event.workspaceId}`)
+        removeWorkspaceFromCache(event)
+      } else {
+        console.warn(`Unhandled workspace lifecycle event: ${event.eventName} for workspace ${event.workspaceId}`)
       }
     },
   })
 
-  console.log(`Worker started, listening for embedding requests...`)
+  console.log(`Worker started, listening for workspace lifecycle events...`)
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
     console.log('SIGTERM received, shutting down gracefully...')
-    await cleanupEmbedding()
-    await cleanupProviderConfig()
+    await cleanupWorkspaceLifecycleEvents()
+    await cleanupWorkspaceCache()
     await eventClient.disconnect()
     process.exit(0)
   })
 
   process.on('SIGINT', async () => {
     console.log('SIGINT received, shutting down gracefully...')
-    await cleanupEmbedding()
-    await cleanupProviderConfig()
+    await cleanupWorkspaceLifecycleEvents()
+    await cleanupWorkspaceCache()
     await eventClient.disconnect()
     process.exit(0)
   })

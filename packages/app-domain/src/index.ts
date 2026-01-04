@@ -1,3 +1,5 @@
+import { initializeAppDomain } from './initialize'
+
 // Export Prisma client singleton (what everyone uses)
 export { prisma } from './prisma'
 
@@ -14,3 +16,5 @@ export * from '../prisma/generated/sql'
 // Export Pothos types (only used by pothos-graphql)
 export type { default as PothosTypes } from '../prisma/generated/pothos'
 export { getDatamodel } from '../prisma/generated/pothos'
+
+await initializeAppDomain()

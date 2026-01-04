@@ -1,68 +1,129 @@
-import type { EmbeddingRequestEvent } from '@george-ai/events'
+import { pipeline } from 'node:stream/promises'
 
-import { getProviderForModel } from '../provider-cache'
-import { LocalSemaphore } from '../semaphore'
+import { getChunkVectors } from '@george-ai/ai-service-client'
+import { workspace } from '@george-ai/events'
+import { workspaceStorage } from '@george-ai/file-management/src/storage'
+import { vectorStore } from '@george-ai/vector-store-client'
 
-// Semaphore to limit concurrent requests per provider
-// TODO: Configure max concurrent requests per provider type
-const semaphore = new LocalSemaphore(
-  new Map([
-    ['ollama', 3], // Max 3 concurrent Ollama requests
-    ['openai', 10], // Max 10 concurrent OpenAI requests
-    ['anthropic', 5], // Max 5 concurrent Anthropic requests
-  ]),
-)
+import { WORKER_ID } from '../constants'
+import { getProviderForModel } from '../workspace-cache'
 
-export async function handleEmbeddingRequest(event: EmbeddingRequestEvent): Promise<void> {
-  const { workspaceId, fileId, markdownFilename, fileEmbeddingOptions, processingTaskId } = event
+const CHUNK_BATCH_SIZE = 20
 
-  // 1. Get provider for the requested model
+export async function handleEmbeddingRequest(event: workspace.EmbeddingRequestEvent): Promise<void> {
+  const { workspaceId, libraryId, fileId, markdownFilename, fileEmbeddingOptions, processingTaskId } = event
+
   const provider = getProviderForModel(fileEmbeddingOptions.embeddingModelName, workspaceId)
 
-  if (!provider) {
-    throw new Error(
-      `No provider found for model ${fileEmbeddingOptions.embeddingModelName} in workspace ${workspaceId}`,
+  if (!provider || (provider.name !== 'openai' && provider.name !== 'ollama')) {
+    console.error(
+      `[${processingTaskId}] No provider with openai or ollama found for model ${fileEmbeddingOptions.embeddingModelName} in workspace ${workspaceId}`,
     )
+    return
   }
-
-  console.log(
-    `Using provider: ${provider.providerType} (${provider.baseUrl}) for model ${fileEmbeddingOptions.embeddingModelName}`,
-  )
-
-  // 2. Acquire semaphore for this provider type
-  const release = await semaphore.acquire(provider.providerType)
+  const fileSourceStream = await workspaceStorage.readSource(workspaceId, libraryId, fileId) //loadSourceFile({ workspaceId, fileId, markdownFilename })
 
   try {
-    // TODO: Implement actual embedding generation
-    // This requires:
-    // 1. Read markdown file from storage
-    // 2. Chunk markdown into semantic chunks
-    // 3. Generate embeddings for each chunk using the provider
-    // 4. Store embeddings in vector store (Typesense)
-    // 5. Track progress and publish progress events
+    console.log(`[${processingTaskId}] Processing file ${fileId} (${markdownFilename}) with ${provider.id}`)
 
-    console.log(`[${processingTaskId}] Processing file ${fileId} (${markdownFilename}) with ${provider.providerType}`)
-
-    // Placeholder implementation
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    console.log(`[${processingTaskId}] Successfully processed file ${fileId}`)
-
-    // TODO: Publish completion event
-    // await workspace.publishEmbeddingFinished(eventClient, {
-    //   eventName: 'file-embedding-finished',
-    //   workspaceId,
-    //   fileId,
-    //   processingTaskId,
-    //   fileEmbeddingResult: {
-    //     chunkCount: chunks.length,
-    //     processingTimeMs: duration,
-    //     success: true,
-    //     ...
-    //   },
-    //   ...
-    // })
-  } finally {
-    release()
+    await pipeline(
+      fileSourceStream,
+      markdownSplitter(),
+      vectorGenerator(workspaceId, provider.name, fileEmbeddingOptions.embeddingModelName),
+      storeEmbeddings(workspaceId, libraryId, fileId, fileEmbeddingOptions.embeddingModelName),
+    )
+  } catch (error) {
+    console.error(`[${processingTaskId}] Error processing file ${fileId}:`, error)
+    throw error
   }
+
+  console.log(`[${processingTaskId}] Completed processing file ${fileId}`)
 }
+
+const markdownSplitter = () =>
+  async function* (source: AsyncIterable<Buffer>) {
+    let chunkIndex = 0
+    let buffer = ''
+    for await (const chunk of source) {
+      buffer += chunk.toString('utf-8')
+      let boundary = buffer.lastIndexOf('\n\n')
+      while (boundary !== -1) {
+        const segment = buffer.slice(0, boundary).trim()
+        if (segment.length > 0) {
+          yield { index: chunkIndex++, text: segment, length: segment.length }
+        }
+        buffer = buffer.slice(boundary + 2)
+        boundary = buffer.lastIndexOf('\n\n')
+      }
+    }
+    const remaining = buffer.trim()
+    if (remaining.length > 0) {
+      yield { index: chunkIndex++, text: remaining, length: remaining.length }
+    }
+  }
+
+const vectorGenerator = (workspaceId: string, provider: 'openai' | 'ollama', modelName: string) =>
+  async function* (chunks: AsyncIterable<{ index: number; text: string; length: number }>) {
+    let currentBatch: { index: number; text: string; length: number }[] = []
+    for await (const chunk of chunks) {
+      currentBatch.push(chunk)
+      if (currentBatch.length >= CHUNK_BATCH_SIZE) {
+        const embedding = await getChunkVectors(
+          workspaceId,
+          provider,
+          modelName,
+          currentBatch.map((c) => c.text),
+        )
+        yield currentBatch.map((chunk, index) => ({
+          ...chunk,
+          embedding: embedding.embeddings[index],
+        }))
+        currentBatch = []
+      }
+    }
+    if (currentBatch.length > 0) {
+      const embedding = await getChunkVectors(
+        workspaceId,
+        provider,
+        modelName,
+        currentBatch.map((c) => c.text),
+      )
+      yield currentBatch.map((chunk, index) => ({
+        ...chunk,
+        embedding: embedding.embeddings[index],
+      }))
+    }
+  }
+
+const storeEmbeddings = (workspaceId: string, libraryId: string, fileId: string, modelName: string) =>
+  async function* <T extends { index: number; text: string; embedding: number[] }>(batches: AsyncIterable<T[]>) {
+    let vectorStoreInitialized = false
+    const collectionName = `workspace_${workspaceId}`
+    for await (const batch of batches) {
+      if (!vectorStoreInitialized) {
+        await vectorStore.ensure(collectionName, {
+          vectorModels: { [modelName]: { size: batch[0].embedding.length, distance: 'Cosine' } },
+        })
+        vectorStoreInitialized = true
+      }
+      console.log(`[${WORKER_ID}] Storing batch of ${batch.length} embeddings for file ${fileId}`)
+      await vectorStore.upsert(
+        `workspace_${workspaceId}`,
+        batch.map((item) => ({
+          id: `file_${fileId}_chunk_${item.index}`,
+          vectors: { [modelName]: item.embedding },
+          payload: {
+            workspaceId,
+            chunkIndex: item.index,
+            shardIndex: null,
+            status: 'completed',
+            text: item.text,
+            fileId,
+            libraryId,
+            updatedAt: new Date().toISOString(),
+          },
+        })),
+      )
+      yield batch
+    }
+  }
