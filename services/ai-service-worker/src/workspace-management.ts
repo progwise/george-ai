@@ -1,7 +1,5 @@
 import { workspace } from '@george-ai/events'
 
-import { eventClient } from './event-client'
-
 const workspaceEmbeddingSubscriptionCache = new Map<string, () => Promise<void>>()
 
 export const handleWorkspaceManagementEvents = async (event: workspace.WorkspaceManagementEvent) => {
@@ -15,7 +13,7 @@ export const handleWorkspaceManagementEvents = async (event: workspace.Workspace
           return
         }
         console.log(`Starting embedding processing for workspace ${event.workspaceId}...`)
-        const cleanup = await workspace.subscribeEmbeddingRequests(eventClient, {
+        const cleanup = await workspace.subscribeEmbeddingRequests({
           subscriptionName: `ai-service-worker-embedding-${event.workspaceId}`,
           workspaceId: event.workspaceId,
           handler: async (embeddingEvent) => {

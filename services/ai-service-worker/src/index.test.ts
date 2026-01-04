@@ -1,6 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
-import { type EventClient, createEventClient } from '@george-ai/event-service-client'
 import { admin } from '@george-ai/events'
 
 import {
@@ -11,24 +10,15 @@ import {
 } from './workspace-cache'
 
 describe('AI Service Worker - Integration Tests', () => {
-  let client: EventClient
   const testId = Date.now().toString()
   const streams: string[] = []
-
-  beforeAll(async () => {
-    client = await createEventClient()
-  })
 
   afterAll(async () => {
     // Cleanup all test streams
     for (const streamName of streams) {
-      await client.deleteStream(streamName).catch(() => {
+      await admin.deleteWorkspaceStream(streamName).catch(() => {
         // Ignore errors if stream already deleted
       })
-    }
-
-    if (client) {
-      await client.disconnect()
     }
   })
 
@@ -159,7 +149,7 @@ describe('AI Service Worker - Integration Tests', () => {
       let eventReceived = false
 
       // Subscribe to workspace lifecycle events
-      const cleanup = await admin.subscribeWorkspaceLifecycle(client, {
+      const cleanup = await admin.subscribeWorkspaceLifecycle({
         subscriptionName: `worker-lifecycle-${testId}`,
         handler: async (event) => {
           if (event.eventName === 'workspace-started' && event.workspaceId === workspaceId) {
@@ -172,7 +162,7 @@ describe('AI Service Worker - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Publish workspace startup event
-      await admin.publishWorkspaceStartup(client, {
+      await admin.publishWorkspaceStartup({
         workspaceId,
         providers: [
           {

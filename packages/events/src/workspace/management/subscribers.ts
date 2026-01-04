@@ -1,23 +1,19 @@
-import type { EventClient } from '@george-ai/event-service-client'
-
+import { eventClient } from '../../shared'
 import { ensureWorkspaceStream } from '../workspace-setup'
 import { WorkspaceManagementEventSchema } from './schemas'
 import type { WorkspaceManagementEvent } from './schemas'
 
-export const subscribeManagementEvents = async (
-  client: EventClient,
-  {
-    subscriptionName,
-    workspaceId,
-    handler,
-  }: {
-    subscriptionName: string
-    workspaceId: string
-    handler: (event: WorkspaceManagementEvent) => Promise<void>
-  },
-): Promise<() => Promise<void>> => {
-  const streamName = await ensureWorkspaceStream(client, workspaceId)
-  const cleanup = await client.subscribe({
+export const subscribeManagementEvents = async ({
+  subscriptionName,
+  workspaceId,
+  handler,
+}: {
+  subscriptionName: string
+  workspaceId: string
+  handler: (event: WorkspaceManagementEvent) => Promise<void>
+}): Promise<() => Promise<void>> => {
+  const streamName = await ensureWorkspaceStream(workspaceId)
+  const cleanup = await eventClient.subscribe({
     subscriptionName,
     streamName,
     subjectFilter: `workspace.${workspaceId}.workspace-management`,

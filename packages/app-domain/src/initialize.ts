@@ -1,6 +1,5 @@
 import { admin } from '@george-ai/events'
 
-import { eventClient } from './event-client'
 import { prisma } from './prisma'
 
 export const initializeAppDomain = async () => {
@@ -15,7 +14,7 @@ export const initializeAppDomain = async () => {
   for (const workspace of workspaces) {
     // Initialize any workspace-specific domain logic here
     console.log(`Initializing domain for workspace: ${workspace.id}`)
-    await admin.publishWorkspaceStartup(eventClient, {
+    await admin.publishWorkspaceStartup({
       workspaceId: workspace.id,
       providers: workspace.aiProviders.map((provider) => ({
         id: provider.id,

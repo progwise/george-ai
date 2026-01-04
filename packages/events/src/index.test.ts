@@ -1,28 +1,18 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-
-import { type EventClient, createEventClient } from '@george-ai/event-service-client'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { admin, workspace } from './index'
+import { eventClient } from './shared'
 
 describe('Events Package - Integration Tests', () => {
-  let client: EventClient
   const testId = Date.now().toString()
   const streams: string[] = []
-
-  beforeAll(async () => {
-    client = await createEventClient()
-  })
 
   afterAll(async () => {
     // Cleanup all test streams
     for (const streamName of streams) {
-      await client.deleteStream(streamName).catch(() => {
+      await eventClient.deleteStream(streamName).catch(() => {
         // Ignore errors if stream already deleted
       })
-    }
-
-    if (client) {
-      await client.disconnect()
     }
   })
 
@@ -37,7 +27,7 @@ describe('Events Package - Integration Tests', () => {
       const receivedEvents: admin.workspaceLifecycle.WorkspaceCreatedEvent[] = []
 
       // Subscribe to workspace lifecycle events
-      const cleanup = await admin.subscribeWorkspaceLifecycle(client, {
+      const cleanup = await admin.subscribeWorkspaceLifecycle({
         subscriptionName: `admin-created-subscriber-${testId}`,
         handler: async (event) => {
           if (event.eventName === 'workspace-created') {
@@ -50,7 +40,7 @@ describe('Events Package - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Publish workspace created event
-      await admin.publishWorkspaceCreated(client, {
+      await admin.publishWorkspaceCreated({
         eventName: 'workspace-created',
         workspaceId: testAdminWorkspaceId,
         workspaceName: testAdminWorkspaceName,
@@ -75,7 +65,7 @@ describe('Events Package - Integration Tests', () => {
       const receivedEvents: admin.workspaceLifecycle.WorkspaceStartupEvent[] = []
 
       // Subscribe to workspace lifecycle events
-      const cleanup = await admin.subscribeWorkspaceLifecycle(client, {
+      const cleanup = await admin.subscribeWorkspaceLifecycle({
         subscriptionName: `admin-started-subscriber-${testId}`,
         handler: async (event) => {
           // Only capture events for our test workspace
@@ -88,7 +78,7 @@ describe('Events Package - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Publish workspace started event with configuration
-      await admin.publishWorkspaceStartup(client, {
+      await admin.publishWorkspaceStartup({
         workspaceId: testAdminWorkspaceId,
         providers: [
           {
@@ -130,7 +120,7 @@ describe('Events Package - Integration Tests', () => {
     it('should publish and subscribe to workspace-deleted events', async () => {
       const receivedEvents: admin.workspaceLifecycle.WorkspaceDeletedEvent[] = []
 
-      const cleanup = await admin.subscribeWorkspaceLifecycle(client, {
+      const cleanup = await admin.subscribeWorkspaceLifecycle({
         subscriptionName: `admin-deleted-subscriber-${testId}`,
         handler: async (event) => {
           if (event.eventName === 'workspace-deleted') {
@@ -141,7 +131,7 @@ describe('Events Package - Integration Tests', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      await admin.publishWorkspaceDeleted(client, {
+      await admin.publishWorkspaceDeleted({
         eventName: 'workspace-deleted',
         workspaceId: testAdminWorkspaceId,
         timestamp: new Date().toISOString(),
@@ -165,7 +155,7 @@ describe('Events Package - Integration Tests', () => {
     it('should publish and subscribe to embedding requests', async () => {
       const receivedEvents: workspace.embedding.EmbeddingRequestEvent[] = []
       // Subscribe to embedding requests
-      const cleanup = await workspace.subscribeEmbeddingRequests(client, {
+      const cleanup = await workspace.subscribeEmbeddingRequests({
         subscriptionName: `embedding-subscriber-${testId}`,
         workspaceId: testEmbeddingWorkspaceId,
         handler: async (event) => {
@@ -176,7 +166,7 @@ describe('Events Package - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Publish embedding request
-      await workspace.publishEmbeddingRequest(client, {
+      await workspace.publishEmbeddingRequest({
         eventName: 'file-embedding-request',
         timestamp: new Date().toISOString(),
         workspaceId: testEmbeddingWorkspaceId,
@@ -206,7 +196,7 @@ describe('Events Package - Integration Tests', () => {
     it('should publish and subscribe to embedding progress events', async () => {
       const receivedEvents: workspace.embedding.EmbeddingProgressEvent[] = []
 
-      const cleanup = await workspace.subscribeEmbeddingProgress(client, {
+      const cleanup = await workspace.subscribeEmbeddingProgress({
         subscriptionName: `embedding-progress-subscriber-${testId}`,
         workspaceId: testEmbeddingWorkspaceId,
         handler: async (event) => {
@@ -216,7 +206,7 @@ describe('Events Package - Integration Tests', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      await workspace.publishEmbeddingProgress(client, {
+      await workspace.publishEmbeddingProgress({
         eventName: 'file-embedding-progress',
         timestamp: new Date().toISOString(),
         workspaceId: testEmbeddingWorkspaceId,
@@ -245,7 +235,7 @@ describe('Events Package - Integration Tests', () => {
     it('should publish and subscribe to embedding finished events', async () => {
       const receivedEvents: workspace.embedding.EmbeddingFinishedEvent[] = []
 
-      const cleanup = await workspace.subscribeEmbeddingFinished(client, {
+      const cleanup = await workspace.subscribeEmbeddingFinished({
         subscriptionName: `embedding-finished-subscriber-${testId}`,
         workspaceId: testEmbeddingWorkspaceId,
         handler: async (event) => {
@@ -255,7 +245,7 @@ describe('Events Package - Integration Tests', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      await workspace.publishEmbeddingFinished(client, {
+      await workspace.publishEmbeddingFinished({
         eventName: 'file-embedding-finished',
         timestamp: new Date().toISOString(),
         workspaceId: testEmbeddingWorkspaceId,
@@ -292,7 +282,7 @@ describe('Events Package - Integration Tests', () => {
     it('should publish and subscribe to management events', async () => {
       const receivedEvents: workspace.management.WorkspaceManagementEvent[] = []
 
-      const cleanup = await workspace.subscribeManagementEvents(client, {
+      const cleanup = await workspace.subscribeManagementEvents({
         subscriptionName: `management-subscriber-${testId}`,
         workspaceId: testManagementWorkspaceId,
         handler: async (event) => {
@@ -303,7 +293,7 @@ describe('Events Package - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Publish start-processing event
-      await workspace.publishManagementEvent(client, {
+      await workspace.publishManagementEvent({
         workspaceId: testManagementWorkspaceId,
         task: {
           verb: 'start-processing',
@@ -313,7 +303,7 @@ describe('Events Package - Integration Tests', () => {
       })
 
       // Publish stop-processing event
-      await workspace.publishManagementEvent(client, {
+      await workspace.publishManagementEvent({
         workspaceId: testManagementWorkspaceId,
         task: {
           verb: 'stop-processing',
@@ -344,7 +334,7 @@ describe('Events Package - Integration Tests', () => {
       const sharedGroupName = `embedding-workers-${testId}`
 
       // Two workers with SAME subscription name = consumer group (load balanced)
-      const cleanup1 = await workspace.subscribeEmbeddingRequests(client, {
+      const cleanup1 = await workspace.subscribeEmbeddingRequests({
         subscriptionName: sharedGroupName,
         workspaceId,
         handler: async (event) => {
@@ -352,7 +342,7 @@ describe('Events Package - Integration Tests', () => {
         },
       })
 
-      const cleanup2 = await workspace.subscribeEmbeddingRequests(client, {
+      const cleanup2 = await workspace.subscribeEmbeddingRequests({
         subscriptionName: sharedGroupName,
         workspaceId,
         handler: async (event) => {
@@ -364,7 +354,7 @@ describe('Events Package - Integration Tests', () => {
 
       // Publish 10 events
       for (let i = 0; i < 10; i++) {
-        await workspace.publishEmbeddingRequest(client, {
+        await workspace.publishEmbeddingRequest({
           eventName: 'file-embedding-request',
           timestamp: new Date().toISOString(),
           workspaceId,
@@ -400,7 +390,7 @@ describe('Events Package - Integration Tests', () => {
       const workspaceId = testStreamManagementWorkspaceId
 
       // Create stream by publishing an event
-      await workspace.publishEmbeddingRequest(client, {
+      await workspace.publishEmbeddingRequest({
         eventName: 'file-embedding-request',
         timestamp: new Date().toISOString(),
         workspaceId,
@@ -419,7 +409,7 @@ describe('Events Package - Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Delete the stream - should not throw
-      await expect(admin.deleteWorkspaceStream(client, workspaceId)).resolves.not.toThrow()
+      await expect(admin.deleteWorkspaceStream(workspaceId)).resolves.not.toThrow()
 
       // Remove from cleanup list since already deleted
       const index = streams.indexOf(`workspace-${workspaceId}`)

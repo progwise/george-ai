@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "@george-ai/events": "workspace:*",
-    "@george-ai/event-service-client": "workspace:*",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "dotenv": "^16.4.5",

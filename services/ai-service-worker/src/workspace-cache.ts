@@ -1,6 +1,5 @@
 import { admin, workspace } from '@george-ai/events'
 
-import { eventClient } from './event-client'
 import { handleWorkspaceManagementEvents } from './workspace-management'
 
 // Cache workspaces
@@ -20,7 +19,7 @@ export const ensureWorkspaceInCache = async (workspaceEvent: admin.WorkspaceStar
     return
   }
 
-  const managementSubscriptionCleanup = await workspace.subscribeManagementEvents(eventClient, {
+  const managementSubscriptionCleanup = await workspace.subscribeManagementEvents({
     subscriptionName: `ai-service-worker-workspace-${workspaceEvent.workspaceId}-management-events`,
     workspaceId: workspaceEvent.workspaceId,
     handler: async (event) => {

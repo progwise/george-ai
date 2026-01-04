@@ -1,14 +1,13 @@
 import { admin } from '@george-ai/events'
 
 import { WORKER_ID, WORKSPACE_IDS } from './constants'
-import { eventClient } from './event-client'
 import { cleanupWorkspaceCache, ensureWorkspaceInCache, removeWorkspaceFromCache } from './workspace-cache'
 
 async function main() {
   console.log(`Starting AI Service Worker (ID: ${WORKER_ID})`)
   console.log(`Target workspaces: ${WORKSPACE_IDS}`)
 
-  const cleanupWorkspaceLifecycleEvents = await admin.subscribeWorkspaceLifecycle(eventClient, {
+  const cleanupWorkspaceLifecycleEvents = await admin.subscribeWorkspaceLifecycle({
     subscriptionName: `${WORKER_ID}-workspace-lifecycle-events`,
     handler: async (event) => {
       if (event.eventName === 'workspace-started') {
@@ -30,7 +29,6 @@ async function main() {
     console.log('SIGTERM received, shutting down gracefully...')
     await cleanupWorkspaceLifecycleEvents()
     await cleanupWorkspaceCache()
-    await eventClient.disconnect()
     process.exit(0)
   })
 
@@ -38,7 +36,6 @@ async function main() {
     console.log('SIGINT received, shutting down gracefully...')
     await cleanupWorkspaceLifecycleEvents()
     await cleanupWorkspaceCache()
-    await eventClient.disconnect()
     process.exit(0)
   })
 }

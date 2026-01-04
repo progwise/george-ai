@@ -1,35 +1,34 @@
-import type { EventClient } from '@george-ai/event-service-client'
-
+import { eventClient } from '../../shared'
 import { ensureWorkspaceStream } from '../workspace-setup'
 import type { EmbeddingFinishedEvent, EmbeddingProgressEvent, EmbeddingRequestEvent } from './schemas'
 
-export const publishEmbeddingRequest = async (client: EventClient, request: EmbeddingRequestEvent) => {
-  await ensureWorkspaceStream(client, request.workspaceId)
+export const publishEmbeddingRequest = async (request: EmbeddingRequestEvent) => {
+  await ensureWorkspaceStream(request.workspaceId)
   const subject = `workspace.${request.workspaceId}.file-embedding-request`
   const payload = new TextEncoder().encode(JSON.stringify(request))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
     timeoutMs: request.timeoutMs,
   })
 }
 
-export const publishEmbeddingProgress = async (client: EventClient, progress: EmbeddingProgressEvent) => {
-  await ensureWorkspaceStream(client, progress.workspaceId)
+export const publishEmbeddingProgress = async (progress: EmbeddingProgressEvent) => {
+  await ensureWorkspaceStream(progress.workspaceId)
   const subject = `workspace.${progress.workspaceId}.file-embedding-progress`
   const payload = new TextEncoder().encode(JSON.stringify(progress))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
     timeoutMs: progress.timeoutMs,
   })
 }
 
-export const publishEmbeddingFinished = async (client: EventClient, finished: EmbeddingFinishedEvent) => {
-  await ensureWorkspaceStream(client, finished.workspaceId)
+export const publishEmbeddingFinished = async (finished: EmbeddingFinishedEvent) => {
+  await ensureWorkspaceStream(finished.workspaceId)
   const subject = `workspace.${finished.workspaceId}.file-embedding-finished`
   const payload = new TextEncoder().encode(JSON.stringify(finished))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
     timeoutMs: finished.timeoutMs,

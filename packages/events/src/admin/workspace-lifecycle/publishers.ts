@@ -1,5 +1,4 @@
-import type { EventClient } from '@george-ai/event-service-client'
-
+import { eventClient } from '../../shared'
 import { ensureAdminStream } from '../admin-setup'
 import type {
   WorkspaceCreatedEvent,
@@ -8,52 +7,49 @@ import type {
   WorkspaceTeardownEvent,
 } from './schemas'
 
-export const publishWorkspaceCreated = async (client: EventClient, event: WorkspaceCreatedEvent) => {
-  await ensureAdminStream(client)
+export const publishWorkspaceCreated = async (event: WorkspaceCreatedEvent) => {
+  await ensureAdminStream()
   const subject = 'admin.workspace-created'
   const payload = new TextEncoder().encode(JSON.stringify(event))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
   })
 }
 
-export const publishWorkspaceDeleted = async (client: EventClient, event: WorkspaceDeletedEvent) => {
-  await ensureAdminStream(client)
+export const publishWorkspaceDeleted = async (event: WorkspaceDeletedEvent) => {
+  await ensureAdminStream()
   const subject = 'admin.workspace-deleted'
   const payload = new TextEncoder().encode(JSON.stringify(event))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
   })
 }
 
-export const publishWorkspaceStartup = async (
-  client: EventClient,
-  event: Omit<WorkspaceStartupEvent, 'eventName' | 'timestamp'>,
-) => {
-  await ensureAdminStream(client)
+export const publishWorkspaceStartup = async (event: Omit<WorkspaceStartupEvent, 'eventName' | 'timestamp'>) => {
+  await ensureAdminStream()
   const subject = 'admin.workspace-started'
   const payload = new TextEncoder().encode(
     JSON.stringify({ ...event, eventName: 'workspace-started', timestamp: new Date().toISOString() }),
   )
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
   })
 }
 
-export const publishWorkspaceTeardown = async (client: EventClient, event: WorkspaceTeardownEvent) => {
-  await ensureAdminStream(client)
+export const publishWorkspaceTeardown = async (event: WorkspaceTeardownEvent) => {
+  await ensureAdminStream()
   const subject = 'admin.workspace-stopped'
   const payload = new TextEncoder().encode(JSON.stringify(event))
-  await client.publish({
+  await eventClient.publish({
     subject,
     payload,
   })
 }
 
-export const deleteWorkspaceStream = async (client: EventClient, workspaceId: string) => {
+export const deleteWorkspaceStream = async (workspaceId: string) => {
   const streamName = `workspace-${workspaceId}`
-  await client.deleteStream(streamName)
+  await eventClient.deleteStream(streamName)
 }

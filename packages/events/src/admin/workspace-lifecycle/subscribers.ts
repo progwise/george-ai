@@ -1,22 +1,18 @@
-import type { EventClient } from '@george-ai/event-service-client'
-
+import { eventClient } from '../../shared'
 import { ensureAdminStream, getAdminStreamName } from '../admin-setup'
 import { AdminEventSchema } from './schemas'
 import type { AdminEvent } from './schemas'
 
-export const subscribeWorkspaceLifecycle = async (
-  client: EventClient,
-  {
-    subscriptionName,
-    handler,
-  }: {
-    subscriptionName: string
-    handler: (event: AdminEvent) => Promise<void>
-  },
-) => {
-  await ensureAdminStream(client)
+export const subscribeWorkspaceLifecycle = async ({
+  subscriptionName,
+  handler,
+}: {
+  subscriptionName: string
+  handler: (event: AdminEvent) => Promise<void>
+}) => {
+  await ensureAdminStream()
 
-  const cleanup = await client.subscribe({
+  const cleanup = await eventClient.subscribe({
     subscriptionName,
     streamName: getAdminStreamName(),
     subjectFilter: 'admin.*',

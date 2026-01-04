@@ -1,23 +1,19 @@
-import type { EventClient } from '@george-ai/event-service-client'
-
+import { eventClient } from '../../shared'
 import { ensureWorkspaceStream } from '../workspace-setup'
 import { EmbeddingFinishedEventSchema, EmbeddingProgressEventSchema, EmbeddingRequestEventSchema } from './schemas'
 import type { EmbeddingFinishedEvent, EmbeddingProgressEvent, EmbeddingRequestEvent } from './schemas'
 
-export const subscribeEmbeddingRequests = async (
-  client: EventClient,
-  {
-    subscriptionName,
-    workspaceId,
-    handler,
-  }: {
-    subscriptionName: string
-    workspaceId: string
-    handler: (event: EmbeddingRequestEvent) => Promise<void>
-  },
-) => {
-  const streamName = await ensureWorkspaceStream(client, workspaceId)
-  const cleanup = await client.subscribe({
+export const subscribeEmbeddingRequests = async ({
+  subscriptionName,
+  workspaceId,
+  handler,
+}: {
+  subscriptionName: string
+  workspaceId: string
+  handler: (event: EmbeddingRequestEvent) => Promise<void>
+}) => {
+  const streamName = await ensureWorkspaceStream(workspaceId)
+  const cleanup = await eventClient.subscribe({
     subscriptionName,
     streamName,
     subjectFilter: `workspace.${workspaceId}.file-embedding-request`,
@@ -36,20 +32,17 @@ export const subscribeEmbeddingRequests = async (
   return cleanup
 }
 
-export const subscribeEmbeddingProgress = async (
-  client: EventClient,
-  {
-    subscriptionName,
-    workspaceId,
-    handler,
-  }: {
-    subscriptionName: string
-    workspaceId: string
-    handler: (event: EmbeddingProgressEvent) => Promise<void>
-  },
-) => {
-  const streamName = await ensureWorkspaceStream(client, workspaceId)
-  const cleanup = await client.subscribe({
+export const subscribeEmbeddingProgress = async ({
+  subscriptionName,
+  workspaceId,
+  handler,
+}: {
+  subscriptionName: string
+  workspaceId: string
+  handler: (event: EmbeddingProgressEvent) => Promise<void>
+}) => {
+  const streamName = await ensureWorkspaceStream(workspaceId)
+  const cleanup = await eventClient.subscribe({
     subscriptionName,
     streamName,
     subjectFilter: `workspace.${workspaceId}.file-embedding-progress`,
@@ -68,20 +61,17 @@ export const subscribeEmbeddingProgress = async (
   return cleanup
 }
 
-export const subscribeEmbeddingFinished = async (
-  client: EventClient,
-  {
-    subscriptionName,
-    workspaceId,
-    handler,
-  }: {
-    subscriptionName: string
-    workspaceId: string
-    handler: (event: EmbeddingFinishedEvent) => Promise<void>
-  },
-) => {
-  const streamName = await ensureWorkspaceStream(client, workspaceId)
-  const cleanup = await client.subscribe({
+export const subscribeEmbeddingFinished = async ({
+  subscriptionName,
+  workspaceId,
+  handler,
+}: {
+  subscriptionName: string
+  workspaceId: string
+  handler: (event: EmbeddingFinishedEvent) => Promise<void>
+}) => {
+  const streamName = await ensureWorkspaceStream(workspaceId)
+  const cleanup = await eventClient.subscribe({
     subscriptionName,
     streamName,
     subjectFilter: `workspace.${workspaceId}.file-embedding-finished`,

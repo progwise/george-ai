@@ -397,9 +397,6 @@ importers:
 
   packages/app-domain:
     dependencies:
-      '@george-ai/event-service-client':
-        specifier: workspace:*
-        version: link:../event-service-client
       '@george-ai/events':
         specifier: workspace:*
         version: link:../events
@@ -960,9 +957,6 @@ importers:
       '@george-ai/ai-service-client':
         specifier: workspace:*
         version: link:../../packages/ai-service-client
-      '@george-ai/event-service-client':
-        specifier: workspace:*
-        version: link:../../packages/event-service-client
       '@george-ai/events':
         specifier: workspace:*
         version: link:../../packages/events
@@ -16726,7 +16720,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.13.2(debug@4.4.3))
+      retry-axios: 2.6.0(axios@1.13.2)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -18905,7 +18899,7 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  retry-axios@2.6.0(axios@1.13.2(debug@4.4.3)):
+  retry-axios@2.6.0(axios@1.13.2):
     dependencies:
       axios: 1.13.2(debug@4.4.3)
 
