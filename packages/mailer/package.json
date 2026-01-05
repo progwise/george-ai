@@ -20,10 +20,10 @@
     "@george-ai/package-configs": "workspace:*",
     "@types/nodemailer": "^6.4.17",
     "dotenv": "^16.4.5",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1",
-    "vitest": "^3.1.1"
+    "typescript-eslint": "^8.52.0",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "nodemailer": "^6.10.0",
