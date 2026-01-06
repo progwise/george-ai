@@ -39,7 +39,7 @@ export function getProviderConfig(workspaceId: string) {
   const workspaceEntry = workspaceCache.get(workspaceId)
   if (!workspaceEntry) {
     console.warn(`No workspace cached with ID ${workspaceId}`)
-    return { providers: null, languageModels: null }
+    return null
   }
 
   return {

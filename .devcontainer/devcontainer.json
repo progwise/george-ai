@@ -93,11 +93,15 @@
 
   "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; curl -fsSL https://claude.ai/install.sh | bash",
 
-  "postStartCommand": "echo 'DevContainer started successfully'"
+  "postStartCommand": "echo 'DevContainer started successfully'",
 
   // Configure tool-specific properties.
   // "customizations": {},
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
+
+  "containerEnv": {
+    "NATS_URL": "nats://gai-nats:4222"
+  }
 }

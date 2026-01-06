@@ -28,6 +28,19 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # Install mob.sh
 RUN curl -sL https://raw.githubusercontent.com/remotemobprogramming/mob/refs/heads/main/install.sh | sh
 
+ARG TARGETARCH
+
+# Install NATS CLI version 0.0.35
+RUN export NATS_VERSION="0.0.35" && \
+    # Map Docker's architecture names to NATS release names
+    if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; \
+    elif [ "$TARGETARCH" = "arm64" ]; then ARCH="arm64"; \
+    else ARCH="amd64"; fi && \
+    curl -L "https://github.com/nats-io/natscli/releases/download/v${NATS_VERSION}/nats-${NATS_VERSION}-linux-${ARCH}.zip" -o nats.zip && \
+    unzip nats.zip && \
+    mv nats-${NATS_VERSION}-linux-${ARCH}/nats /usr/local/bin/ && \
+    rm -rf nats.zip nats-${NATS_VERSION}-linux-${ARCH}
+
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>

@@ -23,7 +23,8 @@ export async function getWorkspaceRegistryEntry(workspaceId: string): Promise<Wo
   if (!data) {
     return null
   }
-  return WorkspaceRegistrySchema.parse(new TextDecoder().decode(data))
+  const decodedData = new TextDecoder().decode(data)
+  return WorkspaceRegistrySchema.parse(JSON.parse(decodedData))
 }
 
 export async function putWorkspaceRegistryEntry(entry: WorkspaceRegistryEntry): Promise<void> {
@@ -56,7 +57,7 @@ export async function watchWorkspaceRegistryEntry(
         case 'create':
         case 'update': {
           const workspaceEntry = entry.value
-            ? WorkspaceRegistrySchema.parse(new TextDecoder().decode(entry.value))
+            ? WorkspaceRegistrySchema.parse(JSON.parse(new TextDecoder().decode(entry.value)))
             : null
           return await handler({ workspaceId, operation: entry.operation, value: workspaceEntry })
         }

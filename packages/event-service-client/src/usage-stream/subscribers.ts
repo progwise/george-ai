@@ -10,7 +10,7 @@ export const subscribeUsageTrackingEvent = async <E extends UsageTrackingEvent>(
   handler: (event: E) => Promise<void>
 }) => {
   const cleanup = await eventClient.subscribe({
-    subjectFilters: [`usage-tracking.workspace.${workspaceId}.*`],
+    subjectFilters: [`usage-tracking.workspace.${workspaceId}.>`],
     streamName: USAGE_STREAM_NAME,
     handler: async (payload) => {
       try {

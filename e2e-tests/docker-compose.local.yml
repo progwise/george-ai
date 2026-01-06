@@ -38,6 +38,21 @@ services:
     networks:
       - george-ai-e2e
 
+  gai-e2e-nats:
+    build:
+      context: ../services/nats-service
+      dockerfile: Dockerfile
+    container_name: gai-e2e-nats
+    restart: unless-stopped
+    ports:
+      - '4132:4222' # Client connections
+      - '8132:8222' # HTTP monitoring
+      - '6132:6222' # Cluster routing (for future clustering)
+    volumes:
+      - nats-data:/data
+    networks:
+      - george-ai-e2e
+
   # Backend API
   gai-e2e-backend:
     build:
@@ -104,12 +119,17 @@ services:
 
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+
+      # NATS
+      NATS_URL: nats://gai-e2e-nats:4222
     ports:
       - '3013:3003'
     depends_on:
       gai-e2e-backend-db:
         condition: service_healthy
       gai-e2e-typesense:
+        condition: service_started
+      gai-e2e-nats:
         condition: service_started
     networks:
       - george-ai-e2e
@@ -208,3 +228,4 @@ networks:
 
 volumes:
   typesense-data-local:
+  nats-data:

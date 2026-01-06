@@ -33,6 +33,7 @@ COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
 COPY packages/app-domain/package.json ./packages/app-domain/
 COPY packages/connector-types/package.json ./packages/connector-types/
+COPY packages/event-service-client/package.json ./packages/event-service-client/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
 COPY packages/html-crawler/package.json ./packages/html-crawler/
@@ -55,6 +56,7 @@ COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
 COPY packages/app-domain ./packages/app-domain
 COPY packages/connector-types ./packages/connector-types
+COPY packages/event-service-client ./packages/event-service-client
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
 COPY packages/html-crawler ./packages/html-crawler
