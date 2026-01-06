@@ -397,9 +397,9 @@ importers:
 
   packages/app-domain:
     dependencies:
-      '@george-ai/events':
+      '@george-ai/event-service-client':
         specifier: workspace:*
-        version: link:../events
+        version: link:../event-service-client
       '@prisma/adapter-pg':
         specifier: ^7.2.0
         version: 7.2.0
@@ -486,40 +486,6 @@ importers:
       nats:
         specifier: ^2.29.3
         version: 2.29.3
-      zod:
-        specifier: ^3.23.8
-        version: 3.25.76
-    devDependencies:
-      '@george-ai/package-configs':
-        specifier: workspace:*
-        version: link:../package-configs
-      eslint:
-        specifier: ^9.39.1
-        version: 9.39.1(jiti@2.6.1)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.44.1
-        version: 8.44.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
-      vitest:
-        specifier: ^3.1.1
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
-
-  packages/events:
-    dependencies:
-      '@george-ai/event-service-client':
-        specifier: workspace:*
-        version: link:../event-service-client
-      '@george-ai/file-converter':
-        specifier: workspace:*
-        version: link:../file-converter
-      '@george-ai/vector-store-client':
-        specifier: workspace:*
-        version: link:../vector-store-client
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.6.1
       zod:
         specifier: ^3.23.8
         version: 3.25.76
@@ -957,9 +923,9 @@ importers:
       '@george-ai/ai-service-client':
         specifier: workspace:*
         version: link:../../packages/ai-service-client
-      '@george-ai/events':
+      '@george-ai/event-service-client':
         specifier: workspace:*
-        version: link:../../packages/events
+        version: link:../../packages/event-service-client
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../../packages/file-management

@@ -5,7 +5,7 @@ import { getWorkspaceCache } from './instance-cache'
 
 export const getBestInstance = async (args: {
   workspaceId: string
-  provider: ServiceProviderType
+  provider: string
   modelName: string
 }): Promise<{ provider: ServiceProviderType; url?: string; apiKey?: string; semaphore: Semaphore }> => {
   const { provider, workspaceId, modelName } = args

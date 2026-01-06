@@ -17,4 +17,8 @@ export * from '../prisma/generated/sql'
 export type { default as PothosTypes } from '../prisma/generated/pothos'
 export { getDatamodel } from '../prisma/generated/pothos'
 
-await initializeAppDomain()
+export * as workspace from './workspace'
+
+initializeAppDomain().catch((error) => {
+  console.error('Error initializing app domain:', error)
+})

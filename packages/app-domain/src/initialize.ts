@@ -1,4 +1,4 @@
-import { admin } from '@george-ai/events'
+import { putWorkspaceRegistryEntry } from '@george-ai/event-service-client'
 
 import { prisma } from './prisma'
 
@@ -14,11 +14,11 @@ export const initializeAppDomain = async () => {
   for (const workspace of workspaces) {
     // Initialize any workspace-specific domain logic here
     console.log(`Initializing domain for workspace: ${workspace.id}`)
-    await admin.publishWorkspaceStartup({
+    await putWorkspaceRegistryEntry({
       workspaceId: workspace.id,
-      providers: workspace.aiProviders.map((provider) => ({
+      providerInstances: workspace.aiProviders.map((provider) => ({
         id: provider.id,
-        name: provider.name,
+        provider: provider.name,
         baseUrl: provider.baseUrl || undefined,
         apiKey: provider.apiKey || undefined,
       })),
@@ -31,6 +31,8 @@ export const initializeAppDomain = async () => {
         canDoVision: model.canDoVision,
         canDoFunctionCalling: model.canDoFunctionCalling,
       })),
+      version: 1,
+      lastUpdate: new Date().toISOString(),
     })
   }
 }

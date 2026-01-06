@@ -4,7 +4,7 @@ import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { Prisma, getDatamodel, prisma } from '@george-ai/app-domain'
-import type { PothosTypes } from '@george-ai/app-domain'
+import type { PothosTypes, workspace } from '@george-ai/app-domain'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
@@ -48,6 +48,10 @@ const builder = new SchemaBuilder<{
     ProcessingStatus: {
       Input: (typeof PROCESSING_STATUS)[number]
       Output: (typeof PROCESSING_STATUS)[number]
+    }
+    WorkspaceProcessingType: {
+      Input: (typeof workspace.WORKSPACE_PROCESSING_TYPE)[number]
+      Output: (typeof workspace.WORKSPACE_PROCESSING_TYPE)[number]
     }
     ExtractionStatus: {
       Input: (typeof EXTRACTION_STATUS)[number]

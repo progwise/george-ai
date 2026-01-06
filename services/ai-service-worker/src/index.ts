@@ -1,40 +1,49 @@
-import { admin } from '@george-ai/events'
+import { watchWorkspaceRegistryEntry } from '@george-ai/event-service-client'
 
 import { WORKER_ID, WORKSPACE_IDS } from './constants'
-import { cleanupWorkspaceCache, ensureWorkspaceInCache, removeWorkspaceFromCache } from './workspace-cache'
+import { subscribeManagementEvents, unsubscribeManagementEvents } from './subscriptions'
+import { cleanupWorkspaceCache, ensureWorkspaceInCache, removeWorkspaceFromCache } from './workspaces'
 
 async function main() {
   console.log(`Starting AI Service Worker (ID: ${WORKER_ID})`)
-  console.log(`Target workspaces: ${WORKSPACE_IDS}`)
-
-  const cleanupWorkspaceLifecycleEvents = await admin.subscribeWorkspaceLifecycle({
-    subscriptionName: `${WORKER_ID}-workspace-lifecycle-events`,
-    handler: async (event) => {
-      if (event.eventName === 'workspace-started') {
-        console.log(`Workspace started: ${event.workspaceId}`)
-        ensureWorkspaceInCache(event)
-      } else if (event.eventName === 'workspace-stopped') {
-        console.log(`Workspace stopped: ${event.workspaceId}`)
-        removeWorkspaceFromCache(event)
+  const workspaceRegistryWatcherCleanup = await watchWorkspaceRegistryEntry(
+    async ({ workspaceId, operation, value }) => {
+      if (operation === 'delete') {
+        console.log(`Workspace registry entry deleted for workspaceId ${workspaceId}`)
+        removeWorkspaceFromCache(workspaceId)
+        unsubscribeManagementEvents(workspaceId)
+      } else if (operation === 'create' || operation === 'update') {
+        console.log(`Workspace registry entry arrived for workspace ${workspaceId}`)
+        if (!value) {
+          console.warn(
+            `Received ${operation} operation for workspace registry entry for workspaceId ${workspaceId} but value is null`,
+          )
+        } else {
+          console.log(`Caching workspace registry entry for workspaceId ${workspaceId}`)
+          await ensureWorkspaceInCache(value)
+          await subscribeManagementEvents(workspaceId)
+        }
       } else {
-        console.warn(`Unhandled workspace lifecycle event: ${event.eventName} for workspace ${event.workspaceId}`)
+        console.log(`Unknown operation ${operation} for workspace registry entry for workspaceId ${workspaceId}`)
       }
     },
-  })
+  )
+
+  console.log(`Target workspaces: ${WORKSPACE_IDS}`)
 
   console.log(`Worker started, listening for workspace lifecycle events...`)
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
     console.log('SIGTERM received, shutting down gracefully...')
-    await cleanupWorkspaceLifecycleEvents()
+    await workspaceRegistryWatcherCleanup()
     await cleanupWorkspaceCache()
     process.exit(0)
   })
 
   process.on('SIGINT', async () => {
     console.log('SIGINT received, shutting down gracefully...')
-    await cleanupWorkspaceLifecycleEvents()
+    await workspaceRegistryWatcherCleanup()
     await cleanupWorkspaceCache()
     process.exit(0)
   })

@@ -1,11 +1,37 @@
 import { ollamaApi } from '../ollama'
 import { openAiApi } from '../openAi'
-import { ServiceProviderType } from '../types'
 import { getBestInstance } from './get-best-instance'
+import { addProviderInstance, removeWorkspaceFromCache } from './instance-cache'
+
+export async function setWorkspaceProviderInstances(
+  workspaceId: string,
+  instances: {
+    provider: string
+    apiKey?: string
+    url?: string
+  }[],
+) {
+  removeWorkspaceFromCache(workspaceId)
+  const instancePromises = instances.map(async (instance) => {
+    if (instance.provider !== 'openai' && instance.provider !== 'ollama') {
+      console.warn(`Unsupported provider ${instance.provider} for workspace ${workspaceId}, skipping instance setup`)
+      return Promise.resolve()
+    }
+    await addProviderInstance({
+      workspaceId,
+      provider: instance.provider,
+      options: {
+        apiKey: instance.apiKey,
+        url: instance.url,
+      },
+    })
+  })
+  await Promise.all(instancePromises)
+}
 
 export async function getChunkVectors(
   workspaceId: string,
-  provider: ServiceProviderType,
+  provider: string,
   modelName: string,
   chunks: string[],
 ): Promise<{ usage: { promptTokens: number; totalTokens: number }; embeddings: number[][] }> {
@@ -25,16 +51,14 @@ export async function getChunkVectors(
         chunks,
       )
     } else if (provider === 'ollama') {
-      return await ollamaApi.generateOllamaEmbeddings(
-        { url: instance.url || 'http://localhost:11434', apiKey: instance.apiKey },
-        modelName,
-        chunks,
-      )
+      if (!instance.url) {
+        console.error('Ollama instance URL is required')
+        throw new Error('Ollama instance URL is required')
+      }
+      return await ollamaApi.generateOllamaEmbeddings({ url: instance.url, apiKey: instance.apiKey }, modelName, chunks)
     } else {
       throw new Error(`Unsupported provider for embeddings: ${provider}`)
     }
-
-    // Flatten the array of vectors into a single array
   } finally {
     instance.semaphore.release()
   }

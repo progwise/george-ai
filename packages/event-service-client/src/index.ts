@@ -1,48 +1,51 @@
-/**
- * Event Service Client - Provider-agnostic event messaging
- *
- * This package provides a clean abstraction over event messaging.
- * Current implementation: NATS JetStream
- * Future: Can be switched to RabbitMQ, Kafka, etc.
- *
- * IMPORTANT: Only import from this file, never from internal files
- */
-import type { EventClient } from './event-client'
-import { NatsClient } from './nats-client'
+import { initializeManagementStream } from './management-stream'
+import { initializeUsageStream } from './usage-stream'
+import { initializeWorkerRegistryBucket } from './worker-registry'
+import { initializeWorkspaceRegistryBucket } from './workspace-registry'
+import { initializeWorkspaceStream } from './workspace-stream'
 
-// Export only the interface, not the implementation
-export type { EventClient }
+initializeManagementStream().catch((error) => {
+  console.error('Error initializing management stream:', error)
+})
 
-/**
- * Connection configuration
- */
-export interface EventClientConfig {
-  servers?: string | string[]
-  user?: string
-  pass?: string
-  token?: string
-}
+initializeWorkspaceStream().catch((error) => {
+  console.error('Error initializing workspace stream:', error)
+})
 
-/**
- * Create a new event client with environment-based configuration
- */
-export async function createEventClient(config?: EventClientConfig): Promise<EventClient> {
-  // Create new NATS client
-  const natsClient = new NatsClient()
+initializeUsageStream().catch((error) => {
+  console.error('Error initializing usage stream:', error)
+})
 
-  // Get config from environment or use provided config
-  const servers = config?.servers ?? process.env.NATS_URL ?? 'nats://gai-nats:4222'
-  const user = config?.user ?? process.env.NATS_USER
-  const pass = config?.pass ?? process.env.NATS_PASSWORD
-  const token = config?.token ?? process.env.NATS_TOKEN
+initializeWorkerRegistryBucket().catch((error) => {
+  console.error('Error initializing worker registry bucket:', error)
+})
 
-  await natsClient.connect({
-    servers,
-    user,
-    pass,
-    token,
-  })
+initializeWorkspaceRegistryBucket().catch((error) => {
+  console.error('Error initializing workspace registry bucket:', error)
+})
 
-  // Wrap in EventClient interface
-  return natsClient
-}
+export {
+  publishManagementEvent,
+  subscribeManagementEvent,
+  type ManagementEvent,
+  ManagementEventType,
+} from './management-stream'
+export {
+  publishWorkspaceEvent,
+  subscribeWorkspaceEvent,
+  getWorkspaceEventStatistics,
+  getWorkspaceStatistics,
+} from './workspace-stream'
+export {
+  getWorkerRegistryEntry,
+  putWorkerRegistryEntry,
+  watchWorkerRegistryEntry,
+  type WorkerRegistryEntry,
+  WorkerRegistrySchema,
+} from './worker-registry'
+export {
+  getWorkspaceRegistryEntry,
+  putWorkspaceRegistryEntry,
+  watchWorkspaceRegistryEntry,
+  type WorkspaceRegistryEntry,
+} from './workspace-registry'

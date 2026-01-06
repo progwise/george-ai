@@ -30,6 +30,7 @@ import './graphql/user'
 import './graphql/user-profile'
 import './graphql/version'
 import './graphql/workspace'
+import './graphql/workload'
 
 const schema = builder.toSchema()
 

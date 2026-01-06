@@ -6,7 +6,6 @@ import { getInstanceStatus } from './get-instance-status'
 
 interface CacheItem {
   provider: ServiceProviderType
-  name: string
   endpoint: {
     url?: string
     apiKey?: string
@@ -26,23 +25,19 @@ export const getWorkspaceCache = (workspaceId: string) => {
   return instanceCache.get(workspaceId)!
 }
 
-export const getCacheItem = (args: { workspaceId: string; provider: ServiceProviderType; name: string }) => {
-  const { workspaceId, provider, name } = args
+export const getProviderInstances = (args: { workspaceId: string; provider: ServiceProviderType }) => {
+  const { workspaceId, provider } = args
   const workspaceCache = getWorkspaceCache(workspaceId)
-  return workspaceCache.find((item) => item.provider === provider && item.name === name)
+  return workspaceCache.filter((item) => item.provider === provider)
 }
 
-export const setCacheItem = async (args: {
+export const addProviderInstance = async (args: {
   workspaceId: string
   provider: ServiceProviderType
-  name: string
   options?: { url?: string; apiKey?: string; configuredMemorySizeMB?: number }
 }) => {
-  const { workspaceId, provider, name, options } = args
-  const cacheItem = getCacheItem({ workspaceId, provider, name })
-  if (cacheItem) {
-    return
-  }
+  const { workspaceId, provider, options } = args
+
   const [status, models] = await Promise.all([
     getInstanceStatus({
       provider,
@@ -60,7 +55,6 @@ export const setCacheItem = async (args: {
 
   workspaceCache.push({
     provider,
-    name,
     endpoint: {
       url: options?.url,
       apiKey: options?.apiKey,
