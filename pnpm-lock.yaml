@@ -480,6 +480,9 @@ importers:
 
   packages/event-service-client:
     dependencies:
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../web-utils
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1

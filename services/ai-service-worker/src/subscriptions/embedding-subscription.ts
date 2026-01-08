@@ -4,8 +4,11 @@ import {
   WorkspaceEventType,
   WorkspaceFileEmbeddingRequestEventSchema,
 } from '@george-ai/event-service-client/src/workspace-stream/schema'
+import { createLogger } from '@george-ai/web-utils'
 
 import { embedFile } from '../workers'
+
+const logger = createLogger('Embedding Subscription')
 
 const embeddingSubscriptions = new Map<string, () => Promise<void>>()
 
@@ -14,7 +17,7 @@ export const getSubscribedEmbeddingWorkspaces = () => {
 }
 
 export const subscribeEmbeddingEvents = async (workspaceId: string) => {
-  console.log(`Subscribing to workspace embedding events for workspace ${workspaceId}...`)
+  logger.info(`Subscribing to workspace embedding events for workspace ${workspaceId}...`)
   // Subscribe to embedding request events
   const cleanup = await subscribeWorkspaceEvent({
     workspaceId,
@@ -25,10 +28,10 @@ export const subscribeEmbeddingEvents = async (workspaceId: string) => {
 }
 
 export const unsubscribeEmbeddingEvents = async (workspaceId: string) => {
-  console.log(`Unsubscribing from workspace embedding events for workspace ${workspaceId}...`)
+  logger.info(`Unsubscribing from workspace embedding events for workspace ${workspaceId}...`)
   const cleanup = embeddingSubscriptions.get(workspaceId)
   if (!cleanup) {
-    console.warn(`No embedding event subscription found for workspace ${workspaceId} to unsubscribe.`)
+    logger.warn(`No embedding event subscription found for workspace ${workspaceId} to unsubscribe.`)
     return
   }
   await cleanup()
@@ -36,10 +39,10 @@ export const unsubscribeEmbeddingEvents = async (workspaceId: string) => {
 }
 
 export const handleEmbeddingEvent = async (event: WorkspaceEvent) => {
-  console.log(`Processing workspace embedding event ${event.eventType} for workspace ${event.workspaceId}...`)
+  logger.info(`Processing workspace embedding event ${event.eventType} for workspace ${event.workspaceId}...`)
   const embedFileEvent = WorkspaceFileEmbeddingRequestEventSchema.parse(event)
   try {
-    console.log(
+    logger.info(
       `Parsed embedding request event for file ${embedFileEvent.fileId} in workspace ${embedFileEvent.workspaceId}`,
     )
     const result = await embedFile(embedFileEvent)
@@ -55,10 +58,10 @@ export const handleEmbeddingEvent = async (event: WorkspaceEvent) => {
       success: result.success,
       message: result.message,
     })
-    console.log(
+    logger.info(
       `Published EmbeddingCompleted event for file ${embedFileEvent.fileId} in workspace ${embedFileEvent.workspaceId}`,
     )
   } catch (error) {
-    console.error(`Error handling embedding event for workspace ${event.workspaceId}:`, error)
+    logger.error(`Error handling embedding event for workspace ${event.workspaceId}:`, error)
   }
 }

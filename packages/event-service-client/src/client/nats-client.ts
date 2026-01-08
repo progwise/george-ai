@@ -11,8 +11,12 @@ import {
   connect,
 } from 'nats'
 
+import { createLogger } from '@george-ai/web-utils'
+
 import { EventClientConfig } from '.'
 import { EventClient } from './event-client'
+
+const logger = createLogger('NATS Client')
 
 /**
  * NATS JetStream client for George AI events
@@ -37,7 +41,7 @@ export class NatsClient implements EventClient {
     this.js = this.nc.jetstream()
     this.jsm = await this.nc.jetstreamManager()
 
-    console.log(`Connected to NATS server: ${this.nc.getServer()}`)
+    logger.info(`Connected to NATS server: ${this.nc.getServer()}`)
   }
 
   /**
@@ -50,7 +54,7 @@ export class NatsClient implements EventClient {
       this.nc = null
       this.js = null
       this.jsm = null
-      console.log('Disconnected from NATS server')
+      logger.info('Disconnected from NATS server')
     }
   }
 
@@ -72,7 +76,7 @@ export class NatsClient implements EventClient {
 
     const existingStream = await this.jsm.streams.info(streamName).catch(() => null)
     if (!existingStream) {
-      console.log(`Stream didn't exists, creating: ${streamName} (persist: ${persist})`)
+      logger.info(`Stream didn't exists, creating: ${streamName} (persist: ${persist})`)
       await this.jsm.streams.add({
         name: streamName,
         subjects,
@@ -88,15 +92,15 @@ export class NatsClient implements EventClient {
       const desiredSubjects = subjects.sort().join(',')
       const existingPersist = existingStream.config.retention === RetentionPolicy.Limits
       const desiredPersist = persist
-      console.log(`Stream already exists: ${streamName} (persist: ${existingPersist})`)
+      logger.info(`Stream already exists: ${streamName} (persist: ${existingPersist})`)
       if (existingPersist !== desiredPersist) {
-        console.error(
+        logger.error(
           `Stream persistence mismatch for ${streamName}, existing: ${existingPersist}, desired: ${desiredPersist}. Updating...`,
         )
         throw new Error('Cannot change stream persistence after creation')
       }
       if (existingSubjects !== desiredSubjects) {
-        console.log(
+        logger.info(
           `Stream subjects mismatch for ${streamName}, existing: ${existingSubjects}, desired: ${desiredSubjects}. Updating...`,
         )
         await this.jsm.streams.update(streamName, {
@@ -104,7 +108,7 @@ export class NatsClient implements EventClient {
         })
       }
       if (description && existingStream.config.description !== description) {
-        console.log(
+        logger.info(
           `Stream description mismatch for ${streamName}, existing: ${existingStream.config.description}, desired: ${description}. Updating...`,
         )
         await this.jsm.streams.update(streamName, {
@@ -120,10 +124,10 @@ export class NatsClient implements EventClient {
     }
 
     await this.jsm.streams.delete(name).catch((err) => {
-      console.error(`Error deleting stream ${name}:`, err)
+      logger.error(`Error deleting stream ${name}:`, err)
       throw err
     })
-    console.log(`Deleted stream: ${name}`)
+    logger.info(`Deleted stream: ${name}`)
   }
 
   async getStream(
@@ -188,7 +192,7 @@ export class NatsClient implements EventClient {
     }
     const durable_name = this.getDurableName(subjectFilters)
 
-    console.log(`Ensuring consumer ${durable_name} with filters "${subjectFilters.join(', ')}" on stream ${streamName}`)
+    logger.info(`Ensuring consumer ${durable_name} with filters "${subjectFilters.join(', ')}" on stream ${streamName}`)
 
     let consumerInfo = await this.jsm.consumers.info(streamName, durable_name).catch(() => null)
     if (!consumerInfo) {
@@ -234,7 +238,7 @@ export class NatsClient implements EventClient {
           // Acknowledge message
           msg.ack()
         } catch (error) {
-          console.error(`Error processing event:`, error)
+          logger.error(`Error processing event:`, error)
           // Negative acknowledge to retry later
           msg.nak()
         }
@@ -243,7 +247,7 @@ export class NatsClient implements EventClient {
 
     // Start processing in background
     processMessages().catch((error) => {
-      console.error('Error in message processing loop:', error)
+      logger.error('Error in message processing loop:', error)
     })
 
     // Return cleanup function
@@ -304,7 +308,7 @@ export class NatsClient implements EventClient {
     const sub = this.nc.subscribe(subject, {
       callback: async (err, msg) => {
         if (err) {
-          console.error(`Error in ${subject} handler:`, err)
+          logger.error(`Error in ${subject} handler:`, err)
           return
         }
 
@@ -402,7 +406,7 @@ export class NatsClient implements EventClient {
 
     // Start processing in background
     processWatch().catch((error) => {
-      console.error('Error in watch processing loop:', error)
+      logger.error('Error in watch processing loop:', error)
     })
 
     // Return cleanup function - promisify for non-blocking

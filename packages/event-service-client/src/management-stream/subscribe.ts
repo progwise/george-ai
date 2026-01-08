@@ -1,6 +1,10 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { eventClient } from '../client'
 import { MANAGEMENT_STREAM_NAME } from './common'
 import { ManagementEvent, ManagementEventSchema, ManagementEventType } from './schema'
+
+const logger = createLogger('Management Stream')
 
 // Event type filtering is not helpful for management events because if we use it,
 // different event types would not share the same consumer, leading to events that
@@ -24,7 +28,7 @@ export const subscribeManagementEvent = async <E extends ManagementEvent>({
         const event = ManagementEventSchema.parse(JSON.parse(decoded)) as E
         await handler(event)
       } catch (error) {
-        console.error('Error handling embedding request event:', error)
+        logger.error('Error handling embedding request event:', error)
         throw error
       }
     },

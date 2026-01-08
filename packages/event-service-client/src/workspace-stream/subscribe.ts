@@ -1,6 +1,10 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { eventClient } from '../client'
 import { WORKSPACE_STREAM_NAME, getSubjectFilterForWorkspaceEvent } from './common'
 import { WorkspaceEvent, WorkspaceEventSchema, WorkspaceEventType } from './schema'
+
+const logger = createLogger('Workspace Stream')
 
 // We need different subscriptions for different event types to ensure that
 // we can stop/start processing specific event types independently.
@@ -22,7 +26,7 @@ export const subscribeWorkspaceEvent = async <E extends WorkspaceEvent>({
         const event = WorkspaceEventSchema.parse(JSON.parse(decoded)) as E
         await handler(event)
       } catch (error) {
-        console.error('Error handling embedding request event:', error)
+        logger.error('Error handling embedding request event:', error)
         throw error
       }
     },

@@ -1,6 +1,9 @@
 import { ManagementEvent, ManagementEventType, subscribeManagementEvent } from '@george-ai/event-service-client'
+import { createLogger } from '@george-ai/web-utils'
 
 import { subscribeEmbeddingEvents, unsubscribeEmbeddingEvents } from './embedding-subscription'
+
+const logger = createLogger('Management Subscription')
 
 const managementSubscriptions = new Map<string, () => Promise<void>>()
 // const extractionSubscriptions = new Map<string, () => Promise<void>>()
@@ -10,7 +13,7 @@ export const getSubscribedManagementWorkspaces = () => {
 }
 
 export const subscribeManagementEvents = async (workspaceId: string) => {
-  console.log(`Subscribing to workspace management events for workspace ${workspaceId}...`)
+  logger.info(`Subscribing to workspace management events for workspace ${workspaceId}...`)
   const cleanup = await subscribeManagementEvent({
     workspaceId,
     eventTypes: [ManagementEventType.StartEmbedding, ManagementEventType.StopEmbedding],
@@ -20,10 +23,10 @@ export const subscribeManagementEvents = async (workspaceId: string) => {
 }
 
 export const unsubscribeManagementEvents = async (workspaceId: string) => {
-  console.log(`Unsubscribing from workspace management events for workspace ${workspaceId}...`)
+  logger.info(`Unsubscribing from workspace management events for workspace ${workspaceId}...`)
   const cleanup = managementSubscriptions.get(workspaceId)
   if (!cleanup) {
-    console.warn(`No management event subscription found for workspace ${workspaceId} to unsubscribe.`)
+    logger.warn(`No management event subscription found for workspace ${workspaceId} to unsubscribe.`)
     return
   }
   await cleanup()
@@ -31,18 +34,18 @@ export const unsubscribeManagementEvents = async (workspaceId: string) => {
 }
 
 export const handleManagementEvent = async (event: ManagementEvent) => {
-  console.log(`Processing workspace management event ${event.eventType} for workspace ${event.workspaceId}...`)
+  logger.info(`Processing workspace management event ${event.eventType} for workspace ${event.workspaceId}...`)
   switch (event.eventType) {
     case ManagementEventType.StartEmbedding:
-      console.log(`Received StartEmbedding event for workspace ${event.workspaceId}`)
+      logger.info(`Received StartEmbedding event for workspace ${event.workspaceId}`)
       await subscribeEmbeddingEvents(event.workspaceId)
       break
     case ManagementEventType.StopEmbedding:
-      console.log(`Received StopEmbedding event for workspace ${event.workspaceId}`)
+      logger.info(`Received StopEmbedding event for workspace ${event.workspaceId}`)
       unsubscribeEmbeddingEvents(event.workspaceId)
       break
     default:
-      console.warn(`Unhandled workspace management event type: ${event.eventType} for workspace ${event.workspaceId}`)
+      logger.warn(`Unhandled workspace management event type: ${event.eventType} for workspace ${event.workspaceId}`)
       break
   }
 }

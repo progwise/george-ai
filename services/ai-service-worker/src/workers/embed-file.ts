@@ -7,9 +7,12 @@ import '@george-ai/event-service-client'
 import { WorkspaceFileEmbeddingRequestEvent } from '@george-ai/event-service-client/src/workspace-stream/schema'
 import { workspaceStorage } from '@george-ai/file-management/src/storage'
 import { vectorStore } from '@george-ai/vector-store-client'
+import { createLogger } from '@george-ai/web-utils'
 
 import { WORKER_ID } from '../constants'
 import { getWorkspaceEntry } from '../workspaces'
+
+const logger = createLogger('Embed File Worker')
 
 const CHUNK_BATCH_SIZE = 20
 
@@ -28,7 +31,7 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
 
   if (!workspaceEntry) {
     const message = `No cached workspace found with ID ${workspaceId} for embedding request`
-    console.warn(message)
+    logger.warn(message)
     return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
@@ -37,14 +40,14 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
   )
   if (!provider) {
     const message = `No provider found for model ${embeddingModelName} and provider ${embeddingModelProvider} in workspace ${workspaceId}`
-    console.warn(message)
+    logger.warn(message)
     return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
   const fileSourceStream = await workspaceStorage.readSource(workspaceId, libraryId, fileId) //loadSourceFile({ workspaceId, fileId, markdownFilename })
 
   try {
-    console.log(`[Processing file ${fileId} (${markdownFilename}) with ${provider.id}`)
+    logger.info(`[Processing file ${fileId} (${markdownFilename}) with ${provider.id}`)
 
     await pipeline(
       fileSourceStream,
@@ -58,12 +61,12 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
       storeEmbeddings(workspaceId, libraryId, fileId, embeddingModelName, (bytes) => (result.chunkSize += bytes)),
     )
   } catch (error) {
-    console.error(`Error processing file ${fileId}:`, error)
+    logger.error(`Error processing file ${fileId}:`, error)
     throw error
   }
 
   const message = `Successfully embedded ${result.chunkCount} chunks for file ${fileId} using model ${embeddingModelName}`
-  console.log(message)
+  logger.info(message)
   return {
     chunkCount: result.chunkCount,
     chunkSize: result.chunkSize,
@@ -155,7 +158,7 @@ const storeEmbeddings = (
         })
         vectorStoreInitialized = true
       }
-      console.log(`[${WORKER_ID}] Storing batch of ${batch.length} embeddings for file ${fileId}`)
+      logger.info(`[${WORKER_ID}] Storing batch of ${batch.length} embeddings for file ${fileId}`)
       await vectorStore.upsert(
         `workspace_${workspaceId}`,
         batch.map((item) => ({

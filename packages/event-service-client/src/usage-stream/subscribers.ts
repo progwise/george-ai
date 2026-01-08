@@ -1,6 +1,10 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { eventClient } from '../client'
 import { USAGE_STREAM_NAME } from './common'
 import { UsageTrackingEvent, UsageTrackingEventSchema } from './schema'
+
+const logger = createLogger('Usage Stream')
 
 export const subscribeUsageTrackingEvent = async <E extends UsageTrackingEvent>({
   workspaceId,
@@ -18,7 +22,7 @@ export const subscribeUsageTrackingEvent = async <E extends UsageTrackingEvent>(
         const event = UsageTrackingEventSchema.parse(JSON.parse(decoded)) as E
         await handler(event)
       } catch (error) {
-        console.error('Error handling embedding request event:', error)
+        logger.error('Error handling embedding request event:', error)
         throw error
       }
     },

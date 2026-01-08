@@ -1,28 +1,32 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { initializeManagementStream } from './management-stream'
 import { initializeUsageStream } from './usage-stream'
 import { initializeWorkerRegistryBucket } from './worker-registry'
 import { initializeWorkspaceRegistryBucket } from './workspace-registry'
 import { initializeWorkspaceStream } from './workspace-stream'
 
+const logger = createLogger('Event Service Client')
+
 export const initializeEventServiceClient = Promise.all([
   initializeManagementStream().catch((error) => {
-    console.error('Error initializing management stream:', error)
+    logger.error('Error initializing management stream:', error)
   }),
 
   initializeWorkspaceStream().catch((error) => {
-    console.error('Error initializing workspace stream:', error)
+    logger.error('Error initializing workspace stream:', error)
   }),
 
   initializeUsageStream().catch((error) => {
-    console.error('Error initializing usage stream:', error)
+    logger.error('Error initializing usage stream:', error)
   }),
 
   initializeWorkerRegistryBucket().catch((error) => {
-    console.error('Error initializing worker registry bucket:', error)
+    logger.error('Error initializing worker registry bucket:', error)
   }),
 
   initializeWorkspaceRegistryBucket().catch((error) => {
-    console.error('Error initializing workspace registry bucket:', error)
+    logger.error('Error initializing workspace registry bucket:', error)
   }),
 ])
 
