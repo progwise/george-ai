@@ -18,7 +18,7 @@ export const initializeAppDomain = async () => {
       workspaceId: workspace.id,
       providerInstances: workspace.aiProviders.map((provider) => ({
         id: provider.id,
-        provider: provider.name,
+        provider: provider.provider,
         baseUrl: provider.baseUrl || undefined,
         apiKey: provider.apiKey || undefined,
       })),

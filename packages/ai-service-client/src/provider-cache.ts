@@ -1,4 +1,8 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import type { ServiceProviderConfig } from './types'
+
+const logger = createLogger('Provider Cache (obsolete)')
 
 interface CacheEntry {
   providers: ServiceProviderConfig[]
@@ -31,7 +35,7 @@ class ProviderCache {
     if (options?.maxSize !== undefined) {
       this.maxSize = options.maxSize
     }
-    console.log(`Provider cache initialized with TTL=${this.ttl}ms, maxSize=${this.maxSize}`)
+    logger.info(`Provider cache initialized with TTL=${this.ttl}ms, maxSize=${this.maxSize}`)
   }
 
   /**
@@ -75,7 +79,7 @@ class ProviderCache {
    */
   invalidate(workspaceId: string): void {
     this.cache.delete(workspaceId)
-    console.log(`Invalidated provider cache for workspace: ${workspaceId}`)
+    logger.info(`Invalidated provider cache for workspace: ${workspaceId}`)
   }
 
   /**
@@ -83,7 +87,7 @@ class ProviderCache {
    */
   clearAll(): void {
     this.cache.clear()
-    console.log('Cleared all provider cache entries')
+    logger.info('Cleared all provider cache entries')
   }
 
   /**

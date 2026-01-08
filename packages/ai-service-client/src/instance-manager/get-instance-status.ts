@@ -1,8 +1,10 @@
 import { getOllamaModels } from '../ollama'
 import { getOpenAIModels } from '../openAi'
 import { InstanceStatus } from '../types'
+import { logger } from './common'
 
 export const getInstanceStatus = async (params: {
+  workspaceId: string
   provider: 'ollama' | 'openai'
   url?: string
   apiKey?: string
@@ -26,7 +28,10 @@ export const getInstanceStatus = async (params: {
     }
     return 'online'
   } catch (error) {
-    console.warn(`Instance status check failed for provider ${params.provider}:`, error)
+    logger.warn(
+      `Workspace ${params.workspaceId} Instance status check failed for provider ${params.provider} (${params.url}):`,
+      error,
+    )
     return 'offline'
   }
 }

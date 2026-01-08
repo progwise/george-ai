@@ -1,4 +1,4 @@
-import { getErrorObject, getErrorString } from '@george-ai/web-utils'
+import { createLogger, getErrorObject, getErrorString } from '@george-ai/web-utils'
 
 import { isEmbeddingModel, isVisionModel } from '../model-classifier'
 import { providerCache } from '../provider-cache'
@@ -11,6 +11,8 @@ import {
   getOllamaVersion,
   unloadOllamaModel,
 } from './ollama-api.js'
+
+const logger = createLogger('Ollama Resource Manager (obsolete)')
 
 export interface OllamaInstanceConfiguration {
   url: string
@@ -146,7 +148,7 @@ class OllamaResourceManager {
         ollamaVersion: versionInfo.version,
       }
     } catch (error) {
-      console.warn(
+      logger.warn(
         `❌ OLLAMA instance ${args.url} is offline or unreachable:`,
         error instanceof Error ? error.message : 'Unknown error',
       )
@@ -189,7 +191,7 @@ class OllamaResourceManager {
       const models = await getOllamaModels(instance.config)
       return (instance.models = models)
     } catch (error) {
-      console.warn(`Failed to update models for OLLAMA instance ${instance.config.url}:`, error)
+      logger.warn(`Failed to update models for OLLAMA instance ${instance.config.url}:`, error)
       return (instance.models = null)
     }
   }
@@ -217,7 +219,7 @@ class OllamaResourceManager {
       }
       return instance.load
     } catch (error) {
-      console.warn(`Failed to update load for OLLAMA instance ${instance.config.url}:`, error)
+      logger.warn(`Failed to update load for OLLAMA instance ${instance.config.url}:`, error)
       return (instance.load = null)
     }
   }
@@ -267,7 +269,7 @@ class OllamaResourceManager {
     )
 
     if (availableInstances.length === 0) {
-      console.warn(`No available OLLAMA instances support model: ${model}`)
+      logger.warn(`No available OLLAMA instances support model: ${model}`)
       throw new Error(`No available OLLAMA instances support model: ${model}`)
     }
 
@@ -329,7 +331,7 @@ class OllamaResourceManager {
     ])
 
     if (!instance.status.isOnline || !instance.models || !instance.load) {
-      console.warn(`Cannot refresh semaphore for offline or uninitialized instance: ${instanceUrl}`)
+      logger.warn(`Cannot refresh semaphore for offline or uninitialized instance: ${instanceUrl}`)
       return
     }
   }

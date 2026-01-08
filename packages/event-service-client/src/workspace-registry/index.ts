@@ -1,6 +1,10 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import { eventClient } from '../client'
 import { WORKSPACE_REGISTRY_BUCKET_NAME } from './common'
 import { WorkspaceRegistryEntry, WorkspaceRegistrySchema } from './schema'
+
+const logger = createLogger('Workspace Registry')
 
 export { type WorkspaceRegistryEntry, WorkspaceRegistrySchema } from './schema'
 
@@ -24,6 +28,7 @@ export async function getWorkspaceRegistryEntry(workspaceId: string): Promise<Wo
     return null
   }
   const decodedData = new TextDecoder().decode(data)
+  logger.debug(`Read workspace entry`, JSON.stringify(JSON.parse(decodedData).providerInstances, null, 2))
   return WorkspaceRegistrySchema.parse(JSON.parse(decodedData))
 }
 

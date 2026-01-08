@@ -40,6 +40,7 @@ export const addProviderInstance = async (args: {
 
   const [status, models] = await Promise.all([
     getInstanceStatus({
+      workspaceId,
       provider,
       url: options?.url,
       apiKey: options?.apiKey,

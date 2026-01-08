@@ -1,5 +1,6 @@
 import { getOllamaRunningModels } from '../ollama/ollama-api'
 import { ServiceProviderType } from '../types'
+import { logger } from './common'
 
 const TTL_MS = 10 * 1000 // 30 seconds
 const instanceLoadCache = new Map<string, { timestamp: number; vramUsageMB: number; runningModels: string[] }>()
@@ -24,11 +25,14 @@ export const getInstanceLoad = async (args: {
 
   if (provider === 'openai') {
     // OpenAI does not provide a public API to get instance load
-    // Returning -1 to indicate unknown load
+    return {
+      vramUsageMB: 10000,
+      runningModels: [],
+    }
     return
   } else if (provider === 'ollama') {
     if (!url) {
-      console.error('Ollama URL not provided')
+      logger.error('Ollama URL not provided')
       throw new Error('Ollama URL not provided')
     }
     const runningModels = await getOllamaRunningModels({ url, apiKey })

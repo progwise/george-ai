@@ -1,5 +1,6 @@
 import { ollamaApi } from '../ollama'
 import { openAiApi } from '../openAi'
+import { logger } from './common'
 import { getBestInstance } from './get-best-instance'
 import { addProviderInstance, removeWorkspaceFromCache } from './instance-cache'
 
@@ -8,13 +9,13 @@ export async function setWorkspaceProviderInstances(
   instances: {
     provider: string
     apiKey?: string
-    url?: string
+    baseUrl?: string
   }[],
 ) {
   removeWorkspaceFromCache(workspaceId)
   const instancePromises = instances.map(async (instance) => {
     if (instance.provider !== 'openai' && instance.provider !== 'ollama') {
-      console.warn(`Unsupported provider ${instance.provider} for workspace ${workspaceId}, skipping instance setup`)
+      logger.warn(`Unsupported provider ${instance.provider} for workspace ${workspaceId}, skipping instance setup`)
       return Promise.resolve()
     }
     await addProviderInstance({
@@ -22,7 +23,7 @@ export async function setWorkspaceProviderInstances(
       provider: instance.provider,
       options: {
         apiKey: instance.apiKey,
-        url: instance.url,
+        url: instance.baseUrl,
       },
     })
   })
@@ -52,7 +53,7 @@ export async function getChunkVectors(
       )
     } else if (provider === 'ollama') {
       if (!instance.url) {
-        console.error('Ollama instance URL is required')
+        logger.error('Ollama instance URL is required')
         throw new Error('Ollama instance URL is required')
       }
       return await ollamaApi.generateOllamaEmbeddings({ url: instance.url, apiKey: instance.apiKey }, modelName, chunks)

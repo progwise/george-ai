@@ -1,6 +1,7 @@
 import { DiscoveredModel, getOllamaModels } from '../ollama'
 import { getOpenAIModels } from '../openAi'
 import { ServiceProviderType } from '../types'
+import { logger } from './common'
 
 export const getAvailableModels = async (args: {
   provider: ServiceProviderType
@@ -12,7 +13,7 @@ export const getAvailableModels = async (args: {
   switch (provider) {
     case 'ollama':
       if (!url) {
-        console.error('Ollama URL not provided')
+        logger.error('Ollama URL not provided')
         throw new Error('Ollama URL not provided')
       } else {
         const response = await getOllamaModels({ url, apiKey })
@@ -20,7 +21,7 @@ export const getAvailableModels = async (args: {
       }
     case 'openai':
       if (!apiKey) {
-        console.error('OpenAI API key not provided')
+        logger.error('OpenAI API key not provided')
         throw new Error('OpenAI API key not provided')
       } else {
         const response = await getOpenAIModels({ url: 'https://api.openai.com/v1', apiKey })
