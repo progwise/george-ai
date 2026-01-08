@@ -1,0 +1,35 @@
+{
+  "name": "@george-ai/ai-service-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Michael Vogt <info@george-ai.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/progwise/george-ai"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@george-ai/event-service-client": "workspace:*",
+    "@george-ai/ai-service-client": "workspace:*",
+    "@george-ai/web-utils": "workspace:*",
+    "@george-ai/file-management": "workspace:*",
+    "@george-ai/vector-store-client": "workspace:*",
+    "tsx": "^4.19.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@george-ai/package-configs": "workspace:*",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.1"
+  }
+}

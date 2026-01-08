@@ -1,6 +1,9 @@
+import { createLogger } from '@george-ai/web-utils'
+
 import type { ServiceProviderConfig } from '../types'
 import { getOllamaModels } from './ollama-api'
 
+const logger = createLogger('Ollama Discover')
 /**
  * Discover models from all Ollama providers in the workspace
  * Deduplicates models across multiple instances
@@ -23,7 +26,7 @@ export const discoverOllamaModels = async (providers: ServiceProviderConfig[]): 
         const result = await getOllamaModels({ url: endpoint.url, apiKey: endpoint.apiKey })
         result.models.forEach((model) => allModels.add(model.name))
       } catch (error) {
-        console.warn(`Failed to get models from Ollama at ${endpoint.url}:`, error)
+        logger.warn(`Failed to get models from Ollama at ${endpoint.url}:`, error)
       }
     }
   }

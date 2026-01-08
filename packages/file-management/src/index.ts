@@ -14,6 +14,8 @@ interface ExtractionMetadata {
   lastUpdated: string
 }
 
+export { workspaceStorage } from './storage'
+
 export const getUploadsDir = () => {
   const dir = process.env.UPLOADS_PATH || './uploads'
   if (!fs.existsSync(dir)) {

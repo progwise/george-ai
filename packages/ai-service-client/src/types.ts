@@ -6,8 +6,11 @@ export interface Message {
 
 export type ServiceProviderType = 'ollama' | 'openai'
 
+export type InstanceStatus = 'unknown' | 'online' | 'offline' | 'error'
+
 export interface ServiceProviderConfig {
   provider: ServiceProviderType
+  workspaceId: string
   endpoints: { name: string; apiKey?: string; url?: string; vramGB: number }[]
 }
 

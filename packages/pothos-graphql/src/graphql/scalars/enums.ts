@@ -1,3 +1,5 @@
+import { workspace } from '@george-ai/app-domain'
+
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../../domain/automation/constants'
 import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../../domain/content-extraction/task-status'
 import { CRAWLER_URI_TYPES } from '../../domain/crawler/crawler-uri-types'
@@ -11,6 +13,10 @@ import { builder } from '../builder'
 
 builder.enumType('ProcessingStatus', {
   values: PROCESSING_STATUS,
+})
+
+builder.enumType('WorkspaceProcessingType', {
+  values: workspace.WORKSPACE_PROCESSING_TYPE,
 })
 
 builder.enumType('EmbeddingStatus', {

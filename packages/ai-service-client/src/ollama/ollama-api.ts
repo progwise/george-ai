@@ -1,3 +1,4 @@
+import pRetry from 'p-retry'
 import { z } from 'zod'
 
 import { createLogger } from '@george-ai/web-utils'
@@ -149,9 +150,13 @@ async function ollamaApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const response = await fetch(`${instance.url}${endpoint}`, {
-    headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
-  })
+  const response = await pRetry(
+    () =>
+      fetch(`${instance.url}${endpoint}`, {
+        headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
+      }),
+    { retries: 3 },
+  )
 
   if (!response.ok) {
     const responseText = await response.text()
@@ -169,14 +174,18 @@ async function ollamaApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const response = await fetch(`${instance.url}${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
-    },
-    body: JSON.stringify(params),
-  })
+  const response = await pRetry(
+    () =>
+      fetch(`${instance.url}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
+        },
+        body: JSON.stringify(params),
+      }),
+    { retries: 3 },
+  )
 
   if (!response.ok) {
     const responseText = await response.text()
@@ -331,14 +340,17 @@ async function generateOllamaEmbeddings(
   params: FetchParams,
   modelName: string,
   input: string | string[],
-): Promise<{ embeddings: number[][] }> {
-  const data = ollamaApiPost(
+): Promise<{ usage: { promptTokens: number; totalTokens: number }; embeddings: number[][] }> {
+  const data = await ollamaApiPost(
     params,
     '/api/embed',
     { model: modelName, input },
-    z.object({ embeddings: z.array(z.array(z.number())) }),
+    z.object({ prompt_eval_count: z.number(), embeddings: z.array(z.array(z.number())) }),
   )
-  return data
+  return {
+    usage: { promptTokens: data.prompt_eval_count, totalTokens: data.prompt_eval_count },
+    embeddings: data.embeddings,
+  }
 }
 
 export {

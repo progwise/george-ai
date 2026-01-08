@@ -4,5 +4,6 @@ packages:
   - 'apps/georgeai-backend'
   - 'services/smb-crawler-service'
   - 'services/model-manager-service'
+  - 'services/ai-service-worker'
   - 'packages/*'
   - '!packages/ai-models'
