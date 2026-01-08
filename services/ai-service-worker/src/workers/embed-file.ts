@@ -31,7 +31,7 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
 
   if (!workspaceEntry) {
     const message = `No cached workspace found with ID ${workspaceId} for embedding request`
-    logger.warn(message)
+    logger.warn('No cached workspace found for embedding request', { workspaceId })
     return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
@@ -40,14 +40,23 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
   )
   if (!provider) {
     const message = `No provider found for model ${embeddingModelName} and provider ${embeddingModelProvider} in workspace ${workspaceId}`
-    logger.warn(message)
+    logger.warn('No provider found for model', {
+      workspaceId,
+      embeddingModelName,
+      embeddingModelProvider,
+    })
     return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
   const fileSourceStream = await workspaceStorage.readSource(workspaceId, libraryId, fileId) //loadSourceFile({ workspaceId, fileId, markdownFilename })
 
   try {
-    logger.info(`[Processing file ${fileId} (${markdownFilename}) with ${provider.id}`)
+    logger.info('Processing file embedding', {
+      fileId,
+      markdownFilename,
+      providerId: provider.id,
+      workspaceId,
+    })
 
     await pipeline(
       fileSourceStream,
@@ -61,12 +70,26 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
       storeEmbeddings(workspaceId, libraryId, fileId, embeddingModelName, (bytes) => (result.chunkSize += bytes)),
     )
   } catch (error) {
-    logger.error(`Error processing file ${fileId}:`, error)
-    throw error
+    const message = `Error embedding for file ${fileId}, model ${embeddingModelName}, provider ${embeddingModelProvider}, workspace ${workspaceId}: \n${error instanceof Error ? error.message : 'Unknown error'}`
+    logger.error('Error processing file embedding', {
+      fileId,
+      workspaceId,
+      embeddingModelName,
+      embeddingModelProvider,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
+    return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
   const message = `Successfully embedded ${result.chunkCount} chunks for file ${fileId} using model ${embeddingModelName}`
-  logger.info(message)
+  logger.info('Successfully embedded file', {
+    fileId,
+    workspaceId,
+    embeddingModelName,
+    chunkCount: result.chunkCount,
+    tokensUsed: result.tokensUsed,
+    processingTimeMs: Date.now() - result.startTime,
+  })
   return {
     chunkCount: result.chunkCount,
     chunkSize: result.chunkSize,
@@ -80,9 +103,17 @@ export async function embedFile(event: WorkspaceFileEmbeddingRequestEvent) {
 const markdownSplitter = (increaseChunkCount: () => void) =>
   async function* (source: AsyncIterable<Buffer>) {
     let chunkIndex = 0
+    const MAX_CHUNK_SIZE = 10 * 1024 * 1024 // 10MB
     let buffer = ''
     for await (const chunk of source) {
       buffer += chunk.toString('utf-8')
+      if (buffer.length > MAX_CHUNK_SIZE) {
+        // Force split at MAX_CHUNK_SIZE
+        const segment = buffer.slice(0, MAX_CHUNK_SIZE)
+        yield { index: chunkIndex++, text: segment, length: segment.length }
+        increaseChunkCount()
+        buffer = buffer.slice(MAX_CHUNK_SIZE)
+      }
       let boundary = buffer.lastIndexOf('\n\n')
       while (boundary !== -1) {
         const segment = buffer.slice(0, boundary).trim()
@@ -158,9 +189,13 @@ const storeEmbeddings = (
         })
         vectorStoreInitialized = true
       }
-      logger.info(`[${WORKER_ID}] Storing batch of ${batch.length} embeddings for file ${fileId}`)
+      logger.info('Storing embeddings batch', {
+        workerId: WORKER_ID,
+        batchSize: batch.length,
+        fileId,
+      })
       await vectorStore.upsert(
-        `workspace_${workspaceId}`,
+        collectionName,
         batch.map((item) => ({
           id: `file_${fileId}_chunk_${item.index}`,
           vectors: { [modelName]: item.embedding },

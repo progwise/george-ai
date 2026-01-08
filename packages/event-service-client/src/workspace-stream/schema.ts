@@ -31,8 +31,8 @@ export const WorkspaceFileEmbeddingFinishedEventSchema = WorkspaceEventBaseSchem
   chunkCount: z.number(),
   chunkSize: z.number(),
   processingTimeMs: z.number(),
-  message: z.string().optional(),
   success: z.boolean(),
+  message: z.string(),
 })
 
 export type WorkspaceFileEmbeddingFinishedEvent = z.infer<typeof WorkspaceFileEmbeddingFinishedEventSchema>

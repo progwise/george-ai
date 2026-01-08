@@ -134,7 +134,13 @@ describe('event-service-client integration tests', () => {
     const testEntry = {
       version: 1 as const,
       workerId: TEST_WORKER_ID,
-      activeSubscriptions: [TEST_WORKSPACE_ID],
+      activeSubscriptions: [
+        {
+          workspaceId: TEST_WORKSPACE_ID,
+          processingType: 'EMBEDDING' as const,
+          subscribedAt: new Date().toISOString(),
+        },
+      ],
       lastHeartbeat: new Date().toISOString(),
     }
 
@@ -147,6 +153,6 @@ describe('event-service-client integration tests', () => {
     expect(retrievedEntry).not.toBeNull()
     expect(retrievedEntry?.workerId).toBe(TEST_WORKER_ID)
     expect(retrievedEntry?.activeSubscriptions).toHaveLength(1)
-    expect(retrievedEntry?.activeSubscriptions[0]).toBe(TEST_WORKSPACE_ID)
+    expect(retrievedEntry?.activeSubscriptions[0].workspaceId).toBe(TEST_WORKSPACE_ID)
   })
 })

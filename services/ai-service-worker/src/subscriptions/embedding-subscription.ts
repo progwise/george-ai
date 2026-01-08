@@ -1,4 +1,9 @@
-import { publishWorkspaceEvent, subscribeWorkspaceEvent } from '@george-ai/event-service-client'
+import {
+  addWorkspaceToWorkerEntry,
+  publishWorkspaceEvent,
+  removeWorkspaceFromWorkerEntry,
+  subscribeWorkspaceEvent,
+} from '@george-ai/event-service-client'
 import {
   WorkspaceEvent,
   WorkspaceEventType,
@@ -6,6 +11,7 @@ import {
 } from '@george-ai/event-service-client/src/workspace-stream/schema'
 import { createLogger } from '@george-ai/web-utils'
 
+import { WORKER_ID } from '../constants'
 import { embedFile } from '../workers'
 
 const logger = createLogger('Embedding Subscription')
@@ -17,7 +23,8 @@ export const getSubscribedEmbeddingWorkspaces = () => {
 }
 
 export const subscribeEmbeddingEvents = async (workspaceId: string) => {
-  logger.info(`Subscribing to workspace embedding events for workspace ${workspaceId}...`)
+  logger.info('Subscribing to workspace embedding events', { workspaceId })
+  await addWorkspaceToWorkerEntry(WORKER_ID, workspaceId, 'EMBEDDING')
   // Subscribe to embedding request events
   const cleanup = await subscribeWorkspaceEvent({
     workspaceId,
@@ -28,23 +35,28 @@ export const subscribeEmbeddingEvents = async (workspaceId: string) => {
 }
 
 export const unsubscribeEmbeddingEvents = async (workspaceId: string) => {
-  logger.info(`Unsubscribing from workspace embedding events for workspace ${workspaceId}...`)
+  logger.info('Unsubscribing from workspace embedding events', { workspaceId })
   const cleanup = embeddingSubscriptions.get(workspaceId)
   if (!cleanup) {
-    logger.warn(`No embedding event subscription found for workspace ${workspaceId} to unsubscribe.`)
+    logger.warn('No embedding event subscription found to unsubscribe', { workspaceId })
     return
   }
   await cleanup()
   embeddingSubscriptions.delete(workspaceId)
+  await removeWorkspaceFromWorkerEntry(WORKER_ID, workspaceId, 'EMBEDDING')
 }
 
 export const handleEmbeddingEvent = async (event: WorkspaceEvent) => {
-  logger.info(`Processing workspace embedding event ${event.eventType} for workspace ${event.workspaceId}...`)
+  logger.info('Processing workspace embedding event', {
+    eventType: event.eventType,
+    workspaceId: event.workspaceId,
+  })
   const embedFileEvent = WorkspaceFileEmbeddingRequestEventSchema.parse(event)
   try {
-    logger.info(
-      `Parsed embedding request event for file ${embedFileEvent.fileId} in workspace ${embedFileEvent.workspaceId}`,
-    )
+    logger.info('Parsed embedding request event', {
+      fileId: embedFileEvent.fileId,
+      workspaceId: embedFileEvent.workspaceId,
+    })
     const result = await embedFile(embedFileEvent)
     await publishWorkspaceEvent({
       version: 1,
@@ -58,10 +70,32 @@ export const handleEmbeddingEvent = async (event: WorkspaceEvent) => {
       success: result.success,
       message: result.message,
     })
-    logger.info(
-      `Published EmbeddingCompleted event for file ${embedFileEvent.fileId} in workspace ${embedFileEvent.workspaceId}`,
-    )
+    logger.info('Published EmbeddingFinished event', {
+      fileId: embedFileEvent.fileId,
+      workspaceId: embedFileEvent.workspaceId,
+      success: result.success,
+    })
   } catch (error) {
-    logger.error(`Error handling embedding event for workspace ${event.workspaceId}:`, error)
+    const message = `Failed to process embedding event for workspace ${event.workspaceId}, file ${embedFileEvent.fileId}: \n${
+      error instanceof Error ? error.message : 'Unknown error'
+    }`
+    logger.error('Failed to process embedding event', {
+      workspaceId: event.workspaceId,
+      fileId: embedFileEvent.fileId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
+    await publishWorkspaceEvent({
+      version: 1,
+      workspaceId: embedFileEvent.workspaceId,
+      eventType: WorkspaceEventType.EmbeddingFinished,
+      chunkCount: 0,
+      chunkSize: 0,
+      processingTimeMs: 0,
+      fileId: embedFileEvent.fileId,
+      libraryId: embedFileEvent.libraryId,
+      success: false,
+      message,
+    })
+    throw error
   }
 }

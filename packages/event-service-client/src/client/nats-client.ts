@@ -421,4 +421,16 @@ export class NatsClient implements EventClient {
       })
     }
   }
+
+  async delete(params: { bucketName: string; key: string }): Promise<void> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    await kvBucket.delete(key)
+  }
 }

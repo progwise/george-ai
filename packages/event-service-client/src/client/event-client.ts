@@ -73,6 +73,8 @@ export interface EventClient {
     }) => Promise<void>
   }): Promise<() => Promise<void>>
 
+  delete(params: { bucketName: string; key: string }): Promise<void>
+
   /**
    * Disconnect from event service
    */

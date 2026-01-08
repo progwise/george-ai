@@ -52,6 +52,9 @@ export {
   getWorkerRegistryEntry,
   putWorkerRegistryEntry,
   watchWorkerRegistryEntry,
+  updateWorkerHeartbeat,
+  addWorkspaceToWorkerEntry,
+  removeWorkspaceFromWorkerEntry,
   type WorkerRegistryEntry,
   WorkerRegistrySchema,
 } from './worker-registry'

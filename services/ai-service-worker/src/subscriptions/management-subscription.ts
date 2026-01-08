@@ -13,7 +13,7 @@ export const getSubscribedManagementWorkspaces = () => {
 }
 
 export const subscribeManagementEvents = async (workspaceId: string) => {
-  logger.info(`Subscribing to workspace management events for workspace ${workspaceId}...`)
+  logger.info('Subscribing to workspace management events', { workspaceId })
   const cleanup = await subscribeManagementEvent({
     workspaceId,
     eventTypes: [ManagementEventType.StartEmbedding, ManagementEventType.StopEmbedding],
@@ -23,10 +23,10 @@ export const subscribeManagementEvents = async (workspaceId: string) => {
 }
 
 export const unsubscribeManagementEvents = async (workspaceId: string) => {
-  logger.info(`Unsubscribing from workspace management events for workspace ${workspaceId}...`)
+  logger.info('Unsubscribing from workspace management events', { workspaceId })
   const cleanup = managementSubscriptions.get(workspaceId)
   if (!cleanup) {
-    logger.warn(`No management event subscription found for workspace ${workspaceId} to unsubscribe.`)
+    logger.warn('No management event subscription found to unsubscribe', { workspaceId })
     return
   }
   await cleanup()
@@ -34,18 +34,24 @@ export const unsubscribeManagementEvents = async (workspaceId: string) => {
 }
 
 export const handleManagementEvent = async (event: ManagementEvent) => {
-  logger.info(`Processing workspace management event ${event.eventType} for workspace ${event.workspaceId}...`)
+  logger.info('Processing workspace management event', {
+    eventType: event.eventType,
+    workspaceId: event.workspaceId,
+  })
   switch (event.eventType) {
     case ManagementEventType.StartEmbedding:
-      logger.info(`Received StartEmbedding event for workspace ${event.workspaceId}`)
+      logger.info('Received StartEmbedding event', { workspaceId: event.workspaceId })
       await subscribeEmbeddingEvents(event.workspaceId)
       break
     case ManagementEventType.StopEmbedding:
-      logger.info(`Received StopEmbedding event for workspace ${event.workspaceId}`)
+      logger.info('Received StopEmbedding event', { workspaceId: event.workspaceId })
       unsubscribeEmbeddingEvents(event.workspaceId)
       break
     default:
-      logger.warn(`Unhandled workspace management event type: ${event.eventType} for workspace ${event.workspaceId}`)
+      logger.warn('Unhandled workspace management event type', {
+        eventType: event.eventType,
+        workspaceId: event.workspaceId,
+      })
       break
   }
 }
