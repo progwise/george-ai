@@ -19,6 +19,9 @@ function getEncryptionKey(): Buffer {
  * Encrypt a string value using AES-256-GCM
  */
 export function encryptValue(plaintext: string): string {
+  if (plaintext.startsWith(ENCRYPTED_PREFIX)) {
+    return plaintext
+  }
   const key = getEncryptionKey()
   const iv = crypto.randomBytes(IV_LENGTH)
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv)
@@ -35,7 +38,7 @@ export function encryptValue(plaintext: string): string {
  */
 export function decryptValue(encrypted: string): string {
   if (!encrypted.startsWith(ENCRYPTED_PREFIX)) {
-    throw new Error('Invalid encrypted value format')
+    return encrypted
   }
 
   const key = getEncryptionKey()

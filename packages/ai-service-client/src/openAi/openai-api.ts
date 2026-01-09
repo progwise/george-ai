@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger, decryptValue } from '@george-ai/web-utils'
 
 const logger = createLogger('OpenAI API')
 
@@ -70,11 +70,12 @@ async function openAIApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
+  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
   let response: Response
   try {
     response = await fetch(`${instance.url}${endpoint}`, {
       headers: {
-        Authorization: `Bearer ${instance.apiKey}`,
+        Authorization: `Bearer ${decryptedApiKey}`,
         'Content-Type': 'application/json',
       },
     })
@@ -119,12 +120,13 @@ async function openAIApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
+  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
   let response: Response
   try {
     response = await fetch(`${instance.url}${endpoint}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${instance.apiKey}`,
+        Authorization: `Bearer ${decryptedApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params),
