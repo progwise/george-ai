@@ -18,7 +18,10 @@ function getEncryptionKey(): Buffer {
 /**
  * Encrypt a string value using AES-256-GCM
  */
-export function encryptValue(plaintext: string): string {
+export function encryptValue(plaintext: string | null | undefined): string | undefined {
+  if (!plaintext) {
+    return undefined
+  }
   if (plaintext.startsWith(ENCRYPTED_PREFIX)) {
     return plaintext
   }

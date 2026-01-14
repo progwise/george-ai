@@ -70,7 +70,7 @@ async function openAIApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   let response: Response
   try {
     response = await fetch(`${instance.url}${endpoint}`, {
@@ -120,7 +120,7 @@ async function openAIApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   let response: Response
   try {
     response = await fetch(`${instance.url}${endpoint}`, {

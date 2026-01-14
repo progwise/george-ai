@@ -149,7 +149,7 @@ async function ollamaApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   const response = await fetch(`${instance.url}${endpoint}`, {
     headers: decryptedApiKey ? { Authorization: `Bearer ${decryptedApiKey}` } : {},
   })
@@ -170,7 +170,7 @@ async function ollamaApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
-  const decryptedApiKey = instance.apiKey ? decryptValue(instance.apiKey) || undefined : undefined
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   const response = await fetch(`${instance.url}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -215,6 +215,7 @@ async function getOllamaModelInfo(params: FetchParams, modelName: string): Promi
 }
 
 async function getCompletion(params: FetchParams, modelName: string, prompt: string, images?: string[]) {
+  // <-- do we need this?
   const data = await ollamaApiPost(
     params,
     '/api/generate',
@@ -232,7 +233,7 @@ async function getChatResponseStream(
 ): Promise<ReadableStream<OllamaStreamChunk>> {
   let response: Response
   try {
-    const decryptedApiKey = params.apiKey ? decryptValue(params.apiKey) || undefined : undefined
+    const decryptedApiKey = params.apiKey && decryptValue(params.apiKey)
     response = await fetch(`${params.url}/api/chat`, {
       method: 'POST',
       headers: {

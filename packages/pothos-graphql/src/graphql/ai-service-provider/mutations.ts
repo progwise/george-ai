@@ -57,9 +57,6 @@ builder.mutationField('createAiServiceProvider', (t) =>
           },
         })
       }
-      if (data.apiKey == undefined) {
-        throw new Error('API key is required')
-      }
       const encryptedApi = encryptValue(data.apiKey)
 
       const provider = await prisma.aiServiceProvider.create({
@@ -359,9 +356,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
             },
           })
         }
-        if (providerData.apiKey == undefined) {
-          throw new Error('API key is required')
-        }
+
         const encryptedApi = encryptValue(providerData.apiKey)
 
         // Create new provider (enabled by default)
@@ -457,13 +452,7 @@ builder.mutationField('testProviderConnection', (t) =>
         // Use provided values, fall back to stored values if available
         const baseUrl = data.baseUrl || storedProvider?.baseUrl || undefined
         const apiKey = data.apiKey || storedProvider?.apiKey || undefined
-        if (apiKey == undefined) {
-          return {
-            success: false,
-            message: 'API key is required for OpenAI',
-          }
-        }
-
+        const encryptedApiKey = encryptValue(apiKey)
         if (data.provider === 'ollama') {
           // Test Ollama connection
           if (!baseUrl) {
@@ -473,7 +462,7 @@ builder.mutationField('testProviderConnection', (t) =>
             }
           }
 
-          const result = await testOllamaConnection({ url: baseUrl, apiKey: encryptValue(apiKey) })
+          const result = await testOllamaConnection({ url: baseUrl, apiKey: encryptedApiKey })
 
           if (result.success) {
             return {
@@ -489,7 +478,12 @@ builder.mutationField('testProviderConnection', (t) =>
           }
         } else if (data.provider === 'openai') {
           // Test OpenAI connection
-          const encryptedApiKey = encryptValue(apiKey)
+          if (!encryptedApiKey) {
+            return {
+              success: false,
+              message: 'API key is required for OpenAI connection test',
+            }
+          }
           const result = await testOpenAIConnection({ apiKey: encryptedApiKey })
 
           if (result.success) {
