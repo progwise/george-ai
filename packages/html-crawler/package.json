@@ -19,8 +19,8 @@
   "dependencies": {},
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "@types/node": "^22.10.2",
+    "@types/node": "^25.0.7",
     "typescript": "^5.9.3",
-    "vitest": "^3.1.1"
+    "vitest": "^4.0.17"
   }
 }
