@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger, decryptValue } from '@george-ai/web-utils'
 
 import { Message } from '../types'
 
@@ -149,8 +149,9 @@ async function ollamaApiGet<T>(
   endpoint: string,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   const response = await fetch(`${instance.url}${endpoint}`, {
-    headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
+    headers: decryptedApiKey ? { Authorization: `Bearer ${decryptedApiKey}` } : {},
   })
 
   if (!response.ok) {
@@ -169,11 +170,12 @@ async function ollamaApiPost<T>(
   params: unknown,
   schema: z.ZodSchema<T>,
 ): Promise<z.infer<typeof schema>> {
+  const decryptedApiKey = instance.apiKey && decryptValue(instance.apiKey)
   const response = await fetch(`${instance.url}${endpoint}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
+      ...(decryptedApiKey ? { Authorization: `Bearer ${decryptedApiKey}` } : {}),
     },
     body: JSON.stringify(params),
   })
@@ -213,6 +215,7 @@ async function getOllamaModelInfo(params: FetchParams, modelName: string): Promi
 }
 
 async function getCompletion(params: FetchParams, modelName: string, prompt: string, images?: string[]) {
+  // <-- do we need this?
   const data = await ollamaApiPost(
     params,
     '/api/generate',
@@ -230,11 +233,12 @@ async function getChatResponseStream(
 ): Promise<ReadableStream<OllamaStreamChunk>> {
   let response: Response
   try {
+    const decryptedApiKey = params.apiKey && decryptValue(params.apiKey)
     response = await fetch(`${params.url}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(params.apiKey ? { Authorization: `Bearer ${params.apiKey}` } : {}),
+        ...(decryptedApiKey ? { Authorization: `Bearer ${decryptedApiKey}` } : {}),
       },
       body: JSON.stringify({ model: modelName, stream: true, messages }),
       signal: abortSignal,

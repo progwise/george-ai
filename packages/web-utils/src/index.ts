@@ -11,3 +11,6 @@ export * from './timeout'
 export * from './error'
 export * from './size'
 export * from './logger'
+
+// Export encryption functions
+export { encryptValue, decryptValue, decryptConfigFields, encryptConfigFields } from './encryption'

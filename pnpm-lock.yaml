@@ -440,6 +440,9 @@ importers:
 
   packages/connector-types:
     dependencies:
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../web-utils
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
