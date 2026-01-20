@@ -11,6 +11,7 @@ import {
   EnrichmentSidePanel_OriginFragment,
   EnrichmentStatus,
 } from '../../gql/graphql'
+import { useResizableHandle } from '../../hooks/resizable-handle'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
@@ -74,6 +75,12 @@ export const EnrichmentSidePanel = ({
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
 
+  const { containerRef, handleMouseDown, isDragging } = useResizableHandle({
+    minWidth: 400,
+    maxWidth: Infinity,
+    direction: 'horizontal',
+  })
+
   const toggleViewMarkdownSource = () => {
     setViewMarkdownSource((prev) => !prev)
   }
@@ -131,6 +138,7 @@ export const EnrichmentSidePanel = ({
 
       {/* Side Panel */}
       <div
+        ref={containerRef}
         className={twMerge(
           'fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
@@ -139,6 +147,14 @@ export const EnrichmentSidePanel = ({
         aria-modal="true"
         aria-label={`Enrichment details for ${fieldName}`}
       >
+        <div
+          className={twMerge(
+            'absolute left-[-10px] top-0 h-full w-5 cursor-col-resize bg-transparent',
+            isDragging && 'bg-transparent',
+          )}
+          onMouseDown={handleMouseDown}
+          aria-label="Resize panel"
+        />
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
