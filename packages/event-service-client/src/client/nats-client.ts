@@ -1,7 +1,6 @@
 import {
   AckPolicy,
   type ConnectionOptions,
-  Consumer,
   DeliverPolicy,
   type JetStreamClient,
   type JetStreamManager,
@@ -11,10 +10,9 @@ import {
   connect,
 } from 'nats'
 
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger, matchGlobPattern } from '@george-ai/web-utils'
 
-import { EventClientConfig } from '.'
-import { EventClient } from './event-client'
+import { EventClient, EventClientConfig } from './event-client'
 
 const logger = createLogger('NATS Client')
 
@@ -150,6 +148,128 @@ export class NatsClient implements EventClient {
     }
   }
 
+  async ensureConsumer(params: {
+    consumerName: string
+    streamName: string
+    subjectFilters: string[]
+    timeoutMs: number
+    maxPendingMessages: number
+    maxDeliveryAttempts: number
+  }): Promise<void> {
+    if (!this.jsm || !this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { consumerName, streamName, subjectFilters, timeoutMs, maxPendingMessages, maxDeliveryAttempts } = params
+
+    logger.info(`Ensuring consumer ${consumerName} with filters "${subjectFilters.join(', ')}" on stream ${streamName}`)
+
+    let consumerInfo = await this.jsm.consumers.info(streamName, consumerName).catch(() => null)
+    if (!consumerInfo) {
+      consumerInfo = await this.jsm.consumers.add(streamName, {
+        durable_name: consumerName,
+        filter_subjects: subjectFilters,
+        deliver_policy: DeliverPolicy.All,
+        ack_policy: AckPolicy.Explicit,
+        max_ack_pending: maxPendingMessages,
+        max_deliver: maxDeliveryAttempts,
+        ack_wait: timeoutMs * 1e6, // convert ms to nanoseconds
+      })
+      logger.debug('Created new consumer', { consumerName, streamName, consumerInfo })
+    } else {
+      const existingSubjects = consumerInfo.config.filter_subjects?.sort().join(',') || ''
+      const desiredSubjects = subjectFilters.sort().join(',')
+      if (
+        existingSubjects === desiredSubjects &&
+        consumerInfo.config.max_ack_pending === (params.maxPendingMessages || 1000) &&
+        consumerInfo.config.max_deliver === (params.maxDeliveryAttempts || 3)
+      ) {
+        logger.debug('Consumer already up to date', { consumerName, streamName, consumerInfo })
+        return
+      }
+      await this.jsm.consumers.update(streamName, consumerName, {
+        filter_subjects: subjectFilters,
+        max_ack_pending: params.maxPendingMessages,
+        max_deliver: params.maxDeliveryAttempts,
+        ack_wait: timeoutMs * 1e6, // 30 seconds
+      })
+      logger.debug('Updated existing consumer', {
+        consumerName,
+        streamName,
+        consumerInfo,
+        subjectFilters,
+        maxPendingMessages,
+        maxDeliveryAttempts,
+      })
+    }
+  }
+
+  async pauseConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void> {
+    if (!this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
+
+    try {
+      await this.jsm.consumers.pause(
+        streamName,
+        consumerInfo.name,
+        new Date(Date.now() + 1000 * 365 * 24 * 60 * 60 * 1000), // nats error using undefined - 1000 years should be enough
+      )
+    } catch (error) {
+      logger.error('Error pausing consumer', { error, consumerName, streamName })
+      throw error
+    }
+
+    logger.info('Consumer paused', { consumerName, streamName })
+  }
+
+  async resumeConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void> {
+    if (!this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
+
+    try {
+      await this.jsm.consumers.resume(streamName, consumerInfo.name)
+    } catch (error) {
+      logger.error('Error resuming consumer', { error, consumerName, streamName })
+      throw error
+    }
+    logger.info('Consumer resumed', { consumerName, streamName })
+  }
+
+  async consumerStatus({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<'paused' | 'running'> {
+    if (!this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
+    return consumerInfo.paused ? 'paused' : 'running'
+  }
+
+  async deleteConsumer(params: { streamName: string; consumerName: string }): Promise<void> {
+    if (!this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { streamName, consumerName } = params
+
+    await this.jsm.consumers.delete(streamName, consumerName).catch((err) => {
+      logger.error(`Error deleting consumer ${consumerName} on stream ${streamName}:`, err)
+      throw err
+    })
+    logger.info(`Deleted consumer: ${consumerName} on stream: ${streamName}`)
+  }
+
   async publish(params: {
     subject: string
     payload: Uint8Array<ArrayBufferLike>
@@ -171,45 +291,106 @@ export class NatsClient implements EventClient {
     return { streamName: ack.stream, msgId: msgID }
   }
 
-  private getDurableName(subjectFilter: string | string[]): string {
-    if (Array.isArray(subjectFilter)) {
-      subjectFilter = subjectFilter
-        .sort((a, b) => a.localeCompare(b, 'en-US'))
-        .map((subject) => this.getDurableName(subject))
-        .join('_')
-    }
-    return subjectFilter
-      .replace(/\*/g, 'ALL') // Replace wildcards first
-      .replace(/>/g, 'REMAINING') // Handle the "all following" wildcard
-      .replace(/[^a-zA-Z0-9-]/g, '_') // Replace dots and special chars with _
-      .replace(/_{2,}/g, '_') // Collapse multiple underscores (e.g., ___) into one
-      .replace(/^_+|_+$/g, '') // Trim underscores from start/end
-  }
-
-  private async ensureStreamConsumer(streamName: string, subjectFilters: string[]): Promise<Consumer> {
-    if (!this.jsm || !this.js) {
+  async startWorkerLoop(params: {
+    streamName: string
+    consumerGlobPattern: string
+    handler: ({ payload, error }: { payload: Uint8Array<ArrayBufferLike>; error?: unknown }) => Promise<void>
+  }): Promise<() => Promise<void>> {
+    if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
-    const durable_name = this.getDurableName(subjectFilters)
 
-    logger.info(`Ensuring consumer ${durable_name} with filters "${subjectFilters.join(', ')}" on stream ${streamName}`)
+    const { streamName, consumerGlobPattern, handler } = params
 
-    let consumerInfo = await this.jsm.consumers.info(streamName, durable_name).catch(() => null)
-    if (!consumerInfo) {
-      consumerInfo = await this.jsm.consumers.add(streamName, {
-        durable_name,
-        filter_subjects: subjectFilters,
-        deliver_policy: DeliverPolicy.All,
-        ack_policy: AckPolicy.Explicit,
-        // max_ack_pending: 1000,
-      })
+    const abortController = new AbortController()
+    const signal = abortController.signal
+
+    logger.debug('Starting worker loop', { streamName, consumerGlobPattern })
+    const processingLoop = this.processWorkerLoop({ streamName, consumerGlobPattern, handler, signal }).catch(
+      (error) => {
+        logger.error('Error in worker processing loop:', error)
+      },
+    )
+
+    // Return cleanup function
+    return async () => {
+      abortController.abort()
+      await processingLoop
     }
+  }
 
-    return this.js.consumers.get(streamName, consumerInfo.name)
+  private async processWorkerLoop(params: {
+    streamName: string
+    consumerGlobPattern: string
+    signal: AbortSignal
+    handler: ({ payload, error }: { payload: Uint8Array<ArrayBufferLike>; error?: unknown }) => Promise<void>
+  }): Promise<void> {
+    if (!this.js || !this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+    const { streamName, consumerGlobPattern, signal, handler } = params
+    while (true) {
+      if (signal.aborted) {
+        logger.info('Worker loop aborted', { streamName, consumerGlobPattern })
+        break
+      }
+      const consumers = await this.jsm.consumers.list(streamName).next()
+      // Filter and randomize to prevent workers from all hitting the same consumer first
+      const shuffledConsumers = consumers
+        .filter((c) => matchGlobPattern(c.name, consumerGlobPattern))
+        .sort(() => Math.random() - 0.5)
+
+      logger.debug('Processing consumers', { streamName, consumerGlobPattern, consumers: shuffledConsumers })
+      for (const consumerInfo of shuffledConsumers) {
+        if (signal.aborted) {
+          logger.info('Worker loop aborted', { streamName, consumerGlobPattern })
+          break
+        }
+        const consumer = await this.js.consumers.get(streamName, consumerInfo.name)
+
+        logger.debug('Fetching message for consumer', { streamName, consumerName: consumerInfo.name })
+        try {
+          const messages = await consumer.fetch({ max_messages: 1, expires: 1000 })
+
+          for await (const msg of messages) {
+            if (signal.aborted) {
+              logger.info('Worker loop aborted', { streamName, consumerName: consumerInfo.name })
+              break
+            }
+            logger.debug('Received message for consumer', { streamName, consumerName: consumerInfo.name })
+            try {
+              // Call handler
+              await handler({ payload: msg.data })
+              // Acknowledge message
+              msg.ack()
+            } catch (error) {
+              if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
+                await handler({ payload: msg.data, error })
+                logger.error(`Message reached max delivery attempts, dropping message`, {
+                  streamName,
+                  consumerName: consumerInfo.name,
+                  messageInfo: msg.info,
+                  error,
+                })
+
+                // Acknowledge to drop the message
+                msg.ack()
+              }
+              logger.error(`Error processing event`, { error, streamName, consumerName: consumerInfo.name })
+              // Negative acknowledge to retry later
+              msg.nak()
+            }
+          }
+        } catch (error) {
+          logger.debug('no message available', { error, streamName, consumerName: consumerInfo.name })
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100)) // Prevent tight loop
+    }
   }
 
   async subscribe(params: {
-    subjectFilters: string[]
+    consumerName: string
     streamName: string
     handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<void>
   }): Promise<() => Promise<void>> {
@@ -217,7 +398,7 @@ export class NatsClient implements EventClient {
       throw new Error('Not connected to NATS')
     }
 
-    const { subjectFilters, streamName, handler } = params
+    const { consumerName, streamName, handler } = params
 
     const stream = await this.getStream(streamName)
 
@@ -225,7 +406,7 @@ export class NatsClient implements EventClient {
       throw new Error(`Stream does not exist: ${streamName}`)
     }
 
-    const consumer = await this.ensureStreamConsumer(streamName, subjectFilters)
+    const consumer = await this.js.consumers.get(streamName, consumerName)
     const messages = await consumer.consume()
 
     // Process messages
@@ -257,22 +438,25 @@ export class NatsClient implements EventClient {
   }
 
   async getStreamStatistics(params: {
+    consumerName: string
     streamName: string
-    subjectFilter: string
   }): Promise<{ totalMessages: number; processedMessages: number; pendingMessages: number }> {
-    if (!this.jsm) {
+    if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
-    const { streamName, subjectFilter } = params
+    const { streamName, consumerName } = params
 
-    const consumer = await this.ensureStreamConsumer(streamName, [subjectFilter])
+    const consumer = await this.js.consumers.get(streamName, consumerName)
     const consumerInfo = await consumer.info(true)
     const streamInfo = await this.jsm.streams.info(streamName)
     const stats = {
       totalMessages: streamInfo.state.messages,
       processedMessages: consumerInfo.ack_floor.stream_seq,
       pendingMessages: consumerInfo.num_pending,
+      inProgressMessages: consumerInfo.num_ack_pending,
+      paused: consumerInfo.paused,
+      failedMessages: consumerInfo.ack_floor.stream_seq - consumerInfo.num_ack_pending - consumerInfo.num_pending,
     }
     return stats
   }
@@ -341,7 +525,7 @@ export class NatsClient implements EventClient {
 
     await this.js.views.kv(name, {
       history: options?.history || 1,
-      ttl: options?.ttlMs ? options.ttlMs * 1e6 : 0,
+      ttl: options?.ttlMs ? options.ttlMs : 0,
       storage: StorageType.Memory,
     })
   }
@@ -396,6 +580,14 @@ export class NatsClient implements EventClient {
 
     const processWatch = async () => {
       for await (const entry of watcher) {
+        // 1. Initial State Sync
+        if ((entry.delta || 0) > 0) {
+          // This is part of the "History Catch-up"
+          if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
+            // Ignore historical deletes during startup
+            continue
+          }
+        }
         await handler({
           key: entry.key,
           operation: entry.operation === 'PUT' ? 'update' : 'delete',
@@ -431,6 +623,27 @@ export class NatsClient implements EventClient {
 
     const kvBucket = await this.js.views.kv(bucketName)
 
-    await kvBucket.delete(key)
+    await kvBucket.purge(key)
+  }
+
+  async getKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, limit, filter } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const keys = await kvBucket.keys(filter)
+    const result: string[] = []
+    for await (const key of keys) {
+      if (limit && result.length >= limit) {
+        break
+      }
+      result.push(key)
+    }
+
+    return result
   }
 }

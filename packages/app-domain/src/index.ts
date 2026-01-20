@@ -17,7 +17,13 @@ export * from '../prisma/generated/sql'
 export type { default as PothosTypes } from '../prisma/generated/pothos'
 export { getDatamodel } from '../prisma/generated/pothos'
 
-export * as workspace from './workspace'
+export type * from './context'
+
+export { default as workspace } from './workspace'
+
+export { default as user } from './user'
+
+export { default as apiKey } from './api-key'
 
 initializeAppDomain().catch((error) => {
   console.error('Error initializing app domain:', error)

@@ -1,11 +1,11 @@
 import { Prisma, prisma } from '@george-ai/app-domain'
 import { createLogger } from '@george-ai/web-utils'
 
-import { canAccessListOrThrow } from '../../domain'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 const logger = createLogger('Enrichment Tasks')
 
@@ -45,9 +45,10 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { session }) => {
-      logger.info(`Starting enrichment task creation for listId: ${listId}, fieldId: ${fieldId}`)
-      const list = await canAccessListOrThrow(listId, session.user.id, {
+    resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
+
+      const list = await prisma.aiList.findFirstOrThrow({
         include: {
           fields: {
             where: { id: fieldId },
@@ -281,8 +282,8 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
       itemId: t.arg.string({ required: false, description: 'Item ID to stop enrichment for' }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
-      await canAccessListOrThrow(listId, session.user.id)
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       const filterConditions = await getListFiltersWhere(filters || [])
 
@@ -360,8 +361,8 @@ builder.mutationField('clearListEnrichments', (t) =>
       }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
-      await canAccessListOrThrow(listId, session.user.id)
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       const filterConditions = await getListFiltersWhere(filters || [])
 

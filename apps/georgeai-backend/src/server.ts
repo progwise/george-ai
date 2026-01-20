@@ -11,16 +11,14 @@ import {
   startContentProcessingWorker,
   startEnrichmentQueueWorker,
 } from '@george-ai/pothos-graphql'
-import { createLogger } from '@george-ai/web-utils'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
+import { logger } from './common'
 import { conversationMessagesSSE } from './conversation-messages-sse'
-import { getUserContext } from './getUserContext'
-import { libraryFiles } from './library-files'
-import { dataUploadMiddleware } from './upload'
-
-const logger = createLogger('Server')
+import { getUserContext } from './get-user-context'
+import { handleGetFile } from './handle-get-file'
+import { handlePostUpload } from './handle-post-upload'
 
 logger.info('Starting GeorgeAI GraphQL server...')
 
@@ -83,8 +81,8 @@ app.use(cookieParser())
 app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', avatarMiddleware)
-app.use('/upload', dataUploadMiddleware)
-app.get('/library-files/:libraryId/:fileId', libraryFiles)
+app.post('/upload', handlePostUpload)
+app.get('/library-files/:libraryId/:fileId', handleGetFile)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 
 // Only check API key or user JWT for /graphql POST requests

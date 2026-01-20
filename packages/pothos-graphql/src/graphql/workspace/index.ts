@@ -3,6 +3,8 @@ import { builder } from '../builder'
 import './mutations'
 import './queries'
 
+export * from './common'
+
 console.log('Setting up: Workspace')
 
 builder.prismaObject('Workspace', {

@@ -43,6 +43,7 @@ import {
   UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
+  WorkspaceProcessingType,
 } from './graphql'
 
 type Properties<T> = Required<{
@@ -90,6 +91,8 @@ export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
 export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export const TriggerTypeSchema = z.nativeEnum(TriggerType)
+
+export const WorkspaceProcessingTypeSchema = z.nativeEnum(WorkspaceProcessingType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({

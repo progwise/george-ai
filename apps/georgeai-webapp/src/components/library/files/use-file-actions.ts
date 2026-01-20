@@ -3,12 +3,7 @@ import { useSearch } from '@tanstack/react-router'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import {
-  deleteLibraryFileFn,
-  deleteLibraryFilesFn,
-  dropAllLibraryFilesFn,
-  dropOutdatedMarkdownFilesFn,
-} from '../server-functions/delete-files'
+import { deleteLibraryFileFn, deleteLibraryFilesFn, dropAllLibraryFilesFn } from '../server-functions/delete-files'
 import { createContentProcessingTasksFn, createEmbeddingTasksFn } from '../server-functions/processing'
 import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
 import { cancelFileUploadFn, prepareDesktopFileUploadsFn } from './file-upload'
@@ -74,23 +69,6 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
     },
     onSuccess: (data) => {
       toastSuccess(t('actions.createExtractionTasksSuccess', { count: data.length }))
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
-
-  const { mutate: dropOutdatedMarkdownFilesMutate, isPending: createOutdatedMarkdownFilesPending } = useMutation({
-    mutationFn: (fileId: string) => dropOutdatedMarkdownFilesFn({ data: { fileId } }),
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : t('errors.dropOutdatedMarkdownFiles', { error: 'Unknown error', files: '' })
-      toastError(errorMessage)
-    },
-    onSuccess: (data) => {
-      toastSuccess(t('actions.dropOutdatedMarkdownFilesSuccess', { count: data.dropOutdatedMarkdowns }))
     },
     onSettled: () => {
       invalidateQueries()
@@ -166,7 +144,6 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   return {
     createEmbeddingTasks: createEmbeddingTasksMutate,
     createExtractionTasks: createExtractionTasksMutate,
-    dropOutdatedMarkdownFiles: dropOutdatedMarkdownFilesMutate,
     dropFile: dropFileMutate,
     dropFiles: dropFilesMutate,
     dropAllFiles: dropAllFilesMutate,
@@ -175,7 +152,6 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
     fileActionPending:
       createEmbeddingTasksIsPending ||
       createExtractionsTasksIsPending ||
-      createOutdatedMarkdownFilesPending ||
       dropFilePending ||
       dropAllFilesIsPending ||
       dropFilesIsPending ||

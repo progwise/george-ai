@@ -25,7 +25,8 @@
     "@george-ai/package-configs": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
     "@pothos/plugin-prisma": "^4.14.1",
-    "@types/node": "^25.0.3",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^22.13.8",
     "@types/pg": "^8.16.0",
     "eslint": "^9.39.1",
     "pg": "^8.16.3",
@@ -37,6 +38,7 @@
     "@george-ai/event-service-client": "workspace:*",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.4.5",
     "pg": "^8.16.3",
     "prisma": "^7.2.0"

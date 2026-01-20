@@ -7,8 +7,6 @@ import {
   serializeFileConverterOptions,
 } from '@george-ai/file-converter'
 
-import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
-
 interface TaskQuery {
   include?: AiContentProcessingTaskInclude
   select?: AiContentProcessingTaskSelect
@@ -116,103 +114,5 @@ export const createContentProcessingTask = async (options: CreateProcessingTaskO
     },
   })
 
-  return task
-}
-
-/**
- * Create an embedding-only task using existing markdowns from another task
- */
-interface CreateEmbeddingOnlyTaskParams {
-  existingTaskId?: string | undefined | null
-  query?: TaskQuery
-}
-export const createEmbeddingOnlyTask = async (
-  fileId: string,
-  { existingTaskId, query }: CreateEmbeddingOnlyTaskParams,
-) => {
-  const file = await prisma.aiLibraryFile.findUniqueOrThrow({
-    where: { id: fileId },
-    include: {
-      library: {
-        select: {
-          id: true,
-          fileConverterOptions: true,
-          embeddingModelId: true,
-          embeddingTimeoutMs: true,
-        },
-      },
-    },
-  })
-
-  if (!file.library.embeddingModelId) {
-    throw new Error(`Library ${file.libraryId} has no configured embedding model`)
-  }
-
-  const availableMarkdowns: Array<{ markdownFileName: string; extractionFinishedAt: Date }> = []
-
-  if (existingTaskId) {
-    const existingTask = await prisma.aiContentProcessingTask.findUniqueOrThrow({
-      where: { id: existingTaskId },
-      select: {
-        extractionSubTasks: true,
-        extractionFinishedAt: true,
-        fileId: true,
-      },
-    })
-
-    if (existingTask.fileId !== fileId) {
-      throw new Error(`Task ${existingTaskId} is not for file ${fileId}`)
-    }
-
-    const existingSubTasks = existingTask.extractionSubTasks.filter(
-      (subTask) => subTask.markdownFileName && subTask.finishedAt,
-    )
-
-    if (existingSubTasks.length === 0) {
-      throw new Error(`Task ${existingTaskId} has no successfully extracted markdown files to use for embeddings`)
-    }
-
-    availableMarkdowns.push(
-      ...existingSubTasks.map((subTask) => ({
-        markdownFileName: subTask.markdownFileName!,
-        extractionFinishedAt: subTask.finishedAt!,
-      })),
-    )
-  } else {
-    const latestMarkdownFileNames = await getLatestExtractionMarkdownFileNames({ fileId, libraryId: file.libraryId })
-    if (latestMarkdownFileNames.length === 0) {
-      throw new Error(`No existing extracted markdown files found for file ${fileId}`)
-    }
-
-    availableMarkdowns.push(
-      ...latestMarkdownFileNames.map((fileName) => ({
-        markdownFileName: fileName,
-        extractionFinishedAt: new Date(), // We don't know the exact date, so use now
-      })),
-    )
-  }
-
-  // Create a special "embedding-only" task
-  const task = await prisma.aiContentProcessingTask.create({
-    ...query,
-    data: {
-      fileId,
-      libraryId: file.libraryId,
-      extractionSubTasks: {
-        create: availableMarkdowns.map(({ markdownFileName }) => ({
-          extractionMethod: 'embedding-only',
-          markdownFileName,
-        })),
-      },
-      // Special embedding-only method that uses existing markdown
-      // and only creates embeddings
-      embeddingModelId: file.library.embeddingModelId,
-      timeoutMs: file.library.embeddingTimeoutMs || 180000, // Use library setting or default
-    },
-  })
-
-  console.log(
-    `Created embedding-only task ${task.id} for file ${fileId}${existingTaskId ? ` using markdown from task ${existingTaskId}` : ''}`,
-  )
   return task
 }

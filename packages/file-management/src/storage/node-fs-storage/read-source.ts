@@ -1,15 +1,17 @@
 import { createReadStream } from 'node:fs'
-import { constants } from 'node:fs'
-import { access } from 'node:fs/promises'
+import { constants, promises } from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 
-import { isNodeError } from './commons'
+import { SOURCE_FILE_NAME, isNodeError, logger } from './commons'
 import { getFileDir } from './directories'
 
-export async function readSource(workspaceId: string, libraryId: string, fileId: string): Promise<Readable> {
+const { access } = promises
+
+export async function readSource(workspaceId: string, args: { libraryId: string; fileId: string }): Promise<Readable> {
+  const { libraryId, fileId } = args
   const fileDir = await getFileDir(workspaceId, libraryId, fileId)
-  const filePath = path.join(fileDir, 'source')
+  const filePath = path.join(fileDir, SOURCE_FILE_NAME)
 
   try {
     // 1. Verify readability before opening the stream
@@ -26,8 +28,8 @@ export async function readSource(workspaceId: string, libraryId: string, fileId:
   const fileStream = createReadStream(filePath)
 
   // 3. Handle stream-level errors (e.g., file system disconnects mid-read)
-  fileStream.on('error', (err) => {
-    console.error(`Stream error for file ${fileId}:`, err)
+  fileStream.on('error', (error) => {
+    logger.error('Stream error for file', { fileId, libraryId, workspaceId, error: error })
   })
 
   return fileStream

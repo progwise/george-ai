@@ -1,7 +1,7 @@
 import { queryVectorStore } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 const AiLibraryQueryHitHighlight = builder
   .objectRef<{ field: string; snippet?: string }>('AiLibraryQueryHitHighlight')
@@ -82,7 +82,8 @@ builder.queryField('queryAiLibraryFiles', (t) =>
       skip: t.arg.int({ required: true }),
     },
     resolve: async (_root, { libraryId, query, take, skip }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       const searchResults = await queryVectorStore(libraryId, query, {
         page: !skip ? 1 : 1 + skip / take,
         perPage: take || 20,

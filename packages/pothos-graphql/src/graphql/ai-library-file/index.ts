@@ -13,11 +13,6 @@ import './file-usages'
 import './queries'
 import './mutations'
 
-import {
-  getExistingExtractionMarkdownFileNames,
-  getLatestExtractionMarkdownFileNames,
-} from '../../domain/file/markdown'
-
 console.log('Setting up: AiLibraryFile')
 
 const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('SourceFileLink').implement({
@@ -249,20 +244,6 @@ builder.prismaObject('AiLibraryFile', {
         }
 
         return false
-      },
-    }),
-    availableExtractionMarkdownFileNames: t.field({
-      type: ['String'],
-      nullable: false,
-      resolve: async (file) => {
-        return getExistingExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
-      },
-    }),
-    latestExtractionMarkdownFileNames: t.field({
-      type: ['String'],
-      nullable: { list: false, items: false },
-      resolve: async (file) => {
-        return await getLatestExtractionMarkdownFileNames({ fileId: file.id, libraryId: file.libraryId })
       },
     }),
   }),

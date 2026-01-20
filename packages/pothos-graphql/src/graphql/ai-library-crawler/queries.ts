@@ -1,8 +1,8 @@
 import { createShopwareConfig, createWeclappConfig, genericRestTemplate } from '@george-ai/api-crawler'
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 // API Crawler Template type for UI
 const ApiCrawlerTemplate = builder.simpleObject('ApiCrawlerTemplate', {
@@ -78,7 +78,7 @@ builder.queryField('aiLibraryCrawler', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { crawlerId, libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       return prisma.aiLibraryCrawler.findFirstOrThrow({
         ...query,
         where: { id: crawlerId, libraryId },
@@ -96,7 +96,7 @@ builder.queryField('aiLibraryCrawlerRun', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { crawlerRunId, libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       return await prisma.aiLibraryCrawlerRun.findFirstOrThrow({
         ...query,
         where: { id: crawlerRunId, crawler: { libraryId } },
@@ -150,7 +150,7 @@ builder.queryField('aiLibraryCrawlerRuns', (t) =>
       take: t.arg.int({ required: false, defaultValue: 20 }),
     },
     resolve: async (_parent, { libraryId, crawlerId, skip, take }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       return { libraryId, crawlerId: crawlerId ?? undefined, skip: skip ?? 0, take: take ?? 20 }
     },
   }),

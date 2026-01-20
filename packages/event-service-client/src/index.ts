@@ -1,67 +1,68 @@
 import { createLogger } from '@george-ai/web-utils'
 
-import { initializeManagementStream } from './management-stream'
-import { initializeUsageStream } from './usage-stream'
+import { initializeProviderCallsStream } from './provider-calls'
+import { initializeProviderHealthBucket } from './provider-health'
 import { initializeWorkerRegistryBucket } from './worker-registry'
-import { initializeWorkspaceRegistryBucket } from './workspace-registry'
-import { initializeWorkspaceStream } from './workspace-stream'
+import { initializeWorkspaceConfigBucket } from './workspace-config'
+import { initializeWorkspaceProcessingStream } from './workspace-processing'
+import { initializeWorkspaceUsageStream } from './workspace-usage'
 
-const logger = createLogger('Event Service Client')
+const logger = createLogger('event-service-client:index')
 
-export const initializeEventServiceClient = Promise.all([
-  initializeManagementStream().catch((error) => {
-    logger.error('Error initializing management stream:', error)
-  }),
+export const initializeEventServiceClient = async () =>
+  Promise.all([
+    initializeProviderCallsStream().catch((error) => {
+      logger.error('Error initializing provider calls stream:', error)
+      throw error
+    }),
+    initializeProviderHealthBucket().catch((error) => {
+      logger.error('Error initializing provider health bucket:', error)
+      throw error
+    }),
+    initializeWorkerRegistryBucket().catch((error) => {
+      logger.error('Error initializing worker registry bucket:', error)
+      throw error
+    }),
+    initializeWorkspaceConfigBucket().catch((error) => {
+      logger.error('Error initializing management stream:', error)
+      throw error
+    }),
+    initializeWorkspaceProcessingStream().catch((error) => {
+      logger.error('Error initializing workspace processing stream:', error)
+      throw error
+    }),
+    initializeWorkspaceUsageStream().catch((error) => {
+      logger.error('Error initializing usage stream:', error)
+      throw error
+    }),
+  ])
 
-  initializeWorkspaceStream().catch((error) => {
-    logger.error('Error initializing workspace stream:', error)
-  }),
+await initializeEventServiceClient()
 
-  initializeUsageStream().catch((error) => {
-    logger.error('Error initializing usage stream:', error)
-  }),
+export { default as providerCalls } from './provider-calls'
+export type {
+  AiCall,
+  AiResponse,
+  AiServiceCall,
+  EmbedFileCall,
+  EmbedTextChunkCall,
+  EmbedFileResponse,
+  EmbedTextChunkResponse,
+  ChatCompletionCall,
+  ChatCompletionResponse,
+} from './provider-calls'
 
-  initializeWorkerRegistryBucket().catch((error) => {
-    logger.error('Error initializing worker registry bucket:', error)
-  }),
+export { default as providerHealth } from './provider-health'
+export type { ProviderHealth } from './provider-health'
 
-  initializeWorkspaceRegistryBucket().catch((error) => {
-    logger.error('Error initializing workspace registry bucket:', error)
-  }),
-])
+export { default as workerRegistry } from './worker-registry'
+export type { WorkerRegistryEntry, WorkerType } from './worker-registry'
 
-await initializeEventServiceClient
+export { default as workspaceConfig } from './workspace-config'
+export type { WorkspaceConfig } from './workspace-config'
 
-export {
-  publishManagementEvent,
-  subscribeManagementEvent,
-  type ManagementEvent,
-  ManagementEventType,
-  ManagementEventSchema,
-} from './management-stream'
-export {
-  publishWorkspaceEvent,
-  subscribeWorkspaceEvent,
-  getWorkspaceEventStatistics,
-  getWorkspaceStatistics,
-  type WorkspaceEvent,
-  WorkspaceEventType,
-  WorkspaceEventSchema,
-} from './workspace-stream'
-export {
-  getWorkerRegistryEntry,
-  putWorkerRegistryEntry,
-  watchWorkerRegistryEntry,
-  updateWorkerHeartbeat,
-  addWorkspaceToWorkerEntry,
-  removeWorkspaceFromWorkerEntry,
-  type WorkerRegistryEntry,
-  WorkerRegistrySchema,
-} from './worker-registry'
-export {
-  getWorkspaceRegistryEntry,
-  putWorkspaceRegistryEntry,
-  watchWorkspaceRegistryEntry,
-  type WorkspaceRegistryEntry,
-  WorkspaceRegistrySchema,
-} from './workspace-registry'
+export { default as workspaceProcessing } from './workspace-processing'
+export type { ProcessEvent, ProcessType, StatusEvent } from './workspace-processing'
+
+export { default as workspaceUsage } from './workspace-usage'
+export type { UsageTrackingEvent } from './workspace-usage'

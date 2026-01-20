@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { StorageStatsSchema } from './storage-stats-schema'
+import { StorageUsageSchema } from './storage-usage-schema'
 
 export const WorkspaceManifestSchema = z.object({
   version: z.literal(1),
@@ -14,7 +14,7 @@ export const WorkspaceManifestSchema = z.object({
       storageLimitBytes: z.number().optional(),
     })
     .default({}),
-  usage: StorageStatsSchema,
+  usage: StorageUsageSchema,
 })
 
 export type WorkspaceManifest = z.infer<typeof WorkspaceManifestSchema>

@@ -5,8 +5,8 @@ import { validateFileConverterOptionsString } from '@george-ai/file-converter'
 import { getLibraryDir } from '@george-ai/file-management'
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibrary Mutations')
 
@@ -32,7 +32,7 @@ builder.mutationField('updateLibrary', (t) =>
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: async (query, _source, { id, data }, context) => {
-      await canAccessLibraryOrThrow(id, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       // Validate fileConverterOptions if provided
       const { embeddingModelId, ocrModelId, ...restData } = data
@@ -97,7 +97,7 @@ builder.mutationField('deleteLibrary', (t) =>
     nullable: false,
     resolve: async (query, _source, { id }, context) => {
       // Only owner can delete a library
-      await canAccessLibraryOrThrow(id, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       const result = await prisma.$transaction(
         [
@@ -122,7 +122,7 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (_parent, { libraryId }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       await dropVectorStore(libraryId)
       await prisma.aiLibraryFile.deleteMany({
         where: { libraryId },

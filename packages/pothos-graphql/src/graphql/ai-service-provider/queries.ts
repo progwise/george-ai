@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 // Query to get all providers for the current workspace
 builder.queryField('aiServiceProviders', (t) =>
@@ -11,6 +12,8 @@ builder.queryField('aiServiceProviders', (t) =>
       enabled: t.arg.boolean({ required: false }),
     },
     resolve: async (query, _source, { enabled }, context) => {
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       return prisma.aiServiceProvider.findMany({
         ...query,
         where: {
@@ -32,6 +35,8 @@ builder.queryField('aiServiceProvider', (t) =>
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       return prisma.aiServiceProvider.findFirstOrThrow({
         ...query,
         where: {

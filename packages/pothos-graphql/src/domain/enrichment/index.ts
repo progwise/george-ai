@@ -95,12 +95,10 @@ export const EnrichmentMetadataSchema = z.object({
           }),
         )
         .optional(),
-      contextFullContents: z
-        .array(
-          z.object({
-            maxContentTokens: z.number().optional(),
-          }),
-        )
+      contextFullContent: z
+        .object({
+          maxContentTokens: z.number().optional(),
+        })
         .optional(),
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
@@ -261,11 +259,7 @@ export const getEnrichmentTaskInputMetadata = ({
     })
 
   // Process full content context sources
-  const contextFullContents = validatedField.context
-    .filter((ctx) => ctx.contextType === 'fullContent')
-    .map((ctx) => ({
-      maxContentTokens: ctx.maxContentTokens || undefined,
-    }))
+  const contextFullContent = validatedField.context.find((ctx) => ctx.contextType === 'fullContent')
 
   return {
     aiModelId: validatedField.languageModelId,
@@ -275,7 +269,9 @@ export const getEnrichmentTaskInputMetadata = ({
     contextFields,
     contextVectorSearches: contextVectorSearches.length > 0 ? contextVectorSearches : undefined,
     contextWebFetches: contextWebFetches.length > 0 ? contextWebFetches : undefined,
-    contextFullContents: contextFullContents.length > 0 ? contextFullContents : undefined,
+    contextFullContent: contextFullContent
+      ? { maxContentTokens: contextFullContent.maxContentTokens || 3000 }
+      : undefined,
     dataType: validatedField.type,
     libraryEmbeddingModel: item.sourceFile.library.embeddingModel?.name || undefined,
     libraryEmbeddingModelProvider: item.sourceFile.library.embeddingModel?.provider || undefined,

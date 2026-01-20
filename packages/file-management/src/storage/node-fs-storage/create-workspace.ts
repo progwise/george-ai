@@ -2,7 +2,8 @@ import { WorkspaceManifest } from '../../schemas'
 import { createWorkspaceDir } from './directories'
 import { saveWorkspaceManifest } from './metadata-files'
 
-export async function createWorkspace(workspaceId: string, name: string): Promise<WorkspaceManifest> {
+export async function createWorkspace(workspaceId: string, args: { name: string }): Promise<WorkspaceManifest> {
+  const { name } = args
   const workspaceDir = await createWorkspaceDir(workspaceId)
   const manifest: WorkspaceManifest = {
     version: 1,
@@ -12,12 +13,17 @@ export async function createWorkspace(workspaceId: string, name: string): Promis
     updatedAt: new Date().toISOString(),
     settings: {},
     usage: {
-      activeBytes: 0,
+      sourceBytes: 0,
+      extractedBytes: 0,
+      activeExtractedBytes: 0,
       physicalBytes: 0,
-      totalFileCount: 0,
-      lastUpdated: new Date().toISOString(),
-      activeFileCount: 0,
-      integrityState: 'healthy',
+      sourceFiles: 0,
+      extractionFiles: 0,
+      physicalFiles: 0,
+      extractions: 0,
+      lastUpdate: new Date().toISOString(),
+      lastReconcile: undefined,
+      activeExtractions: 0,
     },
   }
   await saveWorkspaceManifest(workspaceDir, manifest)

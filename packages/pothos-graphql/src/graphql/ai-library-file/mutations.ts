@@ -1,9 +1,8 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow, deleteFile } from '../../domain'
-import { canAccessFileOrThrow, dropAllLibraryFiles } from '../../domain/file'
-import { dropOutdatedMarkdowns } from '../../domain/file/markdown'
+import { deleteFile, dropAllLibraryFiles } from '../../domain'
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile Mutations')
 
@@ -26,7 +25,7 @@ builder.mutationField('prepareFileUpload', (t) =>
     },
     nullable: false,
     resolve: async (query, _source, { data }, context) => {
-      await canAccessLibraryOrThrow(data.libraryId, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       return await prisma.aiLibraryFile.create({
         ...query,
         data,
@@ -40,10 +39,13 @@ builder.mutationField('deleteLibraryFile', (t) =>
     type: 'AiLibraryFile',
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, _parent, { fileId }, context) => {
-      return await deleteFile(fileId, context.session.user.id)
+    resolve: async (_source, _parent, { libraryId, fileId }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+      return await deleteFile({ workspaceId, libraryId, fileId })
     },
   }),
 )
@@ -53,10 +55,13 @@ builder.mutationField('deleteLibraryFiles', (t) =>
     type: 'Int',
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileIds: t.arg.idList({ required: true }),
     },
-    resolve: async (_source, { fileIds }, context) => {
-      const results = await Promise.all(fileIds.map((fileId) => deleteFile(fileId, context.session.user.id)))
+    resolve: async (_source, { libraryId, fileIds }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+      const results = await Promise.all(fileIds.map((fileId) => deleteFile({ workspaceId, libraryId, fileId })))
       return results.length
     },
   }),
@@ -70,7 +75,9 @@ builder.mutationField('dropAllLibraryFiles', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (_source, { libraryId }, context) => {
-      return await dropAllLibraryFiles(libraryId, context.session.user.id)
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+      return await dropAllLibraryFiles({ workspaceId, libraryId })
     },
   }),
 )
@@ -80,30 +87,14 @@ builder.mutationField('cancelFileUpload', (t) =>
     type: 'Boolean',
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { fileId }, context) => {
-      await canAccessFileOrThrow(fileId, context.session.user.id)
-      await deleteFile(fileId, context.session.user.id)
+    resolve: async (_source, { libraryId, fileId }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+      await deleteFile({ workspaceId, libraryId, fileId })
       return true
-    },
-  }),
-)
-
-builder.mutationField('dropOutdatedMarkdowns', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: 'Int',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_parent, { fileId }, context) => {
-      // Check permissions
-      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
-
-      const droppedCount = await dropOutdatedMarkdowns({ fileId, libraryId: file.libraryId })
-
-      return droppedCount
     },
   }),
 )

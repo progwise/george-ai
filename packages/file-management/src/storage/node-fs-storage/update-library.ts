@@ -4,11 +4,17 @@ import { getLibraryManifest, saveLibraryManifest } from './metadata-files'
 
 export async function updateLibrary(
   workspaceId: string,
-  libraryId: string,
-  updates: Partial<LibraryManifest>,
+  args: {
+    libraryId: string
+    updates: Partial<LibraryManifest>
+  },
 ): Promise<void> {
+  const { libraryId, updates } = args
   const libraryDir = await getLibraryDir(workspaceId, libraryId)
-  const manifest: LibraryManifest = await getLibraryManifest(libraryDir)
+  const manifest = await getLibraryManifest(libraryDir)
+  if (!manifest) {
+    throw new Error(`Library manifest not found for library dir: ${libraryDir}`)
+  }
   const updatedManifest: LibraryManifest = {
     ...manifest,
     ...updates,

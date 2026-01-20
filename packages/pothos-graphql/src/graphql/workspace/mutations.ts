@@ -3,14 +3,9 @@ import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-domain'
 
-import {
-  INVITATION_EXPIRY_DAYS,
-  isLastAdmin,
-  requireWorkspaceAdmin,
-  requireWorkspaceOwner,
-  sendWorkspaceInvitationEmail,
-} from '../../domain/workspace'
+import { INVITATION_EXPIRY_DAYS, isLastAdmin, sendWorkspaceInvitationEmail } from '../../domain/workspace'
 import { builder } from '../builder'
+import { canAdminWorkspaceOrThrow, doesOwnWorkspaceOrThrow } from './common'
 
 console.log('Setting up: Workspace mutations')
 
@@ -149,7 +144,7 @@ builder.mutationField('deleteWorkspace', (t) =>
       const userId = ctx.session.user.id
 
       // Check if user is workspace owner
-      await requireWorkspaceOwner(workspaceId, userId)
+      await doesOwnWorkspaceOrThrow(workspaceId, userId)
 
       // Verify workspace is empty
       const [libraryCount, assistantCount, listCount] = await Promise.all([
@@ -202,7 +197,7 @@ builder.mutationField('inviteWorkspaceMember', (t) =>
       const validatedEmail = emailSchema.parse(email.toLowerCase().trim())
 
       // Check if user is admin
-      await requireWorkspaceAdmin(workspaceId, userId)
+      await canAdminWorkspaceOrThrow(workspaceId, userId)
 
       // Check if user is already a member
       const existingUser = await prisma.user.findUnique({
@@ -283,7 +278,7 @@ builder.mutationField('revokeWorkspaceInvitation', (t) =>
       }
 
       // Check if user is admin of the workspace
-      await requireWorkspaceAdmin(invitation.workspaceId, userId)
+      await canAdminWorkspaceOrThrow(invitation.workspaceId, userId)
 
       // Delete the invitation
       await prisma.workspaceInvitation.delete({
@@ -313,7 +308,7 @@ builder.mutationField('removeWorkspaceMember', (t) =>
       }
 
       // Check if current user is admin
-      await requireWorkspaceAdmin(workspaceId, currentUserId)
+      await canAdminWorkspaceOrThrow(workspaceId, currentUserId)
 
       // Check if target is a member
       const targetMembership = await prisma.workspaceMember.findUnique({
@@ -359,9 +354,9 @@ builder.mutationField('updateWorkspaceMemberRole', (t) =>
 
       // Only owners can promote to owner, otherwise admin is sufficient
       if (role === 'owner') {
-        await requireWorkspaceOwner(workspaceId, currentUserId)
+        await doesOwnWorkspaceOrThrow(workspaceId, currentUserId)
       } else {
-        await requireWorkspaceAdmin(workspaceId, currentUserId)
+        await canAdminWorkspaceOrThrow(workspaceId, currentUserId)
       }
 
       // Check if target is a member

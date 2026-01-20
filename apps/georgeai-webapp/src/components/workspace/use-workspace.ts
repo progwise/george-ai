@@ -70,6 +70,8 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiModelUsageStats] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceStatus] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkerStatistics] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkers] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),

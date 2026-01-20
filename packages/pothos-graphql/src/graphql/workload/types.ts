@@ -2,39 +2,28 @@ import { builder } from '../builder'
 
 export const WorkspaceEventMessageStatisticValues = builder.simpleObject('WorkspaceEventMessageStatisticValues', {
   fields: (t) => ({
+    processType: t.field({ type: 'ProcessType', nullable: false }),
     totalMessages: t.int({ nullable: false }),
     processedMessages: t.int({ nullable: false }),
     pendingMessages: t.int({ nullable: false }),
   }),
 })
 
-export const WorkspaceEventMessageStatistic = builder.simpleObject('WorkspaceEventMessageStatistics', {
+export const WorkspaceStatistics = builder.simpleObject('WorkspaceWorkerStatistics', {
   fields: (t) => ({
-    extractionRequests: t.field({
-      type: WorkspaceEventMessageStatisticValues,
-      nullable: false,
-    }),
-    embeddingRequests: t.field({
-      type: WorkspaceEventMessageStatisticValues,
-      nullable: false,
-    }),
-    embeddingProgress: t.field({
-      type: WorkspaceEventMessageStatisticValues,
-      nullable: false,
-    }),
-    embeddingFinished: t.field({
-      type: WorkspaceEventMessageStatisticValues,
+    workspaceId: t.string({ nullable: false }),
+    statistics: t.field({
+      type: [WorkspaceEventMessageStatisticValues],
       nullable: false,
     }),
   }),
 })
 
-export const WorkspaceStatistics = builder.simpleObject('WorkspaceStatistics', {
+export const WorkspaceWorker = builder.simpleObject('WorkspaceWorker', {
   fields: (t) => ({
-    workspaceId: t.string({ nullable: false }),
-    eventMessageStatistics: t.field({
-      type: WorkspaceEventMessageStatistic,
-      nullable: false,
-    }),
+    workerId: t.string({ nullable: false }),
+    workerType: t.field({ type: 'WorkerType', nullable: false }),
+    healthy: t.boolean({ nullable: false }),
+    lastHeartbeatAt: t.string({ nullable: false }),
   }),
 })

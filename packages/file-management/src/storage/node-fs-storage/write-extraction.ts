@@ -6,26 +6,32 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import { ExtractionMetadata } from '../../schemas/extraction-metadata'
-import { isNodeError } from './commons'
+import { isNodeError, logger } from './commons'
 import { getFileDir } from './directories'
-import { getFileManifest, saveExtractionMetadata } from './metadata-files'
-import { fileSizeUpdate } from './size-update'
+import { getFileManifest, saveExtractionMetadata, saveFileManifest } from './metadata-files'
+import { fileUsageUpdate } from './usage-update'
 
 export async function writeExtraction(
-  wsId: string,
-  libId: string,
-  fileId: string,
-  methodId: string,
-  inputStream: Readable,
-  config: Record<string, string | number | boolean>,
+  workspaceId: string,
+  args: {
+    libraryId: string
+    fileId: string
+    methodId: string
+    stream: Readable
+    config: Record<string, string | number | boolean>
+  },
 ): Promise<ExtractionMetadata> {
-  const fileDir = await getFileDir(wsId, libId, fileId)
+  const { libraryId, fileId, methodId, stream, config } = args
+  const fileDir = await getFileDir(workspaceId, libraryId, fileId)
   const finalDir = path.join(fileDir, 'extractions', methodId)
   const tempDir = `${finalDir}.tmp-${Date.now()}`
 
   // 1. Get current source hash from File Manifest to "bind" this extraction
   const fileManifest = await getFileManifest(fileDir)
-  const sourceHash = fileManifest.currentSourceHash
+  if (!fileManifest) {
+    throw new Error(`File manifest not found for file dir: ${fileDir}`)
+  }
+  const sourceHash = fileManifest.sourceHash
 
   try {
     await mkdir(tempDir, { recursive: true })
@@ -36,23 +42,26 @@ export async function writeExtraction(
     let byteCount = 0
 
     // 2. Stream extraction data
-    inputStream.on('data', (chunk) => {
+    stream.on('data', (chunk) => {
       byteCount += chunk.length
       hasher.update(chunk)
     })
 
-    await pipeline(inputStream, writeStream)
+    await pipeline(stream, writeStream)
 
     // 3. Create the extraction metadata
     const metadata: ExtractionMetadata = {
       version: 1,
       methodId,
-      sourceHashAtExecution: sourceHash, // THE LINK
+      sourceHash,
       status: 'completed',
-      sizeBytes: byteCount,
-      executedAt: new Date().toISOString(),
+      extractedBytes: byteCount,
+      extractedAt: new Date().toISOString(),
       config,
-      output: { isSharded: false, mainFile: 'output.md' },
+      output: { hasFragments: false, mainFile: 'output.md' },
+      extractionFiles: 1,
+      physicalFiles: 2,
+      physicalBytes: byteCount,
     }
 
     // Save metadata into the TEMP directory first
@@ -66,21 +75,45 @@ export async function writeExtraction(
 
     // 5. Bubble up the size changes
     // (Note: You'd need to calculate the Delta if overwriting)
-    await fileSizeUpdate(fileDir, {
-      bytes: metadata.sizeBytes,
-      files: 2, // metadata.json + output.md
+    await fileUsageUpdate(fileDir, {
+      operation: 'add',
+      usage: {
+        sourceBytes: 0,
+        extractedBytes: metadata.extractedBytes,
+        physicalBytes: metadata.physicalBytes,
+        sourceFiles: 0,
+        extractionFiles: metadata.extractionFiles,
+        physicalFiles: metadata.physicalFiles,
+        extractions: 1,
+        activeExtractions: fileManifest.sourceHash === metadata.sourceHash ? 1 : 0,
+        activeExtractedBytes: fileManifest.sourceHash === metadata.sourceHash ? metadata.extractedBytes : 0,
+        lastUpdate: new Date().toISOString(),
+      },
+    })
+
+    await saveFileManifest(finalDir, {
+      ...fileManifest,
+      extractions: [
+        ...fileManifest.extractions.filter((ex) => ex.methodId !== methodId),
+        { methodId, extractionDate: new Date().toISOString(), extractionHash: fileManifest.sourceHash },
+      ],
     })
 
     return metadata
-  } catch (err) {
+  } catch (error) {
     await rm(tempDir, { recursive: true, force: true })
-    if (isNodeError(err)) {
-      console.error(`Node error writing extraction for file ${fileId} with method ${methodId}: ${err.message}`)
-    } else if (err instanceof Error) {
-      console.error(`Error writing extraction for file ${fileId} with method ${methodId}: ${err.message}`)
+    if (isNodeError(error)) {
+      logger.error('Node error writing extraction for file', {
+        fileId,
+        methodId,
+        error,
+        code: error.code,
+      })
+    } else if (error instanceof Error) {
+      logger.error('Error writing extraction for file', { fileId, methodId, error, message: error.message })
     } else {
-      console.error(`Unknown error writing extraction for file ${fileId} with method ${methodId}`)
+      logger.error('Unknown error writing extraction for file', { fileId, methodId, error })
     }
-    throw err
+    throw error
   }
 }

@@ -1,5 +1,6 @@
-import { putWorkspaceRegistryEntry } from '@george-ai/event-service-client'
+import { workspaceConfig } from '@george-ai/event-service-client'
 
+import { logger } from './common'
 import { prisma } from './prisma'
 
 export const initializeAppDomain = async () => {
@@ -11,28 +12,39 @@ export const initializeAppDomain = async () => {
       languageModels: { where: { enabled: true } },
     },
   })
-  for (const workspace of workspaces) {
-    // Initialize any workspace-specific domain logic here
-    console.log(`Initializing domain for workspace: ${workspace.id}`)
-    await putWorkspaceRegistryEntry({
-      workspaceId: workspace.id,
-      providerInstances: workspace.aiProviders.map((provider) => ({
-        id: provider.id,
-        provider: provider.provider,
-        baseUrl: provider.baseUrl || undefined,
-        apiKey: provider.apiKey || undefined,
-      })),
-      languageModels: workspace.languageModels.map((model) => ({
-        id: model.id,
-        name: model.name,
-        provider: model.provider,
-        canDoEmbedding: model.canDoEmbedding,
-        canDoChatCompletion: model.canDoChatCompletion,
-        canDoVision: model.canDoVision,
-        canDoFunctionCalling: model.canDoFunctionCalling,
-      })),
-      version: 1,
-      lastUpdate: new Date().toISOString(),
-    })
-  }
+
+  const results = await Promise.allSettled(
+    workspaces.map((workspace) => {
+      logger.info(`Found workspace for initialization: ${workspace.id} - ${workspace.name}`)
+      const entry = workspaceConfig.WorkspaceConfigSchema.parse({
+        workspaceId: workspace.id,
+        providerInstances: workspace.aiProviders.map((provider) => ({
+          id: provider.id,
+          provider: provider.provider,
+          baseUrl: provider.baseUrl || undefined,
+          apiKey: provider.apiKey || undefined,
+        })),
+        languageModels: workspace.languageModels.map((model) => ({
+          id: model.id,
+          name: model.name,
+          provider: model.provider,
+          canDoEmbedding: model.canDoEmbedding,
+          canDoChatCompletion: model.canDoChatCompletion,
+          canDoVision: model.canDoVision,
+          canDoFunctionCalling: model.canDoFunctionCalling,
+        })),
+        version: 1,
+        lastUpdate: new Date().toISOString(),
+      })
+      return workspaceConfig.writeWorkspaceConfig(entry)
+    }),
+  )
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      logger.info('Initialized workspace config successfully', { workspaceId: workspaces[index].id })
+    } else {
+      logger.error('Failed to initialize workspace config', { workspaceId: workspaces[index].id, error: result.reason })
+    }
+  })
 }

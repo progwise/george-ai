@@ -1,13 +1,13 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { Prisma } from '@george-ai/app-domain'
 import { prisma } from '@george-ai/app-domain'
+import { workspaceStorage } from '@george-ai/file-management'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 import { createLogger } from '@george-ai/web-utils'
 
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
-import { getFileMarkdownContent, getFilePartMarkdownContent } from '../domain/list/item-extraction'
 import { getLibraryWorkspace } from '../domain/workspace'
 
 const logger = createLogger('Enrichment Worker')
@@ -248,75 +248,40 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
       }
 
       // Process full content context sources
-      if (metadata.input.contextFullContents && metadata.input.contextFullContents.length > 0) {
-        for (const fullContent of metadata.input.contextFullContents) {
-          try {
-            let markdown: string | null = null
+      if (metadata.input.contextFullContent) {
+        try {
+          const markdownReader = await workspaceStorage.readExtraction(workspaceId, {
+            libraryId: metadata.input.libraryId,
+            fileId: metadata.input.fileId,
+            fragment: metadata.input.itemExtractionIndex || undefined,
+          })
 
-            // Load markdown based on whether it's a part or whole file
-            if (metadata.input.itemExtractionIndex !== null && metadata.input.itemExtractionIndex !== undefined) {
-              // Bucketed file - load specific part markdown
-              const extractionInfo = metadata.input.itemMetadata as
-                | { extractionMethod: string; extractionMethodParameter?: string }
-                | undefined
+          const maxTokens = metadata.input.contextFullContent.maxContentTokens || 3000
+          const maxChars = maxTokens * 4 // Rough estimate: 1 token ≈ 4 characters
 
-              if (!extractionInfo) {
-                const issue = `fullContentSkipped: no extraction info in metadata for file ${metadata.input.fileId}`
-                logger.warn(issue)
-                outputMetaData.issues.push(issue)
-                continue
-              }
-
-              markdown = await getFilePartMarkdownContent({
-                fileId: metadata.input.fileId,
-                libraryId: metadata.input.libraryId,
-                partIndex: metadata.input.itemExtractionIndex,
-                extractionMethod: extractionInfo.extractionMethod,
-                extractionMethodParameter: extractionInfo.extractionMethodParameter,
-              })
-
-              if (!markdown) {
-                const issue = `fullContentSkipped: cannot read part ${metadata.input.itemExtractionIndex} for file ${metadata.input.fileId}`
-                logger.warn(issue)
-                outputMetaData.issues.push(issue)
-                continue
-              }
-            } else {
-              // Whole file - load full file markdown
-              markdown = await getFileMarkdownContent(metadata.input.fileId, metadata.input.libraryId)
-
-              if (!markdown) {
-                const issue = `fullContentSkipped: no markdown found for file ${metadata.input.fileId}`
-                logger.warn(issue)
-                outputMetaData.issues.push(issue)
-                continue
-              }
-            }
-
-            // Truncate content if maxContentTokens is specified
-            // Rough estimate: 1 token ≈ 4 characters
-            let content = markdown
-            const maxChars = fullContent.maxContentTokens ? fullContent.maxContentTokens * 4 : undefined
-            if (maxChars && content.length > maxChars) {
+          let content = ''
+          for await (const chunk of markdownReader) {
+            content += chunk.toString('utf-8')
+            if (content.length > maxChars) {
               content = content.slice(0, maxChars) + '...'
-              logger.debug(`Full content truncated from ${markdown.length} to ${maxChars} chars`)
+              break
             }
-
-            messages.push({
-              role: 'user' as const,
-              content: `Here is the complete content from the source file "${metadata.input.fileName}":\n${content}`,
-            })
-
-            // Store full content in output metadata
-            outputMetaData.fullContent = {
-              fileName: metadata.input.fileName,
-              content,
-            }
-          } catch (error) {
-            const issue = `fullContentFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-            logger.warn(issue)
-            outputMetaData.issues.push(issue)
           }
+
+          messages.push({
+            role: 'user' as const,
+            content: `Here is the complete content from the source file "${metadata.input.fileName}":\n${content}`,
+          })
+
+          // Store full content in output metadata
+          outputMetaData.fullContent = {
+            fileName: metadata.input.fileName,
+            content,
+          }
+        } catch (error) {
+          const issue = `fullContentFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          logger.warn(issue)
+          outputMetaData.issues.push(issue)
         }
       }
 

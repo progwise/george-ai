@@ -1,6 +1,6 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessListOrThrow } from './../../domain'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 import { builder } from './../builder'
 
 // Context source input for field references or external context
@@ -44,12 +44,13 @@ builder.mutationField('addListField', (t) =>
       listId: t.arg.string({ required: true }),
       data: t.arg({ type: AiListFieldInput, required: true }),
     },
-    resolve: async (query, _source, { listId, data }, { session }) => {
+    resolve: async (query, _source, { listId, data }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+
       const existingList = await prisma.aiList.findFirstOrThrow({
         where: { id: listId },
       })
-      await canAccessListOrThrow(existingList.id, session.user.id)
-
       const newField = await prisma.aiListField.create({
         ...query,
         data: {
@@ -93,11 +94,9 @@ builder.mutationField('updateListField', (t) =>
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiListFieldInput, required: true }),
     },
-    resolve: async (query, _source, { id, data }, { session }) => {
-      const existingField = await prisma.aiListField.findFirstOrThrow({
-        where: { id },
-      })
-      await canAccessListOrThrow(existingField.listId, session.user.id)
+    resolve: async (query, _source, { id, data }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
 
       const updatedField = await prisma.aiListField.update({
         ...query,
@@ -147,12 +146,13 @@ builder.mutationField('removeListField', (t) =>
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { id }, { session }) => {
+    resolve: async (query, _source, { id }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
       const existingField = await prisma.aiListField.findFirstOrThrow({
         ...query,
         where: { id },
       })
-      await canAccessListOrThrow(existingField.listId, session.user.id)
 
       await prisma.aiListField.delete({ where: { id } })
       return existingField
@@ -182,7 +182,10 @@ builder.mutationField('computeFieldValue', (t) =>
       fieldId: t.arg.string({ required: true }),
       itemId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { fieldId, itemId }, { session }) => {
+    resolve: async (_source, { fieldId, itemId }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
+
       try {
         // Get the field
         const field = await prisma.aiListField.findFirst({
@@ -191,7 +194,6 @@ builder.mutationField('computeFieldValue', (t) =>
         if (!field) {
           throw new Error(`Field with id ${fieldId} not found`)
         }
-        await canAccessListOrThrow(field.listId, session.user.id)
 
         // Only compute for LLM fields
         if (field.sourceType !== 'llm_computed') {
@@ -205,7 +207,6 @@ builder.mutationField('computeFieldValue', (t) =>
         })
 
         // Check access to the list
-        await canAccessListOrThrow(field.listId, session.user.id)
 
         // TODO: Read the converted.md file content and use LLM to compute the value
         // For now, return a placeholder

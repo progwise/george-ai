@@ -97,7 +97,7 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="join-vertical join w-full bg-base-100">
+          <div className="join join-vertical w-full bg-base-100">
             {tasks.map((task, index) => (
               <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={true} />
             ))}

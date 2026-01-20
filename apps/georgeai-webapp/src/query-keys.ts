@@ -37,4 +37,8 @@ export const queryKeys = {
   AutomationItem: 'AutomationItem',
   AutomationItems: 'AutomationItems',
   AutomationBatches: 'AutomationBatches',
+  // Workspace Stats
+  WorkspaceWorkerStatistics: 'WorkspaceWorkerStatistics',
+  // Workers
+  WorkspaceWorkers: 'WorkspaceWorkers',
 }

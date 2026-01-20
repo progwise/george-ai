@@ -5,6 +5,7 @@ import { prisma } from '@george-ai/app-domain'
 
 import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
 import { builder } from '../builder'
+import { canAdminWorkspaceOrThrow, canReadWorkspaceOrThrow } from '../workspace'
 
 // Input type for creating/updating AI service providers
 const AiServiceProviderInput = builder.inputType('AiServiceProviderInput', {
@@ -28,6 +29,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
     },
     resolve: async (query, _source, { data }, context) => {
       const userId = context.session.user.id
+      await canAdminWorkspaceOrThrow(context.workspaceId, userId)
 
       // Check for duplicate name within same provider type
       const existing = await prisma.aiServiceProvider.findFirst({
@@ -90,6 +92,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
     },
     resolve: async (query, _source, { id, data }, context) => {
       const userId = context.session.user.id
+      await canAdminWorkspaceOrThrow(context.workspaceId, userId)
 
       // Verify provider exists and belongs to workspace
       const existing = await prisma.aiServiceProvider.findFirst({
@@ -171,6 +174,7 @@ builder.mutationField('toggleAiServiceProvider', (t) =>
     },
     resolve: async (query, _source, { id, enabled }, context) => {
       const userId = context.session.user.id
+      await canAdminWorkspaceOrThrow(context.workspaceId, userId)
 
       // Verify provider exists and belongs to workspace
       const existing = await prisma.aiServiceProvider.findFirst({
@@ -225,6 +229,7 @@ builder.mutationField('deleteAiServiceProvider', (t) =>
       id: t.arg.id({ required: true }),
     },
     resolve: async (_source, { id }, context) => {
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       // Verify provider exists and belongs to workspace
       const existing = await prisma.aiServiceProvider.findFirst({
         where: {
@@ -290,6 +295,8 @@ builder.mutationField('restoreDefaultProviders', (t) =>
     type: RestoreDefaultProvidersResult,
     nullable: false,
     resolve: async (_source, _args, context) => {
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       const userId = context.session.user.id
       const workspaceId = context.workspaceId
       const providersToCreate: Array<{
@@ -433,6 +440,8 @@ builder.mutationField('testProviderConnection', (t) =>
       data: t.arg({ type: TestProviderConnectionInput, required: true }),
     },
     resolve: async (_source, { data }, context) => {
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       try {
         // If providerId is given, fetch stored credentials to use as fallback
         let storedProvider = null

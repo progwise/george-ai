@@ -7,6 +7,7 @@ import { BuildingOfficeIcon } from '../../../icons/building-office-icon'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { LinkIcon } from '../../../icons/link-icon'
 import { ListViewIcon } from '../../../icons/list-view-icon'
+import { ProcessingIcon } from '../../../icons/processing-icon'
 import { ServerIcon } from '../../../icons/server-icon'
 import { ShieldCheckIcon } from '../../../icons/shield-check-icon'
 import { UsersIcon } from '../../../icons/users-icon'
@@ -120,6 +121,20 @@ function RouteComponent() {
         >
           <CpuIcon className="mr-2 size-4" />
           {t('admin.manageAiModels')}
+        </Link>
+
+        <Link
+          to="/admin/workers"
+          activeProps={{
+            className: 'tab tab-active [--tab-bg:theme(colors.accent)] [--tab-color:theme(colors.accent-content)]',
+          }}
+          inactiveProps={{
+            className: 'tab hover:bg-base-200/80 transition-colors duration-200',
+          }}
+          activeOptions={{ exact: false }}
+        >
+          <ProcessingIcon className="mr-2 size-4" />
+          {t('admin.manageWorkers')}
         </Link>
 
         <Link

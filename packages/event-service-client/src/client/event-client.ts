@@ -1,26 +1,31 @@
-/**
- * Event Service Client - Provider-agnostic event messaging interface
- *
- * Current implementation: NATS JetStream
- * Future: Can be switched to RabbitMQ, Kafka, etc. without breaking consumers
- */
+export interface EventClientConfig {
+  servers?: string | string[]
+  user?: string
+  pass?: string
+  token?: string
+}
 
-/**
- * Event client interface - all consumers should use this, not NATS directly
- */
 export interface EventClient {
-  /**
-   * Check if connected to event service
-   */
   isConnected(): Promise<boolean>
 
   ensureStream(args: { streamName: string; subjects: string[]; description?: string; persist: boolean }): Promise<void>
 
   deleteStream(name: string): Promise<void>
 
-  getStreamStatistics(params: {
+  ensureConsumer(params: {
     streamName: string
-    subjectFilter: string
+    consumerName: string
+    subjectFilters: string[]
+    timeoutMs: number
+    maxPendingMessages: number
+    maxDeliveryAttempts: number
+  }): Promise<void>
+
+  deleteConsumer(params: { streamName: string; consumerName: string }): Promise<void>
+
+  getStreamStatistics(params: {
+    consumerName: string
+    streamName: string
   }): Promise<{ totalMessages: number; processedMessages: number; pendingMessages: number }>
 
   publish(params: {
@@ -29,17 +34,29 @@ export interface EventClient {
     timeoutMs?: number
   }): Promise<{ streamName: string; msgId: string }>
 
-  /**
-   * Subscribe to workspace events with a consumer group
-   * Returns cleanup function to stop consuming
-   */
+  startWorkerLoop(params: {
+    streamName: string
+    consumerGlobPattern: string
+    handler: ({ payload, error }: { payload: Uint8Array<ArrayBufferLike>; error?: unknown }) => Promise<void>
+  }): Promise<() => Promise<void>>
 
   subscribe(params: {
-    subjectFilters: string[]
     streamName: string
+    consumerName: string
     handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<void>
   }): Promise<() => Promise<void>>
 
+  resumeConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void>
+
+  pauseConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void>
+
+  consumerStatus({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<'paused' | 'running'>
   /**
    * Request/reply pattern for synchronous operations
    */
@@ -75,6 +92,7 @@ export interface EventClient {
 
   delete(params: { bucketName: string; key: string }): Promise<void>
 
+  getKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]>
   /**
    * Disconnect from event service
    */

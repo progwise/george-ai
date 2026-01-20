@@ -2,7 +2,11 @@ import { LibraryManifest } from '../../schemas'
 import { createLibraryDir, getWorkspaceDir } from './directories'
 import { saveLibraryManifest } from './metadata-files'
 
-export async function createLibrary(workspaceId: string, libraryId: string, name: string): Promise<LibraryManifest> {
+export async function createLibrary(
+  workspaceId: string,
+  args: { libraryId: string; name: string },
+): Promise<LibraryManifest> {
+  const { libraryId, name } = args
   const workspaceDir = await getWorkspaceDir(workspaceId)
   const libraryDir = await createLibraryDir(workspaceDir, libraryId)
   const manifest: LibraryManifest = {
@@ -13,12 +17,16 @@ export async function createLibrary(workspaceId: string, libraryId: string, name
     updatedAt: new Date().toISOString(),
     settings: {},
     usage: {
-      activeBytes: 0,
+      sourceBytes: 0,
+      extractedBytes: 0,
       physicalBytes: 0,
-      totalFileCount: 0,
-      lastUpdated: new Date().toISOString(),
-      activeFileCount: 0,
-      integrityState: 'healthy',
+      sourceFiles: 0,
+      extractionFiles: 0,
+      physicalFiles: 0,
+      extractions: 0,
+      activeExtractions: 0,
+      activeExtractedBytes: 0,
+      lastUpdate: new Date().toISOString(),
     },
   }
   await saveLibraryManifest(libraryDir, manifest)

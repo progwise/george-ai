@@ -1,8 +1,8 @@
 import { prisma } from '@george-ai/app-domain'
 import { getFileChunkCount } from '@george-ai/langchain-chat'
 
-import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile FileUsages')
 
@@ -69,14 +69,18 @@ builder.queryField('aiFileUsages', (t) =>
     type: FileUsageQueryResponse,
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
       skip: t.arg.int({ required: true }),
       take: t.arg.int({ required: true }),
     },
-    resolve: async (_source, { fileId, skip, take }, context) => {
+    resolve: async (_source, { libraryId, fileId, skip, take }, { workspaceId, session }) => {
       // Authorization check
-      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
+      const file = await prisma.aiLibraryFile.findFirstOrThrow({
+        where: { id: fileId, libraryId },
+      })
       // Query list items with pagination
       const [count, items] = await prisma.$transaction([
         prisma.aiListItem.count({

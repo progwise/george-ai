@@ -46,16 +46,3 @@ export const deleteLibraryFilesFn = createServerFn({ method: 'POST' })
       data,
     )
   })
-
-export const dropOutdatedMarkdownFilesFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileId: string }) => z.object({ fileId: z.string().nonempty() }).parse(data))
-  .handler(async ({ data }) => {
-    return backendRequest(
-      graphql(`
-        mutation dropOutdatedMarkdownFiles($fileId: String!) {
-          dropOutdatedMarkdowns(fileId: $fileId)
-        }
-      `),
-      data,
-    )
-  })

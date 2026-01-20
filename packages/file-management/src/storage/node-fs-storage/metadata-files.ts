@@ -11,9 +11,9 @@ import {
   WorkspaceManifestSchema,
 } from '../../schemas'
 import { ExtractionMetadata, ExtractionMetadataSchema } from '../../schemas/extraction-metadata'
-import { isNodeError } from './commons'
+import { isNodeError, logger } from './commons'
 
-const getExtractionMetadata = async (extractionPath: string): Promise<ExtractionMetadata> => {
+const getExtractionMetadata = async (extractionPath: string): Promise<ExtractionMetadata | null> => {
   const metadataPath = path.join(extractionPath, 'metadata.json')
   return await getMetadata(metadataPath, ExtractionMetadataSchema)
 }
@@ -23,7 +23,7 @@ const saveExtractionMetadata = async (extractionPath: string, metadata: Extracti
   await saveMetadata(metadataPath, metadata)
 }
 
-const getFileManifest = async (filePath: string): Promise<FileManifest> => {
+const getFileManifest = async (filePath: string): Promise<FileManifest | null> => {
   const manifestPath = path.join(filePath, 'manifest.json')
   return await getMetadata(manifestPath, FileManifestSchema)
 }
@@ -33,7 +33,7 @@ const saveFileManifest = async (filePath: string, manifest: FileManifest): Promi
   await saveMetadata(manifestPath, manifest)
 }
 
-const getLibraryManifest = async (libraryPath: string): Promise<LibraryManifest> => {
+const getLibraryManifest = async (libraryPath: string): Promise<LibraryManifest | null> => {
   const manifestPath = path.join(libraryPath, 'manifest.json')
   return await getMetadata(manifestPath, LibraryManifestSchema)
 }
@@ -43,7 +43,7 @@ const saveLibraryManifest = async (libraryPath: string, manifest: LibraryManifes
   await saveMetadata(manifestPath, manifest)
 }
 
-const getWorkspaceManifest = async (workspacePath: string): Promise<WorkspaceManifest> => {
+const getWorkspaceManifest = async (workspacePath: string): Promise<WorkspaceManifest | null> => {
   const manifestPath = path.join(workspacePath, 'manifest.json')
   return await getMetadata(manifestPath, WorkspaceManifestSchema)
 }
@@ -53,7 +53,7 @@ const saveWorkspaceManifest = async (workspacePath: string, manifest: WorkspaceM
   await saveMetadata(manifestPath, manifest)
 }
 
-const getMetadata = async <T extends z.ZodSchema>(metadataPath: string, schema: T): Promise<z.infer<T>> => {
+const getMetadata = async <T extends z.ZodSchema>(metadataPath: string, schema: T): Promise<z.infer<T> | null> => {
   try {
     // access() is the promise-based alternative to existsSync
     await access(metadataPath)
@@ -63,11 +63,10 @@ const getMetadata = async <T extends z.ZodSchema>(metadataPath: string, schema: 
     return schema.parse(parsed)
   } catch (error) {
     if (isNodeError(error) && error.code === 'ENOENT') {
-      console.error(`Metadata file not found at ${metadataPath}`)
-      throw error
+      return null
     }
     if (error instanceof z.ZodError) {
-      console.error(`Extraction metadata at ${metadataPath} is invalid:`, error.errors)
+      logger.error(`Extraction metadata is invalid:`, { metadataPath, errors: error.errors })
       throw error
     }
     throw error

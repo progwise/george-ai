@@ -2,13 +2,9 @@ import { GraphQLError } from 'graphql'
 
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
-import {
-  createContentProcessingTask,
-  createEmbeddingOnlyTask,
-} from '../../domain/content-extraction/content-extraction-task'
-import { canAccessFileOrThrow } from '../../domain/file'
+import { createContentProcessingTask } from '../../domain/content-extraction/content-extraction-task'
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiFileContentExtractionTask Mutations')
 
@@ -18,18 +14,18 @@ builder.mutationField('createContentProcessingTask', (t) =>
     type: 'AiContentProcessingTask',
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { fileId }, context) => {
+    resolve: async (query, _parent, { fileId, libraryId }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       // Check permissions
-      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
-
       try {
         // Create default extraction tasks for this file
         const tasks = await createContentProcessingTask({
           fileId,
           query,
-          libraryId: file.libraryId,
+          libraryId: libraryId,
         })
 
         return tasks
@@ -40,42 +36,19 @@ builder.mutationField('createContentProcessingTask', (t) =>
   }),
 )
 
-// Create embedding-only task using existing markdown (replaces old synchronous embedFile)
-builder.mutationField('createEmbeddingTask', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiContentProcessingTask',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-      existingTaskId: t.arg.string({ required: false }),
-    },
-    resolve: async (query, _parent, { fileId, existingTaskId }, context) => {
-      // Check permissions
-      await canAccessFileOrThrow(fileId, context.session.user.id)
-
-      // Create embedding-only task
-      const task = await createEmbeddingOnlyTask(fileId, { existingTaskId, query })
-
-      return task
-    },
-  }),
-)
-
 builder.mutationField('cancelProcessingTask', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiContentProcessingTask',
     nullable: false,
     args: {
       taskId: t.arg.string({ required: true }),
-      fileId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { taskId, fileId }, context) => {
-      // Check permissions
-      await canAccessFileOrThrow(fileId, context.session.user.id)
+    resolve: async (query, _parent, { taskId, libraryId }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
-      // Create embedding-only task
       const task = await prisma.aiContentProcessingTask.update({
-        where: { id: taskId },
+        where: { id: taskId, libraryId },
         data: { processingCancelled: true },
         ...query,
       })
@@ -93,8 +66,7 @@ builder.mutationField('createMissingContentExtractionTasks', (t) =>
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (query, _parent, { libraryId }, context) => {
-      // Check permissions
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       const files = await prisma.aiLibraryFile.findMany({
         where: {
@@ -129,7 +101,7 @@ builder.mutationField('dropPendingTasks', (t) =>
     },
     resolve: async (_parent, { libraryId }, context) => {
       // Check permissions
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       const result = await prisma.aiContentProcessingTask.deleteMany({
         where: {

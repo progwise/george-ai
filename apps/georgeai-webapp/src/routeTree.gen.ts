@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedLibrariesAuthGoogleRouteImport } from './routes/_authenticated/libraries/auth-google'
 import { Route as AuthenticatedConversationsConversationIdRouteImport } from './routes/_authenticated/conversations/$conversationId'
 import { Route as AuthenticatedAssistantsAssistantIdRouteImport } from './routes/_authenticated/assistants/$assistantId'
+import { Route as AuthenticatedAdminWorkersRouteImport } from './routes/_authenticated/admin/workers'
 import { Route as AuthenticatedAdminQueuesRouteImport } from './routes/_authenticated/admin/queues'
 import { Route as AuthenticatedAdminConnectorsRouteImport } from './routes/_authenticated/admin/connectors'
 import { Route as AuthenticatedAdminAiServicesRouteImport } from './routes/_authenticated/admin/ai-services'
@@ -152,6 +153,12 @@ const AuthenticatedAssistantsAssistantIdRoute =
     id: '/assistants/$assistantId',
     path: '/assistants/$assistantId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminWorkersRoute =
+  AuthenticatedAdminWorkersRouteImport.update({
+    id: '/workers',
+    path: '/workers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminQueuesRoute =
   AuthenticatedAdminQueuesRouteImport.update({
@@ -410,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/admin/connectors': typeof AuthenticatedAdminConnectorsRoute
   '/admin/queues': typeof AuthenticatedAdminQueuesRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -461,6 +469,7 @@ export interface FileRoutesByTo {
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/admin/connectors': typeof AuthenticatedAdminConnectorsRoute
   '/admin/queues': typeof AuthenticatedAdminQueuesRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -515,6 +524,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
   '/_authenticated/admin/connectors': typeof AuthenticatedAdminConnectorsRoute
   '/_authenticated/admin/queues': typeof AuthenticatedAdminQueuesRoute
+  '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/admin/ai-services'
     | '/admin/connectors'
     | '/admin/queues'
+    | '/admin/workers'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
@@ -624,6 +635,7 @@ export interface FileRouteTypes {
     | '/admin/ai-services'
     | '/admin/connectors'
     | '/admin/queues'
+    | '/admin/workers'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
@@ -677,6 +689,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/ai-services'
     | '/_authenticated/admin/connectors'
     | '/_authenticated/admin/queues'
+    | '/_authenticated/admin/workers'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$conversationId'
     | '/_authenticated/libraries/auth-google'
@@ -840,6 +853,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/assistants/$assistantId'
       preLoaderRoute: typeof AuthenticatedAssistantsAssistantIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/workers': {
+      id: '/_authenticated/admin/workers'
+      path: '/workers'
+      fullPath: '/admin/workers'
+      preLoaderRoute: typeof AuthenticatedAdminWorkersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/queues': {
       id: '/_authenticated/admin/queues'
@@ -1122,6 +1142,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAiServicesRoute: typeof AuthenticatedAdminAiServicesRoute
   AuthenticatedAdminConnectorsRoute: typeof AuthenticatedAdminConnectorsRoute
   AuthenticatedAdminQueuesRoute: typeof AuthenticatedAdminQueuesRoute
+  AuthenticatedAdminWorkersRoute: typeof AuthenticatedAdminWorkersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
   AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
@@ -1133,6 +1154,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminAiServicesRoute: AuthenticatedAdminAiServicesRoute,
     AuthenticatedAdminConnectorsRoute: AuthenticatedAdminConnectorsRoute,
     AuthenticatedAdminQueuesRoute: AuthenticatedAdminQueuesRoute,
+    AuthenticatedAdminWorkersRoute: AuthenticatedAdminWorkersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
     AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,

@@ -3,10 +3,11 @@ import { GraphQLError } from 'graphql'
 import { prisma } from '@george-ai/app-domain'
 
 import { deleteFile } from '../../domain'
-import { canAccessLibraryOrThrow, runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
+import { runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCredentialsInput', {
   fields: (t) => ({
@@ -43,7 +44,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
     resolve: async (_query, _source, { libraryId, data, credentials }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, crawlerConfig, ...input } = data
 
@@ -97,7 +98,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       }
 
       if (crawler.cronJob) {
-        await upsertCronJob(crawler.cronJob)
+        await upsertCronJob(context.workspaceId, crawler.cronJob)
       }
 
       return crawler
@@ -115,13 +116,13 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
     resolve: async (query, _source, { id, data, credentials }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       const { cronJob, includePatterns, excludePatterns, allowedMimeTypes, crawlerConfig, ...input } = data
       const existingCrawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
         ...query,
         where: { id },
         include: { ...query.include, cronJob: true },
       })
-      await canAccessLibraryOrThrow(existingCrawler?.libraryId, context.session.user.id)
 
       if (data.uriType === 'http') {
         await removeCrawlerCredentials(id)
@@ -175,7 +176,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       })
 
       if (crawler.cronJob) {
-        await upsertCronJob(crawler.cronJob)
+        await upsertCronJob(context.workspaceId, crawler.cronJob)
       }
 
       return crawler
@@ -191,7 +192,8 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
       crawlerId: t.arg.string({ required: true }),
     },
     resolve: async (_source, { crawlerId }, context) => {
-      const run = await runCrawler({ crawlerId, userId: context.session.user.id })
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+      const run = await runCrawler({ workspaceId: context.workspaceId, crawlerId, userId: context.session.user.id })
       return run.id
     },
   }),
@@ -205,7 +207,8 @@ builder.mutationField('stopAiLibraryCrawler', (t) =>
       crawlerId: t.arg.string(),
     },
     resolve: async (_source, { crawlerId }, context) => {
-      const run = await stopCrawler({ crawlerId, userId: context.session.user.id })
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+      const run = await stopCrawler({ workspaceId: context.workspaceId, crawlerId, userId: context.session.user.id })
       return run.id
     },
   }),
@@ -218,13 +221,17 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { id }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
         where: { id },
         include: { cronJob: true, files: true },
       })
-      await canAccessLibraryOrThrow(crawler.libraryId, context.session.user.id)
 
-      await Promise.all(crawler.files.map((file) => deleteFile(file.id, file.libraryId)))
+      await Promise.all(
+        crawler.files.map((file) =>
+          deleteFile({ workspaceId: context.workspaceId, libraryId: crawler.libraryId, fileId: file.id }),
+        ),
+      )
       await prisma.aiLibraryCrawler.delete({ where: { id } })
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)

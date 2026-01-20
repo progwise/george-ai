@@ -32,7 +32,7 @@
     "@eslint/js": "^9.16.0",
     "@george-ai/package-configs": "workspace:*",
     "@types/mailparser": "^3.4.6",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.13.8",
     "dotenv": "^16.4.5",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",

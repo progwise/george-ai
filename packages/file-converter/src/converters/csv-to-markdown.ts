@@ -99,6 +99,7 @@ export async function transformCsvToMarkdown(
   })
 
   // Streaming CSV parser
+  // TODO: Use file-storage with the new streaming API
   const readStream = createReadStream(csvPath)
   const parser = readStream.pipe(
     parse({

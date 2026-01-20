@@ -1,9 +1,11 @@
-import { readdir, stat } from 'node:fs/promises'
+import { promises } from 'node:fs'
 import path from 'node:path'
 import pLimit from 'p-limit'
 
-import { StorageStats } from '../../schemas'
+import { StorageUsage } from '../../schemas'
+import { EXTRACTIONS_DIR_NAME, SOURCE_FILE_NAME } from './commons'
 import { getFileDir, getFolderStats, getLibraryDir, getWorkspaceDir } from './directories'
+import { getSourceHash } from './get-source-hash'
 import {
   getExtractionMetadata,
   getFileManifest,
@@ -14,86 +16,100 @@ import {
   saveWorkspaceManifest,
 } from './metadata-files'
 
-export async function reconcile(workspaceId: string, libraryId?: string, fileId?: string): Promise<StorageStats> {
+const { readdir, stat } = promises
+
+export async function reconcile(
+  workspaceId: string,
+  options: { libraryId?: string; fileId?: string },
+): Promise<StorageUsage> {
+  const { libraryId, fileId } = options
   if (fileId && !libraryId) {
     throw new Error('libraryId must be provided if fileId is provided')
   }
   if (fileId && libraryId) {
     const fileDir = await getFileDir(workspaceId, libraryId, fileId)
-    const stats = await reconcileFile(fileDir)
-    return stats
+    const usage = await reconcileFile(fileDir)
+    return usage
   }
   if (libraryId) {
     const libraryDir = await getLibraryDir(workspaceId, libraryId)
-    const stats = await reconcileLibrary(libraryDir)
-    return stats
+    const usage = await reconcileLibrary(libraryDir)
+    return usage
   }
   const workspaceDir = await getWorkspaceDir(workspaceId)
   return await reconcileWorkspace(workspaceDir)
 }
 
-async function reconcileFile(fileDirPath: string): Promise<StorageStats> {
+async function reconcileFile(fileDirPath: string): Promise<StorageUsage> {
   const fileManifest = await getFileManifest(fileDirPath)
+  if (!fileManifest) {
+    throw new Error(`File manifest not found for file dir: ${fileDirPath}`)
+  }
+  fileManifest.sourceHash = await getSourceHash(fileDirPath)
+  const methods = await readdir(path.join(fileDirPath, EXTRACTIONS_DIR_NAME)).catch(() => [])
 
-  const sourcePath = path.join(fileDirPath, 'source')
-  const sourceStats = await stat(sourcePath).catch(() => ({ size: 0 }))
+  const fileDirStats = await getFolderStats(fileDirPath)
+  const sourceFileStats = await stat(path.join(fileDirPath, SOURCE_FILE_NAME)).catch(() => ({ size: 0 }))
 
-  let physicalBytes = sourceStats.size
-  let activeBytes = sourceStats.size
-  let physicalFiles = 1 // The source file
-  let activeFiles = 1
+  const newUsage: StorageUsage = {
+    sourceBytes: sourceFileStats.size,
+    extractedBytes: fileDirStats.diskSize - sourceFileStats.size,
+    physicalBytes: fileDirStats.diskSize,
+    sourceFiles: 1,
+    physicalFiles: fileDirStats.fileCount,
+    extractions: 0,
+    activeExtractions: 0,
+    activeExtractedBytes: 0,
+    extractionFiles: 0,
+  }
 
-  const extractionsDir = path.join(fileDirPath, 'extractions')
-  const methods = await readdir(extractionsDir).catch(() => [])
+  const extractionMetas = await Promise.all(
+    methods.map((methodId) =>
+      getExtractionMetadata(path.join(fileDirPath, 'extractions', methodId)).then((meta) =>
+        meta === null ? Promise.reject(new Error(`Extraction metadata not found for method dir: ${methodId}`)) : meta,
+      ),
+    ),
+  )
 
-  for (const methodId of methods) {
-    const methodPath = path.join(extractionsDir, methodId)
-    const meta = await getExtractionMetadata(methodPath)
-    if (!meta) continue
-
-    const { diskSize, fileCount } = await getFolderStats(methodPath)
-
-    physicalBytes += diskSize
-    physicalFiles += fileCount
-
-    // Truth Check: If hashes match, it is active
-    if (meta.sourceHashAtExecution === fileManifest.currentSourceHash) {
-      activeBytes += diskSize
-      activeFiles += fileCount
+  for (const extractionMeta of extractionMetas) {
+    newUsage.extractionFiles += extractionMeta.extractionFiles
+    newUsage.extractions += 1
+    newUsage.extractedBytes += extractionMeta.extractedBytes
+    if (fileManifest.sourceHash === extractionMeta.sourceHash) {
+      newUsage.activeExtractedBytes += extractionMeta.extractedBytes
+      newUsage.activeExtractions += 1
     }
   }
 
-  const updatedStats: StorageStats = {
-    activeBytes,
-    physicalBytes,
-    activeFileCount: activeFiles,
-    totalFileCount: physicalFiles,
-    lastUpdated: new Date().toISOString(),
-    lastFullScan: new Date().toISOString(),
-    integrityState: 'reconciled',
-  }
-
   // Update manifest with new truth
-  fileManifest.usage = { ...fileManifest.usage, ...updatedStats }
+  fileManifest.usage = {
+    ...fileManifest.usage,
+    ...newUsage,
+    ...{ lastReconcile: new Date().toISOString(), lastUpdate: new Date().toISOString() },
+  }
   await saveFileManifest(fileDirPath, fileManifest)
 
-  return updatedStats
+  return fileManifest.usage
 }
 
 const limit = pLimit(20)
 
-async function reconcileLibrary(libDirPath: string): Promise<StorageStats> {
+async function reconcileLibrary(libDirPath: string): Promise<StorageUsage> {
   const filesDir = path.join(libDirPath, 'files')
   const fileIds = await readdir(filesDir).catch(() => [])
 
-  const totals: StorageStats = {
-    activeBytes: 0,
-    physicalBytes: 0,
-    activeFileCount: 0,
-    totalFileCount: 0,
-    lastUpdated: new Date().toISOString(),
-    lastFullScan: new Date().toISOString(),
-    integrityState: 'reconciled',
+  const libraryDirStats = await getFolderStats(libDirPath)
+
+  const newUsage: StorageUsage = {
+    sourceBytes: 0,
+    extractedBytes: 0,
+    physicalBytes: libraryDirStats.diskSize,
+    sourceFiles: 0,
+    physicalFiles: libraryDirStats.fileCount,
+    extractions: 0,
+    activeExtractions: 0,
+    activeExtractedBytes: 0,
+    extractionFiles: 0,
   }
 
   const filePromises = fileIds.map((fId) =>
@@ -106,47 +122,69 @@ async function reconcileLibrary(libDirPath: string): Promise<StorageStats> {
   const fileStats = await Promise.all(filePromises)
 
   for (const stats of fileStats) {
-    totals.activeBytes += stats.activeBytes
-    totals.physicalBytes += stats.physicalBytes
-    totals.activeFileCount += stats.activeFileCount
-    totals.totalFileCount += stats.totalFileCount
+    newUsage.sourceBytes += stats.sourceBytes
+    newUsage.extractedBytes += stats.extractedBytes
+    newUsage.activeExtractedBytes += stats.activeExtractedBytes
+    newUsage.sourceFiles += stats.sourceFiles
+    newUsage.extractions += stats.extractions
+    newUsage.activeExtractions += stats.activeExtractions
+    newUsage.extractionFiles += stats.extractionFiles
   }
 
   const libraryManifest = await getLibraryManifest(libDirPath)
-  libraryManifest.usage = totals
+  if (!libraryManifest) {
+    throw new Error(`Library manifest not found for library dir: ${libDirPath}`)
+  }
+  libraryManifest.usage = {
+    ...libraryManifest.usage,
+    ...newUsage,
+    ...{ lastReconcile: new Date().toISOString(), lastUpdate: new Date().toISOString() },
+  }
   await saveLibraryManifest(libDirPath, libraryManifest)
 
-  return totals
+  return libraryManifest.usage
 }
 
-async function reconcileWorkspace(workspaceDirPath: string): Promise<StorageStats> {
+async function reconcileWorkspace(workspaceDirPath: string): Promise<StorageUsage> {
   const librariesDir = path.join(workspaceDirPath, 'libraries')
   const libraryIds = await readdir(librariesDir).catch(() => [])
 
-  const totals: StorageStats = {
-    activeBytes: 0,
-    physicalBytes: 0,
-    activeFileCount: 0,
-    totalFileCount: 0,
-    lastUpdated: new Date().toISOString(),
-    lastFullScan: new Date().toISOString(),
-    integrityState: 'reconciled',
+  const workspaceDirStats = await getFolderStats(workspaceDirPath)
+
+  const newUsage: StorageUsage = {
+    sourceBytes: 0,
+    extractedBytes: 0,
+    physicalBytes: workspaceDirStats.diskSize,
+    sourceFiles: 0,
+    physicalFiles: workspaceDirStats.fileCount,
+    extractions: 0,
+    activeExtractions: 0,
+    activeExtractedBytes: 0,
+    extractionFiles: 0,
   }
 
   for (const libId of libraryIds) {
     const libPath = path.join(librariesDir, libId)
     const stats = await reconcileLibrary(libPath)
-    totals.activeBytes += stats.activeBytes
-    totals.physicalBytes += stats.physicalBytes
-    totals.activeFileCount += stats.activeFileCount
-    totals.totalFileCount += stats.totalFileCount
+    newUsage.sourceBytes += stats.sourceBytes
+    newUsage.extractedBytes += stats.extractedBytes
+    newUsage.activeExtractedBytes += stats.activeExtractedBytes
+    newUsage.sourceFiles += stats.sourceFiles
+    newUsage.extractions += stats.extractions
+    newUsage.activeExtractions += stats.activeExtractions
+    newUsage.extractionFiles += stats.extractionFiles
   }
 
   const manifest = await getWorkspaceManifest(workspaceDirPath)
-  await saveWorkspaceManifest(workspaceDirPath, {
-    ...manifest,
-    usage: totals,
-  })
+  if (!manifest) {
+    throw new Error(`Workspace manifest not found for workspace dir: ${workspaceDirPath}`)
+  }
+  manifest.usage = {
+    ...manifest.usage,
+    ...newUsage,
+    ...{ lastReconcile: new Date().toISOString(), lastUpdate: new Date().toISOString() },
+  }
+  await saveWorkspaceManifest(workspaceDirPath, manifest)
 
-  return totals
+  return manifest.usage
 }

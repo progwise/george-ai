@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLanguageModel Queries')
 
@@ -297,6 +298,8 @@ builder.queryField('aiLanguageModels', (t) =>
       showDisabled: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: async (_parent, args, ctx) => {
+      await canWriteWorkspaceOrThrow(ctx.workspaceId, ctx.session.user.id)
+
       return {
         take: args.take ?? 20,
         skip: args.skip ?? 0,
@@ -351,7 +354,8 @@ builder.queryField('aiModelUsageStats', (t) =>
       endDate: t.arg({ type: 'DateTime', required: false }),
     },
     resolve: async (_parent, args, ctx) => {
-      // Filter by workspace through model relation
+      await canWriteWorkspaceOrThrow(ctx.workspaceId, ctx.session.user.id)
+
       const where = {
         model: {
           workspaceId: ctx.workspaceId,
@@ -415,6 +419,8 @@ builder.queryField('aiModelUsageByType', (t) =>
       endDate: t.arg({ type: 'DateTime', required: false }),
     },
     resolve: async (_parent, args, ctx) => {
+      await canWriteWorkspaceOrThrow(ctx.workspaceId, ctx.session.user.id)
+
       const where = {
         model: {
           workspaceId: ctx.workspaceId,

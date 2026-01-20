@@ -2,8 +2,8 @@ import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import { prisma } from '@george-ai/app-domain'
 import { getFileChunks, getSimilarChunks, querySimilarChunks } from '@george-ai/langchain-chat'
 
-import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile FileChunks')
 
@@ -21,6 +21,7 @@ interface FileChunkType {
   points?: number
   part?: number
 }
+
 export const FileChunk = builder.objectRef<FileChunkType>('FileChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
@@ -71,13 +72,18 @@ builder.queryField('aiFileChunks', (t) =>
     type: FileChunkQueryResponse,
     nullable: false,
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
       take: t.arg.int({ required: true }),
       skip: t.arg.int({ required: true }),
       part: t.arg.int({ required: false }),
     },
-    resolve: async (_source, { fileId, skip, take, part }, context) => {
-      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+    resolve: async (_source, { libraryId, fileId, skip, take, part }, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+
+      const file = await prisma.aiLibraryFile.findFirstOrThrow({
+        where: { id: fileId, libraryId },
+      })
 
       const result = await getFileChunks({
         libraryId: file.libraryId,
@@ -104,18 +110,19 @@ builder.queryField('aiSimilarFileChunks', (t) =>
     type: [FileChunk],
     nullable: { items: false, list: false },
     args: {
+      libraryId: t.arg.string({ required: true }),
       fileId: t.arg.string({ required: true }),
       term: t.arg.string({ required: false }),
       hits: t.arg.int({ required: false, defaultValue: 20 }),
       part: t.arg.int({ required: false }),
       useQuery: t.arg.boolean({ required: false, defaultValue: false }),
     },
-    resolve: async (_source, { fileId, term, hits, part, useQuery }, context) => {
-      const file = await canAccessFileOrThrow(fileId, context.session.user.id)
+    resolve: async (_source, { libraryId, fileId, term, hits, part, useQuery }, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
       // Load library with embeddingModel relation
       const library = await prisma.aiLibrary.findUniqueOrThrow({
-        where: { id: file.libraryId },
+        where: { id: libraryId },
         select: {
           id: true,
           workspaceId: true,
@@ -123,9 +130,12 @@ builder.queryField('aiSimilarFileChunks', (t) =>
         },
       })
 
+      // THIS IS INTERESTING: WE COULD ASK VectorStore which vectors are available for this fileId instead of looking at the library config
+      // BUT: How to create the query vectors ? The only one with access should be the ai-service-worker now. Request/Response with the service worker ?
+
       if (!library.embeddingModel) {
         throw new Error(
-          `Cannot perform similarity search. Library ${file.libraryId} does not have an embedding model configured.`,
+          `Cannot perform similarity search. Library ${libraryId} does not have an embedding model configured.`,
         )
       }
 
@@ -136,7 +146,7 @@ builder.queryField('aiSimilarFileChunks', (t) =>
       if (useQuery) {
         return await querySimilarChunks({
           fileId,
-          libraryId: file.libraryId,
+          libraryId,
           term,
           hits: hits || undefined,
           part: part ?? null,
@@ -146,7 +156,7 @@ builder.queryField('aiSimilarFileChunks', (t) =>
       const result = await getSimilarChunks({
         workspaceId: library.workspaceId,
         fileId,
-        libraryId: file.libraryId,
+        libraryId,
         embeddingsModelProvider: library.embeddingModel.provider as ServiceProviderType,
         embeddingsModelName: library.embeddingModel.name,
         term,

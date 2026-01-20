@@ -1,24 +1,34 @@
-import { rename } from 'node:fs/promises'
+import { promises } from 'node:fs'
 
 import { getLibraryDir, getWorkspaceDir } from './directories'
 import { getLibraryManifest } from './metadata-files'
-import { workspaceSizeUpdate } from './size-update'
+import { workspaceUsageUpdate } from './usage-update'
 
-export async function moveLibrary(libraryId: string, fromWorkspaceId: string, toWorkspaceId: string): Promise<void> {
+const { rename } = promises
+
+export async function moveLibrary(args: {
+  libraryId: string
+  fromWorkspaceId: string
+  toWorkspaceId: string
+}): Promise<void> {
+  const { libraryId, fromWorkspaceId, toWorkspaceId } = args
   const libraryDir = await getLibraryDir(fromWorkspaceId, libraryId)
   const libraryManifest = await getLibraryManifest(libraryDir)
+  if (!libraryManifest) {
+    throw new Error(`Library manifest not found for library dir: ${libraryDir}`)
+  }
   const toWorkspaceDir = await getWorkspaceDir(toWorkspaceId)
   const fromWorkspaceDir = await getWorkspaceDir(fromWorkspaceId)
 
   await rename(libraryDir, toWorkspaceDir + '/libraries/' + libraryId)
 
-  await workspaceSizeUpdate(fromWorkspaceDir, {
-    bytes: -libraryManifest.usage.activeBytes,
-    files: -libraryManifest.usage.totalFileCount,
+  await workspaceUsageUpdate(fromWorkspaceDir, {
+    usage: libraryManifest.usage,
+    operation: 'subtract',
   })
 
-  await workspaceSizeUpdate(toWorkspaceDir, {
-    bytes: libraryManifest.usage.activeBytes,
-    files: libraryManifest.usage.totalFileCount,
+  await workspaceUsageUpdate(toWorkspaceDir, {
+    usage: libraryManifest.usage,
+    operation: 'add',
   })
 }

@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 const LibrarySortOrder = builder.enumType('LibrarySortOrder', {
   values: ['nameAsc', 'nameDesc', 'createdAtAsc', 'createdAtDesc', 'updatedAtAsc', 'updatedAtDesc'] as const,
@@ -14,6 +15,7 @@ builder.queryField('aiLibrary', (t) =>
     },
     nullable: false,
     resolve: async (query, _source, { libraryId }, context) => {
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       // Any workspace member can access libraries in their workspace
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
@@ -31,8 +33,10 @@ builder.queryField('aiLibraries', (t) =>
     args: {
       orderBy: t.arg({ type: LibrarySortOrder, required: false }),
     },
-    resolve: (query, _source, args, context) => {
+    resolve: async (query, _source, args, context) => {
       const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
+
       const orderBy = args.orderBy || 'updatedAtDesc'
       const orderByClause =
         orderBy === 'nameAsc'

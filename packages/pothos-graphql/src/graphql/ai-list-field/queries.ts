@@ -1,7 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { getAccessLibraryWhere, getCanAccessListWhere } from '../../domain'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 const ContentQueryResult = builder.simpleObject('ContentQueryResult', {
   fields: (t) => ({
@@ -23,8 +23,8 @@ builder.queryField('aiContentQueries', (t) =>
       libraryId: t.arg.string({ required: false }),
     },
     resolve: async (_root, args, context) => {
-      const listAccessWhere = getCanAccessListWhere(context.workspaceId)
-      const libraryAccessWhere = getAccessLibraryWhere(context.workspaceId)
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
 
       const fieldContextItems = await prisma.aiListFieldContext.findMany({
         select: {
@@ -35,8 +35,7 @@ builder.queryField('aiContentQueries', (t) =>
         where: {
           AND: [
             { contextType: 'vectorSearch' },
-            { field: { list: listAccessWhere } },
-            { field: { list: { sources: { some: { library: libraryAccessWhere } } } } },
+            { field: { list: { sources: { some: { library: { workspaceId: context.workspaceId } } } } } },
             args.listId ? { field: { listId: args.listId } } : {},
             args.libraryId ? { field: { list: { sources: { some: { libraryId: { equals: args.libraryId } } } } } } : {},
           ],

@@ -1,7 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { requireWorkspaceAdmin } from '../../domain/workspace'
-import { canAccessListOrThrow, createListItemsForSource } from './../../domain'
+import { canAdminWorkspaceOrThrow, canWriteWorkspaceOrThrow } from '../workspace'
+import { createListItemsForSource } from './../../domain'
 import { builder } from './../builder'
 
 console.log('Setting up: AiList mutations')
@@ -20,6 +20,8 @@ builder.mutationField('createList', (t) =>
       data: t.arg({ type: AiListInput, required: true }),
     },
     resolve: async (query, _source, { data }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
       const existingList = await prisma.aiList.findFirst({
         where: { ownerId: context.session.user.id, name: data.name, workspaceId: context.workspaceId },
       })
@@ -42,14 +44,9 @@ builder.mutationField('updateList', (t) =>
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiListInput, required: true }),
     },
-    resolve: async (query, _source, { id, data }, { session }) => {
-      const existingList = await prisma.aiList.findFirst({
-        where: { ownerId: session.user.id, id },
-      })
-      if (!existingList) {
-        throw new Error(`List for current user with id ${id} not found`)
-      }
-      await canAccessListOrThrow(existingList.id, session.user.id)
+    resolve: async (query, _source, { id, data }, context) => {
+      const workspaceId = context.workspaceId
+      await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
       const updatedList = await prisma.aiList.update({ ...query, data, where: { id } })
       return updatedList
     },
@@ -64,8 +61,7 @@ builder.mutationField('deleteList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, { session, workspaceId }) => {
-      // Only owner can delete a list
-      await requireWorkspaceAdmin(workspaceId, session.user.id)
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
 
       const result = await prisma.$transaction(async (prisma) => {
         // Delete related data first due to foreign key constraints
@@ -97,17 +93,14 @@ builder.mutationField('addListSource', (t) =>
       listId: t.arg.string({ required: true }),
       data: t.arg({ type: AiListSourceInput, required: true }),
     },
-    resolve: async (query, _source, { listId, data }, { session }) => {
-      const existingList = await prisma.aiList.findFirstOrThrow({
-        where: { id: listId },
-      })
-      canAccessListOrThrow(existingList.id, session.user.id)
+    resolve: async (query, _source, { listId, data }, { workspaceId, session }) => {
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
 
       // Check if library exists and user has access (via workspace membership or public)
       const library = await prisma.aiLibrary.findFirst({
         where: {
+          workspaceId,
           id: data.libraryId,
-          OR: [{ ownerId: session.user.id }, { isPublic: true }],
         },
       })
       if (!library) {
@@ -191,12 +184,12 @@ builder.mutationField('removeListSource', (t) =>
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { id }, { session }) => {
+    resolve: async (query, _source, { id }, { workspaceId, session }) => {
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
       const existingSource = await prisma.aiListSource.findFirstOrThrow({
         ...query,
-        where: { id },
+        where: { id, list: { workspaceId } },
       })
-      await canAccessListOrThrow(existingSource.listId, session.user.id)
 
       await prisma.aiListSource.delete({ where: { id } })
       return existingSource
@@ -212,12 +205,12 @@ builder.mutationField('reorderListFields', (t) =>
       fieldId: t.arg.string({ required: true }),
       newPlace: t.arg.int({ required: true }),
     },
-    resolve: async (query, _source, { fieldId, newPlace }, { session }) => {
+    resolve: async (query, _source, { fieldId, newPlace }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
       const field = await prisma.aiListField.findUniqueOrThrow({
-        where: { id: fieldId },
+        where: { id: fieldId, list: { workspaceId } },
         select: { id: true, listId: true },
       })
-      await canAccessListOrThrow(field.listId, session.user.id)
 
       if (newPlace < 0) {
         throw new Error('newPlace must be 0 or greater')

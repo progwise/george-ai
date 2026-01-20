@@ -1,5 +1,4 @@
 import type { Prisma } from '@george-ai/app-domain'
-import { prisma } from '@george-ai/app-domain'
 
 export * from './filter'
 export * from './item-extraction'
@@ -26,39 +25,6 @@ export type FieldFileProperty = (typeof LIST_FIELD_FILE_PROPERTIES)[number]
 
 export const LIST_FIELD_CONTEXT_TYPES = ['fieldReference', 'vectorSearch', 'webFetch', 'fullContent'] as const
 export type FieldContextType = (typeof LIST_FIELD_CONTEXT_TYPES)[number]
-
-/**
- * Check if user can access a list.
- * Access is granted if the user is a member of the workspace that owns the list.
- */
-export const canAccessListOrThrow = async (
-  listId: string,
-  userId: string,
-  options?: { include: Prisma.AiListInclude },
-) => {
-  const list = await prisma.aiList.findUniqueOrThrow({
-    include: options?.include || {},
-    where: { id: listId },
-  })
-
-  // Check if user is a member of the list's workspace
-  const isMember = await prisma.workspaceMember.findFirst({
-    where: {
-      workspaceId: list.workspaceId,
-      userId,
-    },
-  })
-
-  if (!isMember) {
-    throw new Error(`You do not have permission to access this list`)
-  }
-
-  return list
-}
-
-export const getCanAccessListWhere = (workspaceId: string): Prisma.AiListWhereInput => ({
-  workspaceId,
-})
 
 /**
  * Type for an AiListItem with its sourceFile and cache included

@@ -1,17 +1,19 @@
 import z from 'zod'
 
-export const ExtractionStatus = z.enum(['pending', 'processing', 'completed', 'failed'])
-
 export const ExtractionMetadataSchema = z.object({
   version: z.literal(1),
-  methodId: z.string(), // e.g. "gpt4o-v1" or "tesseract-ocr"
+  methodId: z.string(), // e.g. "text-extraction-v1", "tesseract-ocr-v2", "pdf-to-image-to-text-v1"
 
   // CRITICAL: This allows us to check if the extraction is "stale"
-  // by comparing it to the currentSourceHash in the File Manifest
-  sourceHashAtExecution: z.string(),
+  sourceHash: z.string(),
 
-  status: ExtractionStatus,
-  executedAt: z.string().datetime(),
+  extractedAt: z.string().datetime(),
+  extractionFiles: z.number().int().nonnegative(),
+  physicalFiles: z.number().int().nonnegative(),
+  extractedBytes: z.number().int().nonnegative(),
+  physicalBytes: z.number().int().nonnegative(),
+
+  status: z.enum(['pending', 'completed', 'failed', 'upgraded']),
 
   // Store the "recipe" used
   config: z.record(z.any()).optional(),
@@ -19,13 +21,11 @@ export const ExtractionMetadataSchema = z.object({
   // For big files: pointers to shards
   output: z.object({
     mainFile: z.string().default('output.md'),
-    isSharded: z.boolean().default(false),
-    shardCount: z.number().int().optional(),
-    totalRows: z.number().int().optional(), // Useful for CSVs
+    hasFragments: z.boolean().default(false),
+    fragmentCount: z.number().int().optional(),
   }),
 
   error: z.string().optional(), // Error message if status is 'failed'
-  sizeBytes: z.number().int().nonnegative(), // Total size of output.md + shards/
 })
 
 export type ExtractionMetadata = z.infer<typeof ExtractionMetadataSchema>

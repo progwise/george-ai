@@ -1561,9 +1561,11 @@ type Mutation {
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startAllQueueWorkers: QueueOperationResult!
+  startProcessing(processingType: WorkspaceProcessingType!): Boolean!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
+  stopProcessing(processingType: WorkspaceProcessingType!): Boolean!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels: SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
@@ -1746,6 +1748,8 @@ type Query {
   workspaceInvitation(id: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
+  workspaceWorkerStatistics: WorkspaceWorkerStatistics!
+  workspaceWorkers: [WorkspaceWorker!]!
   workspaces: [Workspace!]!
 }
 
@@ -1928,6 +1932,19 @@ type WorkspaceDeletionValidation {
   message: String!
 }
 
+type WorkspaceEventMessageStatisticValues {
+  pendingMessages: Int!
+  processedMessages: Int!
+  totalMessages: Int!
+}
+
+type WorkspaceEventMessageStatistics {
+  embeddingFinished: WorkspaceEventMessageStatisticValues!
+  embeddingProgress: WorkspaceEventMessageStatisticValues!
+  embeddingRequests: WorkspaceEventMessageStatisticValues!
+  extractionRequests: WorkspaceEventMessageStatisticValues!
+}
+
 type WorkspaceInvitation {
   acceptedAt: DateTime
   createdAt: DateTime!
@@ -1944,4 +1961,27 @@ type WorkspaceMember {
   role: String!
   user: User!
   workspace: Workspace!
+}
+
+enum WorkspaceProcessingType {
+  CONTENT_EXTRACTION
+  EMBEDDING
+}
+
+type WorkspaceWorker {
+  activeSubscriptions: [WorkspaceWorkerSubscription!]!
+  healthy: Boolean!
+  lastHeartbeatAt: String!
+  workerId: String!
+}
+
+type WorkspaceWorkerStatistics {
+  eventMessageStatistics: WorkspaceEventMessageStatistics!
+  workspaceId: String!
+}
+
+type WorkspaceWorkerSubscription {
+  processingType: WorkspaceProcessingType!
+  subscribedAt: String!
+  workspaceId: String!
 }

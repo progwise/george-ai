@@ -2,6 +2,7 @@ import { classifyModel, discoverModels as discoverModelsForProvider } from '@geo
 import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { canWriteWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLanguageModel Mutations')
 
@@ -154,6 +155,7 @@ builder.mutationField('syncModels', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: SyncModelsResult,
     resolve: async (_source, _args, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       try {
         const discoveredModels = await discoverModels(context.workspaceId)
         const syncedCount = await syncModelsToDatabase(context.workspaceId, discoveredModels)
@@ -194,6 +196,8 @@ builder.mutationField('updateAiLanguageModel', (t) =>
       data: t.arg({ type: UpdateAiLanguageModelInput, required: true }),
     },
     resolve: async (query, _root, { id, data }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       return await prisma.aiLanguageModel.update({
         ...query,
         where: {
@@ -217,6 +221,8 @@ builder.mutationField('disableAiLanguageModel', (t) =>
       id: t.arg.id({ required: true }),
     },
     resolve: async (query, _root, { id }, context) => {
+      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+
       // Disable the model (set enabled: false)
       return await prisma.aiLanguageModel.update({
         ...query,

@@ -39,11 +39,7 @@ export { schema }
 export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
 export { checkUser, updateUserAvatarUrl, getUserByMail, getUserById, getUserAvatarsPath } from './domain/user'
 export { isProviderAvatar } from './domain/user/avatar-provider'
-export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
-export { canAccessLibraryOrThrow } from './domain/library'
-export { canAccessListOrThrow } from './domain/list'
-export { validateApiKey } from './domain/api-key'
-export type { ApiKeyValidationResult } from './domain/api-key'
+export { getMimeTypeForFile, markUploadFinished } from './domain/file'
 export {
   getWorkspaceMembership,
   getLibraryWorkspace,
@@ -56,4 +52,3 @@ export type { WorkspaceMembershipInfo } from './domain/workspace'
 export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
 export { startContentProcessingWorker } from './worker-queue/content-processing-worker'
 export { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from './subscriptions'
-export type { Context } from './graphql/context'

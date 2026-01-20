@@ -15,8 +15,12 @@ builder.enumType('ProcessingStatus', {
   values: PROCESSING_STATUS,
 })
 
-builder.enumType('WorkspaceProcessingType', {
-  values: workspace.WORKSPACE_PROCESSING_TYPE,
+builder.enumType('ProcessType', {
+  values: workspace.PROCESS_TYPES,
+})
+
+builder.enumType('WorkerType', {
+  values: workspace.WORKER_TYPES,
 })
 
 builder.enumType('EmbeddingStatus', {

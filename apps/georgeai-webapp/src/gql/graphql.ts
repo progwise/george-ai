@@ -1568,9 +1568,11 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
+  startProcessing: Scalars['Boolean']['output']
   startQueueWorker: QueueOperationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
+  stopProcessing: Scalars['Boolean']['output']
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
@@ -1916,12 +1918,20 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
+export type MutationStartProcessingArgs = {
+  processingType: WorkspaceProcessingType
+}
+
 export type MutationStartQueueWorkerArgs = {
   queueType: QueueType
 }
 
 export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
+}
+
+export type MutationStopProcessingArgs = {
+  processingType: WorkspaceProcessingType
 }
 
 export type MutationStopQueueWorkerArgs = {
@@ -2142,6 +2152,8 @@ export type Query = {
   workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
   workspaceMembers: Array<WorkspaceMember>
+  workspaceWorkerStatistics: WorkspaceWorkerStatistics
+  workspaceWorkers: Array<WorkspaceWorker>
   workspaces: Array<Workspace>
 }
 
@@ -2591,6 +2603,21 @@ export type WorkspaceDeletionValidation = {
   message: Scalars['String']['output']
 }
 
+export type WorkspaceEventMessageStatisticValues = {
+  __typename?: 'WorkspaceEventMessageStatisticValues'
+  pendingMessages: Scalars['Int']['output']
+  processedMessages: Scalars['Int']['output']
+  totalMessages: Scalars['Int']['output']
+}
+
+export type WorkspaceEventMessageStatistics = {
+  __typename?: 'WorkspaceEventMessageStatistics'
+  embeddingFinished: WorkspaceEventMessageStatisticValues
+  embeddingProgress: WorkspaceEventMessageStatisticValues
+  embeddingRequests: WorkspaceEventMessageStatisticValues
+  extractionRequests: WorkspaceEventMessageStatisticValues
+}
+
 export type WorkspaceInvitation = {
   __typename?: 'WorkspaceInvitation'
   acceptedAt?: Maybe<Scalars['DateTime']['output']>
@@ -2609,6 +2636,32 @@ export type WorkspaceMember = {
   role: Scalars['String']['output']
   user: User
   workspace: Workspace
+}
+
+export enum WorkspaceProcessingType {
+  ContentExtraction = 'CONTENT_EXTRACTION',
+  Embedding = 'EMBEDDING',
+}
+
+export type WorkspaceWorker = {
+  __typename?: 'WorkspaceWorker'
+  activeSubscriptions: Array<WorkspaceWorkerSubscription>
+  healthy: Scalars['Boolean']['output']
+  lastHeartbeatAt: Scalars['String']['output']
+  workerId: Scalars['String']['output']
+}
+
+export type WorkspaceWorkerStatistics = {
+  __typename?: 'WorkspaceWorkerStatistics'
+  eventMessageStatistics: WorkspaceEventMessageStatistics
+  workspaceId: Scalars['String']['output']
+}
+
+export type WorkspaceWorkerSubscription = {
+  __typename?: 'WorkspaceWorkerSubscription'
+  processingType: WorkspaceProcessingType
+  subscribedAt: Scalars['String']['output']
+  workspaceId: Scalars['String']['output']
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -3151,6 +3204,61 @@ export type GetAiServiceProvidersQuery = {
   }>
 }
 
+export type GetWorkspaceWorkerStatisticsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWorkspaceWorkerStatisticsQuery = {
+  __typename?: 'Query'
+  workspaceWorkerStatistics: {
+    __typename?: 'WorkspaceWorkerStatistics'
+    workspaceId: string
+    eventMessageStatistics: {
+      __typename?: 'WorkspaceEventMessageStatistics'
+      extractionRequests: {
+        __typename?: 'WorkspaceEventMessageStatisticValues'
+        totalMessages: number
+        processedMessages: number
+        pendingMessages: number
+      }
+      embeddingRequests: {
+        __typename?: 'WorkspaceEventMessageStatisticValues'
+        totalMessages: number
+        processedMessages: number
+        pendingMessages: number
+      }
+      embeddingProgress: {
+        __typename?: 'WorkspaceEventMessageStatisticValues'
+        totalMessages: number
+        processedMessages: number
+        pendingMessages: number
+      }
+      embeddingFinished: {
+        __typename?: 'WorkspaceEventMessageStatisticValues'
+        totalMessages: number
+        processedMessages: number
+        pendingMessages: number
+      }
+    }
+  }
+}
+
+export type GetWorkspaceWorkersQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWorkspaceWorkersQuery = {
+  __typename?: 'Query'
+  workspaceWorkers: Array<{
+    __typename?: 'WorkspaceWorker'
+    workerId: string
+    healthy: boolean
+    lastHeartbeatAt: string
+    activeSubscriptions: Array<{
+      __typename?: 'WorkspaceWorkerSubscription'
+      workspaceId: string
+      processingType: WorkspaceProcessingType
+      subscribedAt: string
+    }>
+  }>
+}
+
 export type GetQueueSystemStatusQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetQueueSystemStatusQuery = {
@@ -3311,6 +3419,18 @@ export type RestoreDefaultProvidersMutation = {
     }>
   }
 }
+
+export type StartWorkspaceProcessingMutationVariables = Exact<{
+  processingType: WorkspaceProcessingType
+}>
+
+export type StartWorkspaceProcessingMutation = { __typename?: 'Mutation'; startProcessing: boolean }
+
+export type StopWorkspaceProcessingMutationVariables = Exact<{
+  processingType: WorkspaceProcessingType
+}>
+
+export type StopWorkspaceProcessingMutation = { __typename?: 'Mutation'; stopProcessing: boolean }
 
 export type TestProviderConnectionMutationVariables = Exact<{
   data: TestProviderConnectionInput
@@ -13620,6 +13740,127 @@ export const GetAiServiceProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
+export const GetWorkspaceWorkerStatisticsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaceWorkerStatistics' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceWorkerStatistics' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'eventMessageStatistics' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'extractionRequests' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'embeddingRequests' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'embeddingProgress' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'embeddingFinished' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceWorkerStatisticsQuery, GetWorkspaceWorkerStatisticsQueryVariables>
+export const GetWorkspaceWorkersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaceWorkers' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceWorkers' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workerId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'healthy' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastHeartbeatAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'activeSubscriptions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'processingType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'subscribedAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceWorkersQuery, GetWorkspaceWorkersQueryVariables>
 export const GetQueueSystemStatusDocument = {
   kind: 'Document',
   definitions: [
@@ -14069,6 +14310,78 @@ export const RestoreDefaultProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<RestoreDefaultProvidersMutation, RestoreDefaultProvidersMutationVariables>
+export const StartWorkspaceProcessingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'StartWorkspaceProcessing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'WorkspaceProcessingType' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'startProcessing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'processingType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StartWorkspaceProcessingMutation, StartWorkspaceProcessingMutationVariables>
+export const StopWorkspaceProcessingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'StopWorkspaceProcessing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'WorkspaceProcessingType' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'stopProcessing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'processingType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StopWorkspaceProcessingMutation, StopWorkspaceProcessingMutationVariables>
 export const TestProviderConnectionDocument = {
   kind: 'Document',
   definitions: [

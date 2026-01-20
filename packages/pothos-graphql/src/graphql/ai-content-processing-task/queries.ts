@@ -1,8 +1,8 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { ProcessingStatus, getTaskStatusWhereClause } from '../../domain/content-extraction/task-status'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiFileContentExtractionTask Queries')
 
@@ -134,8 +134,7 @@ builder.queryField('aiContentProcessingTasks', (t) =>
       skip: t.arg.int({ required: false, defaultValue: 0 }),
     },
     resolve: async (_parent, args, context) => {
-      // Check permissions
-      await canAccessLibraryOrThrow(args.libraryId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       return {
         libraryId: args.libraryId,

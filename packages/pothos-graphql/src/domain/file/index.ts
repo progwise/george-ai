@@ -1,62 +1,33 @@
 import fs from 'fs'
 
-import type { AiLibraryFile, Prisma as PrismaType } from '@george-ai/app-domain'
 import { prisma } from '@george-ai/app-domain'
-import { deleteFileDir, fileDirIsEmpty, getFileDir, getLibraryDir, getUploadFilePath } from '@george-ai/file-management'
-import { dropFileFromVectorstore, dropVectorStore, getFileChunkCount } from '@george-ai/langchain-chat'
+import { getUploadFilePath, workspaceStorage } from '@george-ai/file-management'
+import { vectorStoreClient } from '@george-ai/vector-store-client'
 
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
-import { canAccessLibraryOrThrow } from '../library'
+import { logger } from './common'
 
-export type File = AiLibraryFile
-
-export const canAccessFileOrThrow = async (fileId: string, userId: string) => {
-  const file = await prisma.aiLibraryFile.findUniqueOrThrow({
-    where: { id: fileId },
-  })
-  await canAccessLibraryOrThrow(file.libraryId, userId)
-  return file
-}
-
-export const getCanAccessFileWhere = (workspaceId: string): PrismaType.AiLibraryFileWhereInput => ({
-  library: { workspaceId },
-})
-
-export const getFileInfo = async (fileId: string, userId: string) => {
-  const fileInfo = await canAccessFileOrThrow(fileId, userId)
-  return fileInfo
-}
-
-export const dropAllLibraryFiles = async (libraryId: string, userId: string) => {
-  await canAccessLibraryOrThrow(libraryId, userId)
+export const dropAllLibraryFiles = async (args: { workspaceId: string; libraryId: string }) => {
+  const { workspaceId, libraryId } = args
 
   try {
-    await dropVectorStore(libraryId)
-    const libraryPathToDelete = getLibraryDir(libraryId)
-    await fs.promises.rm(libraryPathToDelete, { recursive: true, force: true })
+    await vectorStoreClient.removeDocuments(workspaceId, { libraryId })
+    await workspaceStorage.deleteFiles(workspaceId, { libraryId })
     const deletedFiles = await prisma.aiLibraryFile.deleteMany({
       where: { libraryId },
     })
     return deletedFiles.count
   } catch (error) {
-    console.error(`Error deleting all library files for library ${libraryId}:`, error)
+    logger.error('Error deleting all library files', { libraryId, workspaceId, error })
     throw new Error(error instanceof Error ? error.message : 'Failed to delete all library files')
   }
 }
 
-export const markUploadFinished = async ({
-  fileId,
-  libraryId,
-  userId,
-}: {
-  fileId: string
-  libraryId: string
-  userId: string
-}) => {
-  await canAccessFileOrThrow(fileId, userId)
+export const markUploadFinished = async ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
   const uploadFilePath = getUploadFilePath({ fileId, libraryId })
 
   if (!fs.existsSync(uploadFilePath)) {
+    logger.error('File does not exist when marking upload finished', { fileId, libraryId, uploadFilePath })
     throw new Error(`Cannot mark upload finished. File ${uploadFilePath} does not exist`)
   }
   const updatedFile = await prisma.aiLibraryFile.update({
@@ -72,23 +43,22 @@ export const markUploadFinished = async ({
     fileId,
     libraryId,
   })
-  console.log(`Created content extraction task for uploaded file: ${fileId}`)
+  logger.info('Created content extraction task for uploaded file', { fileId, libraryId })
 
   return updatedFile
 }
 
-export const deleteFile = async (fileId: string, userId: string) => {
-  const file = await canAccessFileOrThrow(fileId, userId)
+export const deleteFile = async (args: { workspaceId: string; libraryId: string; fileId: string }) => {
+  const { workspaceId, libraryId, fileId } = args
 
   try {
-    await dropFileFromVectorstore(file.libraryId, fileId)
-    const filePathToDelete = getFileDir({ fileId, libraryId: file.libraryId })
-    await fs.promises.rm(filePathToDelete, { recursive: true, force: true })
+    await vectorStoreClient.removeDocuments(workspaceId, { libraryId, fileId })
+    await workspaceStorage.deleteFiles(workspaceId, { libraryId, fileId })
     return await prisma.aiLibraryFile.delete({
       where: { id: fileId },
     })
   } catch (error) {
-    console.error(`Error deleting file ${fileId} in library ${file.libraryId}:`, error)
+    logger.error('Error deleting file', { fileId, libraryId, error })
     return await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -98,23 +68,26 @@ export const deleteFile = async (fileId: string, userId: string) => {
   }
 }
 
-export const deletePreparedFile = async (fileId: string, userId: string) => {
-  const file = await canAccessFileOrThrow(fileId, userId)
+export const deletePreparedFile = async (args: { workspaceId: string; libraryId: string; fileId: string }) => {
+  const { workspaceId, libraryId, fileId } = args
 
   try {
-    const chunkCount = await getFileChunkCount(file.libraryId, fileId)
+    const chunkCount = await vectorStoreClient.chunkCount(workspaceId, { libraryId, fileId })
     if (chunkCount > 0) {
       throw new Error(`Cannot delete prepared file ${fileId} that has already ${chunkCount} chunks`)
     }
-    const fileDirExists = await fileDirIsEmpty(fileId, file.libraryId)
-    if (fileDirExists) {
-      await deleteFileDir(fileId, file.libraryId)
+    const fileExists = await workspaceStorage.exists(workspaceId, {
+      libraryId,
+      fileId,
+    })
+    if (fileExists) {
+      await workspaceStorage.deleteFiles(workspaceId, { libraryId, fileId })
     }
     return await prisma.aiLibraryFile.delete({
       where: { id: fileId },
     })
   } catch (error) {
-    console.error(`Error deleting file ${fileId} in library ${file.libraryId}:`, error)
+    logger.error('Error deleting prepared file', { fileId, libraryId, error })
     return await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -124,9 +97,7 @@ export const deletePreparedFile = async (fileId: string, userId: string) => {
   }
 }
 
-export const getMimeTypeForFile = async (fileId: string, userId: string) => {
-  await canAccessFileOrThrow(fileId, userId)
-
+export const getMimeTypeForFile = async (fileId: string) => {
   const fileInfo = await prisma.aiLibraryFile.findFirstOrThrow({ where: { id: fileId } })
   return fileInfo.mimeType
 }

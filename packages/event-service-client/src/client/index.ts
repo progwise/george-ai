@@ -1,31 +1,9 @@
-/**
- * Event Service Client - Provider-agnostic event messaging
- *
- * This package provides a clean abstraction over event messaging.
- * Current implementation: NATS JetStream
- * Future: Can be switched to RabbitMQ, Kafka, etc.
- *
- * IMPORTANT: Only import from this file, never from internal files
- */
-import type { EventClient } from './event-client'
+import type { EventClient, EventClientConfig } from './event-client'
 import { NatsClient } from './nats-client'
 
 // Export only the interface, not the implementation
 export type { EventClient }
 
-/**
- * Connection configuration
- */
-export interface EventClientConfig {
-  servers?: string | string[]
-  user?: string
-  pass?: string
-  token?: string
-}
-
-/**
- * Create a new event client with environment-based configuration
- */
 async function createEventClient(config?: EventClientConfig): Promise<EventClient> {
   // Create new NATS client
   const natsClient = new NatsClient()

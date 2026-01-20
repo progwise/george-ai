@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@george-ai/file-management": "workspace:*",
+    "@george-ai/app-domain": "workspace:*",
     "@george-ai/pothos-graphql": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
     "cookie-parser": "^1.4.7",

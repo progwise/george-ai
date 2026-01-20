@@ -3,8 +3,8 @@ import crypto from 'crypto'
 
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
+import { canAdminWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: ApiKey Mutations')
 
@@ -29,7 +29,7 @@ builder.mutationField('generateApiKey', (t) =>
     },
     resolve: async (_source, { libraryId, name }, context) => {
       // Check if user has access to this library
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      await canAdminWorkspaceOrThrow(libraryId, context.session.user.id)
 
       // Generate a random API key (32 bytes = 64 hex characters)
       const key = crypto.randomBytes(32).toString('hex')
@@ -67,6 +67,7 @@ builder.mutationField('revokeApiKey', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (_source, { id }, context) => {
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       // Get the API key to check library access
       const apiKey = await prisma.apiKey.findUnique({
         where: { id },
@@ -76,9 +77,6 @@ builder.mutationField('revokeApiKey', (t) =>
       if (!apiKey) {
         throw new Error('API key not found')
       }
-
-      // Check if user has access to the library
-      await canAccessLibraryOrThrow(apiKey.libraryId, context.session.user.id)
 
       // Delete the API key
       await prisma.apiKey.delete({

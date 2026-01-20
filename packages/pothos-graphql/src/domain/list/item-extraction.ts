@@ -12,64 +12,43 @@ import fs from 'fs'
 import path from 'node:path'
 
 import { prisma } from '@george-ai/app-domain'
-import { getAvailableExtractions, getBucketPath, getExtractionFileInfo, getFileDir } from '@george-ai/file-management'
+import { getAvailableExtractions, getBucketPath, getExtractionFileInfo } from '@george-ai/file-management'
 
 import { syncAutomationItemsForList } from '../automation'
-import { getLatestExtractionMarkdownFileNames } from '../file/markdown'
 
-/**
- * Get markdown content for a file (whole file, not parts).
- */
-export async function getFileMarkdownContent(fileId: string, libraryId: string): Promise<string | null> {
-  const markdownFileNames = await getLatestExtractionMarkdownFileNames({ fileId, libraryId })
+// /**
+//  * Get markdown content for a file part (bucketed files).
+//  */
+// export async function getFilePartMarkdownContent({
+//   fileId,
+//   libraryId,
+//   partIndex,
+//   extractionMethod,
+//   extractionMethodParameter,
+// }: {
+//   fileId: string
+//   libraryId: string
+//   partIndex: number
+//   extractionMethod: string
+//   extractionMethodParameter?: string
+// }): Promise<string | null> {
+//   const bucketPath = getBucketPath({
+//     libraryId,
+//     fileId,
+//     extractionMethod,
+//     extractionMethodParameter,
+//     part: partIndex,
+//   })
 
-  if (markdownFileNames.length === 0) {
-    return null
-  }
+//   const partFileName = `part-${partIndex.toString().padStart(7, '0')}.md`
+//   const partFilePath = path.join(bucketPath, partFileName)
 
-  const fileDir = getFileDir({ fileId, libraryId })
-  const markdownPath = `${fileDir}/${markdownFileNames[0]}`
-
-  try {
-    return await fs.promises.readFile(markdownPath, 'utf-8')
-  } catch {
-    return null
-  }
-}
-
-/**
- * Get markdown content for a file part (bucketed files).
- */
-export async function getFilePartMarkdownContent({
-  fileId,
-  libraryId,
-  partIndex,
-  extractionMethod,
-  extractionMethodParameter,
-}: {
-  fileId: string
-  libraryId: string
-  partIndex: number
-  extractionMethod: string
-  extractionMethodParameter?: string
-}): Promise<string | null> {
-  const bucketPath = getBucketPath({
-    libraryId,
-    fileId,
-    extractionMethod,
-    extractionMethodParameter,
-    part: partIndex,
-  })
-
-  const partFileName = `part-${partIndex.toString().padStart(7, '0')}.md`
-  const partFilePath = path.join(bucketPath, partFileName)
-
-  try {
-    return await fs.promises.readFile(partFilePath, 'utf-8')
-  } catch {
-    return null
-  }
-}
+//   try {
+//     return await fs.promises.readFile(partFilePath, 'utf-8')
+//   } catch {
+//     return null
+//   }
+// }
 
 /**
  * Create list items for a file.

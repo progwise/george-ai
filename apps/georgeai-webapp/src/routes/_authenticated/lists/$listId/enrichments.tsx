@@ -147,7 +147,7 @@ function RouteComponent() {
           </div>
         </div>
       ) : (
-        <div className="join-vertical join w-full bg-base-100">
+        <div className="join join-vertical w-full bg-base-100">
           {enrichments.map((enrichment, index) => (
             <EnrichmentAccordionItem key={enrichment.id} enrichment={enrichment} index={index} />
           ))}

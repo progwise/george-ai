@@ -32,6 +32,8 @@ type Documents = {
   '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ': typeof types.TestConnectorConnectionDocument
   '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.UpdateConnectorDocument
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n': typeof types.GetAiServiceProvidersDocument
+  '\n  query GetWorkspaceWorkerStatistics {\n    workspaceWorkerStatistics {\n      workspaceId\n      eventMessageStatistics {\n        extractionRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingProgress {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingFinished {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n      }\n    }\n  }\n': typeof types.GetWorkspaceWorkerStatisticsDocument
+  '\n  query GetWorkspaceWorkers {\n    workspaceWorkers {\n      workerId\n      healthy\n      lastHeartbeatAt\n      activeSubscriptions {\n        workspaceId\n        processingType\n        subscribedAt\n      }\n    }\n  }\n': typeof types.GetWorkspaceWorkersDocument
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n': typeof types.GetQueueSystemStatusDocument
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StartQueueWorkerDocument
   '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StopQueueWorkerDocument
@@ -43,6 +45,8 @@ type Documents = {
   '\n  mutation CreateAiServiceProvider($data: AiServiceProviderInput!) {\n    createAiServiceProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.CreateAiServiceProviderDocument
   '\n  mutation DeleteAiServiceProvider($id: ID!) {\n    deleteAiServiceProvider(id: $id)\n  }\n': typeof types.DeleteAiServiceProviderDocument
   '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n': typeof types.RestoreDefaultProvidersDocument
+  '\n  mutation StartWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    startProcessing(processingType: $processingType)\n  }\n': typeof types.StartWorkspaceProcessingDocument
+  '\n  mutation StopWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    stopProcessing(processingType: $processingType)\n  }\n': typeof types.StopWorkspaceProcessingDocument
   '\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n': typeof types.TestProviderConnectionDocument
   '\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n': typeof types.ToggleAiServiceProviderDocument
   '\n  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {\n    updateAiServiceProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.UpdateAiServiceProviderDocument
@@ -289,6 +293,10 @@ const documents: Documents = {
     types.UpdateConnectorDocument,
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    aiServiceProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n':
     types.GetAiServiceProvidersDocument,
+  '\n  query GetWorkspaceWorkerStatistics {\n    workspaceWorkerStatistics {\n      workspaceId\n      eventMessageStatistics {\n        extractionRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingProgress {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingFinished {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n      }\n    }\n  }\n':
+    types.GetWorkspaceWorkerStatisticsDocument,
+  '\n  query GetWorkspaceWorkers {\n    workspaceWorkers {\n      workerId\n      healthy\n      lastHeartbeatAt\n      activeSubscriptions {\n        workspaceId\n        processingType\n        subscribedAt\n      }\n    }\n  }\n':
+    types.GetWorkspaceWorkersDocument,
   '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n':
     types.GetQueueSystemStatusDocument,
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
@@ -311,6 +319,10 @@ const documents: Documents = {
     types.DeleteAiServiceProviderDocument,
   '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n':
     types.RestoreDefaultProvidersDocument,
+  '\n  mutation StartWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    startProcessing(processingType: $processingType)\n  }\n':
+    types.StartWorkspaceProcessingDocument,
+  '\n  mutation StopWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    stopProcessing(processingType: $processingType)\n  }\n':
+    types.StopWorkspaceProcessingDocument,
   '\n  mutation TestProviderConnection($data: TestProviderConnectionInput!) {\n    testProviderConnection(data: $data) {\n      success\n      message\n      details\n    }\n  }\n':
     types.TestProviderConnectionDocument,
   '\n  mutation ToggleAiServiceProvider($id: ID!, $enabled: Boolean!) {\n    toggleAiServiceProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n':
@@ -848,6 +860,18 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query GetWorkspaceWorkerStatistics {\n    workspaceWorkerStatistics {\n      workspaceId\n      eventMessageStatistics {\n        extractionRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingProgress {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingFinished {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetWorkspaceWorkerStatistics {\n    workspaceWorkerStatistics {\n      workspaceId\n      eventMessageStatistics {\n        extractionRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingRequests {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingProgress {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n        embeddingFinished {\n          totalMessages\n          processedMessages\n          pendingMessages\n        }\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetWorkspaceWorkers {\n    workspaceWorkers {\n      workerId\n      healthy\n      lastHeartbeatAt\n      activeSubscriptions {\n        workspaceId\n        processingType\n        subscribedAt\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetWorkspaceWorkers {\n    workspaceWorkers {\n      workerId\n      healthy\n      lastHeartbeatAt\n      activeSubscriptions {\n        workspaceId\n        processingType\n        subscribedAt\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n',
 ): (typeof documents)['\n  query GetQueueSystemStatus {\n    queueSystemStatus {\n      ...QueueSystemStatus_ManagementPanel\n    }\n  }\n']
 /**
@@ -910,6 +934,18 @@ export function graphql(
 export function graphql(
   source: '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation StartWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    startProcessing(processingType: $processingType)\n  }\n',
+): (typeof documents)['\n  mutation StartWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    startProcessing(processingType: $processingType)\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation StopWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    stopProcessing(processingType: $processingType)\n  }\n',
+): (typeof documents)['\n  mutation StopWorkspaceProcessing($processingType: WorkspaceProcessingType!) {\n    stopProcessing(processingType: $processingType)\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

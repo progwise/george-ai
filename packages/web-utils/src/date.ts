@@ -76,3 +76,16 @@ export const duration = (start: string | Date | null | undefined, end: string | 
   }
   return `${hours}h ${minutes}m ${seconds}s`
 }
+
+export const compareDates = (date1: string | Date, date2: string | Date): number => {
+  const d1 = new Date(date1)
+  const d2 = new Date(date2)
+
+  if (d1 < d2) {
+    return -1
+  }
+  if (d1 > d2) {
+    return 1
+  }
+  return 0
+}

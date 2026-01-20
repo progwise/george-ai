@@ -1,6 +1,5 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '..'
 import { createContentProcessingTask } from '../content-extraction/content-extraction-task'
 import { parseFilterConfig } from '../file/file-filter'
 import { crawlApi } from './crawl-api'
@@ -13,6 +12,7 @@ import { getCrawlerCredentials } from './crawler-credentials-manager'
 import { CrawlerConfig } from './crawler-options'
 
 interface RunOptions {
+  workspaceId: string
   crawlerId: string
   userId: string
   runByCronJob?: boolean
@@ -39,10 +39,7 @@ type CrawlFunction = (options: {
   }
 }) => AsyncGenerator<CrawledFileInfo, void, void>
 
-export const stopCrawler = async ({ crawlerId, userId }: RunOptions) => {
-  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
-  await canAccessLibraryOrThrow(crawler.libraryId, userId)
-
+export const stopCrawler = async ({ crawlerId }: RunOptions) => {
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { crawlerId, endedAt: null } })
 
   const run = await prisma.aiLibraryCrawlerRun.update({
@@ -71,9 +68,6 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
       },
     },
   })
-
-  // TODO: temporary solution to allow cron jobs to run without a user
-  if (userId !== 'cronJob') await canAccessLibraryOrThrow(crawler.libraryId, userId)
 
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
 

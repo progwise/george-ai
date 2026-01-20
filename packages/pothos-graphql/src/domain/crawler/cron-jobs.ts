@@ -9,10 +9,13 @@ const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 
 const restoreCronJobsFromDatabase = async () => {
   console.log('Restoring cron jobs from database...')
-  const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({ where: { active: true } })
+  const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({
+    where: { active: true },
+    include: { crawler: { include: { library: true } } },
+  })
 
   for (const cronJob of activeCronJobs) {
-    await upsertCronJob(cronJob)
+    await upsertCronJob(cronJob.crawler.library.workspaceId, cronJob)
   }
   console.log(`Restored ${activeCronJobs.length} active cron job(s)`)
 }
@@ -22,7 +25,7 @@ const restoreCronJobsFromDatabase = async () => {
  * If the cron job is already running, it will be stopped first.
  * If the cron job is not active, it will not be added.
  */
-export const upsertCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
+export const upsertCronJob = async (workspaceId: string, cronJob: AiLibraryCrawlerCronJob) => {
   await stopCronJob(cronJob)
 
   const cronExpression = getCronExpression(cronJob)
@@ -36,7 +39,12 @@ export const upsertCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
       try {
         console.log('Running cron job', cronJob.id)
         // TODO: specify how to run the cron job as a specific user
-        await runCrawler({ crawlerId: cronJob.crawlerId, runByCronJob: true, userId: 'cronJob' })
+        await runCrawler({
+          workspaceId,
+          crawlerId: cronJob.crawlerId,
+          runByCronJob: true,
+          userId: 'cronJob',
+        })
       } catch (error) {
         console.log('Error running cron job', cronJob.id, error)
       }

@@ -1,8 +1,7 @@
 import { prisma } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
-import { canAccessFileOrThrow } from '../../domain/file'
 import { builder } from '../builder'
+import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile Queries')
 
@@ -126,7 +125,8 @@ builder.queryField('aiLibraryFile', (t) =>
       fileId: t.arg.string({ required: true }),
     },
     resolve: async (query, _parent, { fileId }, context) => {
-      await canAccessFileOrThrow(fileId, context.session.user.id) // Verify user has access to the library
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       const file = await prisma.aiLibraryFile.findFirstOrThrow({ ...query, where: { id: fileId } })
       return file
     },
@@ -149,7 +149,8 @@ builder.queryField('aiLibraryFiles', (t) =>
       }),
     },
     resolve: async (_root, args, context) => {
-      await canAccessLibraryOrThrow(args.libraryId, context.session.user.id) // Verify user has access to the library
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       return {
         libraryId: args.libraryId,
         take: args.take ?? 10,
@@ -176,7 +177,8 @@ builder.queryField('checkFileExistsByOriginUri', (t) =>
       originUriPrefix: t.arg.string({ required: true }),
     },
     resolve: async (_root, { libraryId, originUriPrefix }, context) => {
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       const count = await prisma.aiLibraryFile.count({
         where: {
           libraryId,

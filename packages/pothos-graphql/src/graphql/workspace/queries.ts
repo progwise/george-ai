@@ -2,8 +2,8 @@ import { GraphQLError } from 'graphql'
 
 import { prisma } from '@george-ai/app-domain'
 
-import { requireWorkspaceAdmin } from '../../domain/workspace'
 import { builder } from '../builder'
+import { canAdminWorkspaceOrThrow } from './common'
 
 console.log('Setting up: Workspace queries')
 
@@ -100,7 +100,7 @@ builder.queryField('workspaceInvitations', (t) =>
     },
     resolve: async (query, _root, args, ctx) => {
       // Verify the user is an admin of this workspace
-      await requireWorkspaceAdmin(args.workspaceId, ctx.session.user.id)
+      await canAdminWorkspaceOrThrow(args.workspaceId, ctx.session.user.id)
 
       return prisma.workspaceInvitation.findMany({
         ...query,
