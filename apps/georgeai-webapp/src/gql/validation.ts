@@ -28,14 +28,17 @@ import {
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
+  EmbeddingRequestInput,
   EmbeddingStatus,
   EnrichmentStatus,
+  EventProcessingStatus,
   ExtractionStatus,
   LibrarySortOrder,
   ListFieldContextType,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
+  ProcessType,
   ProcessingStatus,
   QueueType,
   TestProviderConnectionInput,
@@ -43,7 +46,7 @@ import {
   UpdateAiLanguageModelInput,
   UserInput,
   UserProfileInput,
-  WorkspaceProcessingType,
+  WorkerType,
 } from './graphql'
 
 type Properties<T> = Required<{
@@ -74,6 +77,8 @@ export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
+export const EventProcessingStatusSchema = z.nativeEnum(EventProcessingStatus)
+
 export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
 
 export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
@@ -86,13 +91,15 @@ export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 
 export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 
+export const ProcessTypeSchema = z.nativeEnum(ProcessType)
+
 export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
 
 export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export const TriggerTypeSchema = z.nativeEnum(TriggerType)
 
-export const WorkspaceProcessingTypeSchema = z.nativeEnum(WorkspaceProcessingType)
+export const WorkerTypeSchema = z.nativeEnum(WorkerType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -290,6 +297,15 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
+  })
+}
+
+export function EmbeddingRequestInputSchema(): z.ZodObject<Properties<EmbeddingRequestInput>> {
+  return z.object({
+    extractionMethod: z.string().nullish(),
+    fileFragmentIndex: z.number().nullish(),
+    fileId: z.string(),
+    libraryId: z.string(),
   })
 }
 

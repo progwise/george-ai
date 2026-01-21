@@ -8,19 +8,25 @@ import { LoadingSpinner } from '../../loading-spinner'
 import { deleteLibraryFilesFn } from '../server-functions/delete-files'
 
 interface DropFilesDialogProps {
+  libraryId: string
   disabled: boolean
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
 }
 
-export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataChanged }: DropFilesDialogProps) => {
+export const DropFilesDialog = ({
+  libraryId,
+  checkedFileIds,
+  setCheckedFileIds,
+  tableDataChanged,
+}: DropFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
   const { mutate: dropFilesMutate, isPending } = useMutation({
     mutationFn: async (fileIds: string[]) => {
-      await deleteLibraryFilesFn({ data: { fileIds } })
+      await deleteLibraryFilesFn({ data: { libraryId, fileIds } })
     },
     onSuccess: () => {
       toastSuccess(t('actions.dropSuccess', { count: checkedFileIds.length }))

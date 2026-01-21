@@ -46,7 +46,6 @@
     "@eslint/js": "^9.16.0",
     "@george-ai/package-configs": "workspace:*",
     "@graphql-tools/executor-http": "^2.0.0",
-    "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.8",
     "@types/pg": "^8.16.0",

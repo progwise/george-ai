@@ -19,6 +19,10 @@ builder.enumType('ProcessType', {
   values: workspace.PROCESS_TYPES,
 })
 
+builder.enumType('EventProcessingStatus', {
+  values: workspace.EVENT_PROCESSING_STATUS,
+})
+
 builder.enumType('WorkerType', {
   values: workspace.WORKER_TYPES,
 })

@@ -8,6 +8,7 @@ const getFileChunks = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
+        libraryId: z.string().nonempty(),
         fileId: z.string().nonempty(),
         skip: z.number().int().min(0).default(0),
         take: z.number().int().min(1).default(20),
@@ -18,8 +19,8 @@ const getFileChunks = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getFileChunks($fileId: String!, $skip: Int!, $take: Int!, $part: Int) {
-          aiFileChunks(fileId: $fileId, skip: $skip, take: $take, part: $part) {
+        query getFileChunks($libraryId: String!, $fileId: String!, $skip: Int!, $take: Int!, $part: Int) {
+          aiFileChunks(libraryId: $libraryId, fileId: $fileId, skip: $skip, take: $take, part: $part) {
             fileId
             fileName
             take
@@ -42,10 +43,22 @@ const getFileChunks = createServerFn({ method: 'GET' })
     return result
   })
 
-export const getFileChunksQueryOptions = (params: { fileId: string; skip?: number; take?: number; part?: number }) => ({
+export const getFileChunksQueryOptions = (params: {
+  libraryId: string
+  fileId: string
+  skip?: number
+  take?: number
+  part?: number
+}) => ({
   queryKey: ['fileChunks', { ...params }],
   queryFn: () =>
     getFileChunks({
-      data: { fileId: params.fileId, skip: params.skip || 0, take: params.take || 20, part: params.part },
+      data: {
+        libraryId: params.libraryId,
+        fileId: params.fileId,
+        skip: params.skip || 0,
+        take: params.take || 20,
+        part: params.part,
+      },
     }),
 })

@@ -3,22 +3,24 @@ import { GraphQLError } from 'graphql'
 import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { logger } from '../workload/common'
 import { canAdminWorkspaceOrThrow } from './common'
 
-console.log('Setting up: Workspace queries')
+logger.info('Setting up: Workspace queries')
 
 // Query to get all workspaces for the current user
 builder.queryField('workspaces', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['Workspace'],
     nullable: false,
-    resolve: async (query, _root, _args, ctx) => {
+    resolve: async (query, _root, _args, context) => {
+      logger.debug('Fetching workspaces for session', { context })
       const workspaces = await prisma.workspace.findMany({
         ...query,
         where: {
           members: {
             some: {
-              userId: ctx.session.user.id,
+              userId: context.session.user.id,
             },
           },
         },

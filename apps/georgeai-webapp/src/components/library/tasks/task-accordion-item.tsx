@@ -253,7 +253,9 @@ export const TaskAccordionItem = ({ task, index, skip, take, hideFileName }: Tas
                     type="button"
                     className="tooltip btn btn-circle btn-sm"
                     data-tip="Cancel Processing"
-                    onClick={() => cancelProcessingTask({ taskId: task.id, fileId: task.file.id })}
+                    onClick={() =>
+                      cancelProcessingTask({ libraryId: task.file.libraryId, taskId: task.id, fileId: task.file.id })
+                    }
                   >
                     <CancelIcon className="size-6" />
                   </button>

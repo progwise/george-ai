@@ -13,3 +13,13 @@ export const stopProcessing = async (workspaceId: string, processType: ProcessTy
     processType,
   })
 }
+
+export const getProcessingStatus = async (workspaceId: string) => {
+  const result = await Promise.all(
+    workspaceProcessing.PROCESS_TYPES.map(async (processType) => {
+      const status = await workspaceProcessing.processingStatus({ workspaceId, processType })
+      return { processType, status }
+    }),
+  )
+  return result
+}

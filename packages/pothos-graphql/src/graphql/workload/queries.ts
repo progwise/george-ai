@@ -20,15 +20,14 @@ builder.queryField('workspaceStatistics', (t) =>
   }),
 )
 
-builder.queryField('workspaceWorkers', (t) =>
+builder.queryField('workers', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: [WorkspaceWorker],
     nullable: false,
-    resolve: async (_root, _args, context) => {
-      const workspaceId = context.workspaceId
-      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
-      const workerStatistics = await workspace.getWorkerStatistics(workspaceId)
-      return workerStatistics.workers.map((worker) => ({
+    resolve: async (_root, _args, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      const workers = await workspace.getWorkers()
+      return workers.map((worker) => ({
         workerId: worker.workerId,
         workerType: worker.workerType,
         healthy: new Date(worker.lastHeartbeat).getTime() >= Date.now() - 60000,

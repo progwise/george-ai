@@ -5,24 +5,20 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const workspaceWorkersDocument = graphql(`
+const workersDocument = graphql(`
   query GetWorkspaceWorkers {
-    workspaceWorkers {
+    workers {
       workerId
       healthy
       lastHeartbeatAt
-      activeSubscriptions {
-        workspaceId
-        processingType
-        subscribedAt
-      }
+      workerType
     }
   }
 `)
 
 const getWorkspaceWorkers = createServerFn({ method: 'GET' }).handler(async (ctx) => {
-  const { workspaceWorkers } = await backendRequest(workspaceWorkersDocument, ctx.data)
-  return workspaceWorkers
+  const { workers } = await backendRequest(workersDocument, ctx.data)
+  return workers
 })
 
 export const getWorkspaceWorkersQueryOptions = (enabled?: boolean) =>

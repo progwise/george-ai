@@ -97,14 +97,15 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
 
       return await backendRequest(
         graphql(`
-          mutation processFile($fileId: String!) {
-            createContentProcessingTask(fileId: $fileId) {
+          mutation processFile($libraryId: String!, $fileId: String!) {
+            createContentProcessingTask(libraryId: $libraryId, fileId: $fileId) {
               id
             }
           }
         `),
         {
           fileId: response.prepareFileUpload.id,
+          libraryId: ctx.data.libraryId,
         },
       )
     })

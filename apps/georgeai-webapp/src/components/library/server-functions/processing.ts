@@ -2,39 +2,55 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { EmbeddingRequestInput } from '../../../gql/graphql'
+import { EmbeddingRequestInputSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
-export const createEmbeddingTasksFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileIds: string[] }) => z.object({ fileIds: z.array(z.string()).nonempty() }).parse(data))
+export const triggerEmbeddingFileFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: EmbeddingRequestInput) => EmbeddingRequestInputSchema().parse(data))
   .handler(async ({ data }) => {
-    const createTaskPromises = data.fileIds.map(async (fileId) => {
-      const result = await backendRequest(
-        graphql(`
-          mutation createEmbeddingTasks($id: String!) {
-            createEmbeddingTask(fileId: $id) {
-              id
-              file {
-                name
+    const result = await backendRequest(
+      graphql(`
+        mutation triggerFileEmbedding($input: EmbeddingRequestInput!) {
+          triggerEmbeddingEvent(input: $input) {
+            success
+          }
+        }
+      `),
+      { input: data },
+    )
+    return result.triggerEmbeddingEvent
+  })
+
+export const triggerEmbeddingFilesFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: EmbeddingRequestInput[]) => z.array(EmbeddingRequestInputSchema()).parse(data))
+  .handler(async ({ data }) => {
+    return await Promise.all(
+      data.map(async (input) => {
+        return backendRequest(
+          graphql(`
+            mutation triggerFilesEmbedding($input: EmbeddingRequestInput!) {
+              triggerEmbeddingEvent(input: $input) {
+                success
               }
             }
-          }
-        `),
-        { id: fileId },
-      )
-      return result.createEmbeddingTask
-    })
-
-    return await Promise.all(createTaskPromises)
+          `),
+          { input },
+        )
+      }),
+    )
   })
 
 export const createContentProcessingTasksFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileIds: string[] }) => z.object({ fileIds: z.array(z.string()).nonempty() }).parse(data))
+  .inputValidator((data: { libraryId: string; fileIds: string[] }) =>
+    z.object({ libraryId: z.string().nonempty(), fileIds: z.array(z.string()).nonempty() }).parse(data),
+  )
   .handler(async ({ data }) => {
     const createProcessingTasksPromises = data.fileIds.map(async (fileId) => {
       const result = await backendRequest(
         graphql(`
-          mutation createContentProcessingTasks($id: String!) {
-            createContentProcessingTask(fileId: $id) {
+          mutation createContentProcessingTasks($libraryId: String!, $fileId: String!) {
+            createContentProcessingTask(libraryId: $libraryId, fileId: $fileId) {
               id
               file {
                 name
@@ -42,7 +58,7 @@ export const createContentProcessingTasksFn = createServerFn({ method: 'POST' })
             }
           }
         `),
-        { id: fileId },
+        { fileId: fileId, libraryId: data.libraryId },
       )
       return result.createContentProcessingTask
     })
@@ -66,14 +82,14 @@ export const createMissingContentExtractionTasksFn = createServerFn({ method: 'P
   )
 
 export const cancelProcessingTaskFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { taskId: string; fileId: string }) =>
+  .inputValidator((data: { taskId: string; libraryId: string }) =>
     z.object({ taskId: z.string().nonempty(), fileId: z.string().nonempty() }).parse(data),
   )
   .handler(async ({ data }) =>
     backendRequest(
       graphql(`
-        mutation cancelProcessingTask($taskId: String!, $fileId: String!) {
-          cancelProcessingTask(taskId: $taskId, fileId: $fileId) {
+        mutation cancelProcessingTask($taskId: String!, $libraryId: String!) {
+          cancelProcessingTask(taskId: $taskId, libraryId: $libraryId) {
             id
             fileId
           }

@@ -10,6 +10,7 @@ const getFileUsages = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
+        libraryId: z.string().nonempty(),
         fileId: z.string().nonempty(),
         skip: z.number().int().min(0).default(0),
         take: z.number().int().min(1).default(20),
@@ -19,8 +20,8 @@ const getFileUsages = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getFileUsages($fileId: String!, $skip: Int!, $take: Int!) {
-          aiFileUsages(fileId: $fileId, skip: $skip, take: $take) {
+        query getFileUsages($libraryId: String!, $fileId: String!, $skip: Int!, $take: Int!) {
+          aiFileUsages(libraryId: $libraryId, fileId: $fileId, skip: $skip, take: $take) {
             fileId
             fileName
             skip
@@ -38,16 +39,21 @@ const getFileUsages = createServerFn({ method: 'GET' })
           }
         }
       `),
-      { fileId: data.fileId, skip: data.skip, take: data.take },
+      { libraryId: data.libraryId, fileId: data.fileId, skip: data.skip, take: data.take },
     )
     return result
   })
 
-export const getFileUsagesQueryOptions = (params: { fileId: string; skip?: number; take?: number }) =>
+export const getFileUsagesQueryOptions = (params: {
+  libraryId: string
+  fileId: string
+  skip?: number
+  take?: number
+}) =>
   queryOptions({
     queryKey: [queryKeys.FileUsages, { ...params }],
     queryFn: () =>
       getFileUsages({
-        data: { fileId: params.fileId, skip: params.skip ?? 0, take: params.take ?? 20 },
+        data: { libraryId: params.libraryId, fileId: params.fileId, skip: params.skip ?? 0, take: params.take ?? 20 },
       }),
   })

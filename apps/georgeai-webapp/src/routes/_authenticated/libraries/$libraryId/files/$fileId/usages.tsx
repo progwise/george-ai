@@ -19,6 +19,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await context.queryClient.ensureQueryData(
       getFileUsagesQueryOptions({
+        libraryId: params.libraryId,
         fileId: params.fileId,
         skip: deps.skipUsages,
         take: deps.takeUsages,
@@ -28,7 +29,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { fileId } = Route.useParams()
+  const { fileId, libraryId } = Route.useParams()
   const { skipUsages, takeUsages } = Route.useSearch()
   const navigate = Route.useNavigate()
 
@@ -36,6 +37,7 @@ function RouteComponent() {
     data: { aiFileUsages },
   } = useSuspenseQuery(
     getFileUsagesQueryOptions({
+      libraryId,
       fileId,
       skip: skipUsages,
       take: takeUsages,

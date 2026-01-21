@@ -24,6 +24,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
     await Promise.all([
       context.queryClient.ensureQueryData(
         getFileChunksQueryOptions({
+          libraryId: params.libraryId,
           fileId: params.fileId,
           skip: deps.skipChunks,
           take: deps.takeChunks,
@@ -36,13 +37,14 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { fileId } = Route.useParams()
+  const { fileId, libraryId } = Route.useParams()
   const { skipChunks, takeChunks, part } = Route.useSearch()
   const navigate = Route.useNavigate()
   const {
     data: { aiFileChunks },
   } = useSuspenseQuery(
     getFileChunksQueryOptions({
+      libraryId,
       fileId,
       skip: skipChunks,
       take: takeChunks,

@@ -25,8 +25,8 @@ export const EmbeddingRequestSchema = ProcessBaseSchema.extend({
   processType: z.literal('embedding'),
   libraryId: z.string(),
   fileId: z.string(),
-  fileFragmentId: z.string().optional(),
-  extractionMethod: z.string(),
+  fileFragmentIndex: z.number().nullable().optional(),
+  extractionMethod: z.string().nullable().optional(),
 })
 
 export type EmbeddingRequest = z.infer<typeof EmbeddingRequestSchema>

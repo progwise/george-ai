@@ -9,6 +9,8 @@ export const queryKeys = {
   AiLibraryFiles: 'AiLibraryFiles',
   AiServiceProviders: 'AiServiceProviders',
   AiServiceStatus: 'AiServiceStatus',
+  EventProcessingStatistics: 'EventProcessingStatistics',
+  EventProcessingStatus: 'EventProcessingStatus',
   FileUsages: 'FileUsages',
   AiLanguageModels: 'aiLanguageModels',
   AiModelUsageStats: 'aiModelUsageStats',
@@ -37,8 +39,6 @@ export const queryKeys = {
   AutomationItem: 'AutomationItem',
   AutomationItems: 'AutomationItems',
   AutomationBatches: 'AutomationBatches',
-  // Workspace Stats
-  WorkspaceWorkerStatistics: 'WorkspaceWorkerStatistics',
   // Workers
   WorkspaceWorkers: 'WorkspaceWorkers',
 }

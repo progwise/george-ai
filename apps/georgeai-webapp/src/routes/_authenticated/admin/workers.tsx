@@ -1,11 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getWorkspaceWorkerStatistcsQueryOptions } from '../../../components/admin/queries/get-worker-stats'
 import { getWorkspaceWorkersQueryOptions } from '../../../components/admin/queries/get-workers'
 import { ManageWorkersMenu } from '../../../components/admin/workers/manage-workers-menu'
+import { getEventProcessingStatisticsQueryOptions } from '../../../components/workspace/queries/get-processing-statistics'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { CheckIcon } from '../../../icons/check-icon'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { ProcessingIcon } from '../../../icons/processing-icon'
 import { ServerIcon } from '../../../icons/server-icon'
@@ -16,7 +15,7 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getWorkspaceWorkersQueryOptions()),
-      context.queryClient.ensureQueryData(getWorkspaceWorkerStatistcsQueryOptions()),
+      context.queryClient.ensureQueryData(getEventProcessingStatisticsQueryOptions()),
     ])
   },
 })
@@ -30,14 +29,13 @@ function RouteComponent() {
     refetchInterval: 5000, // Override refetch interval for auto-refresh
   })
 
-  const { data: workerStatistics } = useSuspenseQuery({
-    ...getWorkspaceWorkerStatistcsQueryOptions(),
+  const { data: eventProcessingStatistics } = useSuspenseQuery({
+    ...getEventProcessingStatisticsQueryOptions(),
     refetchInterval: 5000, // Override refetch interval for auto-refresh
   })
 
   // Calculate overview statistics
   const totalWorkers = workers.length
-  const totalSubscriptions = workers.reduce((sum, worker) => sum + worker.activeSubscriptions.length, 0)
 
   // Helper to format time ago
   const formatTimeAgo = (dateString: string) => {
@@ -91,7 +89,7 @@ function RouteComponent() {
               <CpuIcon className="size-8" />
             </div>
             <div className="stat-title">{t('admin.workers.activeSubscriptions')}</div>
-            <div className="stat-value text-secondary">{totalSubscriptions}</div>
+            <div className="stat-value text-secondary"></div>
             <div className="stat-desc">{t('admin.workers.processingType')}</div>
           </div>
         </div>
@@ -140,16 +138,9 @@ function RouteComponent() {
                       </td>
                       <td>
                         <div className="space-y-1">
-                          {worker.activeSubscriptions.length === 0 ? (
-                            <div className="text-sm text-base-content/60">-</div>
-                          ) : (
-                            worker.activeSubscriptions.map((sub) => (
-                              <div key={`${sub.workspaceId}-${sub.processingType}`} className="flex items-center gap-2">
-                                <div className="badge badge-sm badge-primary">{sub.processingType}</div>
-                                <code className="text-xs">{sub.workspaceId.slice(0, 8)}...</code>
-                              </div>
-                            ))
-                          )}
+                          <div className="flex items-center gap-2">
+                            <div className="badge badge-sm badge-primary">{worker.workerType}</div>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -160,107 +151,12 @@ function RouteComponent() {
           )}
         </div>
       </div>
-
-      {/* Workspace Statistics */}
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">
-            <CheckIcon className="size-6" />
-            {t('admin.workers.workspaceStatistics')}
-          </h2>
-
-          <div className="overflow-x-auto">
-            <table className="table table-sm">
-              <thead>
-                <tr>
-                  <th>{t('admin.workers.workspaceId')}</th>
-                  <th colSpan={3} className="text-center">
-                    {t('admin.workers.embeddingRequests')}
-                  </th>
-                  <th colSpan={3} className="text-center">
-                    {t('admin.workers.embeddingProgress')}
-                  </th>
-                  <th colSpan={3} className="text-center">
-                    {t('admin.workers.embeddingFinished')}
-                  </th>
-                </tr>
-                <tr>
-                  <th></th>
-                  <th className="text-xs">{t('admin.workers.total')}</th>
-                  <th className="text-xs">{t('admin.workers.processed')}</th>
-                  <th className="text-xs">{t('admin.workers.pending')}</th>
-                  <th className="text-xs">{t('admin.workers.total')}</th>
-                  <th className="text-xs">{t('admin.workers.processed')}</th>
-                  <th className="text-xs">{t('admin.workers.pending')}</th>
-                  <th className="text-xs">{t('admin.workers.total')}</th>
-                  <th className="text-xs">{t('admin.workers.processed')}</th>
-                  <th className="text-xs">{t('admin.workers.pending')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <code className="text-xs">{workerStatistics.workspaceId.slice(0, 8)}...</code>
-                  </td>
-                  {/* Embedding Requests */}
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingRequests.totalMessages}
-                  </td>
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingRequests.processedMessages}
-                  </td>
-                  <td className="text-center">
-                    <span
-                      className={
-                        workerStatistics.eventMessageStatistics.embeddingRequests.pendingMessages > 0
-                          ? 'font-semibold text-warning'
-                          : ''
-                      }
-                    >
-                      {workerStatistics.eventMessageStatistics.embeddingRequests.pendingMessages}
-                    </span>
-                  </td>
-                  {/* Embedding Progress */}
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingProgress.totalMessages}
-                  </td>
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingProgress.processedMessages}
-                  </td>
-                  <td className="text-center">
-                    <span
-                      className={
-                        workerStatistics.eventMessageStatistics.embeddingProgress.pendingMessages > 0
-                          ? 'font-semibold text-warning'
-                          : ''
-                      }
-                    >
-                      {workerStatistics.eventMessageStatistics.embeddingProgress.pendingMessages}
-                    </span>
-                  </td>
-                  {/* Embedding Finished */}
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingFinished.totalMessages}
-                  </td>
-                  <td className="text-center">
-                    {workerStatistics.eventMessageStatistics.embeddingFinished.processedMessages}
-                  </td>
-                  <td className="text-center">
-                    <span
-                      className={
-                        workerStatistics.eventMessageStatistics.embeddingFinished.pendingMessages > 0
-                          ? 'font-semibold text-warning'
-                          : ''
-                      }
-                    >
-                      {workerStatistics.eventMessageStatistics.embeddingFinished.pendingMessages}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div>
+        {eventProcessingStatistics && (
+          <pre className="rounded-md bg-base-200 p-4">
+            <code>{JSON.stringify(eventProcessingStatistics, null, 2)}</code>
+          </pre>
+        )}
       </div>
     </div>
   )

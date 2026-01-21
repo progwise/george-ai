@@ -1,3 +1,4 @@
+import { generateKey } from './generate'
 import { validateApiKey } from './validate'
 
-export default { validateApiKey }
+export default { validateApiKey, generateKey }

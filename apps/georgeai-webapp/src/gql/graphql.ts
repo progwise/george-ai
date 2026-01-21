@@ -631,7 +631,6 @@ export type AiLibraryCrawlerRunUpdatesArgs = {
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   archivedAt?: Maybe<Scalars['DateTime']['output']>
-  availableExtractionMarkdownFileNames: Array<Scalars['String']['output']>
   /** Available extractions for this file (e.g., CSV, PDF with different models) */
   availableExtractions: Array<ExtractionInfo>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
@@ -648,7 +647,6 @@ export type AiLibraryFile = {
   lastSuccessfulEmbedding?: Maybe<AiContentProcessingTask>
   lastSuccessfulExtraction?: Maybe<AiContentProcessingTask>
   lastUpdate?: Maybe<AiLibraryUpdate>
-  latestExtractionMarkdownFileNames: Array<Scalars['String']['output']>
   library: AiLibrary
   libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
@@ -1182,6 +1180,13 @@ export enum CrawlerUriType {
   Smb = 'smb',
 }
 
+export type EmbeddingRequestInput = {
+  extractionMethod?: InputMaybe<Scalars['String']['input']>
+  fileFragmentIndex?: InputMaybe<Scalars['Int']['input']>
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}
+
 export enum EmbeddingStatus {
   Completed = 'completed',
   Failed = 'failed',
@@ -1259,6 +1264,17 @@ export type EnrichmentTaskWebFetchResult = {
   __typename?: 'EnrichmentTaskWebFetchResult'
   content: Scalars['String']['output']
   url: Scalars['String']['output']
+}
+
+export enum EventProcessingStatus {
+  Paused = 'paused',
+  Running = 'running',
+}
+
+export type EventProcessingStatusResult = {
+  __typename?: 'EventProcessingStatusResult'
+  processType: ProcessType
+  status: EventProcessingStatus
 }
 
 /** Information about an available extraction for a file */
@@ -1519,7 +1535,6 @@ export type Mutation = {
   createConnector: AiConnector
   createContentProcessingTask: AiContentProcessingTask
   createConversationInvitations?: Maybe<AiConversation>
-  createEmbeddingTask: AiContentProcessingTask
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
@@ -1542,7 +1557,6 @@ export type Mutation = {
   disableAiLanguageModel?: Maybe<AiLanguageModel>
   disableConnectorType: Scalars['Boolean']['output']
   dropAllLibraryFiles: Scalars['Int']['output']
-  dropOutdatedMarkdowns: Scalars['Int']['output']
   dropPendingTasks: Scalars['Int']['output']
   enableConnectorType: AiConnectorTypeWorkspace
   ensureUserProfile?: Maybe<UserProfile>
@@ -1568,11 +1582,11 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
-  startProcessing: Scalars['Boolean']['output']
+  startEventProcessing: Scalars['Boolean']['output']
   startQueueWorker: QueueOperationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
-  stopProcessing: Scalars['Boolean']['output']
+  stopEventProcessing: Scalars['Boolean']['output']
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
@@ -1581,6 +1595,7 @@ export type Mutation = {
   toggleAiServiceProvider: AiServiceProvider
   triggerAutomation: TriggerResult
   triggerAutomationItem: TriggerResult
+  triggerEmbeddingEvent: TriggerEmbeddingEventResult
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLanguageModel?: Maybe<AiLanguageModel>
@@ -1637,10 +1652,11 @@ export type MutationCancelContentProcessingTasksArgs = {
 
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationCancelProcessingTaskArgs = {
-  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
   taskId: Scalars['String']['input']
 }
 
@@ -1707,16 +1723,12 @@ export type MutationCreateConnectorArgs = {
 
 export type MutationCreateContentProcessingTaskArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationCreateConversationInvitationsArgs = {
   conversationId: Scalars['String']['input']
   data: Array<ConversationInvitationInput>
-}
-
-export type MutationCreateEmbeddingTaskArgs = {
-  existingTaskId?: InputMaybe<Scalars['String']['input']>
-  fileId: Scalars['String']['input']
 }
 
 export type MutationCreateEnrichmentTasksArgs = {
@@ -1778,10 +1790,12 @@ export type MutationDeleteLibraryArgs = {
 
 export type MutationDeleteLibraryFileArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationDeleteLibraryFilesArgs = {
   fileIds: Array<Scalars['ID']['input']>
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationDeleteListArgs = {
@@ -1813,10 +1827,6 @@ export type MutationDisableConnectorTypeArgs = {
 
 export type MutationDropAllLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
-}
-
-export type MutationDropOutdatedMarkdownsArgs = {
-  fileId: Scalars['String']['input']
 }
 
 export type MutationDropPendingTasksArgs = {
@@ -1918,8 +1928,8 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
-export type MutationStartProcessingArgs = {
-  processingType: WorkspaceProcessingType
+export type MutationStartEventProcessingArgs = {
+  processType: ProcessType
 }
 
 export type MutationStartQueueWorkerArgs = {
@@ -1930,8 +1940,8 @@ export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
 }
 
-export type MutationStopProcessingArgs = {
-  processingType: WorkspaceProcessingType
+export type MutationStopEventProcessingArgs = {
+  processType: ProcessType
 }
 
 export type MutationStopQueueWorkerArgs = {
@@ -1961,6 +1971,10 @@ export type MutationTriggerAutomationArgs = {
 
 export type MutationTriggerAutomationItemArgs = {
   automationItemId: Scalars['ID']['input']
+}
+
+export type MutationTriggerEmbeddingEventArgs = {
+  input: EmbeddingRequestInput
 }
 
 export type MutationUnhideMessageArgs = {
@@ -2059,6 +2073,12 @@ export type MutationValidateWorkspaceDeletionArgs = {
   workspaceId: Scalars['String']['input']
 }
 
+export enum ProcessType {
+  Embedding = 'embedding',
+  Enrichment = 'enrichment',
+  Extraction = 'extraction',
+}
+
 export enum ProcessingStatus {
   Cancelled = 'cancelled',
   Completed = 'completed',
@@ -2139,6 +2159,7 @@ export type Query = {
   connector: AiConnector
   connectorTypes: Array<ConnectorTypeInfo>
   connectors: Array<AiConnector>
+  eventProcessingStatus: Array<EventProcessingStatusResult>
   managedUsers: ManagedUsersResponse
   myWorkspaceInvitations: Array<WorkspaceInvitation>
   queryAiLibraryFiles: AiLibraryQueryResult
@@ -2147,13 +2168,13 @@ export type Query = {
   userProfile: UserProfile
   users: Array<User>
   version?: Maybe<Scalars['String']['output']>
+  workers: Array<WorkspaceWorker>
   workspace: Workspace
   workspaceConnectorTypes: Array<AiConnectorTypeWorkspace>
   workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
   workspaceMembers: Array<WorkspaceMember>
-  workspaceWorkerStatistics: WorkspaceWorkerStatistics
-  workspaceWorkers: Array<WorkspaceWorker>
+  workspaceStatistics: WorkspaceWorkerStatistics
   workspaces: Array<Workspace>
 }
 
@@ -2192,6 +2213,7 @@ export type QueryAiConversationsArgs = {
 
 export type QueryAiFileChunksArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
   part?: InputMaybe<Scalars['Int']['input']>
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
@@ -2199,6 +2221,7 @@ export type QueryAiFileChunksArgs = {
 
 export type QueryAiFileUsagesArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
 }
@@ -2326,6 +2349,7 @@ export type QueryAiServiceProvidersArgs = {
 export type QueryAiSimilarFileChunksArgs = {
   fileId: Scalars['String']['input']
   hits?: InputMaybe<Scalars['Int']['input']>
+  libraryId: Scalars['String']['input']
   part?: InputMaybe<Scalars['Int']['input']>
   term?: InputMaybe<Scalars['String']['input']>
   useQuery?: InputMaybe<Scalars['Boolean']['input']>
@@ -2490,6 +2514,11 @@ export type TestProviderConnectionResult = {
   success: Scalars['Boolean']['output']
 }
 
+export type TriggerEmbeddingEventResult = {
+  __typename?: 'TriggerEmbeddingEventResult'
+  success: Scalars['Boolean']['output']
+}
+
 export type TriggerResult = {
   __typename?: 'TriggerResult'
   batchId?: Maybe<Scalars['String']['output']>
@@ -2579,6 +2608,12 @@ export type UserStatistic = {
   unconfirmed: Scalars['Int']['output']
 }
 
+export enum WorkerType {
+  AiHealthManagement = 'AI_HEALTH_MANAGEMENT',
+  AiProviderCalling = 'AI_PROVIDER_CALLING',
+  WorkspaceProcessing = 'WORKSPACE_PROCESSING',
+}
+
 export type Workspace = {
   __typename?: 'Workspace'
   assistants: Array<AiAssistant>
@@ -2606,16 +2641,9 @@ export type WorkspaceDeletionValidation = {
 export type WorkspaceEventMessageStatisticValues = {
   __typename?: 'WorkspaceEventMessageStatisticValues'
   pendingMessages: Scalars['Int']['output']
+  processType: ProcessType
   processedMessages: Scalars['Int']['output']
   totalMessages: Scalars['Int']['output']
-}
-
-export type WorkspaceEventMessageStatistics = {
-  __typename?: 'WorkspaceEventMessageStatistics'
-  embeddingFinished: WorkspaceEventMessageStatisticValues
-  embeddingProgress: WorkspaceEventMessageStatisticValues
-  embeddingRequests: WorkspaceEventMessageStatisticValues
-  extractionRequests: WorkspaceEventMessageStatisticValues
 }
 
 export type WorkspaceInvitation = {
@@ -2638,29 +2666,17 @@ export type WorkspaceMember = {
   workspace: Workspace
 }
 
-export enum WorkspaceProcessingType {
-  ContentExtraction = 'CONTENT_EXTRACTION',
-  Embedding = 'EMBEDDING',
-}
-
 export type WorkspaceWorker = {
   __typename?: 'WorkspaceWorker'
-  activeSubscriptions: Array<WorkspaceWorkerSubscription>
   healthy: Scalars['Boolean']['output']
   lastHeartbeatAt: Scalars['String']['output']
   workerId: Scalars['String']['output']
+  workerType: WorkerType
 }
 
 export type WorkspaceWorkerStatistics = {
   __typename?: 'WorkspaceWorkerStatistics'
-  eventMessageStatistics: WorkspaceEventMessageStatistics
-  workspaceId: Scalars['String']['output']
-}
-
-export type WorkspaceWorkerSubscription = {
-  __typename?: 'WorkspaceWorkerSubscription'
-  processingType: WorkspaceProcessingType
-  subscribedAt: Scalars['String']['output']
+  statistics: Array<WorkspaceEventMessageStatisticValues>
   workspaceId: Scalars['String']['output']
 }
 
@@ -3204,58 +3220,16 @@ export type GetAiServiceProvidersQuery = {
   }>
 }
 
-export type GetWorkspaceWorkerStatisticsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetWorkspaceWorkerStatisticsQuery = {
-  __typename?: 'Query'
-  workspaceWorkerStatistics: {
-    __typename?: 'WorkspaceWorkerStatistics'
-    workspaceId: string
-    eventMessageStatistics: {
-      __typename?: 'WorkspaceEventMessageStatistics'
-      extractionRequests: {
-        __typename?: 'WorkspaceEventMessageStatisticValues'
-        totalMessages: number
-        processedMessages: number
-        pendingMessages: number
-      }
-      embeddingRequests: {
-        __typename?: 'WorkspaceEventMessageStatisticValues'
-        totalMessages: number
-        processedMessages: number
-        pendingMessages: number
-      }
-      embeddingProgress: {
-        __typename?: 'WorkspaceEventMessageStatisticValues'
-        totalMessages: number
-        processedMessages: number
-        pendingMessages: number
-      }
-      embeddingFinished: {
-        __typename?: 'WorkspaceEventMessageStatisticValues'
-        totalMessages: number
-        processedMessages: number
-        pendingMessages: number
-      }
-    }
-  }
-}
-
 export type GetWorkspaceWorkersQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWorkspaceWorkersQuery = {
   __typename?: 'Query'
-  workspaceWorkers: Array<{
+  workers: Array<{
     __typename?: 'WorkspaceWorker'
     workerId: string
     healthy: boolean
     lastHeartbeatAt: string
-    activeSubscriptions: Array<{
-      __typename?: 'WorkspaceWorkerSubscription'
-      workspaceId: string
-      processingType: WorkspaceProcessingType
-      subscribedAt: string
-    }>
+    workerType: WorkerType
   }>
 }
 
@@ -3421,16 +3395,16 @@ export type RestoreDefaultProvidersMutation = {
 }
 
 export type StartWorkspaceProcessingMutationVariables = Exact<{
-  processingType: WorkspaceProcessingType
+  processType: ProcessType
 }>
 
-export type StartWorkspaceProcessingMutation = { __typename?: 'Mutation'; startProcessing: boolean }
+export type StartWorkspaceProcessingMutation = { __typename?: 'Mutation'; startEventProcessing: boolean }
 
 export type StopWorkspaceProcessingMutationVariables = Exact<{
-  processingType: WorkspaceProcessingType
+  processType: ProcessType
 }>
 
-export type StopWorkspaceProcessingMutation = { __typename?: 'Mutation'; stopProcessing: boolean }
+export type StopWorkspaceProcessingMutation = { __typename?: 'Mutation'; stopEventProcessing: boolean }
 
 export type TestProviderConnectionMutationVariables = Exact<{
   data: TestProviderConnectionInput
@@ -5041,6 +5015,7 @@ export type PrepareDesktopFileMutation = {
 }
 
 export type CancelFileUploadMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
 }>
 
@@ -5074,6 +5049,7 @@ export type AiLibraryFile_TableItemFragment = {
 }
 
 export type GetFileChunksQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
@@ -5173,6 +5149,7 @@ export type GetFileInfoQuery = {
 }
 
 export type GetSimilarFileChunksQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
   term?: InputMaybe<Scalars['String']['input']>
   hits: Scalars['Int']['input']
@@ -5200,6 +5177,7 @@ export type GetSimilarFileChunksQuery = {
 }
 
 export type GetFileUsagesQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
@@ -5415,6 +5393,7 @@ export type DropAllLibraryFilesMutationVariables = Exact<{
 export type DropAllLibraryFilesMutation = { __typename?: 'Mutation'; dropAllLibraryFiles: number }
 
 export type DeleteLibraryFileMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
 }>
 
@@ -5424,16 +5403,11 @@ export type DeleteLibraryFileMutation = {
 }
 
 export type DeleteLibraryFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileIds: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
 export type DeleteLibraryFilesMutation = { __typename?: 'Mutation'; deleteLibraryFiles: number }
-
-export type DropOutdatedMarkdownFilesMutationVariables = Exact<{
-  fileId: Scalars['String']['input']
-}>
-
-export type DropOutdatedMarkdownFilesMutation = { __typename?: 'Mutation'; dropOutdatedMarkdowns: number }
 
 export type DeleteLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -5470,21 +5444,27 @@ export type CreateLibraryMutation = {
   createLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
-export type CreateEmbeddingTasksMutationVariables = Exact<{
-  id: Scalars['String']['input']
+export type TriggerFileEmbeddingMutationVariables = Exact<{
+  input: EmbeddingRequestInput
 }>
 
-export type CreateEmbeddingTasksMutation = {
+export type TriggerFileEmbeddingMutation = {
   __typename?: 'Mutation'
-  createEmbeddingTask: {
-    __typename?: 'AiContentProcessingTask'
-    id: string
-    file: { __typename?: 'AiLibraryFile'; name: string }
-  }
+  triggerEmbeddingEvent: { __typename?: 'TriggerEmbeddingEventResult'; success: boolean }
+}
+
+export type TriggerFilesEmbeddingMutationVariables = Exact<{
+  input: EmbeddingRequestInput
+}>
+
+export type TriggerFilesEmbeddingMutation = {
+  __typename?: 'Mutation'
+  triggerEmbeddingEvent: { __typename?: 'TriggerEmbeddingEventResult'; success: boolean }
 }
 
 export type CreateContentProcessingTasksMutationVariables = Exact<{
-  id: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
 }>
 
 export type CreateContentProcessingTasksMutation = {
@@ -5507,7 +5487,7 @@ export type CreateMissingContentExtractionTasksMutation = {
 
 export type CancelProcessingTaskMutationVariables = Exact<{
   taskId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type CancelProcessingTaskMutation = {
@@ -5559,6 +5539,7 @@ export type PrepareFileMutation = {
 }
 
 export type ProcessFileMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
 }>
 
@@ -6920,6 +6901,34 @@ export type UpdateWorkspaceMemberRoleMutation = {
     role: string
     user: { __typename?: 'User'; id: string; name?: string | null; email: string }
   }
+}
+
+export type GetEventProcessingStatisticsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEventProcessingStatisticsQuery = {
+  __typename?: 'Query'
+  workspaceStatistics: {
+    __typename?: 'WorkspaceWorkerStatistics'
+    workspaceId: string
+    statistics: Array<{
+      __typename?: 'WorkspaceEventMessageStatisticValues'
+      processType: ProcessType
+      totalMessages: number
+      processedMessages: number
+      pendingMessages: number
+    }>
+  }
+}
+
+export type GetEventProcessingStatusQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEventProcessingStatusQuery = {
+  __typename?: 'Query'
+  eventProcessingStatus: Array<{
+    __typename?: 'EventProcessingStatusResult'
+    status: EventProcessingStatus
+    processType: ProcessType
+  }>
 }
 
 export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>
@@ -13740,88 +13749,6 @@ export const GetAiServiceProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
-export const GetWorkspaceWorkerStatisticsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetWorkspaceWorkerStatistics' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'workspaceWorkerStatistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'eventMessageStatistics' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'extractionRequests' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'embeddingRequests' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'embeddingProgress' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'embeddingFinished' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetWorkspaceWorkerStatisticsQuery, GetWorkspaceWorkerStatisticsQueryVariables>
 export const GetWorkspaceWorkersDocument = {
   kind: 'Document',
   definitions: [
@@ -13834,25 +13761,14 @@ export const GetWorkspaceWorkersDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'workspaceWorkers' },
+            name: { kind: 'Name', value: 'workers' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'workerId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'healthy' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastHeartbeatAt' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'activeSubscriptions' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'processingType' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'subscribedAt' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'workerType' } },
               ],
             },
           },
@@ -14320,11 +14236,8 @@ export const StartWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'WorkspaceProcessingType' } },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processType' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessType' } } },
         },
       ],
       selectionSet: {
@@ -14332,12 +14245,12 @@ export const StartWorkspaceProcessingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'startProcessing' },
+            name: { kind: 'Name', value: 'startEventProcessing' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'processingType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+                name: { kind: 'Name', value: 'processType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'processType' } },
               },
             ],
           },
@@ -14356,11 +14269,8 @@ export const StopWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'WorkspaceProcessingType' } },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'processType' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessType' } } },
         },
       ],
       selectionSet: {
@@ -14368,12 +14278,12 @@ export const StopWorkspaceProcessingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'stopProcessing' },
+            name: { kind: 'Name', value: 'stopEventProcessing' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'processingType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'processingType' } },
+                name: { kind: 'Name', value: 'processType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'processType' } },
               },
             ],
           },
@@ -18014,6 +17924,11 @@ export const CancelFileUploadDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -18025,6 +17940,11 @@ export const CancelFileUploadDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'cancelFileUpload' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -18045,6 +17965,11 @@ export const GetFileChunksDocument = {
       operation: 'query',
       name: { kind: 'Name', value: 'getFileChunks' },
       variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
@@ -18073,6 +17998,11 @@ export const GetFileChunksDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'aiFileChunks' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -18370,6 +18300,11 @@ export const GetSimilarFileChunksDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -18401,6 +18336,11 @@ export const GetSimilarFileChunksDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'aiSimilarFileChunks' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -18460,6 +18400,11 @@ export const GetFileUsagesDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -18481,6 +18426,11 @@ export const GetFileUsagesDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'aiFileUsages' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -19011,6 +18961,11 @@ export const DeleteLibraryFileDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -19022,6 +18977,11 @@ export const DeleteLibraryFileDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'deleteLibraryFile' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -19051,6 +19011,11 @@ export const DeleteLibraryFilesDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
           type: {
             kind: 'NonNullType',
@@ -19070,6 +19035,11 @@ export const DeleteLibraryFilesDocument = {
             arguments: [
               {
                 kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
                 name: { kind: 'Name', value: 'fileIds' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
               },
@@ -19080,39 +19050,6 @@ export const DeleteLibraryFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLibraryFilesMutation, DeleteLibraryFilesMutationVariables>
-export const DropOutdatedMarkdownFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'dropOutdatedMarkdownFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'dropOutdatedMarkdowns' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DropOutdatedMarkdownFilesMutation, DropOutdatedMarkdownFilesMutationVariables>
 export const DeleteLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -19247,18 +19184,21 @@ export const CreateLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLibraryMutation, CreateLibraryMutationVariables>
-export const CreateEmbeddingTasksDocument = {
+export const TriggerFileEmbeddingDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'createEmbeddingTasks' },
+      name: { kind: 'Name', value: 'triggerFileEmbedding' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'EmbeddingRequestInput' } },
+          },
         },
       ],
       selectionSet: {
@@ -19266,34 +19206,64 @@ export const CreateEmbeddingTasksDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createEmbeddingTask' },
+            name: { kind: 'Name', value: 'triggerEmbeddingEvent' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'file' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                  },
-                },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<CreateEmbeddingTasksMutation, CreateEmbeddingTasksMutationVariables>
+} as unknown as DocumentNode<TriggerFileEmbeddingMutation, TriggerFileEmbeddingMutationVariables>
+export const TriggerFilesEmbeddingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'triggerFilesEmbedding' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'EmbeddingRequestInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'triggerEmbeddingEvent' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TriggerFilesEmbeddingMutation, TriggerFilesEmbeddingMutationVariables>
 export const CreateContentProcessingTasksDocument = {
   kind: 'Document',
   definitions: [
@@ -19304,7 +19274,12 @@ export const CreateContentProcessingTasksDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -19317,8 +19292,13 @@ export const CreateContentProcessingTasksDocument = {
             arguments: [
               {
                 kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
             ],
             selectionSet: {
@@ -19399,7 +19379,7 @@ export const CancelProcessingTaskDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -19417,8 +19397,8 @@ export const CancelProcessingTaskDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
             selectionSet: {
@@ -19639,6 +19619,11 @@ export const ProcessFileDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -19650,6 +19635,11 @@ export const ProcessFileDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'createContentProcessingTask' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
@@ -22740,6 +22730,70 @@ export const UpdateWorkspaceMemberRoleDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateWorkspaceMemberRoleMutation, UpdateWorkspaceMemberRoleMutationVariables>
+export const GetEventProcessingStatisticsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEventProcessingStatistics' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceStatistics' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'statistics' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'processType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEventProcessingStatisticsQuery, GetEventProcessingStatisticsQueryVariables>
+export const GetEventProcessingStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEventProcessingStatus' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'eventProcessingStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processType' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEventProcessingStatusQuery, GetEventProcessingStatusQueryVariables>
 export const GetWorkspacesDocument = {
   kind: 'Document',
   definitions: [

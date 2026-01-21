@@ -18,12 +18,14 @@ export const dropAllLibraryFilesFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteLibraryFileFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileId: string }) => z.object({ fileId: z.string().nonempty() }).parse(data))
+  .inputValidator((data: { libraryId: string; fileId: string }) =>
+    z.object({ libraryId: z.string().nonempty(), fileId: z.string().nonempty() }).parse(data),
+  )
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        mutation deleteLibraryFile($fileId: String!) {
-          deleteLibraryFile(fileId: $fileId) {
+        mutation deleteLibraryFile($libraryId: String!, $fileId: String!) {
+          deleteLibraryFile(libraryId: $libraryId, fileId: $fileId) {
             id
             name
           }
@@ -35,12 +37,14 @@ export const deleteLibraryFileFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteLibraryFilesFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileIds: string[] }) => z.object({ fileIds: z.array(z.string().nonempty()) }).parse(data))
+  .inputValidator((data: { libraryId: string; fileIds: string[] }) =>
+    z.object({ libraryId: z.string().nonempty(), fileIds: z.array(z.string().nonempty()) }).parse(data),
+  )
   .handler(async ({ data }) => {
     return backendRequest(
       graphql(`
-        mutation deleteLibraryFiles($fileIds: [ID!]!) {
-          deleteLibraryFiles(fileIds: $fileIds)
+        mutation deleteLibraryFiles($libraryId: String!, $fileIds: [ID!]!) {
+          deleteLibraryFiles(libraryId: $libraryId, fileIds: $fileIds)
         }
       `),
       data,

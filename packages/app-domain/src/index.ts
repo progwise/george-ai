@@ -19,10 +19,13 @@ export { getDatamodel } from '../prisma/generated/pothos'
 
 export type * from './context'
 
+export type * from './workspace'
 export { default as workspace } from './workspace'
 
+export type * from './user'
 export { default as user } from './user'
 
+export type * from './api-key'
 export { default as apiKey } from './api-key'
 
 initializeAppDomain().catch((error) => {

@@ -583,7 +583,6 @@ type AiLibraryCrawlerRun {
 
 type AiLibraryFile {
   archivedAt: DateTime
-  availableExtractionMarkdownFileNames: [String!]!
   """
   Available extractions for this file (e.g., CSV, PDF with different models)
   """
@@ -602,7 +601,6 @@ type AiLibraryFile {
   lastSuccessfulEmbedding: AiContentProcessingTask
   lastSuccessfulExtraction: AiContentProcessingTask
   lastUpdate: AiLibraryUpdate
-  latestExtractionMarkdownFileNames: [String!]!
   library: AiLibrary!
   libraryId: String!
   mimeType: String!
@@ -1144,6 +1142,13 @@ scalar DateTime
 
 scalar Decimal
 
+input EmbeddingRequestInput {
+  extractionMethod: String
+  fileFragmentIndex: Int
+  fileId: String!
+  libraryId: String!
+}
+
 enum EmbeddingStatus {
   completed
   failed
@@ -1213,6 +1218,16 @@ type EnrichmentTaskSimilarChunk {
 type EnrichmentTaskWebFetchResult {
   content: String!
   url: String!
+}
+
+enum EventProcessingStatus {
+  paused
+  running
+}
+
+type EventProcessingStatusResult {
+  processType: ProcessType!
+  status: EventProcessingStatus!
 }
 
 """
@@ -1448,8 +1463,8 @@ type Mutation {
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelContentProcessingTasks(libraryId: String): QueueOperationResult!
-  cancelFileUpload(fileId: String!): Boolean!
-  cancelProcessingTask(fileId: String!, taskId: String!): AiContentProcessingTask!
+  cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
+  cancelProcessingTask(libraryId: String!, taskId: String!): AiContentProcessingTask!
   clearEmbeddedFiles(libraryId: String!): Boolean
   clearFailedTasks(libraryId: String, queueType: QueueType!): QueueOperationResult!
   clearListEnrichments(
@@ -1481,9 +1496,8 @@ type Mutation {
   createAiServiceProvider(data: AiServiceProviderInput!): AiServiceProvider!
   createAutomation(data: AiAutomationInput!): AiAutomation!
   createConnector(data: AiConnectorInput!): AiConnector!
-  createContentProcessingTask(fileId: String!): AiContentProcessingTask!
+  createContentProcessingTask(fileId: String!, libraryId: String!): AiContentProcessingTask!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
-  createEmbeddingTask(existingTaskId: String, fileId: String!): AiContentProcessingTask!
   createEnrichmentTasks(
     """
     Field ID to enrich
@@ -1512,8 +1526,8 @@ type Mutation {
   deleteAutomation(id: ID!): Boolean!
   deleteConnector(id: ID!): Boolean!
   deleteLibrary(id: String!): AiLibrary!
-  deleteLibraryFile(fileId: String!): AiLibraryFile!
-  deleteLibraryFiles(fileIds: [ID!]!): Int!
+  deleteLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
+  deleteLibraryFiles(fileIds: [ID!]!, libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
   deletePendingEnrichmentTasks(
@@ -1535,7 +1549,6 @@ type Mutation {
   disableAiLanguageModel(id: ID!): AiLanguageModel
   disableConnectorType(connectorType: String!): Boolean!
   dropAllLibraryFiles(libraryId: String!): Int!
-  dropOutdatedMarkdowns(fileId: String!): Int!
   dropPendingTasks(libraryId: String!): Int!
   enableConnectorType(connectorType: String!): AiConnectorTypeWorkspace!
   ensureUserProfile(userId: String!): UserProfile
@@ -1561,11 +1574,11 @@ type Mutation {
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startAllQueueWorkers: QueueOperationResult!
-  startProcessing(processingType: WorkspaceProcessingType!): Boolean!
+  startEventProcessing(processType: ProcessType!): Boolean!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
-  stopProcessing(processingType: WorkspaceProcessingType!): Boolean!
+  stopEventProcessing(processType: ProcessType!): Boolean!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels: SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
@@ -1574,6 +1587,7 @@ type Mutation {
   toggleAiServiceProvider(enabled: Boolean!, id: ID!): AiServiceProvider!
   triggerAutomation(id: ID!): TriggerResult!
   triggerAutomationItem(automationItemId: ID!): TriggerResult!
+  triggerEmbeddingEvent(input: EmbeddingRequestInput!): TriggerEmbeddingEventResult!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
@@ -1597,6 +1611,12 @@ type Mutation {
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
   validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
+}
+
+enum ProcessType {
+  embedding
+  enrichment
+  extraction
 }
 
 enum ProcessingStatus {
@@ -1647,8 +1667,8 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
-  aiFileChunks(fileId: String!, part: Int, skip: Int!, take: Int!): FileChunkQueryResponse!
-  aiFileUsages(fileId: String!, skip: Int!, take: Int!): FileUsageQueryResponse!
+  aiFileChunks(fileId: String!, libraryId: String!, part: Int, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileUsages(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileUsageQueryResponse!
   aiLanguageModels(
     canDoChatCompletion: Boolean
     canDoEmbedding: Boolean
@@ -1720,6 +1740,7 @@ type Query {
   aiSimilarFileChunks(
     fileId: String!
     hits: Int = 20
+    libraryId: String!
     part: Int
     term: String
     useQuery: Boolean = false
@@ -1735,6 +1756,7 @@ type Query {
   connector(id: ID!): AiConnector!
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
+  eventProcessingStatus: [EventProcessingStatusResult!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
@@ -1743,13 +1765,13 @@ type Query {
   userProfile: UserProfile!
   users: [User!]!
   version: String
+  workers: [WorkspaceWorker!]!
   workspace(id: ID!): Workspace!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(id: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
-  workspaceWorkerStatistics: WorkspaceWorkerStatistics!
-  workspaceWorkers: [WorkspaceWorker!]!
+  workspaceStatistics: WorkspaceWorkerStatistics!
   workspaces: [Workspace!]!
 }
 
@@ -1823,6 +1845,10 @@ input TestProviderConnectionInput {
 type TestProviderConnectionResult {
   details: String
   message: String!
+  success: Boolean!
+}
+
+type TriggerEmbeddingEventResult {
   success: Boolean!
 }
 
@@ -1910,6 +1936,12 @@ type UserStatistic {
   unconfirmed: Int!
 }
 
+enum WorkerType {
+  AI_HEALTH_MANAGEMENT
+  AI_PROVIDER_CALLING
+  WORKSPACE_PROCESSING
+}
+
 type Workspace {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
@@ -1934,15 +1966,9 @@ type WorkspaceDeletionValidation {
 
 type WorkspaceEventMessageStatisticValues {
   pendingMessages: Int!
+  processType: ProcessType!
   processedMessages: Int!
   totalMessages: Int!
-}
-
-type WorkspaceEventMessageStatistics {
-  embeddingFinished: WorkspaceEventMessageStatisticValues!
-  embeddingProgress: WorkspaceEventMessageStatisticValues!
-  embeddingRequests: WorkspaceEventMessageStatisticValues!
-  extractionRequests: WorkspaceEventMessageStatisticValues!
 }
 
 type WorkspaceInvitation {
@@ -1963,25 +1989,14 @@ type WorkspaceMember {
   workspace: Workspace!
 }
 
-enum WorkspaceProcessingType {
-  CONTENT_EXTRACTION
-  EMBEDDING
-}
-
 type WorkspaceWorker {
-  activeSubscriptions: [WorkspaceWorkerSubscription!]!
   healthy: Boolean!
   lastHeartbeatAt: String!
   workerId: String!
+  workerType: WorkerType!
 }
 
 type WorkspaceWorkerStatistics {
-  eventMessageStatistics: WorkspaceEventMessageStatistics!
-  workspaceId: String!
-}
-
-type WorkspaceWorkerSubscription {
-  processingType: WorkspaceProcessingType!
-  subscribedAt: String!
+  statistics: [WorkspaceEventMessageStatisticValues!]!
   workspaceId: String!
 }

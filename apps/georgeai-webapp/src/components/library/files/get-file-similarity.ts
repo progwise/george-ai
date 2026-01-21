@@ -8,6 +8,7 @@ const getSimilarFileChunks = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
+        libraryId: z.string().nonempty(),
         fileId: z.string().nonempty(),
         term: z.string().optional(),
         hits: z.number().int().min(1).default(20),
@@ -19,8 +20,22 @@ const getSimilarFileChunks = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getSimilarFileChunks($fileId: String!, $term: String, $hits: Int!, $part: Int, $useQuery: Boolean) {
-          aiSimilarFileChunks(fileId: $fileId, term: $term, hits: $hits, part: $part, useQuery: $useQuery) {
+        query getSimilarFileChunks(
+          $libraryId: String!
+          $fileId: String!
+          $term: String
+          $hits: Int!
+          $part: Int
+          $useQuery: Boolean
+        ) {
+          aiSimilarFileChunks(
+            libraryId: $libraryId
+            fileId: $fileId
+            term: $term
+            hits: $hits
+            part: $part
+            useQuery: $useQuery
+          ) {
             id
             fileName
             fileId

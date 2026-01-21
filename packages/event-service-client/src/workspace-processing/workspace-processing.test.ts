@@ -65,7 +65,7 @@ describe.sequential('Workspace Processing Event Lifecycle', () => {
           extractionMethod: 'test-method',
           fileId: `test-file-id-${i}`,
           libraryId: 'test-library-id',
-          fileFragmentId: `fragment-${i}`,
+          fileFragmentIndex: i,
         }),
       )
     }

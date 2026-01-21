@@ -4,7 +4,7 @@ import { useSearch } from '@tanstack/react-router'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { deleteLibraryFileFn, deleteLibraryFilesFn, dropAllLibraryFilesFn } from '../server-functions/delete-files'
-import { createContentProcessingTasksFn, createEmbeddingTasksFn } from '../server-functions/processing'
+import { createContentProcessingTasksFn, triggerEmbeddingFilesFn } from '../server-functions/processing'
 import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
 import { cancelFileUploadFn, prepareDesktopFileUploadsFn } from './file-upload'
 import { getFileChunksQueryOptions } from './get-file-chunks'
@@ -20,7 +20,7 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
       ...(fileIds
         ? fileIds.map((fileId) =>
             queryClient.invalidateQueries({
-              queryKey: getFileChunksQueryOptions({ fileId }).queryKey,
+              queryKey: getFileChunksQueryOptions({ libraryId, fileId }).queryKey,
             }),
           )
         : []),
@@ -45,7 +45,8 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
     ])
   }
   const { mutate: createEmbeddingTasksMutate, isPending: createEmbeddingTasksIsPending } = useMutation({
-    mutationFn: (fileIds: string[]) => createEmbeddingTasksFn({ data: { fileIds: fileIds } }),
+    mutationFn: (fileIds: string[]) =>
+      triggerEmbeddingFilesFn({ data: fileIds.map((fileId) => ({ libraryId, fileId })) }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
@@ -59,7 +60,7 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
     },
   })
   const { mutate: createExtractionTasksMutate, isPending: createExtractionsTasksIsPending } = useMutation({
-    mutationFn: (fileIds: string[]) => createContentProcessingTasksFn({ data: { fileIds } }),
+    mutationFn: (fileIds: string[]) => createContentProcessingTasksFn({ data: { libraryId, fileIds } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error
@@ -76,7 +77,7 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   })
 
   const { mutate: dropFileMutate, isPending: dropFilePending } = useMutation({
-    mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { fileId } }),
+    mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { libraryId, fileId } }),
     onError: (error: Error) => {
       const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
       toastError(t('errors.dropFile', { error: errorMessage }))
@@ -90,7 +91,7 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   })
 
   const { mutate: dropFilesMutate, isPending: dropFilesIsPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => deleteLibraryFilesFn({ data: { fileIds } }),
+    mutationFn: async (fileIds: string[]) => deleteLibraryFilesFn({ data: { libraryId, fileIds } }),
     onSuccess: (data) => {
       toastSuccess(t('actions.dropSuccess', { count: data.deleteLibraryFiles }))
     },
@@ -127,7 +128,7 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   })
 
   const { mutate: cancelFileUploadMutate, isPending: cancelFileUploadPending } = useMutation({
-    mutationFn: (fileId: string) => cancelFileUploadFn({ data: { fileId } }),
+    mutationFn: (fileId: string) => cancelFileUploadFn({ data: { libraryId, fileId } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.cancelFileUpload', { error: 'Unknown error' })

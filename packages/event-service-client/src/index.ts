@@ -53,16 +53,16 @@ export type {
 } from './provider-calls'
 
 export { default as providerHealth } from './provider-health'
-export type { ProviderHealth } from './provider-health'
+export type * from './provider-health'
 
 export { default as workerRegistry } from './worker-registry'
-export type { WorkerRegistryEntry, WorkerType } from './worker-registry'
+export type * from './worker-registry'
 
 export { default as workspaceConfig } from './workspace-config'
-export type { WorkspaceConfig } from './workspace-config'
+export type * from './workspace-config'
 
 export { default as workspaceProcessing } from './workspace-processing'
-export type { ProcessEvent, ProcessType, StatusEvent } from './workspace-processing'
+export type * from './workspace-processing'
 
 export { default as workspaceUsage } from './workspace-usage'
-export type { UsageTrackingEvent } from './workspace-usage'
+export type * from './workspace-usage'

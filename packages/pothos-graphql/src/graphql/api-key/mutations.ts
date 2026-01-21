@@ -1,7 +1,5 @@
-import bcrypt from 'bcrypt'
-import crypto from 'crypto'
-
 import { prisma } from '@george-ai/app-domain'
+import { apiKey } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
 import { canAdminWorkspaceOrThrow } from '../workspace'
@@ -32,16 +30,13 @@ builder.mutationField('generateApiKey', (t) =>
       await canAdminWorkspaceOrThrow(libraryId, context.session.user.id)
 
       // Generate a random API key (32 bytes = 64 hex characters)
-      const key = crypto.randomBytes(32).toString('hex')
-
-      // Hash the key for storage
-      const keyHash = await bcrypt.hash(key, 10)
+      const newKey = await apiKey.generateKey()
 
       // Create the API key record
-      const apiKey = await prisma.apiKey.create({
+      const apiKeyRecord = await prisma.apiKey.create({
         data: {
           name,
-          keyHash,
+          keyHash: newKey.keyHash,
           libraryId,
           userId: context.session.user.id,
         },
@@ -49,11 +44,11 @@ builder.mutationField('generateApiKey', (t) =>
 
       // Return the API key with the plain text key (only time it's revealed)
       return {
-        id: apiKey.id,
-        name: apiKey.name,
-        key, // Plain text key
-        libraryId: apiKey.libraryId,
-        createdAt: apiKey.createdAt,
+        id: apiKeyRecord.id,
+        name: apiKeyRecord.name,
+        key: newKey.key, // Plain text key
+        libraryId: apiKeyRecord.libraryId,
+        createdAt: apiKeyRecord.createdAt,
       }
     },
   }),

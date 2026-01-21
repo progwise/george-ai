@@ -68,9 +68,10 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
   })
 
 export const cancelFileUploadFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { fileId: string }) =>
+  .inputValidator((data: { libraryId: string; fileId: string }) =>
     z
       .object({
+        libraryId: z.string().nonempty(),
         fileId: z.string().nonempty(),
       })
       .parse(data),
@@ -78,10 +79,10 @@ export const cancelFileUploadFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     await backendRequest(
       graphql(`
-        mutation cancelFileUpload($fileId: String!) {
-          cancelFileUpload(fileId: $fileId)
+        mutation cancelFileUpload($libraryId: String!, $fileId: String!) {
+          cancelFileUpload(libraryId: $libraryId, fileId: $fileId)
         }
       `),
-      { fileId: data.fileId },
+      { libraryId: data.libraryId, fileId: data.fileId },
     )
   })

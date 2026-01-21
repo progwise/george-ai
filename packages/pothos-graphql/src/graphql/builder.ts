@@ -56,6 +56,10 @@ const builder = new SchemaBuilder<{
       Input: (typeof workspace.WORKER_TYPES)[number]
       Output: (typeof workspace.WORKER_TYPES)[number]
     }
+    EventProcessingStatus: {
+      Input: (typeof workspace.EVENT_PROCESSING_STATUS)[number]
+      Output: (typeof workspace.EVENT_PROCESSING_STATUS)[number]
+    }
     ExtractionStatus: {
       Input: (typeof EXTRACTION_STATUS)[number]
       Output: (typeof EXTRACTION_STATUS)[number]

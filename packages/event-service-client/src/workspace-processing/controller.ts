@@ -26,13 +26,17 @@ export const startProcessing = async ({
   logger.debug('Processing started', { workspaceId, processType })
 }
 
+export const EVENT_PROCESSING_STATUS = ['paused', 'running'] as const
+
+export type EventProcessingStatus = (typeof EVENT_PROCESSING_STATUS)[number]
+
 export const processingStatus = async ({
   workspaceId,
   processType,
 }: {
   workspaceId: string
   processType: ProcessType
-}) => {
+}): Promise<EventProcessingStatus> => {
   const consumerName = getConsumerName({ workspaceId, processType })
   return await eventClient.consumerStatus({ streamName: WORKSPACE_STREAM_NAME, consumerName })
 }

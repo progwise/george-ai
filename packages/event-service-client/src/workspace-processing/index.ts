@@ -5,13 +5,20 @@ import {
   ensureWorkspaceProcessingConsumer,
   ensureWorkspaceProcessingConsumers,
 } from './consumers'
-import { processingStatus, startProcessing, stopProcessing } from './controller'
+import { EVENT_PROCESSING_STATUS, processingStatus, startProcessing, stopProcessing } from './controller'
 import { publishRequestEvent, publishStatusEvent } from './publish'
-import { PROCESS_TYPES } from './schema'
+import { EmbeddingRequestSchema, EnrichmentRequestSchema, ExtractionRequestSchema, PROCESS_TYPES } from './schema'
 import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statistics'
 import { subscribeProcessEvent } from './subscribe'
 
-export type { ProcessEvent, ProcessType, StatusEvent } from './schema'
+export type {
+  ProcessEvent,
+  ProcessType,
+  StatusEvent,
+  EmbeddingRequest,
+  ExtractionRequest,
+  EnrichmentRequest,
+} from './schema'
 
 export const initializeWorkspaceProcessingStream = async () => {
   await eventClient.ensureStream({
@@ -35,5 +42,9 @@ export default {
   subscribeProcessEvent,
   getWorkspaceProcessStatistics,
   getWorkspaceStatistics,
+  EVENT_PROCESSING_STATUS,
   PROCESS_TYPES,
+  EmbeddingRequestSchema,
+  ExtractionRequestSchema,
+  EnrichmentRequestSchema,
 }

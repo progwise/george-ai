@@ -16,7 +16,7 @@ interface UseTaskActionsProps {
 export const useTaskActions = ({ libraryId }: UseTaskActionsProps) => {
   const queryClient = useQueryClient()
   const cancelProcessingTaskMutation = useMutation({
-    mutationFn: (data: { taskId: string; fileId: string }) => cancelProcessingTaskFn({ data }),
+    mutationFn: (data: { taskId: string; fileId: string; libraryId: string }) => cancelProcessingTaskFn({ data }),
     onSuccess: (data) => {
       toastSuccess('Task cancelled successfully')
       queryClient.invalidateQueries(
