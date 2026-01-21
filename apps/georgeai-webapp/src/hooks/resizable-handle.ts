@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
-// import { useLocalstorage } from './use-local-storage'
+import { useLocalstorage } from './use-local-storage'
 
 export interface UseResizableHandleOptions {
   onResize?: (width: number) => void
@@ -16,8 +16,7 @@ export function useResizableHandle(options: UseResizableHandleOptions = {}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const startPosRef = useRef(0)
   const startSizeRef = useRef(0)
-
-  // const [width] = useLocalstorage<Record<string, boolean>>('width')
+  const [sidePanelWidth, setSidePanelWidth] = useLocalstorage<{ panelWidth: number }>('resizableHandle-panelWidth')
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -29,6 +28,12 @@ export function useResizableHandle(options: UseResizableHandleOptions = {}) {
     [direction],
   )
 
+  useLayoutEffect(() => {
+    if (containerRef.current && sidePanelWidth?.panelWidth) {
+      containerRef.current.style.width = `${sidePanelWidth.panelWidth}px`
+    }
+  }, [sidePanelWidth])
+
   useEffect(() => {
     if (!isDragging) return
 
@@ -36,15 +41,16 @@ export function useResizableHandle(options: UseResizableHandleOptions = {}) {
       if (!containerRef.current) return
 
       const delta = (direction === 'horizontal' ? e.clientX : e.clientY) - startPosRef.current
-      const newSize = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current - delta))
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current - delta))
 
       if (direction === 'horizontal') {
-        containerRef.current.style.width = `${newSize}px`
+        containerRef.current.style.width = `${newWidth}px`
       } else {
-        containerRef.current.style.height = `${newSize}px`
+        containerRef.current.style.height = `${newWidth}px`
       }
 
-      onResize?.(newSize)
+      onResize?.(newWidth)
+      setSidePanelWidth({ panelWidth: newWidth })
     }
 
     const handleMouseUp = () => {
@@ -58,7 +64,7 @@ export function useResizableHandle(options: UseResizableHandleOptions = {}) {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDragging, minWidth, maxWidth, direction, onResize])
+  }, [sidePanelWidth, isDragging, minWidth, maxWidth, direction, onResize, setSidePanelWidth])
 
   return {
     containerRef,

@@ -140,7 +140,7 @@ export const EnrichmentSidePanel = ({
       <div
         ref={containerRef}
         className={twMerge(
-          'fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
@@ -149,7 +149,7 @@ export const EnrichmentSidePanel = ({
       >
         <div
           className={twMerge(
-            'absolute left-[-10px] top-0 h-full w-5 cursor-col-resize bg-transparent',
+            'absolute top-0 -left-2.5 h-full w-5 cursor-col-resize bg-transparent',
             isDragging && 'bg-transparent',
           )}
           onMouseDown={handleMouseDown}
