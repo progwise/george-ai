@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { duration, simpleHash } from '@george-ai/web-utils'
@@ -18,6 +18,7 @@ import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { ClientDate } from '../client-date'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { ResizableHandle } from '../resizable-handle'
 import { getEnrichmentsQueryOptions } from './queries'
 import { useEnrichmentActions } from './use-enrichment-actions'
 
@@ -73,6 +74,7 @@ export const EnrichmentSidePanel = ({
   const [copied, setCopied] = useState(false)
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
   const { startEnrichment, clearEnrichments, isPending: actionsPending } = useEnrichmentActions(listId)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const toggleViewMarkdownSource = () => {
     setViewMarkdownSource((prev) => !prev)
@@ -131,14 +133,16 @@ export const EnrichmentSidePanel = ({
 
       {/* Side Panel */}
       <div
+        ref={containerRef}
         className={twMerge(
-          'fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-100 max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-modal="true"
         aria-label={`Enrichment details for ${fieldName}`}
       >
+        <ResizableHandle containerRef={containerRef} minSize={400} maxSize={window.innerWidth * 0.8}></ResizableHandle>
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">

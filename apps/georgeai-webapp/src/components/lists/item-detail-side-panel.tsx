@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -8,6 +8,7 @@ import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { useMarkdownDownload } from '../library/files/use-markdown-download'
+import { ResizableHandle } from '../resizable-handle'
 import { getItemDetailQueryOptions } from './queries/get-item-detail'
 
 interface ItemDetailSidePanelProps {
@@ -31,6 +32,7 @@ export const ItemDetailSidePanel = ({
 }: ItemDetailSidePanelProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Fetch item details when panel opens
   const { data, isLoading: isLoadingMeta } = useQuery({
@@ -77,6 +79,7 @@ export const ItemDetailSidePanel = ({
 
       {/* Side Panel */}
       <div
+        ref={containerRef}
         className={twMerge(
           'fixed top-0 right-0 z-50 flex h-full w-140 max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
@@ -85,6 +88,7 @@ export const ItemDetailSidePanel = ({
         aria-modal="true"
         aria-label={`${t('lists.itemDetail.title')} - ${itemName}`}
       >
+        <ResizableHandle containerRef={containerRef} minSize={400} maxSize={window.innerWidth * 0.8}></ResizableHandle>
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
@@ -104,7 +108,6 @@ export const ItemDetailSidePanel = ({
             <CrossIcon className="size-5" />
           </button>
         </div>
-
         {/* Content - scrollable */}
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {isLoadingMeta ? (
