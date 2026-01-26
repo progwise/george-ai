@@ -118,11 +118,13 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
   const fullContents = useMemo(() => editField?.contextFullContents || [], [editField])
 
   const isEditMode = useMemo(() => !!editField, [editField])
+  const formRef = React.useRef<HTMLFormElement | null>(null)
 
   const handleCloseModal = () => {
     setActiveTab('instruction')
     setContextSubTab('fields')
     ref.current?.close()
+    formRef.current?.reset()
   }
 
   const schema = useMemo(
@@ -344,12 +346,12 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
 
   return (
     <dialog ref={ref} className="modal">
-      <div className="modal-box flex h-[80vh] max-h-[800px] w-11/12 max-w-3xl flex-col">
+      <div className="modal-box flex h-[80vh] max-h-200 w-11/12 max-w-3xl flex-col">
         <h3 className="mb-4 shrink-0 text-lg font-bold">
           {t(isEditMode ? 'lists.fields.editTitle' : 'lists.fields.addTitle')}
         </h3>
 
-        <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
           {/* Hidden Fields */}
           <input type="hidden" name="id" value={fieldId} />
           <input type="hidden" name="listId" value={list.id} />
