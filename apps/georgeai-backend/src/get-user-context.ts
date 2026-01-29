@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken'
 
 import { Context, apiKey, user, workspace } from '@george-ai/app-domain'
 
+import { logger } from './common'
+
 interface TokenProvider {
   jwtToken?: string | null
   bearerToken?: string | null
@@ -23,24 +25,23 @@ export const getUserContextFromExpressRequest = async (request: Request): Promis
 export const getUserContext = async (getTokens: () => TokenProvider): Promise<Context> => {
   const { jwtToken, bearerToken, workspaceId: requestedWorkspaceId } = getTokens()
 
+  logger.debug('Authenticating request', { jwtToken: !!jwtToken, bearerToken: !!bearerToken, requestedWorkspaceId })
+
   // Try JWT authentication first
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
+    logger.debug('Decoded JWT token', { decoded })
     if (decoded?.email) {
       const userInformation = await user.getUserByMail(decoded.email)
       if (!userInformation) {
-        return { session: null }
+        return { session: null, workspaceId: undefined }
       }
 
       // Get workspace membership (single efficient query with fallback)
-      const membership = requestedWorkspaceId
-        ? await user.getWorkspaceMembership(userInformation.id, requestedWorkspaceId)
-        : undefined
-
-      if (!membership) {
-        // User requested a workspace they don't have access to - reject authentication
-        return { session: null }
-      }
+      const membership = await user.getWorkspaceMembership({
+        userId: userInformation.id,
+        workspaceId: requestedWorkspaceId || userInformation.defaultWorkspaceId,
+      })
 
       return {
         session: {
@@ -54,8 +55,8 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
           userProfile: userInformation.profile ?? undefined,
         },
         jwt: jwtToken,
-        workspaceId: membership.workspaceId,
-        workspaceRole: membership.role,
+        workspaceId: membership ? membership.workspaceId : undefined,
+        workspaceRole: membership ? membership.role : undefined,
       }
     }
   }
@@ -72,7 +73,7 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
 
         if (workspaceId) {
           // SECURITY: Verify user is a member of the library's workspace
-          const membership = await user.getWorkspaceMembership(userInformation.id, workspaceId)
+          const membership = await user.getWorkspaceMembership({ userId: userInformation.id, workspaceId })
 
           if (!membership) {
             // User is not a member of the library's workspace - unauthorized

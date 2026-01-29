@@ -1,15 +1,16 @@
 import z from 'zod'
 
-export const VectorStoreDocumentIdentifierSchema = z.object({
+export const VectorStoreChunkIdentifierSchema = z.object({
   libraryId: z.string().optional(),
   fileId: z.string().optional(),
-  chunkIndex: z.number().optional(),
-  shardIndex: z.number().nullable().optional(),
+  extractionMethod: z.string(),
+  chunk: z.number(),
+  fragment: z.number().nullable().optional(),
 })
 
-export type VectorStoreDocumentIdentifier = z.infer<typeof VectorStoreDocumentIdentifierSchema>
+export type VectorStoreChunkIdentifier = z.infer<typeof VectorStoreChunkIdentifierSchema>
 
-export const VectorStoreDocumentSchema = VectorStoreDocumentIdentifierSchema.extend({
+export const VectorStoreChunkSchema = VectorStoreChunkIdentifierSchema.extend({
   filename: z.string().optional(),
   filePath: z.string().optional(),
   content: z.string().optional(),
@@ -23,4 +24,25 @@ export const VectorStoreDocumentSchema = VectorStoreDocumentIdentifierSchema.ext
   updateAuthor: z.string().optional(),
 })
 
-export type VectorStoreDocument = z.infer<typeof VectorStoreDocumentSchema>
+export type VectorStoreChunk = z.infer<typeof VectorStoreChunkSchema>
+
+// Record with model name as key and vector as value
+export type VectorModelMap = Record<string, number[]>
+
+export interface VectorStoreChunksSelector {
+  libraryId?: string
+  fileId?: string
+  extractionMethod?: string | null
+  fragment?: number | null
+  chunk?: number
+  contentGlobPattern?: string
+  filenameGlobPattern?: string
+  filePathGlobPattern?: string
+  fileHash?: string
+  fileMimeTypeGlobPattern?: string
+  fileCreatedAt?: { earliest: string; latest?: string } // ISO date string
+  fileUpdatedAt?: { earliest: string; latest?: string } // ISO date string
+  fileUploadedAt?: { earliest: string; latest?: string } // ISO date string
+  creationAuthorGlobPattern?: string
+  updateAuthorGlobPattern?: string
+}

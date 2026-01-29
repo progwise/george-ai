@@ -78,16 +78,6 @@ export type AiLibraryUsage = Prisma.AiLibraryUsageModel
  */
 export type AiLibraryFile = Prisma.AiLibraryFileModel
 /**
- * Model AiContentProcessingTask
- * 
- */
-export type AiContentProcessingTask = Prisma.AiContentProcessingTaskModel
-/**
- * Model AiContentExtractionSubTask
- * 
- */
-export type AiContentExtractionSubTask = Prisma.AiContentExtractionSubTaskModel
-/**
  * Model AiLibraryCrawler
  * 
  */

@@ -1,11 +1,11 @@
 import { eventClient } from '../client'
-import { getProcessSubject, getStatusSubject, logger } from './common'
-import { ProcessEvent, StatusEvent } from './schema'
+import { getActionSubject, getStatusSubject, logger } from './common'
+import { ActionEvent, StatusEvent } from './schema'
 
-export async function publishRequestEvent(event: ProcessEvent, timeoutMs?: number) {
-  const subject = getProcessSubject(event)
+export async function publishActionEvent(event: ActionEvent, timeoutMs?: number) {
+  const subject = getActionSubject(event)
   const payload = new TextEncoder().encode(JSON.stringify(event))
-  logger.debug('Publishing request event', { subject, event })
+  logger.debug('Publishing action event', { subject, event })
   await eventClient.publish({
     subject,
     payload,

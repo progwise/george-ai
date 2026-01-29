@@ -1,6 +1,6 @@
 import { eventClient } from '../client'
-import { Provider } from '../provider'
-import { PROVIDER_HEALTH_BUCKET_NAME, getKey, getWildcardKey } from './common'
+import { ModelProvider } from '../model-provider'
+import { HEALTH_STATUS, PROVIDER_HEALTH_BUCKET_NAME, getKey, getWildcardKey } from './common'
 import { type ProviderHealth, ProviderHealthSchema } from './schema'
 
 export { type ProviderHealth } from './schema'
@@ -18,7 +18,7 @@ export async function initializeProviderHealthBucket() {
 
 async function getProviderInstancesHealth(parameters: {
   workspaceId: string
-  provider: Provider
+  provider: ModelProvider
 }): Promise<ProviderHealth[]> {
   const { workspaceId, provider } = parameters
 
@@ -46,7 +46,7 @@ async function getProviderInstancesHealth(parameters: {
 
 async function getProviderInstanceForDirectCall(parameters: {
   workspaceId: string
-  provider: Provider
+  provider: ModelProvider
   modelName: string
 }): Promise<ProviderHealth | null> {
   const { workspaceId, provider, modelName } = parameters
@@ -67,7 +67,7 @@ async function getProviderInstanceForDirectCall(parameters: {
 async function writeProviderInstanceHealth(health: ProviderHealth): Promise<void> {
   const key = getKey({
     workspaceId: health.workspaceId,
-    provider: health.providerInstance.provider,
+    provider: health.providerInstance.modelProvider,
     providerInstanceId: health.providerInstance.id,
   })
   const valueBytes = new TextEncoder().encode(JSON.stringify(health))
@@ -105,4 +105,5 @@ export default {
   getProviderInstancesHealth,
   writeProviderInstanceHealth,
   watchProviderHealth,
+  HEALTH_STATUS,
 }

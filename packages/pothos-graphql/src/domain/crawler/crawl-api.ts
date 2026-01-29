@@ -1,22 +1,14 @@
 import crypto from 'node:crypto'
-import fs from 'node:fs'
-import path from 'node:path'
 
 import { type ApiCrawlerConfig, crawlApiStream } from '@george-ai/api-crawler'
 import { prisma } from '@george-ai/app-domain'
-import { getUploadFilePath } from '@george-ai/file-management'
+import { workspaceStorage } from '@george-ai/file-management'
 
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 
-/**
- * Calculate SHA-256 hash of a string (for markdown content)
- */
-function calculateContentHash(content: string): string {
-  return crypto.createHash('sha256').update(content, 'utf8').digest('hex')
-}
-
 export async function* crawlApi({
+  workspaceId,
   libraryId,
   crawlerId,
   crawlerConfig,
@@ -65,6 +57,7 @@ export async function* crawlApi({
         const fileNameWithExt = `${safeFileName || 'api_item_' + itemCount}.md`
 
         const fileResult = await saveApiCrawlerFile({
+          workspaceId,
           fileName: fileNameWithExt,
           markdownContent,
           libraryId,
@@ -124,85 +117,76 @@ export async function* crawlApi({
 }
 
 const saveApiCrawlerFile = async ({
+  workspaceId,
   fileName,
   markdownContent,
   libraryId,
   crawlerId,
   originUri,
 }: {
+  workspaceId: string
   fileName: string
   markdownContent: string
   libraryId: string
   crawlerId: string
   originUri: string
 }) => {
-  // Calculate hash of the markdown content
-  const contentHash = calculateContentHash(markdownContent)
+  const contentHash = crypto.createHash('sha256').update(markdownContent, 'utf8').digest('hex')
+  const crawlerUniqueKey = { crawledByCrawlerId_originUri: { crawledByCrawlerId: crawlerId, originUri } }
 
   // Check if file already exists with the same originUri
   const existingFile = await prisma.aiLibraryFile.findUnique({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri,
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      originUri: true,
-      mimeType: true,
-      originFileHash: true,
-    },
+    where: crawlerUniqueKey,
+    select: { id: true, name: true, originUri: true, mimeType: true, originFileHash: true },
   })
 
-  // If file exists and hash matches, skip processing
-  if (existingFile && existingFile.originFileHash === contentHash) {
-    // Update the updatedAt timestamp even when skipping
+  // Skip processing if content unchanged
+  if (existingFile?.originFileHash === contentHash) {
     await prisma.aiLibraryFile.update({
       where: { id: existingFile.id },
       data: { updatedAt: new Date() },
     })
-
-    return {
-      ...existingFile,
-      skipProcessing: true,
-      wasUpdated: false,
-    }
+    return { ...existingFile, skipProcessing: true, wasUpdated: false }
   }
 
-  // Determine if this is an update or new file
-  // Treat missing hash (from old crawls before hashing was implemented) as an update
-  const wasUpdated = !!existingFile && (!existingFile.originFileHash || existingFile.originFileHash !== contentHash)
-
-  const fileUpdateData = {
-    name: fileName,
-    mimeType: 'text/markdown',
-    libraryId,
-    size: Buffer.byteLength(markdownContent, 'utf8'),
-    originFileHash: contentHash,
-    originModificationDate: new Date(),
-  }
+  const wasUpdated = !!existingFile
+  const now = new Date()
 
   const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri,
-      },
-    },
+    where: crawlerUniqueKey,
     create: {
-      ...fileUpdateData,
+      name: fileName,
+      mimeType: 'text/markdown',
+      libraryId,
+      size: Buffer.byteLength(markdownContent, 'utf8'),
+      originFileHash: contentHash,
+      originModificationDate: now,
       originUri,
       crawledByCrawlerId: crawlerId,
     },
-    update: fileUpdateData,
+    update: {
+      name: fileName,
+      mimeType: 'text/markdown',
+      libraryId,
+      size: Buffer.byteLength(markdownContent, 'utf8'),
+      originFileHash: contentHash,
+      originModificationDate: now,
+    },
   })
 
-  // Write the file to disk
-  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-  await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
-  await fs.promises.writeFile(uploadedFilePath, markdownContent, 'utf8')
+  await workspaceStorage.writeSource(workspaceId, {
+    libraryId,
+    fileId: file.id,
+    stream: (async function* () {
+      yield markdownContent
+    })(),
+    meta: {
+      mimeType: 'text/markdown',
+      originalName: fileName,
+      originalUpdatedAt: now.toISOString(),
+      originalContentHash: contentHash,
+    },
+  })
 
   return {
     id: file.id,

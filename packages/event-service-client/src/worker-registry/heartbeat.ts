@@ -1,4 +1,6 @@
-import { getWorkerRegistryEntry, updateWorker } from './entry'
+import { eventClient } from '../client'
+import { WORKER_REGISTRY_BUCKET_NAME, getKey } from './common'
+import { getWorkerRegistryEntry } from './entry'
 import { WorkerType } from './schema'
 
 export async function updateWorkerHeartbeat(parameters: { workerId: string; workerType: WorkerType }): Promise<void> {
@@ -10,5 +12,9 @@ export async function updateWorkerHeartbeat(parameters: { workerId: string; work
 
   entry.lastHeartbeat = new Date().toISOString()
 
-  await updateWorker(entry)
+  await eventClient.put({
+    bucketName: WORKER_REGISTRY_BUCKET_NAME,
+    key: getKey({ workerId, workerType }),
+    value: new TextEncoder().encode(JSON.stringify(entry)),
+  })
 }

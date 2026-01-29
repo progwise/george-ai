@@ -1,7 +1,12 @@
-import { workspace } from '@george-ai/app-domain'
+import {
+  modelCalls,
+  modelProvider,
+  providerHealth,
+  workerRegistry,
+  workspaceProcessing,
+} from '@george-ai/event-service-client'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../../domain/automation/constants'
-import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../../domain/content-extraction/task-status'
 import { CRAWLER_URI_TYPES } from '../../domain/crawler/crawler-uri-types'
 import {
   LIST_FIELD_CONTEXT_TYPES,
@@ -11,28 +16,44 @@ import {
 } from '../../domain/list'
 import { builder } from '../builder'
 
+builder.enumType('AutomationItemStatus', {
+  values: AUTOMATION_ITEM_STATUS,
+})
+
+builder.enumType('BatchStatus', {
+  values: BATCH_STATUS,
+})
+
+builder.enumType('TriggerType', {
+  values: TRIGGER_TYPE,
+})
+
+builder.enumType('ExtractionMethod', {
+  values: workspaceProcessing.EXTRACTION_METHODS,
+})
+
+builder.enumType('ModelCallType', {
+  values: modelCalls.MODEL_CALL_TYPES,
+})
+
+builder.enumType('ProviderHealthStatus', {
+  values: providerHealth.HEALTH_STATUS,
+})
+
 builder.enumType('ProcessingStatus', {
-  values: PROCESSING_STATUS,
+  values: workspaceProcessing.EVENT_PROCESSING_STATUS,
 })
 
-builder.enumType('ProcessType', {
-  values: workspace.PROCESS_TYPES,
-})
-
-builder.enumType('EventProcessingStatus', {
-  values: workspace.EVENT_PROCESSING_STATUS,
+builder.enumType('ActionType', {
+  values: workspaceProcessing.ACTION_TYPES,
 })
 
 builder.enumType('WorkerType', {
-  values: workspace.WORKER_TYPES,
+  values: workerRegistry.WORKER_TYPES,
 })
 
-builder.enumType('EmbeddingStatus', {
-  values: EMBEDDING_STATUS,
-})
-
-builder.enumType('ExtractionStatus', {
-  values: EXTRACTION_STATUS,
+builder.enumType('ModelProvider', {
+  values: modelProvider.MODEL_PROVIDERS,
 })
 
 builder.enumType('ListFieldSourceType', {
@@ -53,16 +74,4 @@ builder.enumType('CrawlerUriType', {
 
 builder.enumType('ListFieldContextType', {
   values: LIST_FIELD_CONTEXT_TYPES,
-})
-
-builder.enumType('AutomationItemStatus', {
-  values: AUTOMATION_ITEM_STATUS,
-})
-
-builder.enumType('BatchStatus', {
-  values: BATCH_STATUS,
-})
-
-builder.enumType('TriggerType', {
-  values: TRIGGER_TYPE,
 })

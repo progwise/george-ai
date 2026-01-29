@@ -1,17 +1,18 @@
 import z from 'zod'
 
-import { ProviderInstanceSchema } from '../provider/schema'
+import { ModelProviderInstanceSchema } from '../model-provider/schema'
+import { HEALTH_STATUS } from './common'
 
 export const ProviderHealthSchema = z.object({
   version: z.literal(1),
   workspaceId: z.string(),
-  providerInstance: ProviderInstanceSchema,
+  providerInstance: ModelProviderInstanceSchema,
   totalMemoryMb: z.number().optional(),
   usedMemoryMb: z.number().optional(),
   processorUsagePercent: z.number().optional(),
   loadedModelNames: z.array(z.string()).optional(),
   availableModelNames: z.array(z.string()).optional(),
-  status: z.enum(['healthy', 'degraded', 'unhealthy']),
+  status: z.enum(HEALTH_STATUS),
   timestamp: z.string(), // ISO date string
 })
 

@@ -1,27 +1,7 @@
 import { eventClient } from '../client'
 import { logger } from '../workspace-processing/common'
-import { WORKER_REGISTRY_BUCKET_NAME } from './common'
+import { WORKER_REGISTRY_BUCKET_NAME, getKey, getKeyFilter, getWorkerIdFromKey, getWorkerTypeFromKey } from './common'
 import { WORKER_TYPES, WorkerRegistryEntry, WorkerRegistrySchema, WorkerType } from './schema'
-
-const getKeyFilter = (workerType?: WorkerType) => (workerType ? `worker.*.${workerType}` : `worker.>`)
-
-const getKey = (args: { workerId: string; workerType: WorkerType }) => `worker.${args.workerId}.${args.workerType}`
-
-const getWorkerTypeFromKey = (key: string): WorkerType => {
-  const parts = key.split('.')
-  if (parts.length !== 3) {
-    throw new Error(`Invalid worker registry key: ${key}`)
-  }
-  return parts[2] as WorkerType
-}
-
-const getWorkerIdFromKey = (key: string): string => {
-  const parts = key.split('.')
-  if (parts.length !== 3) {
-    throw new Error(`Invalid worker registry key: ${key}`)
-  }
-  return parts[1]
-}
 
 export async function getWorkerRegistryEntries(parameters: {
   workerId?: string
@@ -64,36 +44,6 @@ export const getWorkerRegistryEntry = async ({
   return WorkerRegistrySchema.parse(JSON.parse(new TextDecoder().decode(data)))
 }
 
-export async function registerWorker(value: WorkerRegistryEntry): Promise<void> {
-  const existingEntry = await getWorkerRegistryEntry({ workerId: value.workerId, workerType: value.workerType })
-  if (existingEntry) {
-    throw new Error(
-      `Worker registry entry already exists for workerId: ${value.workerId} and workerType: ${value.workerType}`,
-    )
-  }
-  const valueBytes = new TextEncoder().encode(JSON.stringify(value))
-  await eventClient.put({
-    bucketName: WORKER_REGISTRY_BUCKET_NAME,
-    key: getKey({ workerId: value.workerId, workerType: value.workerType }),
-    value: valueBytes,
-  })
-}
-
-export async function updateWorker(value: WorkerRegistryEntry): Promise<void> {
-  const existingEntry = await getWorkerRegistryEntry({ workerId: value.workerId, workerType: value.workerType })
-  if (!existingEntry) {
-    throw new Error(
-      `Worker registry entry not found for workerId: ${value.workerId} and workerType: ${value.workerType}`,
-    )
-  }
-  const valueBytes = new TextEncoder().encode(JSON.stringify(value))
-  await eventClient.put({
-    bucketName: WORKER_REGISTRY_BUCKET_NAME,
-    key: getKey({ workerId: value.workerId, workerType: value.workerType }),
-    value: valueBytes,
-  })
-}
-
 export async function deleteWorker(workerId: string): Promise<void> {
   return Promise.all(WORKER_TYPES.map((workerType) => deleteWorkerRegistryEntry(workerId, workerType)))
     .catch(() => {})
@@ -116,7 +66,7 @@ export async function watchWorkerRegistryEntries(parameters: {
   const { workerType, handler } = parameters
   return await eventClient.watch({
     bucketName: WORKER_REGISTRY_BUCKET_NAME,
-    key: getKeyFilter(workerType),
+    key: getKeyFilter({ workerType }),
     handler: async (entry) => {
       const workerType = getWorkerTypeFromKey(entry.key)
       const workerId = getWorkerIdFromKey(entry.key)

@@ -1,10 +1,10 @@
 import { eventClient } from '../client'
 import { WORKSPACE_STREAM_NAME, getConsumerName } from './common'
-import { PROCESS_TYPES, ProcessType } from './schema'
+import { ACTION_TYPES, type ActionType } from './common'
 
-export async function getWorkspaceProcessStatistics(workspaceId: string, processType: ProcessType) {
+export async function getWorkspaceProcessStatistics(workspaceId: string, actionType: ActionType) {
   const stats = await eventClient.getStreamStatistics({
-    consumerName: getConsumerName({ workspaceId, processType }),
+    consumerName: getConsumerName({ workspaceId, actionType }),
     streamName: WORKSPACE_STREAM_NAME,
   })
   return stats
@@ -12,9 +12,9 @@ export async function getWorkspaceProcessStatistics(workspaceId: string, process
 
 export async function getWorkspaceStatistics(workspaceId: string) {
   const result = await Promise.all(
-    PROCESS_TYPES.map(async (processType) => {
-      const stats = await getWorkspaceProcessStatistics(workspaceId, processType)
-      return { processType, ...stats }
+    ACTION_TYPES.map(async (actionType) => {
+      const stats = await getWorkspaceProcessStatistics(workspaceId, actionType)
+      return { actionType, ...stats }
     }),
   )
   return result

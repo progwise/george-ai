@@ -1,13 +1,13 @@
 import z from 'zod'
 
-import { ProviderInstanceSchema, ProviderModelSchema } from '../provider'
+import { default as provider } from '../model-provider'
 
 export const WorkspaceConfigSchema = z.object({
   version: z.literal(1),
   workspaceId: z.string(),
   lastUpdate: z.string(), // ISO date string
-  providerInstances: z.array(ProviderInstanceSchema),
-  languageModels: z.array(ProviderModelSchema),
+  providerInstances: z.array(provider.ModelProviderInstanceSchema),
+  languageModels: z.array(provider.ModelSchema),
 })
 
 export type WorkspaceConfig = z.infer<typeof WorkspaceConfigSchema>

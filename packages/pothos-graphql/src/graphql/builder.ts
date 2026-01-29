@@ -4,10 +4,16 @@ import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { Prisma, getDatamodel, prisma } from '@george-ai/app-domain'
-import type { Context, LoggedInContext, PothosTypes, workspace } from '@george-ai/app-domain'
+import type { Context, LoggedInContext, PothosTypes } from '@george-ai/app-domain'
+import {
+  modelCalls,
+  modelProvider,
+  providerHealth,
+  workerRegistry,
+  workspaceProcessing,
+} from '@george-ai/event-service-client'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
-import { EMBEDDING_STATUS, EXTRACTION_STATUS, PROCESSING_STATUS } from '../domain/content-extraction/task-status'
 import { CRAWLER_URI_TYPES } from '../domain/crawler/crawler-uri-types'
 import {
   LIST_FIELD_CONTEXT_TYPES,
@@ -44,29 +50,37 @@ const builder = new SchemaBuilder<{
       Input: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
       Output: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
     }
-    ProcessingStatus: {
-      Input: (typeof PROCESSING_STATUS)[number]
-      Output: (typeof PROCESSING_STATUS)[number]
+    ExtractionMethod: {
+      Input: (typeof workspaceProcessing.EXTRACTION_METHODS)[number]
+      Output: (typeof workspaceProcessing.EXTRACTION_METHODS)[number]
     }
-    ProcessType: {
-      Input: (typeof workspace.PROCESS_TYPES)[number]
-      Output: (typeof workspace.PROCESS_TYPES)[number]
+    ModelCallType: {
+      Input: (typeof modelCalls.MODEL_CALL_TYPES)[number]
+      Output: (typeof modelCalls.MODEL_CALL_TYPES)[number]
+    }
+    ProviderHealthStatus: {
+      Input: (typeof providerHealth.HEALTH_STATUS)[number]
+      Output: (typeof providerHealth.HEALTH_STATUS)[number]
+    }
+    ProcessingStatus: {
+      Input: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
+      Output: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
+    }
+    ActionType: {
+      Input: (typeof workspaceProcessing.ACTION_TYPES)[number]
+      Output: (typeof workspaceProcessing.ACTION_TYPES)[number]
     }
     WorkerType: {
-      Input: (typeof workspace.WORKER_TYPES)[number]
-      Output: (typeof workspace.WORKER_TYPES)[number]
+      Input: (typeof workerRegistry.WORKER_TYPES)[number]
+      Output: (typeof workerRegistry.WORKER_TYPES)[number]
     }
     EventProcessingStatus: {
-      Input: (typeof workspace.EVENT_PROCESSING_STATUS)[number]
-      Output: (typeof workspace.EVENT_PROCESSING_STATUS)[number]
+      Input: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
+      Output: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
     }
-    ExtractionStatus: {
-      Input: (typeof EXTRACTION_STATUS)[number]
-      Output: (typeof EXTRACTION_STATUS)[number]
-    }
-    EmbeddingStatus: {
-      Input: (typeof EMBEDDING_STATUS)[number]
-      Output: (typeof EMBEDDING_STATUS)[number]
+    ModelProvider: {
+      Input: (typeof modelProvider.MODEL_PROVIDERS)[number]
+      Output: (typeof modelProvider.MODEL_PROVIDERS)[number]
     }
     CrawlerUriType: {
       Input: (typeof CRAWLER_URI_TYPES)[number]

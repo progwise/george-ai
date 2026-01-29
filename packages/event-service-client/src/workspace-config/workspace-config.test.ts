@@ -1,5 +1,4 @@
 import { WorkspaceConfig, initializeEventServiceClient, workspaceConfig } from '..'
-import { logger } from '../provider-calls/common'
 
 describe('event-service-client workspace tests', () => {
   const TEST_WORKSPACE_ID = `test-workspace-123_${Date.now()}`
@@ -21,7 +20,7 @@ describe('event-service-client workspace tests', () => {
       providerInstances: [
         {
           id: 'provider-1',
-          provider: 'ollama',
+          modelProvider: 'ollama',
           apiKey: 'key-1',
           baseUrl: 'https://api.ollama.com',
         },
@@ -30,7 +29,7 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'model-1',
           name: 'Ollama Model',
-          provider: 'ollama',
+          modelProvider: 'ollama',
           canDoChatCompletion: true,
           canDoEmbedding: false,
           canDoFunctionCalling: false,
@@ -52,13 +51,13 @@ describe('event-service-client workspace tests', () => {
       providerInstances: [
         {
           id: 'provider-1',
-          provider: 'ollama',
+          modelProvider: 'ollama',
           apiKey: 'updated-key-1',
           baseUrl: 'https://api.ollama.com',
         },
         {
           id: 'provider-2',
-          provider: 'openai',
+          modelProvider: 'openai',
           apiKey: 'key-2',
           baseUrl: 'https://api.openai.com',
         },
@@ -67,7 +66,7 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'model-1',
           name: 'Ollama Model',
-          provider: 'ollama',
+          modelProvider: 'ollama',
           canDoChatCompletion: true,
           canDoEmbedding: false,
           canDoFunctionCalling: false,
@@ -76,7 +75,7 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'model-2',
           name: 'OpenAI GPT-4',
-          provider: 'openai',
+          modelProvider: 'openai',
           canDoChatCompletion: true,
           canDoEmbedding: true,
           canDoFunctionCalling: true,
@@ -132,7 +131,7 @@ describe('event-service-client workspace tests', () => {
       providerInstances: [
         {
           id: 'provider-1',
-          provider: 'ollama',
+          modelProvider: 'ollama',
           apiKey: 'key-1',
           baseUrl: 'https://api.ollama.com',
         },
@@ -145,8 +144,6 @@ describe('event-service-client workspace tests', () => {
 
     // Allow some time for the watch handler to be called
     await new Promise((resolve) => setTimeout(resolve, 500))
-
-    logger.info('Workspace config changes observed in test:', JSON.stringify(changes, null, 2))
 
     const relevantChanges = changes.slice(-3) // Get the last 3 changes related to our test workspace
     expect(relevantChanges[0].operation).toBe('update')

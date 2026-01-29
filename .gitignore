@@ -25,6 +25,9 @@ venv
 .astro
 .nats-data
 .qdrant-data
+.test-uploads
+.uploads
+*.pdf
 
 # Fine-tuning
 apps/fine-tuning/split_output

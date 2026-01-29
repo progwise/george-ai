@@ -5,10 +5,10 @@ export async function exists(
   args: {
     libraryId?: string
     fileId?: string
-    methodId?: string
+    extractionMethod?: string
   },
 ): Promise<boolean> {
-  const { libraryId, fileId, methodId } = args
+  const { libraryId, fileId, extractionMethod } = args
 
   if (!libraryId) {
     try {
@@ -28,7 +28,7 @@ export async function exists(
     }
   }
 
-  if (!methodId)
+  if (!extractionMethod)
     try {
       await getFileDir(workspaceId, libraryId, fileId)
       return true
@@ -37,7 +37,7 @@ export async function exists(
     }
 
   try {
-    await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+    await getExtractionDir(workspaceId, libraryId, fileId, extractionMethod)
     return true
   } catch {
     return false

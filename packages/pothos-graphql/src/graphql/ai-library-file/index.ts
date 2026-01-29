@@ -1,8 +1,5 @@
-import fs from 'fs'
-
 import { prisma } from '@george-ai/app-domain'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
-import { getAvailableExtractionsWithInfo, getFileDir } from '@george-ai/file-management'
 
 import { BACKEND_PUBLIC_URL } from '../../global-config'
 import { ExtractionInfo } from '../ai-content-extraction'
@@ -12,6 +9,12 @@ import './file-chunks'
 import './file-usages'
 import './queries'
 import './mutations'
+
+import { GraphQLError } from 'graphql/error'
+
+import { workspaceStorage } from '@george-ai/file-management'
+
+import { logger } from './common'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -42,36 +45,59 @@ builder.prismaObject('AiLibraryFile', {
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
-    sourceFiles: t.field({
+    sourceFile: t.withAuth({ isLoggedIn: true }).field({
       type: [SourceFileLink],
       nullable: { list: false, items: false },
-      resolve: async (file) => {
-        const dir = getFileDir({ libraryId: file.libraryId, fileId: file.id })
-        if (!fs.existsSync(dir)) {
-          return []
+      resolve: async (file, _args, { workspaceId }) => {
+        const fileInfo = await workspaceStorage.getFile(workspaceId, {
+          libraryId: file.libraryId,
+          fileId: file.id,
+        })
+        if (!fileInfo) {
+          throw new GraphQLError(`File not found in storage: ${file.id}`)
         }
-        const files = await fs.promises.readdir(dir)
-        return files.map((fileName) => ({
-          fileName,
-          url: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileName}`,
-        }))
+        return [
+          {
+            fileName: fileInfo.fileName,
+            url: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileInfo.fileName}`,
+          },
+        ]
       },
     }),
-    availableExtractions: t.field({
+    availableExtractions: t.withAuth({ isLoggedIn: true }).field({
       type: [ExtractionInfo],
       nullable: { list: false, items: false },
       description: 'Available extractions for this file (e.g., CSV, PDF with different models)',
-      resolve: async (file) => {
-        const extractionInfos = await getAvailableExtractionsWithInfo({
-          fileId: file.id,
+      resolve: async (file, _args, { workspaceId }) => {
+        const fileInfo = await workspaceStorage.getFile(workspaceId, {
           libraryId: file.libraryId,
+          fileId: file.id,
         })
 
+        if (!fileInfo) {
+          logger.error('File not found in storage when fetching available extractions', {
+            workspaceId,
+            fileId: file.id,
+            libraryId: file.libraryId,
+          })
+          throw new GraphQLError(`File not found in storage: ${file.id}`)
+        }
+
+        const extractionInfos = await Promise.all(
+          fileInfo.extractions.map(async (extraction) => ({
+            ...(await workspaceStorage.getExtraction(workspaceId, {
+              libraryId: file.libraryId,
+              fileId: file.id,
+              extractionMethod: extraction.extractionMethod,
+            })),
+            ...extraction,
+            ...fileInfo,
+            ...{ fileId: file.id, libraryId: file.libraryId },
+          })),
+        )
+
         // Add mainFileUrl to each extraction
-        return extractionInfos.map((info) => ({
-          ...info,
-          mainFileUrl: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${info.mainFileName}`,
-        }))
+        return extractionInfos
       },
     }),
     supportedExtractionMethods: t.field({
@@ -109,141 +135,6 @@ builder.prismaObject('AiLibraryFile', {
           return 'error'
         }
         return 'pending'
-      },
-    }),
-
-    taskCount: t.relationCount('contentExtractionTasks', { nullable: false }),
-    processingStatus: t.field({
-      type: 'ProcessingStatus',
-      nullable: false,
-      resolve: async (file) => {
-        const lastTask = await prisma.aiContentProcessingTask.findFirst({
-          where: { fileId: file.id },
-          orderBy: { createdAt: 'desc' },
-        })
-        if (!lastTask) {
-          return 'none'
-        }
-        // Check in order of specificity (most specific first)
-        if (lastTask.processingTimeout) return 'timedOut'
-        if (lastTask.embeddingFailedAt) return 'embeddingFailed'
-        if (lastTask.embeddingFinishedAt) return 'embeddingFinished'
-        if (lastTask.embeddingStartedAt) return 'embedding'
-        if (lastTask.extractionFailedAt) return 'extractionFailed'
-        if (lastTask.extractionFinishedAt) return 'extractionFinished'
-        if (lastTask.extractionStartedAt) return 'extracting'
-        if (lastTask.processingFailedAt) return 'validationFailed'
-        if (lastTask.processingFinishedAt) return 'completed'
-        if (lastTask.processingStartedAt) return 'validating'
-        return 'pending'
-      },
-    }),
-
-    extractionStatus: t.field({
-      type: 'ExtractionStatus',
-      nullable: false,
-      resolve: async (file) => {
-        const lastTask = await prisma.aiContentProcessingTask.findFirst({
-          where: { fileId: file.id },
-          orderBy: { extractionStartedAt: 'desc' },
-        })
-        if (!lastTask) {
-          return 'none'
-        }
-        if (lastTask.extractionFailedAt) return 'failed'
-        if (lastTask.extractionFinishedAt) return 'completed'
-        if (lastTask.extractionStartedAt) return 'running'
-        return 'pending'
-      },
-    }),
-
-    lastExtraction: t.prismaField({
-      type: 'AiContentProcessingTask',
-      nullable: true,
-      resolve: async (query, file) => {
-        return await prisma.aiContentProcessingTask.findFirst({
-          ...query,
-          where: { fileId: file.id, extractionStartedAt: { not: null } },
-          orderBy: { extractionStartedAt: 'desc' },
-        })
-      },
-    }),
-
-    lastSuccessfulExtraction: t.prismaField({
-      type: 'AiContentProcessingTask',
-      nullable: true,
-      resolve: async (query, file) => {
-        return await prisma.aiContentProcessingTask.findFirst({
-          ...query,
-          where: { fileId: file.id, extractionFinishedAt: { not: null } },
-          orderBy: { extractionFinishedAt: 'desc' },
-        })
-      },
-    }),
-
-    embeddingStatus: t.field({
-      type: 'EmbeddingStatus',
-      nullable: false,
-      resolve: async (file) => {
-        const lastTask = await prisma.aiContentProcessingTask.findFirst({
-          where: { fileId: file.id },
-          orderBy: { embeddingStartedAt: 'desc' },
-        })
-        if (!lastTask) {
-          return 'none'
-        }
-        if (lastTask.embeddingFailedAt) return 'failed'
-        if (lastTask.embeddingFinishedAt) return 'completed'
-        if (lastTask.embeddingStartedAt) return 'running'
-        return 'pending'
-      },
-    }),
-
-    lastEmbedding: t.prismaField({
-      type: 'AiContentProcessingTask',
-      nullable: true,
-      resolve: async (query, file) => {
-        return await prisma.aiContentProcessingTask.findFirst({
-          ...query,
-          where: { fileId: file.id, embeddingStartedAt: { not: null } },
-          orderBy: { embeddingStartedAt: 'desc' },
-        })
-      },
-    }),
-
-    lastSuccessfulEmbedding: t.prismaField({
-      type: 'AiContentProcessingTask',
-      nullable: true,
-      resolve: async (query, file) => {
-        return await prisma.aiContentProcessingTask.findFirst({
-          ...query,
-          where: { fileId: file.id, embeddingFinishedAt: { not: null } },
-          orderBy: { embeddingFinishedAt: 'desc' },
-        })
-      },
-    }),
-
-    isLegacyFile: t.field({
-      type: 'Boolean',
-      nullable: false,
-      resolve: async (file) => {
-        // A legacy file is one that does not have any content extraction tasks
-        const count = await prisma.aiContentProcessingTask.count({
-          where: { fileId: file.id, extractionFinishedAt: { not: null } },
-        })
-
-        if (count > 0) {
-          return false
-        }
-
-        const fileDir = getFileDir({ fileId: file.id, libraryId: file.libraryId })
-        const allFiles = await fs.promises.readdir(fileDir)
-        const allMarkdownFiles = allFiles.filter((file) => file.endsWith('.md'))
-        if (allMarkdownFiles.some((file) => file.startsWith('converted'))) {
-          return true
-        }
-
-        return false
       },
     }),
   }),

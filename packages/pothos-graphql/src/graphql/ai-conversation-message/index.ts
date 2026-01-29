@@ -1,5 +1,5 @@
-import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import { prisma } from '@george-ai/app-domain'
+import type { ModelProvider } from '@george-ai/event-service-client'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
 import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
@@ -269,7 +269,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModelProvider: (assistant.languageModel?.provider || 'ollama') as ServiceProviderType,
+            languageModelProvider: (assistant.languageModel?.provider || 'ollama') as ModelProvider,
             languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||
@@ -280,7 +280,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
-            embeddingModelProvider: (usage.library.embeddingModel?.provider || 'ollama') as ServiceProviderType,
+            embeddingModelProvider: (usage.library.embeddingModel?.provider || 'ollama') as ModelProvider,
             embeddingModelName: usage.library.embeddingModel?.name || '',
           })),
         })) {

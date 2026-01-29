@@ -1,5 +1,10 @@
 import { prisma } from '../prisma'
 
+/**
+ *
+ * @param parameters @deprecated
+ * @return File Info from database.
+ */
 export const getFileInfo = (parameters: { fileId: string; libraryId: string; workspaceId: string }) => {
   const { fileId, libraryId, workspaceId } = parameters
 

@@ -4,9 +4,11 @@ import { StorageUsageSchema } from './storage-usage-schema'
 
 export const FileManifestSchema = z.object({
   version: z.literal(1),
-  id: z.string().uuid(),
+  id: z.string(),
   fileName: z.string(), // e.g. "report.pdf"
   mimeType: z.string(),
+  originalContentHash: z.string().nullable(),
+  originalUpdatedAt: z.string(),
   sourceHash: z.string(),
 
   // Timestamps in ISO format
@@ -14,7 +16,7 @@ export const FileManifestSchema = z.object({
 
   extractions: z.array(
     z.object({
-      methodId: z.string(),
+      extractionMethod: z.string(),
       extractionHash: z.string(),
       extractionDate: z.string(), // ISO date string
     }),

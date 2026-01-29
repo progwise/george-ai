@@ -1,22 +1,23 @@
 import { eventClient } from '../client'
-import { WORKSPACE_STREAM_NAME, getConsumerGlobPattern, logger } from './common'
-import { ProcessEvent, ProcessSchema, type ProcessType } from './schema'
+import { EventType, WORKSPACE_STREAM_NAME, getConsumerGlobPattern, getEventType, logger } from './common'
+import { ActionEvent, EventSchemas, ReplyEvent, StatusEvent } from './schema'
 
-export const subscribeProcessEvent = async <E extends ProcessEvent>(parameters: {
-  processType: ProcessType
-  handler: ({ event, error }: { event: E; error: unknown }) => Promise<void>
+export const subscribeEvent = async <E extends ActionEvent | StatusEvent | ReplyEvent>(parameters: {
+  handler: ({ eventType, event }: { eventType: EventType; event: E }) => Promise<void>
 }) => {
-  const { processType, handler } = parameters
+  const { handler } = parameters
   const unsubscribe = await eventClient.startWorkerLoop({
     streamName: WORKSPACE_STREAM_NAME,
-    consumerGlobPattern: getConsumerGlobPattern({ processType }),
-    handler: async ({ payload, error }) => {
+    consumerGlobPattern: getConsumerGlobPattern({}),
+    handler: async ({ subject, payload }) => {
+      logger.debug('Workspace processing received event', { subject })
       try {
         const decoded = new TextDecoder().decode(payload)
-        const event = ProcessSchema.parse(JSON.parse(decoded)) as E
-        await handler({ event, error })
+        const eventType = getEventType(subject)
+        const event = EventSchemas[eventType].parse(JSON.parse(decoded)) as E
+        await handler({ eventType, event })
       } catch (internalError) {
-        logger.error('Error handling processing event', { error: internalError, processType })
+        logger.error('Error handling trigger event', { error: internalError, subject })
         throw internalError
       }
     },

@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { workspace } from '@george-ai/app-domain'
+import { workspaceProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'
@@ -12,7 +12,7 @@ builder.queryField('eventProcessingStatus', (t) =>
       builder.simpleObject('EventProcessingStatusResult', {
         fields: (t) => ({
           status: t.field({ type: 'EventProcessingStatus', nullable: false }),
-          processType: t.field({ type: 'ProcessType', nullable: false }),
+          actionType: t.field({ type: 'ActionType', nullable: false }),
         }),
       }),
     ],
@@ -20,7 +20,12 @@ builder.queryField('eventProcessingStatus', (t) =>
     resolve: async (_root, _args, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       try {
-        const status = await workspace.getProcessingStatus(workspaceId)
+        const status = await Promise.all(
+          workspaceProcessing.ACTION_TYPES.map(async (actionType) => {
+            const status = await workspaceProcessing.processingStatus({ workspaceId, actionType })
+            return { status, actionType }
+          }),
+        )
         return status
       } catch (error) {
         logger.error('Error fetching processing status', { error, workspaceId })

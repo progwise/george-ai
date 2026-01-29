@@ -1,10 +1,7 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { Readable } from 'node:stream'
-import { pipeline } from 'node:stream/promises'
 
 import { prisma } from '@george-ai/app-domain'
-import { getUploadFilePath } from '@george-ai/file-management'
+import { workspaceStorage } from '@george-ai/file-management'
 import { SmbCrawlerClient } from '@george-ai/smb-crawler'
 import type { SmbFileMetadata } from '@george-ai/smb-crawler'
 import { createLogger } from '@george-ai/web-utils'
@@ -71,6 +68,7 @@ const recordOmittedFile = async ({
 }
 
 const saveSmbCrawlerFile = async ({
+  workspaceId,
   fileName,
   fileUri,
   libraryId,
@@ -84,6 +82,7 @@ const saveSmbCrawlerFile = async ({
   client,
   processingError,
 }: {
+  workspaceId: string
   fileName: string
   fileUri: string
   libraryId: string
@@ -97,139 +96,96 @@ const saveSmbCrawlerFile = async ({
   client: SmbCrawlerClient
   processingError?: string
 }) => {
-  // Check if file already exists
+  // Handle error cases before DB operations
+  if (processingError) {
+    logger.warn(`SMB file ${fileName}: ${processingError}`)
+    return { id: undefined, name: fileName, originUri: fileUri, mimeType, skipProcessing: false, wasUpdated: false }
+  }
+
+  const crawlerUniqueKey = { crawledByCrawlerId_originUri: { crawledByCrawlerId: crawlerId, originUri: fileUri } }
+
+  // Check if file already exists with same hash (SMB service provides hash upfront)
   const existingFile = await prisma.aiLibraryFile.findUnique({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      originUri: true,
-      mimeType: true,
-      originFileHash: true,
-      originModificationDate: true,
-    },
+    where: crawlerUniqueKey,
+    select: { id: true, name: true, originUri: true, mimeType: true, originFileHash: true },
   })
 
-  let skipProcessing = false
-  let wasUpdated = false
-
-  // If no processing error, handle file download and hash logic
-  if (!processingError) {
-    // Check if this file was already processed with the same hash
-    if (existingFile && existingFile.originFileHash === fileHash) {
-      logger.info(`Skipping SMB file ${fileName} - already processed with same hash ${fileHash}`)
-      skipProcessing = true
-
-      // Update modification date even if skipping
-      await prisma.aiLibraryFile.update({
-        where: { id: existingFile.id },
-        data: {
-          originModificationDate: fileModifiedTime,
-          updatedAt: new Date(),
-        },
-      })
-
-      return { ...existingFile, skipProcessing, wasUpdated }
-    }
-
-    // Determine if this is an update or new file
-    wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
-
-    // Create/update file with hash to get file ID
-    const file = await prisma.aiLibraryFile.upsert({
-      where: {
-        crawledByCrawlerId_originUri: {
-          crawledByCrawlerId: crawlerId,
-          originUri: fileUri,
-        },
-      },
-      create: {
-        name: `${fileName}`,
-        libraryId: libraryId,
-        mimeType,
-        size: fileSize,
-        updatedAt: fileModifiedTime,
-        originUri: fileUri,
-        crawledByCrawlerId: crawlerId,
-        originModificationDate: fileModifiedTime,
-        originFileHash: fileHash,
-      },
-      update: {
-        name: `${fileName}`,
-        libraryId: libraryId,
-        mimeType,
-        size: fileSize,
-        updatedAt: fileModifiedTime,
-        originModificationDate: fileModifiedTime,
-        originFileHash: fileHash,
-      },
+  // Skip if hash unchanged - no need to download
+  if (existingFile?.originFileHash === fileHash) {
+    logger.info(`Skipping SMB file ${fileName} - already processed with same hash`)
+    await prisma.aiLibraryFile.update({
+      where: { id: existingFile.id },
+      data: { originModificationDate: fileModifiedTime, updatedAt: new Date() },
     })
-
-    // Download file directly to final location
-    const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-    await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
-
-    logger.info(`Downloading file ${fileName} from crawler service to ${uploadedFilePath}...`)
-    const fileStream = await client.downloadFile(jobId, fileId)
-    const writeStream = fs.createWriteStream(uploadedFilePath)
-
-    // Convert ReadableStream to Node.js Readable and pipe to file
-    const reader = fileStream.getReader()
-    const nodeStream = new Readable({
-      async read() {
-        const { done, value } = await reader.read()
-        if (done) {
-          this.push(null)
-        } else {
-          this.push(Buffer.from(value))
-        }
-      },
-    })
-
-    await pipeline(nodeStream, writeStream)
-    logger.debug(`File ${fileName} saved to ${uploadedFilePath}`)
-
-    return { ...file, skipProcessing, wasUpdated }
+    return { ...existingFile, skipProcessing: true, wasUpdated: false }
   }
 
-  // For processing errors, just update database without copying
-  wasUpdated = !!existingFile
+  const isUpdate = !!existingFile
 
-  const fileUpdateData = {
-    name: `${fileName}`,
-    libraryId: libraryId,
-    mimeType,
-    size: fileSize,
-    updatedAt: fileModifiedTime,
-    originModificationDate: fileModifiedTime,
-    processingErrorMessage: processingError,
-    processingErrorAt: new Date(),
-  }
-
-  const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
+  // Create/update DB record
+  const dbFileInfo = await prisma.aiLibraryFile.upsert({
+    where: crawlerUniqueKey,
     create: {
-      ...fileUpdateData,
+      name: fileName,
+      libraryId,
+      mimeType,
+      size: fileSize,
       originUri: fileUri,
       crawledByCrawlerId: crawlerId,
+      originModificationDate: fileModifiedTime,
+      originFileHash: fileHash,
     },
-    update: fileUpdateData,
+    update: {
+      name: fileName,
+      mimeType,
+      size: fileSize,
+      originModificationDate: fileModifiedTime,
+      originFileHash: fileHash,
+    },
+    select: { id: true, name: true, originUri: true, mimeType: true },
   })
 
-  return { ...file, skipProcessing, wasUpdated }
+  // Download file from crawler service
+  logger.info(`Downloading file ${fileName} from crawler service...`)
+  const webStream = await client.downloadFile(jobId, fileId)
+
+  // Convert web ReadableStream to Node.js Readable
+  const reader = webStream.getReader()
+  const nodeStream = new Readable({
+    async read() {
+      const { done, value } = await reader.read()
+      if (done) {
+        this.push(null)
+      } else {
+        this.push(Buffer.from(value))
+      }
+    },
+  })
+
+  // Write to storage
+  await workspaceStorage.writeSource(workspaceId, {
+    libraryId,
+    fileId: dbFileInfo.id,
+    stream: nodeStream,
+    meta: {
+      mimeType,
+      originalName: fileName,
+      originalUpdatedAt: fileModifiedTime.toISOString(),
+      originalContentHash: fileHash,
+    },
+  })
+
+  logger.debug(`File ${fileName} saved to storage`)
+
+  return {
+    ...dbFileInfo,
+    skipProcessing: false,
+    wasUpdated: isUpdate,
+  }
 }
 
 export async function* crawlSmb({
+  workspaceId,
   uri,
   maxDepth,
   maxPages,
@@ -342,6 +298,7 @@ export async function* crawlSmb({
 
             // Still create file record but mark as failed due to size
             const fileInfo = await saveSmbCrawlerFile({
+              workspaceId,
               fileName: fileMetadata.name,
               crawlerId,
               libraryId,
@@ -372,6 +329,7 @@ export async function* crawlSmb({
           }
 
           const fileInfo = await saveSmbCrawlerFile({
+            workspaceId,
             fileName: fileMetadata.name,
             crawlerId,
             libraryId,

@@ -27,6 +27,7 @@ export async function upgradeLegacyFile(
     mimeType: string
     createdAt: string
     uploadedAt: string
+    hash: string
   },
 ): Promise<void> {
   const { libraryId, fileId } = args
@@ -103,6 +104,8 @@ export async function upgradeLegacyFile(
         activeExtractions: 0,
         extractionFiles: 0,
       },
+      originalContentHash: args.hash,
+      originalUpdatedAt: args.createdAt,
     }
 
     for (const entry of entries) {
@@ -175,15 +178,14 @@ export async function upgradeLegacyFile(
       )
       saveExtractionMetadata(path.join(tempFileDir, EXTRACTIONS_DIR_NAME, extractionType), {
         version: 1,
-        methodId: 'legacy-extraction',
-        status: 'upgraded',
+        extractionMethod: 'legacy-extraction',
         sourceHash:
           sourceFileInfo.birthtime > extractionFileInfo.birthtime ? 'unknown' : await getSourceHash(tempFileDir),
         extractedBytes: extractionFileInfo.size,
         extractionFiles: 1,
         extractedAt: extractionFileInfo.birthtime.toISOString(),
         physicalBytes: extractionFileInfo.size,
-        output: { mainFile: 'extracted.md', hasFragments: false },
+        hasFragments: false,
         physicalFiles: 1,
       })
     }

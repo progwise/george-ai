@@ -296,7 +296,6 @@ export type AiLibraryFileWhereInput = {
   originFileHash?: Prisma.StringNullableFilter<"AiLibraryFile"> | string | null
   originModificationDate?: Prisma.DateTimeNullableFilter<"AiLibraryFile"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"AiLibraryFile"> | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   crawledByCrawler?: Prisma.XOR<Prisma.AiLibraryCrawlerNullableScalarRelationFilter, Prisma.AiLibraryCrawlerWhereInput> | null
   library?: Prisma.XOR<Prisma.AiLibraryScalarRelationFilter, Prisma.AiLibraryWhereInput>
   updates?: Prisma.AiLibraryUpdateListRelationFilter
@@ -319,7 +318,6 @@ export type AiLibraryFileOrderByWithRelationInput = {
   originFileHash?: Prisma.SortOrderInput | Prisma.SortOrder
   originModificationDate?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskOrderByRelationAggregateInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerOrderByWithRelationInput
   library?: Prisma.AiLibraryOrderByWithRelationInput
   updates?: Prisma.AiLibraryUpdateOrderByRelationAggregateInput
@@ -346,7 +344,6 @@ export type AiLibraryFileWhereUniqueInput = Prisma.AtLeast<{
   originFileHash?: Prisma.StringNullableFilter<"AiLibraryFile"> | string | null
   originModificationDate?: Prisma.DateTimeNullableFilter<"AiLibraryFile"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"AiLibraryFile"> | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   crawledByCrawler?: Prisma.XOR<Prisma.AiLibraryCrawlerNullableScalarRelationFilter, Prisma.AiLibraryCrawlerWhereInput> | null
   library?: Prisma.XOR<Prisma.AiLibraryScalarRelationFilter, Prisma.AiLibraryWhereInput>
   updates?: Prisma.AiLibraryUpdateListRelationFilter
@@ -411,7 +408,6 @@ export type AiLibraryFileCreateInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutFileInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerCreateNestedOneWithoutFilesInput
   library: Prisma.AiLibraryCreateNestedOneWithoutFilesInput
   updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutFileInput
@@ -434,7 +430,6 @@ export type AiLibraryFileUncheckedCreateInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutFileInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemUncheckedCreateNestedManyWithoutSourceFileInput
 }
@@ -453,7 +448,6 @@ export type AiLibraryFileUpdateInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutFileNestedInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerUpdateOneWithoutFilesNestedInput
   library?: Prisma.AiLibraryUpdateOneRequiredWithoutFilesNestedInput
   updates?: Prisma.AiLibraryUpdateUpdateManyWithoutFileNestedInput
@@ -476,7 +470,6 @@ export type AiLibraryFileUncheckedUpdateInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutFileNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUncheckedUpdateManyWithoutSourceFileNestedInput
 }
@@ -610,14 +603,14 @@ export type AiLibraryFileSumOrderByAggregateInput = {
   size?: Prisma.SortOrder
 }
 
-export type AiLibraryFileScalarRelationFilter = {
-  is?: Prisma.AiLibraryFileWhereInput
-  isNot?: Prisma.AiLibraryFileWhereInput
-}
-
 export type AiLibraryFileNullableScalarRelationFilter = {
   is?: Prisma.AiLibraryFileWhereInput | null
   isNot?: Prisma.AiLibraryFileWhereInput | null
+}
+
+export type AiLibraryFileScalarRelationFilter = {
+  is?: Prisma.AiLibraryFileWhereInput
+  isNot?: Prisma.AiLibraryFileWhereInput
 }
 
 export type AiLibraryFileCreateNestedManyWithoutLibraryInput = {
@@ -660,20 +653,6 @@ export type AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput = {
   update?: Prisma.AiLibraryFileUpdateWithWhereUniqueWithoutLibraryInput | Prisma.AiLibraryFileUpdateWithWhereUniqueWithoutLibraryInput[]
   updateMany?: Prisma.AiLibraryFileUpdateManyWithWhereWithoutLibraryInput | Prisma.AiLibraryFileUpdateManyWithWhereWithoutLibraryInput[]
   deleteMany?: Prisma.AiLibraryFileScalarWhereInput | Prisma.AiLibraryFileScalarWhereInput[]
-}
-
-export type AiLibraryFileCreateNestedOneWithoutContentExtractionTasksInput = {
-  create?: Prisma.XOR<Prisma.AiLibraryFileCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedCreateWithoutContentExtractionTasksInput>
-  connectOrCreate?: Prisma.AiLibraryFileCreateOrConnectWithoutContentExtractionTasksInput
-  connect?: Prisma.AiLibraryFileWhereUniqueInput
-}
-
-export type AiLibraryFileUpdateOneRequiredWithoutContentExtractionTasksNestedInput = {
-  create?: Prisma.XOR<Prisma.AiLibraryFileCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedCreateWithoutContentExtractionTasksInput>
-  connectOrCreate?: Prisma.AiLibraryFileCreateOrConnectWithoutContentExtractionTasksInput
-  upsert?: Prisma.AiLibraryFileUpsertWithoutContentExtractionTasksInput
-  connect?: Prisma.AiLibraryFileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AiLibraryFileUpdateToOneWithWhereWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUpdateWithoutContentExtractionTasksInput>, Prisma.AiLibraryFileUncheckedUpdateWithoutContentExtractionTasksInput>
 }
 
 export type AiLibraryFileCreateNestedManyWithoutCrawledByCrawlerInput = {
@@ -762,7 +741,6 @@ export type AiLibraryFileCreateWithoutLibraryInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutFileInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerCreateNestedOneWithoutFilesInput
   updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemCreateNestedManyWithoutSourceFileInput
@@ -783,7 +761,6 @@ export type AiLibraryFileUncheckedCreateWithoutLibraryInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutFileInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemUncheckedCreateNestedManyWithoutSourceFileInput
 }
@@ -835,102 +812,6 @@ export type AiLibraryFileScalarWhereInput = {
   archivedAt?: Prisma.DateTimeNullableFilter<"AiLibraryFile"> | Date | string | null
 }
 
-export type AiLibraryFileCreateWithoutContentExtractionTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  name: string
-  originUri?: string | null
-  mimeType: string
-  size?: number | null
-  uploadedAt?: Date | string | null
-  dropError?: string | null
-  docPath?: string | null
-  originFileHash?: string | null
-  originModificationDate?: Date | string | null
-  archivedAt?: Date | string | null
-  crawledByCrawler?: Prisma.AiLibraryCrawlerCreateNestedOneWithoutFilesInput
-  library: Prisma.AiLibraryCreateNestedOneWithoutFilesInput
-  updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutFileInput
-  listItems?: Prisma.AiListItemCreateNestedManyWithoutSourceFileInput
-}
-
-export type AiLibraryFileUncheckedCreateWithoutContentExtractionTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  libraryId: string
-  name: string
-  originUri?: string | null
-  mimeType: string
-  size?: number | null
-  uploadedAt?: Date | string | null
-  dropError?: string | null
-  crawledByCrawlerId?: string | null
-  docPath?: string | null
-  originFileHash?: string | null
-  originModificationDate?: Date | string | null
-  archivedAt?: Date | string | null
-  updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutFileInput
-  listItems?: Prisma.AiListItemUncheckedCreateNestedManyWithoutSourceFileInput
-}
-
-export type AiLibraryFileCreateOrConnectWithoutContentExtractionTasksInput = {
-  where: Prisma.AiLibraryFileWhereUniqueInput
-  create: Prisma.XOR<Prisma.AiLibraryFileCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedCreateWithoutContentExtractionTasksInput>
-}
-
-export type AiLibraryFileUpsertWithoutContentExtractionTasksInput = {
-  update: Prisma.XOR<Prisma.AiLibraryFileUpdateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedUpdateWithoutContentExtractionTasksInput>
-  create: Prisma.XOR<Prisma.AiLibraryFileCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedCreateWithoutContentExtractionTasksInput>
-  where?: Prisma.AiLibraryFileWhereInput
-}
-
-export type AiLibraryFileUpdateToOneWithWhereWithoutContentExtractionTasksInput = {
-  where?: Prisma.AiLibraryFileWhereInput
-  data: Prisma.XOR<Prisma.AiLibraryFileUpdateWithoutContentExtractionTasksInput, Prisma.AiLibraryFileUncheckedUpdateWithoutContentExtractionTasksInput>
-}
-
-export type AiLibraryFileUpdateWithoutContentExtractionTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  originUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
-  size?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  uploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dropError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  docPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  crawledByCrawler?: Prisma.AiLibraryCrawlerUpdateOneWithoutFilesNestedInput
-  library?: Prisma.AiLibraryUpdateOneRequiredWithoutFilesNestedInput
-  updates?: Prisma.AiLibraryUpdateUpdateManyWithoutFileNestedInput
-  listItems?: Prisma.AiListItemUpdateManyWithoutSourceFileNestedInput
-}
-
-export type AiLibraryFileUncheckedUpdateWithoutContentExtractionTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  originUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
-  size?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  uploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dropError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  crawledByCrawlerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  docPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutFileNestedInput
-  listItems?: Prisma.AiListItemUncheckedUpdateManyWithoutSourceFileNestedInput
-}
-
 export type AiLibraryFileCreateWithoutCrawledByCrawlerInput = {
   id?: string
   createdAt?: Date | string
@@ -945,7 +826,6 @@ export type AiLibraryFileCreateWithoutCrawledByCrawlerInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutFileInput
   library: Prisma.AiLibraryCreateNestedOneWithoutFilesInput
   updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemCreateNestedManyWithoutSourceFileInput
@@ -966,7 +846,6 @@ export type AiLibraryFileUncheckedCreateWithoutCrawledByCrawlerInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutFileInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemUncheckedCreateNestedManyWithoutSourceFileInput
 }
@@ -1011,7 +890,6 @@ export type AiLibraryFileCreateWithoutUpdatesInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutFileInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerCreateNestedOneWithoutFilesInput
   library: Prisma.AiLibraryCreateNestedOneWithoutFilesInput
   listItems?: Prisma.AiListItemCreateNestedManyWithoutSourceFileInput
@@ -1033,7 +911,6 @@ export type AiLibraryFileUncheckedCreateWithoutUpdatesInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutFileInput
   listItems?: Prisma.AiListItemUncheckedCreateNestedManyWithoutSourceFileInput
 }
 
@@ -1067,7 +944,6 @@ export type AiLibraryFileUpdateWithoutUpdatesInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutFileNestedInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerUpdateOneWithoutFilesNestedInput
   library?: Prisma.AiLibraryUpdateOneRequiredWithoutFilesNestedInput
   listItems?: Prisma.AiListItemUpdateManyWithoutSourceFileNestedInput
@@ -1089,7 +965,6 @@ export type AiLibraryFileUncheckedUpdateWithoutUpdatesInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUncheckedUpdateManyWithoutSourceFileNestedInput
 }
 
@@ -1107,7 +982,6 @@ export type AiLibraryFileCreateWithoutListItemsInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutFileInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerCreateNestedOneWithoutFilesInput
   library: Prisma.AiLibraryCreateNestedOneWithoutFilesInput
   updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutFileInput
@@ -1129,7 +1003,6 @@ export type AiLibraryFileUncheckedCreateWithoutListItemsInput = {
   originFileHash?: string | null
   originModificationDate?: Date | string | null
   archivedAt?: Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutFileInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutFileInput
 }
 
@@ -1163,7 +1036,6 @@ export type AiLibraryFileUpdateWithoutListItemsInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutFileNestedInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerUpdateOneWithoutFilesNestedInput
   library?: Prisma.AiLibraryUpdateOneRequiredWithoutFilesNestedInput
   updates?: Prisma.AiLibraryUpdateUpdateManyWithoutFileNestedInput
@@ -1185,7 +1057,6 @@ export type AiLibraryFileUncheckedUpdateWithoutListItemsInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutFileNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutFileNestedInput
 }
 
@@ -1220,7 +1091,6 @@ export type AiLibraryFileUpdateWithoutLibraryInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutFileNestedInput
   crawledByCrawler?: Prisma.AiLibraryCrawlerUpdateOneWithoutFilesNestedInput
   updates?: Prisma.AiLibraryUpdateUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUpdateManyWithoutSourceFileNestedInput
@@ -1241,7 +1111,6 @@ export type AiLibraryFileUncheckedUpdateWithoutLibraryInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutFileNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUncheckedUpdateManyWithoutSourceFileNestedInput
 }
@@ -1294,7 +1163,6 @@ export type AiLibraryFileUpdateWithoutCrawledByCrawlerInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutFileNestedInput
   library?: Prisma.AiLibraryUpdateOneRequiredWithoutFilesNestedInput
   updates?: Prisma.AiLibraryUpdateUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUpdateManyWithoutSourceFileNestedInput
@@ -1315,7 +1183,6 @@ export type AiLibraryFileUncheckedUpdateWithoutCrawledByCrawlerInput = {
   originFileHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originModificationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutFileNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutFileNestedInput
   listItems?: Prisma.AiListItemUncheckedUpdateManyWithoutSourceFileNestedInput
 }
@@ -1343,13 +1210,11 @@ export type AiLibraryFileUncheckedUpdateManyWithoutCrawledByCrawlerInput = {
  */
 
 export type AiLibraryFileCountOutputType = {
-  contentExtractionTasks: number
   updates: number
   listItems: number
 }
 
 export type AiLibraryFileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  contentExtractionTasks?: boolean | AiLibraryFileCountOutputTypeCountContentExtractionTasksArgs
   updates?: boolean | AiLibraryFileCountOutputTypeCountUpdatesArgs
   listItems?: boolean | AiLibraryFileCountOutputTypeCountListItemsArgs
 }
@@ -1362,13 +1227,6 @@ export type AiLibraryFileCountOutputTypeDefaultArgs<ExtArgs extends runtime.Type
    * Select specific fields to fetch from the AiLibraryFileCountOutputType
    */
   select?: Prisma.AiLibraryFileCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * AiLibraryFileCountOutputType without action
- */
-export type AiLibraryFileCountOutputTypeCountContentExtractionTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AiContentProcessingTaskWhereInput
 }
 
 /**
@@ -1402,7 +1260,6 @@ export type AiLibraryFileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   originFileHash?: boolean
   originModificationDate?: boolean
   archivedAt?: boolean
-  contentExtractionTasks?: boolean | Prisma.AiLibraryFile$contentExtractionTasksArgs<ExtArgs>
   crawledByCrawler?: boolean | Prisma.AiLibraryFile$crawledByCrawlerArgs<ExtArgs>
   library?: boolean | Prisma.AiLibraryDefaultArgs<ExtArgs>
   updates?: boolean | Prisma.AiLibraryFile$updatesArgs<ExtArgs>
@@ -1470,7 +1327,6 @@ export type AiLibraryFileSelectScalar = {
 
 export type AiLibraryFileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "libraryId" | "name" | "originUri" | "mimeType" | "size" | "uploadedAt" | "dropError" | "crawledByCrawlerId" | "docPath" | "originFileHash" | "originModificationDate" | "archivedAt", ExtArgs["result"]["aiLibraryFile"]>
 export type AiLibraryFileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  contentExtractionTasks?: boolean | Prisma.AiLibraryFile$contentExtractionTasksArgs<ExtArgs>
   crawledByCrawler?: boolean | Prisma.AiLibraryFile$crawledByCrawlerArgs<ExtArgs>
   library?: boolean | Prisma.AiLibraryDefaultArgs<ExtArgs>
   updates?: boolean | Prisma.AiLibraryFile$updatesArgs<ExtArgs>
@@ -1489,7 +1345,6 @@ export type AiLibraryFileIncludeUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type $AiLibraryFilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AiLibraryFile"
   objects: {
-    contentExtractionTasks: Prisma.$AiContentProcessingTaskPayload<ExtArgs>[]
     crawledByCrawler: Prisma.$AiLibraryCrawlerPayload<ExtArgs> | null
     library: Prisma.$AiLibraryPayload<ExtArgs>
     updates: Prisma.$AiLibraryUpdatePayload<ExtArgs>[]
@@ -1905,7 +1760,6 @@ readonly fields: AiLibraryFileFieldRefs;
  */
 export interface Prisma__AiLibraryFileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  contentExtractionTasks<T extends Prisma.AiLibraryFile$contentExtractionTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibraryFile$contentExtractionTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiContentProcessingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   crawledByCrawler<T extends Prisma.AiLibraryFile$crawledByCrawlerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibraryFile$crawledByCrawlerArgs<ExtArgs>>): Prisma.Prisma__AiLibraryCrawlerClient<runtime.Types.Result.GetResult<Prisma.$AiLibraryCrawlerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   library<T extends Prisma.AiLibraryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibraryDefaultArgs<ExtArgs>>): Prisma.Prisma__AiLibraryClient<runtime.Types.Result.GetResult<Prisma.$AiLibraryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   updates<T extends Prisma.AiLibraryFile$updatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibraryFile$updatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiLibraryUpdatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2347,30 +2201,6 @@ export type AiLibraryFileDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many AiLibraryFiles to delete.
    */
   limit?: number
-}
-
-/**
- * AiLibraryFile.contentExtractionTasks
- */
-export type AiLibraryFile$contentExtractionTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AiContentProcessingTask
-   */
-  select?: Prisma.AiContentProcessingTaskSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AiContentProcessingTask
-   */
-  omit?: Prisma.AiContentProcessingTaskOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiContentProcessingTaskInclude<ExtArgs> | null
-  where?: Prisma.AiContentProcessingTaskWhereInput
-  orderBy?: Prisma.AiContentProcessingTaskOrderByWithRelationInput | Prisma.AiContentProcessingTaskOrderByWithRelationInput[]
-  cursor?: Prisma.AiContentProcessingTaskWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AiContentProcessingTaskScalarFieldEnum | Prisma.AiContentProcessingTaskScalarFieldEnum[]
 }
 
 /**

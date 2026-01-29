@@ -1,29 +1,42 @@
 import { eventClient } from '../client'
-import { WORKSPACE_STREAM_NAME, getConsumerName, logger } from './common'
-import { ProcessType } from './schema'
+import { ACTION_TYPES, ActionType, WORKSPACE_STREAM_NAME, getConsumerName, logger } from './common'
 
 export const stopProcessing = async ({
   workspaceId,
-  processType,
+  actionTypes,
 }: {
   workspaceId: string
-  processType: ProcessType
+  actionTypes?: ActionType[]
 }) => {
-  const consumerName = getConsumerName({ workspaceId, processType })
-  await eventClient.pauseConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
-  logger.debug('Processing stopped', { workspaceId, processType })
+  if (!actionTypes) {
+    actionTypes = ACTION_TYPES.map((type) => type as ActionType)
+  }
+  await Promise.all(
+    actionTypes.map(async (actionType) => {
+      const consumerName = getConsumerName({ workspaceId, actionType })
+      await eventClient.pauseConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
+    }),
+  )
+  logger.debug('Processing stopped for all action types', { workspaceId, actionTypes })
 }
 
 export const startProcessing = async ({
   workspaceId,
-  processType,
+  actionTypes,
 }: {
   workspaceId: string
-  processType: ProcessType
+  actionTypes?: ActionType[]
 }) => {
-  const consumerName = getConsumerName({ workspaceId, processType })
-  await eventClient.resumeConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
-  logger.debug('Processing started', { workspaceId, processType })
+  if (!actionTypes) {
+    actionTypes = ACTION_TYPES.map((type) => type as ActionType)
+  }
+  await Promise.all(
+    actionTypes.map(async (actionType) => {
+      const consumerName = getConsumerName({ workspaceId, actionType })
+      await eventClient.resumeConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
+    }),
+  )
+  logger.debug('Processing started for all action types', { workspaceId, actionTypes })
 }
 
 export const EVENT_PROCESSING_STATUS = ['paused', 'running'] as const
@@ -32,11 +45,11 @@ export type EventProcessingStatus = (typeof EVENT_PROCESSING_STATUS)[number]
 
 export const processingStatus = async ({
   workspaceId,
-  processType,
+  actionType,
 }: {
   workspaceId: string
-  processType: ProcessType
+  actionType: ActionType
 }): Promise<EventProcessingStatus> => {
-  const consumerName = getConsumerName({ workspaceId, processType })
+  const consumerName = getConsumerName({ workspaceId, actionType })
   return await eventClient.consumerStatus({ streamName: WORKSPACE_STREAM_NAME, consumerName })
 }

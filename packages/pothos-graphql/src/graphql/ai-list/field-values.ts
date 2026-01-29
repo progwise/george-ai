@@ -106,9 +106,6 @@ export const ListItemQueryResult = builder
           include: {
             library: true
             crawledByCrawler: true
-            contentExtractionTasks: {
-              select: { extractionFinishedAt: true }
-            }
           }
         }
         cache: true
@@ -209,11 +206,6 @@ export const ListItemsQueryResult = builder
                 include: {
                   library: true,
                   crawledByCrawler: true,
-                  contentExtractionTasks: {
-                    where: { extractionFinishedAt: { not: null } },
-                    orderBy: { extractionFinishedAt: 'desc' },
-                    take: 1,
-                  },
                 },
               },
               cache: {

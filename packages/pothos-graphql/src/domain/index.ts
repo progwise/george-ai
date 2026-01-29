@@ -2,7 +2,6 @@ export { upsertCronJob, stopCronJob } from './crawler/cron-jobs'
 export { runCrawler, stopCrawler } from './crawler/crawler-run'
 export { deleteFile, dropAllLibraryFiles } from './file'
 export { createListItemsForSource, findCacheValue, getFieldValue, refreshListItemsForSource } from './list'
-export { createContentProcessingTask } from './content-extraction/content-extraction-task'
 export { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from './user/avatar-provider'
 export { EnrichmentStatusValues, type EnrichmentMetadata, EnrichmentMetadataSchema } from './enrichment'
 export {

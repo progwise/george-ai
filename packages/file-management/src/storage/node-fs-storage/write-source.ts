@@ -50,6 +50,8 @@ export async function writeSource(
     version: 1,
     id: fileId,
     fileName: meta.originalName,
+    originalContentHash: meta.originalContentHash,
+    originalUpdatedAt: meta.originalUpdatedAt,
     createdAt: new Date().toISOString(),
     mimeType: meta.mimeType,
     sourceHash: finalHash,

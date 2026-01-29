@@ -136,7 +136,7 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
         mimeType: fileInfo.mimeType || 'application/octet-stream',
         originalName: fileInfo.name,
         originalUpdatedAt: fileInfo.updatedAt.toISOString(),
-        contentHash: fileInfo.originFileHash,
+        originalContentHash: fileInfo.originFileHash,
       },
     })
     await workspace.markUploadFinished({

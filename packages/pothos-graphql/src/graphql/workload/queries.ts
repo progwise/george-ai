@@ -1,4 +1,4 @@
-import { workspace } from '@george-ai/app-domain'
+import { workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'
@@ -11,7 +11,7 @@ builder.queryField('workspaceStatistics', (t) =>
     resolve: async (_root, _args, context) => {
       const workspaceId = context.workspaceId
       await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
-      const statistics = await workspace.getWorkspaceStatistics(workspaceId)
+      const statistics = await workspaceProcessing.getWorkspaceStatistics(workspaceId)
       return {
         workspaceId,
         statistics,
@@ -26,7 +26,7 @@ builder.queryField('workers', (t) =>
     nullable: false,
     resolve: async (_root, _args, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
-      const workers = await workspace.getWorkers()
+      const workers = await workerRegistry.getWorkerRegistryEntries({})
       return workers.map((worker) => ({
         workerId: worker.workerId,
         workerType: worker.workerType,

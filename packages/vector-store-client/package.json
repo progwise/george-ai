@@ -27,6 +27,7 @@
   "dependencies": {
     "@george-ai/web-utils": "workspace:*",
     "@qdrant/js-client-rest": "^1.16.2",
+    "uuid": "^13.0.0",
     "zod": "^3.23.8"
   }
 }

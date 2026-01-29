@@ -154,7 +154,6 @@ builder.prismaObject('AiAutomationItem', {
             cache: true,
             sourceFile: {
               include: {
-                contentExtractionTasks: { select: { extractionFinishedAt: true } },
                 crawledByCrawler: { select: { uri: true } },
                 library: { select: { name: true } },
               },
@@ -218,7 +217,6 @@ builder.prismaObject('AiAutomationItem', {
             cache: true,
             sourceFile: {
               include: {
-                contentExtractionTasks: { select: { extractionFinishedAt: true } },
                 crawledByCrawler: { select: { uri: true } },
                 library: { select: { name: true } },
               },

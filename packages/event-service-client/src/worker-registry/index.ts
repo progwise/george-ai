@@ -6,12 +6,11 @@ import {
   getAllWorkerRegistryEntries,
   getWorkerRegistryEntries,
   getWorkerRegistryEntry,
-  registerWorker,
-  updateWorker,
   watchWorkerRegistryEntries,
 } from './entry'
 import { updateWorkerHeartbeat } from './heartbeat'
 import { WORKER_TYPES, type WorkerRegistryEntry, WorkerRegistrySchema, type WorkerType } from './schema'
+import { signup } from './signup'
 
 export async function initializeWorkerRegistryBucket() {
   await eventClient.ensureBucket({
@@ -31,11 +30,10 @@ export default {
   WORKER_TYPES,
   getWorkerRegistryEntry,
   getWorkerRegistryEntries,
-  registerWorker,
-  updateWorker,
   watchWorkerRegistryEntries,
   updateWorkerHeartbeat,
   getAllWorkerRegistryEntries,
   deleteWorkerRegistryEntry,
   deleteWorker,
+  signup,
 } as const

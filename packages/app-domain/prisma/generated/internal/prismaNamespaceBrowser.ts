@@ -63,8 +63,6 @@ export const ModelName = {
   AiLibrary: 'AiLibrary',
   AiLibraryUsage: 'AiLibraryUsage',
   AiLibraryFile: 'AiLibraryFile',
-  AiContentProcessingTask: 'AiContentProcessingTask',
-  AiContentExtractionSubTask: 'AiContentExtractionSubTask',
   AiLibraryCrawler: 'AiLibraryCrawler',
   AiLibraryCrawlerRun: 'AiLibraryCrawlerRun',
   AiLibraryCrawlerCronJob: 'AiLibraryCrawlerCronJob',
@@ -294,49 +292,6 @@ export const AiLibraryFileScalarFieldEnum = {
 } as const
 
 export type AiLibraryFileScalarFieldEnum = (typeof AiLibraryFileScalarFieldEnum)[keyof typeof AiLibraryFileScalarFieldEnum]
-
-
-export const AiContentProcessingTaskScalarFieldEnum = {
-  id: 'id',
-  fileId: 'fileId',
-  libraryId: 'libraryId',
-  createdAt: 'createdAt',
-  timeoutMs: 'timeoutMs',
-  embeddingModelId: 'embeddingModelId',
-  extractionOptions: 'extractionOptions',
-  processingStartedAt: 'processingStartedAt',
-  processingFinishedAt: 'processingFinishedAt',
-  processingFailedAt: 'processingFailedAt',
-  processingTimeout: 'processingTimeout',
-  extractionStartedAt: 'extractionStartedAt',
-  extractionFinishedAt: 'extractionFinishedAt',
-  extractionFailedAt: 'extractionFailedAt',
-  extractionTimeout: 'extractionTimeout',
-  embeddingStartedAt: 'embeddingStartedAt',
-  embeddingFinishedAt: 'embeddingFinishedAt',
-  embeddingFailedAt: 'embeddingFailedAt',
-  embeddingTimeout: 'embeddingTimeout',
-  chunksCount: 'chunksCount',
-  chunksSize: 'chunksSize',
-  metadata: 'metadata',
-  processingCancelled: 'processingCancelled'
-} as const
-
-export type AiContentProcessingTaskScalarFieldEnum = (typeof AiContentProcessingTaskScalarFieldEnum)[keyof typeof AiContentProcessingTaskScalarFieldEnum]
-
-
-export const AiContentExtractionSubTaskScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  startedAt: 'startedAt',
-  finishedAt: 'finishedAt',
-  failedAt: 'failedAt',
-  contentProcessingTaskId: 'contentProcessingTaskId',
-  extractionMethod: 'extractionMethod',
-  markdownFileName: 'markdownFileName'
-} as const
-
-export type AiContentExtractionSubTaskScalarFieldEnum = (typeof AiContentExtractionSubTaskScalarFieldEnum)[keyof typeof AiContentExtractionSubTaskScalarFieldEnum]
 
 
 export const AiLibraryCrawlerScalarFieldEnum = {

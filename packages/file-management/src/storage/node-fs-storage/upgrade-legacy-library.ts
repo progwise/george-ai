@@ -21,6 +21,7 @@ export async function upgradeLegacyLibrary(
       mimeType: string
       createdAt: string
       uploadedAt: string
+      hash: string
     }>
   },
 ): Promise<void> {
@@ -55,6 +56,7 @@ export async function upgradeLegacyLibrary(
         mimeType: fileInfo.mimeType,
         createdAt: fileInfo.createdAt,
         uploadedAt: fileInfo.uploadedAt,
+        hash: fileInfo.hash,
       })
       logger.info('Successfully upgraded legacy file', { workspaceId, libraryId, fileId })
     } catch (error) {

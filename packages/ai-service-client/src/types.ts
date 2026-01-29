@@ -11,7 +11,7 @@ export type InstanceStatus = 'unknown' | 'online' | 'offline' | 'error'
 export interface ServiceProviderConfig {
   provider: ServiceProviderType
   workspaceId: string
-  endpoints: { name: string; apiKey?: string; url?: string; vramGB: number }[]
+  endpoints: { name: string; apiKey?: string; url?: string; vramGB?: number }[]
 }
 
 export interface ChatOptions {

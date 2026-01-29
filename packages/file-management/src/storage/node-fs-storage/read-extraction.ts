@@ -1,9 +1,7 @@
-import { createReadStream } from 'node:fs'
-import { constants, promises } from 'node:fs'
+import { constants, createReadStream, promises } from 'node:fs'
 import path from 'node:path'
-import { Readable } from 'node:stream'
 
-import { logger } from './commons'
+import { lineSplitter, logger } from './commons'
 import { getExtractionDir } from './directories'
 import { getFile } from './get-file'
 import { getExtractionMetadata } from './metadata-files'
@@ -15,15 +13,15 @@ export async function readExtraction(
   args: {
     libraryId: string
     fileId: string
-    methodId?: string
-    fragment?: number
+    extractionMethod?: string | null
+    fragment?: number | null
   },
-): Promise<Readable> {
-  const { libraryId, fileId, methodId, fragment } = args
+): Promise<AsyncIterable<string>> {
+  const { libraryId, fileId, extractionMethod, fragment } = args
 
-  if (methodId) {
+  if (extractionMethod) {
     // Single Extraction Method Requested
-    return readSingleExtraction(workspaceId, { libraryId, fileId, methodId, fragment })
+    return readSingleExtraction(workspaceId, { libraryId, fileId, extractionMethod, fragment })
   }
 
   const fileManifest = await getFile(workspaceId, { libraryId, fileId })
@@ -32,31 +30,24 @@ export async function readExtraction(
     throw new Error(`No extractions found for file: ${fileId} in library: ${libraryId}`)
   }
 
-  const readStreams = await Promise.all(
-    fileManifest.extractions.map(async (extraction) =>
-      readSingleExtraction(workspaceId, {
+  const { extractions } = fileManifest
+  // Combine multiple extraction streams lazily - only create each stream when needed
+  async function* combinedGenerator() {
+    for (const extraction of extractions) {
+      const stream = await readSingleExtraction(workspaceId, {
         libraryId,
         fileId,
-        methodId: extraction.methodId,
+        extractionMethod: extraction.extractionMethod,
         fragment,
-      }),
-    ),
-  )
-
-  // Combine multiple extraction streams into one
-  async function* combinedGenerator() {
-    for (const stream of readStreams) {
-      try {
-        for await (const chunk of stream) {
-          yield chunk
-        }
-      } finally {
-        stream.destroy() // Ensure file descriptor is closed
+      })
+      yield `--- Extraction Start ---`
+      for await (const line of stream) {
+        yield line
       }
     }
   }
 
-  return Readable.from(combinedGenerator())
+  return combinedGenerator()
 }
 
 export async function readSingleExtraction(
@@ -64,12 +55,12 @@ export async function readSingleExtraction(
   args: {
     libraryId: string
     fileId: string
-    methodId: string
-    fragment?: number
+    extractionMethod: string
+    fragment?: number | null
   },
-): Promise<Readable> {
-  const { libraryId, fileId, methodId, fragment } = args
-  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+): Promise<AsyncIterable<string>> {
+  const { libraryId, fileId, extractionMethod, fragment } = args
+  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, extractionMethod)
 
   // 1. Get Metadata (The Source of Truth)
   const metadata = await getExtractionMetadata(extractionDir)
@@ -77,74 +68,74 @@ export async function readSingleExtraction(
     throw new Error(`Extraction metadata not found for extraction dir: ${extractionDir}`)
   }
 
-  if (!metadata.output.hasFragments && fragment === undefined) {
+  if (!metadata.hasFragments && fragment === undefined) {
     // 3. Handle Single File Extractions
-    const filePath = path.join(extractionDir, metadata.output.mainFile || 'output.md')
+    const filePath = path.join(extractionDir, 'output.md')
     await access(filePath, constants.R_OK)
-
-    return createReadStream(filePath)
+    return getLineStream(filePath)
   }
 
-  if (!metadata.output.hasFragments && fragment !== undefined) {
+  if (!metadata.hasFragments && fragment !== undefined) {
     logger.warn('Requested fragment for non-sharded extraction', {
       workspaceId,
       libraryId,
       fileId,
-      methodId,
+      extractionMethod,
       fragment,
     })
     throw new Error('Fragments are not available for this extraction')
   }
 
-  if (metadata.output.hasFragments && fragment !== undefined) {
-    const fragmentFileName = String(fragment).padStart(4, '0') + path.extname(metadata.output.mainFile || 'output.md')
+  if (metadata.hasFragments && fragment !== undefined) {
+    const fragmentFileName = `${String(fragment).padStart(4, '0')}.md`
     const fragmentPath = path.join(extractionDir, 'fragments', fragmentFileName)
     await access(fragmentPath, constants.R_OK)
 
-    return createReadStream(fragmentPath)
+    return getLineStream(fragmentPath)
   }
 
   // 2. Handle Sharded Extractions
-  if (metadata.output.hasFragments) {
+  if (metadata.hasFragments) {
     const fragmentsDir = path.join(extractionDir, 'fragments')
 
     // Verify directory exists
     await access(fragmentsDir, constants.R_OK)
 
-    return createVirtualFragmentStream(fragmentsDir)
+    return createFragmentStream(fragmentsDir)
   }
 
   logger.error('Invalid extraction state', {
     workspaceId,
     libraryId,
     fileId,
-    methodId,
+    extractionMethod,
     fragment,
     metadata,
   })
   throw new Error('Invalid extraction state: unable to determine extraction file(s)')
 }
 
-/**
- * Helper: Combines shards into a single stream using an Async Generator
- */
-function createVirtualFragmentStream(fragmentsDir: string): Readable {
-  async function* fragmentGenerator() {
-    // Read and sort files to ensure 0001.md comes before 0002.md
-    const files = (await readdir(fragmentsDir)).sort()
+async function* createFragmentStream(fragmentsDir: string): AsyncGenerator<string> {
+  // Read and sort files to ensure 0001.md comes before 0002.md
+  const files = (await readdir(fragmentsDir)).sort()
 
-    for (const file of files) {
-      const fragmentPath = path.join(fragmentsDir, file)
-      const stream = createReadStream(fragmentPath)
-      try {
-        for await (const chunk of stream) {
-          yield chunk
-        }
-      } finally {
-        stream.destroy() // Ensure file descriptor is closed
-      }
+  for (const file of files) {
+    const fragmentPath = path.join(fragmentsDir, file)
+    const stream = getLineStream(fragmentPath)
+    yield `--- Fragment: ${file} ---`
+    for await (const line of stream) {
+      yield line
     }
   }
+}
 
-  return Readable.from(fragmentGenerator())
+async function* getLineStream(filePath: string): AsyncGenerator<string> {
+  const source = createReadStream(filePath)
+  try {
+    for await (const line of lineSplitter(source)) {
+      yield line
+    }
+  } finally {
+    source.destroy()
+  }
 }

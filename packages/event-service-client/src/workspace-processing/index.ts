@@ -1,24 +1,17 @@
 import { eventClient } from '../client'
-import { WORKSPACE_PROCESSING_STREAM_SUBJECTS, WORKSPACE_STREAM_NAME } from './common'
 import {
-  deleteWorkspaceProcessingConsumers,
-  ensureWorkspaceProcessingConsumer,
-  ensureWorkspaceProcessingConsumers,
-} from './consumers'
+  ACTION_TYPES,
+  EXTRACTION_METHODS,
+  WORKSPACE_PROCESSING_STREAM_SUBJECTS,
+  WORKSPACE_STREAM_NAME,
+  getReplySubject,
+} from './common'
+import { deleteWorkspaceProcessingConsumers, ensureWorkspaceConsumer, ensureWorkspaceConsumers } from './consumers'
 import { EVENT_PROCESSING_STATUS, processingStatus, startProcessing, stopProcessing } from './controller'
-import { publishRequestEvent, publishStatusEvent } from './publish'
-import { EmbeddingRequestSchema, EnrichmentRequestSchema, ExtractionRequestSchema, PROCESS_TYPES } from './schema'
+import { publishActionEvent, publishStatusEvent } from './publish'
+import { EventSchemas } from './schema'
 import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statistics'
-import { subscribeProcessEvent } from './subscribe'
-
-export type {
-  ProcessEvent,
-  ProcessType,
-  StatusEvent,
-  EmbeddingRequest,
-  ExtractionRequest,
-  EnrichmentRequest,
-} from './schema'
+import { subscribeEvent } from './subscribe'
 
 export const initializeWorkspaceProcessingStream = async () => {
   await eventClient.ensureStream({
@@ -30,21 +23,23 @@ export const initializeWorkspaceProcessingStream = async () => {
   return WORKSPACE_STREAM_NAME
 }
 
+export type * from './schema'
+
 export default {
   stopProcessing,
   startProcessing,
   processingStatus,
   deleteWorkspaceProcessingConsumers,
-  ensureWorkspaceProcessingConsumer,
-  ensureWorkspaceProcessingConsumers,
-  publishRequestEvent,
+  ensureWorkspaceConsumer,
+  ensureWorkspaceConsumers,
+  publishActionEvent,
   publishStatusEvent,
-  subscribeProcessEvent,
+  subscribeEvent,
+  getReplySubject,
   getWorkspaceProcessStatistics,
   getWorkspaceStatistics,
+  EventSchemas,
+  ACTION_TYPES,
   EVENT_PROCESSING_STATUS,
-  PROCESS_TYPES,
-  EmbeddingRequestSchema,
-  ExtractionRequestSchema,
-  EnrichmentRequestSchema,
+  EXTRACTION_METHODS,
 }

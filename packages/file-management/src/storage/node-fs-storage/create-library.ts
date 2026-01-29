@@ -1,5 +1,5 @@
 import { LibraryManifest } from '../../schemas'
-import { createLibraryDir, getWorkspaceDir } from './directories'
+import { createLibraryDir } from './directories'
 import { saveLibraryManifest } from './metadata-files'
 
 export async function createLibrary(
@@ -7,8 +7,7 @@ export async function createLibrary(
   args: { libraryId: string; name: string },
 ): Promise<LibraryManifest> {
   const { libraryId, name } = args
-  const workspaceDir = await getWorkspaceDir(workspaceId)
-  const libraryDir = await createLibraryDir(workspaceDir, libraryId)
+  const libraryDir = await createLibraryDir(workspaceId, libraryId)
   const manifest: LibraryManifest = {
     version: 1,
     id: libraryId,

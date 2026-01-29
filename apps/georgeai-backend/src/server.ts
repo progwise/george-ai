@@ -5,12 +5,7 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
-import {
-  initializeWorkspace,
-  schema,
-  startContentProcessingWorker,
-  startEnrichmentQueueWorker,
-} from '@george-ai/pothos-graphql'
+import { initializeWorkspace, schema, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { avatarMiddleware } from './avatarMiddleware'
@@ -41,10 +36,7 @@ if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
   logger.info('Auto-starting enrichment queue worker...')
   startEnrichmentQueueWorker().catch((error) => logger.error('Enrichment worker error:', error))
 }
-if (process.env.AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
-  logger.info('Auto-starting content processing worker...')
-  startContentProcessingWorker().catch((error) => logger.error('Content worker error:', error))
-}
+
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',

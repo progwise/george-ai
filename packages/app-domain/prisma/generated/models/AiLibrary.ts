@@ -312,7 +312,6 @@ export type AiLibraryWhereInput = {
   embeddingModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
   ocrModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
   extractionModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   embeddingModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
   ocrModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
   extractionModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
@@ -345,7 +344,6 @@ export type AiLibraryOrderByWithRelationInput = {
   embeddingModelId?: Prisma.SortOrderInput | Prisma.SortOrder
   ocrModelId?: Prisma.SortOrderInput | Prisma.SortOrder
   extractionModelId?: Prisma.SortOrderInput | Prisma.SortOrder
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskOrderByRelationAggregateInput
   embeddingModel?: Prisma.AiLanguageModelOrderByWithRelationInput
   ocrModel?: Prisma.AiLanguageModelOrderByWithRelationInput
   extractionModel?: Prisma.AiLanguageModelOrderByWithRelationInput
@@ -381,7 +379,6 @@ export type AiLibraryWhereUniqueInput = Prisma.AtLeast<{
   embeddingModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
   ocrModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
   extractionModelId?: Prisma.StringNullableFilter<"AiLibrary"> | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   embeddingModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
   ocrModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
   extractionModel?: Prisma.XOR<Prisma.AiLanguageModelNullableScalarRelationFilter, Prisma.AiLanguageModelWhereInput> | null
@@ -457,7 +454,6 @@ export type AiLibraryCreateInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -490,7 +486,6 @@ export type AiLibraryUncheckedCreateInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -513,7 +508,6 @@ export type AiLibraryUpdateInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -546,7 +540,6 @@ export type AiLibraryUncheckedUpdateInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -811,20 +804,6 @@ export type AiLibraryUpdateOneRequiredWithoutFilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AiLibraryUpdateToOneWithWhereWithoutFilesInput, Prisma.AiLibraryUpdateWithoutFilesInput>, Prisma.AiLibraryUncheckedUpdateWithoutFilesInput>
 }
 
-export type AiLibraryCreateNestedOneWithoutContentExtractionTasksInput = {
-  create?: Prisma.XOR<Prisma.AiLibraryCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedCreateWithoutContentExtractionTasksInput>
-  connectOrCreate?: Prisma.AiLibraryCreateOrConnectWithoutContentExtractionTasksInput
-  connect?: Prisma.AiLibraryWhereUniqueInput
-}
-
-export type AiLibraryUpdateOneRequiredWithoutContentExtractionTasksNestedInput = {
-  create?: Prisma.XOR<Prisma.AiLibraryCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedCreateWithoutContentExtractionTasksInput>
-  connectOrCreate?: Prisma.AiLibraryCreateOrConnectWithoutContentExtractionTasksInput
-  upsert?: Prisma.AiLibraryUpsertWithoutContentExtractionTasksInput
-  connect?: Prisma.AiLibraryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AiLibraryUpdateToOneWithWhereWithoutContentExtractionTasksInput, Prisma.AiLibraryUpdateWithoutContentExtractionTasksInput>, Prisma.AiLibraryUncheckedUpdateWithoutContentExtractionTasksInput>
-}
-
 export type AiLibraryCreateNestedOneWithoutCrawlersInput = {
   create?: Prisma.XOR<Prisma.AiLibraryCreateWithoutCrawlersInput, Prisma.AiLibraryUncheckedCreateWithoutCrawlersInput>
   connectOrCreate?: Prisma.AiLibraryCreateOrConnectWithoutCrawlersInput
@@ -1038,7 +1017,6 @@ export type AiLibraryCreateWithoutOwnerInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1069,7 +1047,6 @@ export type AiLibraryUncheckedCreateWithoutOwnerInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -1141,7 +1118,6 @@ export type AiLibraryCreateWithoutWorkspaceInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1172,7 +1148,6 @@ export type AiLibraryUncheckedCreateWithoutWorkspaceInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -1221,7 +1196,6 @@ export type AiLibraryCreateWithoutUsagesInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1253,7 +1227,6 @@ export type AiLibraryUncheckedCreateWithoutUsagesInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -1291,7 +1264,6 @@ export type AiLibraryUpdateWithoutUsagesInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -1323,7 +1295,6 @@ export type AiLibraryUncheckedUpdateWithoutUsagesInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -1345,7 +1316,6 @@ export type AiLibraryCreateWithoutFilesInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1377,7 +1347,6 @@ export type AiLibraryUncheckedCreateWithoutFilesInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
   usages?: Prisma.AiLibraryUsageUncheckedCreateNestedManyWithoutLibraryInput
@@ -1415,7 +1384,6 @@ export type AiLibraryUpdateWithoutFilesInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -1447,132 +1415,7 @@ export type AiLibraryUncheckedUpdateWithoutFilesInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
-  updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
-  usages?: Prisma.AiLibraryUsageUncheckedUpdateManyWithoutLibraryNestedInput
-  listSources?: Prisma.AiListSourceUncheckedUpdateManyWithoutLibraryNestedInput
-  modelUsageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutLibraryNestedInput
-  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutLibraryNestedInput
-}
-
-export type AiLibraryCreateWithoutContentExtractionTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  name: string
-  description?: string | null
-  url?: string | null
-  apiToken?: string | null
-  lastProcessed?: Date | string | null
-  isPublic?: boolean
-  fileConverterOptions?: string | null
-  embeddingTimeoutMs?: number | null
-  autoProcessCrawledFiles?: boolean
-  embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
-  ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
-  extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
-  owner: Prisma.UserCreateNestedOneWithoutLibrariesInput
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutLibrariesInput
-  crawlers?: Prisma.AiLibraryCrawlerCreateNestedManyWithoutLibraryInput
-  files?: Prisma.AiLibraryFileCreateNestedManyWithoutLibraryInput
-  updates?: Prisma.AiLibraryUpdateCreateNestedManyWithoutLibraryInput
-  usages?: Prisma.AiLibraryUsageCreateNestedManyWithoutLibraryInput
-  listSources?: Prisma.AiListSourceCreateNestedManyWithoutLibraryInput
-  modelUsageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutLibraryInput
-  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutLibraryInput
-}
-
-export type AiLibraryUncheckedCreateWithoutContentExtractionTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  name: string
-  description?: string | null
-  url?: string | null
-  apiToken?: string | null
-  lastProcessed?: Date | string | null
-  ownerId: string
-  workspaceId: string
-  isPublic?: boolean
-  fileConverterOptions?: string | null
-  embeddingTimeoutMs?: number | null
-  autoProcessCrawledFiles?: boolean
-  embeddingModelId?: string | null
-  ocrModelId?: string | null
-  extractionModelId?: string | null
-  crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
-  files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
-  updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
-  usages?: Prisma.AiLibraryUsageUncheckedCreateNestedManyWithoutLibraryInput
-  listSources?: Prisma.AiListSourceUncheckedCreateNestedManyWithoutLibraryInput
-  modelUsageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutLibraryInput
-  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutLibraryInput
-}
-
-export type AiLibraryCreateOrConnectWithoutContentExtractionTasksInput = {
-  where: Prisma.AiLibraryWhereUniqueInput
-  create: Prisma.XOR<Prisma.AiLibraryCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedCreateWithoutContentExtractionTasksInput>
-}
-
-export type AiLibraryUpsertWithoutContentExtractionTasksInput = {
-  update: Prisma.XOR<Prisma.AiLibraryUpdateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedUpdateWithoutContentExtractionTasksInput>
-  create: Prisma.XOR<Prisma.AiLibraryCreateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedCreateWithoutContentExtractionTasksInput>
-  where?: Prisma.AiLibraryWhereInput
-}
-
-export type AiLibraryUpdateToOneWithWhereWithoutContentExtractionTasksInput = {
-  where?: Prisma.AiLibraryWhereInput
-  data: Prisma.XOR<Prisma.AiLibraryUpdateWithoutContentExtractionTasksInput, Prisma.AiLibraryUncheckedUpdateWithoutContentExtractionTasksInput>
-}
-
-export type AiLibraryUpdateWithoutContentExtractionTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastProcessed?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
-  ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
-  extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
-  owner?: Prisma.UserUpdateOneRequiredWithoutLibrariesNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLibrariesNestedInput
-  crawlers?: Prisma.AiLibraryCrawlerUpdateManyWithoutLibraryNestedInput
-  files?: Prisma.AiLibraryFileUpdateManyWithoutLibraryNestedInput
-  updates?: Prisma.AiLibraryUpdateUpdateManyWithoutLibraryNestedInput
-  usages?: Prisma.AiLibraryUsageUpdateManyWithoutLibraryNestedInput
-  listSources?: Prisma.AiListSourceUpdateManyWithoutLibraryNestedInput
-  modelUsageLogs?: Prisma.AiModelUsageUpdateManyWithoutLibraryNestedInput
-  apiKeys?: Prisma.ApiKeyUpdateManyWithoutLibraryNestedInput
-}
-
-export type AiLibraryUncheckedUpdateWithoutContentExtractionTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastProcessed?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
-  files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
   usages?: Prisma.AiLibraryUsageUncheckedUpdateManyWithoutLibraryNestedInput
   listSources?: Prisma.AiListSourceUncheckedUpdateManyWithoutLibraryNestedInput
@@ -1593,7 +1436,6 @@ export type AiLibraryCreateWithoutCrawlersInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1625,7 +1467,6 @@ export type AiLibraryUncheckedCreateWithoutCrawlersInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
   usages?: Prisma.AiLibraryUsageUncheckedCreateNestedManyWithoutLibraryInput
@@ -1663,7 +1504,6 @@ export type AiLibraryUpdateWithoutCrawlersInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -1695,7 +1535,6 @@ export type AiLibraryUncheckedUpdateWithoutCrawlersInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
   usages?: Prisma.AiLibraryUsageUncheckedUpdateManyWithoutLibraryNestedInput
@@ -1717,7 +1556,6 @@ export type AiLibraryCreateWithoutUpdatesInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1749,7 +1587,6 @@ export type AiLibraryUncheckedCreateWithoutUpdatesInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   usages?: Prisma.AiLibraryUsageUncheckedCreateNestedManyWithoutLibraryInput
@@ -1787,7 +1624,6 @@ export type AiLibraryUpdateWithoutUpdatesInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -1819,7 +1655,6 @@ export type AiLibraryUncheckedUpdateWithoutUpdatesInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   usages?: Prisma.AiLibraryUsageUncheckedUpdateManyWithoutLibraryNestedInput
@@ -1841,7 +1676,6 @@ export type AiLibraryCreateWithoutListSourcesInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1873,7 +1707,6 @@ export type AiLibraryUncheckedCreateWithoutListSourcesInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -1911,7 +1744,6 @@ export type AiLibraryUpdateWithoutListSourcesInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -1943,7 +1775,6 @@ export type AiLibraryUncheckedUpdateWithoutListSourcesInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -1965,7 +1796,6 @@ export type AiLibraryCreateWithoutApiKeysInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -1997,7 +1827,6 @@ export type AiLibraryUncheckedCreateWithoutApiKeysInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -2035,7 +1864,6 @@ export type AiLibraryUpdateWithoutApiKeysInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -2067,7 +1895,6 @@ export type AiLibraryUncheckedUpdateWithoutApiKeysInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2089,7 +1916,6 @@ export type AiLibraryCreateWithoutEmbeddingModelInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
   owner: Prisma.UserCreateNestedOneWithoutLibrariesInput
@@ -2120,7 +1946,6 @@ export type AiLibraryUncheckedCreateWithoutEmbeddingModelInput = {
   autoProcessCrawledFiles?: boolean
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -2153,7 +1978,6 @@ export type AiLibraryCreateWithoutOcrModelInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
   owner: Prisma.UserCreateNestedOneWithoutLibrariesInput
@@ -2184,7 +2008,6 @@ export type AiLibraryUncheckedCreateWithoutOcrModelInput = {
   autoProcessCrawledFiles?: boolean
   embeddingModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -2217,7 +2040,6 @@ export type AiLibraryCreateWithoutExtractionModelInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   owner: Prisma.UserCreateNestedOneWithoutLibrariesInput
@@ -2248,7 +2070,6 @@ export type AiLibraryUncheckedCreateWithoutExtractionModelInput = {
   autoProcessCrawledFiles?: boolean
   embeddingModelId?: string | null
   ocrModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -2329,7 +2150,6 @@ export type AiLibraryCreateWithoutModelUsageLogsInput = {
   fileConverterOptions?: string | null
   embeddingTimeoutMs?: number | null
   autoProcessCrawledFiles?: boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutLibraryInput
   embeddingModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForEmbeddingInput
   ocrModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForOcrInput
   extractionModel?: Prisma.AiLanguageModelCreateNestedOneWithoutLibrariesUsingForExtractionInput
@@ -2361,7 +2181,6 @@ export type AiLibraryUncheckedCreateWithoutModelUsageLogsInput = {
   embeddingModelId?: string | null
   ocrModelId?: string | null
   extractionModelId?: string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutLibraryInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedCreateNestedManyWithoutLibraryInput
   files?: Prisma.AiLibraryFileUncheckedCreateNestedManyWithoutLibraryInput
   updates?: Prisma.AiLibraryUpdateUncheckedCreateNestedManyWithoutLibraryInput
@@ -2399,7 +2218,6 @@ export type AiLibraryUpdateWithoutModelUsageLogsInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -2431,7 +2249,6 @@ export type AiLibraryUncheckedUpdateWithoutModelUsageLogsInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2472,7 +2289,6 @@ export type AiLibraryUpdateWithoutOwnerInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -2503,7 +2319,6 @@ export type AiLibraryUncheckedUpdateWithoutOwnerInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2564,7 +2379,6 @@ export type AiLibraryUpdateWithoutWorkspaceInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
@@ -2595,7 +2409,6 @@ export type AiLibraryUncheckedUpdateWithoutWorkspaceInput = {
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2694,7 +2507,6 @@ export type AiLibraryUpdateWithoutEmbeddingModelInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutLibrariesNestedInput
@@ -2725,7 +2537,6 @@ export type AiLibraryUncheckedUpdateWithoutEmbeddingModelInput = {
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2767,7 +2578,6 @@ export type AiLibraryUpdateWithoutOcrModelInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   extractionModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutLibrariesNestedInput
@@ -2798,7 +2608,6 @@ export type AiLibraryUncheckedUpdateWithoutOcrModelInput = {
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extractionModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2840,7 +2649,6 @@ export type AiLibraryUpdateWithoutExtractionModelInput = {
   fileConverterOptions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingTimeoutMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutLibraryNestedInput
   embeddingModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForEmbeddingNestedInput
   ocrModel?: Prisma.AiLanguageModelUpdateOneWithoutLibrariesUsingForOcrNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutLibrariesNestedInput
@@ -2871,7 +2679,6 @@ export type AiLibraryUncheckedUpdateWithoutExtractionModelInput = {
   autoProcessCrawledFiles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   embeddingModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocrModelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentExtractionTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutLibraryNestedInput
   crawlers?: Prisma.AiLibraryCrawlerUncheckedUpdateManyWithoutLibraryNestedInput
   files?: Prisma.AiLibraryFileUncheckedUpdateManyWithoutLibraryNestedInput
   updates?: Prisma.AiLibraryUpdateUncheckedUpdateManyWithoutLibraryNestedInput
@@ -2906,7 +2713,6 @@ export type AiLibraryUncheckedUpdateManyWithoutExtractionModelInput = {
  */
 
 export type AiLibraryCountOutputType = {
-  contentExtractionTasks: number
   crawlers: number
   files: number
   updates: number
@@ -2917,7 +2723,6 @@ export type AiLibraryCountOutputType = {
 }
 
 export type AiLibraryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  contentExtractionTasks?: boolean | AiLibraryCountOutputTypeCountContentExtractionTasksArgs
   crawlers?: boolean | AiLibraryCountOutputTypeCountCrawlersArgs
   files?: boolean | AiLibraryCountOutputTypeCountFilesArgs
   updates?: boolean | AiLibraryCountOutputTypeCountUpdatesArgs
@@ -2935,13 +2740,6 @@ export type AiLibraryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
    * Select specific fields to fetch from the AiLibraryCountOutputType
    */
   select?: Prisma.AiLibraryCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * AiLibraryCountOutputType without action
- */
-export type AiLibraryCountOutputTypeCountContentExtractionTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AiContentProcessingTaskWhereInput
 }
 
 /**
@@ -3012,7 +2810,6 @@ export type AiLibrarySelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   embeddingModelId?: boolean
   ocrModelId?: boolean
   extractionModelId?: boolean
-  contentExtractionTasks?: boolean | Prisma.AiLibrary$contentExtractionTasksArgs<ExtArgs>
   embeddingModel?: boolean | Prisma.AiLibrary$embeddingModelArgs<ExtArgs>
   ocrModel?: boolean | Prisma.AiLibrary$ocrModelArgs<ExtArgs>
   extractionModel?: boolean | Prisma.AiLibrary$extractionModelArgs<ExtArgs>
@@ -3100,7 +2897,6 @@ export type AiLibrarySelectScalar = {
 
 export type AiLibraryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "description" | "url" | "apiToken" | "lastProcessed" | "ownerId" | "workspaceId" | "isPublic" | "fileConverterOptions" | "embeddingTimeoutMs" | "autoProcessCrawledFiles" | "embeddingModelId" | "ocrModelId" | "extractionModelId", ExtArgs["result"]["aiLibrary"]>
 export type AiLibraryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  contentExtractionTasks?: boolean | Prisma.AiLibrary$contentExtractionTasksArgs<ExtArgs>
   embeddingModel?: boolean | Prisma.AiLibrary$embeddingModelArgs<ExtArgs>
   ocrModel?: boolean | Prisma.AiLibrary$ocrModelArgs<ExtArgs>
   extractionModel?: boolean | Prisma.AiLibrary$extractionModelArgs<ExtArgs>
@@ -3133,7 +2929,6 @@ export type AiLibraryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $AiLibraryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AiLibrary"
   objects: {
-    contentExtractionTasks: Prisma.$AiContentProcessingTaskPayload<ExtArgs>[]
     embeddingModel: Prisma.$AiLanguageModelPayload<ExtArgs> | null
     ocrModel: Prisma.$AiLanguageModelPayload<ExtArgs> | null
     extractionModel: Prisma.$AiLanguageModelPayload<ExtArgs> | null
@@ -3559,7 +3354,6 @@ readonly fields: AiLibraryFieldRefs;
  */
 export interface Prisma__AiLibraryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  contentExtractionTasks<T extends Prisma.AiLibrary$contentExtractionTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibrary$contentExtractionTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiContentProcessingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   embeddingModel<T extends Prisma.AiLibrary$embeddingModelArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibrary$embeddingModelArgs<ExtArgs>>): Prisma.Prisma__AiLanguageModelClient<runtime.Types.Result.GetResult<Prisma.$AiLanguageModelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ocrModel<T extends Prisma.AiLibrary$ocrModelArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibrary$ocrModelArgs<ExtArgs>>): Prisma.Prisma__AiLanguageModelClient<runtime.Types.Result.GetResult<Prisma.$AiLanguageModelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   extractionModel<T extends Prisma.AiLibrary$extractionModelArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLibrary$extractionModelArgs<ExtArgs>>): Prisma.Prisma__AiLanguageModelClient<runtime.Types.Result.GetResult<Prisma.$AiLanguageModelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4011,30 +3805,6 @@ export type AiLibraryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many AiLibraries to delete.
    */
   limit?: number
-}
-
-/**
- * AiLibrary.contentExtractionTasks
- */
-export type AiLibrary$contentExtractionTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AiContentProcessingTask
-   */
-  select?: Prisma.AiContentProcessingTaskSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AiContentProcessingTask
-   */
-  omit?: Prisma.AiContentProcessingTaskOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiContentProcessingTaskInclude<ExtArgs> | null
-  where?: Prisma.AiContentProcessingTaskWhereInput
-  orderBy?: Prisma.AiContentProcessingTaskOrderByWithRelationInput | Prisma.AiContentProcessingTaskOrderByWithRelationInput[]
-  cursor?: Prisma.AiContentProcessingTaskWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AiContentProcessingTaskScalarFieldEnum | Prisma.AiContentProcessingTaskScalarFieldEnum[]
 }
 
 /**

@@ -8,21 +8,21 @@ import { libraryUsageUpdate } from './usage-update'
 
 export async function deleteExtraction(
   workspaceId: string,
-  args: { libraryId: string; fileId: string; methodId: string },
+  args: { libraryId: string; fileId: string; extractionMethod: string },
 ) {
-  const { libraryId, fileId, methodId } = args
+  const { libraryId, fileId, extractionMethod } = args
   const fileDir = await getFileDir(workspaceId, libraryId, fileId)
-  const extractionDir = path.join(fileDir, 'extractions', methodId)
+  const extractionDir = path.join(fileDir, 'extractions', extractionMethod)
 
-  const extractionExists = await exists(workspaceId, { libraryId, fileId, methodId })
+  const extractionExists = await exists(workspaceId, { libraryId, fileId, extractionMethod })
   if (!extractionExists) {
-    throw new Error(`Extraction with methodId ${methodId} does not exist for file ${fileId}`)
+    throw new Error(`Extraction with methodId ${extractionMethod} does not exist for file ${fileId}`)
   }
 
   const extractionMeta = await getExtractionMetadata(extractionDir)
   if (!extractionMeta) {
     throw new Error(
-      `Extraction metadata not found for methodId: ${methodId} in fileId: ${fileId}, libraryId: ${libraryId}, workspaceId: ${workspaceId}`,
+      `Extraction metadata not found for methodId: ${extractionMethod} in fileId: ${fileId}, libraryId: ${libraryId}, workspaceId: ${workspaceId}`,
     )
   }
 
@@ -51,7 +51,7 @@ export async function deleteExtraction(
 
   await saveFileManifest(fileDir, {
     ...fileManifest,
-    extractions: fileManifest.extractions.filter((ex) => ex.methodId !== methodId),
+    extractions: fileManifest.extractions.filter((ex) => ex.extractionMethod !== extractionMethod),
   })
 
   await rm(extractionDir, { recursive: true, force: true })

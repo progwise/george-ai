@@ -22,6 +22,7 @@
     "@george-ai/api-crawler": "workspace:*",
     "@george-ai/app-domain": "workspace:*",
     "@george-ai/connector-types": "workspace:*",
+    "@george-ai/event-service-client": "workspace:*",
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
     "@george-ai/html-crawler": "workspace:*",

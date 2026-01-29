@@ -20,9 +20,9 @@ const { readdir, stat } = promises
 
 export async function reconcile(
   workspaceId: string,
-  options: { libraryId?: string; fileId?: string },
+  options?: { libraryId?: string; fileId?: string },
 ): Promise<StorageUsage> {
-  const { libraryId, fileId } = options
+  const { libraryId, fileId } = options || {}
   if (fileId && !libraryId) {
     throw new Error('libraryId must be provided if fileId is provided')
   }

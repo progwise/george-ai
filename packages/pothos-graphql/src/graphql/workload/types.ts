@@ -2,7 +2,7 @@ import { builder } from '../builder'
 
 export const WorkspaceEventMessageStatisticValues = builder.simpleObject('WorkspaceEventMessageStatisticValues', {
   fields: (t) => ({
-    processType: t.field({ type: 'ProcessType', nullable: false }),
+    actionType: t.field({ type: 'ActionType', nullable: false }),
     totalMessages: t.int({ nullable: false }),
     processedMessages: t.int({ nullable: false }),
     pendingMessages: t.int({ nullable: false }),

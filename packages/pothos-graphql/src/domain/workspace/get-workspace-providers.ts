@@ -1,11 +1,11 @@
-import type { ServiceProviderConfig, ServiceProviderType } from '@george-ai/ai-service-client'
 import { prisma } from '@george-ai/app-domain'
+import { ModelProvider } from '@george-ai/event-service-client'
 
 /**
  * Load workspace providers from database for provider cache
  * Used by ai-service-client workspace cache
  */
-export const getWorkspaceProviders = async (workspaceId: string): Promise<ServiceProviderConfig[]> => {
+export const getWorkspaceProviders = async (workspaceId: string) => {
   const providers = await prisma.aiServiceProvider.findMany({
     where: {
       workspaceId,
@@ -21,10 +21,10 @@ export const getWorkspaceProviders = async (workspaceId: string): Promise<Servic
   })
 
   // Group providers by type (ollama vs openai)
-  const grouped = new Map<ServiceProviderType, ServiceProviderConfig['endpoints']>()
+  const grouped = new Map<ModelProvider, { name: string; vramGB?: number; url?: string; apiKey?: string }[]>()
 
   for (const provider of providers) {
-    const providerType = provider.provider as ServiceProviderType
+    const providerType = provider.provider as ModelProvider
     if (!grouped.has(providerType)) {
       grouped.set(providerType, [])
     }

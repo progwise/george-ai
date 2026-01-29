@@ -1,13 +1,11 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import { Readable } from 'node:stream'
 
 import { prisma } from '@george-ai/app-domain'
-import { getUploadFilePath } from '@george-ai/file-management'
+import { workspaceStorage } from '@george-ai/file-management'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
-import { calculateFileHash } from '../file/file-hash'
 import { CrawledFileInfo } from './crawled-file-info'
 import { getCrawlerCredentials } from './crawler-credentials-manager'
 import { CrawlOptions } from './crawler-options'
@@ -139,6 +137,7 @@ const recordOmittedFile = async ({
 }
 
 const saveBoxCrawlerFile = async ({
+  workspaceId,
   fileName,
   fileUri,
   libraryId,
@@ -149,6 +148,7 @@ const saveBoxCrawlerFile = async ({
   fileContent,
   processingError,
 }: {
+  workspaceId: string
   fileName: string
   fileUri: string
   libraryId: string
@@ -159,132 +159,70 @@ const saveBoxCrawlerFile = async ({
   fileContent?: Buffer
   processingError?: string
 }) => {
-  // Check if file already exists
-  const existingFile = await prisma.aiLibraryFile.findUnique({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      originUri: true,
-      mimeType: true,
-      originFileHash: true,
-      originModificationDate: true,
-    },
-  })
-
-  let fileHash: string | undefined
-  let skipProcessing = false
-  let wasUpdated = false
-
-  // If no processing error and we have file content, handle file hash calculation
-  if (!processingError && fileContent) {
-    // Calculate hash from the buffer
-    const tempFilePath = path.join('/tmp', `box-temp-${Date.now()}-${fileName}`)
-    await fs.promises.writeFile(tempFilePath, fileContent)
-
-    try {
-      fileHash = await calculateFileHash(tempFilePath)
-
-      // Check if this file was already processed with the same hash
-      if (existingFile && existingFile.originFileHash === fileHash) {
-        console.log(`Skipping Box file ${fileName} - already processed with same hash`)
-        skipProcessing = true
-
-        // Update modification date even if skipping
-        await prisma.aiLibraryFile.update({
-          where: { id: existingFile.id },
-          data: {
-            originModificationDate: fileModifiedTime,
-            updatedAt: new Date(),
-          },
-        })
-
-        return { ...existingFile, skipProcessing, wasUpdated }
-      }
-
-      // Determine if this is an update or new file
-      wasUpdated = !!(existingFile && existingFile.originFileHash && existingFile.originFileHash !== fileHash)
-
-      // Create/update file with hash
-      const file = await prisma.aiLibraryFile.upsert({
-        where: {
-          crawledByCrawlerId_originUri: {
-            crawledByCrawlerId: crawlerId,
-            originUri: fileUri,
-          },
-        },
-        create: {
-          name: `${fileName}`,
-          libraryId: libraryId,
-          mimeType,
-          size: fileSize,
-          updatedAt: fileModifiedTime,
-          originUri: fileUri,
-          crawledByCrawlerId: crawlerId,
-          originModificationDate: fileModifiedTime,
-          originFileHash: fileHash,
-        },
-        update: {
-          name: `${fileName}`,
-          libraryId: libraryId,
-          mimeType,
-          size: fileSize,
-          updatedAt: fileModifiedTime,
-          originModificationDate: fileModifiedTime,
-          originFileHash: fileHash,
-        },
-      })
-
-      // Save file to final location
-      const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-      await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
-      await fs.promises.copyFile(tempFilePath, uploadedFilePath)
-
-      return { ...file, skipProcessing, wasUpdated }
-    } finally {
-      // Clean up temp file
-      await fs.promises.unlink(tempFilePath).catch(() => {})
-    }
+  // Handle error cases before DB operations
+  if (processingError || !fileContent) {
+    const msg = processingError || 'No content downloaded'
+    console.warn(`Box file ${fileName}: ${msg}`)
+    return { id: undefined, name: fileName, originUri: fileUri, mimeType, skipProcessing: false, wasUpdated: false }
   }
 
-  // For processing errors, just update database without saving file
-  wasUpdated = !!existingFile
+  const crawlerUniqueKey = { crawledByCrawlerId_originUri: { crawledByCrawlerId: crawlerId, originUri: fileUri } }
 
-  const fileUpdateData = {
-    name: `${fileName}`,
-    libraryId: libraryId,
-    mimeType,
-    size: fileSize,
-    updatedAt: fileModifiedTime,
-    originModificationDate: fileModifiedTime,
-    processingErrorMessage: processingError,
-    processingErrorAt: new Date(),
-  }
-
-  const file = await prisma.aiLibraryFile.upsert({
-    where: {
-      crawledByCrawlerId_originUri: {
-        crawledByCrawlerId: crawlerId,
-        originUri: fileUri,
-      },
-    },
+  const dbFileInfo = await prisma.aiLibraryFile.upsert({
+    where: crawlerUniqueKey,
     create: {
-      ...fileUpdateData,
+      name: fileName,
+      libraryId,
+      mimeType,
+      size: fileSize,
       originUri: fileUri,
       crawledByCrawlerId: crawlerId,
+      originModificationDate: fileModifiedTime,
     },
-    update: fileUpdateData,
+    update: {}, // Don't update on find - we'll update after hash comparison
+    select: { id: true, name: true, originUri: true, mimeType: true, originFileHash: true },
   })
 
-  return { ...file, skipProcessing, wasUpdated }
+  const existingManifest = await workspaceStorage.getFile(workspaceId, { libraryId, fileId: dbFileInfo.id })
+  const hashBefore = existingManifest?.sourceHash
+
+  const newManifest = await workspaceStorage.writeSource(workspaceId, {
+    libraryId,
+    fileId: dbFileInfo.id,
+    stream: Readable.from([fileContent]),
+    meta: {
+      mimeType,
+      originalName: fileName,
+      originalUpdatedAt: fileModifiedTime.toISOString(),
+      originalContentHash: null,
+    },
+  })
+
+  const hashAfter = newManifest.sourceHash
+  const contentChanged = hashBefore !== hashAfter
+  const isUpdate = !!hashBefore && contentChanged
+
+  if (contentChanged) {
+    await prisma.aiLibraryFile.update({
+      where: { id: dbFileInfo.id },
+      data: {
+        originFileHash: hashAfter,
+        originModificationDate: fileModifiedTime,
+        size: fileSize,
+        mimeType,
+      },
+    })
+  }
+
+  return {
+    ...dbFileInfo,
+    skipProcessing: !contentChanged,
+    wasUpdated: isUpdate,
+  }
 }
 
 export async function* crawlBox({
+  workspaceId,
   uri,
   maxDepth,
   maxPages,
@@ -378,6 +316,7 @@ export async function* crawlBox({
 
           // Still create file record but mark as failed due to size
           const fileInfo = await saveBoxCrawlerFile({
+            workspaceId,
             fileName: fileToProcess.name,
             crawlerId,
             libraryId,
@@ -407,6 +346,7 @@ export async function* crawlBox({
         const fileContent = await downloadBoxFile(fileToProcess.id, accessToken)
 
         const fileInfo = await saveBoxCrawlerFile({
+          workspaceId,
           fileName: fileToProcess.name,
           crawlerId,
           libraryId,

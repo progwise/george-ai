@@ -68,24 +68,7 @@ const getItemPropertyFilterWhere = (
         },
       }
     case 'extractedAt':
-      return {
-        sourceFile: {
-          contentExtractionTasks: {
-            every: {
-              extractionFinishedAt:
-                filter.filterType === 'is_empty'
-                  ? null
-                  : filter.filterType === 'is_not_empty'
-                    ? { not: null }
-                    : filter.filterType === 'equals'
-                      ? { equals: new Date(filter.value) }
-                      : filter.filterType === 'not_equals'
-                        ? { not: new Date(filter.value) }
-                        : undefined,
-            },
-          },
-        },
-      }
+      return {} // TODO: Implement extractedAt filtering
     case 'size': {
       const sizeValue = parseInt(filter.value, 10)
       if (isNaN(sizeValue)) {

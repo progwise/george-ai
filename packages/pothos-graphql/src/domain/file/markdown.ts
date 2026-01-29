@@ -28,5 +28,5 @@ export const getLatestExtractions = async ({
   }
 
   const sortedExtractions = file.extractions.sort((a, b) => compareDates(b.extractionDate, a.extractionDate))
-  return sortedExtractions.map((extraction) => extraction.methodId)
+  return sortedExtractions.map((extraction) => extraction.extractionMethod)
 }

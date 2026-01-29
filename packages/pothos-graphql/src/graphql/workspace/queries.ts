@@ -4,7 +4,7 @@ import { prisma } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
 import { logger } from '../workload/common'
-import { canAdminWorkspaceOrThrow } from './common'
+import { canReadWorkspaceOrThrow } from './common'
 
 logger.info('Setting up: Workspace queries')
 
@@ -102,7 +102,7 @@ builder.queryField('workspaceInvitations', (t) =>
     },
     resolve: async (query, _root, args, ctx) => {
       // Verify the user is an admin of this workspace
-      await canAdminWorkspaceOrThrow(args.workspaceId, ctx.session.user.id)
+      await canReadWorkspaceOrThrow(args.workspaceId, ctx.session.user.id)
 
       return prisma.workspaceInvitation.findMany({
         ...query,

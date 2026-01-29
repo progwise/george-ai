@@ -10,6 +10,7 @@ import {
   ROOT_DIR,
   WORKSPACES_DIR_NAME,
   isNodeError,
+  logger,
 } from './commons'
 
 export const ensureRoot = async () => {
@@ -60,6 +61,7 @@ const createDir = async (dir: string): Promise<string> => {
     }
   }
   await mkdir(dir, { recursive: true })
+  logger.debug('Created director', { dir })
   return dir
 }
 
@@ -68,7 +70,7 @@ export const getWorkspaceDir = async (workspaceId: string): Promise<string> => {
 }
 
 export const createWorkspaceDir = async (workspaceId: string): Promise<string> => {
-  await createDir(path.join(rootDir, WORKSPACES_DIR_NAME, LIBRARIES_DIR_NAME, workspaceId))
+  await createDir(path.join(rootDir, WORKSPACES_DIR_NAME, workspaceId))
   return getWorkspaceDir(workspaceId)
 }
 
@@ -118,6 +120,16 @@ export const createExtractionDir = async (
   const fileDir = await getFileDir(workspaceId, libraryId, fileId)
   await createDir(path.join(fileDir, EXTRACTIONS_DIR_NAME, methodId))
   return await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+}
+
+export const getAttachmentsDir = async (
+  workspaceId: string,
+  libraryId: string,
+  fileId: string,
+  methodId: string,
+): Promise<string> => {
+  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+  return await getDir(path.join(extractionDir, 'attachments'))
 }
 
 export async function getFolderStats(dirPath: string): Promise<{ diskSize: number; fileCount: number }> {

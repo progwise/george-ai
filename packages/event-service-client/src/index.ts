@@ -1,6 +1,6 @@
 import { createLogger } from '@george-ai/web-utils'
 
-import { initializeProviderCallsStream } from './provider-calls'
+import { initializeModelCallsStream } from './model-calls'
 import { initializeProviderHealthBucket } from './provider-health'
 import { initializeWorkerRegistryBucket } from './worker-registry'
 import { initializeWorkspaceConfigBucket } from './workspace-config'
@@ -11,7 +11,7 @@ const logger = createLogger('event-service-client:index')
 
 export const initializeEventServiceClient = async () =>
   Promise.all([
-    initializeProviderCallsStream().catch((error) => {
+    initializeModelCallsStream().catch((error) => {
       logger.error('Error initializing provider calls stream:', error)
       throw error
     }),
@@ -39,18 +39,11 @@ export const initializeEventServiceClient = async () =>
 
 await initializeEventServiceClient()
 
-export { default as providerCalls } from './provider-calls'
-export type {
-  AiCall,
-  AiResponse,
-  AiServiceCall,
-  EmbedFileCall,
-  EmbedTextChunkCall,
-  EmbedFileResponse,
-  EmbedTextChunkResponse,
-  ChatCompletionCall,
-  ChatCompletionResponse,
-} from './provider-calls'
+export { default as modelProvider } from './model-provider'
+export type * from './model-provider'
+
+export { default as modelCalls } from './model-calls'
+export type * from './model-calls'
 
 export { default as providerHealth } from './provider-health'
 export type * from './provider-health'

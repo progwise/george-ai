@@ -32,12 +32,20 @@ export interface EventClient {
     subject: string
     payload: Uint8Array<ArrayBufferLike>
     timeoutMs?: number
-  }): Promise<{ streamName: string; msgId: string }>
+  }): Promise<{ streamName: string; msgId: string; inbox: string }>
 
   startWorkerLoop(params: {
     streamName: string
     consumerGlobPattern: string
-    handler: ({ payload, error }: { payload: Uint8Array<ArrayBufferLike>; error?: unknown }) => Promise<void>
+    handler: ({
+      subject,
+      payload,
+      error,
+    }: {
+      subject: string
+      payload: Uint8Array<ArrayBufferLike>
+      error?: unknown
+    }) => Promise<void>
   }): Promise<() => Promise<void>>
 
   subscribe(params: {

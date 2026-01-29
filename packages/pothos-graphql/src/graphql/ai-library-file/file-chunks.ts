@@ -1,5 +1,5 @@
-import type { ServiceProviderType } from '@george-ai/ai-service-client'
 import { prisma } from '@george-ai/app-domain'
+import type { ModelProvider } from '@george-ai/event-service-client'
 import { getFileChunks, getSimilarChunks, querySimilarChunks } from '@george-ai/langchain-chat'
 
 import { builder } from '../builder'
@@ -157,7 +157,7 @@ builder.queryField('aiSimilarFileChunks', (t) =>
         workspaceId: library.workspaceId,
         fileId,
         libraryId,
-        embeddingsModelProvider: library.embeddingModel.provider as ServiceProviderType,
+        embeddingsModelProvider: library.embeddingModel.provider as ModelProvider,
         embeddingsModelName: library.embeddingModel.name,
         term,
         hits: hits || undefined,

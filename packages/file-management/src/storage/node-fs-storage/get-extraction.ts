@@ -5,17 +5,17 @@ import { getExtractionMetadata } from './metadata-files'
 
 export async function getExtraction(
   workspaceId: string,
-  args: { libraryId: string; fileId: string; methodId: string },
+  args: { libraryId: string; fileId: string; extractionMethod: string },
 ): Promise<ExtractionMetadata | null> {
-  const { libraryId, fileId, methodId } = args
-  if (!(await exists(workspaceId, { libraryId, fileId, methodId }))) {
+  const { libraryId, fileId, extractionMethod } = args
+  if (!(await exists(workspaceId, { libraryId, fileId, extractionMethod }))) {
     return null
   }
-  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, extractionMethod)
   const extractionMetadata = await getExtractionMetadata(extractionDir)
   if (!extractionMetadata) {
     throw new Error(
-      `Extraction metadata not found for methodId: ${methodId} in fileId: ${fileId}, libraryId: ${libraryId}, workspaceId: ${workspaceId}`,
+      `Extraction metadata not found for methodId: ${extractionMethod} in fileId: ${fileId}, libraryId: ${libraryId}, workspaceId: ${workspaceId}`,
     )
   }
   return extractionMetadata

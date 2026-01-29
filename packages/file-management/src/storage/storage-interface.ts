@@ -4,15 +4,30 @@ import { FileManifest, LibraryManifest, StorageUsage, WorkspaceManifest } from '
 import { ExtractionMetadata } from '../schemas/extraction-metadata'
 
 /**
+ * Writer interface for streaming extraction with attachments.
+ */
+export interface ExtractionWriter {
+  /** Write markdown content chunks */
+  write(chunk: string | Buffer): void
+
+  /** Queue an attachment stream - doesn't block, tracked internally */
+  addAttachment(filename: string, stream: Readable, mimeType?: string): void
+
+  /** Finalize extraction - waits for all attachment streams to complete */
+  finish(): Promise<ExtractionMetadata>
+
+  /** Abort and cleanup on error */
+  abort(error?: Error): Promise<void>
+}
+
+/**
  * Metadata provided when creating/updating
  */
 export interface FileInput {
   originalName: string
   originalUpdatedAt: string
+  originalContentHash: string | null
   mimeType: string
-  // Optional: allows the worker to pass a pre-calculated hash
-  // to avoid double-processing
-  contentHash?: string | null
 }
 
 export interface IStorageService {
@@ -27,65 +42,69 @@ export interface IStorageService {
   // --- Workspace ---
   createWorkspace(workspaceId: string, args: { name: string }): Promise<WorkspaceManifest>
   getWorkspace(workspaceId: string): Promise<WorkspaceManifest | null>
+  deleteWorkspace(workspaceId: string): Promise<void>
 
   // --- Library ---
   getLibrary(workspaceId: string, args: { libraryId: string }): Promise<LibraryManifest | null>
   createLibrary(workspaceId: string, args: { libraryId: string; name: string }): Promise<LibraryManifest>
+  deleteLibrary(workspaceId: string, args: { libraryId: string }): Promise<void>
+
   updateLibrary(workspaceId: string, args: { libraryId: string; updates: Partial<LibraryManifest> }): Promise<void>
   // Moves the physical folder and re-bubbles sizes
   moveLibrary(args: { libraryId: string; fromWorkspaceId: string; toWorkspaceId: string }): Promise<void>
 
   // --- File (The Source) ---
   getFile(workspaceId: string, args: { libraryId: string; fileId: string }): Promise<FileManifest | null>
-  /**
-   * Streams the source to storage.
-   * Implementation must calculate SHA-256 on the fly during the stream.
-   */
+
   writeSource(
     workspaceId: string,
     args: {
       libraryId: string
       fileId: string
-      stream: Readable
+      stream: Readable | AsyncIterable<string | Buffer>
       meta: FileInput
     },
   ): Promise<FileManifest>
   readSource(workspaceId: string, args: { libraryId: string; fileId: string }): Promise<Readable>
 
-  // --- Extractions ---
-  /**
-   * For sharded data, the stream should be a serialized format
-   * or called multiple times for different parts.
-   */
-  writeExtraction(
+  createExtraction(
     workspaceId: string,
     args: {
       libraryId: string
       fileId: string
-      methodId: string
-      stream: Readable
-      config: Record<string, string | number | boolean>
+      extractionMethod: string
+      splitFragmentPattern?: string
     },
-  ): Promise<ExtractionMetadata>
+  ): Promise<ExtractionWriter>
 
-  /**
-   * Returns the extraction stream.
-   * If sharded, implementation handles concatenating or providing a manifest of shards.
-   */
   readExtraction(
     workspaceId: string,
-    args: { libraryId: string; fileId: string; methodId?: string; fragment?: number },
+    args: { libraryId: string; fileId: string; extractionMethod?: string | null; fragment?: number | null },
+  ): Promise<AsyncIterable<string>>
+
+  getAttachmentFilePath(
+    workspaceId: string,
+    args: {
+      libraryId: string
+      fileId: string
+      extractionMethod: string
+      attachmentFileName: string
+    },
+  ): Promise<string | null>
+
+  readAttachment(
+    workspaceId: string,
+    args: { libraryId: string; fileId: string; extractionMethod: string; filename: string },
   ): Promise<Readable>
 
   getExtraction(
     workspaceId: string,
-    args: { libraryId: string; fileId: string; methodId: string },
+    args: { libraryId: string; fileId: string; extractionMethod: string },
   ): Promise<ExtractionMetadata | null>
-  // --- Deletion ---
+
   deleteFiles(workspaceId: string, selector: { libraryId: string; fileId?: string }): Promise<void>
 
-  // --- Integrity ---
-  reconcile(workspaceId: string, options: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
+  reconcile(workspaceId: string, options?: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
 
   upgradeLegacyFile(
     workspaceId: string,

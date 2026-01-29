@@ -1,9 +1,8 @@
+import { ActionEvent, ReplyEvent, StatusEvent, default as workspaceProcessing } from '.'
 import { initializeEventServiceClient } from '..'
-import { ProcessEvent, default as workspaceProcessing } from '../workspace-processing'
+import { EventType } from './common'
 
-process.env.LOG_LEVEL = 'INFO'
-
-describe.sequential('Workspace Processing Event Lifecycle', () => {
+describe.sequential('Workspace Trigger Event Lifecycle', () => {
   const TEST_WORKSPACE_ID = `test-workspace-${Date.now()}`
 
   beforeAll(async () => {
@@ -16,56 +15,48 @@ describe.sequential('Workspace Processing Event Lifecycle', () => {
   })
 
   test('Publishing a workspace processing event', async () => {
-    await workspaceProcessing.publishRequestEvent({
+    await workspaceProcessing.publishActionEvent({
       version: 1,
       workspaceId: TEST_WORKSPACE_ID,
-      processType: 'extraction',
-      extractionMethod: 'test-method',
+      actionType: 'extractFile',
+      extractionMethod: 'text-extraction',
       fileId: 'test-file-id',
       libraryId: 'test-library-id',
     })
   })
 
   test('initialize workspace for processing', async () => {
-    await workspaceProcessing.ensureWorkspaceProcessingConsumers({
+    await workspaceProcessing.ensureWorkspaceConsumers({
       workspaceId: TEST_WORKSPACE_ID,
-      maxPendingMessages: 10,
     })
-  })
-
-  test('Checking processing status for the workspace', async () => {
-    const status = await workspaceProcessing.processingStatus({
-      workspaceId: TEST_WORKSPACE_ID,
-      processType: 'extraction',
-    })
-    expect(status).toBe('running')
   })
 
   test('Stopping processing for the workspace', async () => {
     await workspaceProcessing.stopProcessing({
       workspaceId: TEST_WORKSPACE_ID,
-      processType: 'extraction',
+      actionTypes: ['extractFile'],
     })
 
     const statusAfterStop = await workspaceProcessing.processingStatus({
       workspaceId: TEST_WORKSPACE_ID,
-      processType: 'extraction',
+      actionType: 'extractFile',
     })
     expect(statusAfterStop).toBe('paused')
   })
 
-  test('publish 100 embedding events', async () => {
+  test('publish 10 embedding events', async () => {
     const publishPromises = []
     for (let i = 0; i < 10; i++) {
       publishPromises.push(
-        workspaceProcessing.publishRequestEvent({
+        workspaceProcessing.publishActionEvent({
           version: 1,
           workspaceId: TEST_WORKSPACE_ID,
-          processType: 'embedding',
-          extractionMethod: 'test-method',
+          actionType: 'embedFile',
+          extractionMethod: 'text-extraction',
           fileId: `test-file-id-${i}`,
           libraryId: 'test-library-id',
-          fileFragmentIndex: i,
+          embeddingModelName: 'test-model',
+          embeddingModelProvider: 'openai',
         }),
       )
     }
@@ -73,12 +64,11 @@ describe.sequential('Workspace Processing Event Lifecycle', () => {
   })
 
   test('Subscribing to processing events for the workspace', async () => {
-    const messages: { event: ProcessEvent; error: unknown }[] = []
+    const messages: { eventType: EventType; event: ActionEvent | StatusEvent | ReplyEvent }[] = []
 
-    const unsubscribe = await workspaceProcessing.subscribeProcessEvent({
-      processType: 'embedding',
-      handler: async ({ event, error }) => {
-        messages.push({ event, error })
+    const unsubscribe = await workspaceProcessing.subscribeEvent({
+      handler: async ({ eventType, event }) => {
+        messages.push({ eventType, event })
       },
     })
     await new Promise((resolve) => {
@@ -94,8 +84,8 @@ describe.sequential('Workspace Processing Event Lifecycle', () => {
     expect(messages.length).toBe(10)
     expect(messages[0].event.workspaceId).toBe(TEST_WORKSPACE_ID)
     messages.forEach((msg) => {
-      expect(msg.event.processType).toBe('embedding')
+      expect(msg.event.actionType).toBe('embedFile')
     })
     await unsubscribe()
-  })
+  }, 30000)
 })

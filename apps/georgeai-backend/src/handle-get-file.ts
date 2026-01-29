@@ -7,7 +7,7 @@ import { getUserContextFromExpressRequest } from './get-user-context'
 
 export const handleGetFile = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
-  const methodId = request.query['extraction'] ? String(request.query['extraction']) : undefined
+  const extractionMethod = request.query['extraction'] ? String(request.query['extraction']) : undefined
   const fragment = request.query['fragment'] ? Number(request.query['fragment']) : undefined
 
   if (Array.isArray(libraryId) || Array.isArray(fileId)) {
@@ -16,7 +16,7 @@ export const handleGetFile = async (request: Request, response: Response) => {
     return
   }
 
-  logger.debug('Received request for library file', { libraryId, fileId, methodId, fragment })
+  logger.debug('Received request for library file', { libraryId, fileId, extractionMethod, fragment })
 
   const context = await getUserContextFromExpressRequest(request)
 
@@ -41,14 +41,14 @@ export const handleGetFile = async (request: Request, response: Response) => {
     return
   }
 
-  if (methodId) {
+  if (extractionMethod) {
     const extraction = await workspaceStorage.getExtraction(context.workspaceId, {
       libraryId,
       fileId,
-      methodId,
+      extractionMethod,
     })
     if (!extraction) {
-      logger.error('Extraction not found', { libraryId, fileId, methodId, workspaceId: context.workspaceId })
+      logger.error('Extraction not found', { libraryId, fileId, extractionMethod, workspaceId: context.workspaceId })
       response.status(404).end()
       return
     }
@@ -56,22 +56,28 @@ export const handleGetFile = async (request: Request, response: Response) => {
       const fragmentStream = await workspaceStorage.readExtraction(context.workspaceId, {
         libraryId,
         fileId,
-        methodId,
+        extractionMethod,
         fragment,
       })
       response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
-      logger.debug('Serving extraction fragment stream', { libraryId, fileId, methodId, fragment })
-      fragmentStream.pipe(response)
+      logger.debug('Serving extraction fragment stream', { libraryId, fileId, extractionMethod, fragment })
+      for await (const line of fragmentStream) {
+        response.write(line + '\n')
+      }
+      response.end()
       return
     }
     const extractionStream = await workspaceStorage.readExtraction(context.workspaceId, {
       libraryId,
       fileId,
-      methodId,
+      extractionMethod,
     })
     response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
-    logger.debug('Serving extraction stream', { libraryId, fileId, methodId })
-    extractionStream.pipe(response)
+    logger.debug('Serving extraction stream', { libraryId, fileId, extractionMethod })
+    for await (const line of extractionStream) {
+      response.write(line + '\n')
+    }
+    response.end()
     return
   }
 

@@ -1,9 +1,8 @@
-import * as fs from 'fs'
+import { GraphQLError } from 'graphql/error'
 
 import { prisma } from '@george-ai/app-domain'
-import { validateFileConverterOptionsString } from '@george-ai/file-converter'
-import { getLibraryDir } from '@george-ai/file-management'
-import { dropVectorStore } from '@george-ai/langchain-chat'
+import { workspaceStorage } from '@george-ai/file-management'
+import { vectorStore } from '@george-ai/vector-store-client'
 
 import { builder } from '../builder'
 import { canWriteWorkspaceOrThrow } from '../workspace'
@@ -44,7 +43,7 @@ builder.mutationField('updateLibrary', (t) =>
           name: restData.name,
           description: restData.description,
           url: restData.url,
-          fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
+          fileConverterOptions: data.fileConverterOptions,
           embeddingTimeoutMs: restData.embeddingTimeoutMs,
           autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
           // Convert empty strings to null for foreign key fields
@@ -62,28 +61,35 @@ builder.mutationField('createLibrary', (t) =>
     args: {
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
-    resolve: (query, _source, { data }, context) => {
-      const userId = context.session.user.id
-
-      // Validate fileConverterOptions if provided
+    resolve: async (query, _source, { data }, { workspaceId, session }) => {
+      const userId = session.user.id
       const { embeddingModelId, ocrModelId, ...restData } = data
 
-      return prisma.aiLibrary.create({
-        ...query,
-        data: {
-          name: restData.name,
-          description: restData.description,
-          url: restData.url,
-          fileConverterOptions: validateFileConverterOptionsString(data.fileConverterOptions),
-          embeddingTimeoutMs: restData.embeddingTimeoutMs,
-          autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
-          ownerId: userId,
-          workspaceId: context.workspaceId,
-          // Convert empty strings to null for foreign key fields
-          embeddingModelId: embeddingModelId || null,
-          ocrModelId: ocrModelId || null,
-        },
-      })
+      canWriteWorkspaceOrThrow(workspaceId, userId)
+
+      try {
+        const library = await prisma.aiLibrary.create({
+          ...query,
+          data: {
+            name: restData.name,
+            description: restData.description,
+            url: restData.url,
+            fileConverterOptions: data.fileConverterOptions,
+            embeddingTimeoutMs: restData.embeddingTimeoutMs,
+            autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
+            ownerId: userId,
+            workspaceId,
+            // Convert empty strings to null for foreign key fields
+            embeddingModelId: embeddingModelId || null,
+            ocrModelId: ocrModelId || null,
+          },
+        })
+        await workspaceStorage.createLibrary(workspaceId, { libraryId: library.id, name: library.name })
+        return library
+      } catch (error) {
+        console.error('Error creating library', { workspaceId, userId, error })
+        throw new GraphQLError('Failed to create library', { originalError: error as Error })
+      }
     },
   }),
 )
@@ -92,47 +98,62 @@ builder.mutationField('deleteLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
-      id: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
     nullable: false,
-    resolve: async (query, _source, { id }, context) => {
-      // Only owner can delete a library
-      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+    resolve: async (query, _source, { libraryId }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const result = await prisma.$transaction(
-        [
-          prisma.aiLibraryFile.deleteMany({ where: { libraryId: id } }),
-          prisma.aiLibraryCrawler.deleteMany({ where: { libraryId: id } }),
-          prisma.aiLibrary.delete({
-            ...query,
-            where: { id },
-          }),
-        ],
-        {},
-      )
-      return result[2]
+      try {
+        const result = await prisma.$transaction(
+          [
+            prisma.aiLibraryFile.deleteMany({ where: { libraryId } }),
+            prisma.aiLibraryCrawler.deleteMany({ where: { libraryId } }),
+            prisma.aiLibrary.delete({
+              ...query,
+              where: { id: libraryId },
+            }),
+          ],
+          {},
+        )
+        await Promise.all([
+          workspaceStorage.deleteLibrary(workspaceId, { libraryId }),
+          vectorStore.removeChunks({ workspaceId, libraryId }),
+        ])
+
+        return result[2]
+      } catch (error) {
+        console.error('Error deleting library', { workspaceId, libraryId, error })
+        throw new GraphQLError('Failed to delete library', { originalError: error as Error })
+      }
     },
   }),
 )
 
-builder.mutationField('clearEmbeddedFiles', (t) =>
+builder.mutationField('clearFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     args: {
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (_parent, { libraryId }, context) => {
-      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
-      await dropVectorStore(libraryId)
-      await prisma.aiLibraryFile.deleteMany({
-        where: { libraryId },
-      })
+    resolve: async (_parent, { libraryId }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const libraryPath = getLibraryDir(libraryId)
-      if (fs.existsSync(libraryPath)) {
-        await fs.promises.rm(libraryPath, { recursive: true, force: true })
+      try {
+        await prisma.aiLibraryFile.deleteMany({
+          where: { libraryId },
+        })
+
+        await Promise.all([
+          workspaceStorage.deleteFiles(workspaceId, { libraryId }),
+          vectorStore.removeChunks({ workspaceId: workspaceId, libraryId }),
+        ])
+
+        return true
+      } catch (error) {
+        console.error('Error clearing files from library', { workspaceId, libraryId, error })
+        throw new GraphQLError('Failed to clear files from library', { originalError: error as Error })
       }
-      return true
     },
   }),
 )

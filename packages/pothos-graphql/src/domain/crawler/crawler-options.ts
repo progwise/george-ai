@@ -8,6 +8,7 @@ export interface CrawlerCredentials {
 }
 
 export interface CrawlOptions {
+  workspaceId: string
   uri: string
   maxDepth: number
   maxPages: number

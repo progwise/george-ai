@@ -252,7 +252,6 @@ export type AiLanguageModelWhereInput = {
   librariesUsingForOcr?: Prisma.AiLibraryListRelationFilter
   librariesUsingForExtraction?: Prisma.AiLibraryListRelationFilter
   listFieldsUsing?: Prisma.AiListFieldListRelationFilter
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   usageLogs?: Prisma.AiModelUsageListRelationFilter
 }
 
@@ -276,7 +275,6 @@ export type AiLanguageModelOrderByWithRelationInput = {
   librariesUsingForOcr?: Prisma.AiLibraryOrderByRelationAggregateInput
   librariesUsingForExtraction?: Prisma.AiLibraryOrderByRelationAggregateInput
   listFieldsUsing?: Prisma.AiListFieldOrderByRelationAggregateInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskOrderByRelationAggregateInput
   usageLogs?: Prisma.AiModelUsageOrderByRelationAggregateInput
 }
 
@@ -304,7 +302,6 @@ export type AiLanguageModelWhereUniqueInput = Prisma.AtLeast<{
   librariesUsingForOcr?: Prisma.AiLibraryListRelationFilter
   librariesUsingForExtraction?: Prisma.AiLibraryListRelationFilter
   listFieldsUsing?: Prisma.AiListFieldListRelationFilter
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskListRelationFilter
   usageLogs?: Prisma.AiModelUsageListRelationFilter
 }, "id" | "workspaceId_provider_name">
 
@@ -365,7 +362,6 @@ export type AiLanguageModelCreateInput = {
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -388,7 +384,6 @@ export type AiLanguageModelUncheckedCreateInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -411,7 +406,6 @@ export type AiLanguageModelUpdateInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -434,7 +428,6 @@ export type AiLanguageModelUncheckedUpdateInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -665,22 +658,6 @@ export type AiLanguageModelUpdateOneWithoutLibrariesUsingForExtractionNestedInpu
   update?: Prisma.XOR<Prisma.XOR<Prisma.AiLanguageModelUpdateToOneWithWhereWithoutLibrariesUsingForExtractionInput, Prisma.AiLanguageModelUpdateWithoutLibrariesUsingForExtractionInput>, Prisma.AiLanguageModelUncheckedUpdateWithoutLibrariesUsingForExtractionInput>
 }
 
-export type AiLanguageModelCreateNestedOneWithoutContentProcessingTasksInput = {
-  create?: Prisma.XOR<Prisma.AiLanguageModelCreateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedCreateWithoutContentProcessingTasksInput>
-  connectOrCreate?: Prisma.AiLanguageModelCreateOrConnectWithoutContentProcessingTasksInput
-  connect?: Prisma.AiLanguageModelWhereUniqueInput
-}
-
-export type AiLanguageModelUpdateOneWithoutContentProcessingTasksNestedInput = {
-  create?: Prisma.XOR<Prisma.AiLanguageModelCreateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedCreateWithoutContentProcessingTasksInput>
-  connectOrCreate?: Prisma.AiLanguageModelCreateOrConnectWithoutContentProcessingTasksInput
-  upsert?: Prisma.AiLanguageModelUpsertWithoutContentProcessingTasksInput
-  disconnect?: Prisma.AiLanguageModelWhereInput | boolean
-  delete?: Prisma.AiLanguageModelWhereInput | boolean
-  connect?: Prisma.AiLanguageModelWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AiLanguageModelUpdateToOneWithWhereWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUpdateWithoutContentProcessingTasksInput>, Prisma.AiLanguageModelUncheckedUpdateWithoutContentProcessingTasksInput>
-}
-
 export type AiLanguageModelCreateNestedOneWithoutListFieldsUsingInput = {
   create?: Prisma.XOR<Prisma.AiLanguageModelCreateWithoutListFieldsUsingInput, Prisma.AiLanguageModelUncheckedCreateWithoutListFieldsUsingInput>
   connectOrCreate?: Prisma.AiLanguageModelCreateOrConnectWithoutListFieldsUsingInput
@@ -729,7 +706,6 @@ export type AiLanguageModelCreateWithoutWorkspaceInput = {
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -751,7 +727,6 @@ export type AiLanguageModelUncheckedCreateWithoutWorkspaceInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -818,7 +793,6 @@ export type AiLanguageModelCreateWithoutAssistantsUsingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -840,7 +814,6 @@ export type AiLanguageModelUncheckedCreateWithoutAssistantsUsingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -878,7 +851,6 @@ export type AiLanguageModelUpdateWithoutAssistantsUsingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -900,7 +872,6 @@ export type AiLanguageModelUncheckedUpdateWithoutAssistantsUsingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -922,7 +893,6 @@ export type AiLanguageModelCreateWithoutLibrariesUsingForEmbeddingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -944,7 +914,6 @@ export type AiLanguageModelUncheckedCreateWithoutLibrariesUsingForEmbeddingInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -971,7 +940,6 @@ export type AiLanguageModelCreateWithoutLibrariesUsingForOcrInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -993,7 +961,6 @@ export type AiLanguageModelUncheckedCreateWithoutLibrariesUsingForOcrInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -1020,7 +987,6 @@ export type AiLanguageModelCreateWithoutLibrariesUsingForExtractionInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -1042,7 +1008,6 @@ export type AiLanguageModelUncheckedCreateWithoutLibrariesUsingForExtractionInpu
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -1080,7 +1045,6 @@ export type AiLanguageModelUpdateWithoutLibrariesUsingForEmbeddingInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -1102,7 +1066,6 @@ export type AiLanguageModelUncheckedUpdateWithoutLibrariesUsingForEmbeddingInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -1135,7 +1098,6 @@ export type AiLanguageModelUpdateWithoutLibrariesUsingForOcrInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -1157,7 +1119,6 @@ export type AiLanguageModelUncheckedUpdateWithoutLibrariesUsingForOcrInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -1190,7 +1151,6 @@ export type AiLanguageModelUpdateWithoutLibrariesUsingForExtractionInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -1211,111 +1171,6 @@ export type AiLanguageModelUncheckedUpdateWithoutLibrariesUsingForExtractionInpu
   assistantsUsing?: Prisma.AiAssistantUncheckedUpdateManyWithoutLanguageModelNestedInput
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
-  listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
-  usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
-}
-
-export type AiLanguageModelCreateWithoutContentProcessingTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  name: string
-  provider: string
-  canDoEmbedding?: boolean
-  canDoChatCompletion?: boolean
-  canDoVision?: boolean
-  canDoFunctionCalling?: boolean
-  enabled?: boolean
-  adminNotes?: string | null
-  lastUsedAt?: Date | string | null
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutLanguageModelsInput
-  assistantsUsing?: Prisma.AiAssistantCreateNestedManyWithoutLanguageModelInput
-  librariesUsingForEmbedding?: Prisma.AiLibraryCreateNestedManyWithoutEmbeddingModelInput
-  librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
-  librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
-  listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
-}
-
-export type AiLanguageModelUncheckedCreateWithoutContentProcessingTasksInput = {
-  id?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workspaceId: string
-  name: string
-  provider: string
-  canDoEmbedding?: boolean
-  canDoChatCompletion?: boolean
-  canDoVision?: boolean
-  canDoFunctionCalling?: boolean
-  enabled?: boolean
-  adminNotes?: string | null
-  lastUsedAt?: Date | string | null
-  assistantsUsing?: Prisma.AiAssistantUncheckedCreateNestedManyWithoutLanguageModelInput
-  librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutEmbeddingModelInput
-  librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
-  librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
-  listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
-}
-
-export type AiLanguageModelCreateOrConnectWithoutContentProcessingTasksInput = {
-  where: Prisma.AiLanguageModelWhereUniqueInput
-  create: Prisma.XOR<Prisma.AiLanguageModelCreateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedCreateWithoutContentProcessingTasksInput>
-}
-
-export type AiLanguageModelUpsertWithoutContentProcessingTasksInput = {
-  update: Prisma.XOR<Prisma.AiLanguageModelUpdateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedUpdateWithoutContentProcessingTasksInput>
-  create: Prisma.XOR<Prisma.AiLanguageModelCreateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedCreateWithoutContentProcessingTasksInput>
-  where?: Prisma.AiLanguageModelWhereInput
-}
-
-export type AiLanguageModelUpdateToOneWithWhereWithoutContentProcessingTasksInput = {
-  where?: Prisma.AiLanguageModelWhereInput
-  data: Prisma.XOR<Prisma.AiLanguageModelUpdateWithoutContentProcessingTasksInput, Prisma.AiLanguageModelUncheckedUpdateWithoutContentProcessingTasksInput>
-}
-
-export type AiLanguageModelUpdateWithoutContentProcessingTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  provider?: Prisma.StringFieldUpdateOperationsInput | string
-  canDoEmbedding?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoChatCompletion?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoVision?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoFunctionCalling?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  adminNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLanguageModelsNestedInput
-  assistantsUsing?: Prisma.AiAssistantUpdateManyWithoutLanguageModelNestedInput
-  librariesUsingForEmbedding?: Prisma.AiLibraryUpdateManyWithoutEmbeddingModelNestedInput
-  librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
-  librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
-  listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
-}
-
-export type AiLanguageModelUncheckedUpdateWithoutContentProcessingTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  provider?: Prisma.StringFieldUpdateOperationsInput | string
-  canDoEmbedding?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoChatCompletion?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoVision?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canDoFunctionCalling?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  adminNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  assistantsUsing?: Prisma.AiAssistantUncheckedUpdateManyWithoutLanguageModelNestedInput
-  librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedUpdateManyWithoutEmbeddingModelNestedInput
-  librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
-  librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
@@ -1338,7 +1193,6 @@ export type AiLanguageModelCreateWithoutListFieldsUsingInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageCreateNestedManyWithoutModelInput
 }
 
@@ -1360,7 +1214,6 @@ export type AiLanguageModelUncheckedCreateWithoutListFieldsUsingInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutEmbeddingModelInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
   usageLogs?: Prisma.AiModelUsageUncheckedCreateNestedManyWithoutModelInput
 }
 
@@ -1398,7 +1251,6 @@ export type AiLanguageModelUpdateWithoutListFieldsUsingInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -1420,7 +1272,6 @@ export type AiLanguageModelUncheckedUpdateWithoutListFieldsUsingInput = {
   librariesUsingForEmbedding?: Prisma.AiLibraryUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -1443,7 +1294,6 @@ export type AiLanguageModelCreateWithoutUsageLogsInput = {
   librariesUsingForOcr?: Prisma.AiLibraryCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskCreateNestedManyWithoutEmbeddingModelInput
 }
 
 export type AiLanguageModelUncheckedCreateWithoutUsageLogsInput = {
@@ -1465,7 +1315,6 @@ export type AiLanguageModelUncheckedCreateWithoutUsageLogsInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutOcrModelInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutExtractionModelInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedCreateNestedManyWithoutLanguageModelInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedCreateNestedManyWithoutEmbeddingModelInput
 }
 
 export type AiLanguageModelCreateOrConnectWithoutUsageLogsInput = {
@@ -1503,7 +1352,6 @@ export type AiLanguageModelUpdateWithoutUsageLogsInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
 }
 
 export type AiLanguageModelUncheckedUpdateWithoutUsageLogsInput = {
@@ -1525,7 +1373,6 @@ export type AiLanguageModelUncheckedUpdateWithoutUsageLogsInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
 }
 
 export type AiLanguageModelCreateManyWorkspaceInput = {
@@ -1561,7 +1408,6 @@ export type AiLanguageModelUpdateWithoutWorkspaceInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUpdateManyWithoutModelNestedInput
 }
 
@@ -1583,7 +1429,6 @@ export type AiLanguageModelUncheckedUpdateWithoutWorkspaceInput = {
   librariesUsingForOcr?: Prisma.AiLibraryUncheckedUpdateManyWithoutOcrModelNestedInput
   librariesUsingForExtraction?: Prisma.AiLibraryUncheckedUpdateManyWithoutExtractionModelNestedInput
   listFieldsUsing?: Prisma.AiListFieldUncheckedUpdateManyWithoutLanguageModelNestedInput
-  contentProcessingTasks?: Prisma.AiContentProcessingTaskUncheckedUpdateManyWithoutEmbeddingModelNestedInput
   usageLogs?: Prisma.AiModelUsageUncheckedUpdateManyWithoutModelNestedInput
 }
 
@@ -1613,7 +1458,6 @@ export type AiLanguageModelCountOutputType = {
   librariesUsingForOcr: number
   librariesUsingForExtraction: number
   listFieldsUsing: number
-  contentProcessingTasks: number
   usageLogs: number
 }
 
@@ -1623,7 +1467,6 @@ export type AiLanguageModelCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   librariesUsingForOcr?: boolean | AiLanguageModelCountOutputTypeCountLibrariesUsingForOcrArgs
   librariesUsingForExtraction?: boolean | AiLanguageModelCountOutputTypeCountLibrariesUsingForExtractionArgs
   listFieldsUsing?: boolean | AiLanguageModelCountOutputTypeCountListFieldsUsingArgs
-  contentProcessingTasks?: boolean | AiLanguageModelCountOutputTypeCountContentProcessingTasksArgs
   usageLogs?: boolean | AiLanguageModelCountOutputTypeCountUsageLogsArgs
 }
 
@@ -1675,13 +1518,6 @@ export type AiLanguageModelCountOutputTypeCountListFieldsUsingArgs<ExtArgs exten
 /**
  * AiLanguageModelCountOutputType without action
  */
-export type AiLanguageModelCountOutputTypeCountContentProcessingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AiContentProcessingTaskWhereInput
-}
-
-/**
- * AiLanguageModelCountOutputType without action
- */
 export type AiLanguageModelCountOutputTypeCountUsageLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AiModelUsageWhereInput
 }
@@ -1707,7 +1543,6 @@ export type AiLanguageModelSelect<ExtArgs extends runtime.Types.Extensions.Inter
   librariesUsingForOcr?: boolean | Prisma.AiLanguageModel$librariesUsingForOcrArgs<ExtArgs>
   librariesUsingForExtraction?: boolean | Prisma.AiLanguageModel$librariesUsingForExtractionArgs<ExtArgs>
   listFieldsUsing?: boolean | Prisma.AiLanguageModel$listFieldsUsingArgs<ExtArgs>
-  contentProcessingTasks?: boolean | Prisma.AiLanguageModel$contentProcessingTasksArgs<ExtArgs>
   usageLogs?: boolean | Prisma.AiLanguageModel$usageLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AiLanguageModelCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiLanguageModel"]>
@@ -1770,7 +1605,6 @@ export type AiLanguageModelInclude<ExtArgs extends runtime.Types.Extensions.Inte
   librariesUsingForOcr?: boolean | Prisma.AiLanguageModel$librariesUsingForOcrArgs<ExtArgs>
   librariesUsingForExtraction?: boolean | Prisma.AiLanguageModel$librariesUsingForExtractionArgs<ExtArgs>
   listFieldsUsing?: boolean | Prisma.AiLanguageModel$listFieldsUsingArgs<ExtArgs>
-  contentProcessingTasks?: boolean | Prisma.AiLanguageModel$contentProcessingTasksArgs<ExtArgs>
   usageLogs?: boolean | Prisma.AiLanguageModel$usageLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AiLanguageModelCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1790,7 +1624,6 @@ export type $AiLanguageModelPayload<ExtArgs extends runtime.Types.Extensions.Int
     librariesUsingForOcr: Prisma.$AiLibraryPayload<ExtArgs>[]
     librariesUsingForExtraction: Prisma.$AiLibraryPayload<ExtArgs>[]
     listFieldsUsing: Prisma.$AiListFieldPayload<ExtArgs>[]
-    contentProcessingTasks: Prisma.$AiContentProcessingTaskPayload<ExtArgs>[]
     usageLogs: Prisma.$AiModelUsagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2207,7 +2040,6 @@ export interface Prisma__AiLanguageModelClient<T, Null = never, ExtArgs extends 
   librariesUsingForOcr<T extends Prisma.AiLanguageModel$librariesUsingForOcrArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLanguageModel$librariesUsingForOcrArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiLibraryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   librariesUsingForExtraction<T extends Prisma.AiLanguageModel$librariesUsingForExtractionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLanguageModel$librariesUsingForExtractionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiLibraryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listFieldsUsing<T extends Prisma.AiLanguageModel$listFieldsUsingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLanguageModel$listFieldsUsingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiListFieldPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  contentProcessingTasks<T extends Prisma.AiLanguageModel$contentProcessingTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLanguageModel$contentProcessingTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiContentProcessingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   usageLogs<T extends Prisma.AiLanguageModel$usageLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiLanguageModel$usageLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiModelUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2764,30 +2596,6 @@ export type AiLanguageModel$listFieldsUsingArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.AiListFieldScalarFieldEnum | Prisma.AiListFieldScalarFieldEnum[]
-}
-
-/**
- * AiLanguageModel.contentProcessingTasks
- */
-export type AiLanguageModel$contentProcessingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AiContentProcessingTask
-   */
-  select?: Prisma.AiContentProcessingTaskSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AiContentProcessingTask
-   */
-  omit?: Prisma.AiContentProcessingTaskOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiContentProcessingTaskInclude<ExtArgs> | null
-  where?: Prisma.AiContentProcessingTaskWhereInput
-  orderBy?: Prisma.AiContentProcessingTaskOrderByWithRelationInput | Prisma.AiContentProcessingTaskOrderByWithRelationInput[]
-  cursor?: Prisma.AiContentProcessingTaskWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AiContentProcessingTaskScalarFieldEnum | Prisma.AiContentProcessingTaskScalarFieldEnum[]
 }
 
 /**

@@ -13,7 +13,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@george-ai/web-utils": "workspace:*",
@@ -27,6 +28,8 @@
     "@types/node": "^22.13.8",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1"
+    "typescript-eslint": "^8.44.1",
+    "dotenv": "^16.4.5",
+    "vitest": "^3.1.1"
   }
 }

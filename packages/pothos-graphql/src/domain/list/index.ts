@@ -34,7 +34,6 @@ export type ListItemWithRelations = Prisma.AiListItemGetPayload<{
     cache: true
     sourceFile: {
       include: {
-        contentExtractionTasks: { select: { extractionFinishedAt: true } }
         crawledByCrawler: { select: { uri: true } }
         library: { select: { name: true } }
       }
@@ -86,7 +85,7 @@ export function getFieldValue(
         value = file.library.name
         break
       case 'extractedAt':
-        value = file.contentExtractionTasks?.[0]?.extractionFinishedAt?.toISOString() || null
+        value = 'not implemented'
         break
       case 'lastUpdate':
         value = file.updatedAt.toISOString()

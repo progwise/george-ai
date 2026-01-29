@@ -177,9 +177,9 @@ model AiAssistantEUActAnswers {
 }
 
 model AiLibrary {
-  id                      String                    @id @default(cuid())
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
+  id                      String             @id @default(cuid())
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
   name                    String
   description             String?
   url                     String?
@@ -187,19 +187,18 @@ model AiLibrary {
   lastProcessed           DateTime?
   ownerId                 String
   workspaceId             String
-  isPublic                Boolean                   @default(true)
+  isPublic                Boolean            @default(true)
   fileConverterOptions    String?
-  embeddingTimeoutMs      Int?                      @default(180000)
-  autoProcessCrawledFiles Boolean                   @default(true)
+  embeddingTimeoutMs      Int?               @default(180000)
+  autoProcessCrawledFiles Boolean            @default(true)
   embeddingModelId        String?
   ocrModelId              String?
   extractionModelId       String?
-  contentExtractionTasks  AiContentProcessingTask[]
-  embeddingModel          AiLanguageModel?          @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
-  ocrModel                AiLanguageModel?          @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
-  extractionModel         AiLanguageModel?          @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
-  owner                   User                      @relation(fields: [ownerId], references: [id])
-  workspace               Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  embeddingModel          AiLanguageModel?   @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
+  ocrModel                AiLanguageModel?   @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
+  extractionModel         AiLanguageModel?   @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
+  owner                   User               @relation(fields: [ownerId], references: [id])
+  workspace               Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   crawlers                AiLibraryCrawler[]
   files                   AiLibraryFile[]
   updates                 AiLibraryUpdate[]
@@ -225,9 +224,9 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String                    @id @default(cuid())
-  createdAt              DateTime                  @default(now())
-  updatedAt              DateTime                  @updatedAt
+  id                     String            @id @default(cuid())
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
   libraryId              String
   name                   String
   originUri              String?
@@ -240,61 +239,12 @@ model AiLibraryFile {
   originFileHash         String?
   originModificationDate DateTime?
   archivedAt             DateTime?
-  contentExtractionTasks AiContentProcessingTask[]
-  crawledByCrawler       AiLibraryCrawler?         @relation(fields: [crawledByCrawlerId], references: [id])
-  library                AiLibrary                 @relation(fields: [libraryId], references: [id])
+  crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+  library                AiLibrary         @relation(fields: [libraryId], references: [id])
   updates                AiLibraryUpdate[]
   listItems              AiListItem[]
 
   @@unique([crawledByCrawlerId, originUri])
-}
-
-model AiContentProcessingTask {
-  id                   String                       @id @default(cuid())
-  fileId               String
-  libraryId            String
-  createdAt            DateTime                     @default(now())
-  timeoutMs            Int?
-  embeddingModelId     String?
-  extractionOptions    String?
-  processingStartedAt  DateTime?
-  processingFinishedAt DateTime?
-  processingFailedAt   DateTime?
-  processingTimeout    Boolean                      @default(false)
-  extractionStartedAt  DateTime?
-  extractionFinishedAt DateTime?
-  extractionFailedAt   DateTime?
-  extractionTimeout    Boolean                      @default(false)
-  embeddingStartedAt   DateTime?
-  embeddingFinishedAt  DateTime?
-  embeddingFailedAt    DateTime?
-  embeddingTimeout     Boolean                      @default(false)
-  chunksCount          Int?
-  chunksSize           Int?
-  metadata             String?
-  processingCancelled  Boolean                      @default(false)
-  embeddingModel       AiLanguageModel?             @relation("ContentProcessingEmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
-  extractionSubTasks   AiContentExtractionSubTask[]
-  file                 AiLibraryFile                @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  library              AiLibrary                    @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-
-  @@index([fileId, extractionStartedAt])
-  @@index([libraryId, fileId, extractionStartedAt])
-}
-
-model AiContentExtractionSubTask {
-  id                      String                  @id @default(cuid())
-  createdAt               DateTime                @default(now())
-  startedAt               DateTime?
-  finishedAt              DateTime?
-  failedAt                DateTime?
-  contentProcessingTaskId String
-  extractionMethod        String
-  markdownFileName        String?
-  contentProcessingTask   AiContentProcessingTask @relation(fields: [contentProcessingTaskId], references: [id], onDelete: Cascade)
-
-  @@index([contentProcessingTaskId])
-  @@index([extractionMethod, startedAt])
 }
 
 model AiLibraryCrawler {
@@ -576,26 +526,25 @@ model ApiKey {
 }
 
 model AiLanguageModel {
-  id                          String                    @id @default(cuid())
-  createdAt                   DateTime                  @default(now())
-  updatedAt                   DateTime                  @updatedAt
+  id                          String         @id @default(cuid())
+  createdAt                   DateTime       @default(now())
+  updatedAt                   DateTime       @updatedAt
   workspaceId                 String
   name                        String
   provider                    String
-  canDoEmbedding              Boolean                   @default(false)
-  canDoChatCompletion         Boolean                   @default(false)
-  canDoVision                 Boolean                   @default(false)
-  canDoFunctionCalling        Boolean                   @default(false)
-  enabled                     Boolean                   @default(true)
+  canDoEmbedding              Boolean        @default(false)
+  canDoChatCompletion         Boolean        @default(false)
+  canDoVision                 Boolean        @default(false)
+  canDoFunctionCalling        Boolean        @default(false)
+  enabled                     Boolean        @default(true)
   adminNotes                  String?
   lastUsedAt                  DateTime?
-  workspace                   Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  assistantsUsing             AiAssistant[]             @relation("LanguageModel")
-  librariesUsingForEmbedding  AiLibrary[]               @relation("EmbeddingModel")
-  librariesUsingForOcr        AiLibrary[]               @relation("OcrModel")
-  librariesUsingForExtraction AiLibrary[]               @relation("ExtractionModel")
-  listFieldsUsing             AiListField[]             @relation("ListFieldLanguageModel")
-  contentProcessingTasks      AiContentProcessingTask[] @relation("ContentProcessingEmbeddingModel")
+  workspace                   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assistantsUsing             AiAssistant[]  @relation("LanguageModel")
+  librariesUsingForEmbedding  AiLibrary[]    @relation("EmbeddingModel")
+  librariesUsingForOcr        AiLibrary[]    @relation("OcrModel")
+  librariesUsingForExtraction AiLibrary[]    @relation("ExtractionModel")
+  listFieldsUsing             AiListField[]  @relation("ListFieldLanguageModel")
   usageLogs                   AiModelUsage[]
 
   @@unique([workspaceId, provider, name])

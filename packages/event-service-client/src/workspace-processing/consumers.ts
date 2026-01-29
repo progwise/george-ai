@@ -1,17 +1,24 @@
 import { eventClient } from '../client'
-import { WORKSPACE_STREAM_NAME, getConsumerName, getConsumerNames, getConsumerSubjectFilters, logger } from './common'
-import { PROCESS_TYPES, ProcessType } from './schema'
+import {
+  ACTION_TYPES,
+  ActionType,
+  WORKSPACE_STREAM_NAME,
+  getConsumerName,
+  getConsumerNames,
+  getConsumerSubjectFilters,
+  logger,
+} from './common'
 
-export const ensureWorkspaceProcessingConsumer = async (params: {
+export const ensureWorkspaceConsumer = async (params: {
   workspaceId: string
-  processType: ProcessType
+  actionType: ActionType
   timeoutMs: number
   maxPendingMessages: number
   maxDeliveryAttempts: number
 }) => {
-  const { workspaceId, processType, maxPendingMessages, maxDeliveryAttempts } = params
-  const consumerName = getConsumerName({ workspaceId, processType })
-  const subjectFilters = getConsumerSubjectFilters({ workspaceId, processType })
+  const { workspaceId, actionType, maxPendingMessages, maxDeliveryAttempts } = params
+  const consumerName = getConsumerName({ workspaceId, actionType })
+  const subjectFilters = getConsumerSubjectFilters({ workspaceId, actionType })
   await eventClient.ensureConsumer({
     streamName: WORKSPACE_STREAM_NAME,
     consumerName,
@@ -22,17 +29,12 @@ export const ensureWorkspaceProcessingConsumer = async (params: {
   })
 }
 
-export const ensureWorkspaceProcessingConsumers = async ({
-  workspaceId,
-}: {
-  workspaceId: string
-  maxPendingMessages: number
-}) => {
+export const ensureWorkspaceConsumers = async ({ workspaceId }: { workspaceId: string }) => {
   await Promise.all(
-    Object.values(PROCESS_TYPES).map(async (processType) => {
-      await ensureWorkspaceProcessingConsumer({
+    Object.values(ACTION_TYPES).map(async (actionType) => {
+      await ensureWorkspaceConsumer({
         workspaceId,
-        processType,
+        actionType,
         maxDeliveryAttempts: 3,
         timeoutMs: 5 * 60 * 1000,
         maxPendingMessages: 10000,

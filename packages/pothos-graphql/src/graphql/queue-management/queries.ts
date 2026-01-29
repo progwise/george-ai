@@ -1,7 +1,6 @@
 import { prisma } from '@george-ai/app-domain'
 
 import { isAutomationWorkerRunning } from '../../worker-queue/automation-queue-worker'
-import { isContentProcessingWorkerRunning } from '../../worker-queue/content-processing-worker'
 import { isEnrichmentWorkerRunning } from '../../worker-queue/enrichment-queue-worker'
 import { builder } from '../builder'
 import { QueueSystemStatus } from './types'
@@ -18,16 +17,6 @@ builder.queryField('queueSystemStatus', (t) =>
     },
     resolve: async (_, __, { session, workspaceId }) => {
       const isAdmin = session?.user?.isAdmin ?? false
-
-      // Build WHERE clauses based on user access
-      // Admins see all tasks, non-admins see tasks from libraries/lists in their workspace
-      const contentProcessingAccessFilter = isAdmin
-        ? {}
-        : {
-            library: {
-              workspaceId,
-            },
-          }
 
       const enrichmentAccessFilter = isAdmin
         ? {}
@@ -77,52 +66,6 @@ builder.queryField('queueSystemStatus', (t) =>
         },
         orderBy: { completedAt: 'desc' },
         select: { completedAt: true },
-      })
-
-      // Get content processing queue stats (filtered by user access)
-      const contentProcessingPending = await prisma.aiContentProcessingTask.count({
-        where: {
-          ...contentProcessingAccessFilter,
-          processingStartedAt: null,
-          processingFinishedAt: null,
-          processingFailedAt: null,
-        },
-      })
-
-      const contentProcessingProcessing = await prisma.aiContentProcessingTask.count({
-        where: {
-          ...contentProcessingAccessFilter,
-          processingStartedAt: { not: null },
-          processingFinishedAt: null,
-          processingFailedAt: null,
-        },
-      })
-
-      const contentProcessingFailed = await prisma.aiContentProcessingTask.count({
-        where: {
-          ...contentProcessingAccessFilter,
-          OR: [
-            { processingFailedAt: { not: null } },
-            { extractionFailedAt: { not: null } },
-            { embeddingFailedAt: { not: null } },
-          ],
-        },
-      })
-
-      const contentProcessingCompleted = await prisma.aiContentProcessingTask.count({
-        where: {
-          ...contentProcessingAccessFilter,
-          processingFinishedAt: { not: null },
-        },
-      })
-
-      const contentProcessingLastProcessed = await prisma.aiContentProcessingTask.findFirst({
-        where: {
-          ...contentProcessingAccessFilter,
-          processingFinishedAt: { not: null },
-        },
-        orderBy: { processingFinishedAt: 'desc' },
-        select: { processingFinishedAt: true },
       })
 
       // Get automation queue stats (filtered by user access)
@@ -179,14 +122,13 @@ builder.queryField('queueSystemStatus', (t) =>
 
       // Check if workers are running
       const enrichmentWorkerRunning = isEnrichmentWorkerRunning()
-      const contentProcessingWorkerRunning = isContentProcessingWorkerRunning()
       const automationWorkerRunning = isAutomationWorkerRunning()
 
       return {
-        allWorkersRunning: enrichmentWorkerRunning && contentProcessingWorkerRunning && automationWorkerRunning,
-        totalPendingTasks: enrichmentPending + contentProcessingPending + automationPending,
-        totalProcessingTasks: enrichmentProcessing + contentProcessingProcessing + automationProcessing,
-        totalFailedTasks: enrichmentFailed + contentProcessingFailed + automationFailed,
+        allWorkersRunning: enrichmentWorkerRunning && automationWorkerRunning,
+        totalPendingTasks: enrichmentPending + automationPending,
+        totalProcessingTasks: enrichmentProcessing + automationProcessing,
+        totalFailedTasks: enrichmentFailed + automationFailed,
         lastUpdated: new Date().toISOString(),
         queues: [
           {
@@ -197,15 +139,6 @@ builder.queryField('queueSystemStatus', (t) =>
             failedTasks: enrichmentFailed,
             completedTasks: enrichmentCompleted,
             lastProcessedAt: enrichmentLastProcessed?.completedAt?.toISOString() || null,
-          },
-          {
-            queueType: 'CONTENT_PROCESSING' as const,
-            isRunning: contentProcessingWorkerRunning,
-            pendingTasks: contentProcessingPending,
-            processingTasks: contentProcessingProcessing,
-            failedTasks: contentProcessingFailed,
-            completedTasks: contentProcessingCompleted,
-            lastProcessedAt: contentProcessingLastProcessed?.processingFinishedAt?.toISOString() || null,
           },
           {
             queueType: 'AUTOMATION' as const,

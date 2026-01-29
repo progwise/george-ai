@@ -261,7 +261,7 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
 
           let content = ''
           for await (const chunk of markdownReader) {
-            content += chunk.toString('utf-8')
+            content += chunk
             if (content.length > maxChars) {
               content = content.slice(0, maxChars) + '...'
               break

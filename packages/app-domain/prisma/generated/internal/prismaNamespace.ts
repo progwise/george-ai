@@ -396,8 +396,6 @@ export const ModelName = {
   AiLibrary: 'AiLibrary',
   AiLibraryUsage: 'AiLibraryUsage',
   AiLibraryFile: 'AiLibraryFile',
-  AiContentProcessingTask: 'AiContentProcessingTask',
-  AiContentExtractionSubTask: 'AiContentExtractionSubTask',
   AiLibraryCrawler: 'AiLibraryCrawler',
   AiLibraryCrawlerRun: 'AiLibraryCrawlerRun',
   AiLibraryCrawlerCronJob: 'AiLibraryCrawlerCronJob',
@@ -437,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userProfile" | "workspace" | "workspaceMember" | "workspaceInvitation" | "aiServiceProvider" | "aiAssistant" | "aiAssistantBaseCase" | "aiAssistantEUActAnswers" | "aiLibrary" | "aiLibraryUsage" | "aiLibraryFile" | "aiContentProcessingTask" | "aiContentExtractionSubTask" | "aiLibraryCrawler" | "aiLibraryCrawlerRun" | "aiLibraryCrawlerCronJob" | "aiLibraryUpdate" | "aiList" | "aiListSource" | "aiListItem" | "aiListField" | "aiListFieldContext" | "aiListItemCache" | "aiEnrichmentTask" | "aiConversation" | "aiConversationParticipant" | "aiConversationMessage" | "aiConversationInvitation" | "apiKey" | "aiLanguageModel" | "aiModelUsage" | "aiConnectorTypeWorkspace" | "aiConnector" | "aiAutomation" | "aiAutomationItem" | "aiAutomationItemExecution" | "aiAutomationBatch"
+    modelProps: "user" | "userProfile" | "workspace" | "workspaceMember" | "workspaceInvitation" | "aiServiceProvider" | "aiAssistant" | "aiAssistantBaseCase" | "aiAssistantEUActAnswers" | "aiLibrary" | "aiLibraryUsage" | "aiLibraryFile" | "aiLibraryCrawler" | "aiLibraryCrawlerRun" | "aiLibraryCrawlerCronJob" | "aiLibraryUpdate" | "aiList" | "aiListSource" | "aiListItem" | "aiListField" | "aiListFieldContext" | "aiListItemCache" | "aiEnrichmentTask" | "aiConversation" | "aiConversationParticipant" | "aiConversationMessage" | "aiConversationInvitation" | "apiKey" | "aiLanguageModel" | "aiModelUsage" | "aiConnectorTypeWorkspace" | "aiConnector" | "aiAutomation" | "aiAutomationItem" | "aiAutomationItemExecution" | "aiAutomationBatch"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1326,154 +1324,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AiLibraryFileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AiLibraryFileCountAggregateOutputType> | number
-        }
-      }
-    }
-    AiContentProcessingTask: {
-      payload: Prisma.$AiContentProcessingTaskPayload<ExtArgs>
-      fields: Prisma.AiContentProcessingTaskFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.AiContentProcessingTaskFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.AiContentProcessingTaskFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        findFirst: {
-          args: Prisma.AiContentProcessingTaskFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.AiContentProcessingTaskFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        findMany: {
-          args: Prisma.AiContentProcessingTaskFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>[]
-        }
-        create: {
-          args: Prisma.AiContentProcessingTaskCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        createMany: {
-          args: Prisma.AiContentProcessingTaskCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.AiContentProcessingTaskCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>[]
-        }
-        delete: {
-          args: Prisma.AiContentProcessingTaskDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        update: {
-          args: Prisma.AiContentProcessingTaskUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        deleteMany: {
-          args: Prisma.AiContentProcessingTaskDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.AiContentProcessingTaskUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.AiContentProcessingTaskUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>[]
-        }
-        upsert: {
-          args: Prisma.AiContentProcessingTaskUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentProcessingTaskPayload>
-        }
-        aggregate: {
-          args: Prisma.AiContentProcessingTaskAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAiContentProcessingTask>
-        }
-        groupBy: {
-          args: Prisma.AiContentProcessingTaskGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AiContentProcessingTaskGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.AiContentProcessingTaskCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AiContentProcessingTaskCountAggregateOutputType> | number
-        }
-      }
-    }
-    AiContentExtractionSubTask: {
-      payload: Prisma.$AiContentExtractionSubTaskPayload<ExtArgs>
-      fields: Prisma.AiContentExtractionSubTaskFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.AiContentExtractionSubTaskFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.AiContentExtractionSubTaskFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        findFirst: {
-          args: Prisma.AiContentExtractionSubTaskFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.AiContentExtractionSubTaskFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        findMany: {
-          args: Prisma.AiContentExtractionSubTaskFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>[]
-        }
-        create: {
-          args: Prisma.AiContentExtractionSubTaskCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        createMany: {
-          args: Prisma.AiContentExtractionSubTaskCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.AiContentExtractionSubTaskCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>[]
-        }
-        delete: {
-          args: Prisma.AiContentExtractionSubTaskDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        update: {
-          args: Prisma.AiContentExtractionSubTaskUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        deleteMany: {
-          args: Prisma.AiContentExtractionSubTaskDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.AiContentExtractionSubTaskUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.AiContentExtractionSubTaskUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>[]
-        }
-        upsert: {
-          args: Prisma.AiContentExtractionSubTaskUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiContentExtractionSubTaskPayload>
-        }
-        aggregate: {
-          args: Prisma.AiContentExtractionSubTaskAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAiContentExtractionSubTask>
-        }
-        groupBy: {
-          args: Prisma.AiContentExtractionSubTaskGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AiContentExtractionSubTaskGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.AiContentExtractionSubTaskCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AiContentExtractionSubTaskCountAggregateOutputType> | number
         }
       }
     }
@@ -3485,49 +3335,6 @@ export const AiLibraryFileScalarFieldEnum = {
 export type AiLibraryFileScalarFieldEnum = (typeof AiLibraryFileScalarFieldEnum)[keyof typeof AiLibraryFileScalarFieldEnum]
 
 
-export const AiContentProcessingTaskScalarFieldEnum = {
-  id: 'id',
-  fileId: 'fileId',
-  libraryId: 'libraryId',
-  createdAt: 'createdAt',
-  timeoutMs: 'timeoutMs',
-  embeddingModelId: 'embeddingModelId',
-  extractionOptions: 'extractionOptions',
-  processingStartedAt: 'processingStartedAt',
-  processingFinishedAt: 'processingFinishedAt',
-  processingFailedAt: 'processingFailedAt',
-  processingTimeout: 'processingTimeout',
-  extractionStartedAt: 'extractionStartedAt',
-  extractionFinishedAt: 'extractionFinishedAt',
-  extractionFailedAt: 'extractionFailedAt',
-  extractionTimeout: 'extractionTimeout',
-  embeddingStartedAt: 'embeddingStartedAt',
-  embeddingFinishedAt: 'embeddingFinishedAt',
-  embeddingFailedAt: 'embeddingFailedAt',
-  embeddingTimeout: 'embeddingTimeout',
-  chunksCount: 'chunksCount',
-  chunksSize: 'chunksSize',
-  metadata: 'metadata',
-  processingCancelled: 'processingCancelled'
-} as const
-
-export type AiContentProcessingTaskScalarFieldEnum = (typeof AiContentProcessingTaskScalarFieldEnum)[keyof typeof AiContentProcessingTaskScalarFieldEnum]
-
-
-export const AiContentExtractionSubTaskScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  startedAt: 'startedAt',
-  finishedAt: 'finishedAt',
-  failedAt: 'failedAt',
-  contentProcessingTaskId: 'contentProcessingTaskId',
-  extractionMethod: 'extractionMethod',
-  markdownFileName: 'markdownFileName'
-} as const
-
-export type AiContentExtractionSubTaskScalarFieldEnum = (typeof AiContentExtractionSubTaskScalarFieldEnum)[keyof typeof AiContentExtractionSubTaskScalarFieldEnum]
-
-
 export const AiLibraryCrawlerScalarFieldEnum = {
   id: 'id',
   uri: 'uri',
@@ -4206,8 +4013,6 @@ export type GlobalOmitConfig = {
   aiLibrary?: Prisma.AiLibraryOmit
   aiLibraryUsage?: Prisma.AiLibraryUsageOmit
   aiLibraryFile?: Prisma.AiLibraryFileOmit
-  aiContentProcessingTask?: Prisma.AiContentProcessingTaskOmit
-  aiContentExtractionSubTask?: Prisma.AiContentExtractionSubTaskOmit
   aiLibraryCrawler?: Prisma.AiLibraryCrawlerOmit
   aiLibraryCrawlerRun?: Prisma.AiLibraryCrawlerRunOmit
   aiLibraryCrawlerCronJob?: Prisma.AiLibraryCrawlerCronJobOmit

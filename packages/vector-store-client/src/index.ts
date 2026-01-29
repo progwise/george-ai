@@ -1,11 +1,4 @@
-import { vectorStoreClient } from './client'
+import { default as vectorStore } from './qdrant-store'
 
-export type { VectorModelMap, VectorStoreClient, VectorStoreFilesSelector } from './client'
-export { vectorStoreClient }
-
-export {
-  VectorStoreDocumentSchema,
-  VectorStoreDocumentIdentifierSchema,
-  type VectorStoreDocument,
-  type VectorStoreDocumentIdentifier,
-} from './schema'
+export type { VectorStoreChunksSelector } from './schema'
+export { vectorStore }
