@@ -2,6 +2,7 @@ import { GraphQLError } from 'graphql'
 
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 import { prisma } from '@george-ai/app-domain'
+import { encryptValue } from '@george-ai/web-utils'
 
 import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
 import { builder } from '../builder'
@@ -58,6 +59,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
           },
         })
       }
+      const encryptedApi = encryptValue(data.apiKey)
 
       const provider = await prisma.aiServiceProvider.create({
         ...query,
@@ -67,7 +69,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
           name: data.name,
           enabled: shouldEnable,
           baseUrl: data.baseUrl,
-          apiKey: data.apiKey, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
+          apiKey: encryptedApi,
           vramGb: data.vramGb,
           createdBy: userId,
         },
@@ -149,7 +151,7 @@ builder.mutationField('updateAiServiceProvider', (t) =>
           enabled: shouldEnable,
           baseUrl: data.baseUrl,
           // Only update apiKey if provided (preserve existing if undefined)
-          ...(data.apiKey !== undefined && { apiKey: data.apiKey }), // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
+          ...(data.apiKey && { apiKey: encryptValue(data.apiKey) }),
           vramGb: data.vramGb,
           updatedBy: userId,
         },
@@ -362,6 +364,8 @@ builder.mutationField('restoreDefaultProviders', (t) =>
           })
         }
 
+        const encryptedApi = encryptValue(providerData.apiKey)
+
         // Create new provider (enabled by default)
         const newProvider = await prisma.aiServiceProvider.create({
           data: {
@@ -370,7 +374,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
             name: providerData.name,
             enabled: true,
             baseUrl: providerData.baseUrl,
-            apiKey: providerData.apiKey, // TODO: Encrypt before storing - https://github.com/progwise/george-ai/issues/876
+            apiKey: encryptedApi,
             vramGb: providerData.vramGb,
             createdBy: userId,
           },
@@ -457,7 +461,7 @@ builder.mutationField('testProviderConnection', (t) =>
         // Use provided values, fall back to stored values if available
         const baseUrl = data.baseUrl || storedProvider?.baseUrl || undefined
         const apiKey = data.apiKey || storedProvider?.apiKey || undefined
-
+        const encryptedApiKey = encryptValue(apiKey)
         if (data.provider === 'ollama') {
           // Test Ollama connection
           if (!baseUrl) {
@@ -467,7 +471,7 @@ builder.mutationField('testProviderConnection', (t) =>
             }
           }
 
-          const result = await testOllamaConnection({ url: baseUrl, apiKey })
+          const result = await testOllamaConnection({ url: baseUrl, apiKey: encryptedApiKey })
 
           if (result.success) {
             return {
@@ -483,14 +487,13 @@ builder.mutationField('testProviderConnection', (t) =>
           }
         } else if (data.provider === 'openai') {
           // Test OpenAI connection
-          if (!apiKey) {
+          if (!encryptedApiKey) {
             return {
               success: false,
-              message: 'API key is required for OpenAI',
+              message: 'API key is required for OpenAI connection test',
             }
           }
-
-          const result = await testOpenAIConnection({ apiKey })
+          const result = await testOpenAIConnection({ apiKey: encryptedApiKey })
 
           if (result.success) {
             return {

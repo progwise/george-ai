@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ClientDate } from '../client-date'
+import { ResizableHandle } from '../resizable-handle'
 import { getAutomationItemQueryOptions } from './queries/get-automation-item'
 
 interface AutomationItemSidePanelProps {
@@ -28,6 +29,7 @@ export const AutomationItemSidePanel = ({
 }: AutomationItemSidePanelProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Fetch item details when panel opens
   const { data, isLoading, isError } = useQuery({
@@ -76,14 +78,16 @@ export const AutomationItemSidePanel = ({
 
       {/* Side Panel */}
       <div
+        ref={containerRef}
         className={twMerge(
-          'fixed top-0 right-0 z-50 flex h-full w-[560px] max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
+          'fixed top-0 right-0 z-50 flex h-full w-140 max-w-full flex-col border-l bg-base-100 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-modal="true"
         aria-label={`${t('automations.itemDetail.title')} - ${itemName}`}
       >
+        <ResizableHandle containerRef={containerRef} minSize={400} maxSize={window.innerWidth * 0.8}></ResizableHandle>
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-base-300 p-4">
           <div className="min-w-0 flex-1">
@@ -103,7 +107,6 @@ export const AutomationItemSidePanel = ({
             <CrossIcon className="size-5" />
           </button>
         </div>
-
         {/* Content - scrollable */}
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {isLoading ? (

@@ -791,6 +791,7 @@ export default {
     fields: {
       addField: 'Feld hinzufügen',
       addSuccess: 'Feld "{name}" erfolgreich hinzugefügt',
+      addTitle: 'Neues Feld hinzufügen',
       aiModel: 'Sprachmodell',
       aiPrompt: 'Prompt',
       aiPromptHelp: 'Dieser Prompt wird verwendet, um den Wert des Feldes für jede Datei zu berechnen.',

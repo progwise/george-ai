@@ -785,6 +785,7 @@ export default {
     fields: {
       addField: 'Add Field',
       addSuccess: 'Field "{name}" added successfully',
+      addTitle: 'Add Field',
       aiModel: 'Large Language Model',
       aiPrompt: 'Prompt',
       aiPromptHelp: 'This prompt is used to calculate the value of the field for each file.',

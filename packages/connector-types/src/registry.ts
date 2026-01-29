@@ -1,4 +1,5 @@
-import { decryptConfigFields, encryptConfigFields } from './encryption'
+import { decryptConfigFields, encryptConfigFields } from '@george-ai/web-utils'
+
 import type { ConnectorType, ConnectorTypeFactory } from './types'
 
 /**

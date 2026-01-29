@@ -1,3 +1,5 @@
+import { decryptValue } from '@george-ai/web-utils'
+
 import { builder } from '../builder'
 
 import './mutations'
@@ -20,7 +22,7 @@ builder.prismaObject('AiServiceProvider', {
       nullable: true,
       resolve: (provider) => {
         if (!provider.apiKey) return null
-        const key = provider.apiKey
+        const key = decryptValue(provider.apiKey)
         if (key.length <= 10) {
           // For short keys, show first 2 and last 2
           return `${key.slice(0, 2)}...${key.slice(-2)}`

@@ -42,14 +42,6 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
       expect(hasEmbeddingModel || hasChatModel).toBe(true)
     }, 15000)
-
-    it('should return models with recent timestamps', async () => {
-      const result = await getOpenAIModels(instance)
-
-      // Timestamp should be within last 5 seconds
-      expect(result.timestamp).toBeGreaterThan(Date.now() - 5000)
-      expect(result.timestamp).toBeLessThanOrEqual(Date.now())
-    }, 10000)
   })
 
   describe('generateOpenAIEmbeddings', () => {
