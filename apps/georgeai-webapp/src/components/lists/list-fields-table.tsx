@@ -85,11 +85,13 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const {
     visibleFields,
     isResizing,
+    isOrdering,
     handleResizeMouseDown,
     handleDragOver,
     handleDrop,
     handleDragStart,
     handleDragEnd,
+    columnWidths,
   } = useFieldSettings(list.fields || [])
 
   const { getSortingDirection, toggleSorting } = useListSettings(list.id)
@@ -110,6 +112,10 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     libraryId: string
     fileId: string
   } | null>(null)
+  const totalTableWidth = visibleFields.reduce(
+    (sum, field) => sum + ((columnWidths && columnWidths[field.id]) || 150),
+    60,
+  )
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
@@ -171,14 +177,27 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="table-pin-rows table-pin-cols table table-sm">
+          <div className="max-h-[70vh] overflow-x-auto overflow-y-auto">
+            <table className="table table-fixed table-sm" style={{ width: `${totalTableWidth}px` }}>
+              <colgroup>
+                {visibleFields.map((field) => (
+                  <col
+                    key={`col-${field.id}`}
+                    style={{ width: `${(columnWidths && columnWidths[field.id]) || 150}px` }}
+                  />
+                ))}
+                <col style={{ width: '60px' }} />
+              </colgroup>
+
               <thead>
                 <tr>
                   {visibleFields.map((field) => (
                     <th
                       key={`header-${field.id}`}
                       className="relative bg-base-200"
+                      style={{
+                        opacity: isOrdering === field.id ? 0.5 : 1,
+                      }}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleFieldReorder(field.id, e)}
                     >
@@ -189,7 +208,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                         onDragEnd={handleDragEnd}
                       />
 
-                      <div className="space-y-2 p-2">
+                      <div>
                         <div className="flex items-center justify-between gap-1">
                           <div className="flex flex-1 items-center gap-1 overflow-hidden pl-2 text-nowrap whitespace-nowrap hover:overflow-visible">
                             {visibleFields.find((sortableField) => sortableField.id === field.id) ? (

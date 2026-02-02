@@ -82,7 +82,7 @@ export function Sidebar({ user }: SidebarProps) {
           <SidebarNavigationLink
             to="/libraries"
             icon={<LibraryIcon className="my-1.5 inline-block size-4" />}
-            label={t('sidebar.library')}
+            label={t('sidebar.libraries')}
           />
           <SidebarNavigationLink
             to="/lists"
