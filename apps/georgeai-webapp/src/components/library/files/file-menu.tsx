@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
+import { ActionType, AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FileInfoBox } from './file-info-box'
 import { FileInfoFiles } from './file-info-files'
@@ -13,7 +13,7 @@ interface FileMenuProps {
 
 export const FileMenu = ({ file }: FileMenuProps) => {
   const { t } = useTranslation()
-  const { createEmbeddingTasks, createExtractionTasks, fileActionPending } = useFileActions({
+  const { processFile, fileActionPending } = useFileActions({
     libraryId: file.libraryId,
   })
 
@@ -44,7 +44,10 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   return (
     <ul className="menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center">
       <li>
-        <button {...buttonProps} onClick={() => createEmbeddingTasks([file.id])}>
+        <button
+          {...buttonProps}
+          onClick={() => processFile({ fileId: file.id, actionType: ActionType.EmbedFile, libraryId: file.libraryId })}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -64,7 +67,12 @@ export const FileMenu = ({ file }: FileMenuProps) => {
         </button>
       </li>
       <li>
-        <button {...buttonProps} onClick={() => createExtractionTasks([file.id])}>
+        <button
+          {...buttonProps}
+          onClick={() =>
+            processFile({ fileId: file.id, actionType: ActionType.ExtractFile, libraryId: file.libraryId })
+          }
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

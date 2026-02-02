@@ -1,8 +1,8 @@
-import { ModelProvider } from '../model-provider/common'
+import { ModelProvider } from '@george-ai/app-commons'
 
 export const PROVIDER_HEALTH_BUCKET_NAME = 'provider-health'
 
-export const getKey = (args: { workspaceId: string; provider: string; providerInstanceId: string }) =>
+export const getKey = (args: { workspaceId: string; provider: ModelProvider; providerInstanceId: string }) =>
   `workspace.${args.workspaceId}.provider.${args.provider}.instance.${args.providerInstanceId}.health`
 
 export const getWildcardKey = (args: { workspaceId: string; provider?: ModelProvider }) =>

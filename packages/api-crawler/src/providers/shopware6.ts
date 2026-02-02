@@ -1,7 +1,7 @@
 /**
  * Shopware 6 API Provider
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
 

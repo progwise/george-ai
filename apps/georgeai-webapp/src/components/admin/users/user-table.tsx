@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { dateString } from '@george-ai/web-utils'
+import { dateString } from '@george-ai/app-commons'
 
 import { ManagedUserFragment, UserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'

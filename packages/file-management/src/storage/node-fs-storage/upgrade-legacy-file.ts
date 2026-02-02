@@ -154,7 +154,7 @@ export async function upgradeLegacyFile(
       }
       const extractionFileInfo = await lstat(path.join(tempFileDir, entry.name))
 
-      let extractionType = 'legacy-extraction'
+      let extractionType = 'legacyExtraction'
       if (entry.name.includes('text')) {
         extractionType = 'legacy-text'
       } else if (entry.name.includes('ocr')) {
@@ -178,7 +178,7 @@ export async function upgradeLegacyFile(
       )
       saveExtractionMetadata(path.join(tempFileDir, EXTRACTIONS_DIR_NAME, extractionType), {
         version: 1,
-        extractionMethod: 'legacy-extraction',
+        extractionMethod: 'legacyExtraction',
         sourceHash:
           sourceFileInfo.birthtime > extractionFileInfo.birthtime ? 'unknown' : await getSourceHash(tempFileDir),
         extractedBytes: extractionFileInfo.size,

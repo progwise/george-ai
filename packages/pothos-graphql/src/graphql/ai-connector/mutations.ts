@@ -1,8 +1,8 @@
 import { GraphQLError } from 'graphql'
 
-import { Prisma, prisma } from '@george-ai/app-domain'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
+import { Prisma, prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 // Input type for connector config (JSON)

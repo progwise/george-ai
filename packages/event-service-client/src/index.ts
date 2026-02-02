@@ -1,4 +1,4 @@
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import { initializeModelCallsStream } from './model-calls'
 import { initializeProviderHealthBucket } from './provider-health'

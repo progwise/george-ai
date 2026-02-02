@@ -44,7 +44,7 @@ export const textToMarkdown = async (parameters: FileConverterParameters) => {
   const writer = await workspaceStorage.createExtraction(parameters.workspaceId, {
     libraryId: parameters.libraryId,
     fileId: parameters.fileId,
-    extractionMethod: 'text-extraction',
+    extractionMethod: 'textExtraction',
   })
 
   try {

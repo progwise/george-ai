@@ -1,21 +1,10 @@
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 export const ACTION_TYPES = ['chunkFile', 'extractFile', 'embedFile', 'enrichItem'] as const
 export type ActionType = (typeof ACTION_TYPES)[number]
 
 export const ACTION_STATUS_VALUES = ['pending', 'in-progress', 'completed', 'failed'] as const
 export type ActionStatus = (typeof ACTION_STATUS_VALUES)[number]
-
-export const EXTRACTION_METHODS = [
-  'csv-extraction',
-  'docx-extraction',
-  'eml-extraction',
-  'excel-extraction',
-  'html-extraction',
-  'pdf-extraction',
-  'text-extraction',
-] as const
-export type ExtractionMethod = (typeof EXTRACTION_METHODS)[number]
 
 export const logger = createLogger('event-service-client:workspace-processing')
 

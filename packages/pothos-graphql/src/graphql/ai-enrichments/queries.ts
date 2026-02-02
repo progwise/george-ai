@@ -1,6 +1,5 @@
-import { getListStatistics, prisma } from '@george-ai/app-domain'
-
 import { EnrichmentStatus } from '.'
+import { getListStatistics, prisma } from '../../../../app-database/src'
 import { EnrichmentStatusType } from '../../domain/enrichment'
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'

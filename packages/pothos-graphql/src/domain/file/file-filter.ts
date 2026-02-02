@@ -2,7 +2,7 @@
  * File filtering utilities for AI Library Crawlers
  * Supports glob patterns, file size limits, and MIME type filtering
  */
-import { getMimeTypeFromExtension } from '@george-ai/web-utils'
+import { getMimeTypeFromExtension } from '@george-ai/app-commons'
 
 /**
  * Convert a glob pattern to a regex pattern

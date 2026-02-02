@@ -1,4 +1,4 @@
-import { createLogger, getErrorObject, getErrorString } from '@george-ai/web-utils'
+import { createLogger, getErrorObject, getErrorString } from '@george-ai/app-commons'
 
 import { isEmbeddingModel, isVisionModel } from '../model-classifier'
 import { providerCache } from '../provider-cache'

@@ -39,7 +39,7 @@ describe.sequential('PDF to Markdown', async () => {
       fileId: TEST_PDF_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'pdf-extraction',
+        extractionMethod: 'pdfExtraction',
       },
     })
   })
@@ -51,14 +51,14 @@ describe.sequential('PDF to Markdown', async () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'pdf-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'pdfExtraction')).toBeDefined()
   })
 
   it('should have the extraction metadata', async () => {
     const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_PDF_FILE_ID,
-      extractionMethod: 'pdf-extraction',
+      extractionMethod: 'pdfExtraction',
     })
 
     expect(extraction).toBeDefined()
@@ -69,7 +69,7 @@ describe.sequential('PDF to Markdown', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_PDF_FILE_ID,
-      extractionMethod: 'pdf-extraction',
+      extractionMethod: 'pdfExtraction',
     })
 
     expect(extractionReadStream).toBeDefined()

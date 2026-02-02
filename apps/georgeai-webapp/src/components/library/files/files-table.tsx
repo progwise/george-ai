@@ -2,17 +2,17 @@ import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { dateTimeStringShort } from '@george-ai/app-commons'
 import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { AiLibraryFile_TableItemFragment, ExtractionStatus, ProcessingStatus } from '../../../gql/graphql'
+import { ActionType, AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
 import { CheckIcon } from '../../../icons/check-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { EyeIcon } from '../../../icons/eye-icon'
-import { PlayIcon } from '../../../icons/play-icon'
 import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
@@ -36,16 +36,21 @@ graphql(`
     createdAt
     originModificationDate
     archivedAt
-    taskCount
-    processingStatus
-    extractionStatus
-    embeddingStatus
-    lastSuccessfulEmbedding {
-      id
-      createdAt
-      processingFinishedAt
-      chunksCount
-      chunksSize
+    chunksCount
+    fileInfo {
+      sourceHash
+      usage {
+        physicalBytes
+        activeExtractions
+        extractionFiles
+        lastUpdate
+        lastReconcile
+      }
+      extractions {
+        extractionMethod
+        extractionHash
+        extractionDate
+      }
     }
   }
 `)
@@ -54,7 +59,7 @@ interface FilesTableProps {
   firstItemNumber: number
 }
 export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const { libraryId } = useParams({ from: '/_authenticated/libraries/$libraryId' })
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   const pageFileIds = files?.map((file) => file.id) || []
@@ -67,7 +72,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { dropFile, dropFiles, createExtractionTasks, createEmbeddingTasks, fileActionPending } = useFileActions({
+  const { dropFile, dropFiles, processFile, processFiles, fileActionPending } = useFileActions({
     libraryId,
   })
 
@@ -110,21 +115,19 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     })
   }
 
-  const handleProcessSelectedFiles = () => {
-    createExtractionTasks(selectedFileIds, {
-      onSettled: () => {
-        setSelectedFileIds([])
-        processDialogRef.current?.close()
-      },
+  const handleExtractSelectedFiles = () => {
+    processFiles({
+      actionType: ActionType.ExtractFile,
+      libraryId,
+      fileIds: selectedFileIds,
     })
   }
 
   const handleEmbedSelectedFiles = () => {
-    createEmbeddingTasks(selectedFileIds, {
-      onSettled: () => {
-        setSelectedFileIds([])
-        embedDialogRef.current?.close()
-      },
+    processFiles({
+      actionType: ActionType.EmbedFile,
+      libraryId,
+      fileIds: selectedFileIds,
     })
   }
 
@@ -199,23 +202,39 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       {t('labels.archived')}
                     </span>
                   )}
-                  {file.extractionStatus !== ExtractionStatus.None && (
+                  {!file.fileInfo ? (
                     <span
-                      className={twMerge(
-                        'badge gap-1 badge-sm',
-                        file.extractionStatus === ExtractionStatus.Pending && 'badge-info',
-                        file.extractionStatus === ExtractionStatus.Running && 'badge-primary',
-                        file.extractionStatus === ExtractionStatus.Completed && 'badge-success',
-                        file.extractionStatus === ExtractionStatus.Failed && 'badge-error',
-                      )}
-                      title={file.extractionStatus}
+                      className="badge gap-1 badge-outline badge-sm badge-warning"
+                      title={t('errors.fileMissingInfo')}
                     >
-                      {file.extractionStatus === ExtractionStatus.Pending && <CalendarIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Running && <PlayIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Completed && <CheckIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Failed && <ExclamationIcon className="size-3" />}
-                      {file.extractionStatus}
+                      <ExclamationIcon className="size-3" />
+                      {t('errors.missingInfo')}
                     </span>
+                  ) : file.fileInfo.extractions.length === 0 ? (
+                    <span className="badge gap-1 badge-outline badge-sm badge-info" title={t('files.noExtractionsYet')}>
+                      <CalendarIcon className="size-3" />
+                      {t('files.noExtractions')}
+                    </span>
+                  ) : (
+                    file.fileInfo.extractions
+                      .sort((a, b) => new Date(a.extractionDate).getTime() - new Date(b.extractionDate).getTime())
+                      .map((extraction) => (
+                        <span
+                          key={`${file.id}-extraction-${extraction.extractionMethod}`}
+                          className={twMerge(
+                            'badge gap-1 badge-sm',
+                            file.fileInfo?.sourceHash === extraction.extractionHash ? 'badge-success' : 'badge-warning',
+                          )}
+                          title={`${t('files.extractionMethod')}: ${extraction.extractionMethod}`}
+                        >
+                          {file.fileInfo?.sourceHash === extraction.extractionHash ? (
+                            <CheckIcon className="size-3" />
+                          ) : (
+                            <ExclamationIcon className="size-3" />
+                          )}
+                          {`${extraction.extractionMethod} (${dateTimeStringShort(extraction.extractionDate, language)})`}
+                        </span>
+                      ))
                   )}
                 </div>
               </div>
@@ -224,9 +243,8 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
                 <span>{t('labels.chunks')}:</span>
-                <span>{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}</span>
+                <span>{file.chunksCount ?? '-'}</span>
                 <span>{t('labels.processed')}:</span>
-                <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="-" />
                 {file.originModificationDate && (
                   <>
                     <span>{t('labels.originModified')}:</span>
@@ -286,10 +304,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
               <td>{t('labels.name')}</td>
               <td>#{t('labels.size')}</td>
               <td>
-                #{t('labels.conversions')}/ #{t('labels.chunks')}
+                #{t('labels.activeExtractions')}/ #{t('labels.extractions')}
               </td>
-              <td>{t('labels.processed')}</td>
-              <td>{t('labels.originModified')}</td>
+              <td>{t('labels.lastUpdate')}</td>
+              <td>{t('labels.lastReconcile')}</td>
             </tr>
           </thead>
           <tbody>
@@ -328,15 +346,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         type="button"
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
-                        onClick={() => createExtractionTasks([file.id])}
+                        onClick={() => processFile({ actionType: ActionType.EmbedFile, libraryId, fileId: file.id })}
                       >
                         <ReprocessIcon className="size-4" />
                       </button>
-                      {file.processingStatus === ProcessingStatus.Failed && (
-                        <span className="tooltip tooltip-right" data-tip={file.processingStatus}>
-                          <ExclamationIcon className="size-4" />
-                        </span>
-                      )}
 
                       {file.dropError && (
                         <span className="tooltip-right lg:tooltip" data-tip={t('libraries.dropFileError')}>
@@ -368,13 +381,13 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 </td>
                 <td className="text-nowrap">{formatBytes(file.size) ?? '-'}</td>
                 <td>
-                  {file.taskCount ?? '-'}/{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}
+                  {file.fileInfo?.usage.activeExtractions ?? '-'}/{file.fileInfo?.extractions.length ?? '-'}
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="" />
+                  <ClientDate date={file?.fileInfo?.usage.lastUpdate} format="dateTime" fallback="" />
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file.originModificationDate} format="dateTime" fallback="" />
+                  <ClientDate date={file?.fileInfo?.usage.lastReconcile} format="dateTime" fallback="" />
                 </td>
               </tr>
             ))}
@@ -404,7 +417,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         ref={processDialogRef}
         title={t('libraries.processFilesDialog')}
         description={t('texts.processFilesDialogDescription')}
-        onSubmit={handleProcessSelectedFiles}
+        onSubmit={handleExtractSelectedFiles}
         submitButtonText={t('actions.reprocess')}
         disabledSubmit={fileActionPending}
       >

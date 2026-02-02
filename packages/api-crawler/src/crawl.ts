@@ -2,7 +2,7 @@
  * Main crawl function
  * Orchestrates authentication and provider-based content extraction
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import { authenticate } from './auth'
 import { getProvider } from './providers'

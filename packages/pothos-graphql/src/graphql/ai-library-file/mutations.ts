@@ -1,5 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { deleteFile, dropAllLibraryFiles } from '../../domain'
 import { builder } from '../builder'
 import { canWriteWorkspaceOrThrow } from '../workspace'

@@ -76,7 +76,7 @@ export async function docxToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'docx-extraction',
+    extractionMethod: 'docxExtraction',
   })
 
   try {

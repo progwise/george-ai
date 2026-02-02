@@ -1,9 +1,10 @@
 import z from 'zod'
 
-import { MODEL_PROVIDERS } from './common'
+import { MODEL_PROVIDERS } from '@george-ai/app-commons'
 
 export const ModelProviderInstanceSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
   modelProvider: z.enum(MODEL_PROVIDERS),
   baseUrl: z.string().url().optional(),
   apiKey: z.string().optional(),

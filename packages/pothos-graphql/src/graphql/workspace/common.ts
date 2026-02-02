@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '../../../../app-database/src'
 
 export async function canReadWorkspaceOrThrow(workspaceId: string, userId: string): Promise<void> {
   const membership = await prisma.workspaceMember.findFirst({

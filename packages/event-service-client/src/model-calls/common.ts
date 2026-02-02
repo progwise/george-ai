@@ -1,6 +1,5 @@
-import { createLogger } from '@george-ai/web-utils'
-
-import { ModelProvider } from '../model-provider/common'
+import { ModelProvider } from '@george-ai/app-commons'
+import { createLogger } from '@george-ai/app-commons'
 
 export const MODEL_CALL_TYPES = ['generateEmbedding', 'generateChatCompletion', 'generateImage'] as const
 export type ModelCallType = (typeof MODEL_CALL_TYPES)[number]

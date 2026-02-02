@@ -1,5 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { canWriteWorkspaceOrThrow } from '../workspace'
 import { builder } from './../builder'
 
@@ -203,14 +202,14 @@ builder.mutationField('computeFieldValue', (t) =>
         // Get the item with its source file
         const item = await prisma.aiListItem.findFirstOrThrow({
           where: { id: itemId },
-          include: { sourceFile: { include: { library: true } } },
+          include: { file: { include: { library: true } } },
         })
 
         // Check access to the list
 
         // TODO: Read the converted.md file content and use LLM to compute the value
         // For now, return a placeholder
-        const mockValue = `[${field.type}] Computed value for ${item.sourceFile.name}`
+        const mockValue = `[${field.type}] Computed value for ${item.file.name}`
 
         // Cache the computed value
         await prisma.aiListItemCache.upsert({

@@ -39,7 +39,7 @@ describe.sequential('CSV to Markdown', async () => {
       fileId: TEST_CSV_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'csv-extraction',
+        extractionMethod: 'csvExtraction',
       },
     })
   })
@@ -51,14 +51,14 @@ describe.sequential('CSV to Markdown', async () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'csv-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'csvExtraction')).toBeDefined()
   })
 
   it('Should have the extraction metadata and fragments', async () => {
     const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_CSV_FILE_ID,
-      extractionMethod: 'csv-extraction',
+      extractionMethod: 'csvExtraction',
     })
 
     expect(extraction).toBeDefined()
@@ -69,7 +69,7 @@ describe.sequential('CSV to Markdown', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_CSV_FILE_ID,
-      extractionMethod: 'csv-extraction',
+      extractionMethod: 'csvExtraction',
     })
 
     expect(extractionReadStream).toBeDefined()

@@ -39,7 +39,7 @@ describe.sequential('EML to Markdown', async () => {
       fileId: TEST_EML_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'eml-extraction',
+        extractionMethod: 'emlExtraction',
       },
     })
   })
@@ -51,14 +51,14 @@ describe.sequential('EML to Markdown', async () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'eml-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'emlExtraction')).toBeDefined()
   })
 
   it('should have the extraction metadata and fragments', async () => {
     const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_EML_FILE_ID,
-      extractionMethod: 'eml-extraction',
+      extractionMethod: 'emlExtraction',
     })
 
     expect(extraction).toBeDefined()
@@ -69,7 +69,7 @@ describe.sequential('EML to Markdown', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_EML_FILE_ID,
-      extractionMethod: 'eml-extraction',
+      extractionMethod: 'emlExtraction',
     })
 
     expect(extractionReadStream).toBeDefined()

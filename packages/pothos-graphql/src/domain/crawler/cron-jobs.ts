@@ -1,7 +1,6 @@
 import { CronJob } from 'cron'
 
-import { AiLibraryCrawlerCronJob, prisma } from '@george-ai/app-domain'
-
+import { AiLibraryCrawlerCronJob, prisma } from '../../../../app-database/src'
 import { getCronExpression } from '../../graphql/ai-library-crawler-cronjob/get-cron-expression'
 import { runCrawler } from './crawler-run'
 

@@ -1,4 +1,4 @@
-import { decryptValue } from '@george-ai/web-utils'
+import { decryptValue } from '@george-ai/app-commons'
 
 import { builder } from '../builder'
 

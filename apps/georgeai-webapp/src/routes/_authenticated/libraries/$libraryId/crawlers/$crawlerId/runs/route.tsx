@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/app-commons'
 
 import { ClientDate } from '../../../../../../../components/client-date'
 import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler'

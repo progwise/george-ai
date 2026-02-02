@@ -142,7 +142,7 @@ export async function excelToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'excel-extraction',
+    extractionMethod: 'excelExtraction',
     splitFragmentPattern: '\n# ', // Split at each new top-level heading
   })
 

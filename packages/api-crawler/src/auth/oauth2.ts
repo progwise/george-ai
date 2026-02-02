@@ -1,7 +1,7 @@
 /**
  * OAuth2 authentication (Client Credentials flow)
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { AuthConfig } from '../types'
 

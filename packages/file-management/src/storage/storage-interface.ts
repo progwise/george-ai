@@ -1,5 +1,7 @@
 import { Readable } from 'stream'
 
+import { ExtractionMethod } from '@george-ai/app-commons'
+
 import { FileManifest, LibraryManifest, StorageUsage, WorkspaceManifest } from '../schemas'
 import { ExtractionMetadata } from '../schemas/extraction-metadata'
 
@@ -36,7 +38,7 @@ export interface IStorageService {
     args: {
       libraryId?: string
       fileId?: string
-      extractionMethod?: string
+      extractionMethod?: ExtractionMethod
     },
   ): Promise<boolean>
   // --- Workspace ---
@@ -72,14 +74,14 @@ export interface IStorageService {
     args: {
       libraryId: string
       fileId: string
-      extractionMethod: string
+      extractionMethod: ExtractionMethod
       splitFragmentPattern?: string
     },
   ): Promise<ExtractionWriter>
 
   readExtraction(
     workspaceId: string,
-    args: { libraryId: string; fileId: string; extractionMethod?: string | null; fragment?: number | null },
+    args: { libraryId: string; fileId: string; extractionMethod?: ExtractionMethod | null; fragment?: number | null },
   ): Promise<AsyncIterable<string>>
 
   getAttachmentFilePath(
@@ -87,19 +89,19 @@ export interface IStorageService {
     args: {
       libraryId: string
       fileId: string
-      extractionMethod: string
+      extractionMethod: ExtractionMethod
       attachmentFileName: string
     },
   ): Promise<string | null>
 
   readAttachment(
     workspaceId: string,
-    args: { libraryId: string; fileId: string; extractionMethod: string; filename: string },
+    args: { libraryId: string; fileId: string; extractionMethod: ExtractionMethod; filename: string },
   ): Promise<Readable>
 
   getExtraction(
     workspaceId: string,
-    args: { libraryId: string; fileId: string; extractionMethod: string },
+    args: { libraryId: string; fileId: string; extractionMethod: ExtractionMethod },
   ): Promise<ExtractionMetadata | null>
 
   deleteFiles(workspaceId: string, selector: { libraryId: string; fileId?: string }): Promise<void>

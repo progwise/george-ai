@@ -1,6 +1,8 @@
 import { constants, promises } from 'fs'
 import path from 'path'
 
+import { ExtractionMethod } from '@george-ai/app-commons/src/types/extraction'
+
 import { getExtractionDir } from './directories'
 
 export async function getAttachmentFilePath(
@@ -8,7 +10,7 @@ export async function getAttachmentFilePath(
   args: {
     libraryId: string
     fileId: string
-    extractionMethod: string
+    extractionMethod: ExtractionMethod
     attachmentFileName: string
   },
 ): Promise<string | null> {

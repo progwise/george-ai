@@ -33,7 +33,7 @@ describe('Create and read extractions with attachments', () => {
     const writer = await workspaceStorage.createExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction-with-attachment',
+      extractionMethod: 'textExtraction',
     })
 
     writer.write(extractionContent)
@@ -49,7 +49,7 @@ describe('Create and read extractions with attachments', () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction-with-attachment',
+      extractionMethod: 'textExtraction',
     })
 
     const contentChunks: Buffer[] = []
@@ -63,7 +63,7 @@ describe('Create and read extractions with attachments', () => {
     const attachmentReadStream = await workspaceStorage.readAttachment(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction-with-attachment',
+      extractionMethod: 'textExtraction',
       filename: 'attachment.txt',
     })
 
@@ -93,7 +93,7 @@ describe('Create and read extractions with attachments', () => {
     const writer = await workspaceStorage.createExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction-with-attachments-fragmented',
+      extractionMethod: 'htmlExtraction',
       splitFragmentPattern: '--fragment--',
     })
 
@@ -118,7 +118,7 @@ describe('Create and read extractions with attachments', () => {
     const fileInfo = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction-with-attachments-fragmented',
+      extractionMethod: 'htmlExtraction',
     })
 
     const contentChunks: Buffer[] = []
@@ -135,7 +135,7 @@ describe('Create and read extractions with attachments', () => {
       const attachmentReadStream = await workspaceStorage.readAttachment(TEST_WORKSPACE_ID, {
         libraryId: TEST_LIBRARY_ID,
         fileId: TEST_FILE_ID,
-        extractionMethod: 'text-extraction-with-attachments-fragmented',
+        extractionMethod: 'htmlExtraction',
         filename: `attachment${i}.txt`,
       })
 

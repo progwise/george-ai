@@ -1,9 +1,10 @@
 import { GraphQLError } from 'graphql'
 
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
-import { prisma } from '@george-ai/app-domain'
-import { encryptValue } from '@george-ai/web-utils'
+import { encryptValue } from '@george-ai/app-commons'
+import { ModelProviderInstance } from '@george-ai/event-service-client'
 
+import { prisma } from '../../../../app-database/src'
 import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
 import { builder } from '../builder'
 import { canAdminWorkspaceOrThrow, canReadWorkspaceOrThrow } from '../workspace'
@@ -301,18 +302,12 @@ builder.mutationField('restoreDefaultProviders', (t) =>
 
       const userId = context.session.user.id
       const workspaceId = context.workspaceId
-      const providersToCreate: Array<{
-        provider: string
-        name: string
-        baseUrl?: string
-        apiKey?: string
-        vramGb?: number
-      }> = []
+      const providersToCreate: Array<Omit<ModelProviderInstance, 'id'>> = []
 
       // Import OpenAI if configured
       if (OPENAI_API_KEY) {
         providersToCreate.push({
-          provider: 'openai',
+          modelProvider: 'openai',
           name: 'OpenAI',
           apiKey: OPENAI_API_KEY,
           baseUrl: OPENAI_BASE_URL,
@@ -322,11 +317,10 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       // Import all configured Ollama instances
       for (const instance of OLLAMA_INSTANCES) {
         providersToCreate.push({
-          provider: 'ollama',
+          modelProvider: 'ollama',
           name: instance.name,
           baseUrl: instance.baseUrl,
           apiKey: instance.apiKey,
-          vramGb: instance.vramGb,
         })
       }
 
@@ -340,7 +334,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
         const existing = await prisma.aiServiceProvider.findFirst({
           where: {
             workspaceId,
-            provider: providerData.provider,
+            provider: providerData.modelProvider,
             name: providerData.name,
           },
         })
@@ -351,11 +345,11 @@ builder.mutationField('restoreDefaultProviders', (t) =>
         }
 
         // For non-Ollama providers, disable others of same type before creating
-        if (providerData.provider !== 'ollama') {
+        if (providerData.modelProvider !== 'ollama') {
           await prisma.aiServiceProvider.updateMany({
             where: {
               workspaceId,
-              provider: providerData.provider,
+              provider: providerData.modelProvider,
               enabled: true,
             },
             data: {
@@ -370,12 +364,11 @@ builder.mutationField('restoreDefaultProviders', (t) =>
         const newProvider = await prisma.aiServiceProvider.create({
           data: {
             workspaceId,
-            provider: providerData.provider,
-            name: providerData.name,
+            provider: providerData.modelProvider,
+            name: providerData.name || `Unnamed ${providerData.modelProvider} Provider`,
             enabled: true,
             baseUrl: providerData.baseUrl,
             apiKey: encryptedApi,
-            vramGb: providerData.vramGb,
             createdBy: userId,
           },
         })

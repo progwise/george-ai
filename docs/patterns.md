@@ -355,7 +355,7 @@ setState((prev) => ({ ...prev, new }))  // Function updater
 Common string operations from `@george-ai/web-utils`:
 
 ```typescript
-import { formatFileSize, jsonArrayToString, parseCommaList } from '@george-ai/web-utils'
+import { formatFileSize, jsonArrayToString, parseCommaList } from '@george-ai/app-commons'
 
 formatFileSize(5242880) // "5" (MB)
 jsonArrayToString(['*.pdf', '*.docx']) // "*.pdf, *.docx"
@@ -697,7 +697,7 @@ export const addListFieldFn = createServerFn({ method: 'POST' })
 
 ```typescript
 import { useMutation } from '@tanstack/react-query'
-import { validateForm } from '@george-ai/web-utils'
+import { validateForm } from '@george-ai/app-commons'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { ListFieldFormInput, getListFieldFormSchema } from './field-modal'
 import { addListFieldFn } from './server-functions'

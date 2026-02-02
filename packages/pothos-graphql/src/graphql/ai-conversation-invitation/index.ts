@@ -1,6 +1,6 @@
-import { prisma } from '@george-ai/app-domain'
 import { sendMail } from '@george-ai/mailer'
 
+import { prisma } from '../../../../app-database/src'
 import { PUBLIC_APP_URL } from '../../global-config'
 import { builder } from '../builder'
 

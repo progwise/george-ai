@@ -18,6 +18,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@george-ai/app-commons": "workspace:*"
+  },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
     "@types/node": "^22.13.8",

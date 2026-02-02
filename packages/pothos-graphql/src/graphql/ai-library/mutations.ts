@@ -1,9 +1,9 @@
 import { GraphQLError } from 'graphql/error'
 
-import { prisma } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
-import { vectorStore } from '@george-ai/vector-store-client'
+import { vectorStore } from '@george-ai/vector-store'
 
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canWriteWorkspaceOrThrow } from '../workspace'
 

@@ -39,7 +39,7 @@ describe.sequential('HTML to Markdown', async () => {
       fileId: TEST_HTML_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'html-extraction',
+        extractionMethod: 'htmlExtraction',
       },
     })
   })
@@ -51,14 +51,14 @@ describe.sequential('HTML to Markdown', async () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'html-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'htmlExtraction')).toBeDefined()
   })
 
   it('should have the extraction metadata', async () => {
     const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_HTML_FILE_ID,
-      extractionMethod: 'html-extraction',
+      extractionMethod: 'htmlExtraction',
     })
 
     expect(extraction).toBeDefined()
@@ -69,7 +69,7 @@ describe.sequential('HTML to Markdown', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_HTML_FILE_ID,
-      extractionMethod: 'html-extraction',
+      extractionMethod: 'htmlExtraction',
     })
 
     expect(extractionReadStream).toBeDefined()

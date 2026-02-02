@@ -39,7 +39,7 @@ describe.sequential('Excel to Markdown', async () => {
       fileId: TEST_EXCEL_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'excel-extraction',
+        extractionMethod: 'excelExtraction',
       },
     })
   })
@@ -51,14 +51,14 @@ describe.sequential('Excel to Markdown', async () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'excel-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'excelExtraction')).toBeDefined()
   })
 
   it('should have the extraction metadata', async () => {
     const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_EXCEL_FILE_ID,
-      extractionMethod: 'excel-extraction',
+      extractionMethod: 'excelExtraction',
     })
 
     expect(extraction).toBeDefined()
@@ -69,7 +69,7 @@ describe.sequential('Excel to Markdown', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_EXCEL_FILE_ID,
-      extractionMethod: 'excel-extraction',
+      extractionMethod: 'excelExtraction',
     })
 
     expect(extractionReadStream).toBeDefined()

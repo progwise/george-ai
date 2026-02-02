@@ -1,7 +1,6 @@
 import fs from 'fs'
 
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { UPLOADS_PATH } from '../../global-config'
 
 export const checkAssistant = async (assistantId: string) => {

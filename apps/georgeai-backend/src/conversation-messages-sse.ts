@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 
+import { createLogger } from '@george-ai/app-commons'
 import { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from '@george-ai/pothos-graphql'
-import { createLogger } from '@george-ai/web-utils'
 
 const logger = createLogger('SSE')
 const eventIds = new Map<string, number>()

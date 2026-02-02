@@ -1,5 +1,4 @@
-import { Prisma } from '@george-ai/app-domain'
-
+import { Prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 console.log('Setting up: Decimal')

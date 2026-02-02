@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearch } from '@tanstack/react-router'
 
+import { ProcessFilesInput } from '../../../gql/graphql'
+import { ProcessFileInput } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
+import { logger } from '../common'
 import { deleteLibraryFileFn, deleteLibraryFilesFn, dropAllLibraryFilesFn } from '../server-functions/delete-files'
-import { createContentProcessingTasksFn, triggerEmbeddingFilesFn } from '../server-functions/processing'
-import { getProcessingTasksQueryOptions } from '../tasks/get-tasks'
+import { processFileFn, processFilesFn } from '../server-functions/processing'
 import { cancelFileUploadFn, prepareDesktopFileUploadsFn } from './file-upload'
 import { getFileChunksQueryOptions } from './get-file-chunks'
 import { getFileInfoQueryOptions } from './get-file-info'
@@ -32,9 +34,6 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
           )
         : []),
       queryClient.invalidateQueries({
-        queryKey: getProcessingTasksQueryOptions({ libraryId }).queryKey,
-      }),
-      queryClient.invalidateQueries({
         queryKey: aiLibraryFilesQueryOptions({
           libraryId,
           skip: skip || 0,
@@ -44,32 +43,32 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
       }),
     ])
   }
-  const { mutate: createEmbeddingTasksMutate, isPending: createEmbeddingTasksIsPending } = useMutation({
-    mutationFn: (fileIds: string[]) =>
-      triggerEmbeddingFilesFn({ data: fileIds.map((fileId) => ({ libraryId, fileId })) }),
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error ? error.message : t('errors.createEmbeddingTasks', { error: 'Unknown error', files: '' })
-      toastError(errorMessage)
+  const { mutate: processFilesMutate, isPending: processFilesMutateIsPending } = useMutation({
+    mutationFn: (data: ProcessFilesInput) => processFilesFn({ data }),
+    onError: (error, variables) => {
+      logger.error('Error processing files', { error, variables })
+      toastError(
+        `Error starting  ${variables.fileIds.length} processings: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     },
-    onSuccess: (data) => {
-      toastSuccess(t('actions.createEmbeddingTasksSuccess', { count: data.length }))
+    onSuccess: (_data, variables) => {
+      toastSuccess(`Successfully started ${variables.fileIds.length} file processings`)
     },
     onSettled: () => {
       invalidateQueries()
     },
   })
-  const { mutate: createExtractionTasksMutate, isPending: createExtractionsTasksIsPending } = useMutation({
-    mutationFn: (fileIds: string[]) => createContentProcessingTasksFn({ data: { libraryId, fileIds } }),
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : t('errors.createExtractionTasks', { error: 'Unknown error', files: '' })
-      toastError(errorMessage)
+
+  const { mutate: processFileMutate, isPending: processFileMutateIsPending } = useMutation({
+    mutationFn: (data: ProcessFileInput) => processFileFn({ data }),
+    onError: (error, variables) => {
+      logger.error('Error processing file', { error, variables })
+      toastError(
+        `Error starting  ${variables.actionType} processing for file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     },
-    onSuccess: (data) => {
-      toastSuccess(t('actions.createExtractionTasksSuccess', { count: data.length }))
+    onSuccess: (_data, variables) => {
+      toastSuccess(`Successfully started ${variables.actionType} for file`)
     },
     onSettled: () => {
       invalidateQueries()
@@ -143,16 +142,16 @@ export const useFileActions = ({ libraryId }: { libraryId: string }) => {
   })
 
   return {
-    createEmbeddingTasks: createEmbeddingTasksMutate,
-    createExtractionTasks: createExtractionTasksMutate,
+    processFile: processFileMutate,
+    processFiles: processFilesMutate,
     dropFile: dropFileMutate,
     dropFiles: dropFilesMutate,
     dropAllFiles: dropAllFilesMutate,
     prepareDesktopFileUploads: prepareDesktopFileUploadsMutate,
     cancelFileUpload: cancelFileUploadMutate,
     fileActionPending:
-      createEmbeddingTasksIsPending ||
-      createExtractionsTasksIsPending ||
+      processFileMutateIsPending ||
+      processFilesMutateIsPending ||
       dropFilePending ||
       dropAllFilesIsPending ||
       dropFilesIsPending ||

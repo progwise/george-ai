@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'

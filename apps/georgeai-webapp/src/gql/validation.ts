@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import {
+  ActionType,
   AiAssistantInput,
   AiAutomationInput,
   AiBaseCaseInputType,
@@ -28,18 +29,19 @@ import {
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
-  EmbeddingRequestInput,
-  EmbeddingStatus,
   EnrichmentStatus,
   EventProcessingStatus,
-  ExtractionStatus,
+  ExtractionMethod,
   LibrarySortOrder,
   ListFieldContextType,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
-  ProcessType,
-  ProcessingStatus,
+  ModelCallType,
+  ModelProvider,
+  ProcessFileInput,
+  ProcessFilesInput,
+  ProviderHealthStatus,
   QueueType,
   TestProviderConnectionInput,
   TriggerType,
@@ -59,6 +61,8 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
+export const ActionTypeSchema = z.nativeEnum(ActionType)
+
 export const AiLibraryFileSortOrderSchema = z.nativeEnum(AiLibraryFileSortOrder)
 
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
@@ -73,13 +77,11 @@ export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
 export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
 
-export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
-
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const EventProcessingStatusSchema = z.nativeEnum(EventProcessingStatus)
 
-export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
+export const ExtractionMethodSchema = z.nativeEnum(ExtractionMethod)
 
 export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
 
@@ -91,9 +93,11 @@ export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 
 export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 
-export const ProcessTypeSchema = z.nativeEnum(ProcessType)
+export const ModelCallTypeSchema = z.nativeEnum(ModelCallType)
 
-export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
+export const ModelProviderSchema = z.nativeEnum(ModelProvider)
+
+export const ProviderHealthStatusSchema = z.nativeEnum(ProviderHealthStatus)
 
 export const QueueTypeSchema = z.nativeEnum(QueueType)
 
@@ -300,11 +304,19 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
   })
 }
 
-export function EmbeddingRequestInputSchema(): z.ZodObject<Properties<EmbeddingRequestInput>> {
+export function ProcessFileInputSchema(): z.ZodObject<Properties<ProcessFileInput>> {
   return z.object({
-    extractionMethod: z.string().nullish(),
-    fileFragmentIndex: z.number().nullish(),
+    actionType: ActionTypeSchema,
     fileId: z.string(),
+    fragment: z.number().nullish(),
+    libraryId: z.string(),
+  })
+}
+
+export function ProcessFilesInputSchema(): z.ZodObject<Properties<ProcessFilesInput>> {
+  return z.object({
+    actionType: ActionTypeSchema,
+    fileIds: z.array(z.string()),
     libraryId: z.string(),
   })
 }

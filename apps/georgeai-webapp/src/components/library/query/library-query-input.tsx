@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
-import { debounce } from '@george-ai/web-utils'
+import { debounce } from '@george-ai/app-commons'
 
 interface LibraryQueryInputProps {
   libraryName: string

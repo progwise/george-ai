@@ -1,6 +1,6 @@
 import { createShopwareConfig, createWeclappConfig, genericRestTemplate } from '@george-ai/api-crawler'
-import { prisma } from '@george-ai/app-domain'
 
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'
 

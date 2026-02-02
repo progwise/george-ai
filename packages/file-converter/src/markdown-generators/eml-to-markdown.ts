@@ -133,7 +133,7 @@ export async function emlToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'eml-extraction',
+    extractionMethod: 'emlExtraction',
   })
 
   try {

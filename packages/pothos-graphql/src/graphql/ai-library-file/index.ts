@@ -1,7 +1,6 @@
-import { prisma } from '@george-ai/app-domain'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 
-import { BACKEND_PUBLIC_URL } from '../../global-config'
+import { prisma } from '../../../../app-database/src'
 import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 
@@ -12,18 +11,14 @@ import './mutations'
 
 import { GraphQLError } from 'graphql/error'
 
-import { workspaceStorage } from '@george-ai/file-management'
+import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+import { ExtractionMetadata, workspaceStorage } from '@george-ai/file-management'
+import { vectorStore } from '@george-ai/vector-store'
 
+import { FileInfo } from '../file-info'
 import { logger } from './common'
 
 console.log('Setting up: AiLibraryFile')
-
-const SourceFileLink = builder.objectRef<{ fileName: string; url: string }>('SourceFileLink').implement({
-  fields: (t) => ({
-    fileName: t.exposeString('fileName', { nullable: false }),
-    url: t.exposeString('url', { nullable: false }),
-  }),
-})
 
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -45,26 +40,39 @@ builder.prismaObject('AiLibraryFile', {
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
-    sourceFile: t.withAuth({ isLoggedIn: true }).field({
-      type: [SourceFileLink],
-      nullable: { list: false, items: false },
+    chunksCount: t.withAuth({ isLoggedIn: true }).field({
+      type: 'Int',
+      nullable: true,
+      resolve: async (file, _args, { workspaceId }) => {
+        try {
+          return await vectorStore.getChunkCount({
+            workspaceId,
+            libraryId: file.libraryId,
+            fileId: file.id,
+          })
+        } catch (error) {
+          logger.error('Error fetching file chunks count', {
+            error,
+            workspaceId,
+            fileId: file.id,
+            libraryId: file.libraryId,
+          })
+          throw new GraphQLError('Failed to fetch file chunks count', { originalError: error as Error })
+        }
+      },
+    }),
+    fileInfo: t.withAuth({ isLoggedIn: true }).field({
+      type: FileInfo,
+      nullable: true,
       resolve: async (file, _args, { workspaceId }) => {
         const fileInfo = await workspaceStorage.getFile(workspaceId, {
           libraryId: file.libraryId,
           fileId: file.id,
         })
-        if (!fileInfo) {
-          throw new GraphQLError(`File not found in storage: ${file.id}`)
-        }
-        return [
-          {
-            fileName: fileInfo.fileName,
-            url: BACKEND_PUBLIC_URL + `/library-files/${file.libraryId}/${file.id}?filename=${fileInfo.fileName}`,
-          },
-        ]
+        return fileInfo
       },
     }),
-    availableExtractions: t.withAuth({ isLoggedIn: true }).field({
+    extractions: t.withAuth({ isLoggedIn: true }).field({
       type: [ExtractionInfo],
       nullable: { list: false, items: false },
       description: 'Available extractions for this file (e.g., CSV, PDF with different models)',
@@ -84,20 +92,17 @@ builder.prismaObject('AiLibraryFile', {
         }
 
         const extractionInfos = await Promise.all(
-          fileInfo.extractions.map(async (extraction) => ({
-            ...(await workspaceStorage.getExtraction(workspaceId, {
+          fileInfo.extractions.map(async (extraction) =>
+            workspaceStorage.getExtraction(workspaceId, {
               libraryId: file.libraryId,
               fileId: file.id,
               extractionMethod: extraction.extractionMethod,
-            })),
-            ...extraction,
-            ...fileInfo,
-            ...{ fileId: file.id, libraryId: file.libraryId },
-          })),
+            }),
+          ),
         )
 
         // Add mainFileUrl to each extraction
-        return extractionInfos
+        return extractionInfos.filter((info): info is ExtractionMetadata => info !== null)
       },
     }),
     supportedExtractionMethods: t.field({
@@ -106,6 +111,50 @@ builder.prismaObject('AiLibraryFile', {
       resolve: (file) => {
         const supportedMethods = getAvailableMethodsForMimeType(file.mimeType)
         return supportedMethods.map((method) => method.name)
+      },
+    }),
+    embeddingInfo: t.withAuth({ isLoggedIn: true }).field({
+      type: [
+        builder.simpleObject('FileEmbeddingInfo', {
+          description: 'Information about embeddings available for a file',
+          fields: (t) => ({
+            extractionMethod: t.field({ type: 'ExtractionMethod', nullable: false }),
+            modelName: t.string({ nullable: false }),
+            chunkCount: t.int({ nullable: false }),
+          }),
+        }),
+      ],
+      nullable: { list: false, items: false },
+      resolve: async (file, _args, { workspaceId }) => {
+        try {
+          const modelNames = await vectorStore.getEmbeddingModelNames(workspaceId)
+
+          const result = EXTRACTION_METHODS.flatMap((extractionMethod) =>
+            modelNames.map(async (modelName) => {
+              const chunkCount = await vectorStore.getChunkCount({
+                workspaceId,
+                libraryId: file.libraryId,
+                fileId: file.id,
+                extractionMethod,
+                modelName,
+              })
+              return {
+                extractionMethod,
+                modelName,
+                chunkCount,
+              }
+            }),
+          )
+          return result
+        } catch (error) {
+          logger.error('Error fetching file embeddings info', {
+            error,
+            workspaceId,
+            fileId: file.id,
+            libraryId: file.libraryId,
+          })
+          throw new GraphQLError('Failed to fetch file embeddings info', { originalError: error as Error })
+        }
       },
     }),
     crawler: t.relation('crawledByCrawler', { nullable: true }),

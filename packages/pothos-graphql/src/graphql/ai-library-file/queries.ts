@@ -1,7 +1,9 @@
-import { prisma } from '@george-ai/app-domain'
+import { GraphQLError } from 'graphql/error'
 
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'
+import { logger } from './common'
 
 console.log('Setting up: AiLibraryFile Queries')
 
@@ -91,11 +93,14 @@ builder.queryField('aiLibraryFile', (t) =>
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { fileId }, context) => {
-      const workspaceId = context.workspaceId
-      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
-      const file = await prisma.aiLibraryFile.findFirstOrThrow({ ...query, where: { id: fileId } })
-      return file
+    resolve: async (query, _parent, { fileId }, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      try {
+        return await prisma.aiLibraryFile.findFirstOrThrow({ ...query, where: { id: fileId } })
+      } catch (error) {
+        logger.error('Error fetching AiLibraryFile', { workspaceId, fileId, error })
+        throw new GraphQLError('AiLibraryFile not found')
+      }
     },
   }),
 )

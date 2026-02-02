@@ -1,6 +1,7 @@
-import { prisma } from '@george-ai/app-domain'
-import { getFileChunkCount } from '@george-ai/langchain-chat'
+import { ExtractionMethod, getExtractionMethod } from '@george-ai/app-commons'
+import { vectorStore } from '@george-ai/vector-store'
 
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canReadWorkspaceOrThrow } from '../workspace'
 
@@ -9,12 +10,12 @@ console.log('Setting up: AiLibraryFile FileUsages')
 interface FileUsageType {
   id: string
   fileId: string
+  extractionMethod: ExtractionMethod
   libraryId: string
   listId: string
   listName: string
   itemName: string
-  extractionIndex: number | null
-  createdAt: Date
+  fragment: number | null
 }
 
 const FileUsage = builder.objectRef<FileUsageType>('FileUsage').implement({
@@ -23,13 +24,15 @@ const FileUsage = builder.objectRef<FileUsageType>('FileUsage').implement({
     listId: t.exposeString('listId', { nullable: false }),
     listName: t.exposeString('listName', { nullable: false }),
     itemName: t.exposeString('itemName', { nullable: false }),
-    extractionIndex: t.exposeInt('extractionIndex', { nullable: true }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    chunkCount: t.field({
+    fragment: t.exposeInt('fragment', { nullable: true }),
+    extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: false }),
+    fileId: t.exposeString('fileId', { nullable: false }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    chunkCount: t.withAuth({ isLoggedIn: true }).field({
       type: 'Int',
       nullable: false,
-      resolve: async ({ libraryId, fileId, extractionIndex }) => {
-        const count = await getFileChunkCount(libraryId, fileId, extractionIndex || undefined)
+      resolve: async ({ libraryId, fileId, fragment }, _args, { workspaceId }) => {
+        const count = await vectorStore.getChunkCount({ workspaceId, libraryId, fileId, fragment }) // getFileChunkCount(libraryId, fileId, fragment || undefined)
         return count
       },
     }),
@@ -84,16 +87,16 @@ builder.queryField('aiFileUsages', (t) =>
       // Query list items with pagination
       const [count, items] = await prisma.$transaction([
         prisma.aiListItem.count({
-          where: { sourceFileId: fileId },
+          where: { fileId: fileId },
         }),
         prisma.aiListItem.findMany({
-          where: { sourceFileId: fileId },
+          where: { fileId: fileId },
           include: {
             list: { select: { id: true, name: true } },
           },
           skip,
           take,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { file: { createdAt: 'desc' } },
         }),
       ])
 
@@ -107,13 +110,13 @@ builder.queryField('aiFileUsages', (t) =>
         take,
         usages: items.map((item) => ({
           id: item.id,
-          fileId: item.sourceFileId,
+          fileId: item.fileId,
           libraryId: file.libraryId,
           listId: item.listId,
           listName: item.list.name,
           itemName: item.itemName,
-          extractionIndex: item.extractionIndex,
-          createdAt: item.createdAt,
+          fragment: item.fragment,
+          extractionMethod: getExtractionMethod(item.extractionMethod),
         })),
       }
     },

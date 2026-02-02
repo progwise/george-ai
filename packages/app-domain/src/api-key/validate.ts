@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { prisma } from '../prisma'
+import { prisma } from '@george-ai/app-database/src/prisma'
 
 export interface ApiKeyValidationResult {
   userId: string
@@ -8,15 +8,9 @@ export interface ApiKeyValidationResult {
   apiKeyId: string
 }
 
-/**
- * Validate an API key and return associated user/library information
- * @param apiKey - The plain text API key from the Authorization header
- * @param libraryId - Optional library ID to validate against (if provided, key must match this library)
- * @returns User and library information if valid, null otherwise
- */
 export async function validateApiKey(parameters: {
   apiKey: string
-  libraryId?: string
+  libraryId: string
 }): Promise<ApiKeyValidationResult | null> {
   const { apiKey, libraryId } = parameters
   if (!apiKey || apiKey.length === 0) {

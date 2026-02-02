@@ -1,4 +1,4 @@
-import { prisma } from '../prisma'
+import { prisma } from '@george-ai/app-database/src/prisma'
 
 export const getUploadFileInfo = (parameters: { workspaceId: string; uploadToken: string }) => {
   const { uploadToken, workspaceId } = parameters

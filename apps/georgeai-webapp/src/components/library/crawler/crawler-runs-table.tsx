@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/app-commons'
 
 import { graphql } from '../../../gql'
 import { CrawlerRuns_CrawlerRunsTableFragment } from '../../../gql/graphql'

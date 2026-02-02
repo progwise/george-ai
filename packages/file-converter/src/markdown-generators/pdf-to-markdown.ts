@@ -40,7 +40,7 @@ export async function pdfToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'pdf-extraction',
+    extractionMethod: 'pdfExtraction',
   })
 
   try {

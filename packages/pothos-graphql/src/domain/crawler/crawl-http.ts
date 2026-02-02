@@ -1,7 +1,7 @@
-import { prisma } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
 import { crawlHtmlStream } from '@george-ai/html-crawler'
 
+import { prisma } from '../../../../app-database/src'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 

@@ -1,10 +1,14 @@
-import { getFileInfo } from './file-info'
 import { getUploadFileInfo, markUploadFinished } from './file-upload-info'
 import { getWorkspaceIdFromLibrary } from './get-by-library'
+import { getModelProvider } from './get-model-provider'
+import { processFile } from './process-file'
+import { processFiles } from './process-files'
 
 export default {
-  getFileInfo,
   getUploadFileInfo,
+  getModelProvider,
   getWorkspaceIdFromLibrary,
   markUploadFinished,
+  processFile,
+  processFiles,
 }

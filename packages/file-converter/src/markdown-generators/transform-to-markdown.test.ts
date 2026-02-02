@@ -38,7 +38,7 @@ describe.sequential('Convert to Markdown', () => {
       fileId: TEST_TEXT_FILE_ID,
       timeoutSignal: new AbortController().signal,
       options: {
-        extractionMethod: 'text-extraction',
+        extractionMethod: 'textExtraction',
       },
     })
   })
@@ -50,14 +50,14 @@ describe.sequential('Convert to Markdown', () => {
     })
 
     expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'text-extraction')).toBeDefined()
+    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'textExtraction')).toBeDefined()
   })
 
   it('should read the Markdown extraction', async () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_TEXT_FILE_ID,
-      extractionMethod: 'text-extraction',
+      extractionMethod: 'textExtraction',
     })
     expect(extractionReadStream).toBeDefined()
 

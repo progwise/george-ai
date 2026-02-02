@@ -2,7 +2,7 @@
  * Custom API Provider
  * Generic provider for user-configured APIs
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ApiProvider, CustomProviderConfig, FetchConfig, RawApiItem } from './types'
 

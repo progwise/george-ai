@@ -9,29 +9,12 @@ graphql(`
     size
     uploadedAt
     archivedAt
-    taskCount
     status
+    chunksCount
     crawler {
       id
       uri
       uriType
-    }
-    lastSuccessfulExtraction {
-      id
-      createdAt
-      extractionStartedAt
-      extractionFinishedAt
-      processingStatus
-      metadata
-    }
-    lastSuccessfulEmbedding {
-      id
-      createdAt
-      embeddingStartedAt
-      embeddingFinishedAt
-      processingStatus
-      metadata
-      chunksCount
     }
   }
 `)
@@ -49,9 +32,7 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <dt>{t('labels.status')}</dt>
       <dd>{file.status}</dd>
       <dt>{t('labels.chunks')}</dt>
-      <dd>{file.lastSuccessfulEmbedding?.chunksCount || 'unknown'}</dd>
-      <dt>{t('labels.tasks')}</dt>
-      <dd>{file.taskCount}</dd>
+      <dd>{file.chunksCount}</dd>
       <dt>{t('labels.crawler')}</dt>
       <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
       <dt>{t('labels.originModified')}</dt>

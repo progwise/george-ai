@@ -1,5 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { isAutomationWorkerRunning } from '../../worker-queue/automation-queue-worker'
 import { isEnrichmentWorkerRunning } from '../../worker-queue/enrichment-queue-worker'
 import { builder } from '../builder'

@@ -5,6 +5,8 @@ import { Readable } from 'node:stream'
 import { finished } from 'node:stream/promises'
 import { pipeline } from 'node:stream/promises'
 
+import { ExtractionMethod } from '@george-ai/app-commons'
+
 import { AttachmentMetadata, ExtractionMetadata } from '../../schemas/extraction-metadata'
 import { FileManifest } from '../../schemas/file-manifest'
 import { ExtractionWriter } from '../storage-interface'
@@ -16,7 +18,7 @@ import { fileUsageUpdate } from './usage-update'
 interface ExtractionWriterArgs {
   libraryId: string
   fileId: string
-  extractionMethod: string
+  extractionMethod: ExtractionMethod
   splitFragmentPattern?: string
 }
 
@@ -96,7 +98,7 @@ interface WriterContext {
   workspaceId: string
   libraryId: string
   fileId: string
-  extractionMethod: string
+  extractionMethod: ExtractionMethod
   tempDir: string
   finalDir: string
   attachmentsDir: string

@@ -1,4 +1,4 @@
-import type { Prisma } from '@george-ai/app-domain'
+import type { Prisma } from '../../../../app-database/src'
 
 export * from './filter'
 export * from './item-extraction'
@@ -32,7 +32,7 @@ export type FieldContextType = (typeof LIST_FIELD_CONTEXT_TYPES)[number]
 export type ListItemWithRelations = Prisma.AiListItemGetPayload<{
   include: {
     cache: true
-    sourceFile: {
+    file: {
       include: {
         crawledByCrawler: { select: { uri: true } }
         library: { select: { name: true } }
@@ -53,7 +53,7 @@ export function getFieldValue(
     }
   }>,
 ): { value: string | null; errorMessage: string | null; failedEnrichmentValue: string | null } {
-  const file = item.sourceFile
+  const file = item.file
 
   // Handle file property fields - these don't have enrichment errors
   if (field.sourceType === 'file_property' && field.fileProperty) {

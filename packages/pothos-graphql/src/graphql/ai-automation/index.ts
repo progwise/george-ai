@@ -1,4 +1,3 @@
-import { prisma } from '@george-ai/app-domain'
 import type {
   ActionConfigValue,
   ActionFieldMapping,
@@ -7,6 +6,7 @@ import type {
 } from '@george-ai/connector-types'
 import { rawActionConfigSchema, transformValue } from '@george-ai/connector-types'
 
+import { prisma } from '../../../../app-database/src'
 import { getFieldValue } from '../../domain'
 import { builder } from '../builder'
 
@@ -152,7 +152,7 @@ builder.prismaObject('AiAutomationItem', {
           where: { id: item.listItemId },
           include: {
             cache: true,
-            sourceFile: {
+            file: {
               include: {
                 crawledByCrawler: { select: { uri: true } },
                 library: { select: { name: true } },
@@ -215,7 +215,7 @@ builder.prismaObject('AiAutomationItem', {
           where: { id: item.listItemId },
           include: {
             cache: true,
-            sourceFile: {
+            file: {
               include: {
                 crawledByCrawler: { select: { uri: true } },
                 library: { select: { name: true } },

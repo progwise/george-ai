@@ -1,18 +1,21 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
-import { ProcessType } from '../../../gql/graphql'
+import { ActionType } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const stopProcessingMutationDocument = graphql(`
-  mutation StopWorkspaceProcessing($processType: ProcessType!) {
-    stopEventProcessing(processType: $processType)
-  }
-`)
-
 export const stopProcessingFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { processType: ProcessType }) => data)
+  .inputValidator((data: { actionType: ActionType }) => data)
   .handler(async (ctx) => {
-    const result = await backendRequest(stopProcessingMutationDocument, { ...ctx.data })
+    const result = await backendRequest(
+      graphql(`
+        mutation StopWorkspaceProcessing($actionType: ActionType!) {
+          stopEventProcessing(actionType: $actionType) {
+            success
+          }
+        }
+      `),
+      { ...ctx.data },
+    )
     return result
   })

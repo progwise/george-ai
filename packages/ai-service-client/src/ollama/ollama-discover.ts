@@ -1,4 +1,4 @@
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ServiceProviderConfig } from '../types'
 import { getOllamaModels } from './ollama-api'

@@ -1,4 +1,4 @@
-import { checkLineRepetition, createLogger, getErrorObject } from '@george-ai/web-utils'
+import { checkLineRepetition, createLogger, getErrorObject } from '@george-ai/app-commons'
 
 import type { AIResponse, ChatOptions } from '../types.js'
 import { getChatResponseStream } from './ollama-api.js'

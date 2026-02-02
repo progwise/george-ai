@@ -1,7 +1,7 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import { ChatCompletionStreamChunk, Message } from '../common'
 

@@ -33,7 +33,7 @@ export async function htmlToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'html-extraction',
+    extractionMethod: 'htmlExtraction',
   })
 
   try {

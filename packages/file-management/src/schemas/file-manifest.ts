@@ -1,5 +1,7 @@
 import z from 'zod'
 
+import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+
 import { StorageUsageSchema } from './storage-usage-schema'
 
 export const FileManifestSchema = z.object({
@@ -16,7 +18,7 @@ export const FileManifestSchema = z.object({
 
   extractions: z.array(
     z.object({
-      extractionMethod: z.string(),
+      extractionMethod: z.enum(EXTRACTION_METHODS),
       extractionHash: z.string(),
       extractionDate: z.string(), // ISO date string
     }),

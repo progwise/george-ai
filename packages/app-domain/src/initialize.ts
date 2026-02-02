@@ -1,7 +1,7 @@
+import { prisma } from '@george-ai/app-database'
 import { workspaceConfig } from '@george-ai/event-service-client'
 
 import { logger } from './common'
-import { prisma } from './prisma'
 
 export const initializeAppDomain = async () => {
   const workspaces = await prisma.workspace.findMany({
@@ -20,14 +20,14 @@ export const initializeAppDomain = async () => {
         workspaceId: workspace.id,
         providerInstances: workspace.aiProviders.map((provider) => ({
           id: provider.id,
-          provider: provider.provider,
+          modelProvider: provider.provider,
           baseUrl: provider.baseUrl || undefined,
           apiKey: provider.apiKey || undefined,
         })),
         languageModels: workspace.languageModels.map((model) => ({
           id: model.id,
           name: model.name,
-          provider: model.provider,
+          modelProvider: model.provider,
           canDoEmbedding: model.canDoEmbedding,
           canDoChatCompletion: model.canDoChatCompletion,
           canDoVision: model.canDoVision,

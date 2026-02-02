@@ -2,7 +2,7 @@
  * Shopware 5 API Provider
  * Legacy Shopware e-commerce platform
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
 

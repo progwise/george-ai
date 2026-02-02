@@ -3,10 +3,7 @@ import { useState } from 'react'
 import { graphql } from '../../../gql'
 import { QueueSystemStatus_ManagementPanelFragment, QueueType } from '../../../gql/graphql'
 import { PlayIcon } from '../../../icons/play-icon'
-import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { StopIcon } from '../../../icons/stop-icon'
-import { StopProcessingIcon } from '../../../icons/stop-processing-icon'
-import { TrashIcon } from '../../../icons/trash-icon'
 import { ClientDate } from '../../client-date'
 import { useQueueManagementActions } from './use-queue-management-actions'
 
@@ -36,22 +33,12 @@ interface QueueManagementPanelProps {
 export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps) {
   const [selectedLibraryId, setSelectedLibraryId] = useState<string>('')
 
-  const {
-    startWorker,
-    stopWorker,
-    retryFailedTasks,
-    clearFailedTasks,
-    clearPendingTasks,
-    cancelContentProcessingTasks,
-    actionsPending,
-  } = useQueueManagementActions()
+  const { startWorker, stopWorker, actionsPending } = useQueueManagementActions()
 
   const getQueueDisplayName = (queueType: QueueType): string => {
     switch (queueType) {
       case QueueType.Enrichment:
         return 'Enrichment Queue'
-      case QueueType.ContentProcessing:
-        return 'Content Processing Queue'
       case QueueType.Automation:
         return 'Automation Queue'
       default: {
@@ -183,57 +170,7 @@ export function QueueManagementPanel({ queueStatus }: QueueManagementPanelProps)
               </div>
 
               {/* Queue Actions */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {/* Failed Task Actions */}
-                {queue.failedTasks > 0 && (
-                  <>
-                    <button
-                      className="btn btn-sm btn-warning"
-                      onClick={() => retryFailedTasks({ queueType: queue.queueType })}
-                      disabled={actionsPending}
-                      type="button"
-                    >
-                      <ReprocessIcon className="size-4" />
-                      Retry Failed ({queue.failedTasks})
-                    </button>
-                    <button
-                      className="btn btn-sm btn-error"
-                      onClick={() => clearFailedTasks({ queueType: queue.queueType })}
-                      disabled={actionsPending}
-                      type="button"
-                    >
-                      <TrashIcon className="size-4" />
-                      Clear Failed ({queue.failedTasks})
-                    </button>
-                  </>
-                )}
-
-                {/* Pending Task Actions */}
-                {queue.pendingTasks > 0 && (
-                  <button
-                    className="btn btn-outline btn-sm btn-warning"
-                    onClick={() => clearPendingTasks({ queueType: queue.queueType })}
-                    disabled={actionsPending}
-                    type="button"
-                  >
-                    <TrashIcon className="size-4" />
-                    Clear Pending ({queue.pendingTasks})
-                  </button>
-                )}
-
-                {/* Processing Task Actions - Only for Content Processing Queue */}
-                {queue.queueType === 'CONTENT_PROCESSING' && queue.processingTasks > 0 && (
-                  <button
-                    className="btn btn-outline btn-sm btn-error"
-                    onClick={() => cancelContentProcessingTasks({})}
-                    disabled={actionsPending}
-                    type="button"
-                  >
-                    <StopProcessingIcon className="size-4" />
-                    Cancel Processing ({queue.processingTasks})
-                  </button>
-                )}
-              </div>
+              <div className="mt-4 flex flex-wrap gap-2">{/* Failed Task Actions */}</div>
             </div>
           </div>
         ))}

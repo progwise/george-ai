@@ -4,25 +4,31 @@ import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+
+import { ExtractionSelector } from '../../../../../../components/library/files/extraction-selector'
 import { FileMarkdownViewer } from '../../../../../../components/library/files/file-markdown-viewer'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { MarkdownFileSelector } from '../../../../../../components/library/files/markdown-file-selector'
 import { useMarkdownDownload } from '../../../../../../components/library/files/use-markdown-download'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
+import { getBackendPublicUrlQueryOptions } from '../../../../../../queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
   component: RouteComponent,
   validateSearch: z.object({
-    markdownUrl: z.string().optional(),
-    part: z.coerce.number().optional(),
+    extractionMethod: z.enum(EXTRACTION_METHODS).optional(),
+    fragment: z.coerce.number().optional(),
   }),
-  loaderDeps: ({ search: { markdownUrl, part } }) => ({
-    markdownUrl,
-    part,
+  loaderDeps: ({ search: { extractionMethod, fragment } }) => ({
+    extractionMethod,
+    fragment,
   }),
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))
+    await Promise.all([
+      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
+      context.queryClient.ensureQueryData(getBackendPublicUrlQueryOptions()),
+    ])
   },
 })
 
@@ -30,7 +36,7 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { fileId, libraryId } = Route.useParams()
   const navigate = Route.useNavigate()
-  const { markdownUrl, part } = Route.useSearch()
+  const { extractionMethod, fragment } = Route.useSearch()
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
 
   const toggleViewMarkdownSource = () => {
@@ -40,23 +46,25 @@ function RouteComponent() {
     data: { aiLibraryFile },
   } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
 
+  const { data: BACKEND_PUBLIC_URL } = useSuspenseQuery(getBackendPublicUrlQueryOptions())
+
   // Check if there are no available extractions
-  const hasNoExtractions = !aiLibraryFile.availableExtractions || aiLibraryFile.availableExtractions.length === 0
+  const hasNoExtractions = !aiLibraryFile.extractions || aiLibraryFile.extractions.length === 0
 
   // Select the first available extraction by default
-  const selectedMarkdownUrl = markdownUrl || (aiLibraryFile.availableExtractions?.[0]?.mainFileUrl ?? undefined)
+  const selectedExtractionMethod = extractionMethod || (aiLibraryFile.extractions?.[0]?.extractionMethod ?? undefined)
 
   // Find the selected extraction for pagination
-  const selectedExtraction = aiLibraryFile.availableExtractions.find(
-    (extraction) => extraction.mainFileUrl === selectedMarkdownUrl,
+  const selectedExtraction = aiLibraryFile.extractions.find(
+    (extraction) => extraction.extractionMethod === selectedExtractionMethod,
   )
 
   // Build URL with part parameter if specified
-  let urlToLoad = selectedMarkdownUrl
-  if (part && selectedMarkdownUrl) {
+  let urlToLoad = `${BACKEND_PUBLIC_URL}/library-files/${libraryId}/${fileId}?extraction=${selectedExtractionMethod}`
+  if (fragment && selectedExtraction) {
     // Add part as query parameter to the main file URL
-    const url = new URL(selectedMarkdownUrl)
-    url.searchParams.set('part', part.toString())
+    const url = new URL(urlToLoad)
+    url.searchParams.set('fragment', fragment.toString())
     urlToLoad = url.toString()
   }
 
@@ -67,16 +75,18 @@ function RouteComponent() {
     <div className="flex h-full flex-col gap-2 bg-base-100">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MarkdownFileSelector
+          <ExtractionSelector
             file={aiLibraryFile}
-            selectedUrl={selectedMarkdownUrl}
-            onChange={(url) => navigate({ search: { markdownUrl: url || undefined } })}
+            selectedExtractionMethod={selectedExtraction?.extractionMethod}
+            onChange={(newExtractionMethod) =>
+              navigate({ search: { extractionMethod: newExtractionMethod || undefined } })
+            }
           />
-          {part && selectedExtraction && (
+          {fragment && selectedExtraction && (
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate({ search: { markdownUrl: selectedMarkdownUrl } })}
+              onClick={() => navigate({ search: { extractionMethod: selectedExtractionMethod } })}
             >
               ← Back to Summary
             </button>
@@ -95,24 +105,28 @@ function RouteComponent() {
         </div>
       </div>
 
-      {!part && selectedExtraction && selectedExtraction.isBucketed && (
+      {!fragment && selectedExtraction && selectedExtraction.hasFragments && (
         <div className="flex items-center justify-center">
           <Pagination
-            totalItems={selectedExtraction.totalParts}
+            totalItems={selectedExtraction.fragmentCount || 0}
             currentPage={1}
             itemsPerPage={1}
-            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
+            onPageChange={(page) =>
+              navigate({ search: { extractionMethod: selectedExtractionMethod, fragment: page } })
+            }
           />
         </div>
       )}
 
-      {part && selectedExtraction && selectedExtraction.isBucketed && (
+      {fragment && selectedExtraction && selectedExtraction.hasFragments && (
         <div className="flex items-center justify-center">
           <Pagination
-            totalItems={selectedExtraction.totalParts}
-            currentPage={part}
+            totalItems={selectedExtraction.fragmentCount || 0}
+            currentPage={fragment}
             itemsPerPage={1}
-            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
+            onPageChange={(page) =>
+              navigate({ search: { extractionMethod: selectedExtractionMethod, fragment: page } })
+            }
           />
         </div>
       )}

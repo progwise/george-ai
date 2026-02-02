@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { getMimeTypeFromFileName } from '@george-ai/web-utils'
+import { getMimeTypeFromFileName } from '@george-ai/app-commons'
 
 import { graphql } from '../../../gql'
 import { backendRequest, backendUpload } from '../../../server-functions/backend'
@@ -94,20 +94,6 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
       if (!uploadResponse.ok) {
         throw new Error(`Failed to upload file: ${file.name} (ID: ${file.id})`)
       }
-
-      return await backendRequest(
-        graphql(`
-          mutation processFile($libraryId: String!, $fileId: String!) {
-            createContentProcessingTask(libraryId: $libraryId, fileId: $fileId) {
-              id
-            }
-          }
-        `),
-        {
-          fileId: response.prepareFileUpload.id,
-          libraryId: ctx.data.libraryId,
-        },
-      )
     })
 
     const results = await Promise.allSettled(processFiles)

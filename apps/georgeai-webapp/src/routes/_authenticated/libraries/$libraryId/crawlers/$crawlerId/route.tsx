@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { dateString, timeString } from '@george-ai/web-utils'
+import { dateString, timeString } from '@george-ai/app-commons'
 
 import { CrawlersMenu } from '../../../../../../components/library/crawler/crawlers-menu'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'

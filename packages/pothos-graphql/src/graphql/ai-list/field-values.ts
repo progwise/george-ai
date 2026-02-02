@@ -1,6 +1,5 @@
-import type { Prisma } from '@george-ai/app-domain'
-import { prisma } from '@george-ai/app-domain'
-
+import type { Prisma } from '../../../../app-database/src'
+import { prisma } from '../../../../app-database/src'
 import { getFieldValue } from '../../domain'
 import {
   type AiListFilterType,
@@ -102,7 +101,7 @@ export const ListItemQueryResult = builder
   .objectRef<{
     item: Prisma.AiListItemGetPayload<{
       include: {
-        sourceFile: {
+        file: {
           include: {
             library: true
             crawledByCrawler: true
@@ -136,7 +135,7 @@ export const ListItemQueryResult = builder
         type: ListItemResult,
         nullable: false,
         resolve: (root) => {
-          return root.item.sourceFile
+          return root.item.file
         },
       }),
       values: t.field({
@@ -202,7 +201,7 @@ export const ListItemsQueryResult = builder
 
           const items = await prisma.aiListItem.findMany({
             include: {
-              sourceFile: {
+              file: {
                 include: {
                   library: true,
                   crawledByCrawler: true,

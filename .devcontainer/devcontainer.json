@@ -17,7 +17,8 @@
         "prisma.prisma",
         "vitest.explorer",
         "astro-build.astro-vscode",
-        "unifiedjs.vscode-mdx"
+        "unifiedjs.vscode-mdx",
+        "Anthropic.claude-code"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",
@@ -91,7 +92,7 @@
   // This can be used to network with other containers or with the host.
   "forwardPorts": [3000, 3001, 3003, 4321, 8090, 8108, 8180, 11245],
 
-  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i; curl -fsSL https://claude.ai/install.sh | bash",
+  "postCreateCommand": "pnpm config set global-bin-dir /home/node/.local/bin;pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i",
 
   "postStartCommand": "echo 'DevContainer started successfully'",
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { dateString, dateStringShort, dateTimeString, dateTimeStringShort, timeString } from '@george-ai/web-utils'
+import { dateString, dateStringShort, dateTimeString, dateTimeStringShort, timeString } from '@george-ai/app-commons'
 
 import { useTranslation } from '../i18n/use-translation-hook'
 

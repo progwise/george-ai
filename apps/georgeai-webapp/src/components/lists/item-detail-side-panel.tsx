@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { CrossIcon } from '../../icons/cross-icon'
+import { getBackendPublicUrlQueryOptions } from '../../queries'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { useMarkdownDownload } from '../library/files/use-markdown-download'
 import { ResizableHandle } from '../resizable-handle'
@@ -35,12 +36,12 @@ export const ItemDetailSidePanel = ({
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Fetch item details when panel opens
-  const { data, isLoading: isLoadingMeta } = useQuery({
+  const { data: item, isLoading: isLoadingMeta } = useQuery({
     ...getItemDetailQueryOptions(itemId),
     enabled: isOpen,
   })
 
-  const item = data
+  const { data: backendPublicUrl } = useQuery(getBackendPublicUrlQueryOptions())
 
   // Fetch markdown content from backend
   const {
@@ -49,7 +50,7 @@ export const ItemDetailSidePanel = ({
     progress,
     error,
   } = useMarkdownDownload({
-    url: item?.contentUrl,
+    url: backendPublicUrl && `${backendPublicUrl}/files/${libraryId}/${fileId}/items/${itemId}/content`,
   })
 
   // Close on escape key
@@ -69,8 +70,7 @@ export const ItemDetailSidePanel = ({
     setTimeout(() => setCopied(null), 2000)
   }
 
-  // Parse metadata JSON if available
-  const metadata = item?.metadata ? JSON.parse(item.metadata) : null
+  const extraction = item?.extractionInfo
 
   return (
     <>
@@ -137,28 +137,26 @@ export const ItemDetailSidePanel = ({
               </section>
 
               {/* Extraction Method */}
-              {item?.extraction && (
+              {extraction && (
                 <section aria-label="Extraction Method">
                   <h4 className="mb-2 font-semibold">Extraction Method</h4>
                   <div className="rounded-lg bg-base-200 p-3">
-                    <p className="font-mono text-base-content">{item.extraction.displayName}</p>
-                    {item.extraction.isBucketed &&
-                      item?.extractionIndex !== null &&
-                      item?.extractionIndex !== undefined && (
-                        <p className="mt-1 text-sm text-base-content/60">
-                          Part {item.extractionIndex + 1} of {item.extraction.totalParts}
-                        </p>
-                      )}
+                    <p className="font-mono text-base-content">{item.extractionMethod}</p>
+                    {extraction.hasFragments && item?.fragment !== null && item?.fragment !== undefined && (
+                      <p className="mt-1 text-sm text-base-content/60">
+                        Part {item.fragment + 1} of {extraction.fragmentCount}
+                      </p>
+                    )}
                   </div>
                 </section>
               )}
 
               {/* Extraction Index (fallback if no extraction info) */}
-              {!item?.extraction && item?.extractionIndex !== null && item?.extractionIndex !== undefined && (
+              {!extraction && !!item?.fragment && (
                 <section aria-label={t('lists.itemDetail.extractionIndex')}>
                   <h4 className="mb-2 font-semibold">{t('lists.itemDetail.extractionIndex')}</h4>
                   <div className="rounded-lg bg-base-200 p-3">
-                    <p className="font-mono text-base-content">{item.extractionIndex}</p>
+                    <p className="font-mono text-base-content">{item?.fragment}</p>
                   </div>
                 </section>
               )}
@@ -208,39 +206,6 @@ export const ItemDetailSidePanel = ({
                   )}
                 </div>
               </section>
-
-              {/* Metadata Section */}
-              {metadata && Object.keys(metadata).length > 0 && (
-                <section aria-label={t('lists.itemDetail.metadata')}>
-                  <div className="mb-2 flex items-center justify-between">
-                    <h4 className="font-semibold">{t('lists.itemDetail.metadata')}</h4>
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-xs"
-                      onClick={() => handleCopy(JSON.stringify(metadata, null, 2), 'metadata')}
-                      aria-label={t('lists.itemDetail.copy')}
-                    >
-                      <CopyIcon className="size-3" />
-                      {copied === 'metadata' ? t('lists.itemDetail.copied') : t('lists.itemDetail.copy')}
-                    </button>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto rounded-lg bg-base-200 p-3">
-                    <pre className="text-xs whitespace-pre-wrap text-base-content/80">
-                      {JSON.stringify(metadata, null, 2)}
-                    </pre>
-                  </div>
-                </section>
-              )}
-
-              {/* No metadata message */}
-              {!metadata && (
-                <section aria-label={t('lists.itemDetail.metadata')}>
-                  <h4 className="mb-2 font-semibold">{t('lists.itemDetail.metadata')}</h4>
-                  <div className="rounded-lg bg-base-200 p-3">
-                    <p className="text-base-content/50 italic">{t('lists.itemDetail.noMetadata')}</p>
-                  </div>
-                </section>
-              )}
             </>
           )}
         </div>

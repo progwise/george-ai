@@ -5,8 +5,8 @@ describe('fileConverterOptions', () => {
     const methods = getAvailableMethodsForMimeType('application/pdf')
 
     const methodNames = methods.map((m) => m.extractionMethod)
-    expect(methodNames).toContain('pdf-extraction')
-    expect(methodNames).toContain('text-extraction')
+    expect(methodNames).toContain('pdfExtraction')
+    expect(methodNames).toContain('textExtraction')
   })
   it('returns empty array for unsupported MIME type', () => {
     const methods = getAvailableMethodsForMimeType('application/unknown')
@@ -17,19 +17,19 @@ describe('fileConverterOptions', () => {
     expect(methods).toEqual([])
   })
   it('is text extraction available for application/pdf', () => {
-    const isAvailable = isMethodAvailableForMimeType('text-extraction', 'application/pdf')
+    const isAvailable = isMethodAvailableForMimeType('textExtraction', 'application/pdf')
     expect(isAvailable).toBe(true)
   })
-  it('is pdf-extraction available for application/pdf', () => {
-    const isAvailable = isMethodAvailableForMimeType('pdf-extraction', 'application/pdf')
+  it('is pdfExtraction available for application/pdf', () => {
+    const isAvailable = isMethodAvailableForMimeType('pdfExtraction', 'application/pdf')
     expect(isAvailable).toBe(true)
   })
-  it('is docx-extraction available for application/pdf', () => {
-    const isAvailable = isMethodAvailableForMimeType('docx-extraction', 'application/pdf')
+  it('is docxExtraction available for application/pdf', () => {
+    const isAvailable = isMethodAvailableForMimeType('docxExtraction', 'application/pdf')
     expect(isAvailable).toBe(false)
   })
-  it('is text-extraction available for null MIME type', () => {
-    const isAvailable = isMethodAvailableForMimeType('text-extraction', null)
+  it('is textExtraction available for null MIME type', () => {
+    const isAvailable = isMethodAvailableForMimeType('textExtraction', null)
     expect(isAvailable).toBe(false)
   })
 })

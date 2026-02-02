@@ -68,7 +68,7 @@ export async function csvToMarkdown(parameters: FileConverterParameters) {
   const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
     libraryId,
     fileId,
-    extractionMethod: 'csv-extraction',
+    extractionMethod: 'csvExtraction',
     splitFragmentPattern: '\n# ', // Split at each new top-level heading
   })
 

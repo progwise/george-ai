@@ -35,7 +35,7 @@ describe.sequential('Read and write extractions', () => {
     const writer = await workspaceStorage.createExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction',
+      extractionMethod: 'textExtraction',
     })
 
     writer.write(extractionContent)
@@ -49,7 +49,7 @@ describe.sequential('Read and write extractions', () => {
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction',
+      extractionMethod: 'textExtraction',
     })
     expect(extractionReadStream).toBeDefined()
 
@@ -65,12 +65,12 @@ describe.sequential('Read and write extractions', () => {
     const extractionManifest = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'text-extraction',
+      extractionMethod: 'textExtraction',
     })
     expect(extractionManifest).toBeDefined()
     expect(extractionManifest!.extractionFiles).toBe(1)
     expect(extractionManifest!.physicalFiles).toBe(2)
-    expect(extractionManifest!.extractionMethod).toBe('text-extraction')
+    expect(extractionManifest!.extractionMethod).toBe('textExtraction')
     expect(extractionManifest!.sourceHash).toBe(TEST_FILE_MANIFEST.sourceHash)
   })
 
@@ -133,7 +133,7 @@ If you encounter issues, check the logs.
     const writer = await workspaceStorage.createExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'fragmented-extraction',
+      extractionMethod: 'csvExtraction',
       splitFragmentPattern: '^#{1,2} ',
     })
 
@@ -157,7 +157,7 @@ If you encounter issues, check the logs.
     const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      extractionMethod: 'fragmented-extraction',
+      extractionMethod: 'csvExtraction',
     })
     expect(extractionReadStream).toBeDefined()
 
@@ -200,7 +200,7 @@ If you encounter issues, check the logs.
       workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
         libraryId: TEST_LIBRARY_ID,
         fileId: TEST_FILE_ID,
-        extractionMethod: 'text-extraction',
+        extractionMethod: 'textExtraction',
         fragment: 0,
       }),
     ).rejects.toThrow('Fragments are not available')
@@ -211,6 +211,7 @@ If you encounter issues, check the logs.
       workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
         libraryId: TEST_LIBRARY_ID,
         fileId: TEST_FILE_ID,
+        // @ts-expect-error Testing non-existent extraction method
         extractionMethod: 'non-existent-method',
       }),
     ).rejects.toThrow()

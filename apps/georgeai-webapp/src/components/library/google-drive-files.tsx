@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 
-import { debounce } from '@george-ai/web-utils'
+import { debounce } from '@george-ai/app-commons'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'

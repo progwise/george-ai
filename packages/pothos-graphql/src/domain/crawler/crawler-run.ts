@@ -1,5 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { parseFilterConfig } from '../file/file-filter'
 import { crawlApi } from './crawl-api'
 import { crawlBox } from './crawl-box'

@@ -15,7 +15,7 @@ export const useWorkerActions = () => {
   const startProcessingMutation = useMutation({
     mutationFn: startProcessingFn,
     onSuccess: (_data, variables) => {
-      toast.success(`Started processing: ${variables.data.processType}`)
+      toast.success(`Started processing: ${variables.data.actionType}`)
     },
     onError: (error) => {
       toast.error(`Failed to start processing: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -25,7 +25,7 @@ export const useWorkerActions = () => {
   const stopProcessingMutation = useMutation({
     mutationFn: stopProcessingFn,
     onSuccess: (_data, variables) => {
-      toast.success(`Stopped processing: ${variables.data.processType}`)
+      toast.success(`Stopped processing: ${variables.data.actionType}`)
     },
     onError: (error) => {
       toast.error(`Failed to stop processing: ${error instanceof Error ? error.message : 'Unknown error'}`)

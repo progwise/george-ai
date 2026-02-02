@@ -1,5 +1,7 @@
 import z from 'zod'
 
+import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+
 export const AttachmentMetadataSchema = z.object({
   filename: z.string(),
   size: z.number().int().nonnegative(),
@@ -10,8 +12,7 @@ export type AttachmentMetadata = z.infer<typeof AttachmentMetadataSchema>
 
 export const ExtractionMetadataSchema = z.object({
   version: z.literal(1),
-  extractionMethod: z.string(),
-  // CRITICAL: This allows us to check if the extraction is "stale"
+  extractionMethod: z.enum(EXTRACTION_METHODS),
   sourceHash: z.string(),
   extractedAt: z.string().datetime(),
   extractionFiles: z.number().int().nonnegative(),

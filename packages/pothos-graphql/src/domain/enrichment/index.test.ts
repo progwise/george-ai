@@ -277,6 +277,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiGenerationPrompt: 'Summarize this document',
           dataType: 'text',
           contextFields: [],
+          extractionMethod: 'textExtraction',
         },
       }
 
@@ -298,6 +299,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiGenerationPrompt: 'Summarize this document',
           dataType: 'text',
           contextFields: [{ fieldId: 'field2', fieldName: 'Title', value: 'Test Title', errorMessage: null }],
+          extractionMethod: 'textExtraction',
         },
       }
 
@@ -323,6 +325,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
           contextFields: [],
+          extractionMethod: 'textExtraction',
           contextVectorSearches: [
             {
               queryTemplate: '{{title}} specifications',
@@ -357,6 +360,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
           contextFields: [],
+          extractionMethod: 'textExtraction',
           contextWebFetches: [
             {
               urlTemplate: 'https://example.com/{{productId}}',
@@ -387,6 +391,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiModelName: 'llama3.2',
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
+          extractionMethod: 'textExtraction',
           contextFields: [{ fieldId: 'field2', fieldName: 'Title', value: 'Test', errorMessage: null }],
           contextVectorSearches: [{ queryTemplate: '{{title}}', maxChunks: 5, maxDistance: 0.5 }],
           contextWebFetches: [{ urlTemplate: 'https://example.com/{{id}}', maxContentTokens: 1000 }],
@@ -472,6 +477,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiModelName: 'llama3.2',
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
+          extractionMethod: 'textExtraction',
           contextFields: [],
           contextVectorSearches: [
             {
@@ -500,6 +506,8 @@ describe('EnrichmentMetadataSchema', () => {
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
           contextFields: [],
+          extractionMethod: 'textExtraction',
+
           // contextVectorSearches and contextWebFetches are optional
         },
       }
@@ -521,6 +529,7 @@ describe('EnrichmentMetadataSchema', () => {
           aiModelName: 'llama3.2',
           aiGenerationPrompt: 'Summarize',
           dataType: 'text',
+          extractionMethod: 'textExtraction',
           contextFields: [
             { fieldId: 'field2', fieldName: 'Title', value: null, errorMessage: null },
             { fieldId: 'field3', fieldName: 'Description', value: 'Test', errorMessage: 'Enrichment failed' },

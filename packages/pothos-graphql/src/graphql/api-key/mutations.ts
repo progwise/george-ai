@@ -1,6 +1,5 @@
-import { prisma } from '@george-ai/app-domain'
-import { apiKey } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
+import { apiKey } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canAdminWorkspaceOrThrow } from '../workspace'
 

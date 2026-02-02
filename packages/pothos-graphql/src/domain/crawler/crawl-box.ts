@@ -1,9 +1,9 @@
 import { Readable } from 'node:stream'
 
-import { prisma } from '@george-ai/app-domain'
+import { getMimeTypeFromExtension } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
-import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
+import { prisma } from '../../../../app-database/src'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
 import { CrawledFileInfo } from './crawled-file-info'

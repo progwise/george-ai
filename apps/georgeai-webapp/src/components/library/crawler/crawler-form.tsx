@@ -11,7 +11,7 @@ import {
   SMB_URI_PATTERN,
   formatJson,
   jsonArrayToString,
-} from '@george-ai/web-utils'
+} from '@george-ai/app-commons'
 
 import { graphql } from '../../../gql'
 import { CrawlerForm_CrawlerFragment, CrawlerUriType } from '../../../gql/graphql'

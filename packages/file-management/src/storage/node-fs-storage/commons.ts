@@ -1,7 +1,7 @@
 import path from 'node:path'
 import pLimit from 'p-limit'
 
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 export const logger = createLogger('file-management:node-fs-storage')
 

@@ -1,15 +1,9 @@
 import { eventClient } from '../client'
-import {
-  ACTION_TYPES,
-  EXTRACTION_METHODS,
-  WORKSPACE_PROCESSING_STREAM_SUBJECTS,
-  WORKSPACE_STREAM_NAME,
-  getReplySubject,
-} from './common'
+import { ACTION_TYPES, WORKSPACE_PROCESSING_STREAM_SUBJECTS, WORKSPACE_STREAM_NAME, getReplySubject } from './common'
 import { deleteWorkspaceProcessingConsumers, ensureWorkspaceConsumer, ensureWorkspaceConsumers } from './consumers'
 import { EVENT_PROCESSING_STATUS, processingStatus, startProcessing, stopProcessing } from './controller'
 import { publishActionEvent, publishStatusEvent } from './publish'
-import { EventSchemas } from './schema'
+import { ActionEventSchema, EventSchemas } from './schema'
 import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statistics'
 import { subscribeEvent } from './subscribe'
 
@@ -24,6 +18,7 @@ export const initializeWorkspaceProcessingStream = async () => {
 }
 
 export type * from './schema'
+export type * from './common'
 
 export default {
   stopProcessing,
@@ -39,7 +34,7 @@ export default {
   getWorkspaceProcessStatistics,
   getWorkspaceStatistics,
   EventSchemas,
+  ActionEventSchema,
   ACTION_TYPES,
   EVENT_PROCESSING_STATUS,
-  EXTRACTION_METHODS,
 }

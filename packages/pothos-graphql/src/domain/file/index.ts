@@ -1,7 +1,7 @@
-import { prisma } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
-import { vectorStore } from '@george-ai/vector-store-client'
+import { vectorStore } from '@george-ai/vector-store'
 
+import { prisma } from '../../../../app-database/src'
 import { logger } from './common'
 
 export const dropAllLibraryFiles = async (args: { workspaceId: string; libraryId: string }) => {

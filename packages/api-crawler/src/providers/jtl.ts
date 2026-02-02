@@ -2,7 +2,7 @@
  * JTL-Wawi API Provider
  * German e-commerce and warehouse management system
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
 

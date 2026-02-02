@@ -1,4 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '../../../../app-database/src'
 
 export interface WorkspaceMembershipInfo {
   workspaceId: string

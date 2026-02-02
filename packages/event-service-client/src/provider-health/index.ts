@@ -1,5 +1,6 @@
+import { ModelProvider } from '@george-ai/app-commons'
+
 import { eventClient } from '../client'
-import { ModelProvider } from '../model-provider'
 import { HEALTH_STATUS, PROVIDER_HEALTH_BUCKET_NAME, getKey, getWildcardKey } from './common'
 import { type ProviderHealth, ProviderHealthSchema } from './schema'
 

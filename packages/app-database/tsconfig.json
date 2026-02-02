@@ -1,0 +1,16 @@
+{
+  "extends": "@george-ai/package-configs/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["vitest/globals"]
+  },
+  "include": [
+    "src/**/*",
+    "prisma/generated/**/*",
+    "vite.config.ts",
+    "prisma.config.ts",
+    "../app-domain/src/context",
+    "../app-domain/src/api-key"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { safeJsonParse } from '@george-ai/web-utils'
+import { safeJsonParse } from '@george-ai/app-commons'
 
 import { ArrayIcon } from '../icons/array-icon'
 import { ObjectIcon } from '../icons/object-icon'

@@ -1,7 +1,7 @@
-import { prisma } from '@george-ai/app-domain'
-import type { ModelProvider } from '@george-ai/event-service-client'
+import type { ModelProvider } from '@george-ai/app-commons'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
+import { prisma } from '../../../../app-database/src'
 import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
 

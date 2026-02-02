@@ -1,7 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { deleteFile } from '../../domain'
 import { runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'

@@ -1,4 +1,4 @@
-import { Prisma, prisma } from '@george-ai/app-domain'
+import { Prisma, prisma } from '../../../../app-database/src'
 
 const QueryMode = Prisma.QueryMode
 
@@ -50,10 +50,10 @@ const getItemPropertyFilterWhere = (
     case 'name':
     case 'originUri':
     case 'mimeType':
-      return { sourceFile: { [field.fileProperty]: getFieldPropertyFilterExpression(filter) } }
+      return { file: { [field.fileProperty]: getFieldPropertyFilterExpression(filter) } }
     case 'source':
       return {
-        sourceFile: {
+        file: {
           library: {
             name: getFieldPropertyFilterExpression(filter),
           },
@@ -61,7 +61,7 @@ const getItemPropertyFilterWhere = (
       }
     case 'crawlerUrl':
       return {
-        sourceFile: {
+        file: {
           crawledByCrawler: {
             uri: getFieldPropertyFilterExpression(filter),
           },
@@ -75,7 +75,7 @@ const getItemPropertyFilterWhere = (
         throw new Error(`Invalid size value for filter: ${filter.value}`)
       }
       return {
-        sourceFile: {
+        file: {
           size:
             filter.filterType === 'is_empty'
               ? null
@@ -95,7 +95,7 @@ const getItemPropertyFilterWhere = (
         throw new Error(`Invalid date value for filter: ${filter.value}`)
       }
       return {
-        sourceFile: {
+        file: {
           originModificationDate:
             filter.filterType === 'is_empty'
               ? null

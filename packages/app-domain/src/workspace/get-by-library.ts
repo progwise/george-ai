@@ -1,4 +1,4 @@
-import { prisma } from '../prisma'
+import { prisma } from '@george-ai/app-database/src/prisma'
 
 export const getWorkspaceIdFromLibrary = async (parameters: { libraryId: string }) => {
   const { libraryId } = parameters

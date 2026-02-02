@@ -1,4 +1,4 @@
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 export const WORKSPACE_IDS = process.env.WORKSPACE_IDS || '*'
 export const WORKER_ID = `event-queue-worker-${process.pid}`

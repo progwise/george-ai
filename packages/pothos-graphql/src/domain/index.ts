@@ -10,3 +10,5 @@ export {
   getLibraryWorkspace,
   SYSTEM_WORKSPACE_ID,
 } from './workspace'
+
+// TODO: Cleanup old pothos-graphql domain implementations

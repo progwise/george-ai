@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
-import { Prisma } from '@george-ai/app-domain'
-
+import { Prisma } from '../../../../app-database/src'
 import { LIST_FIELD_SOURCE_TYPES, LIST_FIELD_TYPES } from '../list'
 
 export const EnrichmentStatusValues = ['pending', 'processing', 'completed', 'error', 'failed', 'canceled']
@@ -63,7 +62,9 @@ export const EnrichmentMetadataSchema = z.object({
       failureTerms: z.string().nullable().optional(),
       libraryId: z.string(),
       libraryName: z.string(),
-      itemExtractionIndex: z.number().nullable().optional(),
+      extractionMethod: z.string(),
+      fragmentHash: z.string().nullable().optional(),
+      fragment: z.number().nullable().optional(),
       aiModelId: z.string(),
       aiModelProvider: z.string().nullable().optional(),
       aiModelName: z.string(),
@@ -103,8 +104,6 @@ export const EnrichmentMetadataSchema = z.object({
       dataType: z.enum(LIST_FIELD_TYPES),
       libraryEmbeddingModel: z.string().optional(),
       libraryEmbeddingModelProvider: z.string().optional(),
-      // Item content loaded from file system at enrichment time (see readListItemContent)
-      itemMetadata: z.any().optional(),
     })
     .optional(),
   output: z
@@ -156,7 +155,7 @@ export const getEnrichmentTaskInputMetadata = ({
   validatedField: ValidatedListField
   item: Prisma.AiListItemGetPayload<{
     include: {
-      sourceFile: {
+      file: {
         include: {
           crawledByCrawler: { select: { id: true; uri: true } }
           library: { select: { id: true; name: true; embeddingModel: { select: { provider: true; name: true } } } }
@@ -183,16 +182,16 @@ export const getEnrichmentTaskInputMetadata = ({
         // Get value from file property
         switch (field.fileProperty) {
           case 'name':
-            value = item.sourceFile.name
+            value = item.file.name
             break
           case 'originUri':
-            value = item.sourceFile.originUri ?? null
+            value = item.file.originUri ?? null
             break
           case 'source':
-            value = item.sourceFile.library.name
+            value = item.file.library.name
             break
           case 'crawlerUri':
-            value = item.sourceFile.crawledByCrawler?.uri ?? null
+            value = item.file.crawledByCrawler?.uri ?? null
             break
           default:
             errorMessage = `Unknown file property: ${field.fileProperty}`
@@ -273,18 +272,18 @@ export const getEnrichmentTaskInputMetadata = ({
       ? { maxContentTokens: contextFullContent.maxContentTokens || 3000 }
       : undefined,
     dataType: validatedField.type,
-    libraryEmbeddingModel: item.sourceFile.library.embeddingModel?.name || undefined,
-    libraryEmbeddingModelProvider: item.sourceFile.library.embeddingModel?.provider || undefined,
-    fileId: item.sourceFile.id,
-    fileName: item.sourceFile.name,
-    itemExtractionIndex: item.extractionIndex,
+    libraryEmbeddingModel: item.file.library.embeddingModel?.name || undefined,
+    libraryEmbeddingModelProvider: item.file.library.embeddingModel?.provider || undefined,
+    fileId: item.file.id,
+    fileName: item.file.name,
+    fragment: item.fragment,
     fieldId: validatedField.id,
     fieldName: validatedField.name,
     failureTerms: validatedField.failureTerms,
-    libraryId: item.sourceFile.library.id,
-    libraryName: item.sourceFile.library.name,
-    // Item content loaded from file system at enrichment time (see readListItemContent)
-    itemMetadata: item.metadata || undefined,
+    libraryId: item.file.library.id,
+    libraryName: item.file.library.name,
+    extractionMethod: item.extractionMethod,
+    fragmentHash: item.fragmentHash,
   }
 }
 

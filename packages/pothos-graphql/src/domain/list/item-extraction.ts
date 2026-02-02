@@ -1,6 +1,6 @@
-import { prisma } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
 
+import { prisma } from '../../../../app-database/src'
 import { syncAutomationItemsForList } from '../automation'
 import { logger } from '../file/common'
 
@@ -26,7 +26,7 @@ async function createListItemsForFile({
 }): Promise<number> {
   // Check if items already exist for this file/source combination
   const existingItemCount = await tx.aiListItem.count({
-    where: { sourceId, sourceFileId: fileId },
+    where: { sourceId, fileId },
   })
 
   // Skip if items already exist
@@ -62,11 +62,8 @@ async function createListItemsForFile({
           {
             listId,
             sourceId,
-            sourceFileId: fileId,
+            fileId,
             itemName: `${fileName}_${extraction.extractionMethod}`,
-            metadata: {
-              extractionMethod: extraction.extractionMethod,
-            },
           },
         ],
         skipDuplicates: true,
@@ -78,12 +75,9 @@ async function createListItemsForFile({
         data: Array.from({ length: fragmentCount }, (_, index) => ({
           listId,
           sourceId,
-          sourceFileId: fileId,
-          extractionIndex: index + 1,
+          fileId,
+          fragmentCount: index + 1,
           itemName: `${fileName} - Fragment ${index + 1}`,
-          metadata: {
-            extractionMethod: extraction.extractionMethod,
-          },
         })),
         skipDuplicates: true,
       })

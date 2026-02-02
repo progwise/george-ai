@@ -1,6 +1,8 @@
 import { constants, createReadStream, promises } from 'node:fs'
 import path from 'node:path'
 
+import { ExtractionMethod } from '@george-ai/app-commons/src/types/extraction'
+
 import { lineSplitter, logger } from './commons'
 import { getExtractionDir } from './directories'
 import { getFile } from './get-file'
@@ -13,7 +15,7 @@ export async function readExtraction(
   args: {
     libraryId: string
     fileId: string
-    extractionMethod?: string | null
+    extractionMethod?: ExtractionMethod | null
     fragment?: number | null
   },
 ): Promise<AsyncIterable<string>> {
@@ -55,7 +57,7 @@ export async function readSingleExtraction(
   args: {
     libraryId: string
     fileId: string
-    extractionMethod: string
+    extractionMethod: ExtractionMethod
     fragment?: number | null
   },
 ): Promise<AsyncIterable<string>> {

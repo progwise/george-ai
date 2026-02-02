@@ -1,11 +1,11 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
-import { Prisma } from '@george-ai/app-domain'
-import { prisma } from '@george-ai/app-domain'
+import { createLogger } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
-import { createLogger } from '@george-ai/web-utils'
 
+import { Prisma } from '../../../app-database/src'
+import { prisma } from '../../../app-database/src'
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getLibraryWorkspace } from '../domain/workspace'
@@ -155,7 +155,7 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
               workspaceId,
               libraryId: metadata.input.libraryId,
               fileId: metadata.input.fileId,
-              part: metadata.input.itemExtractionIndex,
+              part: metadata.input.fragment,
               scope,
               term: query,
               embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
@@ -253,7 +253,7 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
           const markdownReader = await workspaceStorage.readExtraction(workspaceId, {
             libraryId: metadata.input.libraryId,
             fileId: metadata.input.fileId,
-            fragment: metadata.input.itemExtractionIndex || undefined,
+            fragment: metadata.input.fragment || undefined,
           })
 
           const maxTokens = metadata.input.contextFullContent.maxContentTokens || 3000

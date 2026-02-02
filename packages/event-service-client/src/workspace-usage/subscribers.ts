@@ -1,4 +1,4 @@
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import { eventClient } from '../client'
 import { USAGE_STREAM_NAME, getConsumerGlobPattern } from './common'

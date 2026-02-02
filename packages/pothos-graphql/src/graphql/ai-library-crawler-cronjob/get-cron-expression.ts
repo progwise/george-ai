@@ -1,4 +1,4 @@
-import { AiLibraryCrawlerCronJob } from '@george-ai/app-domain'
+import { AiLibraryCrawlerCronJob } from '../../../../app-database/src'
 
 export const getCronExpression = (cronJob: AiLibraryCrawlerCronJob) => {
   if (!cronJob.active) {

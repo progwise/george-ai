@@ -19,7 +19,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
       version: 1,
       workspaceId: TEST_WORKSPACE_ID,
       actionType: 'extractFile',
-      extractionMethod: 'text-extraction',
+      extractionMethod: 'textExtraction',
       fileId: 'test-file-id',
       libraryId: 'test-library-id',
     })
@@ -52,7 +52,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
           version: 1,
           workspaceId: TEST_WORKSPACE_ID,
           actionType: 'embedFile',
-          extractionMethod: 'text-extraction',
+          extractionMethod: 'textExtraction',
           fileId: `test-file-id-${i}`,
           libraryId: 'test-library-id',
           embeddingModelName: 'test-model',

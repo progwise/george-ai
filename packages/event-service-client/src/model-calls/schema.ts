@@ -1,7 +1,8 @@
 import z from 'zod'
 
+import { MODEL_PROVIDERS } from '@george-ai/app-commons'
+
 import { ContextSchema } from '../common'
-import { MODEL_PROVIDERS } from '../model-provider/common'
 import { MODEL_CALL_TYPES } from './common'
 
 export const ModelBaseCall = z.object({

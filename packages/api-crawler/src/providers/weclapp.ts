@@ -2,7 +2,7 @@
  * Weclapp API Provider
  * ERP system for article/product management
  */
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
 
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
 

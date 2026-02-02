@@ -1,1 +1,1 @@
-export { getTestAssetLocalPath } from './test-files'
+export * from './test-files'

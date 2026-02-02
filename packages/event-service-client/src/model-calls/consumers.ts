@@ -1,5 +1,6 @@
+import { ModelProvider } from '@george-ai/app-commons'
+
 import { eventClient } from '../client'
-import { ModelProvider } from '../model-provider/common'
 import { MODEL_CALLS_STREAM_NAME, getBatchConsumerName, getBatchConsumerSubjectFilters } from './common'
 
 export const ensureProviderInstanceConsumer = async (params: {

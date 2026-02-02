@@ -1,3 +1,5 @@
+import { ExtractionMethod } from '@george-ai/app-commons'
+
 import { getExtractionDir, getFileDir, getLibraryDir, getWorkspaceDir } from './directories'
 
 export async function exists(
@@ -5,7 +7,7 @@ export async function exists(
   args: {
     libraryId?: string
     fileId?: string
-    extractionMethod?: string
+    extractionMethod?: ExtractionMethod
   },
 ): Promise<boolean> {
   const { libraryId, fileId, extractionMethod } = args

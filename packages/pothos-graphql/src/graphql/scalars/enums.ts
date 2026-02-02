@@ -1,10 +1,5 @@
-import {
-  modelCalls,
-  modelProvider,
-  providerHealth,
-  workerRegistry,
-  workspaceProcessing,
-} from '@george-ai/event-service-client'
+import { EXTRACTION_METHODS, MODEL_PROVIDERS } from '@george-ai/app-commons'
+import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../../domain/automation/constants'
 import { CRAWLER_URI_TYPES } from '../../domain/crawler/crawler-uri-types'
@@ -29,7 +24,7 @@ builder.enumType('TriggerType', {
 })
 
 builder.enumType('ExtractionMethod', {
-  values: workspaceProcessing.EXTRACTION_METHODS,
+  values: EXTRACTION_METHODS,
 })
 
 builder.enumType('ModelCallType', {
@@ -40,7 +35,7 @@ builder.enumType('ProviderHealthStatus', {
   values: providerHealth.HEALTH_STATUS,
 })
 
-builder.enumType('ProcessingStatus', {
+builder.enumType('EventProcessingStatus', {
   values: workspaceProcessing.EVENT_PROCESSING_STATUS,
 })
 
@@ -53,7 +48,7 @@ builder.enumType('WorkerType', {
 })
 
 builder.enumType('ModelProvider', {
-  values: modelProvider.MODEL_PROVIDERS,
+  values: MODEL_PROVIDERS,
 })
 
 builder.enumType('ListFieldSourceType', {

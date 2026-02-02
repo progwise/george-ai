@@ -11,7 +11,7 @@ import {
   createInbox,
 } from 'nats'
 
-import { createLogger, matchGlobPattern } from '@george-ai/web-utils'
+import { createLogger, matchGlobPattern } from '@george-ai/app-commons'
 
 import { EventClient, EventClientConfig } from './event-client'
 

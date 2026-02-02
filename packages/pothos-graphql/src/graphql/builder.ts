@@ -3,16 +3,11 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { Prisma, getDatamodel, prisma } from '@george-ai/app-domain'
-import type { Context, LoggedInContext, PothosTypes } from '@george-ai/app-domain'
-import {
-  modelCalls,
-  modelProvider,
-  providerHealth,
-  workerRegistry,
-  workspaceProcessing,
-} from '@george-ai/event-service-client'
+import { EXTRACTION_METHODS, MODEL_PROVIDERS } from '@george-ai/app-commons'
+import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
+import { Prisma, getDatamodel, prisma } from '../../../app-database/src'
+import type { Context, LoggedInContext, PothosTypes } from '../../../app-database/src'
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../domain/automation/constants'
 import { CRAWLER_URI_TYPES } from '../domain/crawler/crawler-uri-types'
 import {
@@ -51,8 +46,8 @@ const builder = new SchemaBuilder<{
       Output: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
     }
     ExtractionMethod: {
-      Input: (typeof workspaceProcessing.EXTRACTION_METHODS)[number]
-      Output: (typeof workspaceProcessing.EXTRACTION_METHODS)[number]
+      Input: (typeof EXTRACTION_METHODS)[number]
+      Output: (typeof EXTRACTION_METHODS)[number] | string
     }
     ModelCallType: {
       Input: (typeof modelCalls.MODEL_CALL_TYPES)[number]
@@ -79,8 +74,8 @@ const builder = new SchemaBuilder<{
       Output: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
     }
     ModelProvider: {
-      Input: (typeof modelProvider.MODEL_PROVIDERS)[number]
-      Output: (typeof modelProvider.MODEL_PROVIDERS)[number]
+      Input: (typeof MODEL_PROVIDERS)[number]
+      Output: (typeof MODEL_PROVIDERS)[number]
     }
     CrawlerUriType: {
       Input: (typeof CRAWLER_URI_TYPES)[number]
@@ -100,11 +95,11 @@ const builder = new SchemaBuilder<{
     }
     Date: {
       Input: Date
-      Output: Date
+      Output: string | Date
     }
     DateTime: {
       Input: Date
-      Output: Date
+      Output: string | Date
     }
     Decimal: {
       Input: Prisma.Decimal

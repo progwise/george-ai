@@ -1,6 +1,7 @@
 import { classifyModel, discoverModels as discoverModelsForProvider } from '@george-ai/ai-service-client'
-import { prisma } from '@george-ai/app-domain'
+import { ModelProvider } from '@george-ai/app-commons'
 
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { canWriteWorkspaceOrThrow } from '../workspace'
 
@@ -8,7 +9,7 @@ console.log('Setting up: AiLanguageModel Mutations')
 
 interface DiscoveredModel {
   name: string
-  provider: string
+  provider: ModelProvider
   canDoEmbedding: boolean
   canDoChatCompletion: boolean
   canDoVision: boolean

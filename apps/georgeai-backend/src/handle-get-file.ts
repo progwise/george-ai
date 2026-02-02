@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 
+import { getExtractionMethod } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
 
 import { logger } from './common'
@@ -7,7 +8,9 @@ import { getUserContextFromExpressRequest } from './get-user-context'
 
 export const handleGetFile = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
-  const extractionMethod = request.query['extraction'] ? String(request.query['extraction']) : undefined
+  const extractionMethod = request.query['extraction']
+    ? getExtractionMethod(String(request.query['extraction']))
+    : undefined
   const fragment = request.query['fragment'] ? Number(request.query['fragment']) : undefined
 
   if (Array.isArray(libraryId) || Array.isArray(fileId)) {

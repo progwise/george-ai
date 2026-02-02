@@ -1,10 +1,15 @@
-import { prisma } from '@george-ai/app-domain'
-import { getFileChunkCount } from '@george-ai/langchain-chat'
-
+import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 import './queries'
 import './mutations'
+
+import { getExtractionMethod } from '@george-ai/app-commons'
+import { workspaceStorage } from '@george-ai/file-management'
+import { vectorStore } from '@george-ai/vector-store'
+
+import { ExtractionInfo } from '../ai-content-extraction'
+import { FileInfo } from '../file-info/types'
 
 console.log('Setting up: AiList')
 
@@ -38,34 +43,58 @@ builder.prismaObject('AiListItem', {
   name: 'AiListItem',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
     listId: t.exposeString('listId', { nullable: false }),
     sourceId: t.exposeString('sourceId', { nullable: false }),
-    sourceFileId: t.exposeString('sourceFileId', { nullable: false }),
-    extractionIndex: t.exposeInt('extractionIndex'),
+    fileId: t.exposeString('fileId', { nullable: false }),
+    extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: false }),
+    fragment: t.exposeInt('fragment'),
     itemName: t.exposeString('itemName', { nullable: false }),
-    metadata: t.string({
-      nullable: true,
-      resolve: (item) => (item.metadata ? JSON.stringify(item.metadata) : null),
-    }),
     list: t.relation('list', { nullable: false }),
     source: t.relation('source', { nullable: false }),
-    sourceFile: t.relation('sourceFile', { nullable: false }),
-
-    chunkCount: t.field({
-      type: 'Int',
-      nullable: false,
-      resolve: async (item) => {
+    file: t.relation('file', { nullable: false }),
+    fileInfo: t.withAuth({ isLoggedIn: true }).field({
+      type: FileInfo,
+      nullable: true,
+      resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
-          where: { id: item.sourceFileId },
+          where: { id: item.fileId },
           select: { libraryId: true },
         })
-        const count = await getFileChunkCount(
-          sourceFile.libraryId,
-          item.sourceFileId,
-          item.extractionIndex === null ? undefined : item.extractionIndex,
-        )
+        return workspaceStorage.getFile(workspaceId, {
+          libraryId: sourceFile.libraryId,
+          fileId: item.fileId,
+        })
+      },
+    }),
+    extractionInfo: t.withAuth({ isLoggedIn: true }).field({
+      type: ExtractionInfo,
+      nullable: true,
+      resolve: async (item, _args, { workspaceId }) => {
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
+          where: { id: item.fileId },
+          select: { libraryId: true },
+        })
+        const extractionInfo = await workspaceStorage.getExtraction(workspaceId, {
+          libraryId: sourceFile.libraryId,
+          fileId: item.fileId,
+          extractionMethod: getExtractionMethod(item.extractionMethod),
+        })
+        return extractionInfo
+      },
+    }),
+    chunkCount: t.withAuth({ isLoggedIn: true }).field({
+      type: 'Int',
+      nullable: false,
+      resolve: async (item, _args, { workspaceId }) => {
+        const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
+          where: { id: item.fileId },
+          select: { libraryId: true },
+        })
+        const count = await vectorStore.getChunkCount({
+          workspaceId,
+          libraryId: sourceFile.libraryId,
+          fileId: item.fileId,
+        })
         return count
       },
     }),

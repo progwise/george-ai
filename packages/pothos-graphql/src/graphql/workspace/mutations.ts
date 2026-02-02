@@ -1,8 +1,7 @@
 import { GraphQLError } from 'graphql'
 import { z } from 'zod'
 
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import { INVITATION_EXPIRY_DAYS, isLastAdmin, sendWorkspaceInvitationEmail } from '../../domain/workspace'
 import { builder } from '../builder'
 import { canAdminWorkspaceOrThrow, doesOwnWorkspaceOrThrow } from './common'

@@ -1,3 +1,5 @@
+import { ExtractionMethod } from '@george-ai/app-commons/src/types/extraction'
+
 import { ExtractionMetadata } from '../../schemas/extraction-metadata'
 import { getExtractionDir } from './directories'
 import { exists } from './exists'
@@ -5,7 +7,7 @@ import { getExtractionMetadata } from './metadata-files'
 
 export async function getExtraction(
   workspaceId: string,
-  args: { libraryId: string; fileId: string; extractionMethod: string },
+  args: { libraryId: string; fileId: string; extractionMethod: ExtractionMethod },
 ): Promise<ExtractionMetadata | null> {
   const { libraryId, fileId, extractionMethod } = args
   if (!(await exists(workspaceId, { libraryId, fileId, extractionMethod }))) {

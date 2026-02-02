@@ -1,7 +1,7 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { createLogger, decryptValue } from '@george-ai/web-utils'
+import { createLogger, decryptValue } from '@george-ai/app-commons'
 
 import { Message } from '../types'
 

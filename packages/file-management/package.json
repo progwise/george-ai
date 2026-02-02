@@ -17,7 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@george-ai/web-utils": "workspace:*",
+    "@george-ai/app-commons": "workspace:*",
     "dotenv": "^16.4.5",
     "p-limit": "^7.2.0",
     "zod": "^3.23.8"

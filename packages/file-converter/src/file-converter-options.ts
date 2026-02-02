@@ -1,18 +1,8 @@
 import z from 'zod'
 
+import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
+
 import { SUPPORTED_MIME_TYPES, SupportedMimeType } from './constants'
-
-export const EXTRACTION_METHOD_NAMES = [
-  'csv-extraction',
-  'docx-extraction',
-  'eml-extraction',
-  'excel-extraction',
-  'html-extraction',
-  'pdf-extraction',
-  'text-extraction',
-] as const
-
-export type ExtractionMethod = (typeof EXTRACTION_METHOD_NAMES)[number]
 
 export const ExtractionMethods: Record<
   ExtractionMethod,
@@ -22,22 +12,22 @@ export const ExtractionMethods: Record<
     supportedMimeTypes: Array<SupportedMimeType>
   }
 > = {
-  'text-extraction': {
+  textExtraction: {
     name: 'Text Extraction',
     description: 'Extract plain text content',
     supportedMimeTypes: ['text/plain', 'text/markdown', 'text/x-markdown', 'application/pdf'],
   },
-  'pdf-extraction': {
+  pdfExtraction: {
     name: 'PDF Extraction',
     description: 'Extract text content from PDF files and preserve layout and structure',
     supportedMimeTypes: ['application/pdf'],
   },
-  'docx-extraction': {
+  docxExtraction: {
     name: 'DOCX Extraction',
     description: 'Extract content from Word documents',
     supportedMimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   },
-  'excel-extraction': {
+  excelExtraction: {
     name: 'Excel Extraction',
     description: 'Extract content from Excel files',
     supportedMimeTypes: [
@@ -45,20 +35,25 @@ export const ExtractionMethods: Record<
       'application/vnd.ms-excel',
     ],
   },
-  'csv-extraction': {
+  csvExtraction: {
     name: 'CSV Extraction',
     description: 'Extract content from CSV files',
     supportedMimeTypes: ['text/csv', 'application/csv'],
   },
-  'html-extraction': {
+  htmlExtraction: {
     name: 'HTML Extraction',
     description: 'Extract content from HTML files',
     supportedMimeTypes: ['text/html', 'application/xhtml+xml'],
   },
-  'eml-extraction': {
+  emlExtraction: {
     name: 'Email Extraction',
     description: 'Extract content from email files (.eml)',
     supportedMimeTypes: ['message/rfc822'],
+  },
+  legacyExtraction: {
+    name: 'Legacy Extraction',
+    description: 'Not used for new extractions',
+    supportedMimeTypes: [],
   },
 } as const
 
@@ -105,7 +100,7 @@ export const getAvailableMethodsForMimeType = (
 }
 
 export const FileConverterOptionsSchema = z.object({
-  extractionMethod: z.enum(EXTRACTION_METHOD_NAMES),
+  extractionMethod: z.enum(EXTRACTION_METHODS),
   options: z.record(z.string().or(z.number()).or(z.boolean())).optional(),
 })
 

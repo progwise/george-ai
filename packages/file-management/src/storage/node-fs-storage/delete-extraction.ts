@@ -1,6 +1,8 @@
 import { rm } from 'node:fs/promises'
 import path from 'node:path'
 
+import { ExtractionMethod } from '@george-ai/app-commons/src/types/extraction'
+
 import { getFileDir, getLibraryDir } from './directories'
 import { exists } from './exists'
 import { getExtractionMetadata, getFileManifest, saveFileManifest } from './metadata-files'
@@ -8,7 +10,7 @@ import { libraryUsageUpdate } from './usage-update'
 
 export async function deleteExtraction(
   workspaceId: string,
-  args: { libraryId: string; fileId: string; extractionMethod: string },
+  args: { libraryId: string; fileId: string; extractionMethod: ExtractionMethod },
 ) {
   const { libraryId, fileId, extractionMethod } = args
   const fileDir = await getFileDir(workspaceId, libraryId, fileId)

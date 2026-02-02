@@ -1,6 +1,6 @@
-import { createLogger } from '../../../web-utils/src'
+import { createLogger } from '@george-ai/app-commons'
 
-export const logger = createLogger('file-converter-common')
+export const logger = createLogger('file-converter')
 
 export interface FileConverterParameters {
   workspaceId: string

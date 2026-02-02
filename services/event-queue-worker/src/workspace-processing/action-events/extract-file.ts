@@ -6,7 +6,7 @@ import { logger } from '../../common'
 
 export async function extractFile(event: ExtractFileAction) {
   const { extractionMethod, fileId, workspaceId, libraryId, actionType, version } = event
-  logger.info('Starting file extraction', {
+  logger.debug('Starting file extraction', {
     fileId,
     workspaceId,
     libraryId,

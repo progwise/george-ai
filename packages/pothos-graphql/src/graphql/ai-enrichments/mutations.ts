@@ -1,6 +1,7 @@
-import { Prisma, prisma } from '@george-ai/app-domain'
-import { createLogger } from '@george-ai/web-utils'
+import { ModelProvider } from '@george-ai/app-commons'
+import { createLogger } from '@george-ai/app-commons'
 
+import { Prisma, prisma } from '../../../../app-database/src'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
@@ -103,7 +104,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         listId,
         ...filterConditions,
         ...(itemId ? { id: itemId } : {}),
-        sourceFile: { archivedAt: null },
+        file: { archivedAt: null },
         ...(onlyMissingValues
           ? {
               OR: [
@@ -142,7 +143,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       const itemInclude = {
         cache: { where: { fieldId: { in: allFieldIds } } },
-        sourceFile: {
+        file: {
           include: {
             crawledByCrawler: { select: { id: true, uri: true } },
             library: {
@@ -184,7 +185,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
-        languageModel?: { id: string; provider: string; name: string } | null
+        languageModel?: { id: string; provider: ModelProvider; name: string } | null
       }
       const fieldForValidation = {
         ...fieldWithRelation,

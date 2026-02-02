@@ -1,5 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
-
+import { prisma } from '../../../../app-database/src'
 import {
   SYSTEM_WORKSPACE_ID,
   extractAvatarFromToken,

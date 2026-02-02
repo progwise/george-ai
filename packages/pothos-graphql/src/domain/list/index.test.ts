@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { AiListItemCache } from '@george-ai/app-domain'
-
+import { AiListItemCache } from '../../../../app-database/src'
 import { LIST_FIELD_TYPES, ListItemWithRelations, getFieldValue } from './index'
 
 describe('LIST_FIELD_TYPES', () => {
@@ -19,15 +18,14 @@ describe('getFieldValue', () => {
   const createMockItem = (cacheOverrides?: Partial<AiListItemCache>): ListItemWithRelations => {
     const baseMockItem: ListItemWithRelations = {
       id: 'item1',
-      createdAt: new Date('2024-01-18'),
-      updatedAt: new Date('2024-01-18'),
       listId: 'list1',
       sourceId: 'source1',
-      sourceFileId: 'file1',
-      extractionIndex: null,
+      fileId: 'file1',
+      fragment: null,
       itemName: 'test-document.pdf',
-      metadata: null,
-      sourceFile: {
+      extractionMethod: 'textExtraction',
+      fragmentHash: null,
+      file: {
         id: 'file1',
         name: 'test-document.pdf',
         createdAt: new Date('2024-01-14'),

@@ -1,11 +1,11 @@
 import { Readable } from 'node:stream'
 
-import { prisma } from '@george-ai/app-domain'
+import { createLogger } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
 import { SmbCrawlerClient } from '@george-ai/smb-crawler'
 import type { SmbFileMetadata } from '@george-ai/smb-crawler'
-import { createLogger } from '@george-ai/web-utils'
 
+import { prisma } from '../../../../app-database/src'
 import { SMB_CRAWLER_URL } from '../../global-config'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'

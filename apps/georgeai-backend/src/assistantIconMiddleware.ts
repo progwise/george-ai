@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
+import { getMimeTypeFromExtension } from '@george-ai/app-commons'
 import { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from '@george-ai/pothos-graphql'
-import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 const allowedFileTypes = ['png', 'svg', 'jpg', 'jpeg', 'gif', 'webp']
 

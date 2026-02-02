@@ -6,9 +6,6 @@ export async function handleStatusEvent(event: StatusEvent) {
   logger.debug('Handling status event', { event })
   try {
     switch (event.actionType) {
-      case 'chunkFile':
-        logger.debug('chunkFile status not implemented', { event })
-        break
       case 'embedFile':
         logger.debug('embedFile status not implemented', { event })
         break

@@ -44,7 +44,7 @@ export const transformToMarkdown = async (parameters: {
   const mimeType = fileInfo.mimeType
 
   switch (options.extractionMethod) {
-    case 'csv-extraction':
+    case 'csvExtraction':
       return await csvToMarkdown({
         workspaceId,
         libraryId,
@@ -52,17 +52,17 @@ export const transformToMarkdown = async (parameters: {
         timeoutSignal,
         mimeType,
       })
-    case 'pdf-extraction':
+    case 'pdfExtraction':
       return await pdfToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
-    case 'text-extraction':
+    case 'textExtraction':
       return await textToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
-    case 'docx-extraction':
+    case 'docxExtraction':
       return await docxToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
-    case 'eml-extraction':
+    case 'emlExtraction':
       return await emlToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
-    case 'excel-extraction':
+    case 'excelExtraction':
       return await excelToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
-    case 'html-extraction':
+    case 'htmlExtraction':
       return await htmlToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
     default:
       throw new Error(`Unsupported extraction method: ${options.extractionMethod}`)
