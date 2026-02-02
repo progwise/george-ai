@@ -941,6 +941,13 @@ export default {
     systemMode: 'Farbschema: System',
     theme: 'Farbschema',
   },
+  sidebar: {
+    assistants: 'Assistenten',
+    automations: 'Automatisierungen',
+    conversations: 'Konversationen',
+    libraries: 'Bibliotheken',
+    lists: 'Listen',
+  },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
@@ -986,11 +993,6 @@ export default {
   },
   topNavigation: {
     admin: 'Verwaltung',
-    assistants: 'Assistenten',
-    automations: 'Automatisierungen',
-    conversations: 'Konversationen',
-    libraries: 'Bibliotheken',
-    lists: 'Listen',
   },
   updates: {
     added: 'Hinzugefügt',

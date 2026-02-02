@@ -927,6 +927,13 @@ export default {
     systemMode: 'Theme: System',
     theme: 'Theme',
   },
+  sidebar: {
+    assistants: 'Assistants',
+    automations: 'Automations',
+    conversations: 'Conversations',
+    libraries: 'Libraries',
+    lists: 'Lists',
+  },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
@@ -969,11 +976,6 @@ export default {
   },
   topNavigation: {
     admin: 'Administration',
-    assistants: 'Assistants',
-    automations: 'Automations',
-    conversations: 'Conversations',
-    libraries: 'Libraries',
-    lists: 'Lists',
   },
   updates: {
     added: 'Added',

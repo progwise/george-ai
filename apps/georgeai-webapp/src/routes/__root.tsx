@@ -2,12 +2,14 @@ import { QueryClient, useQuery } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { AuthProvider } from '../auth/auth'
 import { getUserQueryOptions } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
+import { Sidebar } from '../components/sidebar'
 import TopNavigation from '../components/top-navigation'
 import { getThemeQueryOptions } from '../hooks/use-theme'
 import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
@@ -21,6 +23,7 @@ const RootDocument = () => {
   const { user, workspaceId } = Route.useRouteContext()
   const { language } = useLanguage()
   const { data: theme } = useQuery(getThemeQueryOptions())
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   return (
     <html lang={language} data-theme={theme}>
@@ -30,10 +33,28 @@ const RootDocument = () => {
       <body className="px-body">
         <AuthProvider>
           <>
-            <TopNavigation user={user} workspaceId={workspaceId} />
-            <div className="flex grow flex-col p-4">
-              <Outlet />
+            <div className="drawer lg:drawer-open">
+              <input
+                id="sidebar"
+                type="checkbox"
+                className="drawer-toggle"
+                checked={isDrawerOpen}
+                onChange={(e) => setIsDrawerOpen(e.target.checked)}
+              />
+              <div
+                className={twMerge(
+                  'drawer-content transition-all duration-250 ease-in',
+                  isDrawerOpen ? 'lg:pl-64' : 'lg:pl-14',
+                )}
+              >
+                <TopNavigation user={user} workspaceId={workspaceId} isDrawerOpen={isDrawerOpen} />
+                <div>
+                  <Outlet />
+                </div>
+              </div>
+              <Sidebar user={user} />
             </div>
+
             <Scripts />
             <Suspense>
               <TanStackRouterDevtools />
