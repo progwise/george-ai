@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ReactNode } from 'react'
+import { ReactNode, useRef } from 'react'
 
 import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -9,7 +9,9 @@ import { LibraryIcon } from '../icons/library-icon'
 import { LinkIcon } from '../icons/link-icon'
 import { ListViewIcon } from '../icons/list-view-icon'
 import UserIcon from '../icons/user-icon'
+import { UsersIcon } from '../icons/users-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
+import { WorkspaceMembersDialog } from './workspace/members/workspace-members-dialog'
 
 interface SidebarNavigationLinkProps {
   to: keyof FileRoutesByTo
@@ -25,7 +27,7 @@ const SidebarNavigationLink = ({ to, icon, label, tooltip }: SidebarNavigationLi
       className="transition-colors is-drawer-close:tooltip is-drawer-close:tooltip-right"
       data-tip={tooltip || label}
       inactiveProps={{ className: 'hover:animate-pulse' }}
-      activeProps={{ className: 'bg-accent/40' }} // TODO
+      activeProps={{ className: 'bg-accent/40' }}
       activeOptions={{ exact: false }}
     >
       {icon}
@@ -36,10 +38,12 @@ const SidebarNavigationLink = ({ to, icon, label, tooltip }: SidebarNavigationLi
 
 interface SidebarProps {
   user: UserFragment | null
+  workspaceId: string | null
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, workspaceId }: SidebarProps) {
   const { t } = useTranslation()
+  const membersDialogRef = useRef<HTMLDialogElement>(null)
 
   if (!user) {
     return null
@@ -51,7 +55,7 @@ export function Sidebar({ user }: SidebarProps) {
       <div className="fixed top-0 left-0 flex min-h-full flex-col bg-base-300 is-drawer-close:w-14 is-drawer-open:w-64">
         <label
           htmlFor="sidebar"
-          aria-label={t('sidebar.toggle')} // TODO
+          aria-label={t('sidebar.toggle')}
           className="btn absolute inset-y-2 right-2 z-10 btn-square bg-base-300 btn-ghost hover:cursor-ew-resize hover:brightness-150 is-drawer-close:invisible is-drawer-close:group-hover:visible"
         >
           <svg
@@ -79,6 +83,18 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
 
         <ul className="menu absolute inset-y-14 w-full grow is-drawer-open:pointer-events-auto">
+          <li>
+            <button
+              type="button"
+              onClick={() => membersDialogRef.current?.showModal()}
+              className="transition-colors hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip={t('workspace.members.title')}
+              aria-label={t('workspace.members.title')}
+            >
+              <UsersIcon className="my-1.5 inline-block size-4" />
+              <span className="whitespace-nowrap is-drawer-close:hidden">{t('workspace.members.title')}</span>
+            </button>
+          </li>
           <SidebarNavigationLink
             to="/libraries"
             icon={<LibraryIcon className="my-1.5 inline-block size-4" />}
@@ -106,6 +122,7 @@ export function Sidebar({ user }: SidebarProps) {
           />
         </ul>
       </div>
+      {workspaceId && <WorkspaceMembersDialog user={user} ref={membersDialogRef} />}
     </div>
   )
 }

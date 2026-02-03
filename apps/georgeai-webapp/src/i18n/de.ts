@@ -947,6 +947,7 @@ export default {
     conversations: 'Konversationen',
     libraries: 'Bibliotheken',
     lists: 'Listen',
+    toggle: 'Seitenleiste schalten',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

@@ -933,6 +933,7 @@ export default {
     conversations: 'Conversations',
     libraries: 'Libraries',
     lists: 'Lists',
+    toggle: 'Toggle sidebar',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

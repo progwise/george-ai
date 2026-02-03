@@ -4,7 +4,6 @@ import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { FolderPlusIcon } from '../../icons/folder-plus'
 import { TrashIcon } from '../../icons/trash-icon'
-import { UsersIcon } from '../../icons/users-icon'
 import { CreateWorkspaceDialog } from './create-workspace-dialog'
 import { DeleteWorkspaceDialog } from './delete-workspace-dialog'
 import { WorkspaceMembersDialog } from './members/workspace-members-dialog'
@@ -65,17 +64,6 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   return (
     <>
       <ul className="menu menu-horizontal items-center gap-2">
-        <li>
-          <button
-            type="button"
-            onClick={() => membersDialogRef.current?.showModal()}
-            className="tooltip btn tooltip-right btn-square btn-ghost btn-xs" // TODO tooltip show
-            data-tip={t('workspace.members.title')}
-            aria-label={t('workspace.members.title')}
-          >
-            <UsersIcon className="size-5" />
-          </button>
-        </li>
         <li>
           <button
             type="button"

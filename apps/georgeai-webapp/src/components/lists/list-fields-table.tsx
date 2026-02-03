@@ -178,7 +178,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
       ) : (
         <>
           <div className="max-h-[70vh] overflow-x-auto overflow-y-auto">
-            <table className="table table-fixed table-sm" style={{ width: `${totalTableWidth}px` }}>
+            <table className="table-pin-rows table table-fixed table-sm" style={{ width: `${totalTableWidth}px` }}>
               <colgroup>
                 {visibleFields.map((field) => (
                   <col

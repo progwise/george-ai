@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react'
+// import { useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { UserFragment } from '../gql/graphql'
-import { ScrollObserver } from './scroll-observer'
+// import { ScrollObserver } from './scroll-observer'
 import { SettingsDropdown } from './settings-dropdown'
 import { WorkspaceSwitcher } from './workspace/workspace-switcher'
 
@@ -13,8 +13,8 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, isDrawerOpen = false }: TopNavigationProps) {
-  const [isAtTop, setIsAtTop] = useState(false)
-  const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
+  // const [isAtTop, setIsAtTop] = useState(false)
+  // const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
 
   return (
     // TODO: change de.ts and en.ts
@@ -35,7 +35,7 @@ export default function TopNavigation({ user, isDrawerOpen = false }: TopNavigat
       {/* The navbar is position fixed, this div moves the page content below the navbar. */}
       <div className="h-16" />
 
-      <ScrollObserver onScroll={handleScroll} />
+      {/* <ScrollObserver onScroll={handleScroll} /> */}
     </>
   )
 }
