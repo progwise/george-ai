@@ -6,7 +6,7 @@ import { dateTimeStringShort } from '@george-ai/app-commons'
 import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { ActionType, AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
+import { ActionType, AiLibraryFile_FilesTableFragment, AiLibrary_FilesTableFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
@@ -18,13 +18,21 @@ import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
-import { useFileActions } from './use-file-actions'
+import { useLibraryActions } from '../use-library-actions'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
 graphql(`
-  fragment AiLibraryFile_TableItem on AiLibraryFile {
+  fragment AiLibrary_FilesTable on AiLibrary {
+    id
+    name
+    storageStatus
+  }
+`)
+
+graphql(`
+  fragment AiLibraryFile_FilesTable on AiLibraryFile {
     id
     libraryId
     name
@@ -36,14 +44,23 @@ graphql(`
     createdAt
     originModificationDate
     archivedAt
-    chunksCount
+    embeddingInfo {
+      extractionMethod
+      modelName
+      chunkCount
+    }
     fileInfo {
       sourceHash
+      originalUpdatedAt
       usage {
+        sourceBytes
+        extractedBytes
+        activeExtractedBytes
         physicalBytes
+        sourceFiles
+        extractions
         activeExtractions
-        extractionFiles
-        lastUpdate
+        physicalFiles
         lastReconcile
       }
       extractions {
@@ -55,7 +72,8 @@ graphql(`
   }
 `)
 interface FilesTableProps {
-  files: AiLibraryFile_TableItemFragment[]
+  library: AiLibrary_FilesTableFragment
+  files: AiLibraryFile_FilesTableFragment[]
   firstItemNumber: number
 }
 export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
@@ -72,9 +90,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { dropFile, dropFiles, processFile, processFiles, fileActionPending } = useFileActions({
-    libraryId,
-  })
+  const { deleteFile, deleteFiles, processFile, processFiles, isPending } = useLibraryActions(libraryId)
 
   const dropDialogRef = useRef<HTMLDialogElement>(null)
   const processDialogRef = useRef<HTMLDialogElement>(null)
@@ -107,7 +123,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
   }
 
   const handleDropSelectedFiles = () => {
-    dropFiles(selectedFileIds, {
+    deleteFiles(selectedFileIds, {
       onSettled: () => {
         setSelectedFileIds([])
         dropDialogRef.current?.close()
@@ -243,7 +259,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
                 <span>{t('labels.chunks')}:</span>
-                <span>{file.chunksCount ?? '-'}</span>
+                <span>{file.embeddingInfo?.reduce((acc, info) => acc + info.chunkCount, 0) ?? '-'}</span>
                 <span>{t('labels.processed')}:</span>
                 {file.originModificationDate && (
                   <>
@@ -335,10 +351,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       </Link>
                       <button
                         type="button"
-                        disabled={fileActionPending}
+                        disabled={isPending}
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.drop')}
-                        onClick={() => dropFile(file.id)}
+                        onClick={() => deleteFile(file.id)}
                       >
                         <TrashIcon className="size-4" />
                       </button>
@@ -384,7 +400,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                   {file.fileInfo?.usage.activeExtractions ?? '-'}/{file.fileInfo?.extractions.length ?? '-'}
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file?.fileInfo?.usage.lastUpdate} format="dateTime" fallback="" />
+                  <ClientDate date={file?.fileInfo?.originalUpdatedAt} format="dateTime" fallback="" />
                 </td>
                 <td className="text-nowrap">
                   <ClientDate date={file?.fileInfo?.usage.lastReconcile} format="dateTime" fallback="" />
@@ -402,7 +418,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         description={t('texts.dropFilesDialogDescription')}
         onSubmit={handleDropSelectedFiles}
         submitButtonText={t('actions.drop')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">
@@ -419,7 +435,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         description={t('texts.processFilesDialogDescription')}
         onSubmit={handleExtractSelectedFiles}
         submitButtonText={t('actions.reprocess')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">
@@ -434,7 +450,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         description={t('texts.embedFilesDialogDescription')}
         onSubmit={handleEmbedSelectedFiles}
         submitButtonText={t('actions.reembed')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">

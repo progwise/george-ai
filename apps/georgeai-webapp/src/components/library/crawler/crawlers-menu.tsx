@@ -43,7 +43,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
   const updateDialogRef = useRef<HTMLDialogElement>(null)
   const navigate = useNavigate({ from: '/libraries/$libraryId/crawlers/' })
   const { t } = useTranslation()
-  const { runCrawler, stopCrawler } = useCrawlerActions({ libraryId })
+  const { runCrawler, stopCrawler } = useCrawlerActions(libraryId)
 
   useEffect(() => {
     if (detailsRef.current && selectedCrawler) {

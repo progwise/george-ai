@@ -10,7 +10,7 @@ export interface ApiKeyValidationResult {
 
 export async function validateApiKey(parameters: {
   apiKey: string
-  libraryId: string
+  libraryId?: string
 }): Promise<ApiKeyValidationResult | null> {
   const { apiKey, libraryId } = parameters
   if (!apiKey || apiKey.length === 0) {

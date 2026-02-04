@@ -1,7 +1,7 @@
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { queryVectorStore } from '@george-ai/langchain-chat'
 
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 
 const AiLibraryQueryHitHighlight = builder
   .objectRef<{ field: string; snippet?: string }>('AiLibraryQueryHitHighlight')

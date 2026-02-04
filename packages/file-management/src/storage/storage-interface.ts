@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod, StorageStatus } from '@george-ai/app-commons'
 
 import { FileManifest, LibraryManifest, StorageUsage, WorkspaceManifest } from '../schemas'
 import { ExtractionMetadata } from '../schemas/extraction-metadata'
@@ -108,6 +108,8 @@ export interface IStorageService {
 
   reconcile(workspaceId: string, options?: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
 
+  getStorageStatus(workspaceId: string, args: { libraryId: string; fileId?: string }): Promise<StorageStatus>
+
   upgradeLegacyFile(
     workspaceId: string,
     args: {
@@ -119,11 +121,13 @@ export interface IStorageService {
       uploadedAt: string
     },
   ): Promise<void>
+
   upgradeLegacyLibrary(
     workspaceId: string,
     args: {
       libraryId: string
       libraryName: string
+      workspaceName: string
       fileInfoLoader: (fileId: string) => Promise<{
         workspaceId: string
         libraryId: string
@@ -131,7 +135,8 @@ export interface IStorageService {
         fileName: string
         mimeType: string
         createdAt: string
-        uploadedAt: string
+        uploadedAt?: string | null
+        hash?: string | null
       }>
     },
   ): Promise<void>

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const queryLibraryFiles = createServerFn({ method: 'GET' })
+const queryFiles = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
@@ -15,8 +15,8 @@ const queryLibraryFiles = createServerFn({ method: 'GET' })
       })
       .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(
+  .handler(async (ctx) => {
+    const result = await backendRequest(
       graphql(`
         query queryLibraryFiles($libraryId: String!, $query: String!, $skip: Int!, $take: Int!) {
           queryAiLibraryFiles(libraryId: $libraryId, query: $query, skip: $skip, take: $take) {
@@ -41,18 +41,14 @@ const queryLibraryFiles = createServerFn({ method: 'GET' })
         }
       `),
       { ...ctx.data },
-    ),
-  )
+    )
+    return result.queryAiLibraryFiles
+  })
 
-export const getQueryLibraryFilesQueryOptions = (params: {
-  libraryId: string
-  query: string
-  skip: number
-  take: number
-}) => ({
+export const queryFilesQueryOptions = (params: { libraryId: string; query: string; skip: number; take: number }) => ({
   queryKey: ['queryFiles', params.libraryId, params.query, params.skip, params.take],
   queryFn: async () => {
-    return await queryLibraryFiles({
+    return await queryFiles({
       data: {
         libraryId: params.libraryId,
         query: params.query,

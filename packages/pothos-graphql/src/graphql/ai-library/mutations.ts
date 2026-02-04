@@ -1,13 +1,16 @@
 import { GraphQLError } from 'graphql/error'
 
+import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canWriteWorkspaceOrThrow } from '../workspace'
+import { logger } from './common'
 
-console.log('Setting up: AiLibrary Mutations')
+import './upgrade-from-legacy'
+
+logger.info('Setting up: AiLibrary Mutations')
 
 const AiLibraryInput = builder.inputType('AiLibraryInput', {
   fields: (t) => ({
@@ -65,7 +68,7 @@ builder.mutationField('createLibrary', (t) =>
       const userId = session.user.id
       const { embeddingModelId, ocrModelId, ...restData } = data
 
-      canWriteWorkspaceOrThrow(workspaceId, userId)
+      await canWriteWorkspaceOrThrow(workspaceId, userId)
 
       try {
         const library = await prisma.aiLibrary.create({
@@ -87,8 +90,10 @@ builder.mutationField('createLibrary', (t) =>
         await workspaceStorage.createLibrary(workspaceId, { libraryId: library.id, name: library.name })
         return library
       } catch (error) {
-        console.error('Error creating library', { workspaceId, userId, error })
-        throw new GraphQLError('Failed to create library', { originalError: error as Error })
+        if (error instanceof Error) {
+          throw new GraphQLError(error.message, { originalError: error })
+        }
+        throw new GraphQLError('Failed to create library')
       }
     },
   }),

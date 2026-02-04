@@ -6,10 +6,8 @@ import { z } from 'zod'
 
 import { EXTRACTION_METHODS } from '@george-ai/app-commons'
 
-import { ExtractionSelector } from '../../../../../../components/library/files/extraction-selector'
-import { FileMarkdownViewer } from '../../../../../../components/library/files/file-markdown-viewer'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { useMarkdownDownload } from '../../../../../../components/library/files/use-markdown-download'
+import { ExtractionSelector, FileMarkdownViewer, useMarkdownDownload } from '../../../../../../components/library/files'
+import { getFileInfoQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { getBackendPublicUrlQueryOptions } from '../../../../../../queries'

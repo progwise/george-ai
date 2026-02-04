@@ -4,7 +4,7 @@ import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { dateString, timeString } from '@george-ai/app-commons'
 
 import { CrawlersMenu } from '../../../../../../components/library/crawler/crawlers-menu'
-import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
 import { WarnIcon } from '../../../../../../icons/warn-icon'

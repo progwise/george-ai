@@ -2,8 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { ClientDate } from '../../../../../../components/client-date'
-import { getFileUsagesQueryOptions } from '../../../../../../components/library/files/get-file-usages'
+import { getFileUsagesQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/usages')({
@@ -85,7 +84,6 @@ function RouteComponent() {
                 <th>Item Name</th>
                 <th>Chunk Count</th>
                 <th>Extraction Index</th>
-                <th>Created</th>
               </tr>
             </thead>
             <tbody>
@@ -107,12 +105,7 @@ function RouteComponent() {
                   </td>
                   <td className="text-nowrap">{usage.chunkCount}</td>
                   <td className="text-nowrap">
-                    {usage.extractionIndex !== null && usage.extractionIndex !== undefined
-                      ? `#${usage.extractionIndex + 1}`
-                      : '-'}
-                  </td>
-                  <td className="text-nowrap">
-                    <ClientDate date={usage.createdAt} format="dateTime" />
+                    {usage.fragment !== null && usage.fragment !== undefined ? `#${usage.fragment + 1}` : '-'}
                   </td>
                 </tr>
               ))}

@@ -1,9 +1,9 @@
 import type { ModelProvider } from '@george-ai/app-commons'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { getFileChunks, getSimilarChunks, querySimilarChunks } from '@george-ai/langchain-chat'
 
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile FileChunks')
 

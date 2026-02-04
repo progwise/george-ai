@@ -1,31 +1,38 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { FileIcon } from '../../../icons/file-icon'
 import { isGoogleDriveConfigured } from '../../data-sources/login-google-server'
-import { toastError } from '../../georgeToaster'
+import { useLibraryActions } from '../use-library-actions'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { FileUploadProgressDialog, PreparedUploadFile } from './file-upload-progress-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
-import { useFileActions } from './use-file-actions'
 
 interface FilesActionsBarProps {
+  hasLegacyData?: boolean
   libraryId: string
   totalItems: number
   showArchived: boolean
   archivedCount: number
 }
 
-export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedCount }: FilesActionsBarProps) => {
+export const FilesActionsBar = ({
+  libraryId,
+  totalItems,
+  showArchived,
+  archivedCount,
+  hasLegacyData,
+}: FilesActionsBarProps) => {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const fileUploadProgressDialogRef = useRef<HTMLDialogElement | null>(null)
   const [preparedUploadFiles, setPreparedUploadFiles] = useState<PreparedUploadFile[]>([])
   const navigate = useNavigate({ from: '/libraries/$libraryId/files' })
-  const { prepareDesktopFileUploads, fileActionPending } = useFileActions({ libraryId })
+  const { prepareDesktopFileUploads, upgradeLibraryFromLegacy, isPending } = useLibraryActions(libraryId)
 
   const { data: googleDriveEnabled } = useQuery({
     queryKey: ['isGoogleDriveConfigured'],
@@ -45,9 +52,7 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
         lastModified: new Date(file.lastModified),
       })),
       {
-        onError: (error) => {
-          console.error('Error preparing files:', error)
-          toastError(error instanceof Error ? error.message : 'Failed to prepare files for upload')
+        onError: () => {
           fileUploadProgressDialogRef.current?.close()
         },
         onSuccess: (filesWithId) => {
@@ -70,16 +75,31 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
     )
   }
 
+  const handleUpgradeFromLegacy = () => {
+    upgradeLibraryFromLegacy()
+  }
+
   return (
     <>
-      <ul className="menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center">
-        <li>
+      <ul
+        className={twMerge(
+          'menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center',
+        )}
+      >
+        {hasLegacyData && (
+          <li>
+            <button type="button" onClick={handleUpgradeFromLegacy} disabled={isPending || !hasLegacyData}>
+              {t('libraries.upgradeFromLegacy')}
+            </button>
+          </li>
+        )}
+        <li className={twMerge(hasLegacyData && 'menu-disabled')}>
           <button
             type="button"
             onClick={() => {
               fileInputRef.current?.click()
             }}
-            disabled={fileActionPending}
+            disabled={isPending || hasLegacyData}
           >
             <FileIcon className="size-5" />
             {t('actions.upload')}
@@ -90,20 +110,21 @@ export const FilesActionsBar = ({ libraryId, totalItems, showArchived, archivedC
             ref={fileInputRef}
             onChange={handlePrepareUploadFiles}
             style={{ display: 'none' }}
-            disabled={fileActionPending}
+            disabled={isPending || hasLegacyData}
           />
         </li>
         {googleDriveEnabled && (
-          <li>
-            <GoogleFileUploadButton libraryId={libraryId} disabled={false} />
+          <li className={twMerge(hasLegacyData && 'menu-disabled')}>
+            <GoogleFileUploadButton libraryId={libraryId} disabled={isPending || !!hasLegacyData} />
           </li>
         )}
-        <li>
-          <DropAllFilesDialog libraryId={libraryId} disabled={false} totalItems={totalItems} />
+        <li className={twMerge(hasLegacyData && 'menu-disabled')}>
+          <DropAllFilesDialog libraryId={libraryId} disabled={isPending || !!hasLegacyData} totalItems={totalItems} />
         </li>
-        <li>
+        <li className={twMerge(hasLegacyData && 'menu-disabled')}>
           <label className="flex cursor-pointer items-center gap-2">
             <input
+              disabled={isPending || hasLegacyData}
               type="checkbox"
               className="checkbox checkbox-xs"
               checked={showArchived}

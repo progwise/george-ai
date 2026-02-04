@@ -4,8 +4,7 @@ import React, { useRef } from 'react'
 import { z } from 'zod'
 
 import { toastSuccess } from '../../../../../../components/georgeToaster'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { getSimilarFileChunksOptions } from '../../../../../../components/library/files/get-file-similarity'
+import { getFileInfoQueryOptions, getSimilarFileChunksQueryOptions } from '../../../../../../components/library/queries'
 import { getContentQueriesQueryOptions } from '../../../../../../components/lists/queries'
 import { CopyIcon } from '../../../../../../icons/copy-icon'
 
@@ -26,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        getSimilarFileChunksOptions({
+        getSimilarFileChunksQueryOptions({
           fileId: params.fileId,
           term: deps.term,
           hits: deps.hits,
@@ -48,7 +47,7 @@ function RouteComponent() {
   const {
     data: { aiSimilarFileChunks },
   } = useSuspenseQuery(
-    getSimilarFileChunksOptions({
+    getSimilarFileChunksQueryOptions({
       fileId,
       term: term,
       hits: hits,

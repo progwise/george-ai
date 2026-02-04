@@ -36,7 +36,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
   const sortedExtractions = fileInfo?.extractions.sort((a, b) => b.extractionDate.localeCompare(a.extractionDate)) || []
 
   const extractionsWithEmbeddingInfo = sortedExtractions?.map((extraction) => {
-    const embedding = embeddingInfo.find((e) => e.extractionMethod === extraction.extractionMethod)
+    const embedding = embeddingInfo?.find((e) => e.extractionMethod === extraction.extractionMethod)
     return { ...extraction, embedding }
   })
 

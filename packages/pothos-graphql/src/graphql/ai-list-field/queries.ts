@@ -1,6 +1,7 @@
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 
 const ContentQueryResult = builder.simpleObject('ContentQueryResult', {
   fields: (t) => ({

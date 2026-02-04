@@ -1,6 +1,13 @@
+import { EmbeddingStatus } from '@george-ai/app-commons'
 import { ExtractionMethod } from '@george-ai/app-commons/src/types/extraction'
 
 import { VectorStoreChunk, VectorStoreChunksSelector } from './schema'
+
+export interface EmbeddingInfo {
+  extractionMethod: ExtractionMethod
+  modelName: string
+  chunkCount: number
+}
 
 export interface VectorStore {
   createWorkspace(parameters: {
@@ -85,4 +92,8 @@ export interface VectorStore {
     take: number
     skip: number
   }): Promise<{ hitCount: number; results: Array<VectorStoreChunk> }>
+
+  getEmbeddingStatus(parameters: { workspaceId: string; embeddingModelName?: string }): Promise<EmbeddingStatus>
+
+  getEmbeddingInfo(parameters: { workspaceId: string; libraryId?: string; fileId?: string }): Promise<EmbeddingInfo[]>
 }

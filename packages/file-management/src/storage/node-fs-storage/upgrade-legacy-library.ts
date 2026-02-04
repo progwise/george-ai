@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { ROOT_DIR, logger } from './commons'
 import { createLibrary } from './create-library'
+import { createWorkspace } from './create-workspace'
 import { exists } from './exists'
 import { reconcile } from './reconcile'
 import { upgradeLegacyFile } from './upgrade-legacy-file'
@@ -13,6 +14,7 @@ export async function upgradeLegacyLibrary(
   args: {
     libraryId: string
     libraryName: string
+    workspaceName: string
     fileInfoLoader: (fileId: string) => Promise<{
       workspaceId: string
       libraryId: string
@@ -20,20 +22,23 @@ export async function upgradeLegacyLibrary(
       fileName: string
       mimeType: string
       createdAt: string
-      uploadedAt: string
-      hash: string
+      uploadedAt?: string | null
+      hash?: string | null
     }>
   },
 ): Promise<void> {
-  const { libraryId, libraryName } = args
+  const { libraryId, libraryName, workspaceName } = args
+  const workspaceExists = await exists(workspaceId, {})
+  if (!workspaceExists) {
+    logger.info('Workspace does not exist, creating workspace before upgrading legacy library', { workspaceId })
+    await createWorkspace(workspaceId, { name: workspaceName })
+  }
   const libraryExists = await exists(workspaceId, { libraryId })
-  if (libraryExists) {
-    logger.info('Library already exists, skipping upgrade for library', { workspaceId, libraryId })
-    return
+  if (!libraryExists) {
+    logger.info('Library does not exist, creating', { workspaceId, libraryId })
+    await createLibrary(workspaceId, { libraryId, name: libraryName })
   }
   const legacyLibraryDir = path.join(ROOT_DIR, libraryId)
-  await createLibrary(workspaceId, { libraryId, name: libraryName })
-
   const legacyFiles = await readdir(legacyLibraryDir, { withFileTypes: true })
 
   for (const entry of legacyFiles) {

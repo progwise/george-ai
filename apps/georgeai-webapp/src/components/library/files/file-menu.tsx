@@ -3,9 +3,9 @@ import { twMerge } from 'tailwind-merge'
 
 import { ActionType, AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { useLibraryActions } from '..//use-library-actions'
 import { FileInfoBox } from './file-info-box'
 import { FileInfoFiles } from './file-info-files'
-import { useFileActions } from './use-file-actions'
 
 interface FileMenuProps {
   file: AiLibraryFileInfo_CaptionCardFragment
@@ -13,9 +13,7 @@ interface FileMenuProps {
 
 export const FileMenu = ({ file }: FileMenuProps) => {
   const { t } = useTranslation()
-  const { processFile, fileActionPending } = useFileActions({
-    libraryId: file.libraryId,
-  })
+  const { processFile, isPending } = useLibraryActions(file.libraryId)
 
   useEffect(() => {
     const outsideClickHandler = (event: Event) => {
@@ -37,7 +35,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   const reverseClassNames = 'flex flex-row-reverse md:flex-row'
   const buttonProps = {
     className: twMerge('btn rounded-full btn-xs', reverseClassNames),
-    disabled: !!fileActionPending,
+    disabled: !!isPending,
     type: 'button' as const,
   }
 

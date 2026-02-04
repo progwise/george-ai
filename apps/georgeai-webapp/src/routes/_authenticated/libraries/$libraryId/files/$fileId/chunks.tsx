@@ -3,8 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { toastSuccess } from '../../../../../../components/georgeToaster'
-import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
+import { getFileChunksQueryOptions, getFileInfoQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { CopyIcon } from '../../../../../../icons/copy-icon'
 

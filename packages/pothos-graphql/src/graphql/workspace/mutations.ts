@@ -1,12 +1,16 @@
 import { GraphQLError } from 'graphql'
 import { z } from 'zod'
 
+import { canAdminWorkspaceOrThrow, doesOwnWorkspaceOrThrow } from '@george-ai/app-domain'
+
 import { prisma } from '../../../../app-database/src'
 import { INVITATION_EXPIRY_DAYS, isLastAdmin, sendWorkspaceInvitationEmail } from '../../domain/workspace'
 import { builder } from '../builder'
-import { canAdminWorkspaceOrThrow, doesOwnWorkspaceOrThrow } from './common'
+import { logger } from './common'
 
-console.log('Setting up: Workspace mutations')
+import './upgrade-from-legacy'
+
+logger.info('Setting up: Workspace mutations')
 
 // Custom type for deletion validation result
 const WorkspaceDeletionValidation = builder.simpleObject('WorkspaceDeletionValidation', {

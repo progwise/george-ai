@@ -2,12 +2,12 @@ import { GraphQLError } from 'graphql'
 
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 import { encryptValue } from '@george-ai/app-commons'
+import { canAdminWorkspaceOrThrow, canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ModelProviderInstance } from '@george-ai/event-service-client'
 
 import { prisma } from '../../../../app-database/src'
 import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
 import { builder } from '../builder'
-import { canAdminWorkspaceOrThrow, canReadWorkspaceOrThrow } from '../workspace'
 
 // Input type for creating/updating AI service providers
 const AiServiceProviderInput = builder.inputType('AiServiceProviderInput', {

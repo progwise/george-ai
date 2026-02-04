@@ -26,8 +26,8 @@ export async function upgradeLegacyFile(
     fileName: string
     mimeType: string
     createdAt: string
-    uploadedAt: string
-    hash: string
+    uploadedAt?: string | null
+    hash?: string | null
   },
 ): Promise<void> {
   const { libraryId, fileId } = args
@@ -104,8 +104,8 @@ export async function upgradeLegacyFile(
         activeExtractions: 0,
         extractionFiles: 0,
       },
-      originalContentHash: args.hash,
-      originalUpdatedAt: args.createdAt,
+      originalContentHash: args.hash || null,
+      originalUpdatedAt: args.uploadedAt || args.createdAt,
     }
 
     for (const entry of entries) {

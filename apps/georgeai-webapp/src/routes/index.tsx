@@ -7,6 +7,7 @@ import { ClientDate } from '../components/client-date'
 import { getDashboardDataQueryOptions } from '../components/dashboard/get-dashboard-data'
 import { NewLibraryDialog } from '../components/library/new-library-dialog'
 import { NewListDialog } from '../components/lists/new-list-dialog'
+import { WorkspaceStatusCard } from '../components/workspace/workspace-status-card'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { PlusIcon } from '../icons/plus-icon'
 
@@ -35,6 +36,7 @@ const Home = () => {
 
       {/* Overview Cards & System Status */}
       <div className="flex flex-wrap gap-3">
+        {user && <WorkspaceStatusCard user={user} />}
         {/* Task Queues */}
         {data.queueSystemStatus.queues.map((queue) => {
           const queueCard = (

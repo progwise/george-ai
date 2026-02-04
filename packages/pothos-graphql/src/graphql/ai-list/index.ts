@@ -9,7 +9,6 @@ import { workspaceStorage } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { ExtractionInfo } from '../ai-content-extraction'
-import { FileInfo } from '../file-info/types'
 
 console.log('Setting up: AiList')
 
@@ -53,7 +52,7 @@ builder.prismaObject('AiListItem', {
     source: t.relation('source', { nullable: false }),
     file: t.relation('file', { nullable: false }),
     fileInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: FileInfo,
+      type: 'FileManifest',
       nullable: true,
       resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({

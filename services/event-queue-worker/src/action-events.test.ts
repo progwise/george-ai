@@ -61,7 +61,7 @@ describe.sequential('Should process action events', () => {
 
       if (extraction) {
         expect(extraction).toBeDefined()
-        expect(extraction.extractionMethod).toBe('text-extraction')
+        expect(extraction.extractionMethod).toBe('textExtraction')
         expect(extraction.extractedBytes).toBeGreaterThan(0)
         return
       }

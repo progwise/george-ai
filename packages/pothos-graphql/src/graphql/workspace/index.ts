@@ -3,9 +3,11 @@ import { builder } from '../builder'
 import './mutations'
 import './queries'
 
+import { logger } from './common'
+
 export * from './common'
 
-console.log('Setting up: Workspace')
+logger.info('Setting up: Workspace')
 
 builder.prismaObject('Workspace', {
   name: 'Workspace',

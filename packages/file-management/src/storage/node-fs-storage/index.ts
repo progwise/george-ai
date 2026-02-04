@@ -10,6 +10,7 @@ import { getAttachmentFilePath } from './get-attachment-filepath'
 import { getExtraction } from './get-extraction'
 import { getFile } from './get-file'
 import { getLibrary } from './get-library'
+import { getStorageStatus } from './get-storage-status'
 import { getWorkspace } from './get-workspace'
 import { moveLibrary } from './move-library'
 import { readAttachment } from './read-attachment'
@@ -41,6 +42,7 @@ const nodeStorage: IStorageService = {
   getAttachmentFilePath,
   deleteFiles,
   reconcile,
+  getStorageStatus,
   upgradeLegacyFile,
   upgradeLegacyLibrary,
 }

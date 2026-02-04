@@ -20,6 +20,7 @@ export const queryKeys = {
   Conversations: 'Conversations',
   Conversation: 'Conversation',
   Language: 'Language',
+  SimilarFileChunks: 'SimilarFileChunks',
   Theme: 'Theme',
   User: 'User',
   Users: 'Users',
@@ -30,6 +31,7 @@ export const queryKeys = {
   WorkspaceMembers: 'WorkspaceMembers',
   WorkspaceInvitations: 'WorkspaceInvitations',
   WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
+  WorkspaceStats: 'WorkspaceStats',
   // Connectors
   Connectors: 'Connectors',
   Connector: 'Connector',

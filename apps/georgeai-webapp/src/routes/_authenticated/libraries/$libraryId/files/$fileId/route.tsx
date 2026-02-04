@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { FileCaptionCard } from '../../../../../../components/library/files/file-caption-card'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
+import { FileCaptionCard } from '../../../../../../components/library/files'
+import { getFileInfoQueryOptions } from '../../../../../../components/library/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId')({
   component: RouteComponent,

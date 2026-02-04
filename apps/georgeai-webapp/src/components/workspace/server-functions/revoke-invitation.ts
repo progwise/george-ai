@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
-import { graphql } from '../../../../gql'
-import { backendRequest } from '../../../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
 const revokeWorkspaceInvitationMutationDocument = graphql(`
   mutation RevokeWorkspaceInvitation($invitationId: ID!) {

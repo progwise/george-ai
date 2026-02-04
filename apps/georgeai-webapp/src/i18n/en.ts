@@ -667,6 +667,7 @@ export default {
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
     title: 'Library',
+    upgradeFromLegacy: 'Upgrade from legacy library',
   },
   lists: {
     contextSources: {

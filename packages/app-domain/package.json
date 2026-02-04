@@ -31,6 +31,8 @@
     "@george-ai/app-commons": "workspace:*",
     "@george-ai/app-database": "workspace:*",
     "@george-ai/event-service-client": "workspace:*",
+    "@george-ai/file-management": "workspace:*",
+    "@george-ai/vector-store": "workspace:*",
     "bcrypt": "^6.0.0",
     "dotenv": "^16.4.5"
   }

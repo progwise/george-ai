@@ -4,8 +4,9 @@ import { z } from 'zod'
 
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
-import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
+import { getFilesQueryOptions } from '../../../../../components/library/queries'
 import { Pagination } from '../../../../../components/table/pagination'
+import { StorageStatus } from '../../../../../gql/graphql'
 import { useTranslation } from '../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/')({
@@ -23,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        aiLibraryFilesQueryOptions({
+        getFilesQueryOptions({
           libraryId: params.libraryId,
           skip: deps.skip,
           take: deps.take,
@@ -40,9 +41,10 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { t } = useTranslation()
 
-  const aiLibraryFilesQuery = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }))
-  const aiLibraryFiles = aiLibraryFilesQuery.data.aiLibraryFiles
-  const archivedCount = aiLibraryFiles.archivedCount
+  const { data } = useSuspenseQuery(getFilesQueryOptions({ libraryId, skip, take, showArchived }))
+  const archivedCount = data.archivedCount
+  const aiLibraryFiles = data
+  const library = data.library
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
@@ -55,11 +57,12 @@ function RouteComponent() {
               })}
         </div>
         <div className="relative flex justify-between align-top">
-          <div className="flex flex-col gap-1 overflow-y-auto">
-            <h3 className="text-xl font-bold text-nowrap text-base-content">{aiLibraryFiles.library.name}</h3>
+          <div className="flex flex-row items-center gap-1 overflow-y-auto">
+            <h3 className="text-xl font-bold text-nowrap text-base-content">{library.name}</h3>
           </div>
           <div className="absolute right-0 z-49 md:flex">
             <FilesActionsBar
+              hasLegacyData={library.storageStatus === StorageStatus.HasLegacyData}
               libraryId={libraryId}
               totalItems={aiLibraryFiles.count}
               showArchived={showArchived}
@@ -86,7 +89,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className="overflow-auto">
-        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
+        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} library={aiLibraryFiles.library} />
       </div>
     </div>
   )

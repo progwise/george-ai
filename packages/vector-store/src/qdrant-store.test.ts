@@ -12,9 +12,13 @@ describe.sequential('Vector Store with Qdrant  ', () => {
   afterAll(async () => {
     await vectorStore.removeWorkspace(TEST_WORKSPACE_ID)
   })
-  it('should create store for workspace', async () => {
-    await vectorStore.createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
-  })
+  it(
+    'should create store for workspace',
+    { timeout: 10000 }, // Workspace creation is slow in Qdrant
+    async () => {
+      await vectorStore.createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
+    },
+  )
   it('shoud store chunks', async () => {
     const chunks: VectorStoreChunk[] = [
       {

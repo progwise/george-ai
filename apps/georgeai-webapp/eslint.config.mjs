@@ -48,6 +48,7 @@ export default defineConfig(globalIgnores(['dist/', '.nitro/', '.turbo/', '.outp
           'properties',
           'table-pin-rows',
           'table-pin-cols',
+          'menu-disabled',
         ],
       },
     ],

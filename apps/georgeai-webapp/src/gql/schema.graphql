@@ -446,6 +446,7 @@ type AiLibrary {
   ocrModel: AiLanguageModel
   owner: User!
   ownerId: String!
+  storageStatus: StorageStatus!
   updatedAt: DateTime!
   url: String
 }
@@ -544,18 +545,17 @@ type AiLibraryCrawlerRun {
 
 type AiLibraryFile {
   archivedAt: DateTime
-  chunksCount: Int
   crawledByCrawler: AiLibraryCrawler
   crawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
   dropError: String
-  embeddingInfo: [FileEmbeddingInfo!]!
+  embeddingInfo: [FileEmbeddingInfo!]
   """
   Available extractions for this file (e.g., CSV, PDF with different models)
   """
   extractions: [ExtractionInfo!]!
-  fileInfo: FileInfo
+  fileInfo: FileManifest
   id: ID!
   lastUpdate: AiLibraryUpdate
   library: AiLibrary!
@@ -566,6 +566,7 @@ type AiLibraryFile {
   originUri: String
   size: Int
   status: String!
+  storageStatus: StorageStatus!
   supportedExtractionMethods: [String!]!
   updatedAt: DateTime
   uploadedAt: DateTime
@@ -586,11 +587,13 @@ Query result for AI library files
 type AiLibraryFileQueryResult {
   archivedCount: Int!
   count: Int!
+  embeddingStatus: EmbeddingStatus!
   files: [AiLibraryFile!]!
   library: AiLibrary!
   libraryId: String!
   showArchived: Boolean
   skip: Int!
+  storageStatus: StorageStatus!
   take: Int!
 }
 
@@ -797,7 +800,7 @@ type AiListItem {
   extractionMethod: ExtractionMethod!
   file: AiLibraryFile!
   fileId: String!
-  fileInfo: FileInfo
+  fileInfo: FileManifest
   fragment: Int
   id: ID!
   itemName: String!
@@ -1068,6 +1071,27 @@ scalar DateTime
 
 scalar Decimal
 
+"""
+Information about an embedding method used in the workspace
+"""
+type EmbeddingInfo {
+  chunkCount: Int!
+  extractionMethod: ExtractionMethod!
+  modelName: String!
+}
+
+type EmbeddingSettings {
+  embeddingModelName: String!
+  embeddingModelProvider: String!
+}
+
+enum EmbeddingStatus {
+  ModelNotFound
+  Ready
+  UnknownModelConfig
+  WorkspaceNotFound
+}
+
 type EnrichmentQueueResult {
   enrichments: [AiEnrichmentTask!]!
   fieldId: String
@@ -1222,9 +1246,18 @@ type FileEmbeddingInfo {
 }
 
 """
+Information about an extraction available for a file
+"""
+type FileInfoExtraction {
+  extractionDate: DateTime!
+  extractionHash: String!
+  extractionMethod: ExtractionMethod!
+}
+
+"""
 Information about a file stored in the AI library
 """
-type FileInfo {
+type FileManifest {
   """
   Available extractions for this file (e.g., CSV, PDF with different models)
   """
@@ -1238,21 +1271,14 @@ type FileInfo {
   usage: StorageUsage!
 }
 
-"""
-Information about an extraction available for a file
-"""
-type FileInfoExtraction {
-  extractionDate: DateTime!
-  extractionHash: String!
-  extractionMethod: ExtractionMethod!
-}
-
 type FileUsage {
   chunkCount: Int!
-  createdAt: DateTime!
-  extractionIndex: Int
+  extractionMethod: ExtractionMethod!
+  fileId: String!
+  fragment: Int
   id: ID!
   itemName: String!
+  libraryId: String!
   listId: String!
   listName: String!
 }
@@ -1279,6 +1305,11 @@ type HumanParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+type ImageAnalysisSettings {
+  imageAnalysisModelName: String!
+  imageAnalysisModelProvider: String!
 }
 
 type LibraryCrawlerRunQueryResults {
@@ -1572,6 +1603,8 @@ type Mutation {
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   updateWorkspaceMemberRole(role: String!, userId: ID!, workspaceId: ID!): WorkspaceMember!
+  upgradeLibraryFromLegacy(libraryId: String!): Boolean
+  upgradeWorkspaceFromLegacy(id: String!): Boolean
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
   validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
@@ -1716,7 +1749,7 @@ type Query {
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
   eventProcessingStatus: [EventProcessingStatusResult!]!
-  fileInfo(fileId: String!, libraryId: String!): FileInfo!
+  fileInfo(fileId: String!, libraryId: String!): FileManifest!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
@@ -1732,6 +1765,7 @@ type Query {
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaceStatistics: WorkspaceWorkerStatistics!
+  workspaceStats(workspaceId: String!): WorkspaceStats
   workspaces: [Workspace!]!
 }
 
@@ -1771,6 +1805,13 @@ type RestoreDefaultProvidersResult {
   skipped: Int!
 }
 
+enum Role {
+  admin
+  member
+  owner
+  viewer
+}
+
 type SharePointValidationResult {
   errorMessage: String
   errorType: String
@@ -1785,6 +1826,12 @@ type StopEventProcessingResult {
   success: Boolean
 }
 
+enum StorageStatus {
+  NotFound
+  Ready
+  hasLegacyData
+}
+
 """
 Storage usage information for a workspace
 """
@@ -1792,10 +1839,8 @@ type StorageUsage {
   activeExtractedBytes: Int!
   activeExtractions: Int!
   extractedBytes: Int!
-  extractionFiles: Int!
   extractions: Int!
   lastReconcile: DateTime
-  lastUpdate: DateTime
   physicalBytes: Int!
   physicalFiles: Int!
   sourceBytes: Int!
@@ -1956,12 +2001,47 @@ type WorkspaceInvitation {
   workspace: Workspace!
 }
 
+"""
+Manifest information about a workspace
+"""
+type WorkspaceManifest {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  settings: WorkspaceSettings!
+  updatedAt: DateTime!
+  usage: StorageUsage!
+  version: Int!
+}
+
 type WorkspaceMember {
   createdAt: DateTime!
   id: ID!
   role: String!
   user: User!
   workspace: Workspace!
+}
+
+type WorkspaceSettings {
+  embedding: EmbeddingSettings
+  imageAnalysis: ImageAnalysisSettings
+  storageLimitBytes: Int
+  storageLimitFiles: Int
+}
+
+"""
+Statistics and metadata about a workspace
+"""
+type WorkspaceStats {
+  embeddingInfo: [EmbeddingInfo!]
+  id: ID
+  isAdmin: Boolean
+  isDefault: Boolean
+  memberCount: Int
+  name: String
+  roles: [Role!]!
+  slug: String
+  workspaceInfo: WorkspaceManifest
 }
 
 type WorkspaceWorker {

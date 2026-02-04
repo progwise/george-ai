@@ -4,9 +4,11 @@ import z from 'zod'
 
 import { CrawlerRunsTable } from '../../../../../components/library/crawler/crawler-runs-table'
 import { CrawlersMenu } from '../../../../../components/library/crawler/crawlers-menu'
-import { getCrawlerQueryOptions } from '../../../../../components/library/crawler/queries/get-crawler'
-import { getCrawlerRunsQueryOptions } from '../../../../../components/library/crawler/queries/get-crawler-runs'
-import { getCrawlersQueryOptions } from '../../../../../components/library/crawler/queries/get-crawlers'
+import {
+  getCrawlerQueryOptions,
+  getCrawlerRunsQueryOptions,
+  getCrawlersQueryOptions,
+} from '../../../../../components/library/crawler/queries'
 import { Pagination } from '../../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/')({

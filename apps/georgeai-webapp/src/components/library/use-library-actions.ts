@@ -1,22 +1,63 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 
-import { ActionType } from '../../gql/graphql'
+import { ProcessFileInput, ProcessFilesInput } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
-import { getApiKeysQueryOptions } from './queries/get-api-keys'
-import { getLibrariesQueryOptions } from './queries/get-libraries'
-import { getLibraryQueryOptions } from './queries/get-library'
-import { deleteLibraryFn } from './server-functions/delete-library'
-import { generateApiKeyFn } from './server-functions/generate-api-key'
-import { processFileFn } from './server-functions/processing'
-import { revokeApiKeyFn } from './server-functions/revoke-api-key'
-import { updateLibraryFn } from './server-functions/update-library'
+import {
+  getApiKeysQueryOptions,
+  getFileChunksQueryOptions,
+  getFileInfoQueryOptions,
+  getFilesQueryOptions,
+  getLibrariesQueryOptions,
+  getLibraryQueryOptions,
+} from './queries'
+import {
+  cancelFileUploadFn,
+  deleteLibraryFileFn,
+  deleteLibraryFilesFn,
+  deleteLibraryFn,
+  dropAllLibraryFilesFn,
+  generateApiKeyFn,
+  prepareDesktopFileUploadsFn,
+  processFileFn,
+  processFilesFn,
+  revokeApiKeyFn,
+  updateLibraryFn,
+  upgradeLibraryFromLegacyFn,
+} from './server-functions'
 
 export const useLibraryActions = (libraryId: string) => {
   const { t } = useTranslation()
+  const { skip, take, showArchived } = useSearch({ strict: false })
   const queryClient = useQueryClient()
+  const invalidateQueries = async (fileIds?: string[]) => {
+    await Promise.all([
+      ...(fileIds
+        ? fileIds.map((fileId) =>
+            queryClient.invalidateQueries({
+              queryKey: getFileChunksQueryOptions({ libraryId, fileId }).queryKey,
+            }),
+          )
+        : []),
+      ...(fileIds
+        ? fileIds.map((fileId) =>
+            queryClient.invalidateQueries({
+              queryKey: getFileInfoQueryOptions({ fileId }).queryKey,
+            }),
+          )
+        : []),
+      queryClient.invalidateQueries({
+        queryKey: getFilesQueryOptions({
+          libraryId,
+          skip: skip || 0,
+          take: take || 20,
+          showArchived,
+        }).queryKey,
+      }),
+    ])
+  }
   const navigate = useNavigate()
 
   const updateLibraryMutation = useMutation({
@@ -81,7 +122,7 @@ export const useLibraryActions = (libraryId: string) => {
   })
 
   const processFileMutation = useMutation({
-    mutationFn: (data: { libraryId: string; fileId: string; actionType: ActionType }) => processFileFn({ data }),
+    mutationFn: (data: ProcessFileInput) => processFileFn({ data }),
     onSuccess: (_data, { actionType }) => {
       logger.debug('processFileMutation success', { actionType })
       toastSuccess(`${actionType} successfully triggered`)
@@ -92,17 +133,128 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
+  const processFilesMutation = useMutation({
+    mutationFn: (data: ProcessFilesInput) => processFilesFn({ data }),
+    onError: (error, variables) => {
+      logger.error('Error processing files', { error, variables })
+      toastError(
+        `Error starting  ${variables.fileIds.length} processings: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
+    },
+    onSuccess: (_data, variables) => {
+      toastSuccess(`Successfully started ${variables.fileIds.length} file processings`)
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
+  const upgradeFromLegacy = useMutation({
+    mutationFn: async () => await upgradeLibraryFromLegacyFn({ data: libraryId }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.upgradeFromLegacyError', { error: 'Unknown error' })
+      toastError(errorMessage)
+    },
+    onSuccess: () => {
+      toastSuccess(t('libraries.upgradeFromLegacySuccess'))
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
+  const deleteFileMutation = useMutation({
+    mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { libraryId, fileId } }),
+    onError: (error: Error) => {
+      const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
+      toastError(t('errors.dropFile', { error: errorMessage }))
+    },
+    onSuccess: (data) => {
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${data.name}`)
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
+  const deleteFilesMutation = useMutation({
+    mutationFn: async (fileIds: string[]) => deleteLibraryFilesFn({ data: { libraryId, fileIds } }),
+    onSuccess: (data) => {
+      toastSuccess(t('actions.dropSuccess', { count: data.deleteLibraryFiles }))
+    },
+    onError: (error) => {
+      toastError(t('errors.dropFilesError', { error: error instanceof Error ? error.message : '' }))
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
+  const dropFilesMutation = useMutation({
+    mutationFn: async (libraryId: string) => dropAllLibraryFilesFn({ data: { libraryId } }),
+    onError: () => {
+      toastError(t('errors.dropAllFilesError'))
+    },
+    onSuccess: (data) => {
+      toastSuccess(t('actions.dropSuccess', { count: data.dropAllLibraryFiles }))
+    },
+    onSettled: () => {},
+  })
+
+  const { mutate: prepareDesktopFileUploadsMutate, isPending: prepareDesktopFilesIsPending } = useMutation({
+    mutationFn: (files: { name: string; type: string; size: number; lastModified: Date }[]) =>
+      prepareDesktopFileUploadsFn({ data: { libraryId, files } }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.prepareFileUploads', { error: 'Unknown error' })
+      toastError(errorMessage)
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
+  const { mutate: cancelFileUploadMutate, isPending: cancelFileUploadPending } = useMutation({
+    mutationFn: (fileId: string) => cancelFileUploadFn({ data: { libraryId, fileId } }),
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.cancelFileUpload', { error: 'Unknown error' })
+      toastError(errorMessage)
+    },
+    onSuccess: () => {
+      toastSuccess(t('actions.cancelFileUploadSuccess'))
+    },
+    onSettled: () => {
+      invalidateQueries()
+    },
+  })
+
   return {
     updateLibrary: updateLibraryMutation.mutate,
     deleteLibrary: deleteLibraryMutation.mutate,
     generateApiKey: generateApiKeyMutation.mutate,
     revokeApiKey: revokeApiKeyMutation.mutate,
     processFile: processFileMutation.mutate,
+    processFiles: processFilesMutation.mutate,
+    upgradeLibraryFromLegacy: upgradeFromLegacy.mutate,
+    deleteFile: deleteFileMutation.mutate,
+    deleteFiles: deleteFilesMutation.mutate,
+    dropAllFiles: dropFilesMutation.mutate,
+    prepareDesktopFileUploads: prepareDesktopFileUploadsMutate,
+    cancelFileUpload: cancelFileUploadMutate,
     isPending:
       updateLibraryMutation.isPending ||
       deleteLibraryMutation.isPending ||
       generateApiKeyMutation.isPending ||
       revokeApiKeyMutation.isPending ||
-      processFileMutation.isPending,
+      processFileMutation.isPending ||
+      processFilesMutation.isPending ||
+      deleteFileMutation.isPending ||
+      deleteFilesMutation.isPending ||
+      dropFilesMutation.isPending ||
+      cancelFileUploadPending ||
+      prepareDesktopFilesIsPending ||
+      upgradeFromLegacy.isPending,
   }
 }

@@ -3,6 +3,7 @@ import { createWorkspace } from './create-workspace'
 import { findSimilarChunks } from './find-similar-chunks'
 import { getChunkCount } from './get-chunk-count'
 import { getChunks } from './get-chunks'
+import { getEmbeddingInfo } from './get-embedding-info'
 import { getEmbeddingModelNames } from './get-embedding-model-names'
 import { queryChunks } from './query-chunks'
 import { readChunks } from './read-chunks'
@@ -16,6 +17,7 @@ export default {
   createWorkspace,
   removeWorkspace,
   getEmbeddingModelNames,
+  getEmbeddingInfo,
   getChunkCount,
   upsertChunks,
   removeChunks,

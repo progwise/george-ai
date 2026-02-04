@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getCrawlersQueryOptions } from '../../../../components/library/crawler/queries/get-crawlers'
+import { getCrawlersQueryOptions } from '../../../../components/library/crawler/queries'
 import { UpdatesTable, getLibraryUpdateItemsQueryOptions } from '../../../../components/library/updates'
 import { Pagination } from '../../../../components/table/pagination'
 

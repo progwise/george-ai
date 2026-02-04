@@ -29,7 +29,7 @@ describe('API Key Tests', () => {
       data: {
         userId: TEST_USER_ID,
         workspaceId: TEST_WORKSPACE_ID,
-        role: 'OWNER',
+        role: 'owner',
       },
     })
     await prisma.aiLibrary.create({

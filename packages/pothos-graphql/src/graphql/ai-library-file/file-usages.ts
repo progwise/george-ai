@@ -1,9 +1,9 @@
 import { ExtractionMethod, getExtractionMethod } from '@george-ai/app-commons'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 
 console.log('Setting up: AiLibraryFile FileUsages')
 

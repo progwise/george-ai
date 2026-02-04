@@ -1,9 +1,12 @@
 import { GraphQLError } from 'graphql'
 
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { logger } from '../workload/common'
-import { canReadWorkspaceOrThrow } from './common'
+import { logger } from './common'
+
+import './workspace-stats'
 
 logger.info('Setting up: Workspace queries')
 

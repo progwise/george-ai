@@ -27,7 +27,7 @@ describe('Prisma Client', () => {
         defaultWorkspaceId: TEST_WORKSPACE_ID,
         workspaceMemberships: {
           create: {
-            role: 'OWNER',
+            role: 'owner',
             workspaceId: TEST_WORKSPACE_ID,
           },
         },
@@ -82,6 +82,6 @@ describe('Prisma Client', () => {
     })
 
     expect(member).toBeDefined()
-    expect(['OWNER', 'ADMIN', 'MEMBER']).toContain(member?.role)
+    expect(['owner', 'admin', 'member']).toContain(member?.role)
   })
 })

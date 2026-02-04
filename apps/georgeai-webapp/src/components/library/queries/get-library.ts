@@ -11,6 +11,7 @@ const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {
     aiLibrary(libraryId: $libraryId) {
       id
+      storageStatus
       ...AiLibraryBase
       ...AiLibraryForm_Library
     }

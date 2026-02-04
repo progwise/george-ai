@@ -1,8 +1,11 @@
 import { GraphQLError } from 'graphql/error'
 
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { workspaceStorage } from '@george-ai/file-management'
+import { vectorStore } from '@george-ai/vector-store'
+
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 import { logger } from './common'
 
 console.log('Setting up: AiLibraryFile Queries')
@@ -59,8 +62,28 @@ const LibraryFileQueryResult = builder
           })
         },
       }),
+      storageStatus: t.withAuth({ isLoggedIn: true }).field({
+        type: 'StorageStatus',
+        nullable: false,
+        resolve: async (root, _args, { workspaceId }) => {
+          const storageStatus = await workspaceStorage.getStorageStatus(workspaceId, {
+            libraryId: root.libraryId,
+          })
+          return storageStatus
+        },
+      }),
+      embeddingStatus: t.withAuth({ isLoggedIn: true }).field({
+        type: 'EmbeddingStatus',
+        nullable: false,
+        resolve: async (_root, _args, { workspaceId }) => {
+          const embeddingStatus = await vectorStore.getEmbeddingStatus({
+            workspaceId,
+          })
+          return embeddingStatus
+        },
+      }),
       // List of files in this library
-      files: t.prismaField({
+      files: t.withAuth({ isLoggedIn: true }).prismaField({
         type: ['AiLibraryFile'],
         nullable: false,
         resolve: async (query, root) => {

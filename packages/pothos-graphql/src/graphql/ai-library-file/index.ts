@@ -11,11 +11,9 @@ import './mutations'
 
 import { GraphQLError } from 'graphql/error'
 
-import { EXTRACTION_METHODS } from '@george-ai/app-commons'
 import { ExtractionMetadata, workspaceStorage } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
-import { FileInfo } from '../file-info'
 import { logger } from './common'
 
 console.log('Setting up: AiLibraryFile')
@@ -26,6 +24,17 @@ builder.prismaObject('AiLibraryFile', {
     id: t.exposeID('id', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    storageStatus: t.withAuth({ isLoggedIn: true }).field({
+      type: 'StorageStatus',
+      nullable: false,
+      resolve: async (file, _args, { workspaceId }) => {
+        const storageStatus = await workspaceStorage.getStorageStatus(workspaceId, {
+          libraryId: file.libraryId,
+          fileId: file.id,
+        })
+        return storageStatus
+      },
+    }),
     name: t.exposeString('name', { nullable: false }),
     originUri: t.exposeString('originUri', { nullable: true }),
     docPath: t.exposeString('docPath', { nullable: true }),
@@ -40,29 +49,39 @@ builder.prismaObject('AiLibraryFile', {
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
     crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
-    chunksCount: t.withAuth({ isLoggedIn: true }).field({
-      type: 'Int',
-      nullable: true,
+    embeddingInfo: t.withAuth({ isLoggedIn: true }).field({
+      type: [
+        builder.simpleObject('FileEmbeddingInfo', {
+          description: 'Information about embeddings available for a file',
+          fields: (t) => ({
+            extractionMethod: t.field({ type: 'ExtractionMethod', nullable: false }),
+            modelName: t.string({ nullable: false }),
+            chunkCount: t.int({ nullable: false }),
+          }),
+        }),
+      ],
+      nullable: { list: true, items: false },
       resolve: async (file, _args, { workspaceId }) => {
         try {
-          return await vectorStore.getChunkCount({
+          const embeddingInfo = await vectorStore.getEmbeddingInfo({
             workspaceId,
             libraryId: file.libraryId,
             fileId: file.id,
           })
+          return embeddingInfo
         } catch (error) {
-          logger.error('Error fetching file chunks count', {
+          logger.error('Error fetching file embeddings info', {
             error,
             workspaceId,
             fileId: file.id,
             libraryId: file.libraryId,
           })
-          throw new GraphQLError('Failed to fetch file chunks count', { originalError: error as Error })
+          throw new GraphQLError('Failed to fetch file embeddings info', { originalError: error as Error })
         }
       },
     }),
     fileInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: FileInfo,
+      type: 'FileManifest',
       nullable: true,
       resolve: async (file, _args, { workspaceId }) => {
         const fileInfo = await workspaceStorage.getFile(workspaceId, {
@@ -111,50 +130,6 @@ builder.prismaObject('AiLibraryFile', {
       resolve: (file) => {
         const supportedMethods = getAvailableMethodsForMimeType(file.mimeType)
         return supportedMethods.map((method) => method.name)
-      },
-    }),
-    embeddingInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: [
-        builder.simpleObject('FileEmbeddingInfo', {
-          description: 'Information about embeddings available for a file',
-          fields: (t) => ({
-            extractionMethod: t.field({ type: 'ExtractionMethod', nullable: false }),
-            modelName: t.string({ nullable: false }),
-            chunkCount: t.int({ nullable: false }),
-          }),
-        }),
-      ],
-      nullable: { list: false, items: false },
-      resolve: async (file, _args, { workspaceId }) => {
-        try {
-          const modelNames = await vectorStore.getEmbeddingModelNames(workspaceId)
-
-          const result = EXTRACTION_METHODS.flatMap((extractionMethod) =>
-            modelNames.map(async (modelName) => {
-              const chunkCount = await vectorStore.getChunkCount({
-                workspaceId,
-                libraryId: file.libraryId,
-                fileId: file.id,
-                extractionMethod,
-                modelName,
-              })
-              return {
-                extractionMethod,
-                modelName,
-                chunkCount,
-              }
-            }),
-          )
-          return result
-        } catch (error) {
-          logger.error('Error fetching file embeddings info', {
-            error,
-            workspaceId,
-            fileId: file.id,
-            libraryId: file.libraryId,
-          })
-          throw new GraphQLError('Failed to fetch file embeddings info', { originalError: error as Error })
-        }
       },
     }),
     crawler: t.relation('crawledByCrawler', { nullable: true }),

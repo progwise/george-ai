@@ -9,9 +9,9 @@ export async function getLibrary(workspaceId: string, args: { libraryId: string 
     return null
   }
   const libraryDir = await getLibraryDir(workspaceId, libraryId)
-  const libraryManifest = await getLibraryManifest(libraryDir)
-  if (!libraryManifest) {
+  const manifest = await getLibraryManifest(libraryDir)
+  if (!manifest) {
     throw new Error(`Library manifest not found for libraryId: ${libraryId} in workspaceId: ${workspaceId}`)
   }
-  return libraryManifest
+  return manifest
 }

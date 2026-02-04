@@ -1,2 +1,5 @@
 export * from './extraction'
 export * from './model-providers'
+export * from './storage'
+export * from './embedding'
+export * from './roles'

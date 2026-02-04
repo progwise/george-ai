@@ -20,3 +20,11 @@ export const qdrantClient = new QdrantClient({
   url: process.env.QDRANT_URL || 'http://gai-qdrant:6333',
   apiKey: process.env.QDRANT_API_KEY || undefined,
 })
+
+export const getCollection = async (collectionName: string) => {
+  const { exists } = await qdrantClient.collectionExists(collectionName)
+  if (!exists) {
+    return null
+  }
+  return await qdrantClient.getCollection(collectionName)
+}

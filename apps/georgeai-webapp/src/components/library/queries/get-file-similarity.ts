@@ -2,9 +2,10 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getSimilarFileChunks = createServerFn({ method: 'GET' })
+const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
@@ -56,16 +57,16 @@ const getSimilarFileChunks = createServerFn({ method: 'GET' })
     return result
   })
 
-export const getSimilarFileChunksOptions = (params: {
+export const getSimilarFileChunksQueryOptions = (params: {
   fileId: string
   term?: string
   hits?: number
   part?: number
   useQuery?: boolean
 }) => ({
-  queryKey: ['fileChunks', { ...params }],
+  queryKey: [queryKeys.SimilarFileChunks, { ...params }],
   queryFn: () =>
-    getSimilarFileChunks({
+    getSimilarFileChunksFn({
       data: {
         fileId: params.fileId,
         term: params.term,

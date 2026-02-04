@@ -1,9 +1,9 @@
 import { GraphQLError } from 'graphql'
 
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { workspaceProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 import { logger } from './common'
 
 builder.queryField('eventProcessingStatus', (t) =>

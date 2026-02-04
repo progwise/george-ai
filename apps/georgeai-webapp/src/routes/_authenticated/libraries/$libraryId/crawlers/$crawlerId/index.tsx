@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/$crawlerId/')({
   component: RouteComponent,

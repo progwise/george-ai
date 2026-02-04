@@ -5,17 +5,10 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { getCrawlerQueryOptions } from './queries/get-crawler'
 import { getCrawlersQueryOptions } from './queries/get-crawlers'
-import { addCrawlerFn } from './server-functions/add-crawler-fn'
-import { deleteCrawlerFn } from './server-functions/delete-crawler-fn'
-import { runCrawlerFn } from './server-functions/run-crawler-fn'
-import { stopCrawlerFn } from './server-functions/stop-crawler-fn'
+import { addCrawlerFn, deleteCrawlerFn, runCrawlerFn, stopCrawlerFn } from './server-functions'
 import { updateCrawlerFn } from './server-functions/update-crawler'
 
-interface UseCrawlerActionsProps {
-  libraryId: string
-}
-
-export const useCrawlerActions = ({ libraryId }: UseCrawlerActionsProps) => {
+export const useCrawlerActions = (libraryId: string) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()

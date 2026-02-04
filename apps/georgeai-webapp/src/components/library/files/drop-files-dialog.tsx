@@ -1,11 +1,9 @@
-import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
-import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { deleteLibraryFilesFn } from '../server-functions/delete-files'
+import { useLibraryActions } from '../use-library-actions'
 
 interface DropFilesDialogProps {
   libraryId: string
@@ -24,22 +22,17 @@ export const DropFilesDialog = ({
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { mutate: dropFilesMutate, isPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await deleteLibraryFilesFn({ data: { libraryId, fileIds } })
-    },
-    onSuccess: () => {
-      toastSuccess(t('actions.dropSuccess', { count: checkedFileIds.length }))
-    },
-    onError: () => {
-      toastError(t('errors.dropFilesError'))
-    },
-    onSettled: () => {
-      setCheckedFileIds([])
-      tableDataChanged()
-      dialogRef.current?.close()
-    },
-  })
+  const { deleteFiles, isPending } = useLibraryActions(libraryId)
+
+  const handleDeleteFoles = async (fileIds: string[]) => {
+    deleteFiles(fileIds, {
+      onSettled: () => {
+        setCheckedFileIds([])
+        tableDataChanged()
+        dialogRef.current?.close()
+      },
+    })
+  }
 
   const textOfDropButton = t('actions.drop')
 
@@ -61,7 +54,7 @@ export const DropFilesDialog = ({
         ref={dialogRef}
         title={t('libraries.dropFilesDialog')}
         description={t('texts.dropFilesDialogDescription')}
-        onSubmit={() => dropFilesMutate(checkedFileIds)}
+        onSubmit={() => handleDeleteFoles(checkedFileIds)}
         submitButtonText={textOfDropButton}
       >
         <div className="w-full">

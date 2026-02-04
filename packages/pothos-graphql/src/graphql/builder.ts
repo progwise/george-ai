@@ -3,7 +3,7 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { EXTRACTION_METHODS, MODEL_PROVIDERS } from '@george-ai/app-commons'
+import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, STORAGE_STATUS } from '@george-ai/app-commons'
 import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { Prisma, getDatamodel, prisma } from '../../../app-database/src'
@@ -17,6 +17,7 @@ import {
   LIST_FIELD_TYPES,
 } from '../domain/list'
 import { IS_PRODUCTION } from '../global-config'
+import { GeorgeTypes } from './george-types'
 
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
@@ -28,6 +29,7 @@ const builder = new SchemaBuilder<{
   AuthContexts: {
     isLoggedIn: LoggedInContext
   }
+  Objects: GeorgeTypes
   Scalars: {
     ListFieldSourceType: {
       Input: (typeof LIST_FIELD_SOURCE_TYPES)[number]
@@ -44,6 +46,14 @@ const builder = new SchemaBuilder<{
     ListFieldContextType: {
       Input: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
       Output: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
+    }
+    StorageStatus: {
+      Input: (typeof STORAGE_STATUS)[number]
+      Output: (typeof STORAGE_STATUS)[number]
+    }
+    EmbeddingStatus: {
+      Input: (typeof EMBEDDING_STATUS)[number]
+      Output: (typeof EMBEDDING_STATUS)[number]
     }
     ExtractionMethod: {
       Input: (typeof EXTRACTION_METHODS)[number]
@@ -121,9 +131,11 @@ const builder = new SchemaBuilder<{
     onUnusedQuery: IS_PRODUCTION ? null : 'warn',
   },
   scopeAuth: {
-    authScopes: async (context) => ({
-      isLoggedIn: !!context.session,
-    }),
+    authScopes: async (context) => {
+      return {
+        isLoggedIn: !!context.session,
+      }
+    },
     unauthorizedError: () => {
       throw Error('Unauthorized')
     },

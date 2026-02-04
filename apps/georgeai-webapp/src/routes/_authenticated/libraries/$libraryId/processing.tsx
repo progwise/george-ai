@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
+import { getFilesQueryOptions } from '../../../../components/library/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/processing')({
   component: RouteComponent,
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/proce
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        aiLibraryFilesQueryOptions({
+        getFilesQueryOptions({
           libraryId: params.libraryId,
           skip: 0,
           take: 1,

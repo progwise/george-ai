@@ -1,4 +1,5 @@
 export const getErrorObject = (error: unknown): object => {
+  console.log('Getting error object for:', error)
   if (error instanceof Error) {
     const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error))
     return JSON.parse(errorString)

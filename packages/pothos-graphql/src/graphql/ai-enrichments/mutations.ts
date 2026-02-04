@@ -1,12 +1,12 @@
 import { ModelProvider } from '@george-ai/app-commons'
 import { createLogger } from '@george-ai/app-commons'
+import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { Prisma, prisma } from '../../../../app-database/src'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
-import { canWriteWorkspaceOrThrow } from '../workspace'
 
 const logger = createLogger('Enrichment Tasks')
 

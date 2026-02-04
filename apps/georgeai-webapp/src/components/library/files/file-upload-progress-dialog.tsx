@@ -7,7 +7,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
 import { FileIcon } from '../../../icons/file-icon'
 import { toastError } from '../../georgeToaster'
-import { useFileActions } from './use-file-actions'
+import { useLibraryActions } from '../use-library-actions'
 
 export type PreparedUploadFile = {
   fileId: string
@@ -31,7 +31,7 @@ export const FileUploadProgressDialog = ({
   const { now } = useNow()
   const { t } = useTranslation()
   const startedUploadIdsRef = useRef<Set<string>>(new Set())
-  const { cancelFileUpload } = useFileActions({ libraryId })
+  const { cancelFileUpload } = useLibraryActions(libraryId)
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
   const [uploadEndTime, setUploadEndTime] = useState<number | null>(null)

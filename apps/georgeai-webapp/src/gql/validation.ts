@@ -29,6 +29,7 @@ import {
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
+  EmbeddingStatus,
   EnrichmentStatus,
   EventProcessingStatus,
   ExtractionMethod,
@@ -43,6 +44,8 @@ import {
   ProcessFilesInput,
   ProviderHealthStatus,
   QueueType,
+  Role,
+  StorageStatus,
   TestProviderConnectionInput,
   TriggerType,
   UpdateAiLanguageModelInput,
@@ -77,6 +80,8 @@ export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
 export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
 
+export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
+
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
 export const EventProcessingStatusSchema = z.nativeEnum(EventProcessingStatus)
@@ -100,6 +105,10 @@ export const ModelProviderSchema = z.nativeEnum(ModelProvider)
 export const ProviderHealthStatusSchema = z.nativeEnum(ProviderHealthStatus)
 
 export const QueueTypeSchema = z.nativeEnum(QueueType)
+
+export const RoleSchema = z.nativeEnum(Role)
+
+export const StorageStatusSchema = z.nativeEnum(StorageStatus)
 
 export const TriggerTypeSchema = z.nativeEnum(TriggerType)
 

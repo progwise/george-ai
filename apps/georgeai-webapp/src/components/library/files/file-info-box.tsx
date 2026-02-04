@@ -10,7 +10,11 @@ graphql(`
     uploadedAt
     archivedAt
     status
-    chunksCount
+    embeddingInfo {
+      extractionMethod
+      modelName
+      chunkCount
+    }
     crawler {
       id
       uri
@@ -32,7 +36,7 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <dt>{t('labels.status')}</dt>
       <dd>{file.status}</dd>
       <dt>{t('labels.chunks')}</dt>
-      <dd>{file.chunksCount}</dd>
+      <dd>{file.embeddingInfo?.reduce((acc, info) => acc + info.chunkCount, 0) ?? '-'}</dd>
       <dt>{t('labels.crawler')}</dt>
       <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
       <dt>{t('labels.originModified')}</dt>

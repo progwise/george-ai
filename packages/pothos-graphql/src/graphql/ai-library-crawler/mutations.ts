@@ -1,12 +1,13 @@
 import { GraphQLError } from 'graphql'
 
+import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+
 import { prisma } from '../../../../app-database/src'
 import { deleteFile } from '../../domain'
 import { runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
 import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
-import { canWriteWorkspaceOrThrow } from '../workspace'
 
 const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCredentialsInput', {
   fields: (t) => ({

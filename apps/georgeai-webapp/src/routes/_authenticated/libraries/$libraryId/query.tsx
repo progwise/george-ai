@@ -2,10 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
-import { LibraryQueryInput } from '../../../../components/library/query/library-query-input'
-import { LibraryQueryResult } from '../../../../components/library/query/library-query-result'
-import { getQueryLibraryFilesQueryOptions } from '../../../../components/library/query/query-files'
+import { getLibraryQueryOptions, queryFilesQueryOptions } from '../../../../components/library/queries'
+import { LibraryQueryInput, LibraryQueryResult } from '../../../../components/library/query'
 import { Pagination } from '../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/query')({
@@ -24,7 +22,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/query
     await Promise.all([
       context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId)),
       context.queryClient.ensureQueryData(
-        getQueryLibraryFilesQueryOptions({
+        queryFilesQueryOptions({
           libraryId: params.libraryId,
           query: deps.query ?? '*',
           skip: deps.skip,
@@ -40,10 +38,8 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { query, skip, take } = Route.useSearch()
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
-  const {
-    data: { queryAiLibraryFiles: hits },
-  } = useSuspenseQuery(
-    getQueryLibraryFilesQueryOptions({
+  const { data: hits } = useSuspenseQuery(
+    queryFilesQueryOptions({
       libraryId,
       query: query ?? '*',
       skip,

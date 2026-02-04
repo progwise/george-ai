@@ -1,6 +1,7 @@
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+
 import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 
 const LibrarySortOrder = builder.enumType('LibrarySortOrder', {
   values: ['nameAsc', 'nameDesc', 'createdAtAsc', 'createdAtDesc', 'updatedAtAsc', 'updatedAtDesc'] as const,

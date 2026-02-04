@@ -5,6 +5,8 @@ import './queryFiles'
 import './queries'
 import './mutations'
 
+import { workspaceStorage } from '@george-ai/file-management'
+
 console.log('Setting up: AiLibrary')
 
 builder.prismaObject('AiLibrary', {
@@ -33,5 +35,15 @@ builder.prismaObject('AiLibrary', {
     ocrModel: t.relation('ocrModel'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
     autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),
+    storageStatus: t.withAuth({ isLoggedIn: true }).field({
+      type: 'StorageStatus',
+      nullable: false,
+      resolve: async (library, _args, { workspaceId }) => {
+        const storageStatus = await workspaceStorage.getStorageStatus(workspaceId, {
+          libraryId: library.id,
+        })
+        return storageStatus
+      },
+    }),
   }),
 })

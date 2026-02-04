@@ -57,6 +57,15 @@ const yoga = createYoga({
         workspaceId: workspaceIdHeader,
       }
     }),
+  maskedErrors: {
+    isDev: false,
+    maskError: (error, message) => {
+      if (error instanceof Error) {
+        return error
+      }
+      return new Error(message)
+    },
+  }, // Set to true in production to avoid leaking error details
 })
 
 const app = express()

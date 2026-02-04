@@ -32,8 +32,8 @@ const getFileUsages = createServerFn({ method: 'GET' })
               listId
               listName
               itemName
-              extractionIndex
-              createdAt
+              extractionMethod
+              fragment
               chunkCount
             }
           }

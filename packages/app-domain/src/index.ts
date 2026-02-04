@@ -1,16 +1,23 @@
 import { initializeAppDomain } from './initialize'
 
-export type * from '../../app-domain/src/context'
-
-export type * from '../../app-domain/src/workspace'
-export { default as workspace } from '../../app-domain/src/workspace'
-
-export type * from '../../app-domain/src/user'
-export { default as user } from '../../app-domain/src/user'
-
-export type * from '../../app-domain/src/api-key'
-export { default as apiKey } from '../../app-domain/src/api-key'
-
 initializeAppDomain().catch((error) => {
   console.error('Error initializing app domain:', error)
 })
+
+export type * from './context'
+
+export type * from './workspace'
+export { default as workspace } from './workspace'
+
+export type * from './user'
+export { default as user } from './user'
+
+export type * from './api-key'
+export { default as apiKey } from './api-key'
+
+export type * from './library'
+export { default as library } from './library'
+
+export * from './error'
+
+export * from './access-control'

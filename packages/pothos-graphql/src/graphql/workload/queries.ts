@@ -1,7 +1,7 @@
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
 import { WorkspaceStatistics, WorkspaceWorker } from './types'
 
 builder.queryField('workspaceStatistics', (t) =>

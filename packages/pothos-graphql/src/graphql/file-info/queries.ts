@@ -1,14 +1,13 @@
 import { GraphQLError } from 'graphql/error'
 
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { workspaceStorage } from '@george-ai/file-management'
 
 import { builder } from '../builder'
-import { canReadWorkspaceOrThrow } from '../workspace'
-import { FileInfo } from './types'
 
 builder.queryField('fileInfo', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: FileInfo,
+    type: 'FileManifest',
     nullable: false,
     args: {
       libraryId: t.arg.string({ required: true }),
