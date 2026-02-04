@@ -51,7 +51,7 @@ function AdminDashboard() {
                       <div className="badge badge-outline badge-primary">User Management</div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-80">{t('admin.manageUsersDescription')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('admin.manageUsersDescription')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
@@ -81,7 +81,7 @@ function AdminDashboard() {
                       <div className="badge badge-outline badge-secondary">System Monitoring</div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-80">{t('admin.monitorAiServicesDescription')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('admin.monitorAiServicesDescription')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
@@ -111,7 +111,7 @@ function AdminDashboard() {
                       <div className="badge badge-outline badge-info">Model Management</div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-80">{t('admin.manageAiModelsDescription')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('admin.manageAiModelsDescription')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
@@ -141,7 +141,7 @@ function AdminDashboard() {
                       <div className="badge badge-outline badge-accent">Queue Control</div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-80">{t('admin.manageQueuesDescription')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('admin.manageQueuesDescription')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
@@ -171,7 +171,7 @@ function AdminDashboard() {
                       <div className="badge badge-outline badge-warning">External Systems</div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-80">{t('connectors.description')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('connectors.description')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>

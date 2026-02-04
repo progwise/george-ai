@@ -3,9 +3,10 @@ import { getUploadFileInfo, markUploadFinished } from './file-upload-info'
 import { getWorkspaceIdFromLibrary } from './get-by-library'
 import { getModelProvider } from './get-model-provider'
 import { getStats } from './get-stats'
+import { migrateWorkspace } from './migrate-workspace'
 import { processFile } from './process-file'
 import { processFiles } from './process-files'
-import { upgradeFromLegacy } from './upgrade-from-legacy'
+import { workspaceNeedsMigration } from './workspace-needs-migration'
 
 export default {
   create,
@@ -16,5 +17,6 @@ export default {
   markUploadFinished,
   processFile,
   processFiles,
-  upgradeFromLegacy,
+  migrateWorkspace,
+  workspaceNeedsMigration,
 }

@@ -3,8 +3,6 @@ import jwt from 'jsonwebtoken'
 
 import { Context, apiKey, user, workspace } from '@george-ai/app-domain'
 
-import { logger } from './common'
-
 interface TokenProvider {
   jwtToken?: string | null
   bearerToken?: string | null
@@ -17,7 +15,9 @@ export const getUserContextFromExpressRequest = async (request: Request): Promis
     bearerToken: request.headers['authorization']?.toString().startsWith('Bearer ')
       ? request.headers['authorization'].toString().substring(7)
       : null,
-    workspaceId: request.headers['x-workspace-id'] ? request.headers['x-workspace-id'].toString() : null,
+    workspaceId: request.headers['x-workspace-id']
+      ? request.headers['x-workspace-id'].toString()
+      : request.cookies['workspace-id'] || null,
   }))
 }
 // Authorize GraphQL requests using either a user JWT or API key (Bearer token).
@@ -25,12 +25,9 @@ export const getUserContextFromExpressRequest = async (request: Request): Promis
 export const getUserContext = async (getTokens: () => TokenProvider): Promise<Context> => {
   const { jwtToken, bearerToken, workspaceId: requestedWorkspaceId } = getTokens()
 
-  logger.debug('Authenticating request', { jwtToken: !!jwtToken, bearerToken: !!bearerToken, requestedWorkspaceId })
-
   // Try JWT authentication first
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
-    logger.debug('Decoded JWT token', { decoded })
     if (decoded?.email) {
       const userInformation = await user.getUserByMail(decoded.email)
       if (!userInformation) {

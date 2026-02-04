@@ -8,7 +8,7 @@ import { INVITATION_EXPIRY_DAYS, isLastAdmin, sendWorkspaceInvitationEmail } fro
 import { builder } from '../builder'
 import { logger } from './common'
 
-import './upgrade-from-legacy'
+import './migrate-workspace'
 
 logger.info('Setting up: Workspace mutations')
 

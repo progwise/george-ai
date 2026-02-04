@@ -139,7 +139,7 @@ function RouteComponent() {
                   >
                     <CopyIcon className="size-3" />
                   </button>
-                  <pre className="text-xs leading-tight text-base-content/90">{chunk.text}</pre>
+                  <pre className="text-xs/tight text-base-content/90">{chunk.text}</pre>
                 </div>
               </div>
 

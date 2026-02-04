@@ -12,14 +12,13 @@ import { getFile } from './get-file'
 import { getLibrary } from './get-library'
 import { getStorageStatus } from './get-storage-status'
 import { getWorkspace } from './get-workspace'
+import { migrateWorkspace } from './migrate-workspace'
 import { moveLibrary } from './move-library'
 import { readAttachment } from './read-attachment'
 import { readExtraction } from './read-extraction'
 import { readSource } from './read-source'
 import { reconcile } from './reconcile'
 import { updateLibrary } from './update-library'
-import { upgradeLegacyFile } from './upgrade-legacy-file'
-import { upgradeLegacyLibrary } from './upgrade-legacy-library'
 import { writeSource } from './write-source'
 
 const nodeStorage: IStorageService = {
@@ -27,6 +26,7 @@ const nodeStorage: IStorageService = {
   createWorkspace,
   deleteWorkspace,
   getWorkspace,
+  migrateWorkspace,
   createLibrary,
   deleteLibrary,
   updateLibrary,
@@ -43,8 +43,6 @@ const nodeStorage: IStorageService = {
   deleteFiles,
   reconcile,
   getStorageStatus,
-  upgradeLegacyFile,
-  upgradeLegacyLibrary,
 }
 
 export default nodeStorage

@@ -1,5 +1,6 @@
 import { VectorStore } from '../interface'
 import { createWorkspace } from './create-workspace'
+import { existsWorkspace } from './exists-workspace'
 import { findSimilarChunks } from './find-similar-chunks'
 import { getChunkCount } from './get-chunk-count'
 import { getChunks } from './get-chunks'
@@ -15,6 +16,7 @@ import { upsertEmbeddings } from './upsert-embeddings'
 
 export default {
   createWorkspace,
+  existsWorkspace,
   removeWorkspace,
   getEmbeddingModelNames,
   getEmbeddingInfo,

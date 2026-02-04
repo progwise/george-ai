@@ -4,7 +4,7 @@ import { canReadWorkspaceOrThrow, canWriteWorkspaceOrThrow, workspace } from '@g
 
 import { builder } from '../builder'
 
-builder.mutationField('upgradeWorkspaceFromLegacy', (t) =>
+builder.mutationField('migrateWorkspace', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     args: {
@@ -15,7 +15,7 @@ builder.mutationField('upgradeWorkspaceFromLegacy', (t) =>
       await canWriteWorkspaceOrThrow(id, session.user.id)
 
       try {
-        const result = await workspace.upgradeFromLegacy({ workspaceId: id })
+        const result = await workspace.migrateWorkspace({ workspaceId: id })
 
         return result
       } catch (error) {

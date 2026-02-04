@@ -31,6 +31,7 @@ export const queryKeys = {
   WorkspaceMembers: 'WorkspaceMembers',
   WorkspaceInvitations: 'WorkspaceInvitations',
   WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
+  WorkspaceNeedsMigration: 'WorkflowNeedsMigration',
   WorkspaceStats: 'WorkspaceStats',
   // Connectors
   Connectors: 'Connectors',

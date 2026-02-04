@@ -20,6 +20,7 @@ export interface VectorStore {
     }
   }): Promise<void>
   removeWorkspace(workspaceId: string): Promise<void>
+  existsWorkspace(workspaceId: string): Promise<boolean>
   getEmbeddingModelNames(workspaceId: string): Promise<string[]>
 
   getChunkCount(parameters: {

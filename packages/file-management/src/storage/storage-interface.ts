@@ -45,6 +45,26 @@ export interface IStorageService {
   createWorkspace(workspaceId: string, args: { name: string }): Promise<WorkspaceManifest>
   getWorkspace(workspaceId: string): Promise<WorkspaceManifest | null>
   deleteWorkspace(workspaceId: string): Promise<void>
+  migrateWorkspace(
+    workspaceId: string,
+    args: {
+      workspaceName: string
+      libraries: {
+        id: string
+        name: string
+      }[]
+      fileInfoLoader: (fileId: string) => Promise<{
+        workspaceId: string
+        libraryId: string
+        fileId: string
+        fileName: string
+        mimeType: string
+        createdAt: string
+        uploadedAt?: string | null
+        hash?: string | null
+      }>
+    },
+  ): Promise<void>
 
   // --- Library ---
   getLibrary(workspaceId: string, args: { libraryId: string }): Promise<LibraryManifest | null>
@@ -109,35 +129,4 @@ export interface IStorageService {
   reconcile(workspaceId: string, options?: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
 
   getStorageStatus(workspaceId: string, args: { libraryId: string; fileId?: string }): Promise<StorageStatus>
-
-  upgradeLegacyFile(
-    workspaceId: string,
-    args: {
-      libraryId: string
-      fileId: string
-      fileName: string
-      mimeType: string
-      createdAt: string
-      uploadedAt: string
-    },
-  ): Promise<void>
-
-  upgradeLegacyLibrary(
-    workspaceId: string,
-    args: {
-      libraryId: string
-      libraryName: string
-      workspaceName: string
-      fileInfoLoader: (fileId: string) => Promise<{
-        workspaceId: string
-        libraryId: string
-        fileId: string
-        fileName: string
-        mimeType: string
-        createdAt: string
-        uploadedAt?: string | null
-        hash?: string | null
-      }>
-    },
-  ): Promise<void>
 }

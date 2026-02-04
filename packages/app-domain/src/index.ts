@@ -15,9 +15,6 @@ export { default as user } from './user'
 export type * from './api-key'
 export { default as apiKey } from './api-key'
 
-export type * from './library'
-export { default as library } from './library'
-
 export * from './error'
 
 export * from './access-control'

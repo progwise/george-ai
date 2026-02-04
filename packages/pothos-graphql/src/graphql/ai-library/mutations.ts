@@ -8,8 +8,6 @@ import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { logger } from './common'
 
-import './upgrade-from-legacy'
-
 logger.info('Setting up: AiLibrary Mutations')
 
 const AiLibraryInput = builder.inputType('AiLibraryInput', {

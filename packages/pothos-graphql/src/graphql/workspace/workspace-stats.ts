@@ -1,6 +1,7 @@
 import { canReadWorkspaceOrThrow, workspace } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
+import { logger } from './common'
 
 const WorkspaceStats = builder.simpleObject('WorkspaceStats', {
   description: 'Statistics and metadata about a workspace',
@@ -30,15 +31,18 @@ builder.queryField('workspaceStats', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: WorkspaceStats,
     nullable: true,
-    args: {
-      workspaceId: t.arg.string({ required: true }),
-    },
-    resolve: async (_root, args, ctx) => {
-      await canReadWorkspaceOrThrow(args.workspaceId, ctx.session.user.id)
+    args: {},
+    resolve: async (_root, _args, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const workspaceStats = await workspace.getStats({ workspaceId: args.workspaceId, userId: ctx.session.user.id })
+      try {
+        const workspaceStats = await workspace.getStats({ workspaceId, userId: session.user.id })
 
-      return workspaceStats
+        return workspaceStats
+      } catch (error) {
+        logger.error('Error fetching workspace stats', { workspaceId, userId: session.user.id, error })
+        throw error
+      }
     },
   }),
 )

@@ -7,6 +7,7 @@ import { builder } from '../builder'
 import { logger } from './common'
 
 import './workspace-stats'
+import './workspace-needs-migration'
 
 logger.info('Setting up: Workspace queries')
 
@@ -16,7 +17,6 @@ builder.queryField('workspaces', (t) =>
     type: ['Workspace'],
     nullable: false,
     resolve: async (query, _root, _args, context) => {
-      logger.debug('Fetching workspaces for session', { context })
       const workspaces = await prisma.workspace.findMany({
         ...query,
         where: {

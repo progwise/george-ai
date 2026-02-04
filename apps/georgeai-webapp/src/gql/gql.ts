@@ -155,7 +155,6 @@ type Documents = {
   '\n        mutation processFiles($input: ProcessFilesInput!) {\n          processFiles(input: $input) {\n            success\n          }\n        }\n      ': typeof types.ProcessFilesDocument
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
-  '\n        mutation upgradeLibraryFromLegacy($libraryId: String!) {\n          upgradeLibraryFromLegacy(libraryId: $libraryId)\n        }\n      ': typeof types.UpgradeLibraryFromLegacyDocument
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
@@ -214,16 +213,17 @@ type Documents = {
   '\n      query GetEventProcessingStatus {\n        eventProcessingStatus {\n          status\n          actionType\n        }\n      }\n    ': typeof types.GetEventProcessingStatusDocument
   '\n  query GetWorkspaceInvitations($workspaceId: ID!) {\n    workspaceInvitations(workspaceId: $workspaceId) {\n      id\n      email\n      createdAt\n      expiresAt\n      inviter {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.GetWorkspaceInvitationsDocument
   '\n  query GetWorkspaceMembers($workspaceId: ID!) {\n    workspaceMembers(workspaceId: $workspaceId) {\n      id\n      role\n      createdAt\n      user {\n        id\n        name\n        email\n        username\n        avatarUrl\n      }\n    }\n  }\n': typeof types.GetWorkspaceMembersDocument
-  '\n  query GetWorkspaceStats($workspaceId: String!) {\n    workspaceStats(workspaceId: $workspaceId) {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n': typeof types.GetWorkspaceStatsDocument
+  '\n      query getWorkspaceNeedsMigration {\n        workspaceNeedsMigration {\n          id\n          name\n          needsMigration\n          hasWorkspaceStorage\n          hasVectorStore\n        }\n      }\n    ': typeof types.GetWorkspaceNeedsMigrationDocument
+  '\n  query GetWorkspaceStats {\n    workspaceStats {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n': typeof types.GetWorkspaceStatsDocument
   '\n  query GetWorkspaces {\n    workspaces {\n      id\n      name\n      slug\n      isDefault\n      createdAt\n      updatedAt\n    }\n  }\n': typeof types.GetWorkspacesDocument
   '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n      createdAt\n    }\n  }\n': typeof types.CreateWorkspaceDocument
   '\n  mutation DeleteWorkspace($workspaceId: String!) {\n    deleteWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.DeleteWorkspaceDocument
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n': typeof types.InviteWorkspaceMemberDocument
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.LeaveWorkspaceDocument
+  '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n': typeof types.MigrateWorkspaceDocument
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.RemoveWorkspaceMemberDocument
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n': typeof types.RevokeWorkspaceInvitationDocument
   '\n  mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: String!) {\n    updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {\n      id\n      role\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.UpdateWorkspaceMemberRoleDocument
-  '\n  mutation UpgradeWorkspace($id: String!) {\n    upgradeWorkspaceFromLegacy(id: $id)\n  }\n': typeof types.UpgradeWorkspaceDocument
   '\n  mutation ValidateWorkspaceDeletion($workspaceId: String!) {\n    validateWorkspaceDeletion(workspaceId: $workspaceId) {\n      canDelete\n      libraryCount\n      assistantCount\n      listCount\n      message\n    }\n  }\n': typeof types.ValidateWorkspaceDeletionDocument
   '\n  query WorkspaceInvitation($id: ID!) {\n    workspaceInvitation(id: $id) {\n      id\n      email\n      expiresAt\n      acceptedAt\n      workspace {\n        id\n        name\n      }\n      inviter {\n        name\n        email\n      }\n    }\n  }\n': typeof types.WorkspaceInvitationDocument
   '\n  mutation AcceptWorkspaceInvitation($invitationId: ID!) {\n    acceptWorkspaceInvitation(invitationId: $invitationId) {\n      id\n      workspace {\n        id\n        name\n      }\n    }\n  }\n': typeof types.AcceptWorkspaceInvitationDocument
@@ -528,8 +528,6 @@ const documents: Documents = {
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
   '\n  mutation changeLibrary($id: String!, $data: AiLibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
-  '\n        mutation upgradeLibraryFromLegacy($libraryId: String!) {\n          upgradeLibraryFromLegacy(libraryId: $libraryId)\n        }\n      ':
-    types.UpgradeLibraryFromLegacyDocument,
   '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ':
     types.PrepareFileDocument,
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ':
@@ -644,7 +642,9 @@ const documents: Documents = {
     types.GetWorkspaceInvitationsDocument,
   '\n  query GetWorkspaceMembers($workspaceId: ID!) {\n    workspaceMembers(workspaceId: $workspaceId) {\n      id\n      role\n      createdAt\n      user {\n        id\n        name\n        email\n        username\n        avatarUrl\n      }\n    }\n  }\n':
     types.GetWorkspaceMembersDocument,
-  '\n  query GetWorkspaceStats($workspaceId: String!) {\n    workspaceStats(workspaceId: $workspaceId) {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n':
+  '\n      query getWorkspaceNeedsMigration {\n        workspaceNeedsMigration {\n          id\n          name\n          needsMigration\n          hasWorkspaceStorage\n          hasVectorStore\n        }\n      }\n    ':
+    types.GetWorkspaceNeedsMigrationDocument,
+  '\n  query GetWorkspaceStats {\n    workspaceStats {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n':
     types.GetWorkspaceStatsDocument,
   '\n  query GetWorkspaces {\n    workspaces {\n      id\n      name\n      slug\n      isDefault\n      createdAt\n      updatedAt\n    }\n  }\n':
     types.GetWorkspacesDocument,
@@ -656,14 +656,14 @@ const documents: Documents = {
     types.InviteWorkspaceMemberDocument,
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n':
     types.LeaveWorkspaceDocument,
+  '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n':
+    types.MigrateWorkspaceDocument,
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.RemoveWorkspaceMemberDocument,
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n':
     types.RevokeWorkspaceInvitationDocument,
   '\n  mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: String!) {\n    updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {\n      id\n      role\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.UpdateWorkspaceMemberRoleDocument,
-  '\n  mutation UpgradeWorkspace($id: String!) {\n    upgradeWorkspaceFromLegacy(id: $id)\n  }\n':
-    types.UpgradeWorkspaceDocument,
   '\n  mutation ValidateWorkspaceDeletion($workspaceId: String!) {\n    validateWorkspaceDeletion(workspaceId: $workspaceId) {\n      canDelete\n      libraryCount\n      assistantCount\n      listCount\n      message\n    }\n  }\n':
     types.ValidateWorkspaceDeletionDocument,
   '\n  query WorkspaceInvitation($id: ID!) {\n    workspaceInvitation(id: $id) {\n      id\n      email\n      expiresAt\n      acceptedAt\n      workspace {\n        id\n        name\n      }\n      inviter {\n        name\n        email\n      }\n    }\n  }\n':
@@ -1571,12 +1571,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation upgradeLibraryFromLegacy($libraryId: String!) {\n          upgradeLibraryFromLegacy(libraryId: $libraryId)\n        }\n      ',
-): (typeof documents)['\n        mutation upgradeLibraryFromLegacy($libraryId: String!) {\n          upgradeLibraryFromLegacy(libraryId: $libraryId)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ',
 ): (typeof documents)['\n          mutation prepareFile($file: AiLibraryFileInput!) {\n            prepareFileUpload(data: $file) {\n              id\n            }\n          }\n        ']
 /**
@@ -1925,8 +1919,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetWorkspaceStats($workspaceId: String!) {\n    workspaceStats(workspaceId: $workspaceId) {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query GetWorkspaceStats($workspaceId: String!) {\n    workspaceStats(workspaceId: $workspaceId) {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n']
+  source: '\n      query getWorkspaceNeedsMigration {\n        workspaceNeedsMigration {\n          id\n          name\n          needsMigration\n          hasWorkspaceStorage\n          hasVectorStore\n        }\n      }\n    ',
+): (typeof documents)['\n      query getWorkspaceNeedsMigration {\n        workspaceNeedsMigration {\n          id\n          name\n          needsMigration\n          hasWorkspaceStorage\n          hasVectorStore\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetWorkspaceStats {\n    workspaceStats {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetWorkspaceStats {\n    workspaceStats {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1961,6 +1961,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n',
+): (typeof documents)['\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n']
 /**
@@ -1975,12 +1981,6 @@ export function graphql(
 export function graphql(
   source: '\n  mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: String!) {\n    updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {\n      id\n      role\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: String!) {\n    updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {\n      id\n      role\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation UpgradeWorkspace($id: String!) {\n    upgradeWorkspaceFromLegacy(id: $id)\n  }\n',
-): (typeof documents)['\n  mutation UpgradeWorkspace($id: String!) {\n    upgradeWorkspaceFromLegacy(id: $id)\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

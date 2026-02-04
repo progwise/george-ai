@@ -244,7 +244,7 @@ export const ListItemsQueryResult = builder
 
           const where: Prisma.AiListItemWhereInput = {
             listId: list.id,
-            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
+            ...(showArchived ? {} : { file: { archivedAt: null } }),
             ...filtersWhere,
           }
           return prisma.aiListItem.count({
@@ -258,7 +258,7 @@ export const ListItemsQueryResult = builder
         resolve: async ({ list, showArchived }) => {
           const where: Prisma.AiListItemWhereInput = {
             listId: list.id,
-            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
+            ...(showArchived ? {} : { file: { archivedAt: null } }),
           }
           return prisma.aiListItem.count({
             where,

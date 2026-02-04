@@ -3,6 +3,9 @@ import { prisma } from '@george-ai/app-database'
 import { WorkspaceManifest, workspaceStorage } from '@george-ai/file-management'
 import { EmbeddingInfo, vectorStore } from '@george-ai/vector-store'
 
+import { logger } from '../common'
+import { DomainError } from '../error'
+
 interface WorkspaceStats {
   id: string
   name: string
@@ -54,11 +57,14 @@ export async function getStats(parameters: { workspaceId: string; userId: string
     })
 
     if (!workspace) {
-      return null
+      logger.error('Workspace not found or access denied', { workspaceId, userId })
+      throw new DomainError('Workspace not found or access denied', 'workspace')
     }
 
     const workspaceInfo = await workspaceStorage.getWorkspace(workspaceId)
+    logger.debug('Fetched workspace manifest', { workspaceId, hasManifest: !!workspaceInfo })
     const embeddingInfo = await vectorStore.getEmbeddingInfo({ workspaceId })
+    logger.debug('Fetched embedding info', { workspaceId, embeddingInfoCount: embeddingInfo.length })
 
     return {
       id: workspaceId,

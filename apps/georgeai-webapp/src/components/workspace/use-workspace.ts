@@ -18,11 +18,11 @@ import {
   deleteWorkspaceFn,
   inviteWorkspaceMemberFn,
   leaveWorkspaceFn,
+  migrateWorkspaceFn,
   removeWorkspaceMemberFn,
   revokeWorkspaceInvitationFn,
   setWorkspaceCookie,
   updateWorkspaceMemberRoleFn,
-  upgradeWorkspaceFn,
   workspaceDeleteValidationQueryOptions,
 } from './server-functions'
 
@@ -37,9 +37,7 @@ export const useWorkspace = (user: UserFragment) => {
 
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
-  const { data: workspaceStats, isLoading: isLoadingWorkspaceStats } = useQuery(
-    getWorkspaceStatsQueryOptions({ workspaceId: selectedWorkspaceId }),
-  )
+  const { data: workspaceStats, isLoading: isLoadingWorkspaceStats } = useQuery(getWorkspaceStatsQueryOptions())
   // Get current workspace from selection or fallback to user's default workspace
   const currentWorkspace = useMemo(() => {
     if (!workspaces) return null
@@ -82,6 +80,8 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.EventProcessingStatistics] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkers] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceNeedsMigration] }),
+
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),
@@ -240,12 +240,12 @@ export const useWorkspace = (user: UserFragment) => {
     },
   })
 
-  const upgradeWorkspaceMutation = useMutation({
+  const migrateWorkspaceMutation = useMutation({
     mutationFn: async (workspaceId: string) => {
-      return await upgradeWorkspaceFn({ data: { workspaceId } })
+      return await migrateWorkspaceFn({ data: { workspaceId } })
     },
     onSuccess: () => {
-      toastSuccess(t('workspace.upgradeSuccess'))
+      toastSuccess(t('workspace.migrationSuccess'))
     },
     onError: (error) => {
       toastError(error.message)
@@ -276,12 +276,13 @@ export const useWorkspace = (user: UserFragment) => {
     removeMember: removeMemberMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
-    upgradeWorkspace: upgradeWorkspaceMutation.mutate,
+    migrateWorkspace: migrateWorkspaceMutation.mutate,
     validate,
     validation,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
-    isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation,
+    isLoading:
+      isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation || isLoadingWorkspaceStats,
     isPending:
       leaveWorkspaceMutation.isPending ||
       removeMemberMutation.isPending ||
@@ -289,8 +290,7 @@ export const useWorkspace = (user: UserFragment) => {
       updateRoleMutation.isPending ||
       inviteMutation.isPending ||
       deleteWorkspaceMutation.isPending ||
-      upgradeWorkspaceMutation.isPending ||
-      createWorkspaceMutation.isPending ||
-      isLoadingWorkspaceStats,
+      migrateWorkspaceMutation.isPending ||
+      createWorkspaceMutation.isPending,
   }
 }

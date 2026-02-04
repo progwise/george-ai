@@ -1,5 +1,5 @@
 import { constants } from 'node:fs'
-import { access, mkdir, readdir, stat } from 'node:fs/promises'
+import { access, lstat, mkdir, readdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import {
@@ -27,14 +27,14 @@ const getDir = async (dir: string): Promise<string> => {
     await access(dir, constants.F_OK)
   } catch (err) {
     if (isNodeError(err) && err.code === 'ENOENT') {
-      console.error(`Directory does not exist: ${dir}`)
+      logger.error(`Directory does not exist: ${dir}`)
       throw err
     } else if (isNodeError(err)) {
-      console.error(`Error accessing directory ${dir}: ${err.message}`)
+      logger.error(`Error accessing directory ${dir}: ${err.message}`)
     } else if (err instanceof Error) {
-      console.error(`Error accessing directory ${dir}: ${err.message}`)
+      logger.error(`Error accessing directory ${dir}: ${err.message}`)
     } else {
-      console.error(`Unknown error accessing directory ${dir}`)
+      logger.error(`Unknown error accessing directory ${dir}`)
     }
     throw err
   }
@@ -50,13 +50,13 @@ const createDir = async (dir: string): Promise<string> => {
     if (isNodeError(err) && err.code === 'ENOENT') {
       // Directory does not exist, which is expected
     } else if (isNodeError(err)) {
-      console.error(`Error checking existence of directory ${dir}: ${err.message}`)
+      logger.error(`Error checking existence of directory ${dir}: ${err.message}`)
       throw err
     } else if (err instanceof Error) {
-      console.error(`Error checking existence of directory ${dir}: ${err.message}`)
+      logger.error(`Error checking existence of directory ${dir}: ${err.message}`)
       throw err
     } else {
-      console.error(`Unknown error checking of workspace directory ${dir}`)
+      logger.error(`Unknown error checking of workspace directory ${dir}`)
       throw err
     }
   }
@@ -133,27 +133,36 @@ export const getAttachmentsDir = async (
 }
 
 export async function getFolderStats(dirPath: string): Promise<{ diskSize: number; fileCount: number }> {
+  logger.debug('Calculating folder stats', { dirPath })
+
   const entries = await readdir(dirPath, { withFileTypes: true })
 
-  const tasks = entries.map((entry) =>
-    GLOBAL_STORAGE_LIMIT(async () => {
-      const fullPath = path.join(dirPath, entry.name)
+  logger.debug('Read directory entries for folder stats calculation', { dirPath, entryCount: entries.length })
 
-      if (entry.isDirectory()) {
-        // Recursive sum
-        return await getFolderStats(fullPath)
-      }
+  const tasks = entries.map(async (entry) => {
+    const fullPath = path.join(dirPath, entry.name)
 
-      if (entry.isFile()) {
-        const fileStat = await stat(fullPath)
-        return { diskSize: fileStat.size, fileCount: 1 }
-      }
+    logger.debug('Calculating stats for entry', { dirPath, entryName: entry.name })
 
-      return { diskSize: 0, fileCount: 0 }
-    }),
-  )
+    if (entry.isDirectory()) {
+      // Recursive call - don't wrap in limiter to avoid deadlock
+      return await getFolderStats(fullPath)
+    }
+
+    if (entry.isFile()) {
+      // Only wrap actual I/O operations in the limiter
+      const fileStat = await GLOBAL_STORAGE_LIMIT(() => lstat(fullPath))
+      return { diskSize: fileStat.size, fileCount: 1 }
+    }
+
+    return { diskSize: 0, fileCount: 0 }
+  })
+
+  logger.debug('Initiating folder stats calculation tasks', { dirPath, taskCount: tasks.length })
 
   const results = await Promise.all(tasks)
+
+  logger.debug('Completed folder stats calculation for directory', { dirPath })
 
   // Use a simple loop for the final sum to avoid object allocation overhead in large arrays
   let totalSize = 0

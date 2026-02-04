@@ -4,12 +4,12 @@ import { ROOT_DIR, logger } from './commons'
 import { createLibrary } from './create-library'
 import { createWorkspace } from './create-workspace'
 import { exists } from './exists'
+import { migrateLegacyFile } from './migrate-legacy-file'
 import { reconcile } from './reconcile'
-import { upgradeLegacyFile } from './upgrade-legacy-file'
 
 import { readdir } from 'fs/promises'
 
-export async function upgradeLegacyLibrary(
+export async function migrateLegacyLibrary(
   workspaceId: string,
   args: {
     libraryId: string
@@ -53,8 +53,12 @@ export async function upgradeLegacyLibrary(
     const fileId = entry.name
     try {
       const fileInfo = await args.fileInfoLoader(fileId)
+      if (!fileInfo) {
+        logger.warn('File info not found during legacy file upgrade, skipping file', { workspaceId, libraryId, fileId })
+        continue
+      }
       // Upgrade each legacy file
-      await upgradeLegacyFile(workspaceId, {
+      await migrateLegacyFile(workspaceId, {
         libraryId,
         fileId,
         fileName: fileInfo.fileName,
@@ -63,7 +67,7 @@ export async function upgradeLegacyLibrary(
         uploadedAt: fileInfo.uploadedAt,
         hash: fileInfo.hash,
       })
-      logger.info('Successfully upgraded legacy file', { workspaceId, libraryId, fileId })
+      logger.debug('Successfully upgraded legacy file', { workspaceId, libraryId, fileId })
     } catch (error) {
       logger.error('Error upgrading legacy file', { workspaceId, libraryId, fileId, error })
     }

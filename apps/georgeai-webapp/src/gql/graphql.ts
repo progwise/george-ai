@@ -1563,6 +1563,7 @@ export type Mutation = {
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveWorkspace: Scalars['Boolean']['output']
   login: User
+  migrateWorkspace?: Maybe<Scalars['Boolean']['output']>
   prepareFileUpload: AiLibraryFile
   processFile: ProcessFileResult
   processFiles: ProcessFilesResult
@@ -1609,8 +1610,6 @@ export type Mutation = {
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   updateWorkspaceMemberRole: WorkspaceMember
-  upgradeLibraryFromLegacy?: Maybe<Scalars['Boolean']['output']>
-  upgradeWorkspaceFromLegacy?: Maybe<Scalars['Boolean']['output']>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
   validateSharePointConnection: SharePointValidationResult
   validateWorkspaceDeletion: WorkspaceDeletionValidation
@@ -1834,6 +1833,10 @@ export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
 }
 
+export type MutationMigrateWorkspaceArgs = {
+  id: Scalars['String']['input']
+}
+
 export type MutationPrepareFileUploadArgs = {
   data: AiLibraryFileInput
 }
@@ -2025,14 +2028,6 @@ export type MutationUpdateWorkspaceMemberRoleArgs = {
   workspaceId: Scalars['ID']['input']
 }
 
-export type MutationUpgradeLibraryFromLegacyArgs = {
-  libraryId: Scalars['String']['input']
-}
-
-export type MutationUpgradeWorkspaceFromLegacyArgs = {
-  id: Scalars['String']['input']
-}
-
 export type MutationUpsertAiBaseCasesArgs = {
   assistantId: Scalars['String']['input']
   baseCases: Array<AiBaseCaseInputType>
@@ -2149,6 +2144,7 @@ export type Query = {
   workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
   workspaceMembers: Array<WorkspaceMember>
+  workspaceNeedsMigration?: Maybe<WorkspaceNeedsMigration>
   workspaceStatistics: WorkspaceWorkerStatistics
   workspaceStats?: Maybe<WorkspaceStats>
   workspaces: Array<Workspace>
@@ -2403,10 +2399,6 @@ export type QueryWorkspaceInvitationsArgs = {
 
 export type QueryWorkspaceMembersArgs = {
   workspaceId: Scalars['ID']['input']
-}
-
-export type QueryWorkspaceStatsArgs = {
-  workspaceId: Scalars['String']['input']
 }
 
 export type QueueOperationResult = {
@@ -2678,6 +2670,21 @@ export type WorkspaceMember = {
   role: Scalars['String']['output']
   user: User
   workspace: Workspace
+}
+
+/** Indicates whether a workspace needs migration */
+export type WorkspaceNeedsMigration = {
+  __typename?: 'WorkspaceNeedsMigration'
+  /** Whether the workspace has a vector store */
+  hasVectorStore?: Maybe<Scalars['Boolean']['output']>
+  /** Whether the workspace has workspace storage */
+  hasWorkspaceStorage?: Maybe<Scalars['Boolean']['output']>
+  /** The ID of the workspace */
+  id?: Maybe<Scalars['ID']['output']>
+  /** The name of the workspace */
+  name?: Maybe<Scalars['String']['output']>
+  /** Whether the workspace needs migration */
+  needsMigration?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type WorkspaceSettings = {
@@ -5512,12 +5519,6 @@ export type ChangeLibraryMutation = {
   }
 }
 
-export type UpgradeLibraryFromLegacyMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type UpgradeLibraryFromLegacyMutation = { __typename?: 'Mutation'; upgradeLibraryFromLegacy?: boolean | null }
-
 export type PrepareFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -6706,9 +6707,21 @@ export type GetWorkspaceMembersQuery = {
   }>
 }
 
-export type GetWorkspaceStatsQueryVariables = Exact<{
-  workspaceId: Scalars['String']['input']
-}>
+export type GetWorkspaceNeedsMigrationQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWorkspaceNeedsMigrationQuery = {
+  __typename?: 'Query'
+  workspaceNeedsMigration?: {
+    __typename?: 'WorkspaceNeedsMigration'
+    id?: string | null
+    name?: string | null
+    needsMigration?: boolean | null
+    hasWorkspaceStorage?: boolean | null
+    hasVectorStore?: boolean | null
+  } | null
+}
+
+export type GetWorkspaceStatsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWorkspaceStatsQuery = {
   __typename?: 'Query'
@@ -6814,6 +6827,12 @@ export type LeaveWorkspaceMutationVariables = Exact<{
 
 export type LeaveWorkspaceMutation = { __typename?: 'Mutation'; leaveWorkspace: boolean }
 
+export type MigrateWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type MigrateWorkspaceMutation = { __typename?: 'Mutation'; migrateWorkspace?: boolean | null }
+
 export type RemoveWorkspaceMemberMutationVariables = Exact<{
   workspaceId: Scalars['ID']['input']
   userId: Scalars['ID']['input']
@@ -6849,12 +6868,6 @@ export type UpdateWorkspaceMemberRoleMutation = {
     user: { __typename?: 'User'; id: string; name?: string | null; email: string }
   }
 }
-
-export type UpgradeWorkspaceMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type UpgradeWorkspaceMutation = { __typename?: 'Mutation'; upgradeWorkspaceFromLegacy?: boolean | null }
 
 export type ValidateWorkspaceDeletionMutationVariables = Exact<{
   workspaceId: Scalars['String']['input']
@@ -19010,39 +19023,6 @@ export const ChangeLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangeLibraryMutation, ChangeLibraryMutationVariables>
-export const UpgradeLibraryFromLegacyDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'upgradeLibraryFromLegacy' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'upgradeLibraryFromLegacy' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpgradeLibraryFromLegacyMutation, UpgradeLibraryFromLegacyMutationVariables>
 export const PrepareFileDocument = {
   kind: 'Document',
   definitions: [
@@ -21771,6 +21751,35 @@ export const GetWorkspaceMembersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspaceMembersQuery, GetWorkspaceMembersQueryVariables>
+export const GetWorkspaceNeedsMigrationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getWorkspaceNeedsMigration' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceNeedsMigration' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'needsMigration' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasWorkspaceStorage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasVectorStore' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceNeedsMigrationQuery, GetWorkspaceNeedsMigrationQueryVariables>
 export const GetWorkspaceStatsDocument = {
   kind: 'Document',
   definitions: [
@@ -21778,26 +21787,12 @@ export const GetWorkspaceStatsDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'GetWorkspaceStats' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'workspaceStats' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'workspaceId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -22089,6 +22084,39 @@ export const LeaveWorkspaceDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveWorkspaceMutation, LeaveWorkspaceMutationVariables>
+export const MigrateWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'MigrateWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'migrateWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MigrateWorkspaceMutation, MigrateWorkspaceMutationVariables>
 export const RemoveWorkspaceMemberDocument = {
   kind: 'Document',
   definitions: [
@@ -22255,39 +22283,6 @@ export const UpdateWorkspaceMemberRoleDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateWorkspaceMemberRoleMutation, UpdateWorkspaceMemberRoleMutationVariables>
-export const UpgradeWorkspaceDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'UpgradeWorkspace' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'upgradeWorkspaceFromLegacy' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpgradeWorkspaceMutation, UpgradeWorkspaceMutationVariables>
 export const ValidateWorkspaceDeletionDocument = {
   kind: 'Document',
   definitions: [

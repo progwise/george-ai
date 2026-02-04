@@ -25,7 +25,6 @@ import {
   processFilesFn,
   revokeApiKeyFn,
   updateLibraryFn,
-  upgradeLibraryFromLegacyFn,
 } from './server-functions'
 
 export const useLibraryActions = (libraryId: string) => {
@@ -149,21 +148,6 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
-  const upgradeFromLegacy = useMutation({
-    mutationFn: async () => await upgradeLibraryFromLegacyFn({ data: libraryId }),
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error ? error.message : t('errors.upgradeFromLegacyError', { error: 'Unknown error' })
-      toastError(errorMessage)
-    },
-    onSuccess: () => {
-      toastSuccess(t('libraries.upgradeFromLegacySuccess'))
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
-
   const deleteFileMutation = useMutation({
     mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { libraryId, fileId } }),
     onError: (error: Error) => {
@@ -237,7 +221,6 @@ export const useLibraryActions = (libraryId: string) => {
     revokeApiKey: revokeApiKeyMutation.mutate,
     processFile: processFileMutation.mutate,
     processFiles: processFilesMutation.mutate,
-    upgradeLibraryFromLegacy: upgradeFromLegacy.mutate,
     deleteFile: deleteFileMutation.mutate,
     deleteFiles: deleteFilesMutation.mutate,
     dropAllFiles: dropFilesMutation.mutate,
@@ -254,7 +237,6 @@ export const useLibraryActions = (libraryId: string) => {
       deleteFilesMutation.isPending ||
       dropFilesMutation.isPending ||
       cancelFileUploadPending ||
-      prepareDesktopFilesIsPending ||
-      upgradeFromLegacy.isPending,
+      prepareDesktopFilesIsPending,
   }
 }

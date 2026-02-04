@@ -3,7 +3,7 @@ import path from 'node:path'
 import pLimit from 'p-limit'
 
 import { StorageUsage } from '../../schemas'
-import { EXTRACTIONS_DIR_NAME, SOURCE_FILE_NAME } from './commons'
+import { EXTRACTIONS_DIR_NAME, SOURCE_FILE_NAME, logger } from './commons'
 import { getFileDir, getFolderStats, getLibraryDir, getWorkspaceDir } from './directories'
 import { getSourceHash } from './get-source-hash'
 import {
@@ -23,7 +23,10 @@ export async function reconcile(
   options?: { libraryId?: string; fileId?: string },
 ): Promise<StorageUsage> {
   const { libraryId, fileId } = options || {}
+
+  logger.debug('Starting reconciliation process', { workspaceId, libraryId, fileId })
   if (fileId && !libraryId) {
+    logger.error('libraryId must be provided if fileId is provided', { workspaceId, fileId })
     throw new Error('libraryId must be provided if fileId is provided')
   }
   if (fileId && libraryId) {
@@ -45,6 +48,7 @@ async function reconcileFile(fileDirPath: string): Promise<StorageUsage> {
   if (!fileManifest) {
     throw new Error(`File manifest not found for file dir: ${fileDirPath}`)
   }
+  logger.debug('Reconciling file', { fileDirPath })
   fileManifest.sourceHash = await getSourceHash(fileDirPath)
   const methods = await readdir(path.join(fileDirPath, EXTRACTIONS_DIR_NAME)).catch(() => [])
 
@@ -62,6 +66,11 @@ async function reconcileFile(fileDirPath: string): Promise<StorageUsage> {
     activeExtractedBytes: 0,
     extractionFiles: 0,
   }
+
+  logger.debug('Calculated base usage for file during reconciliation', {
+    fileDirPath,
+    newUsage,
+  })
 
   const extractionMetas = await Promise.all(
     methods.map((methodId) =>
@@ -87,8 +96,14 @@ async function reconcileFile(fileDirPath: string): Promise<StorageUsage> {
     ...newUsage,
     ...{ lastReconcile: new Date().toISOString(), lastUpdate: new Date().toISOString() },
   }
+
+  logger.debug('Updated file manifest usage during reconciliation', {
+    fileDirPath,
+    fileManifestUsage: fileManifest.usage,
+  })
   await saveFileManifest(fileDirPath, fileManifest)
 
+  logger.debug('Saved updated file manifest after reconciliation', { fileDirPath })
   return fileManifest.usage
 }
 
@@ -97,8 +112,20 @@ const limit = pLimit(20)
 async function reconcileLibrary(libDirPath: string): Promise<StorageUsage> {
   const filesDir = path.join(libDirPath, 'files')
   const fileIds = await readdir(filesDir).catch(() => [])
+  const libraryManifest = await getLibraryManifest(libDirPath)
+
+  if (!libraryManifest) {
+    throw new Error(`Library manifest not found for library dir: ${libDirPath}`)
+  }
+
+  logger.debug('Reconciling library', { libDirPath, fileCount: fileIds.length })
 
   const libraryDirStats = await getFolderStats(libDirPath)
+
+  logger.debug('Calculated base stats for library during reconciliation', {
+    libDirPath,
+    libraryDirStats,
+  })
 
   const newUsage: StorageUsage = {
     sourceBytes: 0,
@@ -131,16 +158,19 @@ async function reconcileLibrary(libDirPath: string): Promise<StorageUsage> {
     newUsage.extractionFiles += stats.extractionFiles
   }
 
-  const libraryManifest = await getLibraryManifest(libDirPath)
-  if (!libraryManifest) {
-    throw new Error(`Library manifest not found for library dir: ${libDirPath}`)
-  }
   libraryManifest.usage = {
     ...libraryManifest.usage,
     ...newUsage,
     ...{ lastReconcile: new Date().toISOString(), lastUpdate: new Date().toISOString() },
   }
+
+  logger.debug('Updated library manifest usage during reconciliation', {
+    libDirPath,
+    libraryManifestUsage: libraryManifest.usage,
+  })
   await saveLibraryManifest(libDirPath, libraryManifest)
+
+  logger.debug('Saved updated library manifest after reconciliation', { libDirPath })
 
   return libraryManifest.usage
 }

@@ -1,6 +1,6 @@
 export * from './create-workspace'
 export * from './delete-workspace'
-export * from './upgrade-workspace-from-legacy'
+export * from './migrate-workspace'
 export * from './validate-workspace-deletion'
 export * from './workspace-cookie'
 export * from './invite-member'

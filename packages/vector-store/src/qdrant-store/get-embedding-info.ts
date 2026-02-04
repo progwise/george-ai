@@ -1,7 +1,7 @@
 import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
 
 import { EmbeddingInfo } from '../interface'
-import { getCollection, getCollectionName, qdrantClient } from './common'
+import { getCollection, getCollectionName, logger, qdrantClient } from './common'
 
 export async function getEmbeddingInfo(parameters: {
   workspaceId: string
@@ -10,8 +10,14 @@ export async function getEmbeddingInfo(parameters: {
 }): Promise<EmbeddingInfo[]> {
   const { workspaceId, libraryId, fileId } = parameters
   const collectionName = getCollectionName(workspaceId)
+  const collectionExists = await qdrantClient.collectionExists(collectionName)
+  if (!collectionExists.exists) {
+    logger.warn('Collection does not exist', { collectionName })
+    return []
+  }
   const collectionInfo = await getCollection(collectionName)
   if (!collectionInfo) {
+    logger.warn('Failed to get collection info', { collectionName })
     return []
   }
   if (
@@ -32,11 +38,11 @@ export async function getEmbeddingInfo(parameters: {
     for (const modelName of vectorNames) {
       const filter = {
         must: [
-          libraryId && { key: 'libraryId', match: { value: libraryId } },
-          fileId && { key: 'fileId', match: { value: fileId } },
+          libraryId ? { key: 'libraryId', match: { value: libraryId } } : undefined,
+          fileId ? { key: 'fileId', match: { value: fileId } } : undefined,
           { key: 'modelName', match: { value: modelName } },
           { key: 'extractionMethod', match: { value: extractionMethod } },
-        ],
+        ].filter((item) => !!item),
       }
       const countResult = await qdrantClient.count(collectionName, { filter })
       const chunkCount = countResult.count || 0

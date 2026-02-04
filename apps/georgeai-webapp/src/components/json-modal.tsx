@@ -164,7 +164,7 @@ export const JsonModal = ({ title, data, ref }: JsonModalProps) => {
               ))}
             </ul>
           ) : (
-            <pre className="overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
+            <pre className="overflow-x-auto font-mono text-xs/relaxed whitespace-pre-wrap">
               {isValidJson ? JSON.stringify(jsonData, null, 2) : data}
             </pre>
           )}

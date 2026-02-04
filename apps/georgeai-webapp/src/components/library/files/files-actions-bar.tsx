@@ -32,7 +32,7 @@ export const FilesActionsBar = ({
   const fileUploadProgressDialogRef = useRef<HTMLDialogElement | null>(null)
   const [preparedUploadFiles, setPreparedUploadFiles] = useState<PreparedUploadFile[]>([])
   const navigate = useNavigate({ from: '/libraries/$libraryId/files' })
-  const { prepareDesktopFileUploads, upgradeLibraryFromLegacy, isPending } = useLibraryActions(libraryId)
+  const { prepareDesktopFileUploads, isPending } = useLibraryActions(libraryId)
 
   const { data: googleDriveEnabled } = useQuery({
     queryKey: ['isGoogleDriveConfigured'],
@@ -75,10 +75,6 @@ export const FilesActionsBar = ({
     )
   }
 
-  const handleUpgradeFromLegacy = () => {
-    upgradeLibraryFromLegacy()
-  }
-
   return (
     <>
       <ul
@@ -86,13 +82,6 @@ export const FilesActionsBar = ({
           'menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center',
         )}
       >
-        {hasLegacyData && (
-          <li>
-            <button type="button" onClick={handleUpgradeFromLegacy} disabled={isPending || !hasLegacyData}>
-              {t('libraries.upgradeFromLegacy')}
-            </button>
-          </li>
-        )}
         <li className={twMerge(hasLegacyData && 'menu-disabled')}>
           <button
             type="button"
