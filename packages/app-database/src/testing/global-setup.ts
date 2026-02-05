@@ -1,15 +1,13 @@
 import { exit } from 'process'
 
-import { ensureTestDatabase } from './test-database'
+import { dropTestDatabase, ensureTestDatabase } from './test-database'
 
 const setup = async () => {
-  await ensureTestDatabase().then(() => {
-    console.log('Test database is ready...')
-  })
+  await ensureTestDatabase('app-database')
 }
 
 const teardown = async () => {
-  // No global teardown needed currently
+  await dropTestDatabase('app-database')
   exit(0)
 }
 

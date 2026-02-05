@@ -2,67 +2,68 @@ import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { Client } from 'pg'
 
-// Test database configuration - single source of truth
-// Defaults for devcontainer, can be overridden via environment variables
+import conf from '../config'
+import { logger } from './common'
+
 const TEST_DB_CONFIG = {
-  host: process.env.TEST_DB_HOST || 'gai-chatweb-db-test',
-  port: parseInt(process.env.TEST_DB_PORT || '5432'),
-  user: process.env.TEST_DB_USER || 'chatweb-test',
-  password: process.env.TEST_DB_PASSWORD || 'password',
-  database: 'pothos-graphql-test', // Package-specific database name
+  host: conf('TEST_DB_HOST'),
+  port: conf('TEST_DB_PORT'),
+  user: conf('TEST_DB_USER'),
+  password: conf('TEST_DB_PASSWORD'),
 }
 
-const TEST_DB_URL = `postgresql://${TEST_DB_CONFIG.user}:${TEST_DB_CONFIG.password}@${TEST_DB_CONFIG.host}:${TEST_DB_CONFIG.port}/${TEST_DB_CONFIG.database}?schema=public`
+const getTestDatabaseUrl = (databaseName: string) => {
+  return `postgresql://${TEST_DB_CONFIG.user}:${TEST_DB_CONFIG.password}@${TEST_DB_CONFIG.host}:${TEST_DB_CONFIG.port}/${databaseName}?schema=public`
+}
 
-const ensureTestDatabase = async () => {
-  // Connect to default 'postgres' database to create test database
+const ensureTestDatabase = async (databaseName: string) => {
+  const dbUrl = getTestDatabaseUrl(databaseName)
   const adminClient = new Client({
     ...TEST_DB_CONFIG,
     database: 'postgres', // Connect to default database for admin operations
   })
-  process.env.DATABASE_URL = TEST_DB_URL
+  process.env.DATABASE_URL = dbUrl
 
-  console.log('Setting up test database ...')
+  logger.info('Setting up test database ...', { databaseName, dbUrl, TEST_DB_CONFIG })
 
   try {
     await adminClient.connect()
 
-    await adminClient.query(`CREATE DATABASE "${TEST_DB_CONFIG.database}"`).catch((error) => {
+    await adminClient.query(`CREATE DATABASE "${databaseName}"`).catch((error) => {
       const errorMessage = error instanceof Error ? error.message : 'Error creating Test Database'
 
       if (errorMessage.includes('already exists')) {
-        console.log('Test database already existed')
+        logger.info('Test database already existed', { databaseName, TEST_DB_CONFIG })
       } else {
         throw error
       }
     })
 
-    console.log(`✅ Created ${TEST_DB_CONFIG.database} database`)
+    logger.info(`✅ Created database`, { databaseName, TEST_DB_CONFIG })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Error creating Test Database'
 
     if (errorMessage.includes('already exists')) {
-      console.log('Test database already existed')
+      logger.info('Test database already existed', { databaseName, TEST_DB_CONFIG })
     } else {
-      console.error('Error creating test database', error)
+      logger.error('Error creating test database', { databaseName, error, TEST_DB_CONFIG })
     }
   } finally {
     await adminClient.end()
   }
 
-  // Run prisma from app-domain package (where Prisma CLI is installed)
-  const appDomainPath = resolve(__dirname, '../..')
-
+  // Run prisma from app-database package (where Prisma CLI is installed)
+  const appDatabasePath = resolve(__dirname, '../..')
   try {
-    console.log('Pushing Prisma schema to test database...')
+    logger.info('Pushing Prisma schema to test database...', { databaseName, appDatabasePath })
     execSync('pnpm prisma db push --accept-data-loss', {
       stdio: 'inherit',
-      cwd: appDomainPath,
-      env: { ...process.env, DATABASE_URL: TEST_DB_URL },
+      cwd: appDatabasePath,
+      env: { ...process.env, DATABASE_URL: dbUrl },
     })
-    console.log('✅ Prisma schema pushed to test database')
+    logger.info('✅ Prisma schema pushed to test database')
   } catch (error) {
-    console.error('Error pushing Prisma schema to test database', error)
+    logger.error('Error pushing Prisma schema to test database', { error, databaseName, TEST_DB_CONFIG })
     // If interrupted by SIGINT from another failing test, the schema is likely already pushed
     // Check if it was SIGINT and warn instead of failing
     const isSignalError =
@@ -72,33 +73,36 @@ const ensureTestDatabase = async () => {
       ((error as { signal?: string }).signal === 'SIGINT' || (error as { status?: number | null }).status === null)
 
     if (isSignalError) {
-      console.warn('⚠️  Prisma db push was interrupted, but database may already be set up')
+      logger.warn('⚠️  Prisma db push was interrupted, but database may already be set up', {
+        databaseName,
+        TEST_DB_CONFIG,
+      })
     } else {
       throw error
     }
   }
 
-  console.log('✅ Test database ready')
+  logger.info('✅ Test database ready', { databaseName, TEST_DB_CONFIG })
 }
 
-const dropTestDatabase = async () => {
+const dropTestDatabase = async (databaseName: string) => {
   const adminClient = new Client({
     ...TEST_DB_CONFIG,
     database: 'postgres', // Connect to default database for admin operations
   })
   try {
-    console.log('Dropping test database ...')
+    logger.info('Dropping test database ...', { databaseName, TEST_DB_CONFIG })
     await adminClient.connect()
 
     // Connect to default 'postgres' database to create test database
 
-    await adminClient.query(`DROP DATABASE IF EXISTS "${TEST_DB_CONFIG.database}"`)
-    console.log(`✅ Dropped ${TEST_DB_CONFIG.database} database`)
+    await adminClient.query(`DROP DATABASE IF EXISTS "${databaseName}" WITH (FORCE)`)
+    logger.info('✅ Dropped database', { databaseName, TEST_DB_CONFIG })
   } catch (error) {
-    console.error('Error dropping test database', error)
+    logger.error('Error dropping test database', { databaseName, error, TEST_DB_CONFIG })
   } finally {
     await adminClient.end()
   }
 }
 
-export { TEST_DB_CONFIG, TEST_DB_URL, ensureTestDatabase, dropTestDatabase }
+export { getTestDatabaseUrl, ensureTestDatabase, dropTestDatabase }

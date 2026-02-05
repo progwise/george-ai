@@ -38,13 +38,11 @@ export function getConfig(key: ConfigVar):
   switch (key) {
     case 'IS_PRODUCTION':
       return process.env.NODE_ENV === 'production'
-    default:
     case 'UPLOADS_PATH':
     case 'CRAWLER_CREDENTIALS_DIR':
     case 'PUBLIC_APP_URL':
     case 'GIT_COMMIT_SHA':
     case 'LOG_LEVEL':
-    case 'SMB_CRAWLER_URL':
       if (!process.env[key]) {
         throw new Error(`Missing required config variable: ${key}`)
       }
@@ -52,9 +50,12 @@ export function getConfig(key: ConfigVar):
 
     case 'OPENAI_API_KEY':
     case 'OPENAI_BASE_URL':
+    case 'SMB_CRAWLER_URL':
       return process.env[key] || undefined
     case 'OLLAMA_INSTANCES':
       return getConfiguredOllamaInstances()
+    default:
+      throw new Error(`Unknown config variable: ${key}`)
   }
 }
 

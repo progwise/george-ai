@@ -4,7 +4,7 @@ import pg from 'pg'
 import { createLogger } from '@george-ai/app-commons'
 
 import { Prisma, PrismaClient } from '../prisma/generated/client'
-import { DATABASE_URL, IS_PRODUCTION, LOG_LEVEL } from './global-config'
+import config from './config'
 
 const logger = createLogger('Prisma')
 
@@ -19,7 +19,7 @@ declare global {
 // WARN: warn, error
 // ERROR: error only
 const getLogLevels = (): Prisma.LogLevel[] => {
-  switch (LOG_LEVEL) {
+  switch (config('LOG_LEVEL')) {
     case 'DEBUG':
       return ['query', 'info', 'warn', 'error']
     case 'INFO':
@@ -33,9 +33,10 @@ const getLogLevels = (): Prisma.LogLevel[] => {
 }
 
 const createPrismaClient = () => {
+  const connectionString: string = config('DATABASE_URL')
   // Create PostgreSQL connection pool for Prisma v7 adapter
   const pool = new pg.Pool({
-    connectionString: DATABASE_URL,
+    connectionString,
   })
 
   // Create Prisma adapter for PostgreSQL
@@ -71,6 +72,7 @@ const createPrismaClient = () => {
 
 export const prisma = global.prisma ?? createPrismaClient()
 
-if (!IS_PRODUCTION) {
+const isProduction = config('IS_PRODUCTION')
+if (!isProduction) {
   global.prisma = prisma
 }

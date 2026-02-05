@@ -3,13 +3,11 @@ import { exit } from 'process'
 import { testing } from '@george-ai/app-database'
 
 const setup = async () => {
-  testing.ensureTestDatabase().then(() => {
-    console.log('App database for tests is ready...')
-  })
+  await testing.ensureTestDatabase('pothos-graphql')
 }
 
 const teardown = async () => {
-  // No global teardown needed currently
+  await testing.dropTestDatabase('pothos-graphql')
   exit(0)
 }
 
