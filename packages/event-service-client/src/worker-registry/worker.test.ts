@@ -2,9 +2,8 @@ import { initializeEventServiceClient } from '..'
 import { default as workerRegistry } from './index'
 
 describe.sequential('event-service-client worker tests', () => {
-  const TEST_WORKER_ID = `test-worker-123_${Date.now()}`
-  const TEST_WORKER2_ID = `test-worker-456_${Date.now()}`
-  const TEST_WORKER3_ID = `test-worker-789_${Date.now()}`
+  const now = Date.now()
+  const TEST_WORKER_IDS = Array.from({ length: 10 }, (_, i) => `test-worker-${i + 1}_${now}`)
 
   beforeAll(async () => {
     // Ensure workspace is clean before tests
@@ -12,19 +11,17 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   afterAll(async () => {
-    await workerRegistry.deleteWorker(TEST_WORKER_ID)
-    await workerRegistry.deleteWorker(TEST_WORKER2_ID)
-    await workerRegistry.deleteWorker(TEST_WORKER3_ID)
+    await Promise.all(TEST_WORKER_IDS.map((workerId) => workerRegistry.deleteWorker(workerId)))
   })
 
   test('should signup', async () => {
     const entries = await workerRegistry.signup({
-      workerId: TEST_WORKER_ID,
+      workerId: TEST_WORKER_IDS[0],
     })
     expect(entries.length).toBeGreaterThan(0)
     const healthManagementEntry = entries.find((entry) => entry.workerType === 'AI_HEALTH_MANAGEMENT')
     expect(healthManagementEntry).toBeDefined()
-    expect(healthManagementEntry?.workerId).toBe(TEST_WORKER_ID)
+    expect(healthManagementEntry?.workerId).toBe(TEST_WORKER_IDS[0])
   })
 
   test('should get worker that does not exist', async () => {
@@ -37,18 +34,18 @@ describe.sequential('event-service-client worker tests', () => {
 
   test('should get worker that was just created', async () => {
     const retrievedEntry = await workerRegistry.getWorkerRegistryEntry({
-      workerId: TEST_WORKER_ID,
+      workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
 
     expect(retrievedEntry).not.toBeNull()
-    expect(retrievedEntry?.workerId).toBe(TEST_WORKER_ID)
+    expect(retrievedEntry?.workerId).toBe(TEST_WORKER_IDS[0])
     expect(retrievedEntry?.workerType).toBe('AI_HEALTH_MANAGEMENT')
   })
 
   test('should update worker heartbeat', async () => {
     const beforeUpdate = await workerRegistry.getWorkerRegistryEntry({
-      workerId: TEST_WORKER_ID,
+      workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
     expect(beforeUpdate).not.toBeNull()
@@ -58,12 +55,12 @@ describe.sequential('event-service-client worker tests', () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     await workerRegistry.updateWorkerHeartbeat({
-      workerId: TEST_WORKER_ID,
+      workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
 
     const afterUpdate = await workerRegistry.getWorkerRegistryEntry({
-      workerId: TEST_WORKER_ID,
+      workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
     expect(afterUpdate).not.toBeNull()
@@ -74,7 +71,7 @@ describe.sequential('event-service-client worker tests', () => {
 
   test('should signup another worker', async () => {
     const entries = await workerRegistry.signup({
-      workerId: TEST_WORKER2_ID,
+      workerId: TEST_WORKER_IDS[1],
     })
 
     console.log('Worker signup entries', { entries })
@@ -82,18 +79,18 @@ describe.sequential('event-service-client worker tests', () => {
     expect(entries.length).toBeGreaterThan(0)
     const workspaceProcessingEntry = entries.find((entry) => entry.workerType === 'WORKSPACE_PROCESSING')
     expect(workspaceProcessingEntry).toBeDefined()
-    expect(workspaceProcessingEntry?.workerId).toBe(TEST_WORKER2_ID)
+    expect(workspaceProcessingEntry?.workerId).toBe(TEST_WORKER_IDS[1])
   })
 
   test('should signup a third worker without AI_HEALTH_MANAGEMENT', async () => {
     const entries = await workerRegistry.signup({
-      workerId: TEST_WORKER3_ID,
+      workerId: TEST_WORKER_IDS[2],
     })
 
     expect(entries.length).toBeGreaterThan(0)
     const providerCallingEntry = entries.find((entry) => entry.workerType === 'AI_PROVIDER_CALLING')
     expect(providerCallingEntry).toBeDefined()
-    expect(providerCallingEntry?.workerId).toBe(TEST_WORKER3_ID)
+    expect(providerCallingEntry?.workerId).toBe(TEST_WORKER_IDS[2])
 
     const healthManagementEntry = entries.find((entry) => entry.workerType === 'AI_HEALTH_MANAGEMENT')
     expect(healthManagementEntry).toBeUndefined()
@@ -113,12 +110,91 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should delete worker', async () => {
-    await workerRegistry.deleteWorker(TEST_WORKER2_ID)
+    await workerRegistry.deleteWorker(TEST_WORKER_IDS[1])
 
     const retrievedEntries = await workerRegistry.getWorkerRegistryEntries({
-      workerId: TEST_WORKER2_ID,
+      workerId: TEST_WORKER_IDS[1],
     })
 
     expect(retrievedEntries.length).toBe(0)
+  })
+
+  test('Should return the correct available slots', async () => {
+    const slotsBefore = await workerRegistry.getAvailableSlots()
+
+    // Sign up a new worker which should take the last AI_HEALTH_MANAGEMENT slot
+    const entries = await workerRegistry.signup({
+      workerId: TEST_WORKER_IDS[3],
+    })
+    const healthManagementEntry = entries.find((entry) => entry.workerType === 'AI_HEALTH_MANAGEMENT')
+
+    const slotsAfter = await workerRegistry.getAvailableSlots()
+    if (healthManagementEntry) {
+      expect(slotsAfter['AI_HEALTH_MANAGEMENT']).toBe(slotsBefore['AI_HEALTH_MANAGEMENT'] - 1)
+    } else {
+      expect(slotsAfter['AI_HEALTH_MANAGEMENT']).toBe(slotsBefore['AI_HEALTH_MANAGEMENT'])
+    }
+    expect(slotsAfter['WORKSPACE_PROCESSING']).toBe(slotsBefore['WORKSPACE_PROCESSING'] - 1) // Because we have 2 workers with this type already, but the limit is 1000
+    expect(slotsAfter['AI_PROVIDER_CALLING']).toBe(slotsBefore['AI_PROVIDER_CALLING'] - 1) // Because we have 2 workers with this type already, but the limit is 1000
+  })
+
+  test('should register a new worker type for existing worker', async () => {
+    const newEntry = await workerRegistry.register({
+      workerId: TEST_WORKER_IDS[4],
+      workerType: 'WORKSPACE_PROCESSING',
+    })
+
+    expect(newEntry).not.toBeNull()
+    expect(newEntry.workerId).toBe(TEST_WORKER_IDS[4])
+    expect(newEntry.workerType).toBe('WORKSPACE_PROCESSING')
+  })
+
+  test('should not register a worker if already registered', async () => {
+    const firstEntry = await workerRegistry.register({
+      workerId: TEST_WORKER_IDS[5],
+      workerType: 'WORKSPACE_PROCESSING',
+    })
+
+    const secondEntry = await workerRegistry.register({
+      workerId: TEST_WORKER_IDS[5],
+      workerType: 'WORKSPACE_PROCESSING',
+    })
+
+    expect(secondEntry).not.toBeNull()
+    expect(secondEntry.workerId).toBe(TEST_WORKER_IDS[5])
+    expect(secondEntry.workerType).toBe('WORKSPACE_PROCESSING')
+    expect(secondEntry.lastHeartbeat).toBe(firstEntry.lastHeartbeat) // Because it should return the existing entry without updating heartbeat
+  })
+
+  test('should register a worker that was previously deleted', async () => {
+    const workerId = TEST_WORKER_IDS[6]
+    await workerRegistry.register({
+      workerId,
+      workerType: 'WORKSPACE_PROCESSING',
+    })
+
+    await workerRegistry.deleteWorker(workerId)
+
+    const newEntry = await workerRegistry.register({
+      workerId,
+      workerType: 'WORKSPACE_PROCESSING',
+    })
+
+    expect(newEntry).not.toBeNull()
+    expect(newEntry.workerId).toBe(workerId)
+    expect(newEntry.workerType).toBe('WORKSPACE_PROCESSING')
+  })
+
+  test('Should not register a worker if no slots are available', async () => {
+    expect(() =>
+      Promise.all(
+        Array.from({ length: 3 }, (_, i) =>
+          workerRegistry.register({
+            workerId: TEST_WORKER_IDS[7 + i],
+            workerType: 'AI_HEALTH_MANAGEMENT',
+          }),
+        ),
+      ),
+    ).rejects.toThrowError('No available slots for worker type: AI_HEALTH_MANAGEMENT')
   })
 })

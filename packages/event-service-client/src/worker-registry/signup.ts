@@ -1,7 +1,8 @@
 import { eventClient } from '../client'
-import { logger } from '../model-calls/common'
+import { logger } from './common'
 import { WORKER_REGISTRY_BUCKET_NAME, getKey, getKeyFilter } from './common'
-import { WorkerRegistryEntry, WorkerType } from './schema'
+import { getAvailableSlots } from './get-available-slots'
+import { WORKER_TYPES, WorkerRegistryEntry } from './schema'
 
 export async function signup({ workerId }: { workerId: string }): Promise<WorkerRegistryEntry[]> {
   logger.info('Worker signup initiated', { workerId })
@@ -25,22 +26,8 @@ export async function signup({ workerId }: { workerId: string }): Promise<Worker
     return entries.filter((entry): entry is WorkerRegistryEntry => entry !== null)
   }
 
-  const assignedWorkerTypes: WorkerType[] = ['AI_PROVIDER_CALLING', 'WORKSPACE_PROCESSING']
-
-  const currentProviderManagerEntries = await eventClient.getKeys({
-    bucketName: WORKER_REGISTRY_BUCKET_NAME,
-    filter: getKeyFilter({ workerType: 'AI_HEALTH_MANAGEMENT' }),
-    limit: 1000,
-  })
-
-  if (currentProviderManagerEntries.length < 2) {
-    assignedWorkerTypes.push('AI_HEALTH_MANAGEMENT')
-  } else {
-    logger.info('Maximum AI_HEALTH_MANAGEMENT workers reached, not assigning to this worker', {
-      workerId,
-      currentProviderManagerEntries,
-    })
-  }
+  const freeWorkerTypes = await getAvailableSlots()
+  const assignedWorkerTypes = WORKER_TYPES.filter((workerType) => freeWorkerTypes[workerType] > 0)
 
   const newEntries = await Promise.all(
     assignedWorkerTypes.map(async (workerType) => {

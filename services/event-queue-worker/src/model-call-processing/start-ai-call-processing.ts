@@ -11,7 +11,11 @@ export async function startAICallProcessing(): Promise<() => Promise<void>> {
       try {
         await workerRegistry.updateWorkerHeartbeat({ workerId: WORKER_ID, workerType: 'AI_PROVIDER_CALLING' })
       } catch (error) {
-        logger.error('Error updating worker heartbeat', { WORKER_ID, workerType: 'AI_PROVIDER_CALLING', error })
+        logger.warn('Error updating worker heartbeat. Trying to re-register the worker.', {
+          WORKER_ID,
+          workerType: 'AI_PROVIDER_CALLING',
+          error,
+        })
       }
     }, 30 * 1000) // Every 30 seconds
     cleanupFunctions.push(async () => {

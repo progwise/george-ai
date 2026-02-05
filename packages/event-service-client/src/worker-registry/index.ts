@@ -8,7 +8,9 @@ import {
   getWorkerRegistryEntry,
   watchWorkerRegistryEntries,
 } from './entry'
+import { WORKER_TYPE_SLOTS, getAvailableSlots } from './get-available-slots'
 import { updateWorkerHeartbeat } from './heartbeat'
+import { register } from './register'
 import { WORKER_TYPES, type WorkerRegistryEntry, WorkerRegistrySchema, type WorkerType } from './schema'
 import { signup } from './signup'
 
@@ -28,6 +30,8 @@ export { type WorkerRegistryEntry, type WorkerType }
 export default {
   WorkerRegistrySchema,
   WORKER_TYPES,
+  WORKER_TYPE_SLOTS,
+  getAvailableSlots,
   getWorkerRegistryEntry,
   getWorkerRegistryEntries,
   watchWorkerRegistryEntries,
@@ -35,5 +39,6 @@ export default {
   getAllWorkerRegistryEntries,
   deleteWorkerRegistryEntry,
   deleteWorker,
+  register,
   signup,
 } as const

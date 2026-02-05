@@ -1,5 +1,8 @@
+import { createLogger } from '@george-ai/app-commons'
+
 import { WorkerType } from './schema'
 
+export const logger = createLogger('event-service-client:worker-registry')
 export const WORKER_REGISTRY_BUCKET_NAME = 'worker-registry'
 
 export const getKeyFilter = ({ workerType, workerId }: { workerType?: WorkerType; workerId?: string }) =>
