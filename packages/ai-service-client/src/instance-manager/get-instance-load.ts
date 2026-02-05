@@ -2,7 +2,7 @@ import { getOllamaRunningModels } from '../ollama/ollama-api'
 import { ServiceProviderType } from '../types'
 import { logger } from './common'
 
-const TTL_MS = 10 * 1000 // 30 seconds
+const TTL_MS = 10 * 1000 // 10 seconds
 const instanceLoadCache = new Map<string, { timestamp: number; vramUsageMB: number; runningModels: string[] }>()
 
 export const getInstanceLoad = async (args: {
@@ -29,7 +29,6 @@ export const getInstanceLoad = async (args: {
       vramUsageMB: 10000,
       runningModels: [],
     }
-    return
   } else if (provider === 'ollama') {
     if (!url) {
       logger.error('Ollama URL not provided')

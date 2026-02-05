@@ -65,7 +65,6 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  // const uploadedFilePath = getUploadFilePath({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
   const lockKey = fileInfo.id
 
   // Check if file is already being uploaded
@@ -80,7 +79,7 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
 
   // Check if content is base64 encoded
   const contentEncoding = httpRequest.headers['content-encoding']
-  let stream: Readable | undefined = undefined
+  let stream: Readable | undefined
   if (contentEncoding === 'base64') {
     const decoder = new Transform({
       transform(chunk, encoding, callback) {

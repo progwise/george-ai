@@ -19,7 +19,7 @@ export async function initializeWorkerRegistryBucket() {
     name: WORKER_REGISTRY_BUCKET_NAME,
     options: {
       history: 1,
-      ttlMs: 2 * 60 * 1000, // 5 minutes
+      ttlMs: 5 * 60 * 1000, // 5 minutes
     },
   })
   return WORKER_REGISTRY_BUCKET_NAME
