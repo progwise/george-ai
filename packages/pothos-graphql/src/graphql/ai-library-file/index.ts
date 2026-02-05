@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-database'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
 
-import { prisma } from '../../../../app-database/src'
 import { ExtractionInfo } from '../ai-content-extraction'
 import { builder } from '../builder'
 
@@ -16,7 +16,7 @@ import { vectorStore } from '@george-ai/vector-store'
 
 import { logger } from './common'
 
-console.log('Setting up: AiLibraryFile')
+logger.info('Setting up: AiLibraryFile')
 
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',

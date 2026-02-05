@@ -1,5 +1,9 @@
+import { createLogger } from '@george-ai/app-commons'
+
 export const SUPPORTED_PROVIDERS = ['ollama', 'openai'] as const
 export type SupportedProvider = (typeof SUPPORTED_PROVIDERS)[number]
+
+export const logger = createLogger('llm-client')
 
 export interface ProviderConnection {
   providerBaseUrl?: string
@@ -11,8 +15,6 @@ export interface Message {
   content: string
   images?: string[]
 }
-
-export type ServiceProviderType = 'ollama' | 'openai'
 
 export interface ChatOptions {
   modelName: string
@@ -54,4 +56,9 @@ export interface ChatCompletionStreamChunk {
 export interface EmbeddingsResult {
   usage: { promptTokens: number; totalTokens: number }
   embeddings: { inputText: string; embedding: number[] }[]
+}
+
+export interface TestResult {
+  success: boolean
+  errorMessage?: string
 }

@@ -1,11 +1,10 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { createLogger } from '@george-ai/app-commons'
+import { Prisma, prisma } from '@george-ai/app-database'
 import { workspaceStorage } from '@george-ai/file-management'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
-import { Prisma } from '../../../app-database/src'
-import { prisma } from '../../../app-database/src'
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
 import { logModelUsage } from '../domain/languageModel'
 import { getLibraryWorkspace } from '../domain/workspace'

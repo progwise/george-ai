@@ -5,8 +5,8 @@ import {
   AiActQuestion,
   performRiskAssessment,
 } from '@george-ai/ai-act'
+import { prisma } from '@george-ai/app-database'
 
-import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { getQuestionsWithAnswers } from './answers'
 import { AiActStringRef } from './multilingual-string'

@@ -1,4 +1,5 @@
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
+
 import { AiListFilterType, FieldFileProperty, FieldSourceType, FieldType } from '../../domain/list'
 
 const getValueFieldName = (fieldType: FieldType) => {

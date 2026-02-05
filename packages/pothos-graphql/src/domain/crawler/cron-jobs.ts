@@ -1,8 +1,9 @@
 import { CronJob } from 'cron'
 
-import { AiLibraryCrawlerCronJob, prisma } from '../../../../app-database/src'
-import { getCronExpression } from '../../graphql/ai-library-crawler-cronjob/get-cron-expression'
+import { AiLibraryCrawlerCronJob, prisma } from '@george-ai/app-database'
+
 import { runCrawler } from './crawler-run'
+import { getCronExpression } from './get-cron-expression'
 
 const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 

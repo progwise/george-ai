@@ -1,4 +1,4 @@
-import { Prisma, prisma } from '../../../../app-database/src'
+import { Prisma, prisma } from '@george-ai/app-database'
 
 const QueryMode = Prisma.QueryMode
 

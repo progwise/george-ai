@@ -1,7 +1,8 @@
 import fs from 'fs'
 
-import { prisma } from '../../../../app-database/src'
-import { UPLOADS_PATH } from '../../global-config'
+import { prisma } from '@george-ai/app-database'
+
+import config from '../../config'
 
 export const checkUser = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -35,7 +36,7 @@ export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: strin
 }
 
 export const getUserAvatarsPath = () => {
-  const path = `${UPLOADS_PATH}/user-avatars`
+  const path = `${config('UPLOADS_PATH')}/user-avatars`
 
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true })

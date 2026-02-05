@@ -1,4 +1,4 @@
-import type { Prisma } from '../../../../app-database/src'
+import type { Prisma } from '@george-ai/app-database'
 
 export * from './filter'
 export * from './item-extraction'

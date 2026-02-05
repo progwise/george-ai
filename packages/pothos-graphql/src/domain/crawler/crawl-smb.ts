@@ -1,12 +1,12 @@
 import { Readable } from 'node:stream'
 
 import { createLogger } from '@george-ai/app-commons'
+import { prisma } from '@george-ai/app-database'
 import { workspaceStorage } from '@george-ai/file-management'
 import { SmbCrawlerClient } from '@george-ai/smb-crawler'
 import type { SmbFileMetadata } from '@george-ai/smb-crawler'
 
-import { prisma } from '../../../../app-database/src'
-import { SMB_CRAWLER_URL } from '../../global-config'
+import config from '../../config'
 import { isFileSizeAcceptable } from '../file/constants'
 import { FileInfo, applyFileFilters } from '../file/file-filter'
 import { CrawledFileInfo } from './crawled-file-info'
@@ -195,10 +195,12 @@ export async function* crawlSmb({
   filterConfig,
   credentials,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
-  logger.info(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
-  logger.info(`Using SMB crawler service at: ${SMB_CRAWLER_URL}`)
+  logger.debug(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
 
-  if (!SMB_CRAWLER_URL) {
+  const smbCrawlerUrl = config('SMB_CRAWLER_URL')
+  logger.debug(`Using SMB crawler service at: ${smbCrawlerUrl}`)
+
+  if (!smbCrawlerUrl) {
     const errorMessage = 'SMB_CRAWLER_URL is not configured'
     logger.error(errorMessage)
     yield { errorMessage, hints: 'Missing SMB_CRAWLER_URL configuration' }
@@ -213,11 +215,11 @@ export async function* crawlSmb({
   }
 
   let processedPages = 0
-  const client = new SmbCrawlerClient({ baseUrl: SMB_CRAWLER_URL })
+  const client = new SmbCrawlerClient({ baseUrl: smbCrawlerUrl })
 
   // Start crawl job on SMB crawler service
   // If this fails (authentication, network, mount errors, etc.), throw to fail the entire run
-  logger.info(`Starting crawl job on SMB crawler service...`)
+  logger.debug(`Starting crawl job on SMB crawler service...`)
   let jobId: string
   let streamUrl: string
 
@@ -239,7 +241,7 @@ export async function* crawlSmb({
     throw error
   }
 
-  logger.info(`Crawl job started: ${jobId}, stream URL: ${streamUrl}`)
+  logger.debug(`Crawl job started: ${jobId}, stream URL: ${streamUrl}`)
 
   try {
     // Stream events from crawler service

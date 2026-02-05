@@ -1,9 +1,9 @@
 import crypto from 'node:crypto'
 
 import { type ApiCrawlerConfig, crawlApiStream } from '@george-ai/api-crawler'
+import { prisma } from '@george-ai/app-database'
 import { workspaceStorage } from '@george-ai/file-management'
 
-import { prisma } from '../../../../app-database/src'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 

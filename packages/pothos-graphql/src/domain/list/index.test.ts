@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { AiListItemCache } from '../../../../app-database/src'
+import { AiListItemCache } from '@george-ai/app-database'
+
 import { LIST_FIELD_TYPES, ListItemWithRelations, getFieldValue } from './index'
 
 describe('LIST_FIELD_TYPES', () => {

@@ -5,8 +5,7 @@
  * Creates AiAutomationItem records for matching list items.
  */
 import { createLogger } from '@george-ai/app-commons'
-
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
 
 const logger = createLogger('Automation Sync')
 

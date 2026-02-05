@@ -1,8 +1,8 @@
 import { classifyModel, discoverModels as discoverModelsForProvider } from '@george-ai/ai-service-client'
 import { ModelProvider } from '@george-ai/app-commons'
+import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLanguageModel Mutations')

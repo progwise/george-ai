@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow, canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { prisma } from '../../../../app-database/src'
 import { createListItemsForSource } from './../../domain'
 import { builder } from './../builder'
 

@@ -1,14 +1,12 @@
 import { ModelProvider } from '@george-ai/app-commons'
-import { createLogger } from '@george-ai/app-commons'
+import { Prisma, prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { Prisma, prisma } from '../../../../app-database/src'
 import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
 import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
-
-const logger = createLogger('Enrichment Tasks')
+import { logger } from './common'
 
 // PostgreSQL has a limit of 32,767 bind variables in prepared statements
 // Use a safe batch size that accounts for complex queries with multiple binds per item

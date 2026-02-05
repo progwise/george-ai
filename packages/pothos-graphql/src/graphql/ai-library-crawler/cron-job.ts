@@ -1,5 +1,5 @@
+import { getCronExpression } from '../../domain/crawler/get-cron-expression'
 import { builder } from '../builder'
-import { getCronExpression } from './get-cron-expression'
 
 console.log('Setting up: AiLibraryCrawlerCronJob')
 

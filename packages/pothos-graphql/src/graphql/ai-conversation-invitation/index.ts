@@ -1,11 +1,11 @@
+import { prisma } from '@george-ai/app-database'
 import { sendMail } from '@george-ai/mailer'
 
-import { prisma } from '../../../../app-database/src'
-import { PUBLIC_APP_URL } from '../../global-config'
+import config from '../../config'
 import { builder } from '../builder'
 
 const generateInvitationLink = (conversationId: string, invitationId: string): string => {
-  return `${PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
+  return `${config('PUBLIC_APP_URL')}/conversations/${conversationId}/confirm-invitation/${invitationId}`
 }
 
 const conversationInvitationInput = builder.inputType('ConversationInvitationInput', {

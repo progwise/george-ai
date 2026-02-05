@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql'
 
-import { AutomationItemStatus, prisma } from '../../../../app-database/src'
+import { AutomationItemStatus, prisma } from '@george-ai/app-database'
+
 import { canAccessAutomationOrThrow } from '../../domain/automation'
 import { builder } from '../builder'
 

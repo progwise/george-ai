@@ -2,11 +2,11 @@ import { GraphQLError } from 'graphql'
 
 import { invalidateWorkspace, testOllamaConnection, testOpenAIConnection } from '@george-ai/ai-service-client'
 import { encryptValue } from '@george-ai/app-commons'
+import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow, canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ModelProviderInstance } from '@george-ai/event-service-client'
 
-import { prisma } from '../../../../app-database/src'
-import { OLLAMA_INSTANCES, OPENAI_API_KEY, OPENAI_BASE_URL } from '../../global-config'
+import config from '../../config'
 import { builder } from '../builder'
 
 // Input type for creating/updating AI service providers
@@ -34,7 +34,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
       await canAdminWorkspaceOrThrow(context.workspaceId, userId)
 
       // Check for duplicate name within same provider type
-      const existing = await prisma.aiServiceProvider.findFirst({
+      const existing = await prisma.aiServiceProvider.count({
         where: {
           workspaceId: context.workspaceId,
           provider: data.provider,
@@ -42,7 +42,7 @@ builder.mutationField('createAiServiceProvider', (t) =>
         },
       })
 
-      if (existing) {
+      if (existing > 0) {
         throw new GraphQLError(`Provider '${data.provider}' with name '${data.name}' already exists in this workspace`)
       }
 
@@ -304,18 +304,20 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       const workspaceId = context.workspaceId
       const providersToCreate: Array<Omit<ModelProviderInstance, 'id'>> = []
 
+      const apiKey = config('OPENAI_API_KEY')
+      const baseUrl = config('OPENAI_BASE_URL')
       // Import OpenAI if configured
-      if (OPENAI_API_KEY) {
+      if (apiKey) {
         providersToCreate.push({
           modelProvider: 'openai',
           name: 'OpenAI',
-          apiKey: OPENAI_API_KEY,
-          baseUrl: OPENAI_BASE_URL,
+          apiKey,
+          baseUrl,
         })
       }
 
       // Import all configured Ollama instances
-      for (const instance of OLLAMA_INSTANCES) {
+      for (const instance of config('OLLAMA_INSTANCES')) {
         providersToCreate.push({
           modelProvider: 'ollama',
           name: instance.name,

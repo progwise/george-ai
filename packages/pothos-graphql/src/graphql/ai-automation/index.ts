@@ -1,3 +1,4 @@
+import { prisma } from '@george-ai/app-database'
 import type {
   ActionConfigValue,
   ActionFieldMapping,
@@ -6,7 +7,6 @@ import type {
 } from '@george-ai/connector-types'
 import { rawActionConfigSchema, transformValue } from '@george-ai/connector-types'
 
-import { prisma } from '../../../../app-database/src'
 import { getFieldValue } from '../../domain'
 import { builder } from '../builder'
 

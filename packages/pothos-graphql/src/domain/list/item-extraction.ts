@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-database'
 import { workspaceStorage } from '@george-ai/file-management'
 
-import { prisma } from '../../../../app-database/src'
 import { syncAutomationItemsForList } from '../automation'
 import { logger } from '../file/common'
 

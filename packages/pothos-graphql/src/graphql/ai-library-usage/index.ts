@@ -1,4 +1,5 @@
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
+
 import { builder } from '../builder'
 
 export const AiLibraryUsage = builder.prismaObject('AiLibraryUsage', {

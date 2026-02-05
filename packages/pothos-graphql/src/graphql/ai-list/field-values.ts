@@ -1,5 +1,5 @@
-import type { Prisma } from '../../../../app-database/src'
-import { prisma } from '../../../../app-database/src'
+import { type Prisma, prisma } from '@george-ai/app-database'
+
 import { getFieldValue } from '../../domain'
 import {
   type AiListFilterType,

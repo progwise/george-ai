@@ -1,7 +1,8 @@
 import fs from 'fs'
 
-import { prisma } from '../../../../app-database/src'
-import { UPLOADS_PATH } from '../../global-config'
+import { prisma } from '@george-ai/app-database'
+
+import config from '../../config'
 
 export const checkAssistant = async (assistantId: string) => {
   const assistant = await prisma?.aiAssistant.findUnique({
@@ -11,7 +12,7 @@ export const checkAssistant = async (assistantId: string) => {
 }
 
 export const getAssistantIconsPath = () => {
-  const dir = `${UPLOADS_PATH}/assistant-icons`
+  const dir = `${config('UPLOADS_PATH')}/assistant-icons`
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
   }

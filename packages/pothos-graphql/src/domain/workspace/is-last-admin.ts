@@ -1,4 +1,4 @@
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
 
 /**
  * Check if a user is the last admin of a workspace

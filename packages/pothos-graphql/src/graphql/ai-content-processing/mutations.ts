@@ -1,9 +1,8 @@
 import { GraphQLError } from 'graphql'
 
-import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { canWriteWorkspaceOrThrow, workspace } from '@george-ai/app-domain'
 import { workspaceProcessing } from '@george-ai/event-service-client'
 
-import { workspace } from '../../../../app-database/src'
 import { builder } from '../builder'
 import { logger } from './common'
 

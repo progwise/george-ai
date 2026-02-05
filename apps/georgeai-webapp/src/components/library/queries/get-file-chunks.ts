@@ -38,7 +38,7 @@ const getFileChunks = createServerFn({ method: 'GET' })
           }
         }
       `),
-      { fileId: data.fileId, skip: data.skip, take: data.take, part: data.part },
+      { ...data },
     )
     return result
   })

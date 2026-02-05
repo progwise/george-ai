@@ -1,6 +1,5 @@
 import { ModelProvider } from '@george-ai/app-commons'
-
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
 
 /**
  * Load workspace providers from database for provider cache

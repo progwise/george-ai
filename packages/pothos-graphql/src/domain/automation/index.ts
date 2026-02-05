@@ -1,8 +1,8 @@
 /**
  * Automation domain logic.
  */
-import type { Prisma } from '../../../../app-database/src'
-import { prisma } from '../../../../app-database/src'
+import { prisma } from '@george-ai/app-database'
+import type { Prisma } from '@george-ai/app-database'
 
 export * from './constants'
 export * from './sync-items'

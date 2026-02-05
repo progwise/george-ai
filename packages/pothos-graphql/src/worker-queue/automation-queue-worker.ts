@@ -1,9 +1,8 @@
 import { createLogger } from '@george-ai/app-commons'
+import type { AiAutomationItem, AiAutomationItemExecution, AiListItemCache } from '@george-ai/app-database'
+import { prisma } from '@george-ai/app-database'
 import { getConnectorAction, getConnectorTypeFactory, rawActionConfigSchema } from '@george-ai/connector-types'
 import type { ActionInput, ConnectorConfig } from '@george-ai/connector-types'
-
-import type { AiAutomationItem, AiAutomationItemExecution, AiListItemCache } from '../../../app-database/src'
-import { prisma } from '../../../app-database/src'
 
 const logger = createLogger('Automation Worker')
 

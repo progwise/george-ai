@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLanguageModel Queries')

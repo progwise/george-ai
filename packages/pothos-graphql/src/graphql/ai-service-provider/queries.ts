@@ -1,6 +1,6 @@
+import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { prisma } from '../../../../app-database/src'
 import { builder } from '../builder'
 
 // Query to get all providers for the current workspace

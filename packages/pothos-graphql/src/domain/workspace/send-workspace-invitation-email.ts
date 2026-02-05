@@ -1,7 +1,7 @@
+import { prisma } from '@george-ai/app-database'
 import { sendMail } from '@george-ai/mailer'
 
-import { prisma } from '../../../../app-database/src'
-import { PUBLIC_APP_URL } from '../../global-config'
+import config from '../../config'
 
 export const INVITATION_EXPIRY_DAYS = 7
 
@@ -29,7 +29,7 @@ export async function sendWorkspaceInvitationEmail(
     select: { name: true, email: true },
   })
 
-  const inviteLink = `${PUBLIC_APP_URL}/accept-invitation/${invitationId}`
+  const inviteLink = `${config('PUBLIC_APP_URL')}/accept-invitation/${invitationId}`
   const inviterName = inviter?.name || inviter?.email || 'Someone'
 
   await sendMail(

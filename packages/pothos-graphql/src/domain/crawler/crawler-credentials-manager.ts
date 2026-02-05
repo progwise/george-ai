@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { CRAWLER_CREDENTIALS_DIR } from '../../global-config'
+import config from '../../config'
 
-const CREDENTIALS_DIR = path.resolve(CRAWLER_CREDENTIALS_DIR)
+const CREDENTIALS_DIR = path.resolve(config('CRAWLER_CREDENTIALS_DIR'))
 
 async function ensureDirectoryExists(dirPath: string, mode: number = 0o755): Promise<void> {
   try {
