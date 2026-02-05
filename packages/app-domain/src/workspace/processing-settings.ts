@@ -1,5 +1,5 @@
 import { ExtractionMethod, ModelProvider } from '@george-ai/app-commons'
-import { prisma } from '@george-ai/app-database/src/prisma'
+import { prisma } from '@george-ai/app-database'
 
 import { getModelProvider } from './get-model-provider'
 

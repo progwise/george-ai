@@ -47,7 +47,6 @@ export {
   getLibraryWorkspace,
   getWorkspaceProviders,
   initializeWorkspace,
-  SYSTEM_WORKSPACE_ID,
 } from './domain/workspace'
 export type { WorkspaceMembershipInfo } from './domain/workspace'
 

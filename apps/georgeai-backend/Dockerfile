@@ -28,6 +28,9 @@ WORKDIR /app
 
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/app-commons/package.json ./packages/app-commons/
+COPY packages/app-database/package.json ./packages/app-database/
+COPY packages/app-domain/package.json ./packages/app-domain/
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
@@ -42,6 +45,7 @@ COPY packages/mailer/package.json ./packages/mailer/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/smb-crawler/package.json ./packages/smb-crawler/
+COPY packages/vector-store/package.json ./packages/vector-store/
 COPY packages/web-utils/package.json ./packages/web-utils/
 COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
@@ -51,6 +55,9 @@ RUN pnpm i --frozen-lockfile
 COPY LICENSE ./
 
 # Copy only the source files for packages that backend depends on
+COPY packages/app-commons ./packages/app-commons
+COPY packages/app-database ./packages/app-database
+COPY packages/app-domain ./packages/app-domain
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
@@ -65,6 +72,7 @@ COPY packages/mailer ./packages/mailer
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/smb-crawler ./packages/smb-crawler
+COPY packages/vector-store ./packages/vector-store
 COPY packages/web-utils ./packages/web-utils
 COPY apps/georgeai-backend ./apps/georgeai-backend
 
@@ -94,10 +102,10 @@ COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig
 
 # Copy Prisma directory to predictable location for runtime migrations
 # pnpm deploy stores packages in .pnpm with complex naming, so we copy to /app/prisma
-COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma /app/prisma
+COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma /app/prisma
 
 # Copy Prisma config file for Prisma v7 (needed to find datasource URL)
-COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma.config.ts /app/prisma.config.ts
+COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma.config.ts /app/prisma.config.ts
 
 # Create crawler credentials directory with proper permissions
 RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials

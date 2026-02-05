@@ -1059,6 +1059,12 @@ enum CrawlerUriType {
   smb
 }
 
+type CreateWorkspaceResult {
+  id: ID!
+  name: String!
+  slug: String!
+}
+
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -1513,7 +1519,7 @@ type Mutation {
   ): EnrichmentQueueTasksMutationResult!
   createLibrary(data: AiLibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
-  createWorkspace(name: String!, slug: String!): Workspace!
+  createWorkspace(name: String!, slug: String!): CreateWorkspaceResult!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
@@ -1541,7 +1547,7 @@ type Mutation {
     """
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
-  deleteWorkspace(workspaceId: String!): Boolean!
+  deleteWorkspace: Boolean!
   disableAiLanguageModel(id: ID!): AiLanguageModel
   disableConnectorType(connectorType: String!): Boolean!
   dropAllLibraryFiles(libraryId: String!): Int!
@@ -1553,7 +1559,7 @@ type Mutation {
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): User!
-  migrateWorkspace(id: String!): Boolean
+  migrateWorkspace: Boolean
   prepareFileUpload(data: AiLibraryFileInput!): AiLibraryFile!
   processFile(input: ProcessFileInput!): ProcessFileResult!
   processFiles(input: ProcessFilesInput!): ProcessFilesResult!

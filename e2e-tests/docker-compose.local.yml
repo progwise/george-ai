@@ -53,6 +53,27 @@ services:
     networks:
       - george-ai-e2e
 
+  gai-e2e-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: gai-e2e-qdrant
+    restart: unless-stopped
+    environment:
+      # Qdrant configuration
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      # Enable API key authentication (optional - uncomment for production)
+      # - QDRANT__SERVICE__API_KEY=your-secret-api-key-here
+      # Performance settings
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=4
+      - QDRANT__STORAGE__PERFORMANCE__MAX_OPTIMIZATION_THREADS=2
+      # Collection defaults
+      - QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR=1
+      - QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR=1
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - george-ai-e2e
+
   # Backend API
   gai-e2e-backend:
     build:
@@ -122,6 +143,10 @@ services:
 
       # NATS
       NATS_URL: nats://gai-e2e-nats:4222
+
+      # QDRANT
+      QDRANT_URL: http://gai-e2e-qdrant:6333
+
     ports:
       - '3013:3003'
     depends_on:
@@ -229,3 +254,4 @@ networks:
 volumes:
   typesense-data-local:
   nats-data:
+  qdrant-data:

@@ -28,7 +28,7 @@ export async function canWriteWorkspaceOrThrow(workspaceId: string, userId: stri
   })
 
   if (!membership) {
-    logger.info('Unauthorized write access attempt', { workspaceId, userId })
+    logger.warn('Unauthorized write access attempt', { workspaceId, userId })
     throw new DomainError('You do not have write access to this workspace', 'authorization')
   }
 }
@@ -45,6 +45,7 @@ export async function canAdminWorkspaceOrThrow(workspaceId: string, userId: stri
   })
 
   if (!membership) {
+    logger.warn('Unauthorized admin access attempt', { workspaceId, userId })
     throw new DomainError('You do not have admin access to this workspace', 'authorization')
   }
 }
@@ -59,6 +60,7 @@ export async function doesOwnWorkspaceOrThrow(workspaceId: string, userId: strin
   })
 
   if (!membership) {
+    logger.warn('Unauthorized ownership access attempt', { workspaceId, userId })
     throw new DomainError('You do not own this workspace', 'authorization')
   }
 }

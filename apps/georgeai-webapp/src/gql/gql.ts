@@ -216,11 +216,11 @@ type Documents = {
   '\n      query getWorkspaceNeedsMigration {\n        workspaceNeedsMigration {\n          id\n          name\n          needsMigration\n          hasWorkspaceStorage\n          hasVectorStore\n        }\n      }\n    ': typeof types.GetWorkspaceNeedsMigrationDocument
   '\n  query GetWorkspaceStats {\n    workspaceStats {\n      id\n      name\n      slug\n      isDefault\n      isAdmin\n      roles\n      memberCount\n      embeddingInfo {\n        extractionMethod\n        modelName\n        chunkCount\n      }\n      workspaceInfo {\n        version\n        settings {\n          storageLimitFiles\n          storageLimitBytes\n          embedding {\n            embeddingModelProvider\n            embeddingModelName\n          }\n          imageAnalysis {\n            imageAnalysisModelProvider\n            imageAnalysisModelName\n          }\n        }\n        usage {\n          sourceBytes\n          extractedBytes\n          activeExtractedBytes\n          physicalBytes\n          sourceFiles\n          extractions\n          activeExtractions\n          physicalFiles\n          lastReconcile\n        }\n      }\n    }\n  }\n': typeof types.GetWorkspaceStatsDocument
   '\n  query GetWorkspaces {\n    workspaces {\n      id\n      name\n      slug\n      isDefault\n      createdAt\n      updatedAt\n    }\n  }\n': typeof types.GetWorkspacesDocument
-  '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n      createdAt\n    }\n  }\n': typeof types.CreateWorkspaceDocument
-  '\n  mutation DeleteWorkspace($workspaceId: String!) {\n    deleteWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.DeleteWorkspaceDocument
+  '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n    }\n  }\n': typeof types.CreateWorkspaceDocument
+  '\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n': typeof types.DeleteWorkspaceDocument
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n': typeof types.InviteWorkspaceMemberDocument
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.LeaveWorkspaceDocument
-  '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n': typeof types.MigrateWorkspaceDocument
+  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': typeof types.MigrateWorkspaceDocument
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.RemoveWorkspaceMemberDocument
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n': typeof types.RevokeWorkspaceInvitationDocument
   '\n  mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: String!) {\n    updateWorkspaceMemberRole(workspaceId: $workspaceId, userId: $userId, role: $role) {\n      id\n      role\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.UpdateWorkspaceMemberRoleDocument
@@ -648,16 +648,14 @@ const documents: Documents = {
     types.GetWorkspaceStatsDocument,
   '\n  query GetWorkspaces {\n    workspaces {\n      id\n      name\n      slug\n      isDefault\n      createdAt\n      updatedAt\n    }\n  }\n':
     types.GetWorkspacesDocument,
-  '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n      createdAt\n    }\n  }\n':
+  '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n    }\n  }\n':
     types.CreateWorkspaceDocument,
-  '\n  mutation DeleteWorkspace($workspaceId: String!) {\n    deleteWorkspace(workspaceId: $workspaceId)\n  }\n':
-    types.DeleteWorkspaceDocument,
+  '\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n': types.DeleteWorkspaceDocument,
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n':
     types.InviteWorkspaceMemberDocument,
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n':
     types.LeaveWorkspaceDocument,
-  '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n':
-    types.MigrateWorkspaceDocument,
+  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': types.MigrateWorkspaceDocument,
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.RemoveWorkspaceMemberDocument,
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n':
@@ -1937,14 +1935,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n      createdAt\n    }\n  }\n',
-): (typeof documents)['\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n      createdAt\n    }\n  }\n']
+  source: '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n    }\n  }\n',
+): (typeof documents)['\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      id\n      name\n      slug\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation DeleteWorkspace($workspaceId: String!) {\n    deleteWorkspace(workspaceId: $workspaceId)\n  }\n',
-): (typeof documents)['\n  mutation DeleteWorkspace($workspaceId: String!) {\n    deleteWorkspace(workspaceId: $workspaceId)\n  }\n']
+  source: '\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n',
+): (typeof documents)['\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1961,8 +1959,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n',
-): (typeof documents)['\n  mutation MigrateWorkspace($workspaceId: String!) {\n    migrateWorkspace(id: $workspaceId)\n  }\n']
+  source: '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n',
+): (typeof documents)['\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

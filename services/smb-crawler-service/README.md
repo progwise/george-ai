@@ -29,7 +29,7 @@ pnpm start
 
 ```bash
 # Build image
-docker build -t smb-crawler .
+docker build -f services/smb-crawler-service/Dockerfile -t smb-crawler .
 
 # Run container
 docker run -p 3006:3006 smb-crawler

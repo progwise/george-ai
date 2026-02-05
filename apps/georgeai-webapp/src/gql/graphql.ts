@@ -1114,6 +1114,13 @@ export enum CrawlerUriType {
   Smb = 'smb',
 }
 
+export type CreateWorkspaceResult = {
+  __typename?: 'CreateWorkspaceResult'
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  slug: Scalars['String']['output']
+}
+
 /** Information about an embedding method used in the workspace */
 export type EmbeddingInfo = {
   __typename?: 'EmbeddingInfo'
@@ -1537,7 +1544,7 @@ export type Mutation = {
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
-  createWorkspace: Workspace
+  createWorkspace: CreateWorkspaceResult
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
@@ -1783,10 +1790,6 @@ export type MutationDeletePendingEnrichmentTasksArgs = {
   listId: Scalars['String']['input']
 }
 
-export type MutationDeleteWorkspaceArgs = {
-  workspaceId: Scalars['String']['input']
-}
-
 export type MutationDisableAiLanguageModelArgs = {
   id: Scalars['ID']['input']
 }
@@ -1831,10 +1834,6 @@ export type MutationLeaveWorkspaceArgs = {
 
 export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
-}
-
-export type MutationMigrateWorkspaceArgs = {
-  id: Scalars['String']['input']
 }
 
 export type MutationPrepareFileUploadArgs = {
@@ -6796,12 +6795,10 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = {
   __typename?: 'Mutation'
-  createWorkspace: { __typename?: 'Workspace'; id: string; name: string; slug: string; createdAt: string }
+  createWorkspace: { __typename?: 'CreateWorkspaceResult'; id: string; name: string; slug: string }
 }
 
-export type DeleteWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['String']['input']
-}>
+export type DeleteWorkspaceMutationVariables = Exact<{ [key: string]: never }>
 
 export type DeleteWorkspaceMutation = { __typename?: 'Mutation'; deleteWorkspace: boolean }
 
@@ -6827,9 +6824,7 @@ export type LeaveWorkspaceMutationVariables = Exact<{
 
 export type LeaveWorkspaceMutation = { __typename?: 'Mutation'; leaveWorkspace: boolean }
 
-export type MigrateWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['String']['input']
-}>
+export type MigrateWorkspaceMutationVariables = Exact<{ [key: string]: never }>
 
 export type MigrateWorkspaceMutation = { __typename?: 'Mutation'; migrateWorkspace?: boolean | null }
 
@@ -21957,7 +21952,6 @@ export const CreateWorkspaceDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
               ],
             },
           },
@@ -21973,28 +21967,9 @@ export const DeleteWorkspaceDocument = {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { kind: 'Name', value: 'DeleteWorkspace' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteWorkspace' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'workspaceId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-              },
-            ],
-          },
-        ],
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'deleteWorkspace' } }],
       },
     },
   ],
@@ -22091,28 +22066,9 @@ export const MigrateWorkspaceDocument = {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { kind: 'Name', value: 'MigrateWorkspace' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'migrateWorkspace' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-              },
-            ],
-          },
-        ],
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'migrateWorkspace' } }],
       },
     },
   ],

@@ -4,13 +4,6 @@
     "outDir": "./dist",
     "types": ["vitest/globals"]
   },
-  "include": [
-    "src/**/*",
-    "prisma/generated/**/*",
-    "vite.config.ts",
-    "prisma.config.ts",
-    "../app-domain/src/context",
-    "../app-domain/src/api-key"
-  ],
+  "include": ["src/**/*", "prisma/generated/**/*", "vite.config.ts", "prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

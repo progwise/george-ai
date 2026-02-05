@@ -14,9 +14,11 @@ describe('GraphQL AI Library Tests', () => {
   let TEST_ADMIN_USER: TestUser
 
   beforeAll(async () => {
-    await workspace.create({
+    await workspace.createWorkspace({
       id: TEST_WORKSPACE_ID,
       name: 'Test Workspace for AI Library',
+      slug: `test-workspace-ai-library-${now}`,
+      userId: TEST_USER_ID,
     })
     TEST_USER = await prisma.user.create({
       data: {

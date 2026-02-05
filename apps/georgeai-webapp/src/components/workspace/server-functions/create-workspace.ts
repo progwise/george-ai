@@ -9,7 +9,6 @@ const createWorkspaceMutationDocument = graphql(`
       id
       name
       slug
-      createdAt
     }
   }
 `)

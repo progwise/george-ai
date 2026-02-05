@@ -49,7 +49,7 @@ function RouteComponent() {
       toastError('Migration is already in progress.')
       return
     }
-    migrateWorkspace(data.id, {
+    migrateWorkspace(undefined, {
       onSuccess: () => {
         window.location.reload()
         dialogRef.current?.close()

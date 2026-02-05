@@ -5,7 +5,8 @@ import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, STORAGE_STATUS } from '@george-ai/app-commons'
 import { Prisma, getDatamodel, prisma } from '@george-ai/app-database'
-import type { Context, LoggedInContext, PothosTypes } from '@george-ai/app-database'
+import type { PothosTypes } from '@george-ai/app-database'
+import { Context, LoggedInContext } from '@george-ai/app-domain'
 import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import config from '../config'

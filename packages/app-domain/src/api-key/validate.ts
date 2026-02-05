@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { prisma } from '@george-ai/app-database/src/prisma'
+import { prisma } from '@george-ai/app-database'
 
 export interface ApiKeyValidationResult {
   userId: string

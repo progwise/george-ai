@@ -228,8 +228,8 @@ export const useWorkspace = (user: UserFragment) => {
   })
 
   const deleteWorkspaceMutation = useMutation({
-    mutationFn: async (workspaceId: string) => {
-      return await deleteWorkspaceFn({ data: { workspaceId } })
+    mutationFn: async () => {
+      return await deleteWorkspaceFn()
     },
     onSuccess: async () => {
       toastSuccess(t('workspace.deleteSuccess'))
@@ -241,8 +241,8 @@ export const useWorkspace = (user: UserFragment) => {
   })
 
   const migrateWorkspaceMutation = useMutation({
-    mutationFn: async (workspaceId: string) => {
-      return await migrateWorkspaceFn({ data: { workspaceId } })
+    mutationFn: async () => {
+      return await migrateWorkspaceFn()
     },
     onSuccess: () => {
       toastSuccess(t('workspace.migrationSuccess'))

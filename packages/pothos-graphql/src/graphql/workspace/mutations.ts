@@ -9,6 +9,8 @@ import { builder } from '../builder'
 import { logger } from './common'
 
 import './migrate-workspace'
+import './delete-workspace'
+import './create-workspace'
 
 logger.info('Setting up: Workspace mutations')
 
@@ -22,51 +24,6 @@ const WorkspaceDeletionValidation = builder.simpleObject('WorkspaceDeletionValid
     message: t.string({ nullable: false }),
   }),
 })
-
-builder.mutationField('createWorkspace', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'Workspace',
-    nullable: false,
-    args: {
-      name: t.arg.string({ required: true }),
-      slug: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _root, { name, slug }, ctx) => {
-      const userId = ctx.session.user.id
-
-      // Validate slug format (lowercase, alphanumeric, hyphens only)
-      const slugSchema = z.string().regex(/^[a-z0-9-]+$/)
-      const validatedSlug = slugSchema.parse(slug)
-
-      try {
-        // Create workspace and add creator as admin member
-        const workspace = await prisma.workspace.create({
-          ...query,
-          data: {
-            name,
-            slug: validatedSlug,
-            members: {
-              create: {
-                userId,
-                role: 'owner',
-              },
-            },
-          },
-        })
-
-        return workspace
-      } catch (error) {
-        // Handle unique constraint violation for slug
-        if (error instanceof Error && 'code' in error && error.code === 'P2002') {
-          throw new GraphQLError(
-            `Workspace with slug "${validatedSlug}" already exists. Please choose a different slug.`,
-          )
-        }
-        throw error
-      }
-    },
-  }),
-)
 
 builder.mutationField('validateWorkspaceDeletion', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -132,53 +89,6 @@ builder.mutationField('validateWorkspaceDeletion', (t) =>
         listCount,
         message,
       }
-    },
-  }),
-)
-
-builder.mutationField('deleteWorkspace', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: 'Boolean',
-    nullable: false,
-    args: {
-      workspaceId: t.arg.string({ required: true }),
-    },
-    resolve: async (_root, { workspaceId }, ctx) => {
-      const userId = ctx.session.user.id
-
-      // Check if user is workspace owner
-      await doesOwnWorkspaceOrThrow(workspaceId, userId)
-
-      // Verify workspace is empty
-      const [libraryCount, assistantCount, listCount] = await Promise.all([
-        prisma.aiLibrary.count({ where: { workspaceId } }),
-        prisma.aiAssistant.count({ where: { workspaceId } }),
-        prisma.aiList.count({ where: { workspaceId } }),
-      ])
-
-      const totalItems = libraryCount + assistantCount + listCount
-      if (totalItems > 0) {
-        throw new GraphQLError(
-          `Cannot delete workspace with existing items. Please delete ${libraryCount} libraries, ${assistantCount} assistants, and ${listCount} lists first.`,
-        )
-      }
-
-      // Check if this is the user's default workspace
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { defaultWorkspaceId: true },
-      })
-
-      if (user?.defaultWorkspaceId === workspaceId) {
-        throw new GraphQLError('Cannot delete your default workspace. Please set another workspace as default first.')
-      }
-
-      // Delete workspace (cascade will handle members, providers)
-      await prisma.workspace.delete({
-        where: { id: workspaceId },
-      })
-
-      return true
     },
   }),
 )

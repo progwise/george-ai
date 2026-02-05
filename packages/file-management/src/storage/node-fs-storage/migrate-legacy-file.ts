@@ -246,6 +246,20 @@ export async function migrateLegacyFile(
         physicalFiles: 1,
       })
 
+      if (fileManifest.extractions.find((e) => e.extractionMethod === 'legacyExtraction')) {
+        logger.warn(
+          'Multiple legacy extraction files found during upgrade. This is unexpected. Adding to manifest with same extraction date but different hash.',
+          {
+            workspaceId,
+            libraryId,
+            fileId,
+            extractionFileName: entry.name,
+            extractionFileInfo,
+            existingExtractions: fileManifest.extractions,
+          },
+        )
+        continue
+      }
       fileManifest.extractions.push({
         extractionMethod: 'legacyExtraction',
         extractionDate: extractionFileInfo.birthtime.toISOString(),

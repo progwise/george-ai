@@ -13,12 +13,9 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "bierner.markdown-mermaid",
-        "github.vscode-github-actions",
         "prisma.prisma",
         "vitest.explorer",
-        "astro-build.astro-vscode",
-        "unifiedjs.vscode-mdx",
-        "Anthropic.claude-code"
+        "astro-build.astro-vscode"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",
@@ -34,10 +31,6 @@
         },
         "[typescriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[mdx]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true
         },
         "files.associations": {
           "*.mdx": "mdx"

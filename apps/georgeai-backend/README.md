@@ -17,3 +17,9 @@ pnpm start
 ## provided schema
 
 [george GraphQL schema](../../packages/pothos-graphql)
+
+## Docker build
+
+```bash
+docker build -f apps/georgeai-backend/Dockerfile -t smb-crawler .
+```

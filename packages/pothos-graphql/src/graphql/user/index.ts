@@ -1,14 +1,11 @@
 import { prisma } from '@george-ai/app-database'
 
-import {
-  SYSTEM_WORKSPACE_ID,
-  extractAvatarFromToken,
-  getPreferredAvatarUrl,
-  shouldUpdateAvatarFromProvider,
-} from '../../domain'
+import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../domain'
 import { builder } from '../builder'
 
 import './user-management'
+
+import { workspace } from '@george-ai/app-domain'
 
 console.log('Setting up: User')
 
@@ -172,12 +169,12 @@ builder.mutationField('login', (t) =>
           avatarUrl: preferredAvatarUrlForNew,
           defaultWorkspace: {
             connect: {
-              id: SYSTEM_WORKSPACE_ID,
+              id: workspace.SYSTEM_WORKSPACE_ID,
             },
           },
           workspaceMemberships: {
             create: {
-              workspaceId: SYSTEM_WORKSPACE_ID,
+              workspaceId: workspace.SYSTEM_WORKSPACE_ID,
               role: 'owner',
             },
           },

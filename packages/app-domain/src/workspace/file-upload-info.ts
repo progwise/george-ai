@@ -1,9 +1,9 @@
-import { prisma } from '@george-ai/app-database/src/prisma'
+import { prisma } from '@george-ai/app-database'
 
 export const getUploadFileInfo = (parameters: { workspaceId: string; uploadToken: string }) => {
   const { uploadToken, workspaceId } = parameters
 
-  const fileInfo = prisma?.aiLibraryFile.findFirst({
+  const fileInfo = prisma.aiLibraryFile.findFirst({
     where: {
       id: uploadToken,
       library: {

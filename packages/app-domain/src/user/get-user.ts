@@ -1,4 +1,4 @@
-import { prisma } from '@george-ai/app-database/src/prisma'
+import { prisma } from '@george-ai/app-database'
 
 export const getUserById = async (userId: string) => {
   const user = prisma.user.findFirstOrThrow({

@@ -1,4 +1,6 @@
-import { create } from './create'
+import { SYSTEM_WORKSPACE_ID } from './common'
+import { createWorkspace } from './create-workspace'
+import { deleteWorkspace } from './delete-workspace'
 import { getUploadFileInfo, markUploadFinished } from './file-upload-info'
 import { getWorkspaceIdFromLibrary } from './get-by-library'
 import { getModelProvider } from './get-model-provider'
@@ -9,7 +11,8 @@ import { processFiles } from './process-files'
 import { workspaceNeedsMigration } from './workspace-needs-migration'
 
 export default {
-  create,
+  createWorkspace,
+  deleteWorkspace,
   getUploadFileInfo,
   getModelProvider,
   getStats,
@@ -19,4 +22,5 @@ export default {
   processFiles,
   migrateWorkspace,
   workspaceNeedsMigration,
+  SYSTEM_WORKSPACE_ID,
 }
