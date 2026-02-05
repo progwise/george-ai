@@ -64,33 +64,6 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
   return (
     <div>
       <ul className="menu menu-horizontal w-full rounded-box">
-        <li>
-          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('lists.title')}</span>
-        </li>
-        <li>
-          <details aria-label={t('lists.switcherTitle')} ref={listSelectorDetailsRef} className="z-50">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {list.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableLists.map((l) => (
-                <li role="option" key={l.id} aria-selected={l.id === list.id}>
-                  <Link
-                    to="."
-                    className="text-nowrap"
-                    params={{ listId: l.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      listSelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {l.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </li>
         <li className="grow items-end">
           <button
             type="button"

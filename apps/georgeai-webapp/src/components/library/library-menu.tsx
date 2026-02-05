@@ -63,39 +63,6 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
   return (
     <div>
       <ul className="menu menu-horizontal w-full rounded-box">
-        <li>
-          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('libraries.title')}</span>
-        </li>
-        <li>
-          <details aria-label={t('libraries.selectLibrary')} ref={librarySelectorDetailsRef} className="z-40">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {library.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableLibraries.map((library) => (
-                <li role="option" key={library.id}>
-                  <Link
-                    to={
-                      params.crawlerId
-                        ? '/libraries/$libraryId/crawlers'
-                        : params.fileId
-                          ? '/libraries/$libraryId/files'
-                          : '.'
-                    }
-                    className="text-nowrap"
-                    params={{ libraryId: library.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      librarySelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {library.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </li>
         <li className="grow items-end">
           <button
             type="button"

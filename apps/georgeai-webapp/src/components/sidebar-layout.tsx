@@ -34,7 +34,7 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
           <Outlet />
         </div>
       </div>
-      <Sidebar user={user} workspaceId={workspaceId} />
+      {user && <Sidebar user={user} workspaceId={workspaceId} isDrawerOpen={isDrawerOpen} />}
     </div>
   )
 }

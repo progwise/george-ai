@@ -94,11 +94,11 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
             <summary className="btn max-w-52 gap-1 truncate p-2 text-sm font-normal normal-case btn-ghost btn-sm">
               {currentWorkspace?.name ?? t('workspace.noWorkspaceSelected')}
             </summary>
-            <ul role="listbox" className="top-5.5 left-0 max-h-96 overflow-y-auto bg-base-300 p-2">
+            <ul role="listbox" className="top-5.5 left-0 z-40 max-h-96 overflow-y-auto bg-base-200 p-2">
               {workspaces.map((workspace: { id: string; name: string; isDefault: boolean }) => (
                 <li
                   key={workspace.id}
-                  className="cursor-pointer bg-base-300 hover:bg-base-200"
+                  className="cursor-pointer"
                   role="option"
                   tabIndex={0}
                   aria-selected={currentWorkspace?.id === workspace.id}

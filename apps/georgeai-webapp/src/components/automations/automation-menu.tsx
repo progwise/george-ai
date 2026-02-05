@@ -61,33 +61,6 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
   return (
     <div>
       <ul title={t('automations.menuTitle')} className="menu menu-horizontal w-full rounded-box">
-        <li>
-          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('automations.title')}</span>
-        </li>
-        <li>
-          <details aria-label={t('automations.switcherTitle')} ref={automationSelectorDetailsRef} className="z-50">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {automation.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableAutomations.map((a) => (
-                <li key={a.id} role="option" aria-selected={a.id === automation.id}>
-                  <Link
-                    to="."
-                    className="text-nowrap"
-                    params={{ automationId: a.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      automationSelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {a.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </li>
         <li className="grow items-end">
           <button
             type="button"
