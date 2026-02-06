@@ -29,7 +29,7 @@ function RouteComponent() {
   const { currentWorkspace } = useWorkspace(user)
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-2">
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-2">
       {/* Admin Header with Navigation */}
       <div className="border-b border-primary/20 bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 shadow-sm">
         <div className="container mx-auto p-6">

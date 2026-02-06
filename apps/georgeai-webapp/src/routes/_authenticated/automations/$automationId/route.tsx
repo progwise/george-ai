@@ -30,7 +30,7 @@ function RouteComponent() {
   } = useSuspenseQuery(getAutomationQueryOptions(params.automationId))
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div>
         <AutomationMenu automation={automation} selectableAutomations={automations} />
       </div>

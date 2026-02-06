@@ -930,10 +930,11 @@ export default {
   sidebar: {
     assistants: 'Assistants',
     automations: 'Automations',
+    close: 'Close sidebar',
     conversations: 'Conversations',
     libraries: 'Libraries',
     lists: 'Lists',
-    toggle: 'Toggle sidebar',
+    open: 'Open sidebar',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

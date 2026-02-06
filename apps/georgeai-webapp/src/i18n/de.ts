@@ -944,10 +944,11 @@ export default {
   sidebar: {
     assistants: 'Assistenten',
     automations: 'Automatisierungen',
+    close: 'Seitenleise schließen',
     conversations: 'Konversationen',
     libraries: 'Bibliotheken',
     lists: 'Listen',
-    toggle: 'Seitenleiste schalten',
+    open: 'Seitenleise öffnen',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
