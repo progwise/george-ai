@@ -146,7 +146,7 @@ const saveSmbCrawlerFile = async ({
   })
 
   // Download file from crawler service
-  logger.info(`Downloading file ${fileName} from crawler service...`)
+  logger.info('Downloading file from crawler service', { fileName, fileUri })
   const webStream = await client.downloadFile(jobId, fileId)
 
   // Convert web ReadableStream to Node.js Readable

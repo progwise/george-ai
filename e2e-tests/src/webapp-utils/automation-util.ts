@@ -1,5 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test'
 
+import { closeMigrationDialogIfPresent } from './migration-dialog-util'
+
 export const automationSwitcher = (locator: Locator | Page) => {
   return locator.getByRole('group', { name: /switch automation/i })
 }
@@ -36,7 +38,7 @@ export const createAutomation = async (page: Page, options: CreateAutomationOpti
   // Navigate to automations
   await page.goto('/automations')
   await page.waitForLoadState('networkidle')
-
+  await closeMigrationDialogIfPresent(page)
   // Click "New Automation" button
   const newAutomationButton = page.getByRole('button', { name: /new automation/i })
   await expect(newAutomationButton).toBeEnabled()

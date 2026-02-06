@@ -60,7 +60,7 @@ function RouteComponent() {
   return (
     <>
       {data?.needsMigration && (
-        <dialog ref={dialogRef} className="modal" open>
+        <dialog ref={dialogRef} className="modal" open aria-label="Migrate Workspace">
           <div className="modal-box max-w-md">
             {/* Header with icon */}
             <div className="mb-4 flex items-center gap-3">

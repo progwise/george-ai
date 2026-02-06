@@ -5,6 +5,7 @@
  */
 import { EventSource } from 'eventsource'
 
+import { logger } from './common'
 import type {
   SmbCrawlComplete,
   SmbCrawlError,
@@ -53,6 +54,7 @@ export class SmbCrawlerClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }))
+        logger.error('Failed to start crawl job', { options, status: response.status, error: error.error })
         throw new Error(error.error || `Crawler service returned ${response.status}`)
       }
 
@@ -183,6 +185,7 @@ export class SmbCrawlerClient {
     const response = await fetch(`${this.baseUrl}/files/${jobId}/${fileId}`)
 
     if (!response.ok) {
+      logger.error('Failed to download file from crawler service', { jobId, fileId, status: response.status })
       throw new Error(`Failed to download file: HTTP ${response.status}`)
     }
 

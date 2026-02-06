@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { loginToWebapp } from './webapp-utils/login-util'
+import { closeMigrationDialogIfPresent } from './webapp-utils/migration-dialog-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
@@ -25,6 +26,8 @@ test.describe('Workspace Model Filtering', () => {
 
   test.beforeEach(async ({ page }) => {
     await loginToWebapp(page)
+    await page.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(page)
   })
 
   test('should show only OpenAI models in workspace with OpenAI provider', async ({ page }) => {
@@ -32,6 +35,7 @@ test.describe('Workspace Model Filtering', () => {
 
     // Navigate to library creation
     await page.getByRole('link', { name: 'Libraries' }).click()
+    await closeMigrationDialogIfPresent(page)
     await page.getByRole('button', { name: /new/i }).click()
 
     const dialog = page.locator('dialog[open]')
