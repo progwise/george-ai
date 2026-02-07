@@ -8,10 +8,10 @@ import { getUserContextFromExpressRequest } from './get-user-context'
 
 export const handleGetFile = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
-  const extractionMethod = request.query['extraction']
-    ? getExtractionMethod(String(request.query['extraction']))
-    : undefined
-  const fragment = request.query['fragment'] ? Number(request.query['fragment']) : undefined
+  const { extraction, fragment } = request.query
+  logger.info('Handling get file request', { libraryId, fileId, extraction, fragment })
+  const extractionMethod = extraction ? getExtractionMethod(String(extraction)) : undefined
+  const fragmentNumber = fragment ? Number(fragment) : undefined
 
   if (Array.isArray(libraryId) || Array.isArray(fileId)) {
     logger.debug('Invalid request parameters: libraryId or fileId is an array', { libraryId, fileId })
@@ -55,12 +55,12 @@ export const handleGetFile = async (request: Request, response: Response) => {
       response.status(404).end()
       return
     }
-    if (fragment !== undefined) {
+    if (fragmentNumber) {
       const fragmentStream = await workspaceStorage.readExtraction(context.workspaceId, {
         libraryId,
         fileId,
         extractionMethod,
-        fragment,
+        fragment: fragmentNumber,
       })
       response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
       logger.debug('Serving extraction fragment stream', { libraryId, fileId, extractionMethod, fragment })

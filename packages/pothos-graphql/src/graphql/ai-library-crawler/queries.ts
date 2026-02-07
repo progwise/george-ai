@@ -1,4 +1,4 @@
-import { createShopwareConfig, createWeclappConfig, genericRestTemplate } from '@george-ai/api-crawler'
+import { templates } from '@george-ai/api-crawler'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
@@ -24,7 +24,7 @@ builder.queryField('apiCrawlerTemplates', (t) =>
         name: 'Shopware 6',
         description: 'E-commerce platform - fetches products via REST API with OAuth2 authentication',
         config: JSON.stringify(
-          createShopwareConfig({
+          templates.createShopwareConfig({
             baseUrl: 'https://your-shop.shopware.store',
             clientId: 'your-client-id',
             clientSecret: 'your-client-secret',
@@ -38,7 +38,7 @@ builder.queryField('apiCrawlerTemplates', (t) =>
         name: 'Weclapp ERP',
         description: 'ERP system - fetches articles via REST API with Bearer token authentication',
         config: JSON.stringify(
-          createWeclappConfig({
+          templates.createWeclappConfig({
             baseUrl: 'https://your-tenant.weclapp.com',
             token: 'your-api-token',
           }),
@@ -52,7 +52,7 @@ builder.queryField('apiCrawlerTemplates', (t) =>
         description: 'Generic template for any REST API - customize all settings',
         config: JSON.stringify(
           {
-            ...genericRestTemplate,
+            ...templates.genericRestTemplate,
             baseUrl: 'https://api.example.com',
             endpoint: '/items',
             dataPath: 'data',

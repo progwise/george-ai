@@ -6,8 +6,7 @@
 import type { Response } from 'express'
 import { randomUUID } from 'node:crypto'
 
-import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
-
+import { type SmbCrawlOptions, logger } from './common'
 import { closeConnection, createConnection } from './connection-manager'
 import { crawlDirectory } from './file-crawler'
 import type { CrawlJob, DiscoveredFile, ServerSentEventClient } from './types'
@@ -27,7 +26,7 @@ const cleanupTimeouts = new Map<string, NodeJS.Timeout>()
 export async function createJob(options: SmbCrawlOptions): Promise<string> {
   const jobId = randomUUID()
 
-  console.log(`[JobManager] Creating job ${jobId}`)
+  logger.debug('Creating new crawl job', { jobId, options })
 
   // Create SMB2 connection
   const connectionResult = await createConnection({
@@ -74,17 +73,18 @@ export function getJob(jobId: string): CrawlJob | undefined {
 export async function startCrawl(jobId: string): Promise<void> {
   const job = jobs.get(jobId)
   if (!job) {
+    logger.error('Start crawl failed: Job not found', { jobId })
     throw new Error(`Job not found: ${jobId}`)
   }
 
   if (job.status !== 'pending') {
+    logger.error('Start crawl failed: Job not in pending state', { job })
     throw new Error(`Job ${jobId} is already ${job.status}`)
   }
 
-  console.log(`[JobManager] Starting crawl for job ${jobId}`)
   job.status = 'running'
-
   const startTime = Date.now()
+  logger.debug('Starting crawl for job', { job, startTime })
 
   try {
     // Emit start event
@@ -95,10 +95,20 @@ export async function startCrawl(jobId: string): Promise<void> {
     })
 
     // Crawl directory and emit events
-    for await (const file of crawlDirectory(job.client, job.sharePath, job.options, (stats) => {
-      // Send progress update
-      sendEventToClients(job, 'progress', stats)
-    })) {
+    for await (const file of crawlDirectory(
+      job.client,
+      {
+        basePath: job.sharePath,
+        jobId: job.jobId,
+        maxFileSizeBytes: job.options.maxFileSizeBytes,
+        includePatterns: job.options.includePatterns,
+        excludePatterns: job.options.excludePatterns,
+      },
+      (stats) => {
+        // Send progress update
+        sendEventToClients(job, 'progress', stats)
+      },
+    )) {
       // Store file metadata
       job.files.set(file.fileId, file)
 
@@ -110,7 +120,6 @@ export async function startCrawl(jobId: string): Promise<void> {
         size: file.size,
         mimeType: file.mimeType,
         lastModified: file.lastModified,
-        hash: file.hash,
         downloadUrl: `/files/${jobId}/${file.fileId}`,
       })
     }
@@ -126,12 +135,11 @@ export async function startCrawl(jobId: string): Promise<void> {
       durationMs,
     })
 
-    console.log(`[JobManager] Job ${jobId} completed: ${job.files.size} files in ${durationMs}ms`)
+    logger.info('Job completed', { job, durationMs })
   } catch (error) {
-    console.error(`[JobManager] Job ${jobId} failed:`, error)
+    logger.error('Job failed', { job, error })
     job.status = 'failed'
     job.error = error instanceof Error ? error.message : String(error)
-
     // Send error event
     sendEventToClients(job, 'error', {
       message: job.error,
@@ -148,7 +156,7 @@ export async function cancelJob(jobId: string): Promise<void> {
     return
   }
 
-  console.log(`[JobManager] Cancelling job ${jobId}`)
+  logger.debug('Cancelling job', { jobId })
   job.status = 'cancelled'
 
   // Clear cleanup timeout to prevent memory leaks
@@ -190,7 +198,7 @@ export function addClient(jobId: string, response: Response): void {
   }
 
   job.clients.add(client)
-  console.log(`[JobManager] Client connected to job ${jobId} (${job.clients.size} total)`)
+  logger.debug('Client connected to job', { jobId, clientCount: job.clients.size })
 
   // Send initial state if job is already completed/failed
   if (job.status === 'completed') {
@@ -209,7 +217,7 @@ export function addClient(jobId: string, response: Response): void {
   // Remove client when connection closes
   response.on('close', () => {
     job.clients.delete(client)
-    console.log(`[JobManager] Client disconnected from job ${jobId} (${job.clients.size} remaining)`)
+    logger.debug('Client disconnected from job', { jobId, clientCount: job.clients.size })
   })
 }
 
@@ -242,7 +250,7 @@ function sendEventToClient(client: ServerSentEventClient, event: string, data: u
     client.response.write(`event: ${event}\n`)
     client.response.write(`data: ${JSON.stringify(data)}\n\n`)
   } catch (error) {
-    console.warn(`[JobManager] Failed to send event to client:`, error)
+    logger.warn('Failed to send event to client', { error })
   }
 }
 
@@ -265,7 +273,7 @@ function scheduleJobCleanup(jobId: string): void {
 
     // Only clean up if no clients are connected and job is done
     if (job.clients.size === 0 && (job.status === 'completed' || job.status === 'failed')) {
-      console.log(`[JobManager] Cleaning up inactive job ${jobId}`)
+      logger.debug('Cleaning up inactive job', { jobId })
       cleanupTimeouts.delete(jobId)
       await cancelJob(jobId)
     } else {

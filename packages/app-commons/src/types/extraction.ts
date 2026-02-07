@@ -10,9 +10,9 @@ export const EXTRACTION_METHODS = [
 ] as const
 export type ExtractionMethod = (typeof EXTRACTION_METHODS)[number]
 
-export const getExtractionMethod = (value: string): ExtractionMethod => {
+export const getExtractionMethod = (value: string): ExtractionMethod | undefined => {
   if (EXTRACTION_METHODS.includes(value as ExtractionMethod)) {
     return value as ExtractionMethod
   }
-  throw new Error(`Invalid ExtractionMethod: ${value}`)
+  return undefined
 }

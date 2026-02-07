@@ -6,7 +6,7 @@ export async function exists(
   workspaceId: string,
   args: {
     libraryId?: string
-    fileId?: string
+    fileId?: string | null
     extractionMethod?: ExtractionMethod
   },
 ): Promise<boolean> {

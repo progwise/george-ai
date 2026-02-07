@@ -19,7 +19,7 @@ const existsDir = async (dir: string): Promise<boolean> => {
 
 async function getStorageStatus(
   workspaceId: string,
-  args: { libraryId: string; fileId?: string },
+  args: { libraryId: string; fileId?: string | null },
 ): Promise<StorageStatus> {
   const { libraryId, fileId } = args
   const legacyDir = path.join(ROOT_DIR, libraryId, fileId ? fileId : '')

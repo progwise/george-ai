@@ -1,8 +1,4 @@
-/**
- * Weclapp API template
- * Pre-configured template for Weclapp ERP API
- */
-import type { ApiCrawlerConfig } from '../types'
+import { ApiCrawlerConfig } from '../api-crawler-config'
 
 /**
  * Weclapp API crawler template

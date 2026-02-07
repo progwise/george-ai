@@ -6,8 +6,9 @@
 import express from 'express'
 import { z } from 'zod'
 
-import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
+import { SmbCrawlOptionsSchema } from '@george-ai/smb-crawler-client'
 
+import { logger } from './common'
 import { initializeConnectionManager, listConnections } from './connection-manager'
 import { addClient, cancelJob, createJob, getActiveJobs, getFile, getJob, startCrawl } from './job-manager'
 
@@ -15,16 +16,6 @@ const app = express()
 app.use(express.json())
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3006
-
-// Request validation schemas
-const crawlOptionsSchema = z.object({
-  uri: z.string().min(1, 'URI is required'),
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
-  includePatterns: z.array(z.string()).optional(),
-  excludePatterns: z.array(z.string()).optional(),
-  maxFileSizeBytes: z.number().positive().optional(),
-})
 
 /**
  * Health check endpoint
@@ -35,6 +26,7 @@ app.get('/health', (_req, res) => {
     service: 'smb-crawler',
     version: '1.0.0',
   })
+  logger.debug('Health check endpoint called')
 })
 
 /**
@@ -45,7 +37,7 @@ app.get('/health', (_req, res) => {
  */
 app.post('/crawl/start', async (req, res) => {
   try {
-    const options = crawlOptionsSchema.parse(req.body) as SmbCrawlOptions
+    const options = SmbCrawlOptionsSchema.parse(req.body)
 
     // Create job and connect to share (but don't start crawling yet)
     const jobId = await createJob(options)
@@ -57,8 +49,10 @@ app.post('/crawl/start', async (req, res) => {
       jobId,
       streamUrl: `/crawl/${jobId}/stream`,
     })
+
+    logger.debug('Crawl job created', { jobId, options })
   } catch (error) {
-    console.error('[API] /crawl/start error:', error)
+    logger.error('/crawl/start error', { error, body: req.body })
 
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -83,30 +77,40 @@ app.post('/crawl/start', async (req, res) => {
 app.get('/crawl/:jobId/stream', (req, res) => {
   const { jobId } = req.params
 
-  const job = getJob(jobId)
-  if (!job) {
-    return res.status(404).json({
+  try {
+    const job = getJob(jobId)
+    if (!job) {
+      logger.error('SSE stream requested for non-existent job', { jobId })
+      return res.status(404).json({
+        success: false,
+        error: `Job not found: ${jobId}`,
+      })
+    }
+
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no') // Disable Nginx buffering
+
+    // Add client to job
+    addClient(jobId, res)
+
+    logger.debug('Client connected to SSE stream for job', { jobId, clientCount: job.clients.size })
+
+    // Start crawling when first client connects (prevents race condition)
+    if (job.status === 'pending') {
+      logger.debug('Starting crawl for job', { jobId })
+      startCrawl(jobId).catch((error) => {
+        logger.error('Error starting crawl for job', { jobId, error })
+      })
+    }
+    logger.debug('Crawl job status', { jobId, status: job.status })
+  } catch (error) {
+    logger.error('/crawl/{jobId}/stream error', { error, jobId })
+    res.status(500).json({
       success: false,
-      error: 'Job not found',
-    })
-  }
-
-  // Set SSE headers
-  res.setHeader('Content-Type', 'text/event-stream')
-  res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('Connection', 'keep-alive')
-  res.setHeader('X-Accel-Buffering', 'no') // Disable Nginx buffering
-
-  // Add client to job
-  addClient(jobId, res)
-
-  console.log(`[API] SSE client connected to job ${jobId}`)
-
-  // Start crawling when first client connects (prevents race condition)
-  if (job.status === 'pending') {
-    console.log(`[API] Starting crawl for job ${jobId} now that client is connected`)
-    startCrawl(jobId).catch((error) => {
-      console.error(`[API] Crawl job ${jobId} failed:`, error)
+      error: error instanceof Error ? error.message : String(error),
     })
   }
 })
@@ -122,17 +126,19 @@ app.get('/files/:jobId/:fileId', async (req, res) => {
   try {
     const job = getJob(jobId)
     if (!job) {
+      logger.error('File download requested for non-existent job', { jobId, fileId })
       return res.status(404).json({
         success: false,
-        error: 'Job not found',
+        error: `Job not found: ${jobId}`,
       })
     }
 
     const file = getFile(jobId, fileId)
     if (!file) {
+      logger.error('File download requested for non-existent file', { jobId, fileId })
       return res.status(404).json({
         success: false,
-        error: 'File not found',
+        error: `File not found: ${fileId} (job ${jobId})`,
       })
     }
 
@@ -146,7 +152,7 @@ app.get('/files/:jobId/:fileId', async (req, res) => {
     fileStream.pipe(res)
 
     fileStream.on('error', (error: Error) => {
-      console.error(`[API] Error streaming file ${fileId}:`, error)
+      logger.error('Error streaming file', { fileId, error })
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
@@ -154,8 +160,9 @@ app.get('/files/:jobId/:fileId', async (req, res) => {
         })
       }
     })
+    logger.debug('Started streaming file', { jobId, fileId, fileName: file.name })
   } catch (error) {
-    console.error(`[API] /files/${jobId}/${fileId} error:`, error)
+    logger.error('/files/{jobId}/{fileId} error', { error, jobId, fileId })
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -177,7 +184,7 @@ app.delete('/crawl/:jobId', async (req, res) => {
       success: true,
     })
   } catch (error) {
-    console.error(`[API] /crawl/${jobId} DELETE error:`, error)
+    logger.error('/crawl/{jobId} DELETE error', { error, jobId })
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -196,8 +203,9 @@ app.get('/connections', async (_req, res) => {
       success: true,
       connections,
     })
+    logger.debug('Listed active connections', { count: connections.length })
   } catch (error) {
-    console.error('[API] /connections error:', error)
+    logger.error('/connections error', { error })
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -216,8 +224,9 @@ app.get('/jobs', (_req, res) => {
       success: true,
       jobs,
     })
+    logger.debug('Listed active jobs', { count: jobs.length })
   } catch (error) {
-    console.error('[API] /jobs error:', error)
+    logger.error('/jobs error', { error })
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -235,11 +244,11 @@ async function start(): Promise<void> {
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`SMB Crawler Service listening on port ${PORT}`)
-      console.log(`Health check: http://localhost:${PORT}/health`)
+      logger.info(`SMB Crawler Service listening on port ${PORT}`)
     })
+    logger.debug('Server started', { port: PORT })
   } catch (error) {
-    console.error('Failed to start server:', error)
+    logger.error('Failed to start server:', { error })
     process.exit(1)
   }
 }

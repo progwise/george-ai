@@ -244,7 +244,7 @@ model AiLibraryFile {
   updates                AiLibraryUpdate[]
   listItems              AiListItem[]
 
-  @@unique([crawledByCrawlerId, originUri])
+  @@unique([libraryId, originUri])
 }
 
 model AiLibraryCrawler {

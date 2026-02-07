@@ -51,9 +51,6 @@ export interface FileInfo {
   modificationDate?: Date
 }
 
-/**
- * Apply file filters to determine if a file should be processed
- */
 export function applyFileFilters(fileInfo: FileInfo, config: FileFilterConfig): FilterResult {
   const { fileName, filePath, fileSize } = fileInfo
 

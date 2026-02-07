@@ -14,7 +14,7 @@ export const CONFIG_VARS = [
 export type ConfigVar = (typeof CONFIG_VARS)[number]
 
 export function getConfig(key: 'IS_PRODUCTION'): boolean
-export function getConfig(key: 'OPENAI_API_KEY' | 'OPENAI_BASE_URL' | 'SMB_CRAWLER_URL'): string | undefined
+export function getConfig(key: 'OPENAI_API_KEY' | 'OPENAI_BASE_URL'): string | undefined
 export function getConfig(key: 'OLLAMA_INSTANCES'): Array<{
   baseUrl: string
   apiKey?: string
@@ -22,7 +22,13 @@ export function getConfig(key: 'OLLAMA_INSTANCES'): Array<{
   name: string
 }>
 export function getConfig(
-  key: 'UPLOADS_PATH' | 'CRAWLER_CREDENTIALS_DIR' | 'PUBLIC_APP_URL' | 'GIT_COMMIT_SHA' | 'LOG_LEVEL',
+  key:
+    | 'UPLOADS_PATH'
+    | 'CRAWLER_CREDENTIALS_DIR'
+    | 'PUBLIC_APP_URL'
+    | 'GIT_COMMIT_SHA'
+    | 'LOG_LEVEL'
+    | 'SMB_CRAWLER_URL',
 ): string
 
 export function getConfig(key: ConfigVar):
@@ -43,6 +49,7 @@ export function getConfig(key: ConfigVar):
     case 'PUBLIC_APP_URL':
     case 'GIT_COMMIT_SHA':
     case 'LOG_LEVEL':
+    case 'SMB_CRAWLER_URL':
       if (!process.env[key]) {
         throw new Error(`Missing required config variable: ${key}`)
       }
@@ -50,7 +57,6 @@ export function getConfig(key: ConfigVar):
 
     case 'OPENAI_API_KEY':
     case 'OPENAI_BASE_URL':
-    case 'SMB_CRAWLER_URL':
       return process.env[key] || undefined
     case 'OLLAMA_INSTANCES':
       return getConfiguredOllamaInstances()

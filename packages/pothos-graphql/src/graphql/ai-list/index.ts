@@ -9,8 +9,6 @@ import { getExtractionMethod } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
-import { ExtractionInfo } from '../ai-content-extraction'
-
 console.log('Setting up: AiList')
 
 builder.prismaObject('AiListSource', {
@@ -67,17 +65,22 @@ builder.prismaObject('AiListItem', {
       },
     }),
     extractionInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: ExtractionInfo,
+      type: 'ExtractionMetadata',
       nullable: true,
       resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
           where: { id: item.fileId },
           select: { libraryId: true },
         })
+        const extractionMethod = getExtractionMethod(item.extractionMethod)
+        if (!extractionMethod) {
+          return null
+        }
+
         const extractionInfo = await workspaceStorage.getExtraction(workspaceId, {
           libraryId: sourceFile.libraryId,
           fileId: item.fileId,
-          extractionMethod: getExtractionMethod(item.extractionMethod),
+          extractionMethod,
         })
         return extractionInfo
       },

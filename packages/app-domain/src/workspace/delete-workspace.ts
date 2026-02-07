@@ -8,6 +8,11 @@ import { SYSTEM_WORKSPACE_ID, logger } from './common'
 export async function deleteWorkspace(workspaceId: string): Promise<void> {
   logger.debug('Deleting workspace', { workspaceId })
 
+  if (workspaceId === SYSTEM_WORKSPACE_ID) {
+    logger.error('Attempted to delete system workspace', { workspaceId })
+    throw new DomainError('Cannot delete system workspace', 'workspace')
+  }
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.user.updateMany({

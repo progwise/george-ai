@@ -10,7 +10,7 @@ console.log('Setting up: AiLibraryFile FileUsages')
 interface FileUsageType {
   id: string
   fileId: string
-  extractionMethod: ExtractionMethod
+  extractionMethod?: ExtractionMethod
   libraryId: string
   listId: string
   listName: string
@@ -25,7 +25,7 @@ const FileUsage = builder.objectRef<FileUsageType>('FileUsage').implement({
     listName: t.exposeString('listName', { nullable: false }),
     itemName: t.exposeString('itemName', { nullable: false }),
     fragment: t.exposeInt('fragment', { nullable: true }),
-    extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: false }),
+    extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: true }),
     fileId: t.exposeString('fileId', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
     chunkCount: t.withAuth({ isLoggedIn: true }).field({

@@ -327,7 +327,7 @@ export type AiLibraryFileOrderByWithRelationInput = {
 export type AiLibraryFileWhereUniqueInput = Prisma.AtLeast<
   {
     id?: string
-    crawledByCrawlerId_originUri?: Prisma.AiLibraryFileCrawledByCrawlerIdOriginUriCompoundUniqueInput
+    libraryId_originUri?: Prisma.AiLibraryFileLibraryIdOriginUriCompoundUniqueInput
     AND?: Prisma.AiLibraryFileWhereInput | Prisma.AiLibraryFileWhereInput[]
     OR?: Prisma.AiLibraryFileWhereInput[]
     NOT?: Prisma.AiLibraryFileWhereInput | Prisma.AiLibraryFileWhereInput[]
@@ -353,7 +353,7 @@ export type AiLibraryFileWhereUniqueInput = Prisma.AtLeast<
     updates?: Prisma.AiLibraryUpdateListRelationFilter
     listItems?: Prisma.AiListItemListRelationFilter
   },
-  'id' | 'crawledByCrawlerId_originUri'
+  'id' | 'libraryId_originUri'
 >
 
 export type AiLibraryFileOrderByWithAggregationInput = {
@@ -542,8 +542,8 @@ export type AiLibraryFileOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type AiLibraryFileCrawledByCrawlerIdOriginUriCompoundUniqueInput = {
-  crawledByCrawlerId: string
+export type AiLibraryFileLibraryIdOriginUriCompoundUniqueInput = {
+  libraryId: string
   originUri: string
 }
 

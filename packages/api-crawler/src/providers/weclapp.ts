@@ -1,19 +1,5 @@
-/**
- * Weclapp API Provider
- * ERP system for article/product management
- */
-import { createLogger } from '@george-ai/app-commons'
-
+import { delay, logger } from '../common'
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
-
-const logger = createLogger('Weclapp Provider')
-
-/**
- * Delay helper
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 /**
  * Get nested value from object using dot notation
@@ -60,13 +46,12 @@ export const weclappProvider: ApiProvider = {
     const pageSize = 100
     let hasMore = true
 
-    logger.debug('Starting Weclapp fetch from:', url)
+    logger.debug('Starting Weclapp fetch from:', { url, config })
 
     while (hasMore) {
-      logger.debug(`Fetching page ${page}...`)
-
       // Weclapp uses GET with page and pageSize params
       const fetchUrl = `${url}?page=${page}&pageSize=${pageSize}`
+      logger.debug('Fetching page', { fetchUrl, page, url, config })
 
       const response = await fetch(fetchUrl, {
         method: 'GET',
@@ -77,6 +62,7 @@ export const weclappProvider: ApiProvider = {
       })
 
       if (!response.ok) {
+        logger.error('Weclapp API fetch error', { status: response.status, statusText: response.statusText, config })
         throw new Error(`Weclapp API error: ${response.status} ${response.statusText}`)
       }
 
@@ -86,7 +72,7 @@ export const weclappProvider: ApiProvider = {
 
       const items = data.result || []
 
-      logger.debug(`Page ${page}: ${items.length} items`)
+      logger.debug('Fetched items:', { count: items.length, page, url, config })
 
       for (const item of items) {
         yield item
@@ -102,7 +88,7 @@ export const weclappProvider: ApiProvider = {
       }
     }
 
-    logger.debug('Weclapp fetch complete')
+    logger.debug('Weclapp fetch complete', config)
   },
 
   buildOriginUri(baseUrl: string, item: RawApiItem): string | undefined {

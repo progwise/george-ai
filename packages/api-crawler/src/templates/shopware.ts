@@ -1,8 +1,4 @@
-/**
- * Shopware 6 API template
- * Pre-configured template for Shopware 6 e-commerce API
- */
-import type { ApiCrawlerConfig } from '../types'
+import { ApiCrawlerConfig } from '../api-crawler-config'
 
 /**
  * Shopware 6 API crawler template

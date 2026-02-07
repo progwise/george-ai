@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { getFileDir, getFilesDir, getLibraryDir } from './directories'
+import { exists } from './exists'
 import { getFileManifest, getLibraryManifest } from './metadata-files'
 import { libraryUsageUpdate } from './usage-update'
 
@@ -11,8 +12,16 @@ export async function deleteFiles(
   selector: { libraryId: string; fileId?: string },
 ): Promise<void> {
   const { libraryId, fileId } = selector
+  const existsLibrary = await exists(workspaceId, { libraryId })
+  if (!existsLibrary) {
+    return
+  }
   const libraryDir = await getLibraryDir(workspaceId, libraryId)
   if (fileId) {
+    const existsFile = await exists(workspaceId, { libraryId, fileId })
+    if (!existsFile) {
+      return
+    }
     const fileDir = await getFileDir(workspaceId, libraryId, fileId)
     const metadata = await getFileManifest(fileDir)
     if (!metadata) {

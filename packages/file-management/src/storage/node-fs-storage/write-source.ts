@@ -16,7 +16,7 @@ export async function writeSource(
   args: {
     libraryId: string
     fileId: string
-    stream: Readable
+    stream: Readable | AsyncIterable<string | Buffer>
     meta: FileInput
   },
 ): Promise<FileManifest> {
@@ -33,19 +33,21 @@ export async function writeSource(
 
   let byteCount = 0
 
-  // 2. Process the stream
-  // We manually monitor the chunks to count bytes without loading the whole file
-  stream.on('data', (chunk) => {
-    byteCount += chunk.length
-    hash.update(chunk)
-  })
-
-  // 3. Pipeline handles the backpressure and closing of streams
-  await pipeline(stream, writeStream)
+  // Pipeline handles the backpressure and closing of streams
+  await pipeline(
+    stream,
+    async function* (source) {
+      for await (const chunk of source) {
+        byteCount += chunk.length
+        hash.update(chunk)
+        yield chunk
+      }
+    },
+    writeStream,
+  )
 
   const finalHash = hash.digest('hex')
 
-  // 4. Create the File Manifest
   const manifest: FileManifest = {
     version: 1,
     id: fileId,
@@ -70,7 +72,6 @@ export async function writeSource(
     extractions: [],
   }
 
-  // 5. Atomic Write of Manifest
   await writeFile(path.join(dirPath, 'manifest.json'), JSON.stringify(manifest, null, 2))
 
   // 6. Trigger Bubble Up

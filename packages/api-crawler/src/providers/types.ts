@@ -1,12 +1,4 @@
 /**
- * API Provider Types
- * Defines the interface for platform-specific API providers
- */
-
-// Re-export from main types
-export type { AssociationsConfig, CustomProviderConfig } from '../types'
-
-/**
  * Raw item from API response
  */
 export type RawApiItem = Record<string, unknown>

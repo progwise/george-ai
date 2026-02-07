@@ -124,9 +124,9 @@ export interface IStorageService {
     args: { libraryId: string; fileId: string; extractionMethod: ExtractionMethod },
   ): Promise<ExtractionMetadata | null>
 
-  deleteFiles(workspaceId: string, selector: { libraryId: string; fileId?: string }): Promise<void>
+  deleteFiles(workspaceId: string, selector: { libraryId: string; fileId?: string | null }): Promise<void>
 
   reconcile(workspaceId: string, options?: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
 
-  getStorageStatus(workspaceId: string, args: { libraryId: string; fileId?: string }): Promise<StorageStatus>
+  getStorageStatus(workspaceId: string, args: { libraryId: string; fileId?: string | null }): Promise<StorageStatus>
 }

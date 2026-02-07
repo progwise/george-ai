@@ -1,13 +1,10 @@
-import { createLogger } from '@george-ai/app-commons'
-
+import { logger } from './common'
 import { initializeModelCallsStream } from './model-calls'
 import { initializeProviderHealthBucket } from './provider-health'
 import { initializeWorkerRegistryBucket } from './worker-registry'
 import { initializeWorkspaceConfigBucket } from './workspace-config'
 import { initializeWorkspaceProcessingStream } from './workspace-processing'
 import { initializeWorkspaceUsageStream } from './workspace-usage'
-
-const logger = createLogger('event-service-client:index')
 
 export const initializeEventServiceClient = async () =>
   Promise.all([
@@ -36,6 +33,14 @@ export const initializeEventServiceClient = async () =>
       throw error
     }),
   ])
+    .then((result) => {
+      logger.info('Event Service Client initialized successfully')
+      return result
+    })
+    .catch((error) => {
+      logger.error('Error initializing Event Service Client:', error)
+      throw error
+    })
 
 await initializeEventServiceClient()
 

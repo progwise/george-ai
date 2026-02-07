@@ -2,7 +2,7 @@ import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-c
 import { createLogger } from '@george-ai/app-commons'
 import { Prisma, prisma } from '@george-ai/app-database'
 import { workspaceStorage } from '@george-ai/file-management'
-import { fetchPageAsMarkdown } from '@george-ai/html-crawler'
+import { fetchPageAsMarkdown } from '@george-ai/html-crawler-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
 import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'

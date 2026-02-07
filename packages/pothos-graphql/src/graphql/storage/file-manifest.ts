@@ -2,7 +2,7 @@ import { FileManifest } from '@george-ai/file-management'
 
 import { builder } from '../builder'
 
-const FileInfoExtraction = builder.objectRef<FileManifest['extractions'][number]>('FileInfoExtraction').implement({
+builder.objectRef<FileManifest['extractions'][number]>('FileExtraction').implement({
   description: 'Information about an extraction available for a file',
   fields: (t) => ({
     extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: false }),
@@ -22,7 +22,7 @@ builder.objectRef<FileManifest>('FileManifest').implement({
     originalUpdatedAt: t.expose('originalUpdatedAt', { type: 'DateTime', nullable: true }),
     usage: t.field({ type: 'StorageUsage', nullable: false, resolve: (file) => file.usage }),
     extractions: t.field({
-      type: [FileInfoExtraction],
+      type: ['FileExtraction'],
       nullable: { list: false, items: false },
       description: 'Available extractions for this file (e.g., CSV, PDF with different models)',
       resolve: (file) => file.extractions,

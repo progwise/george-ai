@@ -717,7 +717,11 @@ importers:
         specifier: ^3.1.1
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/html-crawler:
+  packages/html-crawler-client:
+    dependencies:
+      '@george-ai/app-commons':
+        specifier: workspace:*
+        version: link:../app-commons
     devDependencies:
       '@george-ai/package-configs':
         specifier: workspace:*
@@ -895,18 +899,18 @@ importers:
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../file-management
-      '@george-ai/html-crawler':
+      '@george-ai/html-crawler-client':
         specifier: workspace:*
-        version: link:../html-crawler
+        version: link:../html-crawler-client
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat
       '@george-ai/mailer':
         specifier: workspace:*
         version: link:../mailer
-      '@george-ai/smb-crawler':
+      '@george-ai/smb-crawler-client':
         specifier: workspace:*
-        version: link:../smb-crawler
+        version: link:../smb-crawler-client
       '@george-ai/vector-store':
         specifier: workspace:*
         version: link:../vector-store
@@ -978,7 +982,7 @@ importers:
         specifier: ^3.1.1
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/smb-crawler:
+  packages/smb-crawler-client:
     dependencies:
       '@george-ai/app-commons':
         specifier: workspace:*
@@ -986,6 +990,9 @@ importers:
       eventsource:
         specifier: ^3.0.2
         version: 3.0.7
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
     devDependencies:
       '@george-ai/package-configs':
         specifier: workspace:*
@@ -1184,9 +1191,12 @@ importers:
 
   services/smb-crawler-service:
     dependencies:
-      '@george-ai/smb-crawler':
+      '@george-ai/app-commons':
         specifier: workspace:*
-        version: link:../../packages/smb-crawler
+        version: link:../../packages/app-commons
+      '@george-ai/smb-crawler-client':
+        specifier: workspace:*
+        version: link:../../packages/smb-crawler-client
       '@george-ai/smb2-client':
         specifier: workspace:*
         version: link:../../packages/smb2-client
@@ -1196,9 +1206,6 @@ importers:
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
-      minimatch:
-        specifier: ^10.1.1
-        version: 10.1.1
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
@@ -16506,7 +16513,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.3
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.13.2(debug@4.4.3))
+      retry-axios: 2.6.0(axios@1.13.2)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -18682,7 +18689,7 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  retry-axios@2.6.0(axios@1.13.2(debug@4.4.3)):
+  retry-axios@2.6.0(axios@1.13.2):
     dependencies:
       axios: 1.13.2(debug@4.4.3)
 

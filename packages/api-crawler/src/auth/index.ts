@@ -2,7 +2,9 @@
  * Authentication module
  * Dispatches to appropriate auth method based on type
  */
-import type { AuthConfig, AuthType } from '../types'
+import { ApiAuthType } from '@george-ai/app-commons'
+
+import { ApiAuthConfig } from '../api-crawler-config'
 import { authenticateApiKey } from './api-key'
 import { authenticateBasic } from './basic'
 import { authenticateBearerToken } from './bearer'
@@ -13,7 +15,7 @@ import { authenticateOAuth2 } from './oauth2'
  * Pure function for non-async auth types
  * Async function for OAuth2 (needs to fetch token)
  */
-export async function authenticate(authType: AuthType, authConfig: AuthConfig): Promise<Record<string, string>> {
+export async function authenticate(authType: ApiAuthType, authConfig: ApiAuthConfig): Promise<Record<string, string>> {
   switch (authType) {
     case 'none':
       return {}
@@ -34,9 +36,3 @@ export async function authenticate(authType: AuthType, authConfig: AuthConfig): 
       throw new Error(`Unsupported auth type: ${authType}`)
   }
 }
-
-// Re-export individual auth functions for testing
-export { authenticateApiKey } from './api-key'
-export { authenticateBasic } from './basic'
-export { authenticateBearerToken } from './bearer'
-export { authenticateOAuth2 } from './oauth2'

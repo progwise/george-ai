@@ -66,7 +66,7 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
       const userInformation = await user.getUserById(apiKeyResult.userId)
       if (userInformation) {
         // For API keys, get workspace from the associated library
-        const workspaceId = await workspace.getWorkspaceIdFromLibrary({ libraryId: apiKeyResult.libraryId })
+        const workspaceId = await workspace.getWorkspaceId({ libraryId: apiKeyResult.libraryId })
 
         if (workspaceId) {
           // SECURITY: Verify user is a member of the library's workspace

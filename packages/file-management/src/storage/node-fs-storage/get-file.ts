@@ -13,10 +13,5 @@ export async function getFile(
   }
   const libraryDir = await getFileDir(workspaceId, libraryId, fileId)
   const fileManifest = await getFileManifest(libraryDir)
-  if (!fileManifest) {
-    throw new Error(
-      `File manifest not found for fileId: ${fileId} in libraryId: ${libraryId} and workspaceId: ${workspaceId}`,
-    )
-  }
   return fileManifest
 }

@@ -1,5 +1,6 @@
 import { Role } from '@george-ai/app-commons'
-import { FileManifest, StorageUsage, WorkspaceManifest } from '@george-ai/file-management'
+import { FileInfo } from '@george-ai/app-domain'
+import { ExtractionMetadata, FileManifest, StorageUsage, WorkspaceManifest } from '@george-ai/file-management'
 import { EmbeddingInfo } from '@george-ai/vector-store'
 
 export interface GeorgeTypes {
@@ -8,5 +9,8 @@ export interface GeorgeTypes {
   WorkspaceSettings: WorkspaceManifest['settings']
   Role: Role
   StorageUsage: StorageUsage
+  FileInfo: FileInfo
   FileManifest: FileManifest
+  FileExtraction: FileManifest['extractions'][number]
+  ExtractionMetadata: ExtractionMetadata
 }

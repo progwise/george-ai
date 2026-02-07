@@ -1,16 +1,10 @@
-/**
- * File Crawler
- *
- * Walks SMB shares using SMB2Client and discovers files matching criteria
- */
 import { lookup } from 'mime-types'
-import { minimatch } from 'minimatch'
-import crypto from 'node:crypto'
 import path from 'node:path'
 
+import { matchGlobPatterns } from '@george-ai/app-commons'
 import type { SMB2Client } from '@george-ai/smb2-client'
-import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
 
+import { logger } from './common'
 import type { DiscoveredFile } from './types'
 
 interface CrawlStats {
@@ -21,42 +15,20 @@ interface CrawlStats {
 }
 
 /**
- * Calculate SHA-256 hash of a file using SMB2 stream
- */
-async function calculateFileHash(client: SMB2Client, filePath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const hash = crypto.createHash('sha256')
-    const stream = client.createReadStream(filePath)
-
-    stream.on('data', (chunk: Buffer) => hash.update(chunk))
-    stream.on('end', () => resolve(hash.digest('hex')))
-    stream.on('error', reject)
-  })
-}
-
-/**
- * Check if a filename matches any of the patterns
- */
-function matchesPatterns(filename: string, patterns?: string[]): boolean {
-  if (!patterns || patterns.length === 0) {
-    return true
-  }
-
-  return patterns.some((pattern) => {
-    // Use minimatch for proper glob pattern support (including ** for recursive matching)
-    return minimatch(filename, pattern, { nocase: true })
-  })
-}
-
-/**
  * Recursively walk directory tree using SMB2Client and discover files
  */
 export async function* crawlDirectory(
   client: SMB2Client,
-  basePath: string,
-  options: SmbCrawlOptions,
+  options: {
+    basePath: string
+    jobId: string
+    maxFileSizeBytes?: number
+    includePatterns?: string[]
+    excludePatterns?: string[]
+  },
   onProgress?: (stats: CrawlStats) => void,
 ): AsyncGenerator<DiscoveredFile, void, unknown> {
+  const { basePath, jobId } = options
   const stats: CrawlStats = {
     filesFound: 0,
     filesMatched: 0,
@@ -71,16 +43,20 @@ export async function* crawlDirectory(
   async function* walk(dirPath: string): AsyncGenerator<DiscoveredFile, void, unknown> {
     stats.currentDirectory = dirPath
 
+    logger.debug('Crawling directory', { basePath, stats, options })
+
     let entries: Array<{ name: string; isDirectory: boolean }>
     try {
       entries = await client.readdir(dirPath)
     } catch (error) {
-      console.warn(`[Crawler] Cannot read directory ${dirPath}:`, error)
+      logger.error('Cannot read directory', { basePath, stats, options, error })
       return
     }
 
     for (const entry of entries) {
       const fullPath = path.posix.join(dirPath, entry.name)
+
+      logger.debug('Processing entry', { fullPath, isDirectory: entry.isDirectory, stats, options })
 
       if (entry.isDirectory) {
         // Recursively walk subdirectories
@@ -88,13 +64,17 @@ export async function* crawlDirectory(
       } else {
         stats.filesFound++
 
+        logger.debug('Found file', { fullPath, stats, entry, options })
+
         // Check include patterns
-        if (!matchesPatterns(entry.name, options.includePatterns)) {
+        if (!matchGlobPatterns(entry.name, options.includePatterns)) {
+          logger.debug('Skipping file (no include match)', { fullPath, stats, entry, options })
           continue
         }
 
         // Check exclude patterns (only if defined)
-        if (options.excludePatterns && matchesPatterns(entry.name, options.excludePatterns)) {
+        if (options.excludePatterns && matchGlobPatterns(entry.name, options.excludePatterns)) {
+          logger.debug('Skipping file (exclude match)', { fullPath, stats, entry, options })
           continue
         }
 
@@ -103,7 +83,7 @@ export async function* crawlDirectory(
         try {
           fileStat = await client.stat(fullPath)
         } catch (error) {
-          console.warn(`[Crawler] Cannot stat file ${fullPath}:`, error)
+          logger.error('Cannot stat file', { fullPath, error, stats, options })
           continue
         }
 
@@ -112,21 +92,12 @@ export async function* crawlDirectory(
 
         // Check file size
         if (options.maxFileSizeBytes && fileSize > options.maxFileSizeBytes) {
-          console.log(`[Crawler] Skipping large file ${fullPath}: ${fileSize} bytes`)
+          logger.debug('Skipping large file', { fullPath, fileSize, stats, options })
           continue
         }
 
         stats.filesMatched++
         stats.totalBytes += fileSize
-
-        // Calculate file hash
-        let fileHash: string
-        try {
-          fileHash = await calculateFileHash(client, fullPath)
-        } catch (error) {
-          console.warn(`[Crawler] Failed to calculate hash for ${fullPath}:`, error)
-          continue
-        }
 
         // Generate file metadata
         const relativePath = path.posix.relative(startPath, fullPath)
@@ -138,11 +109,13 @@ export async function* crawlDirectory(
           name: entry.name,
           relativePath,
           absolutePath: fullPath, // This is now the SMB path, not a filesystem path
-          size: fileStat.size,
+          size: fileSize,
           mimeType,
           lastModified: fileStat.modifiedAt,
-          hash: fileHash,
+          downloadUrl: `/files/${jobId}/${fileId}`,
         }
+
+        logger.debug('Discovered file metadata', { fullPath, file, stats, options })
 
         yield file
 

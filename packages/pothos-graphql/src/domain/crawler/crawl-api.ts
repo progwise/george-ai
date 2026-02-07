@@ -1,35 +1,29 @@
-import crypto from 'node:crypto'
+import { ApiCrawlerConfigSchema, crawlApiStream } from '@george-ai/api-crawler'
 
-import { type ApiCrawlerConfig, crawlApiStream } from '@george-ai/api-crawler'
-import { prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
-
+import { logger, saveCrawlerFile } from './common'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 
-export async function* crawlApi({
-  workspaceId,
-  libraryId,
-  crawlerId,
-  crawlerConfig,
-  maxPages,
-}: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
-  console.log(`Start API crawling for crawler ${crawlerId}`)
+export async function* crawlApi(parameters: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
+  const { workspaceId, libraryId, crawlerId, crawlerConfig, maxPages } = parameters
+
+  // TODO: Make logger safe because crawlerConfig may contain sensitive info
+  const loggedParameters = { parameters: { ...parameters, crawlerConfig: 'REDACTED' } }
+  logger.info('Start API crawling for crawler', loggedParameters)
 
   try {
     if (!crawlerConfig) {
+      logger.error('Missing crawlerConfig for API crawler', loggedParameters)
       throw new Error('Missing crawlerConfig for API crawler')
     }
 
     // Validate config is ApiCrawlerConfig type
-    const config = crawlerConfig as ApiCrawlerConfig
+    const config = ApiCrawlerConfigSchema.parse(crawlerConfig)
 
     if (!config.baseUrl || !config.endpoint) {
+      logger.error('Invalid API crawler config: missing baseUrl or endpoint', loggedParameters)
       throw new Error('Invalid API crawler config: missing baseUrl or endpoint')
     }
-
-    console.log(`Crawling API: ${config.baseUrl}${config.endpoint}`)
-    console.log(`API Config:`, JSON.stringify(config, null, 2))
 
     let itemCount = 0
     let skippedCount = 0
@@ -41,14 +35,13 @@ export async function* crawlApi({
       try {
         itemCount++
         if (itemCount > maxPages) {
-          console.log(`Reached maxPages limit of ${maxPages}, stopping crawl.`)
+          logger.debug('Reached maxPages limit, stopping crawl.', { maxPages, itemCount, ...loggedParameters })
           break
         }
 
-        console.log(`Processing API crawled item ${itemCount}: ${item.title}`)
-
         // Use provider-generated markdown content directly
-        const markdownContent = item.content || `# ${item.title}\n\nNo content available`
+        const markdown = item.content || `# ${item.title}\n\nNo content available`
+        const content = Buffer.from(markdown, 'utf-8')
 
         const safeFileName = item.title
           .replace(/[^a-z0-9]/gi, '_')
@@ -56,144 +49,80 @@ export async function* crawlApi({
           .slice(0, 50)
         const fileNameWithExt = `${safeFileName || 'api_item_' + itemCount}.md`
 
-        const fileResult = await saveApiCrawlerFile({
+        logger.debug('Processing API crawled item ', {
+          title: item.title,
+          originUri: item.originUri,
+          markdownPreview: markdown.slice(0, 100),
+          fileNameWithExt,
+          ...loggedParameters,
+        })
+
+        const fileResult = await saveCrawlerFile({
           workspaceId,
           fileName: fileNameWithExt,
-          markdownContent,
+          mimeType: 'text/markdown',
+          content,
           libraryId,
           crawlerId,
-          originUri: item.originUri,
+          fileUri: item.originUri,
         })
 
         // Track statistics
         if (fileResult.skipProcessing) {
           skippedCount++
-          console.log(`Skipping API item ${item.title} - content unchanged`)
+          logger.debug('Skipping API item - content unchanged', { title: item.title, ...loggedParameters })
 
           yield {
-            id: fileResult.id,
-            name: fileResult.name,
+            id: fileResult.fileId,
+            name: fileResult.fileName,
             originUri: fileResult.originUri,
             mimeType: fileResult.mimeType,
             skipProcessing: true,
-            hints: `API Crawler - item ${fileResult.name} skipped (content unchanged)`,
+            hints: `API Crawler - item ${fileResult.fileName} skipped (content unchanged)`,
           }
         } else {
           if (fileResult.wasUpdated) {
             updatedCount++
-            console.log(`Updated API item ${itemCount}: ${fileNameWithExt}`)
+            logger.debug('Updated API item', { itemCount, fileNameWithExt, ...loggedParameters })
           } else {
             newCount++
-            console.log(`Created new API item ${itemCount}: ${fileNameWithExt}`)
+            logger.debug('Created new API item', { itemCount, fileNameWithExt, ...loggedParameters })
           }
 
           yield {
-            id: fileResult.id,
-            name: fileResult.name,
+            id: fileResult.fileId,
+            name: fileResult.fileName,
             originUri: fileResult.originUri,
             mimeType: fileResult.mimeType,
             skipProcessing: false,
             wasUpdated: fileResult.wasUpdated,
-            hints: `API Crawler ${crawlerId} ${fileResult.wasUpdated ? 'updated' : 'created'} item ${fileResult.name}`,
+            hints: `API Crawler ${crawlerId} ${fileResult.wasUpdated ? 'updated' : 'created'} item ${fileResult.fileName}`,
           }
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`Error saving API crawled item:`, errorMessage)
+        logger.error('Error saving API crawled item:', {
+          errorMessage,
+          title: item.title,
+          originUri: item.originUri,
+          ...loggedParameters,
+        })
         yield {
           errorMessage: `Failed to save item "${item.title}": ${errorMessage}`,
         }
       }
     }
 
-    console.log(
-      `Finished API crawling for crawler ${crawlerId}. Total: ${itemCount}, New: ${newCount}, Updated: ${updatedCount}, Skipped: ${skippedCount}`,
-    )
+    logger.info('Finished API crawling for crawler', {
+      itemCount,
+      skippedCount,
+      updatedCount,
+      newCount,
+      ...loggedParameters,
+    })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('Error in API crawler:', errorMessage)
+    logger.error('Error in API crawler:', { errorMessage, ...loggedParameters })
     yield { errorMessage }
-  }
-}
-
-const saveApiCrawlerFile = async ({
-  workspaceId,
-  fileName,
-  markdownContent,
-  libraryId,
-  crawlerId,
-  originUri,
-}: {
-  workspaceId: string
-  fileName: string
-  markdownContent: string
-  libraryId: string
-  crawlerId: string
-  originUri: string
-}) => {
-  const contentHash = crypto.createHash('sha256').update(markdownContent, 'utf8').digest('hex')
-  const crawlerUniqueKey = { crawledByCrawlerId_originUri: { crawledByCrawlerId: crawlerId, originUri } }
-
-  // Check if file already exists with the same originUri
-  const existingFile = await prisma.aiLibraryFile.findUnique({
-    where: crawlerUniqueKey,
-    select: { id: true, name: true, originUri: true, mimeType: true, originFileHash: true },
-  })
-
-  // Skip processing if content unchanged
-  if (existingFile?.originFileHash === contentHash) {
-    await prisma.aiLibraryFile.update({
-      where: { id: existingFile.id },
-      data: { updatedAt: new Date() },
-    })
-    return { ...existingFile, skipProcessing: true, wasUpdated: false }
-  }
-
-  const wasUpdated = !!existingFile
-  const now = new Date()
-
-  const file = await prisma.aiLibraryFile.upsert({
-    where: crawlerUniqueKey,
-    create: {
-      name: fileName,
-      mimeType: 'text/markdown',
-      libraryId,
-      size: Buffer.byteLength(markdownContent, 'utf8'),
-      originFileHash: contentHash,
-      originModificationDate: now,
-      originUri,
-      crawledByCrawlerId: crawlerId,
-    },
-    update: {
-      name: fileName,
-      mimeType: 'text/markdown',
-      libraryId,
-      size: Buffer.byteLength(markdownContent, 'utf8'),
-      originFileHash: contentHash,
-      originModificationDate: now,
-    },
-  })
-
-  await workspaceStorage.writeSource(workspaceId, {
-    libraryId,
-    fileId: file.id,
-    stream: (async function* () {
-      yield markdownContent
-    })(),
-    meta: {
-      mimeType: 'text/markdown',
-      originalName: fileName,
-      originalUpdatedAt: now.toISOString(),
-      originalContentHash: contentHash,
-    },
-  })
-
-  return {
-    id: file.id,
-    name: file.name,
-    originUri: file.originUri,
-    mimeType: file.mimeType,
-    skipProcessing: false,
-    wasUpdated,
   }
 }

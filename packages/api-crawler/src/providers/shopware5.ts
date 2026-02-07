@@ -1,19 +1,5 @@
-/**
- * Shopware 5 API Provider
- * Legacy Shopware e-commerce platform
- */
-import { createLogger } from '@george-ai/app-commons'
-
+import { delay, logger } from '../common'
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
-
-const logger = createLogger('Shopware5 Provider')
-
-/**
- * Delay helper
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 /**
  * Get nested value from object using dot notation
@@ -94,6 +80,7 @@ export const shopware5Provider: ApiProvider = {
       })
 
       if (!response.ok) {
+        logger.error('Shopware 5 API fetch error', { status: response.status, statusText: response.statusText, config })
         throw new Error(`Shopware 5 API error: ${response.status} ${response.statusText}`)
       }
 
@@ -105,7 +92,7 @@ export const shopware5Provider: ApiProvider = {
       const items = data.data || []
       const total = data.total || 0
 
-      logger.debug(`Offset ${offset}: ${items.length} items (total: ${total})`)
+      logger.debug('Fetched items:', { count: items.length, total, config })
 
       for (const item of items) {
         yield item
@@ -121,7 +108,7 @@ export const shopware5Provider: ApiProvider = {
       }
     }
 
-    logger.debug('Shopware 5 fetch complete')
+    logger.debug('Shopware 5 fetch complete', config)
   },
 
   buildOriginUri(baseUrl: string, item: RawApiItem): string | undefined {

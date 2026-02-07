@@ -14,7 +14,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
   })
   it(
     'should create store for workspace',
-    { timeout: 10000 }, // Workspace creation is slow in Qdrant
+    { timeout: 20000 }, // Workspace creation is slow in Qdrant
     async () => {
       await vectorStore.createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
     },

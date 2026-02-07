@@ -23,6 +23,15 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
+  if (!Array.isArray(uploadToken) || uploadToken.length !== 2) {
+    httpResponse
+      .status(400)
+      .send('Bad Request: x-upload-token headers must be an array with 2 elements [libraryId, fileId]')
+    return
+  }
+
+  const [libraryId, fileId] = uploadToken
+
   // Try JWT or Bearer token authentication
   const context = await getUserContextFromExpressRequest(httpRequest)
 
@@ -40,12 +49,12 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  const fileInfo = await workspace.getUploadFileInfo({
-    uploadToken: uploadToken as string,
-    workspaceId: context.workspaceId,
+  const fileInfo = await workspace.getFileInfo(context.workspaceId, {
+    libraryId,
+    fileId,
   })
 
-  if (!fileInfo) {
+  if (!fileInfo || !fileInfo.createdAt) {
     httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
     return
   }
@@ -65,11 +74,11 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  const lockKey = fileInfo.id
+  const lockKey = fileInfo.fileId
 
   // Check if file is already being uploaded
   if (uploadLocks.has(lockKey)) {
-    console.error('Upload already in progress for file:', fileInfo.id)
+    logger.error('Upload already in progress for file:', { fileInfo })
     httpResponse.status(409).send('Bad Request: File upload already in progress')
     return
   }
@@ -129,17 +138,18 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
   try {
     const fileManifest = await workspaceStorage.writeSource(context.workspaceId, {
       libraryId: fileInfo.libraryId,
-      fileId: fileInfo.id,
+      fileId: fileInfo.fileId,
       stream,
       meta: {
         mimeType: fileInfo.mimeType || 'application/octet-stream',
         originalName: fileInfo.name,
-        originalUpdatedAt: fileInfo.updatedAt.toISOString(),
-        originalContentHash: fileInfo.originFileHash,
+        originalUpdatedAt: fileInfo.originalUpdatedAt?.toISOString() || new Date().toISOString(),
+        originalContentHash: fileInfo.sourceHash,
       },
     })
-    await workspace.markUploadFinished({
-      fileId: fileInfo.id,
+    await workspace.markUploadFinished(context.workspaceId, {
+      libraryId: fileInfo.libraryId,
+      fileId: fileInfo.fileId,
     })
     uploadCompleted = true
     httpResponse.statusCode = 200

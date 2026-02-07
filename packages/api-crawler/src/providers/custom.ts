@@ -1,23 +1,7 @@
-/**
- * Custom API Provider
- * Generic provider for user-configured APIs
- */
-import { createLogger } from '@george-ai/app-commons'
+import { ApiCustomProviderConfig } from '../api-crawler-config'
+import { delay, logger } from '../common'
+import type { ApiProvider, FetchConfig, RawApiItem } from './types'
 
-import type { ApiProvider, CustomProviderConfig, FetchConfig, RawApiItem } from './types'
-
-const logger = createLogger('Custom Provider')
-
-/**
- * Delay helper
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-/**
- * Get nested value from object using dot notation
- */
 function getNestedValue(obj: RawApiItem, path: string): unknown {
   const parts = path.split('.')
   let current: unknown = obj
@@ -60,7 +44,7 @@ function toString(value: unknown): string {
 /**
  * Create a custom provider with user configuration
  */
-export function createCustomProvider(baseUrl: string, endpoint: string, config?: CustomProviderConfig): ApiProvider {
+export function createCustomProvider(baseUrl: string, endpoint: string, config?: ApiCustomProviderConfig): ApiProvider {
   return {
     id: 'custom',
     name: 'Custom API',
@@ -90,6 +74,7 @@ export function createCustomProvider(baseUrl: string, endpoint: string, config?:
         })
 
         if (!response.ok) {
+          logger.error('Custom API fetch error', { status: response.status, statusText: response.statusText, config })
           throw new Error(`Custom API error: ${response.status} ${response.statusText}`)
         }
 

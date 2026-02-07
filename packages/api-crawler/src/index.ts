@@ -1,19 +1,7 @@
-/**
- * @george-ai/api-crawler
- * API crawler package for George AI
- */
-
-// Main functions
-export { crawlApiStream } from './crawl'
-
 // Types
-export type { ApiCrawlerConfig } from './types'
-
+import { type ApiCrawlerConfig, ApiCrawlerConfigSchema } from './api-crawler-config'
+import { crawlApiStream } from './crawl'
 // Templates
-export {
-  shopwareTemplate,
-  createShopwareConfig,
-  weclappTemplate,
-  createWeclappConfig,
-  genericRestTemplate,
-} from './templates'
+import * as templates from './templates'
+
+export { crawlApiStream, ApiCrawlerConfig, ApiCrawlerConfigSchema, templates }

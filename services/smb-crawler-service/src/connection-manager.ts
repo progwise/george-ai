@@ -6,6 +6,8 @@
  */
 import { SMB2Client } from '@george-ai/smb2-client'
 
+import { logger } from './common'
+
 interface ConnectionOptions {
   crawlerId: string
   uri: string
@@ -32,6 +34,7 @@ function parseUri(uri: string): { host: string; share: string; path?: string } {
   const match = cleanUri.match(/^\/\/([^/]+)\/([^/]+)(?:\/(.*))?$/)
 
   if (!match) {
+    logger.error('Invalid SMB URI format', { uri })
     throw new Error(`Invalid SMB URI format: ${uri}`)
   }
 
@@ -46,7 +49,7 @@ function parseUri(uri: string): { host: string; share: string; path?: string } {
  * Initialize connection manager
  */
 export async function initializeConnectionManager(): Promise<void> {
-  console.log('[ConnectionManager] Initialized')
+  logger.info('ConnectionManager initialized')
 }
 
 /**
@@ -55,12 +58,12 @@ export async function initializeConnectionManager(): Promise<void> {
 export async function createConnection(options: ConnectionOptions): Promise<ConnectionResult> {
   const { crawlerId, uri, username, password } = options
 
-  console.log(`[Connection] Request for crawler ${crawlerId}: ${uri}`)
+  logger.debug('Connection request', { crawlerId, uri })
 
   try {
     // Check if already connected
     if (connections.has(crawlerId)) {
-      console.log(`[Connection] Already connected: ${crawlerId}`)
+      logger.debug('Already connected', { crawlerId })
       const existing = connections.get(crawlerId)!
       return { success: true, client: existing.client, sharePath: existing.sharePath }
     }
@@ -98,11 +101,10 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     }
     // else: plain username, domain stays empty (defaults to WORKGROUP below)
 
-    console.log(`[Connection] Connecting to ${hostname}:${port}, share: ${share}`)
-    console.log(`[Connection] Auth details - Original username: "${username}"`)
-    console.log(`[Connection] Auth details - Parsed username: "${actualUsername}"`)
-    console.log(`[Connection] Auth details - Parsed domain: "${domain || 'WORKGROUP'}"`)
-    console.log(`[Connection] Auth details - Password: ${password.length > 0 ? 'provided' : 'empty'}`)
+    logger.info('Connecting to SMB share', { hostname, port, share })
+    logger.info('Auth details - Parsed username', { actualUsername })
+    logger.info('Auth details - Parsed domain', { domain: domain || 'WORKGROUP' })
+    logger.info('Auth details - Password', { provided: password.length > 0 })
 
     // Create SMB2 client (share is required in constructor)
     const client = new SMB2Client({
@@ -123,10 +125,10 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
     // Store connection
     connections.set(crawlerId, { client, sharePath })
 
-    console.log(`[Connection] Success: ${crawlerId}`)
+    logger.info('Connection success', { crawlerId })
     return { success: true, client, sharePath }
   } catch (error) {
-    console.error('[Connection] Error:', error)
+    logger.error('Connection error', { error })
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -138,12 +140,12 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
  * Close SMB2 connection
  */
 export async function closeConnection(crawlerId: string): Promise<{ success: boolean; error?: string }> {
-  console.log(`[Disconnect] Request for crawler ${crawlerId}`)
+  logger.info('Disconnect request', { crawlerId })
 
   try {
     const connection = connections.get(crawlerId)
     if (!connection) {
-      console.log(`[Disconnect] Not connected: ${crawlerId}`)
+      logger.info('Not connected', { crawlerId })
       return { success: true }
     }
 
@@ -153,10 +155,10 @@ export async function closeConnection(crawlerId: string): Promise<{ success: boo
     // Remove from map
     connections.delete(crawlerId)
 
-    console.log(`[Disconnect] Success: ${crawlerId}`)
+    logger.info('Disconnect success', { crawlerId })
     return { success: true }
   } catch (error) {
-    console.error('[Disconnect] Error:', error)
+    logger.error('Disconnect error', { error })
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),

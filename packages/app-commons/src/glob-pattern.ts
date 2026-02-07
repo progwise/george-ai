@@ -1,3 +1,6 @@
+// TODO: Find if we should use a library like minimatch instead of custom globToRegex implementation
+// Pros of minimatch: well-tested, supports more complex patterns, handles edge cases
+// Cons: adds dependency, may be less performant for simple patterns
 function globToRegex(glob: string): RegExp {
   // Escape special regex characters except * and ?
   let pattern = glob
@@ -19,7 +22,17 @@ function globToRegex(glob: string): RegExp {
   return new RegExp(pattern, 'i')
 }
 
-export function matchGlobPattern(value: string, glob: string): boolean {
-  const regex = globToRegex(glob)
+export function matchGlobPattern(value: string, globPattern: string | undefined): boolean {
+  if (!globPattern) {
+    return true
+  }
+  const regex = globToRegex(globPattern)
   return regex.test(value)
+}
+
+export function matchGlobPatterns(value: string, globPatterns: string[] | undefined): boolean {
+  if (!globPatterns || globPatterns.length === 0) {
+    return true
+  }
+  return globPatterns.some((pattern) => matchGlobPattern(value, pattern))
 }
