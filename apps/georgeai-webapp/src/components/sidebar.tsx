@@ -174,6 +174,7 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
           </li>
         </ul>
       </label>
+
       {workspaceId && <WorkspaceMembersDialog user={user} ref={membersDialogRef} />}
     </div>
   )

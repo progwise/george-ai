@@ -6,7 +6,6 @@ import { FolderPlusIcon } from '../../icons/folder-plus'
 import { TrashIcon } from '../../icons/trash-icon'
 import { CreateWorkspaceDialog } from './create-workspace-dialog'
 import { DeleteWorkspaceDialog } from './delete-workspace-dialog'
-import { WorkspaceMembersDialog } from './members/workspace-members-dialog'
 import { useWorkspace } from './use-workspace'
 
 export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
@@ -15,7 +14,6 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
     useWorkspace(user)
   const createDialogRef = useRef<HTMLDialogElement>(null)
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
-  const membersDialogRef = useRef<HTMLDialogElement>(null)
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
   const handleWorkspaceChange = async (workspaceId: string) => {
@@ -123,9 +121,6 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
       {currentUserRole === 'owner' && !isDefaultWorkspace && (
         <DeleteWorkspaceDialog user={user} ref={deleteDialogRef} />
       )}
-
-      {/* Workspace members dialog */}
-      {currentWorkspace && <WorkspaceMembersDialog user={user} ref={membersDialogRef} />}
     </>
   )
 }

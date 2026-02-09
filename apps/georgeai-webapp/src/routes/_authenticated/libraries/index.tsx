@@ -1,13 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useRef } from 'react'
 
 import { ClientDate } from '../../../components/client-date'
-import { NewLibraryDialog } from '../../../components/library/new-library-dialog'
 import { getLibrariesQueryOptions } from '../../../components/library/queries/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { ListPlusIcon } from '../../../icons/list-plus-icon'
 
 export const Route = createFileRoute('/_authenticated/libraries/')({
   component: RouteComponent,
@@ -18,7 +15,6 @@ export const Route = createFileRoute('/_authenticated/libraries/')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
 
   const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions())
   const { t } = useTranslation()
@@ -32,18 +28,6 @@ function RouteComponent() {
       <ul className="menu-horizontal flex w-full items-center justify-start gap-2 rounded-box bg-base-200 p-2">
         <li>
           <h3 className="font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
-        </li>
-        <li className="flex flex-1 justify-end">
-          <button
-            type="button"
-            onClick={() => newLibraryDialogRef.current?.showModal()}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('libraries.newList')}
-            data-tip={t('libraries.newList')}
-          >
-            <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('labels.new')}</span>
-          </button>
         </li>
       </ul>
 
@@ -89,7 +73,6 @@ function RouteComponent() {
           </tbody>
         </table>
       )}
-      <NewLibraryDialog ref={newLibraryDialogRef} />
     </article>
   )
 }
