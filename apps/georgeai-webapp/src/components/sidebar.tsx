@@ -46,7 +46,7 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
   const sidebarToggleTooltip = isDrawerOpen ? t('sidebar.close') : t('sidebar.open')
 
   return (
-    <div className="group/sidebar drawer-side z-50 transition-all duration-200 ease-in is-drawer-close:overflow-visible">
+    <div className="group/sidebar drawer-side z-60 transition-all duration-200 ease-in is-drawer-close:overflow-visible">
       <label htmlFor="sidebar" aria-label="sidebar" className="drawer-overlay"></label>
       <label
         className="fixed top-0 left-0 flex min-h-full flex-col bg-base-200 is-drawer-close:w-14 is-drawer-close:cursor-w-resize is-drawer-open:w-64"

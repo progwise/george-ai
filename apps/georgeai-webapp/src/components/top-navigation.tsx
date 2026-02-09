@@ -20,7 +20,7 @@ export default function TopNavigation({ user, isDrawerOpen = false }: TopNavigat
   return (
     // TODO: change de.ts and en.ts
     <>
-      <div className={twMerge('fixed inset-x-0 -top-0.5 z-30 transition-all duration-150 ease-in')}>
+      <div className={twMerge('fixed inset-x-0 -top-0.5 z-50 transition-all duration-150 ease-in')}>
         <nav
           className={twMerge(
             'navbar z-50 w-full bg-transparent transition-all duration-150 ease-in',
