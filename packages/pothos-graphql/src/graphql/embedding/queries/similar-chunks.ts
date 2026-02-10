@@ -1,6 +1,8 @@
 import { GraphQLError } from 'graphql/error'
 
+import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { getModelProvider } from '@george-ai/app-domain/src/workspace/get-model-provider'
 import { providerHealth } from '@george-ai/event-service-client'
 import { modelCalls } from '@george-ai/event-service-client'
 import { FileChunk, vectorStore } from '@george-ai/vector-store'
@@ -40,17 +42,8 @@ builder.queryField('similarChunks', (t) =>
       term: t.arg.string({ required: false }),
       maxResults: t.arg.int({ required: false, defaultValue: 20 }),
       fragment: t.arg.int({ required: false }),
-      modelProvider: t.arg({
-        type: 'ModelProvider',
-        required: true,
-      }),
-      modelName: t.arg.string({ required: true }),
     },
-    resolve: async (
-      _source,
-      { libraryId, fileId, term, maxResults, fragment, modelProvider, modelName },
-      { workspaceId, session },
-    ) => {
+    resolve: async (_source, { libraryId, fileId, term, maxResults, fragment }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
       if (!term || term.length === 0) {
@@ -64,42 +57,63 @@ builder.queryField('similarChunks', (t) =>
         termLength: term.length,
         maxResults,
         fragment,
-        modelProvider,
-        modelName,
-      })
-      const healthyProviderData = await providerHealth.getProviderInstanceForDirectCall({
-        workspaceId,
-        provider: modelProvider,
-        modelName,
-      })
-      if (!healthyProviderData) {
-        logger.error('No provider instance available for similarChunks query', {
-          workspaceId,
-          modelProvider,
-          modelName,
-        })
-        throw new GraphQLError('No provider instance available')
-      }
-      const embeddingResult = await modelCalls.directModelCall({
-        version: 1,
-        modelCallType: 'generateEmbedding',
-        provider: modelProvider,
-        modelName,
-        inputTexts: [term],
-        workspaceId,
       })
 
-      const results = await vectorStore.findSimilarChunks({
-        workspaceId,
-        libraryId,
-        fileId,
-        vector: embeddingResult.embeddings[0],
-        topK: maxResults || 10,
-        fragment: fragment ?? null,
-        modelName,
+      const libraries = await prisma.aiLibrary.findMany({
+        where: { workspaceId, ...(libraryId ? { id: libraryId } : {}) },
+        select: { id: true, embeddingModel: { select: { provider: true, name: true } } },
       })
 
-      return results.map((result) => ({ ...result, distance: result.distance }))
+      const embeddingResults = await Promise.all(
+        libraries.map(async (library) => {
+          if (!library.embeddingModel) {
+            logger.error('Library does not have an embedding model configured', {
+              workspaceId,
+              libraryId: library.id,
+            })
+            return null
+          }
+
+          const modelProvider = getModelProvider(library.embeddingModel.provider)
+          const modelName = library.embeddingModel.name
+
+          const healthyProviderData = await providerHealth.getProviderInstanceForDirectCall({
+            workspaceId,
+            modelProvider,
+            modelName,
+          })
+          if (!healthyProviderData) {
+            logger.error('No provider instance available for similarChunks query', {
+              workspaceId,
+              modelProvider,
+              modelName,
+            })
+            throw new GraphQLError('No provider instance available')
+          }
+          const embeddingResult = await modelCalls.directModelCall({
+            version: 1,
+            modelCallType: 'generateEmbedding',
+            provider: modelProvider,
+            modelName,
+            inputTexts: [term],
+            workspaceId,
+          })
+
+          const results = await vectorStore.findSimilarChunks({
+            workspaceId,
+            libraryId,
+            fileId,
+            vector: embeddingResult.embeddings[0],
+            topK: maxResults || 10,
+            fragment: fragment ?? null,
+            modelName,
+          })
+
+          return results.map((result) => ({ ...result, distance: result.distance }))
+        }),
+      )
+
+      return embeddingResults.filter((res): res is NonNullable<typeof res> => res !== null).flat()
     },
   }),
 )

@@ -21,24 +21,23 @@ export const ensureRoot = async () => {
 // Initialize root directory on module load
 const rootDir = await ensureRoot()
 
-const getDir = async (dir: string): Promise<string> => {
+export const existsDir = async (dir: string): Promise<boolean> => {
   try {
     // F_OK checks for the existence of the file/folder
     await access(dir, constants.F_OK)
-  } catch (err) {
-    if (isNodeError(err) && err.code === 'ENOENT') {
-      logger.error(`Directory does not exist: ${dir}`)
-      throw err
-    } else if (isNodeError(err)) {
-      logger.error(`Error accessing directory ${dir}: ${err.message}`)
-    } else if (err instanceof Error) {
-      logger.error(`Error accessing directory ${dir}: ${err.message}`)
+    return true
+  } catch (error) {
+    if (isNodeError(error) && error.code === 'ENOENT') {
+      return false
+    } else if (isNodeError(error)) {
+      logger.error('Error accessing directory node error', { dir, error })
+    } else if (error instanceof Error) {
+      logger.error('Error accessing directory instance error', { dir, error })
     } else {
-      logger.error(`Unknown error accessing directory ${dir}`)
+      logger.error('Error accessing directory', { dir, error })
     }
-    throw err
+    throw error
   }
-  return dir
 }
 
 const createDir = async (dir: string): Promise<string> => {
@@ -65,8 +64,8 @@ const createDir = async (dir: string): Promise<string> => {
   return dir
 }
 
-export const getWorkspaceDir = async (workspaceId: string): Promise<string> => {
-  return await getDir(path.join(rootDir, WORKSPACES_DIR_NAME, workspaceId))
+export const getWorkspaceDir = (workspaceId: string): string => {
+  return path.join(rootDir, WORKSPACES_DIR_NAME, workspaceId)
 }
 
 export const createWorkspaceDir = async (workspaceId: string): Promise<string> => {
@@ -74,25 +73,25 @@ export const createWorkspaceDir = async (workspaceId: string): Promise<string> =
   return getWorkspaceDir(workspaceId)
 }
 
-export const getLibraryDir = async (workspaceId: string, libraryId: string): Promise<string> => {
-  const workspaceDir = await getWorkspaceDir(workspaceId)
-  return await getDir(path.join(workspaceDir, LIBRARIES_DIR_NAME, libraryId))
+export const getLibraryDir = (workspaceId: string, libraryId: string): string => {
+  const workspaceDir = getWorkspaceDir(workspaceId)
+  return path.join(workspaceDir, LIBRARIES_DIR_NAME, libraryId)
 }
 
 export const createLibraryDir = async (workspaceId: string, libraryId: string): Promise<string> => {
-  const workspaceDir = await getWorkspaceDir(workspaceId)
+  const workspaceDir = getWorkspaceDir(workspaceId)
   await createDir(path.join(workspaceDir, LIBRARIES_DIR_NAME, libraryId, FILES_DIR_NAME))
   return getLibraryDir(workspaceId, libraryId)
 }
 
-export const getFilesDir = async (workspaceId: string, libraryId: string): Promise<string> => {
-  const libraryDir = await getLibraryDir(workspaceId, libraryId)
-  return await getDir(path.join(libraryDir, FILES_DIR_NAME))
+export const getFilesDir = (workspaceId: string, libraryId: string): string => {
+  const libraryDir = getLibraryDir(workspaceId, libraryId)
+  return path.join(libraryDir, FILES_DIR_NAME)
 }
 
-export const getFileDir = async (workspaceId: string, libraryId: string, fileId: string): Promise<string> => {
-  const filesDir = await getFilesDir(workspaceId, libraryId)
-  return await getDir(path.join(filesDir, fileId))
+export const getFileDir = (workspaceId: string, libraryId: string, fileId: string): string => {
+  const filesDir = getFilesDir(workspaceId, libraryId)
+  return path.join(filesDir, fileId)
 }
 
 export const createFileDir = async (workspaceId: string, libraryId: string, fileId: string): Promise<string> => {
@@ -101,14 +100,9 @@ export const createFileDir = async (workspaceId: string, libraryId: string, file
   return await getFileDir(workspaceId, libraryId, fileId)
 }
 
-export const getExtractionDir = async (
-  workspaceId: string,
-  libraryId: string,
-  fileId: string,
-  methodId: string,
-): Promise<string> => {
-  const fileDir = await getFileDir(workspaceId, libraryId, fileId)
-  return await getDir(path.join(fileDir, EXTRACTIONS_DIR_NAME, methodId))
+export const getExtractionDir = (workspaceId: string, libraryId: string, fileId: string, methodId: string): string => {
+  const fileDir = getFileDir(workspaceId, libraryId, fileId)
+  return path.join(fileDir, EXTRACTIONS_DIR_NAME, methodId)
 }
 
 export const createExtractionDir = async (
@@ -119,17 +113,12 @@ export const createExtractionDir = async (
 ): Promise<string> => {
   const fileDir = await getFileDir(workspaceId, libraryId, fileId)
   await createDir(path.join(fileDir, EXTRACTIONS_DIR_NAME, methodId))
-  return await getExtractionDir(workspaceId, libraryId, fileId, methodId)
+  return getExtractionDir(workspaceId, libraryId, fileId, methodId)
 }
 
-export const getAttachmentsDir = async (
-  workspaceId: string,
-  libraryId: string,
-  fileId: string,
-  methodId: string,
-): Promise<string> => {
-  const extractionDir = await getExtractionDir(workspaceId, libraryId, fileId, methodId)
-  return await getDir(path.join(extractionDir, 'attachments'))
+export const getAttachmentsDir = (workspaceId: string, libraryId: string, fileId: string, methodId: string): string => {
+  const extractionDir = getExtractionDir(workspaceId, libraryId, fileId, methodId)
+  return path.join(extractionDir, 'attachments')
 }
 
 export async function getFolderStats(dirPath: string): Promise<{ diskSize: number; fileCount: number }> {

@@ -36,7 +36,7 @@ export const textToMarkdown = async (parameters: FileConverterParameters) => {
   logger.debug('[Text Converter] Starting conversion', parameters)
 
   const { workspaceId, libraryId, fileId, mimeType } = parameters
-  const sourceStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: sourceStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

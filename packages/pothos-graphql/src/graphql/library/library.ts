@@ -11,6 +11,7 @@ builder.prismaObject('AiLibrary', {
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     workspace: t.relation('workspace', { nullable: false }),
+    workspaceId: t.exposeString('workspaceId', { nullable: false }),
     role: t.withAuth({ isLoggedIn: true }).field({
       type: 'WorkspaceRole',
       nullable: true,

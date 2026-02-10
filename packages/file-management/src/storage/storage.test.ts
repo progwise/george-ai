@@ -84,7 +84,7 @@ describe.sequential('Basic storage tests', () => {
   })
 
   it('Should read back the stored source file', async () => {
-    const readStream = await workspaceStorage.readSource(TEST_WORKSPACE_ID, {
+    const { stream: readStream } = await workspaceStorage.readSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: 'test-file',
     })

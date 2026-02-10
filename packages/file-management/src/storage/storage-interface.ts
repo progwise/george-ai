@@ -87,7 +87,10 @@ export interface IStorageService {
       meta: FileInput
     },
   ): Promise<FileManifest>
-  readSource(workspaceId: string, args: { libraryId: string; fileId: string }): Promise<Readable>
+  readSource(
+    workspaceId: string,
+    args: { libraryId: string; fileId: string },
+  ): Promise<{ stream: Readable; fileSize: number }>
 
   createExtraction(
     workspaceId: string,

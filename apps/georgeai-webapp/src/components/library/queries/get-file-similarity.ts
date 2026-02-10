@@ -14,31 +14,15 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
         fileId: z.string().nonempty(),
         term: z.string().optional(),
         hits: z.number().int().min(1).default(20),
-        part: z.number().int().optional(),
+        fragment: z.number().int().optional(),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getSimilarChunks(
-          $libraryId: String!
-          $fileId: String!
-          $term: String
-          $maxResults: Int!
-          $fragment: Int
-          $modelProvider: ModelProvider!
-          $modelName: String!
-        ) {
-          similarChunks(
-            libraryId: $libraryId
-            fileId: $fileId
-            term: $term
-            maxResults: $maxResults
-            fragment: $fragment
-            modelProvider: $modelProvider
-            modelName: $modelName
-          ) {
+        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {
+          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {
             id
             distance
             chunk
@@ -56,20 +40,16 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
     return result.similarChunks
   })
 
-export const getSimilarFileChunksQueryOptions = (params: {
+export const getSimilarFileChunksQueryOptions = (parameters: {
+  libraryId: string
   fileId: string
   term?: string
   hits?: number
-  part?: number
+  fragment?: number
 }) => ({
-  queryKey: [queryKeys.SimilarFileChunks, { ...params }],
+  queryKey: [queryKeys.SimilarFileChunks, parameters],
   queryFn: () =>
     getSimilarFileChunksFn({
-      data: {
-        fileId: params.fileId,
-        term: params.term,
-        hits: params.hits,
-        part: params.part,
-      },
+      data: parameters,
     }),
 })

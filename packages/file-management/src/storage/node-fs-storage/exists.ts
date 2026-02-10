@@ -1,6 +1,6 @@
 import { ExtractionMethod } from '@george-ai/app-commons'
 
-import { getExtractionDir, getFileDir, getLibraryDir, getWorkspaceDir } from './directories'
+import { existsDir, getExtractionDir, getFileDir, getLibraryDir, getWorkspaceDir } from './directories'
 
 export async function exists(
   workspaceId: string,
@@ -13,35 +13,16 @@ export async function exists(
   const { libraryId, fileId, extractionMethod } = args
 
   if (!libraryId) {
-    try {
-      await getWorkspaceDir(workspaceId)
-      return true
-    } catch {
-      return false
-    }
+    return await existsDir(getWorkspaceDir(workspaceId))
   }
 
   if (!fileId) {
-    try {
-      await getLibraryDir(workspaceId, libraryId)
-      return true
-    } catch {
-      return false
-    }
+    return await existsDir(getLibraryDir(workspaceId, libraryId))
   }
 
-  if (!extractionMethod)
-    try {
-      await getFileDir(workspaceId, libraryId, fileId)
-      return true
-    } catch {
-      return false
-    }
-
-  try {
-    await getExtractionDir(workspaceId, libraryId, fileId, extractionMethod)
-    return true
-  } catch {
-    return false
+  if (!extractionMethod) {
+    return await existsDir(getFileDir(workspaceId, libraryId, fileId))
   }
+
+  return await existsDir(getExtractionDir(workspaceId, libraryId, fileId, extractionMethod))
 }

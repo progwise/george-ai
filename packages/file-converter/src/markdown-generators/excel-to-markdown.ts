@@ -134,7 +134,7 @@ export async function excelToMarkdown(parameters: FileConverterParameters) {
 
   const { workspaceId, libraryId, fileId, timeoutSignal } = parameters
 
-  const readStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: readStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

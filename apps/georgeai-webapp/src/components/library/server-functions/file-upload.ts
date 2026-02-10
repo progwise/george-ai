@@ -34,6 +34,10 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
           mutation prepareDesktopFile($file: PrepareUploadInput!) {
             prepareUpload(data: $file) {
               id
+              libraryId
+              library {
+                workspaceId
+              }
             }
           }
         `),
@@ -57,7 +61,8 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
         method: 'POST',
         headers: [
           { name: 'Authorization', value: `ApiKey ${GRAPHQL_API_KEY}` },
-          { name: 'x-upload-token', value: preparedFile.id },
+          { name: 'x-workspace-id', value: preparedFile.library.workspaceId },
+          { name: 'x-upload-token', value: `["${preparedFile.libraryId}","${preparedFile.id}"]` },
           { name: 'x-user-jwt', value: token },
         ],
         fileId: preparedFile.id,

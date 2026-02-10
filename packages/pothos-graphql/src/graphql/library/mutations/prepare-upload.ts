@@ -1,7 +1,10 @@
+import { GraphQLError } from 'graphql/error'
+
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('prepareUpload', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
@@ -22,12 +25,19 @@ builder.mutationField('prepareUpload', (t) =>
       }),
     },
     nullable: false,
-    resolve: async (query, _source, { data }, context) => {
-      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
-      return await prisma.aiLibraryFile.create({
-        ...query,
-        data,
-      })
+    resolve: async (query, _source, { data }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
+      try {
+        return await prisma.aiLibraryFile.create({
+          ...query,
+          data,
+        })
+      } catch (error) {
+        logger.error('Error preparing file upload', { error, data, userId: session.user.id, workspaceId })
+        throw new GraphQLError(
+          'Error preparing file upload: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        )
+      }
     },
   }),
 )

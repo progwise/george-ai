@@ -17,7 +17,7 @@ export async function htmlToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[HTML Converter] Starting conversion', parameters)
 
   const { workspaceId, libraryId, fileId } = parameters
-  const sourceStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: sourceStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

@@ -122,7 +122,7 @@ describe
           console.log('Handling direct model call event:', { event })
           const healtyService = await providerHealth.getProviderInstanceForDirectCall({
             workspaceId: TEST_WORKSPACE_ID,
-            provider: 'ollama',
+            modelProvider: 'ollama',
             modelName: TEST_CONFIG.ollama.embeddingModelName!,
           })
           if (!healtyService) {

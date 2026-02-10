@@ -22,9 +22,13 @@ const aiLibraryDetailQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .inputValidator((data: unknown) => ({
-    libraryId: z.string().nonempty().parse(data),
-  }))
+  .inputValidator((data: unknown) => {
+    return z
+      .object({
+        libraryId: z.string(),
+      })
+      .parse(data)
+  })
   .handler(async ({ data }) => {
     const { library } = await backendRequest(aiLibraryDetailQueryDocument, data)
     return library

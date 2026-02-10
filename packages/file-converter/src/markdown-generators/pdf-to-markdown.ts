@@ -32,7 +32,7 @@ export async function pdfToMarkdown(parameters: FileConverterParameters) {
   const { workspaceId, libraryId, fileId, timeoutSignal } = parameters
   logger.debug('Starting PDF conversion', { workspaceId, libraryId, fileId })
 
-  const sourceStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: sourceStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

@@ -15,6 +15,7 @@ export const queryKeys = {
   EventProcessingStatus: 'EventProcessingStatus',
   Extraction: 'Extraction',
   File: 'File',
+  FileChunks: 'FileChunks',
   FileManifest: 'FileManifest',
   FileUsages: 'FileUsages',
   ModelProviders: 'ModelProviders',

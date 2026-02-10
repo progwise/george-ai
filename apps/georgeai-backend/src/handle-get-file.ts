@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { pipeline } from 'stream/promises'
 
 import { getExtractionMethod } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
@@ -22,6 +23,11 @@ export const handleGetFile = async (request: Request, response: Response) => {
   logger.debug('Received request for library file', { libraryId, fileId, extractionMethod, fragment })
 
   const context = await getUserContextFromExpressRequest(request)
+
+  logger.debug('User context extracted from request', {
+    userId: context.session?.user?.id,
+    workspaceId: context.workspaceId,
+  })
 
   if (!context.session?.user) {
     response.status(401).end()
@@ -84,14 +90,30 @@ export const handleGetFile = async (request: Request, response: Response) => {
     return
   }
 
-  const sourceFileStream = await workspaceStorage.readSource(context.workspaceId, {
+  const { stream: sourceFileStream, fileSize } = await workspaceStorage.readSource(context.workspaceId, {
     libraryId,
     fileId,
   })
 
+  logger.debug('Serving source file stream', { libraryId, fileId, workspaceId: context.workspaceId, file })
+
   response.setHeader('Content-Type', file.mimeType || 'application/octet-stream')
   response.setHeader('Content-Disposition', `attachment; filename="${file.fileName}"`)
-  response.setHeader('Content-Length', file.usage.sourceBytes)
+  response.setHeader('Content-Length', fileSize)
 
-  sourceFileStream.pipe(response)
+  try {
+    logger.debug('Piping source file stream to response', { libraryId, fileId, workspaceId: context.workspaceId })
+    await pipeline(sourceFileStream, response)
+    logger.debug('Finished piping source file stream to response', {
+      libraryId,
+      fileId,
+      workspaceId: context.workspaceId,
+    })
+  } catch (error) {
+    logger.error('Error streaming file to response', { libraryId, fileId, workspaceId: context.workspaceId, error })
+    if (!response.headersSent) {
+      response.status(500)
+    }
+    throw error
+  }
 }

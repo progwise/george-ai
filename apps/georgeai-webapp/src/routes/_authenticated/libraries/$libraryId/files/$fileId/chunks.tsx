@@ -12,12 +12,12 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   validateSearch: z.object({
     skipChunks: z.coerce.number().default(0),
     takeChunks: z.coerce.number().default(20),
-    part: z.coerce.number().optional(),
+    fragment: z.coerce.number().optional(),
   }),
-  loaderDeps: ({ search: { skipChunks, takeChunks, part } }) => ({
+  loaderDeps: ({ search: { skipChunks, takeChunks, fragment } }) => ({
     skipChunks,
     takeChunks,
-    part,
+    fragment,
   }),
   loader: async ({ context, params, deps }) => {
     await Promise.all([
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
           fileId: params.fileId,
           skip: deps.skipChunks,
           take: deps.takeChunks,
-          part: deps.part,
+          fragment: deps.fragment,
         }),
       ),
       context.queryClient.ensureQueryData(getFileQueryOptions(params)),
@@ -37,7 +37,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const { fileId, libraryId } = Route.useParams()
-  const { skipChunks, takeChunks, part } = Route.useSearch()
+  const { skipChunks, takeChunks, fragment } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { data: aiFileChunks } = useSuspenseQuery(
     getFileChunksQueryOptions({
@@ -45,7 +45,7 @@ function RouteComponent() {
       fileId,
       skip: skipChunks,
       take: takeChunks,
-      part,
+      fragment,
     }),
   )
 
@@ -65,7 +65,7 @@ function RouteComponent() {
         <h3 className="text-xl font-bold">
           Chunk {skipChunks + 1} - {Math.min(skipChunks + takeChunks, aiFileChunks.totalCount)} of{' '}
           {aiFileChunks.totalCount} Chunks
-          {part !== undefined && <span className="ml-2 badge badge-primary">Part {part}</span>}
+          {fragment !== undefined && <span className="ml-2 badge badge-primary">Fragment {fragment}</span>}
         </h3>
 
         <div className="flex items-end gap-2">
@@ -80,14 +80,14 @@ function RouteComponent() {
               type="search"
               required
               placeholder="Part#"
-              value={part ?? ''}
+              value={fragment ?? ''}
               onChange={(e) => {
                 const value = e.target.value
                 navigate({
                   search: {
                     skipChunks: 0,
                     takeChunks,
-                    part: value ? parseInt(value, 10) : undefined,
+                    fragment: value ? parseInt(value, 10) : undefined,
                   },
                 })
               }}
@@ -99,11 +99,11 @@ function RouteComponent() {
             currentPage={1 + skipChunks / takeChunks}
             onPageChange={(page) => {
               // TODO: Add prefetching here
-              navigate({ search: { skipChunks: (page - 1) * takeChunks, takeChunks, part } })
+              navigate({ search: { skipChunks: (page - 1) * takeChunks, takeChunks, fragment } })
             }}
             showPageSizeSelector={true}
             onPageSizeChange={(newPageSize) => {
-              navigate({ search: { skipChunks: 0, takeChunks: newPageSize, part } })
+              navigate({ search: { skipChunks: 0, takeChunks: newPageSize, fragment } })
             }}
           />
         </div>

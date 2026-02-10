@@ -26,15 +26,15 @@ export function addUsages(summands: StorageUsage[]): StorageUsage {
 
 export function subtractUsage(minuend: StorageUsage, subtrahend: StorageUsage): StorageUsage {
   return {
-    sourceBytes: minuend.sourceBytes - subtrahend.sourceBytes,
-    extractedBytes: minuend.extractedBytes - subtrahend.extractedBytes,
-    physicalBytes: minuend.physicalBytes - subtrahend.physicalBytes,
-    sourceFiles: minuend.sourceFiles - subtrahend.sourceFiles,
-    extractionFiles: minuend.extractionFiles - subtrahend.extractionFiles,
-    physicalFiles: minuend.physicalFiles - subtrahend.physicalFiles,
-    extractions: minuend.extractions - subtrahend.extractions,
-    activeExtractions: minuend.activeExtractions - subtrahend.activeExtractions,
-    activeExtractedBytes: minuend.activeExtractedBytes - subtrahend.activeExtractedBytes,
+    sourceBytes: Math.max(0, minuend.sourceBytes - subtrahend.sourceBytes),
+    extractedBytes: Math.max(0, minuend.extractedBytes - subtrahend.extractedBytes),
+    physicalBytes: Math.max(0, minuend.physicalBytes - subtrahend.physicalBytes),
+    sourceFiles: Math.max(0, minuend.sourceFiles - subtrahend.sourceFiles),
+    extractionFiles: Math.max(0, minuend.extractionFiles - subtrahend.extractionFiles),
+    physicalFiles: Math.max(0, minuend.physicalFiles - subtrahend.physicalFiles),
+    extractions: Math.max(0, minuend.extractions - subtrahend.extractions),
+    activeExtractions: Math.max(0, minuend.activeExtractions - subtrahend.activeExtractions),
+    activeExtractedBytes: Math.max(0, minuend.activeExtractedBytes - subtrahend.activeExtractedBytes),
     lastUpdate: new Date().toISOString(),
   }
 }

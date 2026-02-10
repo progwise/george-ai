@@ -8,9 +8,12 @@ import { getFileDir } from './directories'
 
 const { access } = promises
 
-export async function readSource(workspaceId: string, args: { libraryId: string; fileId: string }): Promise<Readable> {
+export async function readSource(
+  workspaceId: string,
+  args: { libraryId: string; fileId: string },
+): Promise<{ stream: Readable; fileSize: number }> {
   const { libraryId, fileId } = args
-  const fileDir = await getFileDir(workspaceId, libraryId, fileId)
+  const fileDir = getFileDir(workspaceId, libraryId, fileId)
   const filePath = path.join(fileDir, SOURCE_FILE_NAME)
 
   try {
@@ -24,7 +27,10 @@ export async function readSource(workspaceId: string, args: { libraryId: string;
     throw err
   }
 
-  // 2. Return the stream
+  // 2. Get actual file size from filesystem
+  const fileStats = await promises.lstat(filePath)
+
+  // 3. Return the stream
   const fileStream = createReadStream(filePath)
 
   // 3. Handle stream-level errors (e.g., file system disconnects mid-read)
@@ -32,5 +38,17 @@ export async function readSource(workspaceId: string, args: { libraryId: string;
     logger.error('Stream error for file', { fileId, libraryId, workspaceId, error: error })
   })
 
-  return fileStream
+  fileStream.on('open', () => {
+    logger.debug('Stream opened for file', { fileId, libraryId, workspaceId })
+  })
+
+  fileStream.on('close', () => {
+    logger.debug('Stream closed for file', { fileId, libraryId, workspaceId })
+  })
+
+  fileStream.on('end', () => {
+    logger.debug('Stream ended for file', { fileId, libraryId, workspaceId })
+  })
+
+  return { stream: fileStream, fileSize: fileStats.size }
 }

@@ -450,6 +450,7 @@ type AiLibrary {
   updatedAt: DateTime!
   url: String
   workspace: Workspace!
+  workspaceId: String!
 }
 
 type AiLibraryCrawler {
@@ -1741,8 +1742,6 @@ type Query {
     fragment: Int
     libraryId: String
     maxResults: Int = 20
-    modelName: String!
-    modelProvider: ModelProvider!
     term: String
   ): [SimilarChunkResult!]!
   user(email: String!): User

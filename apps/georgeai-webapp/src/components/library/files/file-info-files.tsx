@@ -40,7 +40,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
     return <div className="text-error">{t('errors.unableToFetchFile')}</div>
   }
 
-  const fileUrl = new URL(`${backendPublicUrl}/files/${file.libraryId}/${file.id}`)
+  const fileUrl = new URL(`${backendPublicUrl}/library-files/${file.libraryId}/${file.id}`)
   const fileName = file.name || 'unknown'
   return (
     <ul className="menu w-xs menu-xs rounded-box bg-base-200 shadow-lg">

@@ -13,23 +13,24 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   validateSearch: z.object({
     term: z.string().optional(),
     hits: z.coerce.number().default(20),
-    part: z.coerce.number().optional(),
+    fragment: z.coerce.number().optional(),
     query: z.coerce.boolean().default(false),
   }),
-  loaderDeps: ({ search: { hits, term, part, query } }) => ({
+  loaderDeps: ({ search: { hits, term, fragment, query } }) => ({
     hits,
     term,
-    part,
+    fragment,
     query,
   }),
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
         getSimilarFileChunksQueryOptions({
+          libraryId: params.libraryId,
           fileId: params.fileId,
           term: deps.term,
           hits: deps.hits,
-          part: deps.part,
+          fragment: deps.fragment,
         }),
       ),
       context.queryClient.ensureQueryData(getFileQueryOptions(params)),
@@ -40,15 +41,16 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const termInputRef = useRef<HTMLTextAreaElement>(null)
-  const { fileId } = Route.useParams()
-  const { hits, term, part, query } = Route.useSearch()
+  const { fileId, libraryId } = Route.useParams()
+  const { hits, term, fragment, query } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { data: similarChunks } = useQuery(
     getSimilarFileChunksQueryOptions({
+      libraryId,
       fileId,
       term: term,
       hits: hits,
-      part: part,
+      fragment: fragment,
     }),
   )
 
@@ -64,7 +66,7 @@ function RouteComponent() {
     if (!termInputRef.current) return
     const term = termInputRef.current.value.trim()
     if (!term || term.length === 0) return
-    await navigate({ search: { term, hits, part, query } })
+    await navigate({ search: { term, hits, fragment, query } })
   }
 
   const handleTermKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -88,7 +90,7 @@ function RouteComponent() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-base-content">
               Similarity
-              {part !== undefined && <span className="ml-2 badge badge-primary">Part {part}</span>}
+              {fragment !== undefined && <span className="ml-2 badge badge-primary">Fragment {fragment}</span>}
             </h1>
             <p className="mt-2 text-base-content/70">Find semantically similar content in your documents</p>
           </div>
@@ -104,14 +106,14 @@ function RouteComponent() {
                 type="search"
                 required
                 placeholder="Part#"
-                value={part ?? ''}
+                value={fragment ?? ''}
                 onChange={(e) => {
                   const value = e.target.value
                   navigate({
                     search: {
                       term,
                       hits,
-                      part: value ? parseInt(value, 10) : undefined,
+                      fragment: value ? parseInt(value, 10) : undefined,
                       query,
                     },
                   })
@@ -127,7 +129,7 @@ function RouteComponent() {
                   search: {
                     term,
                     hits: newHits,
-                    part,
+                    fragment,
                     query,
                   },
                 })
@@ -148,7 +150,7 @@ function RouteComponent() {
                     search: {
                       term,
                       hits,
-                      part,
+                      fragment,
                       query: !e.target.checked,
                     },
                   })
@@ -202,7 +204,7 @@ function RouteComponent() {
                             onClick={async () => {
                               if (!termInputRef.current) return
                               termInputRef.current.value = cq.contentQuery || ''
-                              await navigate({ search: { term: cq.contentQuery || '', hits, part, query } })
+                              await navigate({ search: { term: cq.contentQuery || '', hits, fragment, query } })
                             }}
                           >
                             Take

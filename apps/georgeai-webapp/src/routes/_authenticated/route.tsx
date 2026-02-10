@@ -76,22 +76,40 @@ function RouteComponent() {
             {/* Status checklist */}
             <div className="mb-6 space-y-2">
               <div className="flex items-center gap-2">
-                {migrationStatus.storageVersion ? (
+                {migrationStatus.storageVersion === 1 ? (
                   <CheckIcon className="size-5 text-success" />
                 ) : (
                   <ExclamationIcon className="size-5 text-warning" />
                 )}
                 <span className={migrationStatus.storageVersion ? 'text-base-content/70' : ''}>File Storage</span>
-                {migrationStatus.storageVersion && <span className="badge badge-sm badge-success">Ready</span>}
+                {migrationStatus.storageVersion === 1 ? (
+                  <span className="badge badge-sm badge-success">
+                    Ready (Version {migrationStatus.storageVersion} )
+                  </span>
+                ) : (
+                  <span className="badge badge-sm badge-warning">
+                    Outdated (Version {migrationStatus.storageVersion})
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                {migrationStatus.vectorStoreVersion ? (
+                {migrationStatus.vectorStoreVersion === 1 ? (
                   <CheckIcon className="size-5 text-success" />
                 ) : (
                   <ExclamationIcon className="size-5 text-warning" />
                 )}
-                <span className={migrationStatus.vectorStoreVersion ? 'text-base-content/70' : ''}>Search Index</span>
-                {migrationStatus.vectorStoreVersion && <span className="badge badge-sm badge-success">Ready</span>}
+                <span className={migrationStatus.vectorStoreVersion === 1 ? 'text-base-content/70' : ''}>
+                  Search Index
+                </span>
+                {migrationStatus.vectorStoreVersion === 1 ? (
+                  <span className="badge badge-sm badge-success">
+                    Ready (Version {migrationStatus.vectorStoreVersion})
+                  </span>
+                ) : (
+                  <span className="badge badge-sm badge-warning">
+                    Outdated (Version {migrationStatus.vectorStoreVersion})
+                  </span>
+                )}
               </div>
             </div>
 

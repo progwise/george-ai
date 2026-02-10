@@ -477,6 +477,7 @@ export type AiLibrary = {
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
   workspace: Workspace
+  workspaceId: Scalars['String']['output']
 }
 
 export type AiLibraryCrawler = {
@@ -2338,8 +2339,6 @@ export type QuerySimilarChunksArgs = {
   fragment?: InputMaybe<Scalars['Int']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
   maxResults?: InputMaybe<Scalars['Int']['input']>
-  modelName: Scalars['String']['input']
-  modelProvider: ModelProvider
   term?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -5134,10 +5133,8 @@ export type GetSimilarChunksQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
   fileId: Scalars['String']['input']
   term?: InputMaybe<Scalars['String']['input']>
-  maxResults: Scalars['Int']['input']
+  hits: Scalars['Int']['input']
   fragment?: InputMaybe<Scalars['Int']['input']>
-  modelProvider: ModelProvider
-  modelName: Scalars['String']['input']
 }>
 
 export type GetSimilarChunksQuery = {
@@ -5388,7 +5385,12 @@ export type PrepareDesktopFileMutationVariables = Exact<{
 
 export type PrepareDesktopFileMutation = {
   __typename?: 'Mutation'
-  prepareUpload: { __typename?: 'AiLibraryFile'; id: string }
+  prepareUpload: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    libraryId: string
+    library: { __typename?: 'AiLibrary'; workspaceId: string }
+  }
 }
 
 export type CancelFileUploadMutationVariables = Exact<{
@@ -17752,23 +17754,13 @@ export const GetSimilarChunksDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxResults' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fragment' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'modelProvider' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ModelProvider' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'modelName' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -17796,22 +17788,12 @@ export const GetSimilarChunksDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'maxResults' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxResults' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hits' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fragment' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fragment' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'modelProvider' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'modelProvider' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'modelName' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'modelName' } },
               },
             ],
             selectionSet: {
@@ -18747,7 +18729,18 @@ export const PrepareDesktopFileDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } }],
+                  },
+                },
+              ],
             },
           },
         ],

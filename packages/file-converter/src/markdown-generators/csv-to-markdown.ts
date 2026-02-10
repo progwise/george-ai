@@ -60,7 +60,7 @@ export async function csvToMarkdown(parameters: FileConverterParameters) {
 
   const { workspaceId, libraryId, fileId } = parameters
 
-  const readFileStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: readFileStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

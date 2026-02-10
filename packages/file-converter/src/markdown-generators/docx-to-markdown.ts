@@ -40,7 +40,7 @@ export async function docxToMarkdown(parameters: FileConverterParameters) {
 
   const { workspaceId, libraryId, fileId } = parameters
 
-  const readStream = await workspaceStorage.readSource(workspaceId, {
+  const { stream: readStream } = await workspaceStorage.readSource(workspaceId, {
     libraryId,
     fileId,
   })

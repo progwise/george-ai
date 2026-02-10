@@ -19,11 +19,11 @@ export async function initializeProviderHealthBucket() {
 
 async function getProviderInstancesHealth(parameters: {
   workspaceId: string
-  provider: ModelProvider
+  modelProvider: ModelProvider
 }): Promise<ProviderHealth[]> {
-  const { workspaceId, provider } = parameters
+  const { workspaceId, modelProvider } = parameters
 
-  const filter = getWildcardKey({ workspaceId, provider })
+  const filter = getWildcardKey({ workspaceId, modelProvider })
   const keys = await eventClient.getKeys({
     bucketName: PROVIDER_HEALTH_BUCKET_NAME,
     filter,
@@ -47,11 +47,11 @@ async function getProviderInstancesHealth(parameters: {
 
 async function getProviderInstanceForDirectCall(parameters: {
   workspaceId: string
-  provider: ModelProvider
+  modelProvider: ModelProvider
   modelName: string
 }): Promise<ProviderHealth | null> {
-  const { workspaceId, provider, modelName } = parameters
-  const allHealth = await getProviderInstancesHealth({ workspaceId, provider })
+  const { workspaceId, modelProvider, modelName } = parameters
+  const allHealth = await getProviderInstancesHealth({ workspaceId, modelProvider })
   const suitableInstances = allHealth.filter(
     (health) => health.status === 'healthy' && health.availableModelNames?.includes(modelName),
   )
@@ -68,7 +68,7 @@ async function getProviderInstanceForDirectCall(parameters: {
 async function writeProviderInstanceHealth(health: ProviderHealth): Promise<void> {
   const key = getKey({
     workspaceId: health.workspaceId,
-    provider: health.providerInstance.modelProvider,
+    modelProvider: health.providerInstance.modelProvider,
     providerInstanceId: health.providerInstance.id,
   })
   const valueBytes = new TextEncoder().encode(JSON.stringify(health))

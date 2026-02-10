@@ -23,14 +23,14 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  if (!Array.isArray(uploadToken) || uploadToken.length !== 2) {
+  const [libraryId, fileId] = JSON.parse(String(uploadToken))
+  if (!libraryId || !fileId) {
+    logger.error('Invalid x-upload-token header format', { uploadToken })
     httpResponse
       .status(400)
       .send('Bad Request: x-upload-token headers must be an array with 2 elements [libraryId, fileId]')
     return
   }
-
-  const [libraryId, fileId] = uploadToken
 
   // Try JWT or Bearer token authentication
   const context = await getUserContextFromExpressRequest(httpRequest)
@@ -38,13 +38,13 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
   const userId = context.session?.user?.id
 
   if (!userId) {
-    logger.warn('Unauthorized upload attempt with token to upload file', uploadToken)
+    logger.warn('Unauthorized upload attempt with token to upload file', { uploadToken })
     httpResponse.status(401).end()
     return
   }
 
   if (!context.workspaceId) {
-    logger.warn('Forbidden upload attempt to workspace-less context for file', uploadToken)
+    logger.warn('Forbidden upload attempt to workspace-less context for file', { uploadToken })
     httpResponse.status(403).end()
     return
   }
@@ -54,7 +54,15 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     fileId,
   })
 
+  logger.debug('Received upload request', { uploadToken, userId, workspaceId: context.workspaceId, fileInfo })
+
   if (!fileInfo || !fileInfo.createdAt) {
+    logger.warn('File info not found for upload token', {
+      uploadToken,
+      libraryId,
+      fileId,
+      workspaceId: context.workspaceId,
+    })
     httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
     return
   }
