@@ -16,7 +16,7 @@ import {
 describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || !process.env.MODEL_NAME_EMBEDDING)(
   'ollama-api integration tests',
   () => {
-    const instance = { apiUrl: process.env.OLLAMA_BASE_URL!, apiKey: process.env.OLLAMA_API_KEY }
+    const instance = { baseUrl: process.env.OLLAMA_BASE_URL!, apiKey: process.env.OLLAMA_API_KEY }
     const modelNameVL = process.env.MODEL_NAME_VL!
     const modelNameEmbedding = process.env.MODEL_NAME_EMBEDDING!
     const modelNameChat = process.env.MODEL_NAME_CHAT!
@@ -205,7 +205,7 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
       }, 10000)
 
       it('should throw error for invalid endpoints', async () => {
-        const invalidInstance = { apiUrl: 'http://localhost:99999' }
+        const invalidInstance = { baseUrl: 'http://localhost:99999' }
         await expect(getOllamaVersion(invalidInstance)).rejects.toThrow()
       }, 5000)
     })

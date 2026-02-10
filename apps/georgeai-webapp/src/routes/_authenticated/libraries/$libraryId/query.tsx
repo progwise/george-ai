@@ -79,7 +79,7 @@ function RouteComponent() {
       <div className="overflow-auto">
         <LibraryQueryResult
           libraryId={libraryId}
-          hits={hits.hits}
+          hits={hits.results}
           offset={skip}
           searchTerm={query ?? '*'}
           hitCount={hits.hitCount}

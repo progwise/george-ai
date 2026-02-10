@@ -1,7 +1,7 @@
 import { eventClient } from '../client'
 import { ModelProviderInstance } from '../model-provider/schema'
 import providerHealth from '../provider-health'
-import { MODEL_CALLS_STREAM_NAME, getBatchConsumerGlobPattern, logger } from './common'
+import { MODEL_CALLS_STREAM_NAME, getConsumerGlobPattern, logger } from './common'
 import { ModelCall, ModelCallSchema } from './schema'
 
 export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
@@ -12,7 +12,7 @@ export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
   const subscribedConsumerCleanups = new Map<string, () => Promise<void>>()
   const cleanup = await eventClient.startWorkerLoop({
     streamName: MODEL_CALLS_STREAM_NAME,
-    consumerGlobPattern: getBatchConsumerGlobPattern({}),
+    consumerGlobPattern: getConsumerGlobPattern({}),
     handler: async ({ payload }) => {
       try {
         const decoded = new TextDecoder().decode(payload)

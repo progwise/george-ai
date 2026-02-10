@@ -1,11 +1,11 @@
-import { VectorStore } from '../interface'
 import { createWorkspace } from './create-workspace'
 import { existsWorkspace } from './exists-workspace'
 import { findSimilarChunks } from './find-similar-chunks'
 import { getChunkCount } from './get-chunk-count'
 import { getChunks } from './get-chunks'
-import { getEmbeddingInfo } from './get-embedding-info'
 import { getEmbeddingModelNames } from './get-embedding-model-names'
+import { type EmbeddingStatistic, getEmbeddingStatistics } from './get-embedding-statistics'
+import { getWorkspace } from './get-workspace'
 import { queryChunks } from './query-chunks'
 import { readChunks } from './read-chunks'
 import { removeChunks } from './remove-chunks'
@@ -14,12 +14,14 @@ import { removeWorkspace } from './remove-workspace'
 import { upsertChunks } from './upsert-chunks'
 import { upsertEmbeddings } from './upsert-embeddings'
 
+export type { EmbeddingStatistic }
 export default {
   createWorkspace,
   existsWorkspace,
+  getWorkspace,
   removeWorkspace,
   getEmbeddingModelNames,
-  getEmbeddingInfo,
+  getEmbeddingStatistics,
   getChunkCount,
   upsertChunks,
   removeChunks,
@@ -29,4 +31,4 @@ export default {
   removeEmbeddings,
   findSimilarChunks,
   queryChunks,
-} as VectorStore
+}

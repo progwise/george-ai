@@ -153,7 +153,7 @@ const OpenAIStreamChunkSchema = z.object({
 export type OpenAIStreamChunk = z.infer<typeof OpenAIStreamChunkSchema>
 
 interface FetchParams {
-  url?: string
+  baseUrl?: string | null
   apiKey: string
 }
 
@@ -166,7 +166,7 @@ async function openAIApiGet<T>(
   try {
     response = await pRetry(
       () =>
-        fetch(`${instance.url}${endpoint}`, {
+        fetch(`${instance.baseUrl}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${instance.apiKey}`,
             'Content-Type': 'application/json',
@@ -179,9 +179,9 @@ async function openAIApiGet<T>(
     logger.warn('Network error connecting to OpenAI:', {
       error: errorMessage,
       endpoint,
-      url: instance.url,
+      url: instance.baseUrl,
     })
-    throw new Error(`Network error connecting to OpenAI at ${instance.url}: ${errorMessage}\nEndpoint: ${endpoint}`)
+    throw new Error(`Network error connecting to OpenAI at ${instance.baseUrl}: ${errorMessage}\nEndpoint: ${endpoint}`)
   }
 
   if (!response.ok) {
@@ -196,11 +196,11 @@ async function openAIApiGet<T>(
       statusText: response.statusText,
       responseText,
       endpoint,
-      url: instance.url,
+      url: instance.baseUrl,
     })
     throw new Error(
       `Failed to fetch OpenAI API: ${response.status} ${response.statusText}\n` +
-        `Endpoint: ${endpoint}\nURL: ${instance.url}\n` +
+        `Endpoint: ${endpoint}\nURL: ${instance.baseUrl}\n` +
         `Response: ${responseText}`,
     )
   }
@@ -219,7 +219,7 @@ async function openAIApiPost<T>(
   try {
     response = await pRetry(
       () =>
-        fetch(`${instance.url}${endpoint}`, {
+        fetch(`${instance.baseUrl}${endpoint}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${instance.apiKey}`,
@@ -234,9 +234,9 @@ async function openAIApiPost<T>(
     logger.warn('Network error connecting to OpenAI:', {
       error: errorMessage,
       endpoint,
-      url: instance.url,
+      url: instance.baseUrl,
     })
-    throw new Error(`Network error connecting to OpenAI at ${instance.url}: ${errorMessage}\nEndpoint: ${endpoint}`)
+    throw new Error(`Network error connecting to OpenAI at ${instance.baseUrl}: ${errorMessage}\nEndpoint: ${endpoint}`)
   }
 
   if (!response.ok) {
@@ -251,11 +251,11 @@ async function openAIApiPost<T>(
       statusText: response.statusText,
       responseText,
       endpoint,
-      url: instance.url,
+      url: instance.baseUrl,
     })
     throw new Error(
       `Failed to POST OpenAI API: ${response.status} ${response.statusText}\n` +
-        `Endpoint: ${endpoint}\nURL: ${instance.url}\n` +
+        `Endpoint: ${endpoint}\nURL: ${instance.baseUrl}\n` +
         `Response: ${responseText}`,
     )
   }
@@ -301,7 +301,7 @@ export async function getChatResponseStream(
     // Use pRetry for resilience against transient API errors
     response = await pRetry(
       () =>
-        fetch(`${params.url}/chat/completions`, {
+        fetch(`${params.baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${params.apiKey}`,
@@ -322,9 +322,11 @@ export async function getChatResponseStream(
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.warn('Network error connecting to OpenAI for chat completion:', {
       error: errorMessage,
-      url: params.url,
+      url: params.baseUrl,
     })
-    throw new Error(`Network error connecting to OpenAI at ${params.url}: ${errorMessage}\nEndpoint: /chat/completions`)
+    throw new Error(
+      `Network error connecting to OpenAI at ${params.baseUrl}: ${errorMessage}\nEndpoint: /chat/completions`,
+    )
   }
 
   if (!response.ok) {
@@ -338,11 +340,11 @@ export async function getChatResponseStream(
       status: response.status,
       statusText: response.statusText,
       responseText,
-      url: params.url,
+      url: params.baseUrl,
     })
     throw new Error(
       `Failed to fetch OpenAI chat completion stream: ${response.status} ${response.statusText}\n` +
-        `URL: ${params.url}\n` +
+        `URL: ${params.baseUrl}\n` +
         `Response: ${responseText}`,
     )
   }
@@ -416,7 +418,7 @@ export async function getChatResponseStream(
             const commonChunk: ChatCompletionStreamChunk = {
               chunk: streamChunk.delta.content || streamChunk.delta.reasoning_content || '',
               metadata: {
-                instanceUrl: params.url,
+                instanceUrl: params.baseUrl,
                 promptTokens: streamChunk.usage?.prompt_tokens,
                 completionTokens: streamChunk.usage?.completion_tokens,
                 tokensProcessed: streamChunk.usage?.total_tokens,
@@ -440,7 +442,7 @@ export async function getChatResponseStream(
             const commonChunk: ChatCompletionStreamChunk = {
               chunk: '',
               metadata: {
-                instanceUrl: params.url,
+                instanceUrl: params.baseUrl,
                 promptTokens: streamChunk.usage?.prompt_tokens,
                 completionTokens: streamChunk.usage?.completion_tokens,
                 tokensProcessed: streamChunk.usage?.total_tokens,

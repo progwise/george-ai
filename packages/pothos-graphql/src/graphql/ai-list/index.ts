@@ -9,7 +9,9 @@ import { getExtractionMethod } from '@george-ai/app-commons'
 import { workspaceStorage } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
-console.log('Setting up: AiList')
+import { logger } from '../common'
+
+logger.info('Setting up: AiList')
 
 builder.prismaObject('AiListSource', {
   name: 'AiListSource',
@@ -44,7 +46,11 @@ builder.prismaObject('AiListItem', {
     listId: t.exposeString('listId', { nullable: false }),
     sourceId: t.exposeString('sourceId', { nullable: false }),
     fileId: t.exposeString('fileId', { nullable: false }),
-    extractionMethod: t.expose('extractionMethod', { type: 'ExtractionMethod', nullable: false }),
+    extractionMethod: t.field({
+      type: 'ExtractionMethod',
+      nullable: true,
+      resolve: (item) => getExtractionMethod(item.extractionMethod),
+    }),
     fragment: t.exposeInt('fragment'),
     itemName: t.exposeString('itemName', { nullable: false }),
     list: t.relation('list', { nullable: false }),
@@ -87,7 +93,7 @@ builder.prismaObject('AiListItem', {
     }),
     chunkCount: t.withAuth({ isLoggedIn: true }).field({
       type: 'Int',
-      nullable: false,
+      nullable: true,
       resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
           where: { id: item.fileId },

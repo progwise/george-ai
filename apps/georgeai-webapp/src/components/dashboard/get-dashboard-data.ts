@@ -27,23 +27,45 @@ const dashboardDataDocument = graphql(`
         id
       }
     }
-    aiLibraries(orderBy: updatedAtDesc) {
-      id
-      name
-      filesCount
-      owner {
-        id
-      }
-      updatedAt
-    }
-    aiServiceStatus {
+    modelProviderStatus {
       instances {
         name
-        isOnline
+        url
         type
+        isOnline
+        version
+        totalVram
+        usedVram
+        runningModels {
+          name
+          size
+        }
         availableModels {
           name
+          size
         }
+        modelQueues {
+          modelName
+          queueLength
+          maxConcurrency
+          estimatedRequestSize
+        }
+      }
+      totalInstances
+      availableInstances
+      healthyInstances
+      totalMemory
+      totalUsedMemory
+      totalMaxConcurrency
+      totalQueueLength
+    }
+    libraries(sortOrder: desc, sortField: updatedAt) {
+      totalCount
+      items {
+        id
+        name
+        filesCount
+        updatedAt
       }
     }
     queueSystemStatus {

@@ -1,19 +1,26 @@
 import { Link } from '@tanstack/react-router'
 
+import { graphql } from '../../../gql'
+import { LibraryQueryResult_FileChunkFragment } from '../../../gql/graphql'
 import { FormattedMarkdown } from '../../formatted-markdown'
+
+graphql(`
+  fragment LibraryQueryResult_FileChunk on FileChunk {
+    id
+    libraryId
+    fileId
+    filename
+    extractionMethod
+    chunk
+    fragment
+    content
+  }
+`)
 
 export interface LibraryQueryParams {
   libraryId: string
   offset: number
-  hits: Array<{
-    id: string
-    docId: string
-    pageContent: string
-    docName: string
-    docPath: string
-    originUri: string
-    highlights: Array<{ field: string; snippet?: string | null }>
-  }>
+  hits: Array<LibraryQueryResult_FileChunkFragment>
   searchTerm: string
   hitCount: number
 }
@@ -32,32 +39,10 @@ export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCou
             </div>
             <div>
               <div>
-                {(() => {
-                  const highlight = hit.highlights.find((h) => h.field === 'docName')
-                  const text = highlight?.snippet || hit.docName
-                  return (
-                    <Link to="/libraries/$libraryId/files/$fileId" params={{ libraryId, fileId: hit.docId }}>
-                      <FormattedMarkdown markdown={text} className="text-sm font-semibold" />{' '}
-                    </Link>
-                  )
-                })()}
+                <Link to="/libraries/$libraryId/files/$fileId" params={{ libraryId, fileId: hit.fileId }}>
+                  <FormattedMarkdown markdown={hit.content} className="text-sm font-semibold" />{' '}
+                </Link>
               </div>
-              <div className="text-xs font-semibold opacity-60">
-                {hit.originUri ? (
-                  <a href={hit.originUri} target="_blank">
-                    {hit.originUri}
-                  </a>
-                ) : (
-                  'Source not available'
-                )}
-              </div>
-            </div>
-            <div className="list-col-wrap w-full text-xs">
-              {(() => {
-                const highlight = hit.highlights.find((h) => h.field === 'text')
-                const text = highlight?.snippet ? `...${highlight?.snippet}...` : hit.pageContent
-                return <FormattedMarkdown markdown={text} className="text-xs font-normal" />
-              })()}
             </div>
             <button type="button" className="btn btn-square btn-ghost">
               <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

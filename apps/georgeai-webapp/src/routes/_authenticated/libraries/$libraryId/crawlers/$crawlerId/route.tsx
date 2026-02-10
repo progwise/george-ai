@@ -20,9 +20,7 @@ function RouteComponent() {
   const { t, language } = useTranslation()
 
   const { libraryId, crawlerId } = Route.useParams()
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
 
   return (
     <div className="flex flex-col gap-4">

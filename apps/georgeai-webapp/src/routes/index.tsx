@@ -55,7 +55,7 @@ const Home = () => {
               <Link
                 key={queue.queueType}
                 to="/admin/queues"
-                className="stats min-w-[200px] flex-1 shadow-sm transition-shadow hover:shadow-lg"
+                className="stats min-w-50 flex-1 shadow-sm transition-shadow hover:shadow-lg"
               >
                 {queueCard}
               </Link>
@@ -63,13 +63,13 @@ const Home = () => {
           }
 
           return (
-            <div key={queue.queueType} className="stats min-w-[200px] flex-1 shadow-sm">
+            <div key={queue.queueType} className="stats min-w-50 flex-1 shadow-sm">
               {queueCard}
             </div>
           )
         })}
         {/* AI Service Instances */}
-        {data.aiServiceStatus.instances.map((instance) => {
+        {data.modelProviderStatus.instances.map((instance) => {
           const instanceCard = (
             <div className="stat py-3">
               <div className="stat-title text-sm">{instance.name}</div>
@@ -112,7 +112,7 @@ const Home = () => {
           className={`tab ${activeTab === 'libraries' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('libraries')}
         >
-          {t('dashboard.tabs.libraries')} ({data.aiLibraries.length})
+          {t('dashboard.tabs.libraries')} ({data.libraries.totalCount})
         </a>
         <button
           type="button"
@@ -157,9 +157,9 @@ const Home = () => {
                   {t('libraries.addNewButton')}
                 </button>
               </div>
-              {data.aiLibraries.length > 0 ? (
+              {data.libraries.items.length > 0 ? (
                 <ul className="space-y-2">
-                  {data.aiLibraries.map((library) => (
+                  {data.libraries.items.map((library) => (
                     <li key={library.id}>
                       <Link
                         to="/libraries/$libraryId"

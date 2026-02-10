@@ -8,11 +8,14 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import {
+  getWorkspaceEmbeddingStatisticsQueryOptions,
   getWorkspaceInvitationsQueryOptions,
   getWorkspaceMembersQueryOptions,
-  getWorkspaceStatsQueryOptions,
+  getWorkspaceProcessStatisticsQueryOptions,
+  getWorkspaceVectorStoreQueryOptions,
   getWorkspacesQueryOptions,
 } from './queries'
+import { getWorkspaceQueryOptions } from './queries/get-workspace'
 import {
   createWorkspaceFn,
   deleteWorkspaceFn,
@@ -23,7 +26,6 @@ import {
   revokeWorkspaceInvitationFn,
   setWorkspaceCookie,
   updateWorkspaceMemberRoleFn,
-  workspaceDeleteValidationQueryOptions,
 } from './server-functions'
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
@@ -37,24 +39,32 @@ export const useWorkspace = (user: UserFragment) => {
 
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
-  const { data: workspaceStats, isLoading: isLoadingWorkspaceStats } = useQuery(getWorkspaceStatsQueryOptions())
-  // Get current workspace from selection or fallback to user's default workspace
-  const currentWorkspace = useMemo(() => {
-    if (!workspaces) return null
+  const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
+    getWorkspaceEmbeddingStatisticsQueryOptions({ workspaceId: selectedWorkspaceId }),
+  )
 
-    if (selectedWorkspaceId) {
-      const workspace = workspaces.find((w: { id: string }) => w.id === selectedWorkspaceId)
-      if (workspace) return workspace
+  const { data: vectorStore, isLoading: isLoadingVectorStore } = useQuery(
+    getWorkspaceVectorStoreQueryOptions({ workspaceId: selectedWorkspaceId }),
+  )
+
+  const { data: processStatistics, isLoading: isLoadingProcessStatistics } = useQuery(
+    getWorkspaceProcessStatisticsQueryOptions({ workspaceId: selectedWorkspaceId }),
+  )
+
+  const { data: currentWorkspace, isLoading: isLoadingCurrentWorkspace } = useQuery(
+    getWorkspaceQueryOptions({ workspaceId: selectedWorkspaceId || user.defaultWorkspaceId }),
+  )
+
+  const migrationStatus = useMemo(() => {
+    if (!currentWorkspace) return null
+    const storageVersion = currentWorkspace.manifest?.version
+    const vectorStoreVersion = vectorStore?.version
+    return {
+      storageVersion: storageVersion || 'unknown',
+      vectorStoreVersion: vectorStoreVersion || 'unknown',
+      needsMigration: storageVersion !== 1 || vectorStoreVersion !== 1,
     }
-    // Fallback to user's default workspace (not first alphabetically)
-    const defaultWorkspaceId = user.defaultWorkspaceId
-    if (defaultWorkspaceId) {
-      const defaultWorkspace = workspaces.find((w: { id: string }) => w.id === defaultWorkspaceId)
-      if (defaultWorkspace) return defaultWorkspace
-    }
-    // Final fallback to first workspace (if user has no default set)
-    return workspaces[0] ?? null
-  }, [workspaces, selectedWorkspaceId, user.defaultWorkspaceId])
+  }, [currentWorkspace, vectorStore])
 
   // Set workspace and update cookie
   const setWorkspace = useCallback(
@@ -105,10 +115,6 @@ export const useWorkspace = (user: UserFragment) => {
   )
 
   const { data: members, isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(currentWorkspace?.id))
-
-  const { data: validation, isLoading: isLoadingValidation } = useQuery(
-    workspaceDeleteValidationQueryOptions(currentWorkspace?.id),
-  )
 
   const currentUserRole = useMemo(() => {
     const membership = members?.find((m) => m.user.id === user.id)
@@ -260,8 +266,10 @@ export const useWorkspace = (user: UserFragment) => {
   }
 
   return {
-    workspaces: workspaces ?? [],
-    workspaceStats,
+    migrationStatus,
+    workspaces: workspaces,
+    embeddingStatistics,
+    processStatistics,
     currentWorkspace,
     currentWorkspaceId: currentWorkspace?.id || null,
     isDefaultWorkspace,
@@ -278,11 +286,16 @@ export const useWorkspace = (user: UserFragment) => {
     updateRole: updateRoleMutation.mutate,
     migrateWorkspace: migrateWorkspaceMutation.mutate,
     validate,
-    validation,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
     isLoading:
-      isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation || isLoadingWorkspaceStats,
+      isLoadingWorkspaces ||
+      isLoadingMembers ||
+      isLoadingInvitations ||
+      isLoadingEmbeddingStatistics ||
+      isLoadingCurrentWorkspace ||
+      isLoadingProcessStatistics ||
+      isLoadingVectorStore,
     isPending:
       leaveWorkspaceMutation.isPending ||
       removeMemberMutation.isPending ||

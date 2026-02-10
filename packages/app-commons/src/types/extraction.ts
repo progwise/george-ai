@@ -1,3 +1,5 @@
+import { logger } from '../common'
+
 export const EXTRACTION_METHODS = [
   'csvExtraction',
   'docxExtraction',
@@ -14,5 +16,6 @@ export const getExtractionMethod = (value: string): ExtractionMethod | undefined
   if (EXTRACTION_METHODS.includes(value as ExtractionMethod)) {
     return value as ExtractionMethod
   }
+  logger.warn(`Invalid extraction method: ${value}`)
   return undefined
 }

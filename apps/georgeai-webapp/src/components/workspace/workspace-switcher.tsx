@@ -53,7 +53,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
   }
 
   // Hide if no workspaces available
-  if (workspaces.length === 0) {
+  if (workspaces?.totalCount === 0) {
     return null
   }
 
@@ -62,6 +62,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
     deleteDialogRef.current?.showModal()
   }
 
+  // TODO: Needs paging of workspaces
   return (
     <>
       <ul className="menu menu-horizontal items-center gap-2">
@@ -71,7 +72,7 @@ export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
               {currentWorkspace?.name ?? t('workspace.noWorkspaceSelected')}
             </summary>
             <ul role="listbox" className="right-0 max-h-96 overflow-y-auto p-2">
-              {workspaces.map((workspace: { id: string; name: string; isDefault: boolean }) => (
+              {workspaces?.items.map((workspace: { id: string; name: string; isDefault: boolean }) => (
                 <li
                   key={workspace.id}
                   className="cursor-pointer hover:bg-base-200"

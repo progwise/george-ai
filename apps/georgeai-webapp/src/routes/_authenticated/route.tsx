@@ -1,10 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { toastError } from '../../components/georgeToaster'
 import { useWorkspace } from '../../components/workspace'
-import { getWorkspaceNeedsMigrationQueryOptions } from '../../components/workspace/queries'
 import { CheckIcon } from '../../icons/check-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { RefreshIcon } from '../../icons/refresh-icon'
@@ -22,27 +20,24 @@ export const Route = createFileRoute('/_authenticated')({
     // make user in router context non nullable and add workspaceId
     return { user: context.user, workspaceId: context.workspaceId }
   },
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(getWorkspaceNeedsMigrationQueryOptions())
-  },
 })
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  const { migrateWorkspace, isPending } = useWorkspace(user)
-  const { data } = useSuspenseQuery(getWorkspaceNeedsMigrationQueryOptions())
+  const { migrateWorkspace, migrationStatus, currentWorkspace, isPending } = useWorkspace(user)
 
   useEffect(() => {
-    if (data?.needsMigration && dialogRef.current?.open !== true) {
+    if (!migrationStatus) return
+    if (migrationStatus.needsMigration && dialogRef.current?.open !== true) {
       dialogRef.current?.showModal()
     }
-  }, [data])
+  }, [migrationStatus])
 
   const handleMigrateWorkspace = () => {
-    if (!data?.id) {
-      toastError('Workspace ID is missing.')
+    if (!migrationStatus) {
+      toastError('No migration status available.')
       return
     }
     if (isPending) {
@@ -59,7 +54,7 @@ function RouteComponent() {
 
   return (
     <>
-      {data?.needsMigration && (
+      {currentWorkspace && migrationStatus?.needsMigration && (
         <dialog ref={dialogRef} className="modal" open aria-label="Migrate Workspace">
           <div className="modal-box max-w-md">
             {/* Header with icon */}
@@ -69,7 +64,7 @@ function RouteComponent() {
               </div>
               <div>
                 <h3 className="text-lg font-bold">Setup Required</h3>
-                <p className="text-sm text-base-content/70">{data?.name}</p>
+                <p className="text-sm text-base-content/70">{currentWorkspace.name}</p>
               </div>
             </div>
 
@@ -81,22 +76,22 @@ function RouteComponent() {
             {/* Status checklist */}
             <div className="mb-6 space-y-2">
               <div className="flex items-center gap-2">
-                {data?.hasWorkspaceStorage ? (
+                {migrationStatus.storageVersion ? (
                   <CheckIcon className="size-5 text-success" />
                 ) : (
                   <ExclamationIcon className="size-5 text-warning" />
                 )}
-                <span className={data?.hasWorkspaceStorage ? 'text-base-content/70' : ''}>File Storage</span>
-                {data?.hasWorkspaceStorage && <span className="badge badge-sm badge-success">Ready</span>}
+                <span className={migrationStatus.storageVersion ? 'text-base-content/70' : ''}>File Storage</span>
+                {migrationStatus.storageVersion && <span className="badge badge-sm badge-success">Ready</span>}
               </div>
               <div className="flex items-center gap-2">
-                {data?.hasVectorStore ? (
+                {migrationStatus.vectorStoreVersion ? (
                   <CheckIcon className="size-5 text-success" />
                 ) : (
                   <ExclamationIcon className="size-5 text-warning" />
                 )}
-                <span className={data?.hasVectorStore ? 'text-base-content/70' : ''}>Search Index</span>
-                {data?.hasVectorStore && <span className="badge badge-sm badge-success">Ready</span>}
+                <span className={migrationStatus.vectorStoreVersion ? 'text-base-content/70' : ''}>Search Index</span>
+                {migrationStatus.vectorStoreVersion && <span className="badge badge-sm badge-success">Ready</span>}
               </div>
             </div>
 

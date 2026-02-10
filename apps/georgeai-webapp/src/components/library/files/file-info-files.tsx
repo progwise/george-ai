@@ -1,37 +1,29 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { graphql } from '../../../gql'
-import { AiLibraryFileInfo_FilesFragment } from '../../../gql/graphql'
+import { FileInfo_FilesFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { getBackendPublicUrlQueryOptions } from '../../../queries'
 
 graphql(`
-  fragment AiLibraryFileInfo_Files on AiLibraryFile {
+  fragment FileInfo_Files on AiLibraryFile {
     id
     libraryId
-    fileInfo {
-      fileName
-      mimeType
-      originalUpdatedAt
+    name
+    manifest {
+      version
       sourceHash
-    }
-    extractions {
-      extractionMethod
-      extractionDate
-      fragmentCount
-      sourceHash
-      extractionHash
-      attachments {
-        filename
-        size
-        mimeType
+      extractions {
+        extractionMethod
+        extractionDate
+        extractionHash
       }
     }
   }
 `)
 
 interface FileInfoFilesProps {
-  file: AiLibraryFileInfo_FilesFragment
+  file: FileInfo_FilesFragment
 }
 
 export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
@@ -49,11 +41,11 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
   }
 
   const fileUrl = new URL(`${backendPublicUrl}/files/${file.libraryId}/${file.id}`)
-  const fileName = file.fileInfo?.fileName || 'unknown'
+  const fileName = file.name || 'unknown'
   return (
     <ul className="menu w-xs menu-xs rounded-box bg-base-200 shadow-lg">
       <li>
-        {file.fileInfo ? (
+        {file.manifest ? (
           <a href={`${fileUrl}`} className="link link-hover" download={fileName}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +108,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
             Screenshots & Images
           </summary>
           <ul>
-            {file.extractions.map((extraction) => (
+            {file.manifest?.extractions.map((extraction) => (
               <li key={extraction.extractionMethod}>
                 <a
                   className="link link-hover"

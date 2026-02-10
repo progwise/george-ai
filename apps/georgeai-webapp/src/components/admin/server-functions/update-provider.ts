@@ -1,12 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
-import { AiServiceProviderInput } from '../../../gql/graphql'
+import { ModelProviderInput } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 
 const updateProviderMutationDocument = graphql(`
-  mutation UpdateAiServiceProvider($id: ID!, $data: AiServiceProviderInput!) {
-    updateAiServiceProvider(id: $id, data: $data) {
+  mutation UpdateAiServiceProvider($id: ID!, $data: ModelProviderInput!) {
+    updateModelProvider(id: $id, data: $data) {
       id
       provider
       name
@@ -16,8 +16,8 @@ const updateProviderMutationDocument = graphql(`
 `)
 
 export const updateProviderFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { id: string; data: AiServiceProviderInput }) => input)
+  .inputValidator((input: { id: string; data: ModelProviderInput }) => input)
   .handler(async (ctx) => {
     const result = await backendRequest(updateProviderMutationDocument, ctx.data)
-    return result.updateAiServiceProvider
+    return result.updateModelProvider
   })

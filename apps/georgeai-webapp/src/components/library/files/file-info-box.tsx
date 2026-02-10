@@ -1,42 +1,55 @@
 import { graphql } from '../../../gql'
-import { AiLibraryFile_InfoBoxFragment } from '../../../gql/graphql'
+import { FileInfoBox_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ClientDate } from '../../client-date'
 
 graphql(`
-  fragment AiLibraryFile_InfoBox on AiLibraryFile {
-    originModificationDate
+  fragment FileInfoBox_File on AiLibraryFile {
+    id
+    libraryId
     size
+    status
+    chunkCount
+    originUri
     uploadedAt
     archivedAt
-    status
-    embeddingInfo {
-      extractionMethod
-      modelName
-      chunkCount
-    }
     crawler {
-      id
       uri
       uriType
     }
+    manifest {
+      extractions {
+        extractionMethod
+        extractionDate
+        extractionHash
+      }
+      usage {
+        sourceBytes
+        extractedBytes
+        physicalBytes
+        activeExtractions
+        lastReconcile
+      }
+    }
+    originModificationDate
   }
 `)
 
 interface FileInfoBoxProps {
-  file: AiLibraryFile_InfoBoxFragment
+  file: FileInfoBox_FileFragment
 }
 
 export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
   const { t } = useTranslation()
+
   return (
     <dl className="properties max-w-100 text-xs">
       <dt>{t('labels.size')}</dt>
       <dd>{file.size} bytes</dd>
       <dt>{t('labels.status')}</dt>
       <dd>{file.status}</dd>
-      <dt>{t('labels.chunks')}</dt>
-      <dd>{file.embeddingInfo?.reduce((acc, info) => acc + info.chunkCount, 0) ?? '-'}</dd>
+      <dt>{t('labels.chunkCount')}</dt>
+      <dd>{file.chunkCount ?? '-'}</dd>
       <dt>{t('labels.crawler')}</dt>
       <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
       <dt>{t('labels.originModified')}</dt>

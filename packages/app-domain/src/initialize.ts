@@ -1,7 +1,8 @@
 import { prisma } from '@george-ai/app-database'
-import { workspaceConfig } from '@george-ai/event-service-client'
+import { WorkspaceConfig, workspaceConfig } from '@george-ai/event-service-client'
 
 import { logger } from './common'
+import { getModelProvider } from './workspace/get-model-provider'
 
 export const initializeAppDomain = async () => {
   const workspaces = await prisma.workspace.findMany({
@@ -16,18 +17,23 @@ export const initializeAppDomain = async () => {
   const results = await Promise.allSettled(
     workspaces.map((workspace) => {
       logger.info(`Found workspace for initialization: ${workspace.id} - ${workspace.name}`)
-      const entry = workspaceConfig.WorkspaceConfigSchema.parse({
+      const entry: WorkspaceConfig = {
         workspaceId: workspace.id,
         providerInstances: workspace.aiProviders.map((provider) => ({
+          version: 1,
           id: provider.id,
-          modelProvider: provider.provider,
-          baseUrl: provider.baseUrl || undefined,
-          apiKey: provider.apiKey || undefined,
+          modelProvider: getModelProvider(provider.provider),
+          connection: {
+            version: 1,
+            baseUrl: provider.baseUrl || undefined,
+            apiKey: provider.apiKey || undefined,
+          },
         })),
         languageModels: workspace.languageModels.map((model) => ({
+          version: 1,
           id: model.id,
           name: model.name,
-          modelProvider: model.provider,
+          modelProvider: getModelProvider(model.provider),
           canDoEmbedding: model.canDoEmbedding,
           canDoChatCompletion: model.canDoChatCompletion,
           canDoVision: model.canDoVision,
@@ -35,8 +41,9 @@ export const initializeAppDomain = async () => {
         })),
         version: 1,
         lastUpdate: new Date().toISOString(),
-      })
-      return workspaceConfig.writeWorkspaceConfig(entry)
+      }
+
+      return workspaceConfig.writeWorkspaceConfig(workspaceConfig.WorkspaceConfigSchema.parse(entry))
     }),
   )
 

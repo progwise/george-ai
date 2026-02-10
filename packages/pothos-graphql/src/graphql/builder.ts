@@ -3,7 +3,7 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, STORAGE_STATUS } from '@george-ai/app-commons'
+import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, WORKSPACE_ROLES } from '@george-ai/app-commons'
 import { Prisma, getDatamodel, prisma } from '@george-ai/app-database'
 import type { PothosTypes } from '@george-ai/app-database'
 import { Context, LoggedInContext } from '@george-ai/app-domain'
@@ -18,7 +18,7 @@ import {
   LIST_FIELD_SOURCE_TYPES,
   LIST_FIELD_TYPES,
 } from '../domain/list'
-import { GeorgeTypes } from './george-types'
+import { GeorgeInputTypes, GeorgeObjectTypes } from './common'
 
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
@@ -30,8 +30,13 @@ const builder = new SchemaBuilder<{
   AuthContexts: {
     isLoggedIn: LoggedInContext
   }
-  Objects: GeorgeTypes
+  Objects: GeorgeObjectTypes
+  Inputs: GeorgeInputTypes
   Scalars: {
+    SortOrder: {
+      Input: 'asc' | 'desc'
+      Output: 'asc' | 'desc'
+    }
     ListFieldSourceType: {
       Input: (typeof LIST_FIELD_SOURCE_TYPES)[number]
       Output: (typeof LIST_FIELD_SOURCE_TYPES)[number]
@@ -47,10 +52,6 @@ const builder = new SchemaBuilder<{
     ListFieldContextType: {
       Input: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
       Output: (typeof LIST_FIELD_CONTEXT_TYPES)[number]
-    }
-    StorageStatus: {
-      Input: (typeof STORAGE_STATUS)[number]
-      Output: (typeof STORAGE_STATUS)[number]
     }
     EmbeddingStatus: {
       Input: (typeof EMBEDDING_STATUS)[number]
@@ -119,6 +120,10 @@ const builder = new SchemaBuilder<{
     BigInt: {
       Input: bigint
       Output: bigint
+    }
+    WorkspaceRole: {
+      Input: (typeof WORKSPACE_ROLES)[number]
+      Output: (typeof WORKSPACE_ROLES)[number]
     }
   }
 }>({

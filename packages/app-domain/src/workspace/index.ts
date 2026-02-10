@@ -4,28 +4,22 @@ import { deleteFiles } from './delete-files'
 import { deleteLibrary } from './delete-library'
 import { deleteWorkspace } from './delete-workspace'
 import { getContentHash } from './get-content-hash'
-import { FileInfo, getFileInfo } from './get-file-info'
+import { getFileInfo } from './get-file-info'
 import { getModelProvider } from './get-model-provider'
 import { getSourceFileHash } from './get-source-file-hash'
-import { getStats } from './get-stats'
-import { getWorkspaceId } from './get-workspace-id'
+import { getWorkspaceId } from './getWorkspaceId'
 import { markUploadFinished } from './mark-upload-finished'
 import { migrateWorkspace } from './migrate-workspace'
 import { processFile } from './process-file'
 import { processFiles } from './process-files'
 import { saveSourceFile } from './save-source-file'
-import { workspaceNeedsMigration } from './workspace-needs-migration'
 
-export type { FileInfo }
 export default {
   createWorkspace,
   deleteWorkspace,
   deleteLibrary,
   deleteFiles,
-  getFileInfo,
   getModelProvider,
-  getStats,
-  getWorkspaceId,
   markUploadFinished,
   saveSourceFile,
   getSourceFileHash,
@@ -33,6 +27,7 @@ export default {
   processFile,
   processFiles,
   migrateWorkspace,
-  workspaceNeedsMigration,
+  getFileInfo,
+  getWorkspaceId,
   SYSTEM_WORKSPACE_ID,
 }

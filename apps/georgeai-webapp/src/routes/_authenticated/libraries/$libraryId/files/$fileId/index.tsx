@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { EXTRACTION_METHODS } from '@george-ai/app-commons'
 
 import { ExtractionSelector, FileMarkdownViewer, useMarkdownDownload } from '../../../../../../components/library/files'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/queries'
+import { getExtractionQueryOptions, getFileQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { getBackendPublicUrlQueryOptions } from '../../../../../../queries'
@@ -22,9 +22,10 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
     extractionMethod,
     fragment,
   }),
-  loader: async ({ context, params }) => {
+  loader: async ({ context, params, deps }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
+      context.queryClient.ensureQueryData(getExtractionQueryOptions({ ...params, ...deps })),
+      context.queryClient.ensureQueryData(getFileQueryOptions(params)),
       context.queryClient.ensureQueryData(getBackendPublicUrlQueryOptions()),
     ])
   },
@@ -40,26 +41,26 @@ function RouteComponent() {
   const toggleViewMarkdownSource = () => {
     setViewMarkdownSource((prev) => !prev)
   }
-  const {
-    data: { aiLibraryFile },
-  } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
+
+  const { data: aiLibraryFile } = useSuspenseQuery(getFileQueryOptions({ fileId, libraryId }))
+
+  const { data: selectedExtraction } = useSuspenseQuery(
+    getExtractionQueryOptions({
+      fileId,
+      libraryId,
+      extractionMethod,
+      fragment,
+    }),
+  )
 
   const { data: BACKEND_PUBLIC_URL } = useSuspenseQuery(getBackendPublicUrlQueryOptions())
 
   // Check if there are no available extractions
-  const hasNoExtractions = !aiLibraryFile.extractions || aiLibraryFile.extractions.length === 0
-
-  // Select the first available extraction by default
-  const selectedExtractionMethod = extractionMethod || (aiLibraryFile.extractions?.[0]?.extractionMethod ?? undefined)
-
-  // Find the selected extraction for pagination
-  const selectedExtraction = aiLibraryFile.extractions.find(
-    (extraction) => extraction.extractionMethod === selectedExtractionMethod,
-  )
+  const hasNoExtractions = !aiLibraryFile.manifest?.extractions || aiLibraryFile.manifest.extractions.length === 0
 
   // Build URL with part parameter if specified
-  let urlToLoad = `${BACKEND_PUBLIC_URL}/library-files/${libraryId}/${fileId}?extraction=${selectedExtractionMethod}`
-  if (fragment && selectedExtraction) {
+  let urlToLoad = `${BACKEND_PUBLIC_URL}/library-files/${libraryId}/${fileId}?extraction=${extractionMethod}`
+  if (fragment) {
     // Add part as query parameter to the main file URL
     const url = new URL(urlToLoad)
     url.searchParams.set('fragment', fragment.toString())
@@ -74,7 +75,7 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ExtractionSelector
-            file={aiLibraryFile}
+            extractions={aiLibraryFile.manifest?.extractions || []}
             selectedExtractionMethod={selectedExtraction?.extractionMethod}
             onChange={(newExtractionMethod) =>
               navigate({ search: { extractionMethod: newExtractionMethod || undefined } })
@@ -84,7 +85,7 @@ function RouteComponent() {
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate({ search: { extractionMethod: selectedExtractionMethod } })}
+              onClick={() => navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod } })}
             >
               ← Back to Summary
             </button>
@@ -110,7 +111,7 @@ function RouteComponent() {
             currentPage={1}
             itemsPerPage={1}
             onPageChange={(page) =>
-              navigate({ search: { extractionMethod: selectedExtractionMethod, fragment: page } })
+              navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod, fragment: page } })
             }
           />
         </div>
@@ -123,7 +124,7 @@ function RouteComponent() {
             currentPage={fragment}
             itemsPerPage={1}
             onPageChange={(page) =>
-              navigate({ search: { extractionMethod: selectedExtractionMethod, fragment: page } })
+              navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod, fragment: page } })
             }
           />
         </div>

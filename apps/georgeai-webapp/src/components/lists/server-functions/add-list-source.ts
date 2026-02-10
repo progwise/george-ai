@@ -21,9 +21,6 @@ export const addListSource = createServerFn({ method: 'POST' })
             library {
               id
               name
-              owner {
-                name
-              }
             }
           }
         }

@@ -9,10 +9,7 @@ export async function generateEmbedding(event: EmbeddingCall, providerInstance: 
     modelProvider: providerInstance.modelProvider,
     modelName: event.modelName,
     textChunks: event.inputTexts,
-    connection: {
-      providerBaseUrl: providerInstance.baseUrl,
-      providerApiKey: providerInstance.apiKey,
-    },
+    connection: providerInstance.connection,
   })
   logger.debug('Generated embedding result', { embeddingResult })
 }

@@ -31,8 +31,8 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
     const processFiles = ctx.data.files.map(async (file) => {
       const response = await backendRequest(
         graphql(`
-          mutation prepareDesktopFile($file: AiLibraryFileInput!) {
-            prepareFileUpload(data: $file) {
+          mutation prepareDesktopFile($file: PrepareUploadInput!) {
+            prepareUpload(data: $file) {
               id
             }
           }
@@ -49,7 +49,7 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
         },
       )
 
-      const preparedFile = response.prepareFileUpload
+      const preparedFile = response.prepareUpload
 
       return {
         fileName: file.name,
@@ -80,7 +80,7 @@ export const cancelFileUploadFn = createServerFn({ method: 'POST' })
     await backendRequest(
       graphql(`
         mutation cancelFileUpload($libraryId: String!, $fileId: String!) {
-          cancelFileUpload(libraryId: $libraryId, fileId: $fileId)
+          cancelUpload(libraryId: $libraryId, fileId: $fileId)
         }
       `),
       { libraryId: data.libraryId, fileId: data.fileId },

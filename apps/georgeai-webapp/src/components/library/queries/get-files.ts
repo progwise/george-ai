@@ -20,18 +20,13 @@ const getFiles = createServerFn({ method: 'GET' })
     const result = await backendRequest(
       graphql(`
         query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {
-          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {
-            libraryId
-            library {
-              name
-              ...AiLibrary_FilesTable
-            }
-            take
-            skip
-            showArchived
-            count
+          files(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {
+            totalCount
             archivedCount
-            files {
+            items {
+              manifest {
+                version
+              }
               ...AiLibraryFile_FilesTable
             }
           }
@@ -39,7 +34,7 @@ const getFiles = createServerFn({ method: 'GET' })
       `),
       { ...ctx.data },
     )
-    return result.aiLibraryFiles
+    return result.files
   })
 
 export const getFilesQueryOptions = (params: {

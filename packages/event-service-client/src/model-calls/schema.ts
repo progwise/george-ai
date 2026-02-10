@@ -10,7 +10,6 @@ export const ModelBaseCall = z.object({
   workspaceId: z.string(),
   provider: z.enum(MODEL_PROVIDERS),
   modelName: z.string(),
-  timestamp: z.string(), // ISO date string
   modelCallType: z.enum(MODEL_CALL_TYPES),
   timeoutMs: z.number().optional(),
   replySubject: z.string().optional(),
@@ -43,7 +42,6 @@ export const ModelResponseBaseSchema = z.object({
   resultStatus: z.enum(['success', 'error']),
   errorMessage: z.string().nullable().optional(),
   providerInstanceUrl: z.string().nullable(),
-  timestamp: z.string(), // ISO date string
   processingDurationMs: z.number(),
   modelCallType: z.enum(MODEL_CALL_TYPES),
 })

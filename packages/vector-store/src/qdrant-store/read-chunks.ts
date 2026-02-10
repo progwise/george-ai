@@ -1,6 +1,6 @@
 import { ExtractionMethod } from '@george-ai/app-commons'
 
-import { VectorStoreChunk } from '../schema'
+import { FileChunk } from '../schema'
 import { getChunks } from './get-chunks'
 
 export async function* readChunks(params: {
@@ -8,7 +8,7 @@ export async function* readChunks(params: {
   libraryId: string
   fileId: string
   extractionMethod?: ExtractionMethod | null
-}): AsyncIterable<(VectorStoreChunk & { embeddingModelNames: string[] })[]> {
+}): AsyncIterable<FileChunk[]> {
   const { workspaceId, libraryId, fileId, extractionMethod } = params
 
   const batchSize = 10

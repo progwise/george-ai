@@ -1,65 +1,11 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 
 import { toastError, toastSuccess } from '../../components/georgeToaster'
+import { getWorkspaceInvitationQueryOptions } from '../../components/workspace/queries'
+import { acceptWorkspaceInvitation } from '../../components/workspace/server-functions'
 import { useWorkspace } from '../../components/workspace/use-workspace'
-import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-
-const workspaceInvitationQueryDocument = graphql(`
-  query WorkspaceInvitation($id: ID!) {
-    workspaceInvitation(id: $id) {
-      id
-      email
-      expiresAt
-      acceptedAt
-      workspace {
-        id
-        name
-      }
-      inviter {
-        name
-        email
-      }
-    }
-  }
-`)
-
-const acceptWorkspaceInvitationMutationDocument = graphql(`
-  mutation AcceptWorkspaceInvitation($invitationId: ID!) {
-    acceptWorkspaceInvitation(invitationId: $invitationId) {
-      id
-      workspace {
-        id
-        name
-      }
-    }
-  }
-`)
-
-const getWorkspaceInvitation = createServerFn({ method: 'GET' })
-  .inputValidator((input: { invitationId: string }) => input)
-  .handler(async (ctx) => {
-    const result = await backendRequest(workspaceInvitationQueryDocument, { id: ctx.data.invitationId })
-    return result.workspaceInvitation ?? null
-  })
-
-const acceptWorkspaceInvitation = createServerFn({ method: 'POST' })
-  .inputValidator((input: { invitationId: string }) => input)
-  .handler(async (ctx) => {
-    const result = await backendRequest(acceptWorkspaceInvitationMutationDocument, {
-      invitationId: ctx.data.invitationId,
-    })
-    return result.acceptWorkspaceInvitation
-  })
-
-const getWorkspaceInvitationQueryOptions = (invitationId: string) => ({
-  queryKey: [queryKeys.WorkspaceInvitations, invitationId],
-  queryFn: () => getWorkspaceInvitation({ data: { invitationId } }),
-})
 
 export const Route = createFileRoute('/_authenticated/accept-invitation/$invitationId')({
   component: AcceptInvitationPage,

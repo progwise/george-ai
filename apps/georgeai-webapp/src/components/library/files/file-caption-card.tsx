@@ -1,14 +1,14 @@
 import { graphql } from '../../../gql'
-import { AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
+import { FileCaptionCard_FileFragment } from '../../../gql/graphql'
 import { FileMenu } from './file-menu'
 import { FileNavigation } from './file-navigation'
 import { FileStatusLabels } from './file-status-labels'
 
 graphql(`
-  fragment AiLibraryFileInfo_CaptionCard on AiLibraryFile {
-    ...AiLibraryFile_FileStatusLabels
-    ...AiLibraryFileInfo_Files
-    ...AiLibraryFile_InfoBox
+  fragment FileCaptionCard_File on AiLibraryFile {
+    ...FileStatusLabels_File
+    ...FileMenu_File
+    ...FileNavigation_File
     id
     libraryId
     name
@@ -17,7 +17,7 @@ graphql(`
 `)
 
 interface FileCaptionCardProps {
-  file: AiLibraryFileInfo_CaptionCardFragment
+  file: FileCaptionCard_FileFragment
 }
 
 export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {

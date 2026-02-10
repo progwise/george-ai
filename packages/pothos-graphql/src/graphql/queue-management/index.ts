@@ -4,10 +4,9 @@ import './types'
 import './queries'
 import './mutations'
 
+import { logger } from '../common'
+
 // Queue Management GraphQL Schema
 // This module provides admin-only access to queue management functionality
 
-console.log('Setting up: Queue Management Schema')
-
-// Export types for use in other modules
-export { QueueOperationResult, QueueStatus, QueueSystemStatus, QueueType } from './types'
+logger.info('Setting up: Queue Management Schema')

@@ -1,9 +1,9 @@
 import { ModelProvider } from '@george-ai/app-commons'
 
 import { eventClient } from '../client'
-import { MODEL_CALLS_STREAM_NAME, getBatchConsumerName, getBatchConsumerSubjectFilters } from './common'
+import { MODEL_CALLS_STREAM_NAME, getConsumerName, getConsumerSubjectFilters } from './common'
 
-export const ensureProviderInstanceConsumer = async (params: {
+export const ensureModelCallConsumer = async (params: {
   workspaceId: string
   modelProvider: ModelProvider
   eventType: 'call' | 'response'
@@ -12,8 +12,8 @@ export const ensureProviderInstanceConsumer = async (params: {
   maxPendingMessages: number
 }) => {
   const { workspaceId, modelProvider, providerInstanceId, modelNames, maxPendingMessages, eventType } = params
-  const consumerName = getBatchConsumerName({ workspaceId, modelProvider, providerInstanceId, eventType })
-  const subjectFilters = getBatchConsumerSubjectFilters({ workspaceId, modelProvider, modelNames, eventType })
+  const consumerName = getConsumerName({ workspaceId, modelProvider, providerInstanceId, eventType })
+  const subjectFilters = getConsumerSubjectFilters({ workspaceId, modelProvider, modelNames, eventType })
   await eventClient.ensureConsumer({
     streamName: MODEL_CALLS_STREAM_NAME,
     consumerName,
@@ -24,13 +24,13 @@ export const ensureProviderInstanceConsumer = async (params: {
   })
 }
 
-export const deleteProviderInstanceConsumer = async (params: {
+export const deleteModelCallConsumer = async (params: {
   workspaceId: string
   modelProvider: ModelProvider
   eventType: 'call' | 'response'
   providerInstanceId: string
 }) => {
   const { workspaceId, modelProvider, providerInstanceId, eventType } = params
-  const consumerName = getBatchConsumerName({ workspaceId, modelProvider, providerInstanceId, eventType })
+  const consumerName = getConsumerName({ workspaceId, modelProvider, providerInstanceId, eventType })
   await eventClient.deleteConsumer({ streamName: MODEL_CALLS_STREAM_NAME, consumerName })
 }

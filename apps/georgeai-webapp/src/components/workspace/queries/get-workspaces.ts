@@ -8,12 +8,15 @@ import { backendRequest } from '../../../server-functions/backend'
 const workspacesQueryDocument = graphql(`
   query GetWorkspaces {
     workspaces {
-      id
-      name
-      slug
-      isDefault
-      createdAt
-      updatedAt
+      totalCount
+      items {
+        id
+        name
+        slug
+        isDefault
+        createdAt
+        updatedAt
+      }
     }
   }
 `)

@@ -69,8 +69,8 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
 
       const response = await backendRequest(
         graphql(`
-          mutation prepareFile($file: AiLibraryFileInput!) {
-            prepareFileUpload(data: $file) {
+          mutation prepareFile($file: PrepareUploadInput!) {
+            prepareUpload(data: $file) {
               id
             }
           }
@@ -89,7 +89,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
         },
       )
 
-      const uploadResponse = await backendUpload(blob, response.prepareFileUpload.id)
+      const uploadResponse = await backendUpload(blob, response.prepareUpload.id)
 
       if (!uploadResponse.ok) {
         throw new Error(`Failed to upload file: ${file.name} (ID: ${file.id})`)

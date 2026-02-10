@@ -1,8 +1,8 @@
 import { eventClient } from '../client'
 import { MODEL_CALLS_STREAM_NAME, MODEL_CALLS_STREAM_SUBJECTS, MODEL_CALL_TYPES, type ModelCallType } from './common'
-import { ensureProviderInstanceConsumer } from './consumers'
+import { ensureModelCallConsumer } from './consumers'
 import { publishProviderCallEvent } from './publish'
-import { directProviderCall } from './request'
+import { directModelCall, respondDirectModelCall } from './request'
 import { ChatCompletionCall, ChatCompletionResponse, EmbeddingCall, EmbeddingResponse, ModelCall } from './schema'
 import { ModelResponse } from './schema'
 import { subscribeModelCalls } from './subscribe'
@@ -29,8 +29,9 @@ export type {
 
 export default {
   MODEL_CALL_TYPES,
-  directProviderCall,
+  directModelCall,
+  respondDirectModelCall,
   publishProviderCallEvent,
-  ensureProviderInstanceConsumer,
+  ensureModelCallConsumer,
   subscribeModelCalls,
 }

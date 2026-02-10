@@ -425,7 +425,7 @@ type AiLanguageModelsResult {
   disabledCount: Int!
   embeddingCount: Int!
   enabledCount: Int!
-  models: [AiLanguageModel!]!
+  items: [AiLanguageModel!]!
   providerCapabilities: [ProviderCapabilityCounts!]!
   providerCount: Int!
   skip: Int!
@@ -434,6 +434,7 @@ type AiLanguageModelsResult {
 
 type AiLibrary {
   autoProcessCrawledFiles: Boolean!
+  crawlerCount: Int!
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
@@ -442,13 +443,13 @@ type AiLibrary {
   fileConverterOptions: String
   filesCount: Int!
   id: ID!
+  manifest: LibraryManifest
   name: String!
   ocrModel: AiLanguageModel
-  owner: User!
-  ownerId: String!
-  storageStatus: StorageStatus!
+  role: WorkspaceRole
   updatedAt: DateTime!
   url: String
+  workspace: Workspace!
 }
 
 type AiLibraryCrawler {
@@ -545,98 +546,26 @@ type AiLibraryCrawlerRun {
 
 type AiLibraryFile {
   archivedAt: DateTime
-  crawledByCrawler: AiLibraryCrawler
+  chunkCount: Int
   crawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
   dropError: String
-  embeddingInfo: [FileEmbeddingInfo!]
-  """
-  Available extractions for this file (e.g., CSV, PDF with different models)
-  """
-  extractions: [ExtractionInfo!]!
-  fileInfo: FileManifest
+  embeddingStatistics: [EmbeddingStatistic!]!
   id: ID!
   lastUpdate: AiLibraryUpdate
   library: AiLibrary!
   libraryId: String!
+  manifest: FileManifest
   mimeType: String!
   name: String!
   originModificationDate: DateTime
   originUri: String
   size: Int
   status: String!
-  storageStatus: StorageStatus!
-  supportedExtractionMethods: [String!]!
+  supportedExtractionMethods: [ExtractionMethod!]!
   updatedAt: DateTime
   uploadedAt: DateTime
-}
-
-input AiLibraryFileInput {
-  libraryId: String!
-  mimeType: String!
-  name: String!
-  originModificationDate: DateTime!
-  originUri: String!
-  size: Int!
-}
-
-"""
-Query result for AI library files
-"""
-type AiLibraryFileQueryResult {
-  archivedCount: Int!
-  count: Int!
-  embeddingStatus: EmbeddingStatus!
-  files: [AiLibraryFile!]!
-  library: AiLibrary!
-  libraryId: String!
-  showArchived: Boolean
-  skip: Int!
-  storageStatus: StorageStatus!
-  take: Int!
-}
-
-enum AiLibraryFileSortOrder {
-  createdAtAsc
-  createdAtDesc
-  fileNameAsc
-  fileNameDesc
-}
-
-input AiLibraryInput {
-  autoProcessCrawledFiles: Boolean
-  description: String
-  embeddingModelId: String
-  embeddingTimeoutMs: Int
-  fileConverterOptions: String
-  name: String!
-  ocrModelId: String
-  url: String
-}
-
-type AiLibraryQueryHit {
-  docId: String!
-  docName: String!
-  docPath: String!
-  highlights: [AiLibraryQueryHitHighlight!]!
-  id: String!
-  originUri: String!
-  pageContent: String!
-}
-
-type AiLibraryQueryHitHighlight {
-  field: String!
-  snippet: String
-}
-
-type AiLibraryQueryResult {
-  hitCount: Int!
-  hits: [AiLibraryQueryHit!]!
-  libraryId: String!
-  query: String!
-  skip: Int!
-  take: Int!
 }
 
 type AiLibraryUpdate {
@@ -795,9 +724,9 @@ input AiListInput {
 }
 
 type AiListItem {
-  chunkCount: Int!
-  extractionInfo: ExtractionInfo
-  extractionMethod: ExtractionMethod!
+  chunkCount: Int
+  extractionInfo: ExtractionMetadata
+  extractionMethod: ExtractionMethod
   file: AiLibraryFile!
   fileId: String!
   fileInfo: FileManifest
@@ -906,15 +835,6 @@ type AiServiceProvider {
   workspaceId: String!
 }
 
-input AiServiceProviderInput {
-  apiKey: String
-  baseUrl: String
-  enabled: Boolean
-  name: String!
-  provider: String!
-  vramGb: Int
-}
-
 type ApiCrawlerTemplate {
   config: String!
   description: String!
@@ -983,14 +903,6 @@ enum BatchStatus {
 }
 
 scalar BigInt
-
-"""
-Result of checking for files by origin URI prefix
-"""
-type CheckFileExistsByOriginUriResult {
-  count: Int!
-  originUriPrefix: String!
-}
 
 type ComputeFieldValueResult {
   error: String
@@ -1075,20 +987,20 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
+input DateTimePeriod {
+  earliest: DateTime
+  latest: DateTime
+}
+
 scalar Decimal
 
 """
 Information about an embedding method used in the workspace
 """
-type EmbeddingInfo {
+type EmbeddingStatistic {
   chunkCount: Int!
   extractionMethod: ExtractionMethod!
-  modelName: String!
-}
-
-type EmbeddingSettings {
-  embeddingModelName: String!
-  embeddingModelProvider: String!
+  modelName: String
 }
 
 enum EmbeddingStatus {
@@ -1177,23 +1089,21 @@ type ExtractionAttachment {
 }
 
 """
-Information about an available extraction for a file
+Metadata about a specific extraction of a file
 """
-type ExtractionInfo {
+type ExtractionMetadata {
   attachments: [ExtractionAttachment!]
-  extractedAt: DateTime
-  extractedBytes: Int
-  extractionDate: DateTime!
-  extractionFiles: Int
-  extractionHash: String!
+  extractedAt: DateTime!
+  extractedBytes: Int!
+  extractionFiles: Int!
   extractionMethod: ExtractionMethod!
   fragmentCount: Int
-  hasFragments: Boolean
-  physicalBytes: Int
-  physicalFiles: Int
-  sourceHash: String
+  hasFragments: Boolean!
+  physicalBytes: Int!
+  physicalFiles: Int!
+  sourceHash: String!
   splitFragmentPattern: String
-  version: Int
+  version: Int!
 }
 
 enum ExtractionMethod {
@@ -1218,43 +1128,47 @@ type FieldValueResult {
 }
 
 type FileChunk {
-  chunkIndex: Int!
-  distance: Float
-  fileId: String
-  fileName: String
-  headingPath: String!
-  id: String!
-  originUri: String
-  part: Int
-  points: Int
-  section: String!
-  subChunkIndex: Int!
-  text: String!
-}
-
-type FileChunkQueryResponse {
-  chunks: [FileChunk!]!
-  count: Int!
+  chunk: Int!
+  content: String
+  embeddingModelNames: [String!]
+  extractionMethod: String!
   fileId: String!
-  fileName: String
+  filename: String
+  fragment: Int
+  id: String!
   libraryId: String!
-  skip: Int!
-  take: Int!
 }
 
-"""
-Information about embeddings available for a file
-"""
-type FileEmbeddingInfo {
-  chunkCount: Int!
-  extractionMethod: ExtractionMethod!
-  modelName: String!
+type FileChunksQueryResult {
+  hitCount: Int!
+  results: [FileChunk!]!
 }
 
-"""
-Information about an extraction available for a file
-"""
-type FileInfoExtraction {
+type FileChunksResponse {
+  chunks: [FileChunk!]!
+  totalCount: Int
+}
+
+input FileChunksSelector {
+  chunk: Int
+  contentGlobPattern: String
+  creationAuthorGlobPattern: String
+  extractionMethod: ExtractionMethod
+  fileCreatedAt: DateTimePeriod
+  fileHash: String
+  fileId: String
+  fileMimeTypeGlobPattern: String
+  filePathGlobPattern: String
+  fileUpdatedAt: DateTimePeriod
+  fileUploadedAt: DateTimePeriod
+  filenameGlobPattern: String
+  fragment: Int
+  libraryId: String
+  modelName: String
+  updateAuthorGlobPattern: String
+}
+
+type FileExtraction {
   extractionDate: DateTime!
   extractionHash: String!
   extractionMethod: ExtractionMethod!
@@ -1264,10 +1178,11 @@ type FileInfoExtraction {
 Information about a file stored in the AI library
 """
 type FileManifest {
+  createdAt: DateTime!
   """
   Available extractions for this file (e.g., CSV, PDF with different models)
   """
-  extractions: [FileInfoExtraction!]!
+  extractions: [FileExtraction!]!
   fileId: String!
   fileName: String!
   mimeType: String!
@@ -1275,28 +1190,22 @@ type FileManifest {
   originalUpdatedAt: DateTime
   sourceHash: String
   usage: StorageUsage!
+  version: Int!
 }
 
-type FileUsage {
-  chunkCount: Int!
-  extractionMethod: ExtractionMethod!
-  fileId: String!
-  fragment: Int
-  id: ID!
-  itemName: String!
-  libraryId: String!
-  listId: String!
-  listName: String!
-}
-
-type FileUsageQueryResponse {
-  count: Int!
-  fileId: String!
-  fileName: String!
-  libraryId: String!
-  skip: Int!
-  take: Int!
-  usages: [FileUsage!]!
+"""
+Response type for files query
+"""
+type FilesQueryResponse {
+  """
+  Total number of archived files to support pagination
+  """
+  archivedCount: Int!
+  items: [AiLibraryFile!]!
+  """
+  Total number of files to support pagination
+  """
+  totalCount: Int!
 }
 
 type HumanParticipant implements AiConversationParticipant {
@@ -1313,9 +1222,12 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
-type ImageAnalysisSettings {
-  imageAnalysisModelName: String!
-  imageAnalysisModelProvider: String!
+type LibrariesResponseType {
+  items: [AiLibrary!]!
+  """
+  Total number of libraries to support pagination
+  """
+  totalCount: Int!
 }
 
 type LibraryCrawlerRunQueryResults {
@@ -1323,13 +1235,54 @@ type LibraryCrawlerRunQueryResults {
   runs: [AiLibraryCrawlerRun!]!
 }
 
-enum LibrarySortOrder {
-  createdAtAsc
-  createdAtDesc
-  nameAsc
-  nameDesc
-  updatedAtAsc
-  updatedAtDesc
+type LibraryEmbeddingSettings {
+  embeddingModelName: String!
+  embeddingModelProvider: String!
+}
+
+enum LibraryFilesSortField {
+  createdAt
+  name
+}
+
+type LibraryImageAnalysisSettings {
+  imageAnalysisModelName: String!
+  imageAnalysisModelProvider: String!
+}
+
+input LibraryInput {
+  autoProcessCrawledFiles: Boolean
+  description: String
+  embeddingModelId: String
+  embeddingTimeoutMs: Int
+  fileConverterOptions: String
+  name: String!
+  ocrModelId: String
+  url: String
+}
+
+type LibraryManifest {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  name: String!
+  settings: LibrarySettings!
+  updatedAt: DateTime!
+  usage: StorageUsage
+  version: Int!
+}
+
+type LibrarySettings {
+  embedding: LibraryEmbeddingSettings
+  imageAnalysis: LibraryImageAnalysisSettings
+  storageLimitBytes: Int
+  storageLimitFiles: Int
+}
+
+enum LibrarySortField {
+  createdAt
+  name
+  updatedAt
 }
 
 enum ListFieldContextType {
@@ -1442,11 +1395,13 @@ enum ModelProvider {
   openai
 }
 
-type ModelUsageByType {
-  totalRequests: Int!
-  totalTokensInput: Int!
-  totalTokensOutput: Int!
-  usageType: String!
+input ModelProviderInput {
+  apiKey: String
+  baseUrl: String
+  enabled: Boolean
+  name: String!
+  provider: String!
+  vramGb: Int
 }
 
 type ModelUsageStats {
@@ -1470,8 +1425,9 @@ type Mutation {
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
-  cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
-  clearFiles(libraryId: String!): Boolean
+  cancelUpload(fileId: String!, libraryId: String!): Boolean!
+  changeWorkspaceMembership(role: WorkspaceRole!, userId: ID!, workspaceId: ID!): WorkspaceMember!
+  clearFiles(libraryId: String!): Int!
   clearListEnrichments(
     """
     Optional Field ID to only clean enrichments for a specific field
@@ -1497,7 +1453,6 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler!
-  createAiServiceProvider(data: AiServiceProviderInput!): AiServiceProvider!
   createAutomation(data: AiAutomationInput!): AiAutomation!
   createConnector(data: AiConnectorInput!): AiConnector!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
@@ -1517,21 +1472,22 @@ type Mutation {
     """
     onlyMissingValues: Boolean = true
   ): EnrichmentQueueTasksMutationResult!
-  createLibrary(data: AiLibraryInput!): AiLibrary
+  createLibrary(data: LibraryInput!): AiLibrary
   createList(data: AiListInput!): AiList!
+  createModelProvider(data: ModelProviderInput!): AiServiceProvider!
   createWorkspace(name: String!, slug: String!): CreateWorkspaceResult!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
-  deleteAiServiceProvider(id: ID!): Boolean!
   deleteAutomation(id: ID!): Boolean!
   deleteConnector(id: ID!): Boolean!
+  deleteFile(fileId: String!, libraryId: String!): AiLibraryFile!
+  deleteFiles(fileIds: [ID!]!, libraryId: String!): Int!
   deleteLibrary(libraryId: String!): AiLibrary!
-  deleteLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
-  deleteLibraryFiles(fileIds: [ID!]!, libraryId: String!): Int!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
+  deleteModelProvider(id: ID!): Boolean!
   deletePendingEnrichmentTasks(
     """
     Field ID to stop enrichment for
@@ -1548,9 +1504,7 @@ type Mutation {
     listId: String!
   ): EnrichmentQueueTasksMutationResult!
   deleteWorkspace: Boolean!
-  disableAiLanguageModel(id: ID!): AiLanguageModel
   disableConnectorType(connectorType: String!): Boolean!
-  dropAllLibraryFiles(libraryId: String!): Int!
   enableConnectorType(connectorType: String!): AiConnectorTypeWorkspace!
   ensureUserProfile(userId: String!): UserProfile
   generateApiKey(libraryId: String!, name: String!): ApiKeyWithSecret!
@@ -1560,7 +1514,7 @@ type Mutation {
   leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): User!
   migrateWorkspace: Boolean
-  prepareFileUpload(data: AiLibraryFileInput!): AiLibraryFile!
+  prepareUpload(data: PrepareUploadInput!): AiLibraryFile!
   processFile(input: ProcessFileInput!): ProcessFileResult!
   processFiles(input: ProcessFilesInput!): ProcessFilesResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
@@ -1583,36 +1537,49 @@ type Mutation {
   stopAllQueueWorkers: QueueOperationResult!
   stopEventProcessing(actionType: ActionType!): StopEventProcessingResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
-  syncModels: SyncModelsResult
+  syncModels(provider: ModelProvider): SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
-  testProviderConnection(data: TestProviderConnectionInput!): TestProviderConnectionResult!
+  testProviderConnection(
+    apiKey: String
+    baseUrl: String
+    provider: ModelProvider!
+    providerId: String
+  ): TestProviderConnectionResult!
   toggleAdminStatus(userId: String!): User
-  toggleAiServiceProvider(enabled: Boolean!, id: ID!): AiServiceProvider!
+  toggleModel(enabled: Boolean!, id: ID!): AiLanguageModel
+  toggleModelProvider(enabled: Boolean!, id: String!): AiServiceProvider!
   triggerAutomation(id: ID!): TriggerResult!
   triggerAutomationItem(automationItemId: ID!): TriggerResult!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
-  updateAiLanguageModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
   updateAiLibraryCrawler(
     credentials: AiLibraryCrawlerCredentialsInput
     data: AiLibraryCrawlerInput!
     id: String!
   ): AiLibraryCrawler!
-  updateAiServiceProvider(data: AiServiceProviderInput!, id: ID!): AiServiceProvider!
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateAutomation(data: AiAutomationInput!, id: ID!): AiAutomation!
   updateConnector(data: AiConnectorInput!, id: ID!): AiConnector!
-  updateLibrary(data: AiLibraryInput!, id: String!): AiLibrary!
+  updateLibrary(data: LibraryInput!, id: String!): AiLibrary!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
+  updateModelProvider(data: ModelProviderInput!, id: ID!): AiServiceProvider!
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
-  updateWorkspaceMemberRole(role: String!, userId: ID!, workspaceId: ID!): WorkspaceMember!
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
-  validateWorkspaceDeletion(workspaceId: String!): WorkspaceDeletionValidation!
+}
+
+input PrepareUploadInput {
+  libraryId: String!
+  mimeType: String!
+  name: String!
+  originModificationDate: DateTime!
+  originUri: String!
+  size: Int!
 }
 
 input ProcessFileInput {
@@ -1664,22 +1631,6 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations(orderBy: ConversationSortOrder): [AiConversation!]!
-  aiFileChunks(fileId: String!, libraryId: String!, part: Int, skip: Int!, take: Int!): FileChunkQueryResponse!
-  aiFileUsages(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileUsageQueryResponse!
-  aiLanguageModels(
-    canDoChatCompletion: Boolean
-    canDoEmbedding: Boolean
-    canDoFunctionCalling: Boolean
-    canDoVision: Boolean
-    onlyUsed: Boolean = false
-    providers: [String!]
-    search: String
-    showDisabled: Boolean = false
-    skip: Int = 0
-    take: Int = 20
-  ): AiLanguageModelsResult!
-  aiLibraries(orderBy: LibrarySortOrder): [AiLibrary!]!
-  aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
   aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
   aiLibraryCrawlerRuns(
@@ -1688,14 +1639,6 @@ type Query {
     skip: Int = 0
     take: Int = 20
   ): LibraryCrawlerRunQueryResults!
-  aiLibraryFile(fileId: String!): AiLibraryFile!
-  aiLibraryFiles(
-    libraryId: String!
-    orderBy: AiLibraryFileSortOrder = createdAtDesc
-    showArchived: Boolean = false
-    skip: Int! = 0
-    take: Int! = 20
-  ): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
@@ -1720,7 +1663,6 @@ type Query {
     take: Int! = 20
   ): ListItemsQueryResult!
   aiLists: [AiList!]!
-  aiModelUsageByType(endDate: DateTime, libraryId: String, startDate: DateTime, userId: String): [ModelUsageByType!]!
   aiModelUsageStats(
     assistantId: String
     endDate: DateTime
@@ -1729,19 +1671,7 @@ type Query {
     modelId: String
     startDate: DateTime
     usageType: String
-    userId: String
   ): ModelUsageStats
-  aiServiceProvider(id: ID!): AiServiceProvider!
-  aiServiceProviders(enabled: Boolean): [AiServiceProvider!]!
-  aiServiceStatus: AiServiceClusterStatus!
-  aiSimilarFileChunks(
-    fileId: String!
-    hits: Int = 20
-    libraryId: String!
-    part: Int
-    term: String
-    useQuery: Boolean = false
-  ): [FileChunk!]!
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
   apiKeys(libraryId: String!): [ApiKey!]!
   automation(id: ID!): AiAutomation!
@@ -1749,30 +1679,89 @@ type Query {
   automationItem(id: ID!): AiAutomationItem!
   automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AiAutomationItemsResult!
   automations(listId: String): [AiAutomation!]!
-  checkFileExistsByOriginUri(libraryId: String!, originUriPrefix: String!): CheckFileExistsByOriginUriResult!
+  chunkCount(
+    extractionMethod: ExtractionMethod
+    fileId: String
+    fragment: Int
+    libraryId: String
+    modelName: String
+    workspaceId: String!
+  ): Int
   connector(id: ID!): AiConnector!
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
+  countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
+  embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventProcessingStatus: [EventProcessingStatusResult!]!
-  fileInfo(fileId: String!, libraryId: String!): FileManifest!
+  extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionMetadata
+  file(fileId: String!, libraryId: String!): AiLibraryFile!
+  fileChunks(
+    extractionMethod: ExtractionMethod
+    fileId: String!
+    fragment: Int
+    libraryId: String!
+    skip: Int
+    take: Int
+  ): FileChunksResponse
+  files(
+    libraryId: String
+    showArchived: Boolean = false
+    skip: Int
+    sortField: LibraryFilesSortField = createdAt
+    sortOrder: SortOrder = desc
+    take: Int
+  ): FilesQueryResponse!
+  libraries(
+    skip: Int
+    sortField: LibrarySortField = name
+    sortOrder: SortOrder = desc
+    take: Int
+  ): LibrariesResponseType!
+  library(libraryId: String!): AiLibrary!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
+  modelProviderStatus: AiServiceClusterStatus!
+  modelProviders(enabled: Boolean): [AiServiceProvider!]!
+  models(
+    canDoChatCompletion: Boolean
+    canDoEmbedding: Boolean
+    canDoFunctionCalling: Boolean
+    canDoVision: Boolean
+    onlyUsed: Boolean = false
+    providers: [ModelProvider!]
+    search: String
+    showDisabled: Boolean = false
+    skip: Int = 0
+    take: Int = 20
+  ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
-  queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
+  queryFileChunks(query: String!, selector: FileChunksSelector!, skip: Int, take: Int): FileChunksQueryResult!
   queueSystemStatus: QueueSystemStatus!
+  similarChunks(
+    fileId: String
+    fragment: Int
+    libraryId: String
+    maxResults: Int = 20
+    modelName: String!
+    modelProvider: ModelProvider!
+    term: String
+  ): [SimilarChunkResult!]!
   user(email: String!): User
   userProfile: UserProfile!
   users: [User!]!
+  vectorStore(workspaceId: String!): VectorStore!
   version: String
-  workers: [WorkspaceWorker!]!
-  workspace(id: ID!): Workspace!
+  workspace(workspaceId: String!): Workspace!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
-  workspaceInvitation(id: ID!): WorkspaceInvitation!
+  workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
-  workspaceNeedsMigration: WorkspaceNeedsMigration
-  workspaceStatistics: WorkspaceWorkerStatistics!
-  workspaceStats: WorkspaceStats
-  workspaces: [Workspace!]!
+  workspaceProcessStatistics(workspaceId: String!): [WorkspaceProcessStatistics!]!
+  workspaces(
+    skip: Int
+    sortField: WorkspaceSortField = name
+    sortOrder: SortOrder = desc
+    take: Int
+  ): WorkspacesResponseType!
 }
 
 type QueueOperationResult {
@@ -1811,17 +1800,29 @@ type RestoreDefaultProvidersResult {
   skipped: Int!
 }
 
-enum Role {
-  admin
-  member
-  owner
-  viewer
-}
-
 type SharePointValidationResult {
   errorMessage: String
   errorType: String
-  success: Boolean
+  success: Boolean!
+}
+
+type SimilarChunkResult {
+  chunk: Int!
+  content: String
+  dispatchEvent: Float!
+  distance: Float!
+  embeddingModelNames: [String!]
+  extractionMethod: String!
+  fileId: String!
+  filename: String
+  fragment: Int
+  id: String!
+  libraryId: String!
+}
+
+enum SortOrder {
+  asc
+  desc
 }
 
 type StartEventProcessingResult {
@@ -1830,12 +1831,6 @@ type StartEventProcessingResult {
 
 type StopEventProcessingResult {
   success: Boolean
-}
-
-enum StorageStatus {
-  NotFound
-  Ready
-  hasLegacyData
 }
 
 """
@@ -1855,7 +1850,10 @@ type StorageUsage {
 
 type SyncModelsResult {
   errors: [String!]!
+  modelsCreated: Int!
+  modelsDisabled: Int!
   modelsDiscovered: Int!
+  modelsEnabled: Int!
   success: Boolean!
 }
 
@@ -1865,15 +1863,9 @@ type TestConnectorConnectionResult {
   success: Boolean!
 }
 
-input TestProviderConnectionInput {
-  apiKey: String
-  baseUrl: String
-  provider: String!
-  providerId: String
-}
-
 type TestProviderConnectionResult {
-  details: String
+  isHealthy: Boolean
+  isOnline: Boolean
   message: String!
   success: Boolean!
 }
@@ -1917,14 +1909,6 @@ type User {
   username: String!
 }
 
-input UserInput {
-  avatarUrl: String
-  email: String!
-  family_name: String
-  given_name: String
-  name: String!
-}
-
 type UserProfile {
   activationDate: DateTime
   business: String
@@ -1938,7 +1922,7 @@ type UserProfile {
   id: ID!
   lastName: String
   position: String
-  updatedAt: DateTime
+  updatedAt: DateTime!
   usedMessages: Int
   usedStorage: BigInt
   userId: ID!
@@ -1962,6 +1946,17 @@ type UserStatistic {
   unconfirmed: Int!
 }
 
+type VectorStore {
+  chunkCount: Int
+  exists: Boolean!
+  id: String!
+  modelNames: [String!]
+  name: String!
+  status: String
+  version: Int
+  warnings: [String!]
+}
+
 enum WorkerType {
   AI_HEALTH_MANAGEMENT
   AI_PROVIDER_CALLING
@@ -1969,32 +1964,31 @@ enum WorkerType {
 }
 
 type Workspace {
-  assistants: [AiAssistant!]!
+  assistantsCount: Int!
+  automationsCount: Int!
+  chunksCount: Int
   createdAt: DateTime!
+  embeddingStatistics: [EmbeddingStatistic!]
   id: ID!
-  invitations: [WorkspaceInvitation!]!
   isDefault: Boolean!
-  libraries: [AiLibrary!]!
-  lists: [AiList!]!
-  members: [WorkspaceMember!]!
+  librariesCount: Int!
+  listsCount: Int!
+  manifest: WorkspaceManifest
+  membersCount: Int!
   name: String!
+  role: WorkspaceRole
   slug: String!
   updatedAt: DateTime!
 }
 
-type WorkspaceDeletionValidation {
-  assistantCount: Int!
-  canDelete: Boolean!
-  libraryCount: Int!
-  listCount: Int!
-  message: String!
+type WorkspaceEmbeddingSettings {
+  embeddingModelName: String!
+  embeddingModelProvider: String!
 }
 
-type WorkspaceEventMessageStatisticValues {
-  actionType: ActionType!
-  pendingMessages: Int!
-  processedMessages: Int!
-  totalMessages: Int!
+type WorkspaceImageAnalysisSettings {
+  imageAnalysisModelName: String!
+  imageAnalysisModelProvider: String!
 }
 
 type WorkspaceInvitation {
@@ -2029,61 +2023,45 @@ type WorkspaceMember {
 }
 
 """
-Indicates whether a workspace needs migration
+Statistics about backend events
 """
-type WorkspaceNeedsMigration {
-  """
-  Whether the workspace has a vector store
-  """
-  hasVectorStore: Boolean
-  """
-  Whether the workspace has workspace storage
-  """
-  hasWorkspaceStorage: Boolean
-  """
-  The ID of the workspace
-  """
-  id: ID
-  """
-  The name of the workspace
-  """
-  name: String
-  """
-  Whether the workspace needs migration
-  """
-  needsMigration: Boolean
+type WorkspaceProcessStatistics {
+  actionType: ActionType!
+  pendingMessages: Int!
+  processedMessages: Int!
+  totalMessages: Int!
+}
+
+"""
+The role of a user within a workspace
+"""
+enum WorkspaceRole {
+  admin
+  member
+  owner
+  viewer
 }
 
 type WorkspaceSettings {
-  embedding: EmbeddingSettings
-  imageAnalysis: ImageAnalysisSettings
+  embedding: WorkspaceEmbeddingSettings
+  imageAnalysis: WorkspaceImageAnalysisSettings
   storageLimitBytes: Int
   storageLimitFiles: Int
 }
 
-"""
-Statistics and metadata about a workspace
-"""
-type WorkspaceStats {
-  embeddingInfo: [EmbeddingInfo!]
-  id: ID
-  isAdmin: Boolean
-  isDefault: Boolean
-  memberCount: Int
-  name: String
-  roles: [Role!]!
-  slug: String
-  workspaceInfo: WorkspaceManifest
+enum WorkspaceSortField {
+  createdAt
+  name
+  updatedAt
 }
 
-type WorkspaceWorker {
-  healthy: Boolean!
-  lastHeartbeatAt: String!
-  workerId: String!
-  workerType: WorkerType!
-}
-
-type WorkspaceWorkerStatistics {
-  statistics: [WorkspaceEventMessageStatisticValues!]!
-  workspaceId: String!
+"""
+Response type for workspaces query
+"""
+type WorkspacesResponseType {
+  items: [Workspace!]!
+  """
+  Total number of workspaces to support pagination
+  """
+  totalCount: Int!
 }

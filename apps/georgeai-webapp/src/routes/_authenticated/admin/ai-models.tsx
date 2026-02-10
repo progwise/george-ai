@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { EditModelButton } from '../../../components/admin/ai-models/edit-model-button'
-import { aiLanguageModelsQueryOptions } from '../../../components/admin/ai-models/get-language-models'
+import { getLanguageModelsQueryOptions } from '../../../components/admin/ai-models/get-language-models'
 import { usageStatsQueryOptions } from '../../../components/admin/ai-models/get-usage-stats'
 import { syncModels } from '../../../components/admin/ai-models/mutate-sync-models'
 import { ClientDate } from '../../../components/client-date'
@@ -40,7 +40,7 @@ export const Route = createFileRoute('/_authenticated/admin/ai-models')({
     return {}
   },
   loader: async ({ context, deps }) => {
-    await context.queryClient.ensureQueryData(aiLanguageModelsQueryOptions(deps))
+    await context.queryClient.ensureQueryData(getLanguageModelsQueryOptions(deps))
   },
 })
 
@@ -99,8 +99,7 @@ function AiModelsPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const { data } = useSuspenseQuery(aiLanguageModelsQueryOptions(search))
-  const models = data?.models ?? []
+  const { data: models } = useSuspenseQuery(getLanguageModelsQueryOptions(search))
 
   // Usage period state (last week, last month, last year)
   const [usagePeriod, setUsagePeriod] = useState<'week' | 'month' | 'year'>('month')
@@ -241,19 +240,19 @@ function AiModelsPage() {
             <div className="flex items-baseline gap-3">
               <div>
                 <p className="text-2xl font-bold">
-                  {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount + p.disabledCount, 0)}
+                  {models.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount + p.disabledCount, 0)}
                 </p>
                 <p className="text-xs opacity-50">Total</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-success">
-                  {data.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount, 0)}
+                  {models.providerCapabilities.reduce((sum: number, p) => sum + p.enabledCount, 0)}
                 </p>
                 <p className="text-xs opacity-50">{t('admin.aiModels.enabled')}</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-error">
-                  {data.providerCapabilities.reduce((sum: number, p) => sum + p.disabledCount, 0)}
+                  {models.providerCapabilities.reduce((sum: number, p) => sum + p.disabledCount, 0)}
                 </p>
                 <p className="text-xs opacity-50">Disabled</p>
               </div>
@@ -261,10 +260,10 @@ function AiModelsPage() {
 
             {/* Capability Badges */}
             <CapabilityBadges
-              embeddingCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.embeddingCount, 0)}
-              chatCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.chatCount, 0)}
-              visionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.visionCount, 0)}
-              functionCount={data.providerCapabilities.reduce((sum: number, p) => sum + p.functionCount, 0)}
+              embeddingCount={models.providerCapabilities.reduce((sum: number, p) => sum + p.embeddingCount, 0)}
+              chatCount={models.providerCapabilities.reduce((sum: number, p) => sum + p.chatCount, 0)}
+              visionCount={models.providerCapabilities.reduce((sum: number, p) => sum + p.visionCount, 0)}
+              functionCount={models.providerCapabilities.reduce((sum: number, p) => sum + p.functionCount, 0)}
               onFilterByCapability={filterByCapabilityAllProviders}
             />
           </div>
@@ -272,7 +271,7 @@ function AiModelsPage() {
 
         {/* Ollama Card - Aggregated from all Ollama providers */}
         {(() => {
-          const ollamaData = data.providerCapabilities.find((p) => p.provider === 'ollama')
+          const ollamaData = models.providerCapabilities.find((p) => p.provider === 'ollama')
           if (!ollamaData) return null
 
           return (
@@ -310,7 +309,7 @@ function AiModelsPage() {
         })()}
 
         {/* Cards for other provider types (OpenAI, etc.) */}
-        {data.providerCapabilities
+        {models.providerCapabilities
           .filter((p) => p.provider !== 'ollama')
           .map((providerData) => {
             const getProviderIcon = (provider: string) => {
@@ -445,11 +444,11 @@ function AiModelsPage() {
         <div>
           {/* Pagination Info */}
           <Pagination
-            totalItems={data.count}
-            itemsPerPage={data.take}
-            currentPage={1 + data.skip / data.take}
+            totalItems={models.count}
+            itemsPerPage={models.take}
+            currentPage={1 + models.skip / models.take}
             onPageChange={(page) => {
-              navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: (page - 1) * data.take }) })
+              navigate({ from: Route.fullPath, search: (prev) => ({ ...prev, skip: (page - 1) * models.take }) })
             }}
             showPageSizeSelector={true}
             onPageSizeChange={(newPageSize) => {
@@ -474,7 +473,7 @@ function AiModelsPage() {
             </tr>
           </thead>
           <tbody>
-            {models.map((model) => (
+            {models.items.map((model) => (
               <tr key={model.id}>
                 <th>
                   <div className="flex items-center gap-2">

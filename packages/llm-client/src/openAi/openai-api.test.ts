@@ -6,7 +6,7 @@ import { generateOpenAIEmbeddings, getChatResponseStream, getOpenAIModels } from
 // Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
 describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () => {
   const instance = {
-    url: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+    baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
     apiKey: process.env.OPENAI_API_KEY!,
   }
 
@@ -143,7 +143,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
             // Validate chunk structure
             expect(typeof value.chunk).toBe('string')
             expect(value.metadata).toBeDefined()
-            expect(value.metadata?.instanceUrl).toBe(instance.url)
+            expect(value.metadata?.instanceUrl).toBe(instance.baseUrl)
           }
         }
       } finally {
@@ -292,7 +292,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
   describe('error handling', () => {
     it('should throw error for invalid API key', async () => {
-      const invalidInstance = { url: instance.url, apiKey: 'invalid-api-key' }
+      const invalidInstance = { baseUrl: instance.baseUrl, apiKey: 'invalid-api-key' }
 
       await expect(getOpenAIModels(invalidInstance)).rejects.toThrow('Failed to fetch OpenAI API')
     }, 10000)

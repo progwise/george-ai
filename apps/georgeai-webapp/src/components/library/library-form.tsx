@@ -17,7 +17,6 @@ graphql(`
     id
     name
     embeddingTimeoutMs
-    ownerId
     filesCount
     description
     embeddingModel {

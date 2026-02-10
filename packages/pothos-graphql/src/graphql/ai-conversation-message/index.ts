@@ -5,8 +5,6 @@ import { askAssistantChain } from '@george-ai/langchain-chat'
 import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
 
-console.log('Setting up: AiConversationMessage')
-
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),

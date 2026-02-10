@@ -22,6 +22,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
   it('shoud store chunks', async () => {
     const chunks: VectorStoreChunk[] = [
       {
+        id: 'chunk1',
         libraryId: 'lib1',
         fileId: 'file1',
         extractionMethod: 'textExtraction',
@@ -30,6 +31,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
         filename: 'testfile.md',
       },
       {
+        id: 'chunk2',
         libraryId: 'lib1',
         fileId: 'file1',
         extractionMethod: 'textExtraction',

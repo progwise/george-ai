@@ -111,8 +111,8 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
       key: 'fileCreatedAt',
       match: {
         range: {
-          ...(selector.fileCreatedAt.earliest ? { gte: selector.fileCreatedAt.earliest } : {}),
-          ...(selector.fileCreatedAt.latest ? { lte: selector.fileCreatedAt.latest } : {}),
+          ...(selector.fileCreatedAt.earliest ? { gte: selector.fileCreatedAt.earliest.toISOString() } : {}),
+          ...(selector.fileCreatedAt.latest ? { lte: selector.fileCreatedAt.latest.toISOString() } : {}),
         },
       },
     })
@@ -123,8 +123,8 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
       key: 'fileUpdatedAt',
       match: {
         range: {
-          ...(selector.fileUpdatedAt.earliest ? { gte: selector.fileUpdatedAt.earliest } : {}),
-          ...(selector.fileUpdatedAt.latest ? { lte: selector.fileUpdatedAt.latest } : {}),
+          ...(selector.fileUpdatedAt.earliest ? { gte: selector.fileUpdatedAt.earliest.toISOString() } : {}),
+          ...(selector.fileUpdatedAt.latest ? { lte: selector.fileUpdatedAt.latest.toISOString() } : {}),
         },
       },
     })
@@ -135,8 +135,8 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
       key: 'fileUploadedAt',
       match: {
         range: {
-          ...(selector.fileUploadedAt.earliest ? { gte: selector.fileUploadedAt.earliest } : {}),
-          ...(selector.fileUploadedAt.latest ? { lte: selector.fileUploadedAt.latest } : {}),
+          ...(selector.fileUploadedAt.earliest ? { gte: selector.fileUploadedAt.earliest.toISOString() } : {}),
+          ...(selector.fileUploadedAt.latest ? { lte: selector.fileUploadedAt.latest.toISOString() } : {}),
         },
       },
     })

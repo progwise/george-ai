@@ -1,6 +1,6 @@
 import { ExtractionMethod } from '@george-ai/app-commons'
 
-import { VectorStoreChunk, VectorStoreChunkSchema } from '../schema'
+import { FileChunk, VectorStoreChunkSchema } from '../schema'
 import { getCollectionName, qdrantClient } from './common'
 import { getChunkSelector } from './get-chunk-selector'
 
@@ -9,13 +9,19 @@ export async function getChunks(parameters: {
   libraryId: string
   fileId?: string
   extractionMethod?: ExtractionMethod | null
+  fragment?: number | null
   take: number
   skip: number
-}): Promise<(VectorStoreChunk & { embeddingModelNames: string[] })[]> {
-  const { workspaceId, libraryId, fileId, extractionMethod, take, skip } = parameters
+}): Promise<FileChunk[]> {
+  const { workspaceId, libraryId, fileId, extractionMethod, fragment, take, skip } = parameters
   const collectionName = getCollectionName(workspaceId)
 
-  const filterConditions = getChunkSelector({ libraryId, fileId, extractionMethod })
+  const collectionExists = await qdrantClient.getCollection(collectionName)
+  if (!collectionExists) {
+    return []
+  }
+
+  const filterConditions = getChunkSelector({ libraryId, fileId, extractionMethod, fragment })
 
   const points = await qdrantClient.scroll(collectionName, {
     filter: filterConditions,

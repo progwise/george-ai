@@ -4,9 +4,8 @@ import { z } from 'zod'
 
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
-import { getFilesQueryOptions } from '../../../../../components/library/queries'
+import { getFilesQueryOptions, getLibraryQueryOptions } from '../../../../../components/library/queries'
 import { Pagination } from '../../../../../components/table/pagination'
-import { StorageStatus } from '../../../../../gql/graphql'
 import { useTranslation } from '../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/')({
@@ -41,19 +40,17 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { t } = useTranslation()
 
-  const { data } = useSuspenseQuery(getFilesQueryOptions({ libraryId, skip, take, showArchived }))
-  const archivedCount = data.archivedCount
-  const aiLibraryFiles = data
-  const library = data.library
+  const { data: files } = useSuspenseQuery(getFilesQueryOptions({ libraryId, skip, take, showArchived }))
+  const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>
         <div className="align-text-top text-xs text-nowrap text-primary italic">
           {showArchived
-            ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count })
+            ? t('files.allFilesForLibrary', { count: files.totalCount })
             : t('files.activeFilesForLibrary', {
-                count: aiLibraryFiles.count,
+                count: files.totalCount,
               })}
         </div>
         <div className="relative flex justify-between align-top">
@@ -62,20 +59,20 @@ function RouteComponent() {
           </div>
           <div className="absolute right-0 z-49 md:flex">
             <FilesActionsBar
-              hasLegacyData={library.storageStatus === StorageStatus.HasLegacyData}
+              hasLegacyData={library.manifest?.version !== 1}
               libraryId={libraryId}
-              totalItems={aiLibraryFiles.count}
+              totalItems={files.totalCount}
               showArchived={showArchived}
-              archivedCount={archivedCount}
+              archivedCount={files.archivedCount}
             />
           </div>
         </div>
         <div className="mt-10 flex flex-col">
           <div className="flex flex-col md:items-end">
             <Pagination
-              totalItems={aiLibraryFiles.count}
+              totalItems={files.totalCount}
               itemsPerPage={take}
-              currentPage={1 + aiLibraryFiles.skip / take}
+              currentPage={1 + skip / take}
               onPageChange={(page) => {
                 // TODO: Add prefetching here
                 navigate({ search: { skip: (page - 1) * take, take, showArchived } })
@@ -89,7 +86,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className="overflow-auto">
-        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} library={aiLibraryFiles.library} />
+        <FilesTable firstItemNumber={skip + 1} files={files.items} />
       </div>
     </div>
   )

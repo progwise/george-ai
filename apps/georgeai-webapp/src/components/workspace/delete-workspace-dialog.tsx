@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
@@ -11,20 +13,41 @@ interface DeleteWorkspaceDialogProps {
 export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps) => {
   const { t } = useTranslation()
 
-  const { currentWorkspace, workspaces, validation, deleteWorkspace, setWorkspace, isPending, isLoading } =
-    useWorkspace(user)
+  const { currentWorkspace, deleteWorkspace, setWorkspace, isPending, isLoading } = useWorkspace(user)
+
+  const canDeleteWorkspace = useMemo(() => {
+    if (!currentWorkspace) return false
+    if (currentWorkspace.isDefault) return false
+    if (currentWorkspace.librariesCount > 0) return false
+    if (currentWorkspace.assistantsCount > 0) return false
+    if (currentWorkspace.listsCount > 0) return false
+    if (currentWorkspace.automationsCount > 0) return false
+    return true
+  }, [currentWorkspace])
+
+  const validationMessage = useMemo(() => {
+    if (!currentWorkspace) return ''
+    if (currentWorkspace.isDefault) return t('workspace.deleteBlockedDefault')
+    if (currentWorkspace.librariesCount > 0 || currentWorkspace.assistantsCount > 0) {
+      return t('workspace.deleteBlockedItems', {
+        count: currentWorkspace.librariesCount + currentWorkspace.assistantsCount,
+      })
+    }
+    if (currentWorkspace.listsCount > 0) {
+      return t('workspace.deleteBlockedLists', { count: currentWorkspace.listsCount })
+    }
+    if (currentWorkspace.automationsCount > 0) {
+      return t('workspace.deleteBlockedAutomations', { count: currentWorkspace.automationsCount })
+    }
+    return ''
+  }, [currentWorkspace, t])
 
   const handleSubmit = async () => {
-    if (!validation?.canDelete || !currentWorkspace) return
-
+    if (!currentWorkspace) return
     deleteWorkspace(undefined, {
       onSuccess: async () => {
         ref.current?.close()
-        // Switch to another workspace if available
-        const otherWorkspace = workspaces.find((w) => w.id !== currentWorkspace.id)
-        if (otherWorkspace) {
-          await setWorkspace(otherWorkspace.id)
-        }
+        setWorkspace(user.defaultWorkspaceId)
       },
     })
   }
@@ -35,14 +58,14 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
     <DialogForm
       ref={ref}
       title={`${t('workspace.deleteTitle')}: ${currentWorkspace.name}`}
-      description={validation?.canDelete ? t('workspace.deleteDescription') : t('workspace.deleteBlockedDescription')}
+      description={canDeleteWorkspace ? t('workspace.deleteDescription') : t('workspace.deleteBlockedDescription')}
       onSubmit={handleSubmit}
       submitButtonText={t('workspace.deleteTitle')}
       disabledSubmit={isPending || isLoading}
-      buttonOptions={validation?.canDelete ? 'cancelAndConfirm' : 'onlyClose'}
+      buttonOptions={canDeleteWorkspace ? 'cancelAndConfirm' : 'onlyClose'}
     >
       {/* Show item counts */}
-      {validation && (
+      {!canDeleteWorkspace && (
         <div className="alert alert-warning">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,39 +81,36 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
             />
           </svg>
           <div>
-            <div className="font-bold">{validation.message}</div>
-            {!validation?.canDelete && (
-              <div className="text-sm">
-                <ul className="mt-2 list-inside list-disc">
-                  {validation.libraryCount > 0 && (
-                    <li>
-                      {validation.libraryCount} {validation.libraryCount === 1 ? 'library' : 'libraries'}
-                    </li>
-                  )}
-                  {validation.assistantCount > 0 && (
-                    <li>
-                      {validation.assistantCount} {validation.assistantCount === 1 ? 'assistant' : 'assistants'}
-                    </li>
-                  )}
-                  {validation.listCount > 0 && (
-                    <li>
-                      {validation.listCount} {validation.listCount === 1 ? 'list' : 'lists'}
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )}
+            <div className="font-bold">{validationMessage}</div>
+            <div className="text-sm">
+              <ul className="mt-2 list-inside list-disc">
+                {currentWorkspace.librariesCount > 0 && (
+                  <li>
+                    {currentWorkspace.librariesCount} {currentWorkspace.librariesCount === 1 ? 'library' : 'libraries'}
+                  </li>
+                )}
+                {currentWorkspace.assistantsCount > 0 && (
+                  <li>
+                    {currentWorkspace.assistantsCount}{' '}
+                    {currentWorkspace.assistantsCount === 1 ? 'assistant' : 'assistants'}
+                  </li>
+                )}
+                {currentWorkspace.listsCount > 0 && (
+                  <li>
+                    {currentWorkspace.listsCount} {currentWorkspace.listsCount === 1 ? 'list' : 'lists'}
+                  </li>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       )}
 
       {/* Show warning if workspace can be deleted */}
-      {validation?.canDelete && <div className="text-sm font-bold text-error">{t('workspace.deleteWarning')}</div>}
+      {canDeleteWorkspace && <div className="text-sm font-bold text-error">{t('workspace.deleteWarning')}</div>}
 
       {/* Show instructions if workspace cannot be deleted */}
-      {!validation?.canDelete && (
-        <div className="text-sm text-base-content/70">{t('workspace.deleteInstructions')}</div>
-      )}
+      {!canDeleteWorkspace && <div className="text-sm text-base-content/70">{t('workspace.deleteInstructions')}</div>}
     </DialogForm>
   )
 }

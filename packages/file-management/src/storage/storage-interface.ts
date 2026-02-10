@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import { ExtractionMethod, StorageStatus } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-commons'
 
 import { FileManifest, LibraryManifest, StorageUsage, WorkspaceManifest } from '../schemas'
 import { ExtractionMetadata } from '../schemas/extraction-metadata'
@@ -127,6 +127,4 @@ export interface IStorageService {
   deleteFiles(workspaceId: string, selector: { libraryId: string; fileId?: string | null }): Promise<void>
 
   reconcile(workspaceId: string, options?: { libraryId?: string; fileId?: string }): Promise<StorageUsage>
-
-  getStorageStatus(workspaceId: string, args: { libraryId: string; fileId?: string | null }): Promise<StorageStatus>
 }

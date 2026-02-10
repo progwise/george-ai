@@ -9,8 +9,8 @@ export const dropAllLibraryFilesFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     return backendRequest(
       graphql(`
-        mutation dropAllLibraryFiles($libraryId: String!) {
-          dropAllLibraryFiles(libraryId: $libraryId)
+        mutation clearLibraryFiles($libraryId: String!) {
+          clearFiles(libraryId: $libraryId)
         }
       `),
       data,
@@ -25,7 +25,7 @@ export const deleteLibraryFileFn = createServerFn({ method: 'POST' })
     const result = await backendRequest(
       graphql(`
         mutation deleteLibraryFile($libraryId: String!, $fileId: String!) {
-          deleteLibraryFile(libraryId: $libraryId, fileId: $fileId) {
+          deleteFile(libraryId: $libraryId, fileId: $fileId) {
             id
             name
           }
@@ -33,7 +33,7 @@ export const deleteLibraryFileFn = createServerFn({ method: 'POST' })
       `),
       data,
     )
-    return result.deleteLibraryFile
+    return result.deleteFile
   })
 
 export const deleteLibraryFilesFn = createServerFn({ method: 'POST' })
@@ -44,7 +44,7 @@ export const deleteLibraryFilesFn = createServerFn({ method: 'POST' })
     return backendRequest(
       graphql(`
         mutation deleteLibraryFiles($libraryId: String!, $fileIds: [ID!]!) {
-          deleteLibraryFiles(libraryId: $libraryId, fileIds: $fileIds)
+          deleteFiles(libraryId: $libraryId, fileIds: $fileIds)
         }
       `),
       data,

@@ -74,7 +74,7 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  const lockKey = fileInfo.fileId
+  const lockKey = fileId
 
   // Check if file is already being uploaded
   if (uploadLocks.has(lockKey)) {
@@ -138,18 +138,18 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
   try {
     const fileManifest = await workspaceStorage.writeSource(context.workspaceId, {
       libraryId: fileInfo.libraryId,
-      fileId: fileInfo.fileId,
+      fileId: fileInfo.id,
       stream,
       meta: {
         mimeType: fileInfo.mimeType || 'application/octet-stream',
         originalName: fileInfo.name,
-        originalUpdatedAt: fileInfo.originalUpdatedAt?.toISOString() || new Date().toISOString(),
-        originalContentHash: fileInfo.sourceHash,
+        originalUpdatedAt: fileInfo.originModificationDate?.toISOString() || new Date().toISOString(),
+        originalContentHash: fileInfo.originFileHash,
       },
     })
     await workspace.markUploadFinished(context.workspaceId, {
       libraryId: fileInfo.libraryId,
-      fileId: fileInfo.fileId,
+      fileId: fileInfo.id,
     })
     uploadCompleted = true
     httpResponse.statusCode = 200

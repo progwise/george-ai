@@ -6,8 +6,9 @@ import './queries'
 import './mutations'
 
 import { FieldContextType, FieldSourceType, FieldType } from '../../domain/list'
+import { logger } from '../common'
 
-console.log('Setting up: AiListField')
+logger.info('Setting up: AiListField')
 
 builder.prismaObject('AiListField', {
   name: 'AiListField',

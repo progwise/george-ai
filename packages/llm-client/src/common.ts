@@ -1,14 +1,6 @@
 import { createLogger } from '@george-ai/app-commons'
 
-export const SUPPORTED_PROVIDERS = ['ollama', 'openai'] as const
-export type SupportedProvider = (typeof SUPPORTED_PROVIDERS)[number]
-
 export const logger = createLogger('llm-client')
-
-export interface ProviderConnection {
-  providerBaseUrl?: string
-  providerApiKey?: string
-}
 
 export interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -47,7 +39,7 @@ export interface ChatCompletionStreamChunk {
   chunk: string
   metadata?: {
     tokensProcessed?: number
-    instanceUrl?: string // Which OLLAMA/OpenAI instance was used
+    instanceUrl?: string | null // Which OLLAMA/OpenAI instance was used
     promptTokens?: number // For usage tracking (OpenAI)
     completionTokens?: number // For usage tracking (OpenAI)
   }

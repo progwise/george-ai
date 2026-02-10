@@ -17,7 +17,7 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         query GetCrawlerRun(
           $libraryId: String!
@@ -69,6 +69,7 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
         updateTypeFilter: ctx.data.updateTypeFilter,
       },
     )
+    return result.aiLibraryCrawlerRun
   })
 
 export const getCrawlerRunQueryOptions = ({

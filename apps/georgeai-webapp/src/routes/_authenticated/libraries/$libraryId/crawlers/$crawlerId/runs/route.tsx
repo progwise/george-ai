@@ -36,9 +36,7 @@ function RouteComponent() {
   const {
     data: { runs: crawlerRuns },
   } = useSuspenseQuery(getCrawlerRunsQueryOptions({ ...params, ...{ skip: search.skipRuns, take: search.takeRuns } }))
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions(params))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions(params))
   return (
     <div className="drawer grow gap-4 lg:drawer-open">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />

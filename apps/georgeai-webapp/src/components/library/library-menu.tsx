@@ -1,13 +1,15 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link, useParams, useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { LibraryMenu_AiLibrariesFragment, LibraryMenu_AiLibraryFragment } from '../../gql/graphql'
+import { LibraryMenu_AiLibraryFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
 import { NewLibraryDialog } from './new-library-dialog'
+import { getLibrariesQueryOptions } from './queries'
 import { useLibraryActions } from './use-library-actions'
 
 graphql(`
@@ -15,23 +17,14 @@ graphql(`
     id
     name
     filesCount
-    ownerId
-  }
-`)
-
-graphql(`
-  fragment LibraryMenu_AiLibraries on AiLibrary {
-    id
-    name
   }
 `)
 
 interface LibraryMenuProps {
   library: LibraryMenu_AiLibraryFragment
-  selectableLibraries: LibraryMenu_AiLibrariesFragment[]
 }
 
-export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) => {
+export const LibraryMenu = ({ library }: LibraryMenuProps) => {
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const librarySelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
@@ -40,6 +33,8 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
   const { user } = useRouteContext({ strict: false })
 
   const { deleteLibrary, isPending } = useLibraryActions(library.id)
+
+  const { data: selectableLibraries } = useQuery(getLibrariesQueryOptions())
 
   useEffect(() => {
     if (!librarySelectorDetailsRef.current) return
@@ -67,34 +62,38 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
           <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('libraries.title')}</span>
         </li>
         <li>
-          <details aria-label={t('libraries.selectLibrary')} ref={librarySelectorDetailsRef} className="z-40">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {library.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableLibraries.map((library) => (
-                <li role="option" key={library.id}>
-                  <Link
-                    to={
-                      params.crawlerId
-                        ? '/libraries/$libraryId/crawlers'
-                        : params.fileId
-                          ? '/libraries/$libraryId/files'
-                          : '.'
-                    }
-                    className="text-nowrap"
-                    params={{ libraryId: library.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      librarySelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {library.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
+          {!selectableLibraries ? (
+            <span className="h-6 w-24 skeleton skeleton-text" />
+          ) : (
+            <details aria-label={t('libraries.selectLibrary')} ref={librarySelectorDetailsRef} className="z-40">
+              <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
+                {library.name}
+              </summary>
+              <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
+                {selectableLibraries.items.map((library) => (
+                  <li role="option" key={library.id}>
+                    <Link
+                      to={
+                        params.crawlerId
+                          ? '/libraries/$libraryId/crawlers'
+                          : params.fileId
+                            ? '/libraries/$libraryId/files'
+                            : '.'
+                      }
+                      className="text-nowrap"
+                      params={{ libraryId: library.id }}
+                      activeProps={{ className: 'font-bold' }}
+                      onClick={() => {
+                        librarySelectorDetailsRef.current?.removeAttribute('open')
+                      }}
+                    >
+                      {library.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
         </li>
         <li className="grow items-end">
           <button

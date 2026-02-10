@@ -1,23 +1,24 @@
-import { ChatCompletionStreamChunk, Message, SupportedProvider } from './common'
+import { ModelProvider, ProviderConnection } from '@george-ai/app-commons'
+
+import { ChatCompletionStreamChunk, Message } from './common'
 import { ollamaApi } from './ollama'
 import { openAiApi } from './openAi'
 
 export const chat = async (parameters: {
-  modelProvider: SupportedProvider
+  modelProvider: ModelProvider
   modelName: string
   messages: Message[]
-  apiKey?: string
-  apiUrl?: string
+  connection: ProviderConnection
 }): Promise<ReadableStream<ChatCompletionStreamChunk>> => {
-  const { modelProvider, modelName, messages, apiUrl, apiKey } = parameters
+  const { modelProvider, modelName, messages, connection } = parameters
 
   const abortController = new AbortController()
-
+  const { baseUrl, apiKey } = connection
   if (modelProvider === 'ollama') {
-    if (!apiUrl) {
+    if (!baseUrl) {
       throw new Error('Ollama apiUrl is required in parameters')
     }
-    const result = await ollamaApi.getChatResponseStream({ apiUrl, apiKey }, modelName, messages, {
+    const result = await ollamaApi.getChatResponseStream({ baseUrl, apiKey }, modelName, messages, {
       abortSignal: abortController.signal,
       includeUsage: true, // Enable token usage tracking
     })
@@ -26,7 +27,7 @@ export const chat = async (parameters: {
     if (!apiKey) {
       throw new Error('OpenAI apiKey is required in parameters')
     }
-    const result = await openAiApi.getChatResponseStream({ apiKey: apiKey }, modelName, messages, {
+    const result = await openAiApi.getChatResponseStream({ baseUrl, apiKey }, modelName, messages, {
       abortSignal: abortController.signal,
       includeUsage: true, // Enable token usage tracking
     })

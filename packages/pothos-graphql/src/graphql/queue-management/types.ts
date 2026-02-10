@@ -1,7 +1,5 @@
 import { builder } from '../builder'
 
-console.log('Setting up: Queue Management Types')
-
 // Enum: Queue Type
 export const QueueType = builder.enumType('QueueType', {
   values: ['ENRICHMENT', 'AUTOMATION'] as const,

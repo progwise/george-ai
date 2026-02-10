@@ -6,7 +6,7 @@ import { dateTimeStringShort } from '@george-ai/app-commons'
 import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { ActionType, AiLibraryFile_FilesTableFragment, AiLibrary_FilesTableFragment } from '../../../gql/graphql'
+import { ActionType, AiLibraryFile_FilesTableFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
@@ -27,7 +27,9 @@ graphql(`
   fragment AiLibrary_FilesTable on AiLibrary {
     id
     name
-    storageStatus
+    manifest {
+      name
+    }
   }
 `)
 
@@ -44,35 +46,30 @@ graphql(`
     createdAt
     originModificationDate
     archivedAt
-    embeddingInfo {
-      extractionMethod
-      modelName
-      chunkCount
-    }
-    fileInfo {
-      sourceHash
+    chunkCount
+    manifest {
+      version
+      mimeType
+      originalContentHash
       originalUpdatedAt
-      usage {
-        sourceBytes
-        extractedBytes
-        activeExtractedBytes
-        physicalBytes
-        sourceFiles
-        extractions
-        activeExtractions
-        physicalFiles
-        lastReconcile
-      }
+      sourceHash
+      createdAt
       extractions {
         extractionMethod
         extractionHash
         extractionDate
       }
+      usage {
+        sourceBytes
+        physicalBytes
+        lastReconcile
+        activeExtractions
+        extractions
+      }
     }
   }
 `)
 interface FilesTableProps {
-  library: AiLibrary_FilesTableFragment
   files: AiLibraryFile_FilesTableFragment[]
   firstItemNumber: number
 }
@@ -218,7 +215,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       {t('labels.archived')}
                     </span>
                   )}
-                  {!file.fileInfo ? (
+                  {!file.manifest ? (
                     <span
                       className="badge gap-1 badge-outline badge-sm badge-warning"
                       title={t('errors.fileMissingInfo')}
@@ -226,24 +223,24 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <ExclamationIcon className="size-3" />
                       {t('errors.missingInfo')}
                     </span>
-                  ) : file.fileInfo.extractions.length === 0 ? (
+                  ) : file.manifest.extractions.length === 0 ? (
                     <span className="badge gap-1 badge-outline badge-sm badge-info" title={t('files.noExtractionsYet')}>
                       <CalendarIcon className="size-3" />
                       {t('files.noExtractions')}
                     </span>
                   ) : (
-                    file.fileInfo.extractions
+                    file.manifest.extractions
                       .sort((a, b) => new Date(a.extractionDate).getTime() - new Date(b.extractionDate).getTime())
                       .map((extraction) => (
                         <span
                           key={`${file.id}-extraction-${extraction.extractionMethod}`}
                           className={twMerge(
                             'badge gap-1 badge-sm',
-                            file.fileInfo?.sourceHash === extraction.extractionHash ? 'badge-success' : 'badge-warning',
+                            file.manifest?.sourceHash === extraction.extractionHash ? 'badge-success' : 'badge-warning',
                           )}
                           title={`${t('files.extractionMethod')}: ${extraction.extractionMethod}`}
                         >
-                          {file.fileInfo?.sourceHash === extraction.extractionHash ? (
+                          {file.manifest?.sourceHash === extraction.extractionHash ? (
                             <CheckIcon className="size-3" />
                           ) : (
                             <ExclamationIcon className="size-3" />
@@ -259,7 +256,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
                 <span>{t('labels.chunks')}:</span>
-                <span>{file.embeddingInfo?.reduce((acc, info) => acc + info.chunkCount, 0) ?? '-'}</span>
+                <span>{file.chunkCount !== null && file.chunkCount !== undefined ? file.chunkCount : '-'}</span>
                 <span>{t('labels.processed')}:</span>
                 {file.originModificationDate && (
                   <>
@@ -397,13 +394,13 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 </td>
                 <td className="text-nowrap">{formatBytes(file.size) ?? '-'}</td>
                 <td>
-                  {file.fileInfo?.usage.activeExtractions ?? '-'}/{file.fileInfo?.extractions.length ?? '-'}
+                  {file.manifest?.usage.activeExtractions ?? '-'}/{file.manifest?.usage.extractions ?? '-'}
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file?.fileInfo?.originalUpdatedAt} format="dateTime" fallback="" />
+                  <ClientDate date={file?.manifest?.originalUpdatedAt} format="dateTime" fallback="" />
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file?.fileInfo?.usage.lastReconcile} format="dateTime" fallback="" />
+                  <ClientDate date={file?.manifest?.usage.lastReconcile} format="dateTime" fallback="" />
                 </td>
               </tr>
             ))}

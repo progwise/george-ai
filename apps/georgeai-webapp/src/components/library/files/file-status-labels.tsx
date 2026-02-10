@@ -1,23 +1,22 @@
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../../gql'
-import { AiLibraryFile_FileStatusLabelsFragment } from '../../../gql/graphql'
+import { FileStatusLabels_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
 graphql(`
-  fragment AiLibraryFile_FileStatusLabels on AiLibraryFile {
+  fragment FileStatusLabels_File on AiLibraryFile {
     id
     supportedExtractionMethods
     name
-    fileInfo {
-      fileName
+    manifest {
       extractions {
         extractionMethod
         extractionDate
         extractionHash
       }
     }
-    embeddingInfo {
+    embeddingStatistics {
       extractionMethod
       modelName
       chunkCount
@@ -26,17 +25,17 @@ graphql(`
 `)
 
 interface FileStatusLabelsProps {
-  file: AiLibraryFile_FileStatusLabelsFragment
+  file: FileStatusLabels_FileFragment
 }
 
 export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
   useTranslation()
-  const { supportedExtractionMethods, fileInfo, embeddingInfo } = file
+  const { supportedExtractionMethods, manifest, embeddingStatistics } = file
 
-  const sortedExtractions = fileInfo?.extractions.sort((a, b) => b.extractionDate.localeCompare(a.extractionDate)) || []
+  const sortedExtractions = manifest?.extractions.sort((a, b) => b.extractionDate.localeCompare(a.extractionDate)) || []
 
   const extractionsWithEmbeddingInfo = sortedExtractions?.map((extraction) => {
-    const embedding = embeddingInfo?.find((e) => e.extractionMethod === extraction.extractionMethod)
+    const embedding = embeddingStatistics?.find((e) => e.extractionMethod === extraction.extractionMethod)
     return { ...extraction, embedding }
   })
 

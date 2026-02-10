@@ -18,31 +18,25 @@ const queryFiles = createServerFn({ method: 'GET' })
   .handler(async (ctx) => {
     const result = await backendRequest(
       graphql(`
-        query queryLibraryFiles($libraryId: String!, $query: String!, $skip: Int!, $take: Int!) {
-          queryAiLibraryFiles(libraryId: $libraryId, query: $query, skip: $skip, take: $take) {
-            libraryId
-            query
-            take
-            skip
+        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {
+          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {
             hitCount
-            hits {
-              pageContent
-              docName
-              docId
+            results {
               id
-              docPath
-              originUri
-              highlights {
-                field
-                snippet
-              }
+              libraryId
+              fileId
+              filename
+              extractionMethod
+              chunk
+              content
+              ...LibraryQueryResult_FileChunk
             }
           }
         }
       `),
       { ...ctx.data },
     )
-    return result.queryAiLibraryFiles
+    return result.queryFileChunks
   })
 
 export const queryFilesQueryOptions = (params: { libraryId: string; query: string; skip: number; take: number }) => ({

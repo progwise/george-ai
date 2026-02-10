@@ -10,7 +10,7 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
     const result = await backendRequest(
       graphql(`
         query GetAiServiceStatus {
-          aiServiceStatus {
+          modelProviderStatus {
             instances {
               name
               url
@@ -51,7 +51,7 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
       `),
       {},
     )
-    return result.aiServiceStatus
+    return result.modelProviderStatus
   } catch (error) {
     console.error('Failed to fetch AI service status:', error)
     throw error

@@ -10,7 +10,6 @@ import { getAttachmentFilePath } from './get-attachment-filepath'
 import { getExtraction } from './get-extraction'
 import { getFile } from './get-file'
 import { getLibrary } from './get-library'
-import { getStorageStatus } from './get-storage-status'
 import { getWorkspace } from './get-workspace'
 import { migrateWorkspace } from './migrate-workspace'
 import { moveLibrary } from './move-library'
@@ -42,7 +41,6 @@ const nodeStorage: IStorageService = {
   getAttachmentFilePath,
   deleteFiles,
   reconcile,
-  getStorageStatus,
 }
 
 export default nodeStorage

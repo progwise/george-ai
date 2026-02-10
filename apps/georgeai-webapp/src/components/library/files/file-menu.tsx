@@ -1,14 +1,25 @@
 import { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { ActionType, AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
+import { graphql } from '../../../gql'
+import { ActionType, FileMenu_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { useLibraryActions } from '..//use-library-actions'
 import { FileInfoBox } from './file-info-box'
 import { FileInfoFiles } from './file-info-files'
 
+graphql(`
+  fragment FileMenu_File on AiLibraryFile {
+    id
+    libraryId
+    name
+    ...FileInfoBox_File
+    ...FileInfo_Files
+  }
+`)
+
 interface FileMenuProps {
-  file: AiLibraryFileInfo_CaptionCardFragment
+  file: FileMenu_FileFragment
 }
 
 export const FileMenu = ({ file }: FileMenuProps) => {

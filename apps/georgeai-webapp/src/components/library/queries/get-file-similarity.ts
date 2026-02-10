@@ -5,6 +5,7 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
+// TODO: Query currently not implemented, only similarity
 const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
@@ -14,47 +15,45 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
         term: z.string().optional(),
         hits: z.number().int().min(1).default(20),
         part: z.number().int().optional(),
-        useQuery: z.boolean().optional(),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getSimilarFileChunks(
+        query getSimilarChunks(
           $libraryId: String!
           $fileId: String!
           $term: String
-          $hits: Int!
-          $part: Int
-          $useQuery: Boolean
+          $maxResults: Int!
+          $fragment: Int
+          $modelProvider: ModelProvider!
+          $modelName: String!
         ) {
-          aiSimilarFileChunks(
+          similarChunks(
             libraryId: $libraryId
             fileId: $fileId
             term: $term
-            hits: $hits
-            part: $part
-            useQuery: $useQuery
+            maxResults: $maxResults
+            fragment: $fragment
+            modelProvider: $modelProvider
+            modelName: $modelName
           ) {
             id
-            fileName
-            fileId
-            originUri
-            text
-            section
-            headingPath
-            chunkIndex
-            subChunkIndex
             distance
-            points
-            part
+            chunk
+            filename
+            fileId
+            extractionMethod
+            content
+            embeddingModelNames
+            fragment
           }
         }
       `),
-      { fileId: data.fileId, term: data.term, hits: data.hits, part: data.part, useQuery: data.useQuery },
+      data,
     )
-    return result
+    return result.similarChunks
   })
 
 export const getSimilarFileChunksQueryOptions = (params: {
@@ -62,7 +61,6 @@ export const getSimilarFileChunksQueryOptions = (params: {
   term?: string
   hits?: number
   part?: number
-  useQuery?: boolean
 }) => ({
   queryKey: [queryKeys.SimilarFileChunks, { ...params }],
   queryFn: () =>
@@ -72,7 +70,6 @@ export const getSimilarFileChunksQueryOptions = (params: {
         term: params.term,
         hits: params.hits,
         part: params.part,
-        useQuery: params.useQuery,
       },
     }),
 })

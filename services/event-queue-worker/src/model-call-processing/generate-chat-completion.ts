@@ -9,8 +9,7 @@ export async function generateChatCompletion(event: ChatCompletionCall, provider
     modelProvider: providerInstance.modelProvider,
     modelName: event.modelName,
     messages: event.messages,
-    apiUrl: providerInstance.baseUrl,
-    apiKey: providerInstance.apiKey,
+    connection: providerInstance.connection,
   })
   logger.debug('Generated chat completion result', { chatResponseStream })
 }

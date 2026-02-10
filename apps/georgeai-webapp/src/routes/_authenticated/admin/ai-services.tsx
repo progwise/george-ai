@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { getAiServiceStatusQueryOptions } from '../../../components/admin/ai-services/get-ai-service-status'
-import { getAiProvidersQueryOptions } from '../../../components/admin/queries/get-ai-providers'
+import { getModelProvidersQueryOptions } from '../../../components/admin/queries'
 import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
 import { deleteProviderFn } from '../../../components/admin/server-functions/delete-provider'
 import { restoreDefaultProvidersFn } from '../../../components/admin/server-functions/restore-default-providers'
@@ -13,7 +13,7 @@ import { updateProviderFn } from '../../../components/admin/server-functions/upd
 import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
-import { AiServiceProviderInput } from '../../../gql/graphql'
+import { ModelProviderInput } from '../../../gql/graphql'
 import BotIcon from '../../../icons/bot-icon'
 import { EditIcon } from '../../../icons/edit-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
@@ -26,7 +26,7 @@ export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getAiServiceStatusQueryOptions()),
-      context.queryClient.ensureQueryData(getAiProvidersQueryOptions()),
+      context.queryClient.ensureQueryData(getModelProvidersQueryOptions()),
     ])
   },
 })
@@ -80,13 +80,13 @@ function AiServicesAdminPage() {
     refetchInterval: autoRefresh ? 5000 : false,
   })
 
-  const { data: providers } = useSuspenseQuery(getAiProvidersQueryOptions())
+  const { data: providers } = useSuspenseQuery(getModelProvidersQueryOptions())
 
   const createMutation = useMutation({
-    mutationFn: (data: AiServiceProviderInput) => createProviderFn({ data }),
+    mutationFn: (data: ModelProviderInput) => createProviderFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider created successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
@@ -98,11 +98,10 @@ function AiServicesAdminPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: AiServiceProviderInput }) =>
-      updateProviderFn({ data: { id, data } }),
+    mutationFn: ({ id, data }: { id: string; data: ModelProviderInput }) => updateProviderFn({ data: { id, data } }),
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
@@ -117,7 +116,7 @@ function AiServicesAdminPage() {
     mutationFn: (id: string) => deleteProviderFn({ data: id }),
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
@@ -131,7 +130,7 @@ function AiServicesAdminPage() {
   const toggleMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
     onSuccess: () => {
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
     },
     onError: (error) => {
@@ -144,7 +143,7 @@ function AiServicesAdminPage() {
     mutationFn: restoreDefaultProvidersFn,
     onSuccess: (result) => {
       toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
     },
     onError: (error) => {
@@ -161,14 +160,12 @@ function AiServicesAdminPage() {
         toastSuccess(
           <div>
             <div>{result.message}</div>
-            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
           </div>,
         )
       } else {
         toastError(
           <div>
             <div>{result.message}</div>
-            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
           </div>,
         )
       }
@@ -178,7 +175,7 @@ function AiServicesAdminPage() {
       toastError(message || 'Connection test failed')
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
+      queryClient.invalidateQueries(getModelProvidersQueryOptions())
       queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
     },
   })
@@ -219,7 +216,7 @@ function AiServicesAdminPage() {
     const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
     const formApiKey = (formData.get('apiKey') as string)?.trim()
 
-    const data: AiServiceProviderInput = {
+    const data: ModelProviderInput = {
       provider: selectedProviderType,
       name: formData.get('name') as string,
       enabled: formData.get('enabled') === 'on',

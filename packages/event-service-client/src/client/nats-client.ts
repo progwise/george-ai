@@ -484,9 +484,17 @@ export class NatsClient implements EventClient {
       throw new Error('Not connected to event service')
     }
 
-    const response = await this.nc.request(subject, payload, {
-      timeout: timeoutMs,
-    })
+    const response = await this.nc
+      .request(subject, payload, {
+        timeout: timeoutMs,
+      })
+      .catch((error) => {
+        logger.error('Error in request', { error, subject })
+        if (error.message === '503') {
+          throw new Error('No responders available for subject: ' + subject)
+        }
+        throw error
+      })
 
     return response.data
   }

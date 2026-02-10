@@ -19,28 +19,40 @@ const getFileChunks = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getFileChunks($libraryId: String!, $fileId: String!, $skip: Int!, $take: Int!, $part: Int) {
-          aiFileChunks(libraryId: $libraryId, fileId: $fileId, skip: $skip, take: $take, part: $part) {
-            fileId
-            fileName
-            take
-            skip
-            count
+        query getFileChunks(
+          $libraryId: String!
+          $fileId: String!
+          $skip: Int
+          $take: Int
+          $extractionMethod: ExtractionMethod
+          $fragment: Int
+        ) {
+          fileChunks(
+            libraryId: $libraryId
+            fileId: $fileId
+            skip: $skip
+            take: $take
+            extractionMethod: $extractionMethod
+            fragment: $fragment
+          ) {
+            totalCount
             chunks {
               id
-              text
-              section
-              headingPath
-              chunkIndex
-              subChunkIndex
-              part
+              libraryId
+              fileId
+              chunk
+              content
+              filename
+              extractionMethod
+              embeddingModelNames
+              fragment
             }
           }
         }
       `),
       { ...data },
     )
-    return result
+    return result.fileChunks || { totalCount: undefined }
   })
 
 export const getFileChunksQueryOptions = (params: {

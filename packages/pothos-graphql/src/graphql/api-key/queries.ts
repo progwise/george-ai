@@ -3,8 +3,6 @@ import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
 
-console.log('Setting up: ApiKey Queries')
-
 builder.queryField('apiKeys', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['ApiKey'],

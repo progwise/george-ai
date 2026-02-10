@@ -3,8 +3,6 @@ import { apiKey, canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
 
-console.log('Setting up: ApiKey Mutations')
-
 // Type returned when generating a new API key (includes the plain text key)
 const ApiKeyWithSecret = builder.simpleObject('ApiKeyWithSecret', {
   fields: (t) => ({

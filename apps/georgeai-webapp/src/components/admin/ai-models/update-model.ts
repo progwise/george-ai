@@ -10,7 +10,7 @@ export const updateAiLanguageModel = createServerFn({ method: 'POST' })
     return await backendRequest(
       graphql(`
         mutation UpdateAiLanguageModel($id: ID!, $data: UpdateAiLanguageModelInput!) {
-          updateAiLanguageModel(id: $id, data: $data) {
+          updateModel(id: $id, data: $data) {
             id
             enabled
             adminNotes

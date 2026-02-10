@@ -4,4 +4,6 @@ import './mutations'
 import './crawler'
 import './crawler-run'
 
-console.log('Setting up: AiLibraryCrawler')
+import { logger } from '../common'
+
+logger.info('Setting up: AiLibraryCrawler')

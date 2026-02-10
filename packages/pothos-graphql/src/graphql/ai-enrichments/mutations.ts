@@ -6,7 +6,7 @@ import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } fr
 import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
-import { logger } from './common'
+import { logger } from '../common'
 
 // PostgreSQL has a limit of 32,767 bind variables in prepared statements
 // Use a safe batch size that accounts for complex queries with multiple binds per item

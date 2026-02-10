@@ -2,25 +2,18 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { LibraryMenu } from '../../../../components/library/library-menu'
-import { getLibrariesQueryOptions } from '../../../../components/library/queries/get-libraries'
 import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getLibrariesQueryOptions()),
-      context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId)),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))])
   },
 })
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const {
-    data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions())
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   const { t } = useTranslation()
@@ -28,7 +21,7 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div>
-        <LibraryMenu library={aiLibrary} selectableLibraries={aiLibraries} />
+        <LibraryMenu library={aiLibrary} />
       </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
         <a className="tab tab-disabled flex-1 cursor-default text-center">

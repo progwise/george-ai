@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql/error'
+
 import {
   startAllWorkers,
   startAutomationQueueWorker,
@@ -7,9 +9,10 @@ import {
   stopEnrichmentQueueWorker,
 } from '../../worker-queue'
 import { builder } from '../builder'
+import { logger } from '../common'
 import { QueueOperationResult, QueueType } from './types'
 
-console.log('Setting up: Queue Management Mutations')
+logger.info('Setting up: Queue Management Mutations')
 
 // Mutation: Start all workers
 builder.mutationField('startAllQueueWorkers', (t) =>
@@ -21,7 +24,7 @@ builder.mutationField('startAllQueueWorkers', (t) =>
     },
     resolve: async (_, __, { session }) => {
       if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
+        throw new GraphQLError('Admin access required')
       }
 
       try {
@@ -31,7 +34,7 @@ builder.mutationField('startAllQueueWorkers', (t) =>
           message: 'All queue workers started successfully',
         }
       } catch (error) {
-        console.error('Failed to start all workers:', error)
+        logger.error('Failed to start all workers:', error)
         return {
           success: false,
           message: `Failed to start workers: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -51,7 +54,7 @@ builder.mutationField('stopAllQueueWorkers', (t) =>
     },
     resolve: async (_, __, { session }) => {
       if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
+        throw new GraphQLError('Admin access required')
       }
 
       try {
@@ -61,7 +64,7 @@ builder.mutationField('stopAllQueueWorkers', (t) =>
           message: 'All queue workers stopped successfully',
         }
       } catch (error) {
-        console.error('Failed to stop all workers:', error)
+        logger.error('Failed to stop all workers:', error)
         return {
           success: false,
           message: `Failed to stop workers: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -84,7 +87,7 @@ builder.mutationField('startQueueWorker', (t) =>
     },
     resolve: async (_, { queueType }, { session }) => {
       if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
+        throw new GraphQLError('Admin access required')
       }
 
       try {
@@ -99,7 +102,7 @@ builder.mutationField('startQueueWorker', (t) =>
           message: `${queueType} worker started successfully`,
         }
       } catch (error) {
-        console.error(`Failed to start ${queueType} worker:`, error)
+        logger.error('Failed to start worker:', error)
         return {
           success: false,
           message: `Failed to start ${queueType} worker: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -122,7 +125,8 @@ builder.mutationField('stopQueueWorker', (t) =>
     },
     resolve: async (_, { queueType }, { session }) => {
       if (!session?.user?.isAdmin) {
-        throw new Error('Admin access required')
+        logger.error('Unauthorized attempt to stop queue worker', { userId: session?.user?.id, queueType })
+        throw new GraphQLError('Admin access required')
       }
 
       try {
@@ -137,7 +141,7 @@ builder.mutationField('stopQueueWorker', (t) =>
           message: `${queueType} worker stopped successfully`,
         }
       } catch (error) {
-        console.error(`Failed to stop ${queueType} worker:`, error)
+        logger.error('Failed to stop worker:', error)
         return {
           success: false,
           message: `Failed to stop ${queueType} worker: ${error instanceof Error ? error.message : 'Unknown error'}`,

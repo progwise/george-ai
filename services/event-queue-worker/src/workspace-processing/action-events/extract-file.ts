@@ -66,7 +66,6 @@ export async function extractFile(event: ExtractFileAction) {
           },
         ],
         attachmentFilePaths: attachmentFilePaths.filter((path): path is string => !!path),
-        timestamp: new Date().toISOString(),
       })
 
       logger.info('Published image analysis provider call', {

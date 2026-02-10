@@ -141,8 +141,8 @@ const OllamaStreamChunkSchema = z.object({
 export type OllamaStreamChunk = z.infer<typeof OllamaStreamChunkSchema>
 
 interface FetchParams {
-  apiUrl: string
-  apiKey?: string
+  baseUrl: string
+  apiKey?: string | null
 }
 
 async function ollamaApiGet<T>(
@@ -152,7 +152,7 @@ async function ollamaApiGet<T>(
 ): Promise<z.infer<typeof schema>> {
   const response = await pRetry(
     () =>
-      fetch(`${instance.apiUrl}${endpoint}`, {
+      fetch(`${instance.baseUrl}${endpoint}`, {
         headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
       }),
     { retries: 3 },
@@ -176,7 +176,7 @@ async function ollamaApiPost<T>(
 ): Promise<z.infer<typeof schema>> {
   const response = await pRetry(
     () =>
-      fetch(`${instance.apiUrl}${endpoint}`, {
+      fetch(`${instance.baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -245,7 +245,7 @@ async function getChatResponseStream(
     // Use pRetry for resilience against transient API errors
     response = await pRetry(
       () =>
-        fetch(`${params.apiUrl}/api/chat`, {
+        fetch(`${params.baseUrl}/api/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ async function getChatResponseStream(
       model: modelName,
       params,
     })
-    throw new Error(`Network error connecting to Ollama at ${params.apiUrl}: ${errorMessage}\nModel: ${modelName}`)
+    throw new Error(`Network error connecting to Ollama at ${params.baseUrl}: ${errorMessage}\nModel: ${modelName}`)
   }
 
   if (!response.ok) {
@@ -282,13 +282,13 @@ async function getChatResponseStream(
     })
     throw new Error(
       `Failed to receive stream from Ollama: ${response.status} ${response.statusText}\n` +
-        `Model: ${modelName}\nURL: ${params.apiUrl}\n` +
+        `Model: ${modelName}\nURL: ${params.baseUrl}\n` +
         `Response: ${responseText}`,
     )
   }
 
   if (!response.body) {
-    throw new Error(`No response body stream from Ollama (URL: ${params.apiUrl}, Model: ${modelName})`)
+    throw new Error(`No response body stream from Ollama (URL: ${params.baseUrl}, Model: ${modelName})`)
   }
 
   // Create a transform stream that parses JSON chunks and respects abort signal
@@ -316,7 +316,7 @@ async function getChatResponseStream(
           const commonChunk: ChatCompletionStreamChunk = {
             chunk: parsedChunk.message?.content || '',
             metadata: {
-              instanceUrl: params.apiUrl, // Track which instance processed this
+              instanceUrl: params.baseUrl, // Track which instance processed this
             },
           }
           if (options?.includeUsage) {

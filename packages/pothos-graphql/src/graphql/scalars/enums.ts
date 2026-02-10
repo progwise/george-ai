@@ -1,4 +1,4 @@
-import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, ROLES, STORAGE_STATUS } from '@george-ai/app-commons'
+import { EMBEDDING_STATUS, EXTRACTION_METHODS } from '@george-ai/app-commons'
 import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../../domain/automation/constants'
@@ -11,8 +11,8 @@ import {
 } from '../../domain/list'
 import { builder } from '../builder'
 
-builder.enumType('Role', {
-  values: ROLES,
+builder.enumType('SortOrder', {
+  values: ['asc', 'desc'],
 })
 
 builder.enumType('AutomationItemStatus', {
@@ -25,10 +25,6 @@ builder.enumType('BatchStatus', {
 
 builder.enumType('TriggerType', {
   values: TRIGGER_TYPE,
-})
-
-builder.enumType('StorageStatus', {
-  values: STORAGE_STATUS,
 })
 
 builder.enumType('EmbeddingStatus', {
@@ -57,10 +53,6 @@ builder.enumType('ActionType', {
 
 builder.enumType('WorkerType', {
   values: workerRegistry.WORKER_TYPES,
-})
-
-builder.enumType('ModelProvider', {
-  values: MODEL_PROVIDERS,
 })
 
 builder.enumType('ListFieldSourceType', {

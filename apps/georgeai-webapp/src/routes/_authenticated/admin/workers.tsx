@@ -1,9 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getWorkspaceWorkersQueryOptions } from '../../../components/admin/queries/get-workers'
 import { ManageWorkersMenu } from '../../../components/admin/workers/manage-workers-menu'
-import { getEventProcessingStatisticsQueryOptions } from '../../../components/workspace/queries/get-processing-statistics'
+import { getWorkspaceProcessStatisticsQueryOptions } from '../../../components/workspace/queries'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { ProcessingIcon } from '../../../icons/processing-icon'
@@ -14,28 +13,21 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getWorkspaceWorkersQueryOptions()),
-      context.queryClient.ensureQueryData(getEventProcessingStatisticsQueryOptions()),
+      context.queryClient.ensureQueryData(
+        getWorkspaceProcessStatisticsQueryOptions({ workspaceId: context.workspaceId }),
+      ),
     ])
   },
 })
 
 function RouteComponent() {
   const { t } = useTranslation()
+  const { workspaceId } = Route.useRouteContext()
 
-  // Use suspense query - data is guaranteed to be available
-  const { data: workers } = useSuspenseQuery({
-    ...getWorkspaceWorkersQueryOptions(),
+  const { data: processStatistics } = useSuspenseQuery({
+    ...getWorkspaceProcessStatisticsQueryOptions({ workspaceId }),
     refetchInterval: 5000, // Override refetch interval for auto-refresh
   })
-
-  const { data: eventProcessingStatistics } = useSuspenseQuery({
-    ...getEventProcessingStatisticsQueryOptions(),
-    refetchInterval: 5000, // Override refetch interval for auto-refresh
-  })
-
-  // Calculate overview statistics
-  const totalWorkers = workers.length
 
   // Helper to format time ago
   const formatTimeAgo = (dateString: string) => {
@@ -48,6 +40,19 @@ function RouteComponent() {
     if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)}h ago`
     return `${Math.floor(diffSeconds / 86400)}d ago`
   }
+
+  const now = new Date()
+
+  const workers = [
+    { healthy: true, lastHeartbeatAt: new Date().toISOString(), workerId: 'worker-1', workerType: 'type-A' },
+    {
+      healthy: false,
+      lastHeartbeatAt: new Date(now.getTime() - 600000).toISOString(),
+      workerId: 'worker-2',
+      workerType: 'type-B',
+    },
+  ] // Dummy data for workers
+  const totalWorkers = workers.length
 
   return (
     <div className="container mx-auto space-y-6 p-6">
@@ -152,9 +157,9 @@ function RouteComponent() {
         </div>
       </div>
       <div>
-        {eventProcessingStatistics && (
+        {processStatistics && (
           <pre className="rounded-md bg-base-200 p-4">
-            <code>{JSON.stringify(eventProcessingStatistics, null, 2)}</code>
+            <code>{JSON.stringify(processStatistics, null, 2)}</code>
           </pre>
         )}
       </div>

@@ -11,22 +11,27 @@ graphql(`
     name
     createdAt
     updatedAt
-    owner {
-      name
-    }
   }
 `)
 
 const librariesDocument = graphql(`
   query aiLibraries {
-    aiLibraries {
-      ...AiLibraryBase
+    libraries {
+      totalCount
+      items {
+        id
+        name
+        createdAt
+        updatedAt
+        ...AiLibraryBase
+      }
     }
   }
 `)
 
 const getLibraries = createServerFn({ method: 'GET' }).handler(async () => {
-  return backendRequest(librariesDocument)
+  const result = await backendRequest(librariesDocument)
+  return result.libraries
 })
 
 export const getLibrariesQueryOptions = () =>

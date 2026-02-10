@@ -8,18 +8,21 @@ interface WorkspaceStatusCardProps {
 }
 
 export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
-  const { workspaceStats: stats } = useWorkspace(user)
-  if (!stats) {
+  const { currentWorkspace } = useWorkspace(user)
+  if (!currentWorkspace) {
     return null // TODO: Skeleton loader
   }
 
-  const isLegacy = !stats.workspaceInfo
+  const workspaceVersion = currentWorkspace.manifest?.version
+  const isLegacy = currentWorkspace.manifest?.version !== 1
 
   return (
     <div className="stats min-w-50 flex-1 shadow-sm">
       <div className="stat py-3">
-        <div className="stat-title text-sm">{`${stats.workspaceInfo ? 'Workspace Version' + stats.workspaceInfo.version : 'Legacy Workspace'}`}</div>
-        <div className="stat-value text-2xl">{`${stats.name} `}</div>
+        <div className="stat-title text-sm">
+          {!isLegacy ? `Workspace Version ${workspaceVersion}` : 'Legacy Workspace'}
+        </div>
+        <div className="stat-value text-2xl">{`${currentWorkspace.name} `}</div>
         <div className="stat-desc text-xs text-error">
           {isLegacy ? (
             user.isAdmin ? (
@@ -29,12 +32,14 @@ export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
             )
           ) : (
             <>
-              <div className="badge badge-xs badge-info">{formatBytes(stats.workspaceInfo?.usage.physicalBytes)}</div>
-              <div className="badge badge-xs badge-info">{stats.workspaceInfo?.usage.physicalFiles} Files</div>
-              <div className="badge badge-xs badge-info">{stats.workspaceInfo?.usage.extractions} Extractions</div>
               <div className="badge badge-xs badge-info">
-                {stats.embeddingInfo?.reduce((acc, info) => acc + (info.chunkCount || 0), 0)} Embeddings
+                {formatBytes(currentWorkspace.manifest?.usage.physicalBytes)}
               </div>
+              <div className="badge badge-xs badge-info">{currentWorkspace.manifest?.usage.physicalFiles} Files</div>
+              <div className="badge badge-xs badge-info">
+                {currentWorkspace.manifest?.usage.extractions} Extractions
+              </div>
+              <div className="badge badge-xs badge-info">{currentWorkspace.chunksCount} Chunks for embeddings</div>
             </>
           )}
         </div>

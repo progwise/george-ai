@@ -2,26 +2,24 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { FileCaptionCard } from '../../../../../../components/library/files'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/queries'
+import { getFileQueryOptions } from '../../../../../../components/library/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await Promise.all([context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))])
+    await Promise.all([context.queryClient.ensureQueryData(getFileQueryOptions(params))])
   },
 })
 
 function RouteComponent() {
   const params = Route.useParams()
 
-  const {
-    data: { aiLibraryFile },
-  } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: params.fileId }))
+  const { data: file } = useSuspenseQuery(getFileQueryOptions(params))
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div className="flex flex-col gap-2">
-        <FileCaptionCard file={aiLibraryFile} />
+        <FileCaptionCard file={file} />
       </div>
       <div className="min-h-0 min-w-0">
         <Outlet />

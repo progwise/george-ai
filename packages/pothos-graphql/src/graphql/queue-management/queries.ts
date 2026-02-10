@@ -3,9 +3,10 @@ import { prisma } from '@george-ai/app-database'
 import { isAutomationWorkerRunning } from '../../worker-queue/automation-queue-worker'
 import { isEnrichmentWorkerRunning } from '../../worker-queue/enrichment-queue-worker'
 import { builder } from '../builder'
+import { logger } from '../common'
 import { QueueSystemStatus } from './types'
 
-console.log('Setting up: Queue Management Queries')
+logger.info('Setting up: Queue Management Queries')
 
 // Query: Get queue system status
 builder.queryField('queueSystemStatus', (t) =>

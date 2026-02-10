@@ -19,6 +19,7 @@ export const initializeWorkspaceProcessingStream = async () => {
 
 export type * from './schema'
 export type * from './common'
+export type * from './statistics'
 
 export default {
   stopProcessing,

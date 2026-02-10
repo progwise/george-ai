@@ -68,7 +68,11 @@ export const ModelSelect = <T extends ZodRawShape>({
     [capability],
   )
 
-  const { data, isLoading, isFetching } = useQuery(
+  const {
+    data: models,
+    isLoading,
+    isFetching,
+  } = useQuery(
     getLanguageModelsQueryOptions({
       skip: 0,
       take: page * ITEMS_PER_PAGE,
@@ -77,8 +81,7 @@ export const ModelSelect = <T extends ZodRawShape>({
     }),
   )
 
-  const models = data?.models ?? []
-  const hasMore = models.length < (data?.count ?? 0)
+  const hasMore = models ? models.count > page * ITEMS_PER_PAGE : null
 
   const errors = useMemo(() => {
     if (!schema || !selectedItem) return []
@@ -198,11 +201,11 @@ export const ModelSelect = <T extends ZodRawShape>({
             <div className="px-2 py-4 text-center">
               <span className="loading loading-sm loading-spinner" />
             </div>
-          ) : models.length === 0 ? (
+          ) : models?.count === 0 ? (
             <div className="px-2 py-4 text-center text-sm text-base-content/50">No models found</div>
           ) : (
             <div className="flex flex-1 flex-wrap gap-3 overflow-y-auto p-2">
-              {models.map((model) => (
+              {models?.items.map((model) => (
                 <div key={model.id}>
                   <button
                     type="button"

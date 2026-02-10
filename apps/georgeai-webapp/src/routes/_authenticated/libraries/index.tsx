@@ -17,6 +17,7 @@ export const Route = createFileRoute('/_authenticated/libraries/')({
 })
 
 function RouteComponent() {
+  // TODO: Pagination for libraries needs implementation on frontend
   const navigate = useNavigate()
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
 
@@ -31,7 +32,10 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <ul className="menu-horizontal flex w-full items-center justify-start gap-2 rounded-box bg-base-200 p-2">
         <li>
-          <h3 className="font-bold">{t('libraries.myLibraries', { count: data.aiLibraries.length })}</h3>
+          <span className="badge badge-sm badge-primary">Pagination missing</span>
+        </li>
+        <li>
+          <h3 className="font-bold">{t('libraries.myLibraries', { count: data.totalCount })}</h3>
         </li>
         <li className="flex flex-1 justify-end">
           <button
@@ -47,7 +51,7 @@ function RouteComponent() {
         </li>
       </ul>
 
-      {data.aiLibraries.length < 1 ? (
+      {data.totalCount < 1 ? (
         <h3>{t('libraries.noLibrariesFound')}</h3>
       ) : (
         <table className="table">
@@ -55,13 +59,13 @@ function RouteComponent() {
             <tr>
               <th>#</th>
               <th>{t('labels.name')}</th>
-              <th>{t('libraries.owner')}</th>
+              <th>{t('libraries.createdAt')}</th>
               <th>{t('libraries.lastUpdate')}</th>
             </tr>
           </thead>
 
           <tbody>
-            {data.aiLibraries.map((library, index) => {
+            {data.items.map((library, index) => {
               return (
                 <tr
                   key={library.id}
@@ -79,7 +83,9 @@ function RouteComponent() {
                       <span className="font-bold hover:underline">{library.name}</span>
                     </Link>
                   </td>
-                  <td data-label="Owner">{library.owner?.name}</td>
+                  <td data-label="Created">
+                    <ClientDate date={library.createdAt} format="dateTime" />
+                  </td>
                   <td data-label="Last update">
                     <ClientDate date={library.updatedAt} format="dateTime" />
                   </td>

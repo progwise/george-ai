@@ -1,21 +1,21 @@
-import { ProviderConnection, SupportedProvider, TestResult, logger } from './common'
+import { ModelProvider, ProviderConnection } from '@george-ai/app-commons'
+
+import { TestResult, logger } from './common'
 import { ollamaApi } from './ollama'
 import { openAiApi } from './openAi'
 
 export const testConnection = async (parameters: {
-  modelProvider: SupportedProvider
+  modelProvider: ModelProvider
   connection: ProviderConnection
 }): Promise<TestResult> => {
   const { modelProvider, connection } = parameters
+  const { baseUrl, apiKey } = connection
   if (modelProvider === 'ollama') {
-    if (!connection.providerBaseUrl) {
+    if (!baseUrl) {
       return { success: false, errorMessage: 'Ollama providerBaseUrl is required in connection' }
     }
     try {
-      const result = await ollamaApi.getOllamaVersion({
-        apiUrl: connection.providerBaseUrl,
-        apiKey: connection.providerApiKey,
-      })
+      const result = await ollamaApi.getOllamaVersion({ baseUrl, apiKey })
       logger.debug('Successfully connected to Provider Instance', {
         modelProvider,
         connection,
@@ -28,14 +28,11 @@ export const testConnection = async (parameters: {
       return { success: false, errorMessage: errorMessage }
     }
   } else if (modelProvider === 'openai') {
-    if (!connection.providerApiKey) {
-      return { success: false, errorMessage: 'OpenAI providerApiKey is required in connection' }
+    if (!apiKey) {
+      return { success: false, errorMessage: 'OpenAI apiKey is required in connection' }
     }
     try {
-      const result = await openAiApi.getOpenAIModels({
-        url: connection.providerBaseUrl,
-        apiKey: connection.providerApiKey,
-      })
+      const result = await openAiApi.getOpenAIModels({ baseUrl, apiKey })
       logger.debug('Successfully connected to Provider Instance', {
         modelProvider,
         connection,

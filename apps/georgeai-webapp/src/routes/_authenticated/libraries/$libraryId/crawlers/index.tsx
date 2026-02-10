@@ -54,18 +54,14 @@ function RouteComponent() {
     enabled: !!crawlerId,
   })
 
-  const crawlers = crawlersQuery.data.aiLibrary.crawlers
+  const crawlers = crawlersQuery.data.crawlers
   const crawlerRuns = crawlerRunsQuery.data
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div className="flex flex-col gap-2">
         <div>
-          <CrawlersMenu
-            selectedCrawler={selectedCrawlerData?.aiLibraryCrawler}
-            crawlers={crawlers}
-            libraryId={libraryId}
-          />
+          <CrawlersMenu selectedCrawler={selectedCrawlerData} crawlers={crawlers} libraryId={libraryId} />
         </div>
         <div>
           <Pagination

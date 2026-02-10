@@ -13,9 +13,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 function RouteComponent() {
   const params = Route.useParams()
 
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions(params))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions(params))
 
   return <div>Crawler overview for {crawler.uri} with statistics, runs, etc coming soon!</div>
 }

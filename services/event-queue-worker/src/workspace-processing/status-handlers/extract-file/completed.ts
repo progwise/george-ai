@@ -49,7 +49,6 @@ export async function extractFileCompleted(event: ExtractFileStatus) {
             }),
           ),
         ).then((paths) => paths.filter((path): path is string => !!path)),
-        timestamp: new Date().toISOString(),
         replySubject: workspaceProcessing.getReplySubject(event),
         context: { fileId, libraryId, extractionMethod },
       })

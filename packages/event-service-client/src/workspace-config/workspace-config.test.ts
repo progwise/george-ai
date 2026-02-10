@@ -21,8 +21,12 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'provider-1',
           modelProvider: 'ollama',
-          apiKey: 'key-1',
-          baseUrl: 'https://api.ollama.com',
+          connection: {
+            version: 1,
+            apiKey: 'key-1',
+            baseUrl: 'https://api.ollama.com',
+          },
+          version: 1,
         },
       ],
       languageModels: [
@@ -34,6 +38,7 @@ describe('event-service-client workspace tests', () => {
           canDoEmbedding: false,
           canDoFunctionCalling: false,
           canDoVision: false,
+          version: 1,
         },
       ],
       lastUpdate: new Date().toISOString(),
@@ -52,14 +57,22 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'provider-1',
           modelProvider: 'ollama',
-          apiKey: 'updated-key-1',
-          baseUrl: 'https://api.ollama.com',
+          connection: {
+            version: 1,
+            apiKey: 'updated-key-1',
+            baseUrl: 'https://api.ollama.com',
+          },
+          version: 1,
         },
         {
           id: 'provider-2',
           modelProvider: 'openai',
-          apiKey: 'key-2',
-          baseUrl: 'https://api.openai.com',
+          connection: {
+            version: 1,
+            apiKey: 'key-2',
+            baseUrl: 'https://api.openai.com',
+          },
+          version: 1,
         },
       ],
       languageModels: [
@@ -71,6 +84,7 @@ describe('event-service-client workspace tests', () => {
           canDoEmbedding: false,
           canDoFunctionCalling: false,
           canDoVision: false,
+          version: 1,
         },
         {
           id: 'model-2',
@@ -80,6 +94,7 @@ describe('event-service-client workspace tests', () => {
           canDoEmbedding: true,
           canDoFunctionCalling: true,
           canDoVision: false,
+          version: 1,
         },
       ],
       lastUpdate: new Date().toISOString(),
@@ -132,8 +147,12 @@ describe('event-service-client workspace tests', () => {
         {
           id: 'provider-1',
           modelProvider: 'ollama',
-          apiKey: 'key-1',
-          baseUrl: 'https://api.ollama.com',
+          connection: {
+            version: 1,
+            apiKey: 'key-1',
+            baseUrl: 'https://api.ollama.com',
+          },
+          version: 1,
         },
       ],
       lastUpdate: new Date().toISOString(),

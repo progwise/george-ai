@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { toastSuccess } from '../../../../../../components/georgeToaster'
-import { getFileChunksQueryOptions, getFileInfoQueryOptions } from '../../../../../../components/library/queries'
+import { getFileChunksQueryOptions, getFileQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { CopyIcon } from '../../../../../../icons/copy-icon'
 
@@ -30,7 +30,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
           part: deps.part,
         }),
       ),
-      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
+      context.queryClient.ensureQueryData(getFileQueryOptions(params)),
     ])
   },
 })
@@ -39,9 +39,7 @@ function RouteComponent() {
   const { fileId, libraryId } = Route.useParams()
   const { skipChunks, takeChunks, part } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const {
-    data: { aiFileChunks },
-  } = useSuspenseQuery(
+  const { data: aiFileChunks } = useSuspenseQuery(
     getFileChunksQueryOptions({
       libraryId,
       fileId,
@@ -56,13 +54,17 @@ function RouteComponent() {
     toastSuccess('Copied to clipboard')
   }
 
+  if (!aiFileChunks || aiFileChunks.totalCount === null || aiFileChunks.totalCount === undefined) {
+    return <div className="container mx-auto p-4">No chunks available for this file.</div>
+  }
+
   return (
     <div className="container mx-auto max-w-7xl p-4">
       {/* Header Section */}
       <div className="mb-4 flex w-full items-end justify-between gap-4">
         <h3 className="text-xl font-bold">
-          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + aiFileChunks.take, aiFileChunks.count)} of{' '}
-          {aiFileChunks.count} Chunks
+          Chunk {skipChunks + 1} - {Math.min(skipChunks + takeChunks, aiFileChunks.totalCount)} of{' '}
+          {aiFileChunks.totalCount} Chunks
           {part !== undefined && <span className="ml-2 badge badge-primary">Part {part}</span>}
         </h3>
 
@@ -92,9 +94,9 @@ function RouteComponent() {
             />
           </label>
           <Pagination
-            totalItems={aiFileChunks.count}
+            totalItems={aiFileChunks.totalCount}
             itemsPerPage={takeChunks}
-            currentPage={1 + aiFileChunks.skip / takeChunks}
+            currentPage={1 + skipChunks / takeChunks}
             onPageChange={(page) => {
               // TODO: Add prefetching here
               navigate({ search: { skipChunks: (page - 1) * takeChunks, takeChunks, part } })
@@ -114,17 +116,15 @@ function RouteComponent() {
             <div className="card-body p-3">
               {/* Header with chunk number */}
               <div className="mb-2">
-                <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunkIndex + 1}</div>
-                {chunk.subChunkIndex > 0 && (
-                  <span className="ml-1 badge badge-ghost badge-xs">sub {chunk.subChunkIndex + 1}</span>
-                )}
-                {chunk.part && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.part}</span>}
+                <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunk + 1}</div>
+
+                {chunk.fragment && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.fragment}</span>}
               </div>
 
               {/* Path information */}
               <div className="mb-2">
-                <div className="truncate text-xs text-base-content/70" title={chunk.headingPath}>
-                  {chunk.headingPath}
+                <div className="truncate text-xs text-base-content/70" title={chunk.id}>
+                  {chunk.id}
                 </div>
               </div>
 
@@ -134,12 +134,12 @@ function RouteComponent() {
                   <button
                     type="button"
                     className="btn absolute top-1 right-1 opacity-50 btn-ghost btn-xs hover:opacity-100"
-                    onClick={() => handleCopyChunk(chunk.text)}
+                    onClick={() => handleCopyChunk(chunk.content || '')}
                     title="Copy to clipboard"
                   >
                     <CopyIcon className="size-3" />
                   </button>
-                  <pre className="text-xs/tight text-base-content/90">{chunk.text}</pre>
+                  <pre className="text-xs/tight text-base-content/90">{chunk.content}</pre>
                 </div>
               </div>
 

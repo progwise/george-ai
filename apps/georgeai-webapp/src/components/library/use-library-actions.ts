@@ -8,7 +8,6 @@ import { logger } from './common'
 import {
   getApiKeysQueryOptions,
   getFileChunksQueryOptions,
-  getFileInfoQueryOptions,
   getFilesQueryOptions,
   getLibrariesQueryOptions,
   getLibraryQueryOptions,
@@ -37,13 +36,6 @@ export const useLibraryActions = (libraryId: string) => {
         ? fileIds.map((fileId) =>
             queryClient.invalidateQueries({
               queryKey: getFileChunksQueryOptions({ libraryId, fileId }).queryKey,
-            }),
-          )
-        : []),
-      ...(fileIds
-        ? fileIds.map((fileId) =>
-            queryClient.invalidateQueries({
-              queryKey: getFileInfoQueryOptions({ fileId }).queryKey,
             }),
           )
         : []),
@@ -165,7 +157,7 @@ export const useLibraryActions = (libraryId: string) => {
   const deleteFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => deleteLibraryFilesFn({ data: { libraryId, fileIds } }),
     onSuccess: (data) => {
-      toastSuccess(t('actions.dropSuccess', { count: data.deleteLibraryFiles }))
+      toastSuccess(t('actions.dropSuccess', { count: data.deleteFiles }))
     },
     onError: (error) => {
       toastError(t('errors.dropFilesError', { error: error instanceof Error ? error.message : '' }))
@@ -181,7 +173,7 @@ export const useLibraryActions = (libraryId: string) => {
       toastError(t('errors.dropAllFilesError'))
     },
     onSuccess: (data) => {
-      toastSuccess(t('actions.dropSuccess', { count: data.dropAllLibraryFiles }))
+      toastSuccess(t('actions.dropSuccess', { count: data.clearFiles }))
     },
     onSettled: () => {},
   })

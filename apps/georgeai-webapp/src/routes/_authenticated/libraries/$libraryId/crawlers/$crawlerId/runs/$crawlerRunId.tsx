@@ -35,9 +35,7 @@ function RouteComponent() {
   const search = Route.useSearch()
   const { queryClient } = Route.useRouteContext()
   const { t } = useTranslation()
-  const {
-    data: { aiLibraryCrawlerRun: crawlerRun },
-  } = useSuspenseQuery(
+  const { data: crawlerRun } = useSuspenseQuery(
     getCrawlerRunQueryOptions({
       ...params,
       ...search,

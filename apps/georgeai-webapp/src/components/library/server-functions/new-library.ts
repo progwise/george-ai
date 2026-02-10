@@ -17,7 +17,7 @@ export const createNewLibraryFn = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation createLibrary($data: AiLibraryInput!) {
+        mutation createLibrary($data: LibraryInput!) {
           createLibrary(data: $data) {
             id
             name

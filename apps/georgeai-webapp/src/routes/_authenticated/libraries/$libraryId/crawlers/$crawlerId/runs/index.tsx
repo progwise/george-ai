@@ -16,9 +16,7 @@ function RouteComponent() {
   const { t } = useTranslation()
   const params = Route.useParams()
   const navigate = Route.useNavigate()
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions(params))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions(params))
 
   if (crawler.lastRun) {
     navigate({

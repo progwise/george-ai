@@ -1,9 +1,18 @@
 import { Link } from '@tanstack/react-router'
 
-import { AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
+import { graphql } from '../../../gql'
+import { FileNavigation_FileFragment } from '../../../gql/graphql'
+
+graphql(`
+  fragment FileNavigation_File on AiLibraryFile {
+    id
+    libraryId
+    name
+  }
+`)
 
 interface FileNavigationProps {
-  file: AiLibraryFileInfo_CaptionCardFragment
+  file: FileNavigation_FileFragment
 }
 export const FileNavigation = ({ file }: FileNavigationProps) => {
   return (
@@ -50,17 +59,6 @@ export const FileNavigation = ({ file }: FileNavigationProps) => {
           params={{ libraryId: file.libraryId, fileId: file.id }}
         >
           Similarity
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/usages"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Usages
         </Link>
       </li>
     </ul>
