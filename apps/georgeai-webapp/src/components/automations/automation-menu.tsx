@@ -1,11 +1,10 @@
-import { Link, useRouteContext } from '@tanstack/react-router'
+import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
 import { AutomationMenu_AutomationFragment, AutomationMenu_AutomationsFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlayIcon } from '../../icons/play-icon'
-import { PlusIcon } from '../../icons/plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
 import { NewAutomationDialog } from './new-automation-dialog'
@@ -30,7 +29,7 @@ interface AutomationMenuProps {
   selectableAutomations: AutomationMenu_AutomationsFragment[]
 }
 
-export const AutomationMenu = ({ automation, selectableAutomations }: AutomationMenuProps) => {
+export const AutomationMenu = ({ automation }: AutomationMenuProps) => {
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const automationSelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
@@ -74,21 +73,7 @@ export const AutomationMenu = ({ automation, selectableAutomations }: Automation
             <span className="max-lg:hidden">{t('automations.runAll')}</span>
           </button>
         </li>
-        <li>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => {
-              newAutomationDialogRef.current?.showModal()
-            }}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('automations.newAutomation')}
-            data-tip={t('automations.newAutomation')}
-          >
-            <PlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('automations.newAutomation')}</span>
-          </button>
-        </li>
+
         <li>
           <button
             type="button"

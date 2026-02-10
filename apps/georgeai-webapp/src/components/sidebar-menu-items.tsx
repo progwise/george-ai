@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ReactNode, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { useTranslation } from '../i18n/use-translation-hook'
 import { PlusIcon } from '../icons/plus-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { NewAutomationDialog } from './automations/new-automation-dialog'
@@ -48,6 +49,8 @@ export const ListSidebarCollapsibleMenu = ({
   renderItemLink,
   groupName,
 }: SidebarCollapsibleMenuProps) => {
+  const { t } = useTranslation()
+
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
   const newListDialogRef = useRef<HTMLDialogElement | null>(null)
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
@@ -72,19 +75,19 @@ export const ListSidebarCollapsibleMenu = ({
 
   return (
     <>
-      <li className={`${groupClass} relative`}>
-        {isDrawerOpen ? (
+      <li className={`${groupClass}`}>
+        {isDrawerOpen ? ( // Opened sidebar
           items.length > 0 ? (
             <details className="rounded-lg">
               <summary>
                 {icon}
                 {label}
-                <li className="flex">
+                <li>
                   <button
                     type="button"
                     onClick={() => createClass?.current?.showModal()}
-                    className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-                    // data-tip={t('libraries.newList')}
+                    className="btn rounded-lg btn-ghost btn-sm btn-success hover:tooltip max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info" // TODO: tooltip behind elements, fix
+                    data-tip={t('test.test1')}
                   >
                     <PlusIcon className="size-4" />
                   </button>
@@ -97,29 +100,36 @@ export const ListSidebarCollapsibleMenu = ({
               </ul>
             </details>
           ) : (
-            <div className="flex">
-              <SidebarNavigationLink to={to} icon={icon} label={label} />
+            // TODO: considering moving button as optional to SidebarNavigationLink AND cleanup.
+            <Link to={to} className="flex items-center gap-2 pr-6.5">
+              {icon}
+              {label}
               <button
                 type="button"
                 onClick={() => createClass?.current?.showModal()}
-                className="btn absolute right-6.5 btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-                // data-tip={t('libraries.newList')}
+                className="btn ml-auto rounded-lg btn-ghost btn-sm btn-success hover:tooltip max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+                data-tip={t('test.test2')}
               >
                 <PlusIcon className="size-4" />
               </button>
-            </div>
+            </Link>
           )
         ) : (
+          // Closed sidebar
           <>
-            <SidebarNavigationLink to={to} icon={icon} label="" />
-            {items.length > 0 && (
-              <ul
-                className={`invisible absolute top-0 left-10 min-w-96 rounded-box bg-base-200 p-2 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
-              >
-                {items.map((item) => (
-                  <li key={item.id}>{renderItemLink(item)}</li>
-                ))}
-              </ul>
+            {items.length > 0 ? (
+              <>
+                <SidebarNavigationLink to={to} icon={icon} label="" />
+                <ul
+                  className={`invisible absolute top-0 left-10 min-w-96 rounded-box bg-base-200 p-2 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                >
+                  {items.map((item) => (
+                    <li key={item.id}>{renderItemLink(item)}</li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <SidebarNavigationLink to={to} icon={icon} label={label} />
             )}
           </>
         )}

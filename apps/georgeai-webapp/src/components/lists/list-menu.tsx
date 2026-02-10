@@ -1,15 +1,13 @@
-import { Link, useRouteContext } from '@tanstack/react-router'
+import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
 import { ListMenu_AiListFragment, ListMenu_AiListsFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DownloadIcon } from '../../icons/download-icon'
-import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
 import { ListExportDialog } from './list-export-dialog'
-import { NewListDialog } from './new-list-dialog'
 import { useListActions } from './use-list-actions'
 
 graphql(`
@@ -32,8 +30,7 @@ interface ListMenuProps {
   selectableLists: ListMenu_AiListsFragment[]
 }
 
-export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
-  const newListDialogRef = useRef<HTMLDialogElement | null>(null)
+export const ListMenu = ({ list }: ListMenuProps) => {
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const listSelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
   const exportListDialogRef = useRef<HTMLDialogElement | null>(null)
@@ -76,18 +73,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
             <span className="max-lg:hidden">{t('lists.export.button')}</span>
           </button>
         </li>
-        <li>
-          <button
-            type="button"
-            onClick={() => newListDialogRef.current?.showModal()}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('lists.newList')}
-            data-tip={t('lists.newList')}
-          >
-            <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('lists.newList')}</span>
-          </button>
-        </li>
+
         <li>
           <button
             type="button"
@@ -102,7 +88,6 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
           </button>
         </li>
       </ul>
-      <NewListDialog ref={newListDialogRef} />
       <DialogForm ref={deleteDialogRef} title={t('lists.deleteDialogTitle')} onSubmit={() => deleteList()}>
         {t('lists.deleteDialogConfirmation', { name: list.name })}
       </DialogForm>

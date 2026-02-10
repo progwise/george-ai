@@ -1,13 +1,11 @@
-import { Link, useParams, useRouteContext } from '@tanstack/react-router'
+import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { LibraryMenu_AiLibrariesFragment, LibraryMenu_AiLibraryFragment } from '../../gql/graphql'
+import { LibraryMenu_AiLibraryFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
-import { NewLibraryDialog } from './new-library-dialog'
 import { useLibraryActions } from './use-library-actions'
 
 graphql(`
@@ -28,14 +26,11 @@ graphql(`
 
 interface LibraryMenuProps {
   library: LibraryMenu_AiLibraryFragment
-  selectableLibraries: LibraryMenu_AiLibrariesFragment[]
 }
 
-export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) => {
-  const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
+export const LibraryMenu = ({ library }: LibraryMenuProps) => {
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const librarySelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
-  const params = useParams({ strict: false })
   const { t } = useTranslation()
   const { user } = useRouteContext({ strict: false })
 
@@ -63,18 +58,6 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
   return (
     <div>
       <ul className="menu menu-horizontal w-full rounded-box">
-        <li className="grow items-end">
-          <button
-            type="button"
-            onClick={() => newLibraryDialogRef.current?.showModal()}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('libraries.addNewButton')}
-            data-tip={t('libraries.addNew')}
-          >
-            <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('libraries.addNewButton')}</span>
-          </button>
-        </li>
         <li>
           <button
             type="button"
@@ -89,7 +72,6 @@ export const LibraryMenu = ({ library, selectableLibraries }: LibraryMenuProps) 
           </button>
         </li>
       </ul>
-      <NewLibraryDialog ref={newLibraryDialogRef} />
       <DialogForm
         ref={deleteDialogRef}
         title={t('libraries.deleteLibrary', { libraryName: library.name })}
