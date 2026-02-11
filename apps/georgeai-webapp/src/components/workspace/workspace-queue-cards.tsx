@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getDashboardDataQueryOptions } from '../dashboard/get-dashboard-data'
+import { getQueueStatusQueryOptions } from './queries'
 import { useWorkspace } from './use-workspace'
 
 interface WorkspaceQueueCardsProps {
@@ -13,7 +13,7 @@ export const WorkspaceQueueCards = ({ user }: WorkspaceQueueCardsProps) => {
   const { t } = useTranslation()
   const { currentWorkspace } = useWorkspace(user)
 
-  const { data, isLoading, error } = useQuery(getDashboardDataQueryOptions())
+  const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
 
   if (!currentWorkspace || isLoading) {
     return (
@@ -27,7 +27,7 @@ export const WorkspaceQueueCards = ({ user }: WorkspaceQueueCardsProps) => {
     )
   }
 
-  if (error || !data?.queueSystemStatus) {
+  if (error || !queueSystemStatus) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -39,7 +39,7 @@ export const WorkspaceQueueCards = ({ user }: WorkspaceQueueCardsProps) => {
 
   return (
     <>
-      {data.queueSystemStatus.queues.map((queue) => {
+      {queueSystemStatus.queues.map((queue) => {
         const queueCard = (
           <div className="stat py-3">
             <div className="stat-title text-sm">{queue.queueType.replace('_', ' ')}</div>

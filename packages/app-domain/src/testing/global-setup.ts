@@ -1,13 +1,13 @@
 import { exit } from 'process'
 
-import { testing } from '@george-ai/app-database'
+import { dropTestDatabase, ensureTestDatabase } from '@george-ai/test-utils'
 
 const setup = async () => {
-  await testing.ensureTestDatabase('app-domain')
+  await ensureTestDatabase('app-domain')
 }
 
 const teardown = async () => {
-  await testing.dropTestDatabase('app-domain')
+  await dropTestDatabase('app-domain')
   exit(0)
 }
 

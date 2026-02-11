@@ -1,13 +1,13 @@
 import { exit } from 'process'
 
-import { testing } from '@george-ai/app-database'
+import { dropTestDatabase, ensureTestDatabase } from '@george-ai/test-utils'
 
 const setup = async () => {
-  await testing.ensureTestDatabase('pothos-graphql')
+  await ensureTestDatabase('pothos-graphql')
 }
 
 const teardown = async () => {
-  await testing.dropTestDatabase('pothos-graphql')
+  await dropTestDatabase('pothos-graphql')
   exit(0)
 }
 

@@ -5,11 +5,11 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(async () => {
+const getModelProviderStatus = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const result = await backendRequest(
       graphql(`
-        query GetAiServiceStatus {
+        query GetModelProviderStatus {
           modelProviderStatus {
             instances {
               name
@@ -58,10 +58,10 @@ export const getAiServiceStatus = createServerFn({ method: 'GET' }).handler(asyn
   }
 })
 
-export const getAiServiceStatusQueryOptions = () =>
+export const getModelProviderStatusQueryOptions = () =>
   queryOptions({
-    queryKey: [queryKeys.AiServiceStatus],
-    queryFn: () => getAiServiceStatus(),
+    queryKey: [queryKeys.ModelProviderStatus],
+    queryFn: () => getModelProviderStatus(),
     staleTime: 30 * 1000, // 30 seconds - AI service status changes frequently
     refetchInterval: false, // Manual refresh only
   })

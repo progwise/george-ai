@@ -63,7 +63,11 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultErrorComponent: DefaultErrorComponent,
     defaultNotFoundComponent: () => <div className="text-center">Not found!</div>,
-    defaultPendingComponent: () => <div className="text-center">Loading...</div>,
+    defaultPendingComponent: () => (
+      <div className="text-center text-accent">
+        <span className="loading loading-xl loading-bars"></span>
+      </div>
+    ),
   })
   setupRouterSsrQueryIntegration({ router, queryClient })
   return router

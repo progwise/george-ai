@@ -357,6 +357,9 @@ importers:
       '@george-ai/package-configs':
         specifier: workspace:*
         version: link:../package-configs
+      '@george-ai/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@types/node':
         specifier: ^22.13.8
         version: 22.19.7
@@ -935,9 +938,6 @@ importers:
       graphql-scalars:
         specifier: ^1.24.0
         version: 1.25.0(graphql@16.12.0)
-      graphql-yoga:
-        specifier: ^5.18.0
-        version: 5.18.0(graphql@16.12.0)
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
@@ -957,9 +957,6 @@ importers:
       '@george-ai/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      '@graphql-tools/executor-http':
-        specifier: ^3.1.0
-        version: 3.1.0(@types/node@22.19.7)(graphql@16.12.0)
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.10
@@ -1047,9 +1044,18 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.39.2
+      '@george-ai/app-commons':
+        specifier: workspace:*
+        version: link:../app-commons
       '@george-ai/package-configs':
         specifier: workspace:*
         version: link:../package-configs
+      '@graphql-tools/executor-http':
+        specifier: ^3.1.0
+        version: 3.1.0(@types/node@22.19.7)(graphql@16.12.0)
+      '@types/bcrypt':
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/node':
         specifier: ^22.13.8
         version: 22.19.7
@@ -1062,6 +1068,12 @@ importers:
       eslint:
         specifier: ^9.39.1
         version: 9.39.2(jiti@2.6.1)
+      graphql:
+        specifier: ^16.9.0
+        version: 16.12.0
+      graphql-yoga:
+        specifier: ^5.18.0
+        version: 5.18.0(graphql@16.12.0)
       pg:
         specifier: ^8.16.3
         version: 8.17.1
@@ -1071,6 +1083,9 @@ importers:
       typescript-eslint:
         specifier: ^8.44.1
         version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.1.1
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/vector-store:
     dependencies:

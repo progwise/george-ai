@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { getTestImage } from '../testing/test-image-helper'
+import { getTestImage } from '@george-ai/test-utils'
+
 import { type OllamaStreamChunk, getChatResponseStream } from './ollama-api'
 
 // Skip all tests if required environment variables are not set

@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { conf } from './common'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const RELEASE_TAG = 'test-assets-v1.0'
@@ -24,9 +26,9 @@ export const getTestAssetLocalPath = async (filename: string): Promise<string> =
     return localPath
   }
 
-  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN
+  const token = conf('GITHUB_TOKEN')
   if (!token) {
-    throw new Error('GitHub token required for private repo access. Set GITHUB_TOKEN or GH_TOKEN environment variable.')
+    throw new Error('GitHub token required for private repo access. Set GITHUB_TOKEN environment variable.')
   }
 
   try {

@@ -2,7 +2,6 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
-import { getAiServiceStatusQueryOptions } from '../../../components/admin/ai-services/get-ai-service-status'
 import { getModelProvidersQueryOptions } from '../../../components/admin/queries'
 import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
 import { deleteProviderFn } from '../../../components/admin/server-functions/delete-provider'
@@ -13,6 +12,7 @@ import { updateProviderFn } from '../../../components/admin/server-functions/upd
 import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
+import { getModelProviderStatusQueryOptions } from '../../../components/workspace/queries/get-model-provider-status'
 import { ModelProviderInput } from '../../../gql/graphql'
 import BotIcon from '../../../icons/bot-icon'
 import { EditIcon } from '../../../icons/edit-icon'
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getAiServiceStatusQueryOptions()),
+      context.queryClient.ensureQueryData(getModelProviderStatusQueryOptions()),
       context.queryClient.ensureQueryData(getModelProvidersQueryOptions()),
     ])
   },
@@ -76,7 +76,7 @@ function AiServicesAdminPage() {
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: serviceStatus } = useSuspenseQuery({
-    ...getAiServiceStatusQueryOptions(),
+    ...getModelProviderStatusQueryOptions(),
     refetchInterval: autoRefresh ? 5000 : false,
   })
 
@@ -87,7 +87,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider created successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -102,7 +102,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -117,7 +117,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
     },
@@ -131,7 +131,7 @@ function AiServicesAdminPage() {
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
     onSuccess: () => {
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -144,7 +144,7 @@ function AiServicesAdminPage() {
     onSuccess: (result) => {
       toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -176,7 +176,7 @@ function AiServicesAdminPage() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
     },
   })
 

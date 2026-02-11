@@ -2,21 +2,22 @@ import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { Client } from 'pg'
 
-import conf from '../config'
-import { logger } from './common'
+import { conf, logger } from './common'
 
-const TEST_DB_CONFIG = {
+const getTestDBConfig = () => ({
   host: conf('TEST_DB_HOST'),
-  port: conf('TEST_DB_PORT'),
+  port: parseInt(conf('TEST_DB_PORT')),
   user: conf('TEST_DB_USER'),
   password: conf('TEST_DB_PASSWORD'),
-}
+})
 
 const getTestDatabaseUrl = (databaseName: string) => {
+  const TEST_DB_CONFIG = getTestDBConfig()
   return `postgresql://${TEST_DB_CONFIG.user}:${TEST_DB_CONFIG.password}@${TEST_DB_CONFIG.host}:${TEST_DB_CONFIG.port}/${databaseName}?schema=public`
 }
 
 const ensureTestDatabase = async (databaseName: string) => {
+  const TEST_DB_CONFIG = getTestDBConfig()
   const dbUrl = getTestDatabaseUrl(databaseName)
   const adminClient = new Client({
     ...TEST_DB_CONFIG,
@@ -53,7 +54,7 @@ const ensureTestDatabase = async (databaseName: string) => {
   }
 
   // Run prisma from app-database package (where Prisma CLI is installed)
-  const appDatabasePath = resolve(__dirname, '../..')
+  const appDatabasePath = resolve(__dirname, '../../app-database')
   try {
     logger.info('Pushing Prisma schema to test database...', { databaseName, appDatabasePath })
     execSync('pnpm prisma db push --accept-data-loss', {
@@ -86,6 +87,7 @@ const ensureTestDatabase = async (databaseName: string) => {
 }
 
 const dropTestDatabase = async (databaseName: string) => {
+  const TEST_DB_CONFIG = getTestDBConfig()
   const adminClient = new Client({
     ...TEST_DB_CONFIG,
     database: 'postgres', // Connect to default database for admin operations

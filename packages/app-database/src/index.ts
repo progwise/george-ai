@@ -14,5 +14,3 @@ export * from '../prisma/generated/sql'
 // Export Pothos types (only used by pothos-graphql)
 export type { default as PothosTypes } from '../prisma/generated/pothos'
 export { getDatamodel } from '../prisma/generated/pothos'
-
-export { default as testing } from './testing'

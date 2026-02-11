@@ -1,6 +1,6 @@
 import { exit } from 'process'
 
-import { dropTestDatabase, ensureTestDatabase } from './test-database'
+import { dropTestDatabase, ensureTestDatabase } from '@george-ai/test-utils'
 
 const setup = async () => {
   await ensureTestDatabase('app-database')

@@ -3019,54 +3019,6 @@ export type UpdateAiLanguageModelMutation = {
   updateModel?: { __typename?: 'AiLanguageModel'; id: string; enabled: boolean; adminNotes?: string | null } | null
 }
 
-export type GetAiServiceStatusQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAiServiceStatusQuery = {
-  __typename?: 'Query'
-  modelProviderStatus: {
-    __typename?: 'AiServiceClusterStatus'
-    totalInstances: number
-    availableInstances: number
-    healthyInstances: number
-    totalMemory: number
-    totalUsedMemory: number
-    totalMaxConcurrency: number
-    totalQueueLength: number
-    instances: Array<{
-      __typename?: 'AiServiceInstance'
-      name: string
-      url: string
-      type: string
-      isOnline: boolean
-      version: string
-      totalVram: number
-      usedVram: number
-      runningModels?: Array<{
-        __typename?: 'AiRunningModel'
-        name: string
-        size: number
-        expiresAt: string
-        activeRequests: number
-      }> | null
-      availableModels?: Array<{
-        __typename?: 'AiModelInfo'
-        name: string
-        size: number
-        capabilities: Array<string>
-        family?: string | null
-        parameterSize?: string | null
-      }> | null
-      modelQueues?: Array<{
-        __typename?: 'AiModelQueue'
-        modelName: string
-        queueLength: number
-        maxConcurrency: number
-        estimatedRequestSize: number
-      }> | null
-    }>
-  }
-}
-
 export type GetConnectorTypesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetConnectorTypesQuery = {
@@ -3231,30 +3183,6 @@ export type GetAiServiceProvidersQuery = {
     createdBy?: string | null
     updatedBy?: string | null
   }>
-}
-
-export type GetQueueSystemStatusQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetQueueSystemStatusQuery = {
-  __typename?: 'Query'
-  queueSystemStatus: {
-    __typename?: 'QueueSystemStatus'
-    allWorkersRunning: boolean
-    totalPendingTasks: number
-    totalProcessingTasks: number
-    totalFailedTasks: number
-    lastUpdated: string
-    queues: Array<{
-      __typename?: 'QueueStatus'
-      queueType: QueueType
-      isRunning: boolean
-      pendingTasks: number
-      processingTasks: number
-      failedTasks: number
-      completedTasks: number
-      lastProcessedAt?: string | null
-    }>
-  }
 }
 
 export type StartQueueWorkerMutationVariables = Exact<{
@@ -4455,52 +4383,6 @@ export type GetUserConversationsQuery = {
     owner: { __typename?: 'User'; id: string; name?: string | null }
     assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
   }>
-}
-
-export type GetDashboardDataQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetDashboardDataQuery = {
-  __typename?: 'Query'
-  modelProviderStatus: {
-    __typename?: 'AiServiceClusterStatus'
-    totalInstances: number
-    availableInstances: number
-    healthyInstances: number
-    totalMemory: number
-    totalUsedMemory: number
-    totalMaxConcurrency: number
-    totalQueueLength: number
-    instances: Array<{
-      __typename?: 'AiServiceInstance'
-      name: string
-      url: string
-      type: string
-      isOnline: boolean
-      version: string
-      totalVram: number
-      usedVram: number
-      runningModels?: Array<{ __typename?: 'AiRunningModel'; name: string; size: number }> | null
-      availableModels?: Array<{ __typename?: 'AiModelInfo'; name: string; size: number }> | null
-      modelQueues?: Array<{
-        __typename?: 'AiModelQueue'
-        modelName: string
-        queueLength: number
-        maxConcurrency: number
-        estimatedRequestSize: number
-      }> | null
-    }>
-  }
-  queueSystemStatus: {
-    __typename?: 'QueueSystemStatus'
-    queues: Array<{
-      __typename?: 'QueueStatus'
-      queueType: QueueType
-      isRunning: boolean
-      pendingTasks: number
-      processingTasks: number
-      failedTasks: number
-    }>
-  }
 }
 
 export type CrawlerForm_CrawlerFragment = {
@@ -6552,6 +6434,54 @@ export type GetWorkspaceEmbeddingStatisticsQuery = {
   }> | null
 }
 
+export type GetModelProviderStatusQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetModelProviderStatusQuery = {
+  __typename?: 'Query'
+  modelProviderStatus: {
+    __typename?: 'AiServiceClusterStatus'
+    totalInstances: number
+    availableInstances: number
+    healthyInstances: number
+    totalMemory: number
+    totalUsedMemory: number
+    totalMaxConcurrency: number
+    totalQueueLength: number
+    instances: Array<{
+      __typename?: 'AiServiceInstance'
+      name: string
+      url: string
+      type: string
+      isOnline: boolean
+      version: string
+      totalVram: number
+      usedVram: number
+      runningModels?: Array<{
+        __typename?: 'AiRunningModel'
+        name: string
+        size: number
+        expiresAt: string
+        activeRequests: number
+      }> | null
+      availableModels?: Array<{
+        __typename?: 'AiModelInfo'
+        name: string
+        size: number
+        capabilities: Array<string>
+        family?: string | null
+        parameterSize?: string | null
+      }> | null
+      modelQueues?: Array<{
+        __typename?: 'AiModelQueue'
+        modelName: string
+        queueLength: number
+        maxConcurrency: number
+        estimatedRequestSize: number
+      }> | null
+    }>
+  }
+}
+
 export type GetWorkspaceProcessStatisticsQueryVariables = Exact<{
   workspaceId: Scalars['String']['input']
 }>
@@ -6576,6 +6506,30 @@ export type GetEventProcessingStatusQuery = {
     status: EventProcessingStatus
     actionType: ActionType
   }>
+}
+
+export type GetQueueStatusQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetQueueStatusQuery = {
+  __typename?: 'Query'
+  queueSystemStatus: {
+    __typename?: 'QueueSystemStatus'
+    allWorkersRunning: boolean
+    totalPendingTasks: number
+    totalProcessingTasks: number
+    totalFailedTasks: number
+    lastUpdated: string
+    queues: Array<{
+      __typename?: 'QueueStatus'
+      queueType: QueueType
+      isRunning: boolean
+      pendingTasks: number
+      processingTasks: number
+      failedTasks: number
+      completedTasks: number
+      lastProcessedAt?: string | null
+    }>
+  }
 }
 
 export type WorkspaceInvitationQueryVariables = Exact<{
@@ -12995,93 +12949,6 @@ export const UpdateAiLanguageModelDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAiLanguageModelMutation, UpdateAiLanguageModelMutationVariables>
-export const GetAiServiceStatusDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetAiServiceStatus' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'modelProviderStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'instances' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isOnline' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'runningModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'activeRequests' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'availableModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'capabilities' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'family' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parameterSize' } },
-                          ],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'totalVram' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'usedVram' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'modelQueues' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'queueLength' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'maxConcurrency' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'estimatedRequestSize' } },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'availableInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'healthyInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalQueueLength' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetAiServiceStatusQuery, GetAiServiceStatusQueryVariables>
 export const GetConnectorTypesDocument = {
   kind: 'Document',
   definitions: [
@@ -13517,62 +13384,6 @@ export const GetAiServiceProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
-export const GetQueueSystemStatusDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetQueueSystemStatus' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queueSystemStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueSystemStatus' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'allWorkersRunning' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalPendingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalProcessingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalFailedTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'lastUpdated' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queues' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'completedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastProcessedAt' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetQueueSystemStatusQuery, GetQueueSystemStatusQueryVariables>
 export const StartQueueWorkerDocument = {
   kind: 'Document',
   definitions: [
@@ -16510,111 +16321,6 @@ export const GetUserConversationsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserConversationsQuery, GetUserConversationsQueryVariables>
-export const GetDashboardDataDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetDashboardData' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'modelProviderStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'instances' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isOnline' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'totalVram' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'usedVram' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'runningModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'availableModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'modelQueues' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'queueLength' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'maxConcurrency' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'estimatedRequestSize' } },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'availableInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'healthyInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalQueueLength' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queueSystemStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'queues' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetDashboardDataQuery, GetDashboardDataQueryVariables>
 export const GetApiCrawlerTemplatesDocument = {
   kind: 'Document',
   definitions: [
@@ -21451,6 +21157,93 @@ export const GetWorkspaceEmbeddingStatisticsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspaceEmbeddingStatisticsQuery, GetWorkspaceEmbeddingStatisticsQueryVariables>
+export const GetModelProviderStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetModelProviderStatus' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'modelProviderStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'instances' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isOnline' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'runningModels' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'activeRequests' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'availableModels' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'capabilities' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'family' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parameterSize' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'totalVram' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'usedVram' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'modelQueues' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'queueLength' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'maxConcurrency' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'estimatedRequestSize' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'availableInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'healthyInstances' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalQueueLength' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetModelProviderStatusQuery, GetModelProviderStatusQueryVariables>
 export const GetWorkspaceProcessStatisticsDocument = {
   kind: 'Document',
   definitions: [
@@ -21519,6 +21312,76 @@ export const GetEventProcessingStatusDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEventProcessingStatusQuery, GetEventProcessingStatusQueryVariables>
+export const GetQueueStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetQueueStatus' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'queueSystemStatus' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'queues' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueSystemStatus' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'allWorkersRunning' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'totalPendingTasks' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'totalProcessingTasks' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'totalFailedTasks' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastUpdated' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'queues' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'completedTasks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastProcessedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetQueueStatusQuery, GetQueueStatusQueryVariables>
 export const WorkspaceInvitationDocument = {
   kind: 'Document',
   definitions: [

@@ -2,9 +2,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { getQueueStatusQueryOptions } from '../../../components/admin/queue-management/get-queue-status'
 import { QueueManagementPanel } from '../../../components/admin/queue-management/queue-management-panel'
 import { ClientDate } from '../../../components/client-date'
+import { getQueueStatusQueryOptions } from '../../../components/workspace/queries/get-queue-status'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/queues')({

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { QueueType } from '../../../gql/graphql'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { getQueueStatusQueryOptions } from './get-queue-status'
+import { getQueueStatusQueryOptions } from '../../workspace/queries'
 import { startQueueWorker, stopQueueWorker } from './queue-management-actions'
 
 export const useQueueManagementActions = () => {

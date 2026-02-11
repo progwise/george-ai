@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getDashboardDataQueryOptions } from '../dashboard/get-dashboard-data'
+import { getModelProviderStatusQueryOptions } from './queries'
 import { useWorkspace } from './use-workspace'
 
 interface WorkspaceModelProviderCardsProps {
@@ -14,7 +14,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
 
   const { currentWorkspace } = useWorkspace(user)
 
-  const { data, isLoading, error } = useQuery(getDashboardDataQueryOptions())
+  const { data: modelProviderStatus, isLoading, error } = useQuery(getModelProviderStatusQueryOptions())
 
   if (!currentWorkspace || isLoading) {
     return (
@@ -28,7 +28,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
     )
   }
 
-  if (error || !data?.modelProviderStatus) {
+  if (error || !modelProviderStatus) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -39,7 +39,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
   }
   return (
     <>
-      {data.modelProviderStatus.instances.map((instance) => {
+      {modelProviderStatus.instances.map((instance) => {
         const instanceCard = (
           <div className="stat py-3">
             <div className="stat-title text-sm">{instance.name}</div>
