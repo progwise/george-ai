@@ -9,6 +9,7 @@ graphql(`
   fragment AiLibraryBase on AiLibrary {
     id
     name
+    filesCount
     createdAt
     updatedAt
   }

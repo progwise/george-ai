@@ -38,6 +38,7 @@ builder.prismaObject('Workspace', {
     assistantsCount: t.relationCount('assistants'),
     listsCount: t.relationCount('lists'),
     automationsCount: t.relationCount('automations'),
+    conversationsCount: t.relationCount('conversations'),
     manifest: t.field({
       type: 'WorkspaceManifest',
       nullable: true,

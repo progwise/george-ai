@@ -7,26 +7,6 @@ import { backendRequest } from '../../server-functions/backend'
 
 const dashboardDataDocument = graphql(`
   query GetDashboardData {
-    aiConversations(orderBy: updatedAtDesc) {
-      id
-      createdAt
-      updatedAt
-      owner {
-        id
-        name
-      }
-    }
-    aiAssistants {
-      id
-      name
-    }
-    aiLists {
-      id
-      name
-      owner {
-        id
-      }
-    }
     modelProviderStatus {
       instances {
         name
@@ -58,15 +38,6 @@ const dashboardDataDocument = graphql(`
       totalUsedMemory
       totalMaxConcurrency
       totalQueueLength
-    }
-    libraries(sortOrder: desc, sortField: updatedAt) {
-      totalCount
-      items {
-        id
-        name
-        filesCount
-        updatedAt
-      }
     }
     queueSystemStatus {
       queues {

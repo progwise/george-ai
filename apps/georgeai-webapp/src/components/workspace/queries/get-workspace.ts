@@ -20,11 +20,13 @@ const workspaceQueryDocument = graphql(`
           extractions
         }
       }
+      role
       chunksCount
       listsCount
       librariesCount
       assistantsCount
       automationsCount
+      conversationsCount
       isDefault
       createdAt
       updatedAt

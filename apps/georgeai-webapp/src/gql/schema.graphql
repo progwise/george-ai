@@ -1966,6 +1966,7 @@ type Workspace {
   assistantsCount: Int!
   automationsCount: Int!
   chunksCount: Int
+  conversationsCount: Int!
   createdAt: DateTime!
   embeddingStatistics: [EmbeddingStatistic!]
   id: ID!

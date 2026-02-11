@@ -10,7 +10,20 @@ interface WorkspaceStatusCardProps {
 export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
   const { currentWorkspace } = useWorkspace(user)
   if (!currentWorkspace) {
-    return null // TODO: Skeleton loader
+    return (
+      <div className="stats min-w-50 flex-1 shadow-sm">
+        <div className="stat py-3">
+          <div className="h-4 w-36 skeleton" />
+          <div className="mt-2 h-8 w-48 skeleton" />
+          <div className="mt-2 flex gap-2">
+            <div className="h-4 w-16 skeleton rounded-sm" />
+            <div className="h-4 w-16 skeleton rounded-sm" />
+            <div className="h-4 w-20 skeleton rounded-sm" />
+            <div className="h-4 w-28 skeleton rounded-sm" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const workspaceVersion = currentWorkspace.manifest?.version
@@ -25,7 +38,7 @@ export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
         <div className="stat-value text-2xl">{`${currentWorkspace.name} `}</div>
         <div className="stat-desc text-xs text-error">
           {isLegacy ? (
-            user.isAdmin ? (
+            currentWorkspace.role === 'admin' || currentWorkspace.role === 'owner' ? (
               <div className="badge badge-sm badge-warning">Needs migration</div>
             ) : (
               <div className="badge badge-sm badge-info">Please contact your workspace administrator.</div>

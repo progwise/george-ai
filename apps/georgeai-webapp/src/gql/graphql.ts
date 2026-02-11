@@ -2597,6 +2597,7 @@ export type Workspace = {
   assistantsCount: Scalars['Int']['output']
   automationsCount: Scalars['Int']['output']
   chunksCount?: Maybe<Scalars['Int']['output']>
+  conversationsCount: Scalars['Int']['output']
   createdAt: Scalars['DateTime']['output']
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   id: Scalars['ID']['output']
@@ -4460,15 +4461,6 @@ export type GetDashboardDataQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetDashboardDataQuery = {
   __typename?: 'Query'
-  aiConversations: Array<{
-    __typename?: 'AiConversation'
-    id: string
-    createdAt: string
-    updatedAt?: string | null
-    owner: { __typename?: 'User'; id: string; name?: string | null }
-  }>
-  aiAssistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
-  aiLists: Array<{ __typename?: 'AiList'; id: string; name: string; owner: { __typename?: 'User'; id: string } }>
   modelProviderStatus: {
     __typename?: 'AiServiceClusterStatus'
     totalInstances: number
@@ -4497,11 +4489,6 @@ export type GetDashboardDataQuery = {
         estimatedRequestSize: number
       }> | null
     }>
-  }
-  libraries: {
-    __typename?: 'LibrariesResponseType'
-    totalCount: number
-    items: Array<{ __typename?: 'AiLibrary'; id: string; name: string; filesCount: number; updatedAt: string }>
   }
   queueSystemStatus: {
     __typename?: 'QueueSystemStatus'
@@ -5271,6 +5258,7 @@ export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
   name: string
+  filesCount: number
   createdAt: string
   updatedAt: string
 }
@@ -5282,7 +5270,14 @@ export type AiLibrariesQuery = {
   libraries: {
     __typename?: 'LibrariesResponseType'
     totalCount: number
-    items: Array<{ __typename?: 'AiLibrary'; id: string; name: string; createdAt: string; updatedAt: string }>
+    items: Array<{
+      __typename?: 'AiLibrary'
+      id: string
+      name: string
+      createdAt: string
+      updatedAt: string
+      filesCount: number
+    }>
   }
 }
 
@@ -5296,10 +5291,10 @@ export type AiLibraryDetailQuery = {
     __typename?: 'AiLibrary'
     id: string
     name: string
+    filesCount: number
     createdAt: string
     updatedAt: string
     embeddingTimeoutMs?: number | null
-    filesCount: number
     description?: string | null
     fileConverterOptions?: string | null
     autoProcessCrawledFiles: boolean
@@ -6668,11 +6663,13 @@ export type GetWorkspaceQuery = {
     id: string
     name: string
     slug: string
+    role?: WorkspaceRole | null
     chunksCount?: number | null
     listsCount: number
     librariesCount: number
     assistantsCount: number
     automationsCount: number
+    conversationsCount: number
     isDefault: boolean
     createdAt: string
     updatedAt: string
@@ -10480,6 +10477,7 @@ export const AiLibraryBaseFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -16524,66 +16522,6 @@ export const GetDashboardDataDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiConversations' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'orderBy' },
-                value: { kind: 'EnumValue', value: 'updatedAtDesc' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'owner' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiAssistants' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLists' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'owner' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
             name: { kind: 'Name', value: 'modelProviderStatus' },
             selectionSet: {
               kind: 'SelectionSet',
@@ -16646,41 +16584,6 @@ export const GetDashboardDataDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalQueueLength' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'libraries' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'sortOrder' },
-                value: { kind: 'EnumValue', value: 'desc' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'sortField' },
-                value: { kind: 'EnumValue', value: 'updatedAt' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                    ],
-                  },
-                },
               ],
             },
           },
@@ -18303,6 +18206,7 @@ export const AiLibrariesDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -18369,6 +18273,7 @@ export const AiLibraryDetailDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -21888,11 +21793,13 @@ export const GetWorkspaceDocument = {
                     ],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'listsCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'librariesCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantsCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'automationsCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'conversationsCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isDefault' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
