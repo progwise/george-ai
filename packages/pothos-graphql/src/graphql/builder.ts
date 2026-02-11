@@ -3,7 +3,13 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
-import { EMBEDDING_STATUS, EXTRACTION_METHODS, MODEL_PROVIDERS, WORKSPACE_ROLES } from '@george-ai/app-commons'
+import {
+  EMBEDDING_STATUS,
+  EXTRACTION_METHODS,
+  MODEL_PROVIDERS,
+  PROCESSING_REQUEST_TYPES,
+  WORKSPACE_ROLES,
+} from '@george-ai/app-commons'
 import { Prisma, getDatamodel, prisma } from '@george-ai/app-database'
 import type { PothosTypes } from '@george-ai/app-database'
 import { Context, LoggedInContext } from '@george-ai/app-domain'
@@ -19,6 +25,7 @@ import {
   LIST_FIELD_TYPES,
 } from '../domain/list'
 import { GeorgeInputTypes, GeorgeObjectTypes } from './common'
+import { GeorgeInterfaceTypes } from './common/george-interface-types'
 
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
@@ -31,6 +38,7 @@ const builder = new SchemaBuilder<{
     isLoggedIn: LoggedInContext
   }
   Objects: GeorgeObjectTypes
+  Interfaces: GeorgeInterfaceTypes
   Inputs: GeorgeInputTypes
   Scalars: {
     SortOrder: {
@@ -73,9 +81,9 @@ const builder = new SchemaBuilder<{
       Input: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
       Output: (typeof workspaceProcessing.EVENT_PROCESSING_STATUS)[number]
     }
-    ActionType: {
-      Input: (typeof workspaceProcessing.ACTION_TYPES)[number]
-      Output: (typeof workspaceProcessing.ACTION_TYPES)[number]
+    ProcessingRequestType: {
+      Input: (typeof PROCESSING_REQUEST_TYPES)[number]
+      Output: (typeof PROCESSING_REQUEST_TYPES)[number]
     }
     WorkerType: {
       Input: (typeof workerRegistry.WORKER_TYPES)[number]

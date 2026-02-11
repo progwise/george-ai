@@ -1,11 +1,11 @@
 import { pipeline } from 'node:stream/promises'
 
-import { type EmbedFileAction, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
+import { type EmbedFileRequest, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { WORKER_ID, logger } from '../../common'
 
-export async function embedFile(event: EmbedFileAction) {
+export async function embedFile(event: EmbedFileRequest) {
   const { workspaceId, libraryId, fileId, embeddingModelProvider, embeddingModelName, extractionMethod } = event
 
   const result = {

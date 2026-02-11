@@ -28,9 +28,23 @@ builder.mutationField('prepareUpload', (t) =>
     resolve: async (query, _source, { data }, { workspaceId, session }) => {
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
       try {
-        return await prisma.aiLibraryFile.create({
+        return await prisma.aiLibraryFile.upsert({
           ...query,
-          data,
+          where: { libraryId_originUri: { libraryId: data.libraryId, originUri: data.originUri } },
+          create: {
+            name: data.name,
+            originUri: data.originUri,
+            mimeType: data.mimeType,
+            size: data.size,
+            originModificationDate: data.originModificationDate,
+            libraryId: data.libraryId,
+          },
+          update: {
+            name: data.name,
+            mimeType: data.mimeType,
+            size: data.size,
+            originModificationDate: data.originModificationDate,
+          },
         })
       } catch (error) {
         logger.error('Error preparing file upload', { error, data, userId: session.user.id, workspaceId })

@@ -1,52 +1,42 @@
 import z from 'zod'
 
 import { EXTRACTION_METHODS, MODEL_PROVIDERS } from '@george-ai/app-commons'
+import { PROCESSING_REQUEST_TYPES, PROCESSING_STATUS_VALUES } from '@george-ai/app-commons'
 
 import { ContextSchema, ResultSchema } from '../common'
-import { ACTION_STATUS_VALUES, ACTION_TYPES } from './common'
+
+/**
+ * Request Schemas and Types
+ */
 
 // Base
 
-export const ActionBaseSchema = z.object({
-  version: z.literal(1),
-  workspaceId: z.string(),
-  actionType: z.enum(ACTION_TYPES),
-  settings: z.record(z.string().or(z.number()).or(z.boolean())).nullable().optional(),
-})
+export const ProcessingRequestSettingsSchema = z.record(z.string().or(z.number()).or(z.boolean())).nullable().optional()
 
-export const StatusBaseSchema = z.object({
+export type ProcessingRequestSettings = z.infer<typeof ProcessingRequestSettingsSchema>
+
+export const ProcessingRequestBaseSchema = z.object({
   version: z.literal(1),
   workspaceId: z.string(),
-  actionType: z.enum(ACTION_TYPES),
-  timestamp: z.string(),
-  status: z.enum(ACTION_STATUS_VALUES),
-  details: z.string().nullable().optional(),
+  requestType: z.enum(PROCESSING_REQUEST_TYPES),
+  settings: ProcessingRequestSettingsSchema,
 })
 
 // Extract File
 
-export const ExtractFileActionSchema = ActionBaseSchema.extend({
-  actionType: z.literal('extractFile'),
+export const ExtractFileRequestSchema = ProcessingRequestBaseSchema.extend({
+  requestType: z.literal('extractFile'),
   libraryId: z.string(),
   fileId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
 })
 
-export type ExtractFileAction = z.infer<typeof ExtractFileActionSchema>
-
-export const ExtractFileStatusSchema = StatusBaseSchema.extend({
-  actionType: z.literal('extractFile'),
-  libraryId: z.string(),
-  fileId: z.string(),
-  extractionMethod: z.enum(EXTRACTION_METHODS),
-})
-
-export type ExtractFileStatus = z.infer<typeof ExtractFileStatusSchema>
+export type ExtractFileRequest = z.infer<typeof ExtractFileRequestSchema>
 
 // Embed file
 
-export const EmbedFileActionSchema = ActionBaseSchema.extend({
-  actionType: z.literal('embedFile'),
+export const EmbedFileRequestSchema = ProcessingRequestBaseSchema.extend({
+  requestType: z.literal('embedFile'),
   libraryId: z.string(),
   fileId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
@@ -54,10 +44,58 @@ export const EmbedFileActionSchema = ActionBaseSchema.extend({
   embeddingModelName: z.string(),
 })
 
-export type EmbedFileAction = z.infer<typeof EmbedFileActionSchema>
+export type EmbedFileRequest = z.infer<typeof EmbedFileRequestSchema>
 
-export const EmbedFileStatusSchema = StatusBaseSchema.extend({
-  actionType: z.literal('embedFile'),
+// Enrich Item
+
+export const EnrichItemRequestSchema = ProcessingRequestBaseSchema.extend({
+  requestType: z.literal('enrichItem'),
+  libraryId: z.string(),
+  fileId: z.string(),
+  fragment: z.number().nullable().optional(),
+})
+
+export type EnrichItemRequest = z.infer<typeof EnrichItemRequestSchema>
+
+// Discriminated Union of all Requests
+
+export const ProcessingRequestSchema = z.discriminatedUnion('requestType', [
+  ExtractFileRequestSchema,
+  EmbedFileRequestSchema,
+  EnrichItemRequestSchema,
+])
+
+export type ProcessingRequest = z.infer<typeof ProcessingRequestSchema>
+
+/*
+Status Schemas and Types
+*/
+
+// Base Status
+
+export const ProcessingStatusBaseSchema = z.object({
+  version: z.literal(1),
+  workspaceId: z.string(),
+  requestType: z.enum(PROCESSING_REQUEST_TYPES),
+  timestamp: z.string(),
+  status: z.enum(PROCESSING_STATUS_VALUES),
+  details: z.string().nullable().optional(),
+})
+
+// Extract File Status
+export const ExtractFileStatusSchema = ProcessingStatusBaseSchema.extend({
+  requestType: z.literal('extractFile'),
+  libraryId: z.string(),
+  fileId: z.string(),
+  extractionMethod: z.enum(EXTRACTION_METHODS),
+})
+
+export type ExtractFileStatus = z.infer<typeof ExtractFileStatusSchema>
+
+// Embed File Status
+
+export const EmbedFileStatusSchema = ProcessingStatusBaseSchema.extend({
+  requestType: z.literal('embedFile'),
   libraryId: z.string(),
   fileId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
@@ -65,19 +103,10 @@ export const EmbedFileStatusSchema = StatusBaseSchema.extend({
 
 export type EmbedFileStatus = z.infer<typeof EmbedFileStatusSchema>
 
-// Enrichment
+// Enrich Item Status
 
-export const EnrichItemActionSchema = ActionBaseSchema.extend({
-  actionType: z.literal('enrichItem'),
-  libraryId: z.string(),
-  fileId: z.string(),
-  fragment: z.number().nullable().optional(),
-})
-
-export type EnrichItemAction = z.infer<typeof EnrichItemActionSchema>
-
-export const EnrichItemStatusSchema = StatusBaseSchema.extend({
-  actionType: z.literal('enrichItem'),
+export const EnrichItemStatusSchema = ProcessingStatusBaseSchema.extend({
+  requestType: z.literal('enrichItem'),
   libraryId: z.string(),
   fileId: z.string(),
   fragment: z.number().nullable().optional(),
@@ -85,36 +114,33 @@ export const EnrichItemStatusSchema = StatusBaseSchema.extend({
 
 export type EnrichItemStatus = z.infer<typeof EnrichItemStatusSchema>
 
-export const ReplyEventSchema = z.object({
-  version: z.literal(1),
-  workspaceId: z.string(),
-  actionType: z.enum(ACTION_TYPES),
-  timestamp: z.string(),
-  result: ResultSchema,
-  context: ContextSchema,
-})
+// Discriminated Union of all Statuses
 
-export type ReplyEvent = z.infer<typeof ReplyEventSchema>
-
-// Action Events
-export type ActionEvent = ExtractFileAction | EmbedFileAction | EnrichItemAction
-
-export const ActionEventSchema = z.discriminatedUnion('actionType', [
-  ExtractFileActionSchema,
-  EmbedFileActionSchema,
-  EnrichItemActionSchema,
-])
-
-export type StatusEvent = ExtractFileStatus | EmbedFileStatus | EnrichItemStatus
-
-export const StatusEventSchema = z.discriminatedUnion('actionType', [
+export const ProcessingStatusSchema = z.discriminatedUnion('requestType', [
   ExtractFileStatusSchema,
   EmbedFileStatusSchema,
   EnrichItemStatusSchema,
 ])
 
-export const EventSchemas = {
-  action: ActionEventSchema,
-  reply: ReplyEventSchema,
-  status: StatusEventSchema,
+export type ProcessingStatus = z.infer<typeof ProcessingStatusSchema>
+
+/**
+ * Reply Schemas and Types
+ */
+
+export const ProcessingReplySchema = z.object({
+  version: z.literal(1),
+  workspaceId: z.string(),
+  requestType: z.enum(PROCESSING_REQUEST_TYPES),
+  timestamp: z.string(),
+  result: ResultSchema,
+  context: ContextSchema,
+})
+
+export type ProcessingReply = z.infer<typeof ProcessingReplySchema>
+
+export const ProcessingEventSchemas = {
+  request: ProcessingRequestSchema,
+  reply: ProcessingReplySchema,
+  status: ProcessingStatusSchema,
 }

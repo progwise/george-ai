@@ -6,7 +6,7 @@ import { DateTimePeriod } from './date-time-period'
 
 export interface GeorgeInputTypes {
   DateTimePeriod: DateTimePeriod
-  LibraryInput: LibraryInput
   FileChunksSelector: VectorStoreChunksSelector
+  LibraryInput: LibraryInput
   ModelProviderInput: ModelProviderInput
 }

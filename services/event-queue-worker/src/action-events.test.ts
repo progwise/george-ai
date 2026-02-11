@@ -38,8 +38,8 @@ describe.sequential('Should process action events', () => {
   })
 
   it('When I publish an extraction event for it...', async () => {
-    await workspaceProcessing.publishActionEvent({
-      actionType: 'extractFile',
+    await workspaceProcessing.publishProcessingRequest({
+      requestType: 'extractFile',
       workspaceId: TEST_WORKSPACE_ID,
       version: 1,
       extractionMethod: 'textExtraction',

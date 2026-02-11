@@ -1,4 +1,9 @@
-import { ActionEvent, StatusEvent, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
+import {
+  ProcessingRequest,
+  ProcessingStatus,
+  workerRegistry,
+  workspaceProcessing,
+} from '@george-ai/event-service-client'
 
 import { WORKER_ID, logger } from '../common'
 import { handleActionEvent } from './action-handlers'
@@ -28,10 +33,10 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
         })
         switch (eventType) {
           case 'status':
-            await handleStatusEvent(event as StatusEvent)
+            await handleStatusEvent(event as ProcessingStatus)
             return
-          case 'action':
-            await handleActionEvent(event as ActionEvent)
+          case 'request':
+            await handleActionEvent(event as ProcessingRequest)
             break
           default:
             throw new Error(`Unknown event type: ${eventType}`)

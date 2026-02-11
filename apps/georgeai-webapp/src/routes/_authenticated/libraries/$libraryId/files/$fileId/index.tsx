@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -59,13 +59,21 @@ function RouteComponent() {
   const hasNoExtractions = !aiLibraryFile.manifest?.extractions || aiLibraryFile.manifest.extractions.length === 0
 
   // Build URL with part parameter if specified
-  let urlToLoad = `${BACKEND_PUBLIC_URL}/library-files/${libraryId}/${fileId}?extraction=${extractionMethod}`
-  if (fragment) {
-    // Add part as query parameter to the main file URL
-    const url = new URL(urlToLoad)
-    url.searchParams.set('fragment', fragment.toString())
-    urlToLoad = url.toString()
-  }
+  const urlToLoad = useMemo(() => {
+    if (!BACKEND_PUBLIC_URL) return null
+    if (!fileId || !libraryId) return null
+    if (!extractionMethod) return null
+
+    const baseUrl = `${BACKEND_PUBLIC_URL}/library-files/${libraryId}/${fileId}`
+
+    const url = new URL(baseUrl)
+    url.searchParams.set('extraction', extractionMethod)
+    if (fragment) {
+      // Add part as query parameter to the main file URL
+      url.searchParams.set('fragment', fragment.toString())
+    }
+    return url.toString()
+  }, [BACKEND_PUBLIC_URL, libraryId, fileId, extractionMethod, fragment])
 
   const { content, isLoading, progress, error } = useMarkdownDownload({
     url: urlToLoad,

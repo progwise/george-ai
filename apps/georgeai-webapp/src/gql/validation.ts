@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import {
-  ActionType,
   AiAssistantInput,
   AiAutomationInput,
   AiBaseCaseInputType,
@@ -42,8 +41,7 @@ import {
   ModelProvider,
   ModelProviderInput,
   PrepareUploadInput,
-  ProcessFileInput,
-  ProcessFilesInput,
+  ProcessingRequestType,
   ProviderHealthStatus,
   QueueType,
   SortOrder,
@@ -64,8 +62,6 @@ type definedNonNullAny = {}
 export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
-
-export const ActionTypeSchema = z.nativeEnum(ActionType)
 
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
@@ -102,6 +98,8 @@ export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 export const ModelCallTypeSchema = z.nativeEnum(ModelCallType)
 
 export const ModelProviderSchema = z.nativeEnum(ModelProvider)
+
+export const ProcessingRequestTypeSchema = z.nativeEnum(ProcessingRequestType)
 
 export const ProviderHealthStatusSchema = z.nativeEnum(ProviderHealthStatus)
 
@@ -341,23 +339,6 @@ export function PrepareUploadInputSchema(): z.ZodObject<Properties<PrepareUpload
     originModificationDate: z.string(),
     originUri: z.string(),
     size: z.number(),
-  })
-}
-
-export function ProcessFileInputSchema(): z.ZodObject<Properties<ProcessFileInput>> {
-  return z.object({
-    actionType: ActionTypeSchema,
-    fileId: z.string(),
-    fragment: z.number().nullish(),
-    libraryId: z.string(),
-  })
-}
-
-export function ProcessFilesInputSchema(): z.ZodObject<Properties<ProcessFilesInput>> {
-  return z.object({
-    actionType: ActionTypeSchema,
-    fileIds: z.array(z.string()),
-    libraryId: z.string(),
   })
 }
 

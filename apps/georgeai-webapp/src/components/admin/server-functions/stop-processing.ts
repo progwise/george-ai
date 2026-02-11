@@ -1,21 +1,28 @@
 import { createServerFn } from '@tanstack/react-start'
+import z from 'zod'
 
 import { graphql } from '../../../gql'
-import { ActionType } from '../../../gql/graphql'
+import { ProcessingRequestType } from '../../../gql/graphql'
 import { backendRequest } from '../../../server-functions/backend'
 
 export const stopProcessingFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { actionType: ActionType }) => data)
-  .handler(async (ctx) => {
+  .inputValidator((data) =>
+    z
+      .object({
+        requestType: z.nativeEnum(ProcessingRequestType),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        mutation StopWorkspaceProcessing($actionType: ActionType!) {
-          stopEventProcessing(actionType: $actionType) {
+        mutation StopWorkspaceProcessing($requestType: ProcessingRequestType!) {
+          stopProcessing(requestType: $requestType) {
             success
           }
         }
       `),
-      { ...ctx.data },
+      data,
     )
     return result
   })

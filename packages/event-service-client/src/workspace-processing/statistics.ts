@@ -1,9 +1,10 @@
+import { PROCESSING_REQUEST_TYPES, type ProcessingRequestType } from '@george-ai/app-commons'
+
 import { eventClient } from '../client'
 import { WORKSPACE_STREAM_NAME, getConsumerName } from './common'
-import { ACTION_TYPES, type ActionType } from './common'
 
 export interface WorkspaceProcessStatistics {
-  actionType: ActionType
+  requestType: ProcessingRequestType
   totalMessages: number
   processedMessages: number
   pendingMessages: number
@@ -11,18 +12,18 @@ export interface WorkspaceProcessStatistics {
 
 export async function getWorkspaceProcessStatistics(
   workspaceId: string,
-  actionType: ActionType,
+  requestType: ProcessingRequestType,
 ): Promise<WorkspaceProcessStatistics> {
   const stats = await eventClient.getStreamStatistics({
-    consumerName: getConsumerName({ workspaceId, actionType }),
+    consumerName: getConsumerName({ workspaceId, requestType }),
     streamName: WORKSPACE_STREAM_NAME,
   })
-  return { actionType, ...stats }
+  return { requestType, ...stats }
 }
 
 export async function getWorkspaceStatistics(workspaceId: string): Promise<WorkspaceProcessStatistics[]> {
   const result = await Promise.all(
-    ACTION_TYPES.map(async (actionType) => await getWorkspaceProcessStatistics(workspaceId, actionType)),
+    PROCESSING_REQUEST_TYPES.map(async (requestType) => await getWorkspaceProcessStatistics(workspaceId, requestType)),
   )
   return result
 }

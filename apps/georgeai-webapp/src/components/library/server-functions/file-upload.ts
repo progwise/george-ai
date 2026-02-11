@@ -8,7 +8,10 @@ import { backendRequest } from '../../../server-functions/backend'
 
 export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { libraryId: string; files: { name: string; type: string; size: number; lastModified: Date }[] }) =>
+    (data: {
+      libraryId: string
+      files: { name: string; type: string; size: number; lastModified: Date; originUri: string }[]
+    }) =>
       z
         .object({
           libraryId: z.string().nonempty(),
@@ -18,6 +21,7 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
               type: z.string().nonempty(),
               size: z.number().nonnegative(),
               lastModified: z.date(),
+              originUri: z.string().nonempty(),
             }),
           ),
         })
@@ -44,7 +48,7 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
         {
           file: {
             name: file.name,
-            originUri: 'desktop',
+            originUri: file.originUri,
             mimeType: file.type || 'application/pdf',
             libraryId: ctx.data.libraryId,
             size: file.size,

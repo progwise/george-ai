@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
-import { ProcessFileInput, ProcessFilesInput } from '../../gql/graphql'
+import { ProcessingRequestType } from '@george-ai/app-commons'
+
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
@@ -113,10 +114,11 @@ export const useLibraryActions = (libraryId: string) => {
   })
 
   const processFileMutation = useMutation({
-    mutationFn: (data: ProcessFileInput) => processFileFn({ data }),
-    onSuccess: (_data, { actionType }) => {
-      logger.debug('processFileMutation success', { actionType })
-      toastSuccess(`${actionType} successfully triggered`)
+    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; fileId: string }) =>
+      processFileFn({ data }),
+    onSuccess: (_data, { requestType }) => {
+      logger.debug('processFileMutation success', { requestType })
+      toastSuccess(`${requestType} successfully triggered`)
     },
     onError: (error, variables) => {
       logger.error('processFileMutation', { error, variables })
@@ -125,7 +127,8 @@ export const useLibraryActions = (libraryId: string) => {
   })
 
   const processFilesMutation = useMutation({
-    mutationFn: (data: ProcessFilesInput) => processFilesFn({ data }),
+    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; fileIds: string[] }) =>
+      processFilesFn({ data }),
     onError: (error, variables) => {
       logger.error('Error processing files', { error, variables })
       toastError(
@@ -179,7 +182,7 @@ export const useLibraryActions = (libraryId: string) => {
   })
 
   const { mutate: prepareDesktopFileUploadsMutate, isPending: prepareDesktopFilesIsPending } = useMutation({
-    mutationFn: (files: { name: string; type: string; size: number; lastModified: Date }[]) =>
+    mutationFn: (files: { name: string; type: string; size: number; lastModified: Date; originUri: string }[]) =>
       prepareDesktopFileUploadsFn({ data: { libraryId, files } }),
     onError: (error) => {
       const errorMessage =

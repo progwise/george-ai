@@ -6,18 +6,18 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getEventProcessingStatus = createServerFn({ method: 'GET' }).handler(async (ctx) => {
-  const { eventProcessingStatus } = await backendRequest(
+  const result = await backendRequest(
     graphql(`
-      query GetEventProcessingStatus {
-        eventProcessingStatus {
+      query GetProcessingStatus {
+        processingStatus {
           status
-          actionType
+          requestType
         }
       }
     `),
     ctx.data,
   )
-  return eventProcessingStatus
+  return result.processingStatus
 })
 
 export const getEventProcessingStatusQueryOptions = () =>

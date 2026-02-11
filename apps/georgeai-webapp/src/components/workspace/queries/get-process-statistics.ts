@@ -15,7 +15,7 @@ const getWorkspaceProcessStatistics = createServerFn({ method: 'GET' })
       graphql(`
         query GetWorkspaceProcessStatistics($workspaceId: String!) {
           workspaceProcessStatistics(workspaceId: $workspaceId) {
-            actionType
+            requestType
             totalMessages
             processedMessages
             pendingMessages

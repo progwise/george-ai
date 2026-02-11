@@ -19,6 +19,7 @@ export const queryKeys = {
   FileUsages: 'FileUsages',
   ModelProviders: 'ModelProviders',
   ModelProviderStatus: 'ModelProviderStatus',
+  ProcessingRequests: 'ProcessingRequests',
   ProcessingTasks: 'ProcessingTasks',
   QueueStatus: 'QueueStatus',
   AiLanguageModels: 'aiLanguageModels',

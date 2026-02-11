@@ -1,24 +1,18 @@
+import { PROCESSING_REQUEST_TYPES, ProcessingRequestType } from '@george-ai/app-commons'
+
 import { eventClient } from '../client'
-import {
-  ACTION_TYPES,
-  ActionType,
-  WORKSPACE_STREAM_NAME,
-  getConsumerName,
-  getConsumerNames,
-  getConsumerSubjectFilters,
-  logger,
-} from './common'
+import { WORKSPACE_STREAM_NAME, getConsumerName, getConsumerNames, getConsumerSubjectFilters, logger } from './common'
 
 export const ensureWorkspaceConsumer = async (params: {
   workspaceId: string
-  actionType: ActionType
+  requestType: ProcessingRequestType
   timeoutMs: number
   maxPendingMessages: number
   maxDeliveryAttempts: number
 }) => {
-  const { workspaceId, actionType, maxPendingMessages, maxDeliveryAttempts } = params
-  const consumerName = getConsumerName({ workspaceId, actionType })
-  const subjectFilters = getConsumerSubjectFilters({ workspaceId, actionType })
+  const { workspaceId, requestType, maxPendingMessages, maxDeliveryAttempts } = params
+  const consumerName = getConsumerName({ workspaceId, requestType })
+  const subjectFilters = getConsumerSubjectFilters({ workspaceId, requestType })
   await eventClient.ensureConsumer({
     streamName: WORKSPACE_STREAM_NAME,
     consumerName,
@@ -31,10 +25,10 @@ export const ensureWorkspaceConsumer = async (params: {
 
 export const ensureWorkspaceConsumers = async ({ workspaceId }: { workspaceId: string }) => {
   await Promise.all(
-    Object.values(ACTION_TYPES).map(async (actionType) => {
+    Object.values(PROCESSING_REQUEST_TYPES).map(async (requestType) => {
       await ensureWorkspaceConsumer({
         workspaceId,
-        actionType,
+        requestType,
         maxDeliveryAttempts: 3,
         timeoutMs: 5 * 60 * 1000,
         maxPendingMessages: 10000,

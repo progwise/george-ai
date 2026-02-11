@@ -6,7 +6,7 @@ import { dateTimeStringShort } from '@george-ai/app-commons'
 import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { ActionType, AiLibraryFile_FilesTableFragment } from '../../../gql/graphql'
+import { AiLibraryFile_FilesTableFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
@@ -130,7 +130,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
   const handleExtractSelectedFiles = () => {
     processFiles({
-      actionType: ActionType.ExtractFile,
+      requestType: 'extractFile',
       libraryId,
       fileIds: selectedFileIds,
     })
@@ -138,7 +138,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
   const handleEmbedSelectedFiles = () => {
     processFiles({
-      actionType: ActionType.EmbedFile,
+      requestType: 'embedFile',
       libraryId,
       fileIds: selectedFileIds,
     })
@@ -359,7 +359,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         type="button"
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
-                        onClick={() => processFile({ actionType: ActionType.EmbedFile, libraryId, fileId: file.id })}
+                        onClick={() => processFile({ requestType: 'embedFile', libraryId, fileId: file.id })}
                       >
                         <ReprocessIcon className="size-4" />
                       </button>

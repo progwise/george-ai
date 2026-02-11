@@ -1,6 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { ActionType, EventProcessingStatus } from '../../../gql/graphql'
+import { ProcessingRequestType } from '@george-ai/app-commons'
+
+import { EventProcessingStatus } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { PlayIcon } from '../../../icons/play-icon'
 import { StopIcon } from '../../../icons/stop-icon'
@@ -14,47 +16,34 @@ export const ManageWorkersMenu = () => {
 
   const { stopProcessing, startProcessing, pending } = useWorkerActions()
 
-  const isProcessing = (actionType: ActionType) => {
-    const processingStatus = eventProcessingStatus.find((status) => status.actionType === actionType)
+  const isProcessing = (requestType: ProcessingRequestType) => {
+    const processingStatus = eventProcessingStatus.find((status) => status.requestType === requestType)
     return processingStatus?.status === EventProcessingStatus.Running
   }
 
   return (
     <ul className="menu menu-horizontal gap-2 rounded-box bg-base-200/50 p-2">
       <li aria-disabled={pending}>
-        {!isProcessing(ActionType.EmbedFile) ? (
-          <a
-            className="btn btn-xs btn-primary"
-            onClick={() => startProcessing({ data: { actionType: ActionType.EmbedFile } })}
-          >
+        {!isProcessing('embedFile') ? (
+          <a className="btn btn-xs btn-primary" onClick={() => startProcessing('embedFile')}>
             <PlayIcon className="size-4" />
             {t('admin.workers.startEmbedding')}
           </a>
         ) : (
-          <a
-            className="btn btn-xs btn-secondary"
-            onClick={() => stopProcessing({ data: { actionType: ActionType.EmbedFile } })}
-          >
+          <a className="btn btn-xs btn-secondary" onClick={() => stopProcessing('embedFile')}>
             <StopIcon className="size-4" />
             {t('admin.workers.stopEmbedding')}
           </a>
         )}
       </li>
       <li>
-        {!isProcessing(ActionType.ExtractFile) ? (
-          <a
-            className="btn btn-xs btn-primary"
-            onClick={() => startProcessing({ data: { actionType: ActionType.ExtractFile } })}
-          >
+        {!isProcessing('extractFile') ? (
+          <a className="btn btn-xs btn-primary" onClick={() => startProcessing('extractFile')}>
             <PlayIcon className="size-4" />
             {t('admin.workers.startExtraction')}
           </a>
         ) : (
-          <a
-            aria-disabled={pending}
-            className="btn btn-xs btn-secondary"
-            onClick={() => stopProcessing({ data: { actionType: ActionType.ExtractFile } })}
-          >
+          <a aria-disabled={pending} className="btn btn-xs btn-secondary" onClick={() => stopProcessing('extractFile')}>
             <StopIcon className="size-4" />
             {t('admin.workers.stopExtraction')}
           </a>

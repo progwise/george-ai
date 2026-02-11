@@ -1,9 +1,10 @@
 import { eventClient } from '../client'
-import { ACTION_TYPES, WORKSPACE_PROCESSING_STREAM_SUBJECTS, WORKSPACE_STREAM_NAME, getReplySubject } from './common'
+import { WORKSPACE_PROCESSING_STREAM_SUBJECTS, WORKSPACE_STREAM_NAME, getReplySubject } from './common'
 import { deleteWorkspaceProcessingConsumers, ensureWorkspaceConsumer, ensureWorkspaceConsumers } from './consumers'
 import { EVENT_PROCESSING_STATUS, processingStatus, startProcessing, stopProcessing } from './controller'
-import { publishActionEvent, publishStatusEvent } from './publish'
-import { ActionEventSchema, EventSchemas } from './schema'
+import { getRequests } from './get-requests'
+import { publishProcessingRequest, publishProcessingStatus } from './publish'
+import { ProcessingEventSchemas, ProcessingRequestSchema } from './schema'
 import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statistics'
 import { subscribeEvent } from './subscribe'
 
@@ -28,14 +29,14 @@ export default {
   deleteWorkspaceProcessingConsumers,
   ensureWorkspaceConsumer,
   ensureWorkspaceConsumers,
-  publishActionEvent,
-  publishStatusEvent,
+  publishProcessingRequest,
+  publishProcessingStatus,
   subscribeEvent,
   getReplySubject,
+  getRequests,
   getWorkspaceProcessStatistics,
   getWorkspaceStatistics,
-  EventSchemas,
-  ActionEventSchema,
-  ACTION_TYPES,
+  ProcessingEventSchemas,
+  ProcessingRequestSchema,
   EVENT_PROCESSING_STATUS,
 }

@@ -64,13 +64,6 @@ export type ActionFieldMapping = {
   transform: Scalars['String']['output']
 }
 
-export enum ActionType {
-  ChunkFile = 'chunkFile',
-  EmbedFile = 'embedFile',
-  EnrichItem = 'enrichItem',
-  ExtractFile = 'extractFile',
-}
-
 /** AI Act Assessment Query */
 export type AiActAssessment = {
   __typename?: 'AiActAssessment'
@@ -1040,6 +1033,19 @@ export type DateTimePeriod = {
   latest?: InputMaybe<Scalars['DateTime']['input']>
 }
 
+export type EmbedFileRequest = ProcessingRequest & {
+  __typename?: 'EmbedFileRequest'
+  embeddingModelName?: Maybe<Scalars['String']['output']>
+  embeddingModelProvider?: Maybe<ModelProvider>
+  extractionMethod?: Maybe<Scalars['String']['output']>
+  fileId?: Maybe<Scalars['String']['output']>
+  libraryId?: Maybe<Scalars['String']['output']>
+  requestType?: Maybe<Scalars['String']['output']>
+  settings?: Maybe<Array<ProcessingRequestSettingItem>>
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId?: Maybe<Scalars['String']['output']>
+}
+
 /** Information about an embedding method used in the workspace */
 export type EmbeddingStatistic = {
   __typename?: 'EmbeddingStatistic'
@@ -1053,6 +1059,17 @@ export enum EmbeddingStatus {
   Ready = 'Ready',
   UnknownModelConfig = 'UnknownModelConfig',
   WorkspaceNotFound = 'WorkspaceNotFound',
+}
+
+export type EnrichItemRequest = ProcessingRequest & {
+  __typename?: 'EnrichItemRequest'
+  fileId?: Maybe<Scalars['String']['output']>
+  fragment?: Maybe<Scalars['Int']['output']>
+  libraryId?: Maybe<Scalars['String']['output']>
+  requestType?: Maybe<Scalars['String']['output']>
+  settings?: Maybe<Array<ProcessingRequestSettingItem>>
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId?: Maybe<Scalars['String']['output']>
 }
 
 export type EnrichmentQueueResult = {
@@ -1132,8 +1149,19 @@ export enum EventProcessingStatus {
 
 export type EventProcessingStatusResult = {
   __typename?: 'EventProcessingStatusResult'
-  actionType: ActionType
+  requestType: ProcessingRequestType
   status: EventProcessingStatus
+}
+
+export type ExtractFileRequest = ProcessingRequest & {
+  __typename?: 'ExtractFileRequest'
+  extractionMethod?: Maybe<Scalars['String']['output']>
+  fileId?: Maybe<Scalars['String']['output']>
+  libraryId?: Maybe<Scalars['String']['output']>
+  requestType?: Maybe<Scalars['String']['output']>
+  settings?: Maybe<Array<ProcessingRequestSettingItem>>
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId?: Maybe<Scalars['String']['output']>
 }
 
 export type ExtractionAttachment = {
@@ -1541,11 +1569,11 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
-  startEventProcessing: StartEventProcessingResult
+  startProcessing: StartProcessingResult
   startQueueWorker: QueueOperationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
-  stopEventProcessing: StopEventProcessingResult
+  stopProcessing: StopEventProcessingResult
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
@@ -1791,11 +1819,15 @@ export type MutationPrepareUploadArgs = {
 }
 
 export type MutationProcessFileArgs = {
-  input: ProcessFileInput
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  requestType: ProcessingRequestType
 }
 
 export type MutationProcessFilesArgs = {
-  input: ProcessFilesInput
+  fileIds: Array<Scalars['String']['input']>
+  libraryId: Scalars['String']['input']
+  requestType: ProcessingRequestType
 }
 
 export type MutationRemoveConversationParticipantArgs = {
@@ -1850,8 +1882,8 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
-export type MutationStartEventProcessingArgs = {
-  actionType: ActionType
+export type MutationStartProcessingArgs = {
+  requestType: ProcessingRequestType
 }
 
 export type MutationStartQueueWorkerArgs = {
@@ -1862,8 +1894,8 @@ export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
 }
 
-export type MutationStopEventProcessingArgs = {
-  actionType: ActionType
+export type MutationStopProcessingArgs = {
+  requestType: ProcessingRequestType
 }
 
 export type MutationStopQueueWorkerArgs = {
@@ -2002,28 +2034,50 @@ export type PrepareUploadInput = {
   size: Scalars['Int']['input']
 }
 
-export type ProcessFileInput = {
-  actionType: ActionType
-  fileId: Scalars['String']['input']
-  fragment?: InputMaybe<Scalars['Int']['input']>
-  libraryId: Scalars['String']['input']
-}
-
 export type ProcessFileResult = {
   __typename?: 'ProcessFileResult'
   success?: Maybe<Scalars['Boolean']['output']>
 }
 
-export type ProcessFilesInput = {
-  actionType: ActionType
-  /** IDs of the files to process */
-  fileIds: Array<Scalars['String']['input']>
-  libraryId: Scalars['String']['input']
-}
-
 export type ProcessFilesResult = {
   __typename?: 'ProcessFilesResult'
   success?: Maybe<Scalars['Boolean']['output']>
+}
+
+export type ProcessingRequest = {
+  requestType?: Maybe<Scalars['String']['output']>
+  settings?: Maybe<Array<ProcessingRequestSettingItem>>
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId?: Maybe<Scalars['String']['output']>
+}
+
+export type ProcessingRequestItem = {
+  __typename?: 'ProcessingRequestItem'
+  deliveryCount?: Maybe<Scalars['Int']['output']>
+  error?: Maybe<Scalars['String']['output']>
+  id?: Maybe<Scalars['String']['output']>
+  rawText?: Maybe<Scalars['String']['output']>
+  request?: Maybe<ProcessingRequest>
+  subject?: Maybe<Scalars['String']['output']>
+}
+
+export type ProcessingRequestSettingItem = {
+  __typename?: 'ProcessingRequestSettingItem'
+  key?: Maybe<Scalars['String']['output']>
+  value?: Maybe<Scalars['String']['output']>
+}
+
+export enum ProcessingRequestType {
+  EmbedFile = 'embedFile',
+  EnrichItem = 'enrichItem',
+  ExtractFile = 'extractFile',
+}
+
+export type ProcessingRequestsResponse = {
+  __typename?: 'ProcessingRequestsResponse'
+  items: Array<ProcessingRequestItem>
+  lastSequence?: Maybe<Scalars['Int']['output']>
+  totalCount?: Maybe<Scalars['Int']['output']>
 }
 
 export type ProviderCapabilityCounts = {
@@ -2078,7 +2132,6 @@ export type Query = {
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
-  eventProcessingStatus: Array<EventProcessingStatusResult>
   extraction?: Maybe<ExtractionMetadata>
   file: AiLibraryFile
   fileChunks?: Maybe<FileChunksResponse>
@@ -2090,6 +2143,8 @@ export type Query = {
   modelProviders: Array<AiServiceProvider>
   models: AiLanguageModelsResult
   myWorkspaceInvitations: Array<WorkspaceInvitation>
+  processingRequests: ProcessingRequestsResponse
+  processingStatus: Array<EventProcessingStatusResult>
   queryFileChunks: FileChunksQueryResult
   queueSystemStatus: QueueSystemStatus
   similarChunks: Array<SimilarChunkResult>
@@ -2327,6 +2382,14 @@ export type QueryModelsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>
 }
 
+export type QueryProcessingRequestsArgs = {
+  fileId?: InputMaybe<Scalars['String']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  requestType?: InputMaybe<ProcessingRequestType>
+  startSequence?: InputMaybe<Scalars['Int']['input']>
+  take?: Scalars['Int']['input']
+}
+
 export type QueryQueryFileChunksArgs = {
   query: Scalars['String']['input']
   selector: FileChunksSelector
@@ -2444,8 +2507,8 @@ export enum SortOrder {
   Desc = 'desc',
 }
 
-export type StartEventProcessingResult = {
-  __typename?: 'StartEventProcessingResult'
+export type StartProcessingResult = {
+  __typename?: 'StartProcessingResult'
   success?: Maybe<Scalars['Boolean']['output']>
 }
 
@@ -2659,9 +2722,9 @@ export type WorkspaceMember = {
 /** Statistics about backend events */
 export type WorkspaceProcessStatistics = {
   __typename?: 'WorkspaceProcessStatistics'
-  actionType: ActionType
   pendingMessages: Scalars['Int']['output']
   processedMessages: Scalars['Int']['output']
+  requestType: ProcessingRequestType
   totalMessages: Scalars['Int']['output']
 }
 
@@ -3264,21 +3327,21 @@ export type RestoreDefaultProvidersMutation = {
 }
 
 export type StartWorkspaceProcessingMutationVariables = Exact<{
-  actionType: ActionType
+  requestType: ProcessingRequestType
 }>
 
 export type StartWorkspaceProcessingMutation = {
   __typename?: 'Mutation'
-  startEventProcessing: { __typename?: 'StartEventProcessingResult'; success?: boolean | null }
+  startProcessing: { __typename?: 'StartProcessingResult'; success?: boolean | null }
 }
 
 export type StopWorkspaceProcessingMutationVariables = Exact<{
-  actionType: ActionType
+  requestType: ProcessingRequestType
 }>
 
 export type StopWorkspaceProcessingMutation = {
   __typename?: 'Mutation'
-  stopEventProcessing: { __typename?: 'StopEventProcessingResult'; success?: boolean | null }
+  stopProcessing: { __typename?: 'StopEventProcessingResult'; success?: boolean | null }
 }
 
 export type TestProviderConnectionMutationVariables = Exact<{
@@ -4729,6 +4792,7 @@ export type FileCaptionCard_FileFragment = {
   size?: number | null
   status: string
   chunkCount?: number | null
+  createdAt: string
   uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
@@ -4763,11 +4827,13 @@ export type FileCaptionCard_FileFragment = {
 export type FileInfoBox_FileFragment = {
   __typename?: 'AiLibraryFile'
   id: string
+  name: string
   libraryId: string
   size?: number | null
   status: string
   chunkCount?: number | null
   originUri?: string | null
+  createdAt: string
   uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
@@ -4818,6 +4884,7 @@ export type FileMenu_FileFragment = {
   status: string
   chunkCount?: number | null
   originUri?: string | null
+  createdAt: string
   uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
@@ -5186,6 +5253,77 @@ export type AiLibraryDetailQuery = {
   }
 }
 
+export type ProcessingRequestsQueryVariables = Exact<{
+  requestType?: InputMaybe<ProcessingRequestType>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  fileId?: InputMaybe<Scalars['String']['input']>
+  startSequence?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type ProcessingRequestsQuery = {
+  __typename?: 'Query'
+  processingRequests: {
+    __typename?: 'ProcessingRequestsResponse'
+    totalCount?: number | null
+    lastSequence?: number | null
+    items: Array<{
+      __typename?: 'ProcessingRequestItem'
+      id?: string | null
+      subject?: string | null
+      deliveryCount?: number | null
+      error?: string | null
+      rawText?: string | null
+      request?:
+        | {
+            __typename: 'EmbedFileRequest'
+            libraryId?: string | null
+            fileId?: string | null
+            extractionMethod?: string | null
+            embeddingModelProvider?: ModelProvider | null
+            embeddingModelName?: string | null
+            version?: number | null
+            workspaceId?: string | null
+            requestType?: string | null
+            settings?: Array<{
+              __typename?: 'ProcessingRequestSettingItem'
+              key?: string | null
+              value?: string | null
+            }> | null
+          }
+        | {
+            __typename: 'EnrichItemRequest'
+            libraryId?: string | null
+            fileId?: string | null
+            fragment?: number | null
+            version?: number | null
+            workspaceId?: string | null
+            requestType?: string | null
+            settings?: Array<{
+              __typename?: 'ProcessingRequestSettingItem'
+              key?: string | null
+              value?: string | null
+            }> | null
+          }
+        | {
+            __typename: 'ExtractFileRequest'
+            libraryId?: string | null
+            fileId?: string | null
+            extractionMethod?: string | null
+            version?: number | null
+            workspaceId?: string | null
+            requestType?: string | null
+            settings?: Array<{
+              __typename?: 'ProcessingRequestSettingItem'
+              key?: string | null
+              value?: string | null
+            }> | null
+          }
+        | null
+    }>
+  }
+}
+
 export type QueryLibraryFilesQueryVariables = Exact<{
   selector: FileChunksSelector
   query: Scalars['String']['input']
@@ -5304,7 +5442,9 @@ export type CreateLibraryMutation = {
 }
 
 export type ProcessFileMutationVariables = Exact<{
-  input: ProcessFileInput
+  requestType: ProcessingRequestType
+  libraryId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
 }>
 
 export type ProcessFileMutation = {
@@ -5313,7 +5453,9 @@ export type ProcessFileMutation = {
 }
 
 export type ProcessFilesMutationVariables = Exact<{
-  input: ProcessFilesInput
+  requestType: ProcessingRequestType
+  libraryId: Scalars['String']['input']
+  fileIds: Array<Scalars['String']['input']> | Scalars['String']['input']
 }>
 
 export type ProcessFilesMutation = {
@@ -6490,21 +6632,21 @@ export type GetWorkspaceProcessStatisticsQuery = {
   __typename?: 'Query'
   workspaceProcessStatistics: Array<{
     __typename?: 'WorkspaceProcessStatistics'
-    actionType: ActionType
+    requestType: ProcessingRequestType
     totalMessages: number
     processedMessages: number
     pendingMessages: number
   }>
 }
 
-export type GetEventProcessingStatusQueryVariables = Exact<{ [key: string]: never }>
+export type GetProcessingStatusQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetEventProcessingStatusQuery = {
+export type GetProcessingStatusQuery = {
   __typename?: 'Query'
-  eventProcessingStatus: Array<{
+  processingStatus: Array<{
     __typename?: 'EventProcessingStatusResult'
     status: EventProcessingStatus
-    actionType: ActionType
+    requestType: ProcessingRequestType
   }>
 }
 
@@ -9826,11 +9968,13 @@ export const FileInfoBox_FileFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
@@ -9952,11 +10096,13 @@ export const FileMenu_FileFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
@@ -10093,11 +10239,13 @@ export const FileCaptionCard_FileFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
@@ -13593,8 +13741,11 @@ export const StartWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'actionType' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ActionType' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
+          },
         },
       ],
       selectionSet: {
@@ -13602,12 +13753,12 @@ export const StartWorkspaceProcessingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'startEventProcessing' },
+            name: { kind: 'Name', value: 'startProcessing' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'actionType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'actionType' } },
+                name: { kind: 'Name', value: 'requestType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
               },
             ],
             selectionSet: {
@@ -13630,8 +13781,11 @@ export const StopWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'actionType' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ActionType' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
+          },
         },
       ],
       selectionSet: {
@@ -13639,12 +13793,12 @@ export const StopWorkspaceProcessingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'stopEventProcessing' },
+            name: { kind: 'Name', value: 'stopProcessing' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'actionType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'actionType' } },
+                name: { kind: 'Name', value: 'requestType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
               },
             ],
             selectionSet: {
@@ -17572,11 +17726,13 @@ export const GetFileDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
           { kind: 'Field', name: { kind: 'Name', value: 'status' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
@@ -18028,6 +18184,162 @@ export const AiLibraryDetailDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryDetailQuery, AiLibraryDetailQueryVariables>
+export const ProcessingRequestsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ProcessingRequests' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processingRequests' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'requestType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'startSequence' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastSequence' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'subject' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'deliveryCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'rawText' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'request' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'settings' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'InlineFragment',
+                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractFileRequest' } },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'InlineFragment',
+                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'EmbedFileRequest' } },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelProvider' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'InlineFragment',
+                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'EnrichItemRequest' } },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessingRequestsQuery, ProcessingRequestsQueryVariables>
 export const QueryLibraryFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -18505,8 +18817,21 @@ export const ProcessFileDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessFileInput' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -18518,8 +18843,18 @@ export const ProcessFileDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+                name: { kind: 'Name', value: 'requestType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
             ],
             selectionSet: {
@@ -18542,10 +18877,26 @@ export const ProcessFilesDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessFilesInput' } },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
           },
         },
       ],
@@ -18558,8 +18909,18 @@ export const ProcessFilesDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+                name: { kind: 'Name', value: 'requestType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
               },
             ],
             selectionSet: {
@@ -21274,7 +21635,7 @@ export const GetWorkspaceProcessStatisticsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'actionType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
@@ -21286,24 +21647,24 @@ export const GetWorkspaceProcessStatisticsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspaceProcessStatisticsQuery, GetWorkspaceProcessStatisticsQueryVariables>
-export const GetEventProcessingStatusDocument = {
+export const GetProcessingStatusDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetEventProcessingStatus' },
+      name: { kind: 'Name', value: 'GetProcessingStatus' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'eventProcessingStatus' },
+            name: { kind: 'Name', value: 'processingStatus' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'actionType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
               ],
             },
           },
@@ -21311,7 +21672,7 @@ export const GetEventProcessingStatusDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetEventProcessingStatusQuery, GetEventProcessingStatusQueryVariables>
+} as unknown as DocumentNode<GetProcessingStatusQuery, GetProcessingStatusQueryVariables>
 export const GetQueueStatusDocument = {
   kind: 'Document',
   definitions: [

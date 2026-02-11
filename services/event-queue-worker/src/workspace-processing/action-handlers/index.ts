@@ -1,25 +1,30 @@
-import type { ActionEvent, EmbedFileAction, EnrichItemAction, ExtractFileAction } from '@george-ai/event-service-client'
+import type {
+  EmbedFileRequest,
+  EnrichItemRequest,
+  ExtractFileRequest,
+  ProcessingRequest,
+} from '@george-ai/event-service-client'
 
 import { logger } from '../../common'
 import { embedFile } from './embed-file'
 import { enrichItem } from './enrich-item'
 import { extractFile } from './extract-file'
 
-export async function handleActionEvent(event: ActionEvent) {
+export async function handleActionEvent(event: ProcessingRequest) {
   logger.debug('Handling action event', { event })
   try {
-    switch (event.actionType) {
+    switch (event.requestType) {
       case 'embedFile':
-        await embedFile(event as EmbedFileAction)
+        await embedFile(event as EmbedFileRequest)
         break
       case 'extractFile':
-        await extractFile(event as ExtractFileAction)
+        await extractFile(event as ExtractFileRequest)
         break
       case 'enrichItem':
-        await enrichItem(event as EnrichItemAction)
+        await enrichItem(event as EnrichItemRequest)
         break
       default:
-        throw new Error(`Unknown process event type`)
+        throw new Error(`Unknown process request type`)
     }
     logger.debug('Completed handling action event', { event })
   } catch (error) {

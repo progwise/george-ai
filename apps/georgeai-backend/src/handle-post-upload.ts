@@ -67,12 +67,7 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  if (fileInfo.uploadedAt) {
-    httpResponse.status(400).send('Bad Request: x-upload-token outdated')
-    return
-  }
-
-  if (fileInfo.createdAt < new Date(Date.now() - 1000 * 60 * 5)) {
+  if (fileInfo.updatedAt < new Date(Date.now() - 1000 * 60 * 5)) {
     httpResponse.status(400).send('Bad Request: x-upload-token expired')
     return
   }

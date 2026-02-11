@@ -1,41 +1,68 @@
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getFilesQueryOptions } from '../../../../components/library/queries'
+import { PROCESSING_REQUEST_TYPES, getProcessingRequestType } from '@george-ai/app-commons'
+
+import { getProcessingRequestsQueryOptions } from '../../../../components/library/queries/get-processing-requests'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/processing')({
   component: RouteComponent,
   validateSearch: z.object({
-    skip: z.coerce.number().default(0),
+    startSequence: z.coerce.number().optional(),
     take: z.coerce.number().default(20),
+    requestType: z.enum(PROCESSING_REQUEST_TYPES).optional(),
   }),
-  loaderDeps: ({ search: { skip, take } }) => ({
-    skip,
+  loaderDeps: ({ search: { startSequence, take } }) => ({
+    startSequence,
     take,
   }),
-  loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        getFilesQueryOptions({
-          libraryId: params.libraryId,
-          skip: 0,
-          take: 1,
-        }),
-      ),
-    ])
-  },
 })
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { skip, take } = Route.useSearch()
+  const { startSequence, take, requestType } = Route.useSearch()
+
+  const { data, isLoading, error } = useQuery(
+    getProcessingRequestsQueryOptions({
+      libraryId,
+      startSequence,
+      take,
+      requestType: !requestType ? undefined : getProcessingRequestType(requestType),
+    }),
+  )
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
-      Not implemented yet.
-      <span>
-        This is a placeholder for the processing page for library {libraryId} with skip {skip} and take {take}.
-      </span>
+    <div className="flex h-full flex-col gap-2 bg-base-100">
+      <h1 className="text-2xl font-bold">Processing Tasks for library {libraryId}</h1>
+      {isLoading && <div>Loading...</div>}
+      {error && <div className="text-error">Error: {(error as Error).message}</div>}
+      {data && (
+        <div>
+          <p>Total Requests: {data.totalCount}</p>
+          <p>Last Sequence: {data.lastSequence}</p>
+          <ul>
+            {data.items.map((item) => (
+              <li key={item.id}>
+                <p>ID: {item.id}</p>
+                <p>Subject: {item.subject}</p>
+                <p>Delivery Count: {item.deliveryCount}</p>
+                {item.error && <p className="text-error">Error: {item.error}</p>}
+                {item.request && (
+                  <div className="ml-4">
+                    <p>Request Type: {item.request.requestType}</p>
+                    <p>Subject: {item.subject}</p>
+                    <p>
+                      Raw: <pre>{item.rawText}</pre>
+                    </p>
+                    {/* Add more details about the request as needed */}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

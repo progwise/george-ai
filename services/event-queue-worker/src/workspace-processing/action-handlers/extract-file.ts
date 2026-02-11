@@ -1,16 +1,16 @@
-import { ExtractFileAction } from '@george-ai/event-service-client'
+import { ExtractFileRequest } from '@george-ai/event-service-client'
 import { transformToMarkdown } from '@george-ai/file-converter'
 
 import { logger } from '../../common'
 
-export async function extractFile(event: ExtractFileAction) {
-  const { extractionMethod, fileId, workspaceId, libraryId, actionType, version } = event
+export async function extractFile(event: ExtractFileRequest) {
+  const { extractionMethod, fileId, workspaceId, libraryId, requestType, version } = event
   logger.debug('Starting file extraction', {
     fileId,
     workspaceId,
     libraryId,
     extractionMethod,
-    actionType,
+    requestType,
     version,
   })
 

@@ -1,4 +1,4 @@
-import { EMBEDDING_STATUS, EXTRACTION_METHODS } from '@george-ai/app-commons'
+import { EMBEDDING_STATUS, EXTRACTION_METHODS, PROCESSING_REQUEST_TYPES } from '@george-ai/app-commons'
 import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { AUTOMATION_ITEM_STATUS, BATCH_STATUS, TRIGGER_TYPE } from '../../domain/automation/constants'
@@ -47,8 +47,8 @@ builder.enumType('EventProcessingStatus', {
   values: workspaceProcessing.EVENT_PROCESSING_STATUS,
 })
 
-builder.enumType('ActionType', {
-  values: workspaceProcessing.ACTION_TYPES,
+builder.enumType('ProcessingRequestType', {
+  values: PROCESSING_REQUEST_TYPES,
 })
 
 builder.enumType('WorkerType', {

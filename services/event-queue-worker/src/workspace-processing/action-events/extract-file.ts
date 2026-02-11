@@ -1,17 +1,17 @@
-import { ExtractFileAction, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
+import { ExtractFileRequest, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 import { transformToMarkdown } from '@george-ai/file-converter'
 import { workspaceStorage } from '@george-ai/file-management'
 
 import { logger } from '../../common'
 
-export async function extractFile(event: ExtractFileAction) {
-  const { extractionMethod, fileId, workspaceId, libraryId, actionType, version } = event
+export async function extractFile(event: ExtractFileRequest) {
+  const { extractionMethod, fileId, workspaceId, libraryId, requestType, version } = event
   logger.debug('Starting file extraction', {
     fileId,
     workspaceId,
     libraryId,
     extractionMethod,
-    actionType,
+    requestType,
     version,
   })
 
@@ -25,10 +25,10 @@ export async function extractFile(event: ExtractFileAction) {
     },
   })
 
-  await workspaceProcessing.publishStatusEvent({
+  await workspaceProcessing.publishProcessingStatus({
     version: 1,
     workspaceId,
-    actionType: 'extractFile',
+    requestType: 'extractFile',
     status: 'completed',
     fileId,
     libraryId,

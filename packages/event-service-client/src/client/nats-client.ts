@@ -473,6 +473,56 @@ export class NatsClient implements EventClient {
     return stats
   }
 
+  async getMessages(params: {
+    streamName: string
+    subjectFilter: string
+    startSequence?: number
+    take?: number
+  }): Promise<{
+    rawMessages: Array<{ id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }>
+    totalCount: number
+    lastSequence: number
+  }> {
+    if (!this.js || !this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+    const { streamName, subjectFilter, startSequence, take = 20 } = params
+
+    // Get accurate total count from stream info
+    const streamInfo = await this.jsm.streams.info(streamName, {
+      subjects_filter: subjectFilter,
+    })
+
+    const totalCount = Object.values(streamInfo.state.subjects ?? {}).reduce((sum, count) => sum + count, 0)
+
+    const consumer = await this.js.consumers.get(streamName, {
+      filterSubjects: [subjectFilter],
+      ...(startSequence ? { opt_start_seq: startSequence } : {}),
+    })
+
+    const messages: { id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }[] = []
+
+    let lastSequence = startSequence ?? 0
+
+    const fetchBatch = await consumer.fetch({ max_messages: take, expires: 5000 })
+
+    for await (const msg of fetchBatch) {
+      lastSequence = msg.info.streamSequence
+      logger.debug('Fetched message', { streamName, msg, lastSequence })
+      messages.push({
+        id: msg.info.streamSequence.toString(),
+        subject: msg.subject,
+        deliveryCount: msg.info.deliveryCount,
+        data: msg.data,
+      })
+      if (messages.length >= take) {
+        break
+      }
+    }
+
+    return { rawMessages: messages, totalCount, lastSequence }
+  }
+
   async request(params: {
     subject: string
     payload: Uint8Array<ArrayBufferLike>

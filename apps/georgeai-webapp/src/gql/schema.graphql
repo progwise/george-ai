@@ -45,13 +45,6 @@ type ActionFieldMapping {
   transform: String!
 }
 
-enum ActionType {
-  chunkFile
-  embedFile
-  enrichItem
-  extractFile
-}
-
 """
 AI Act Assessment Query
 """
@@ -995,6 +988,18 @@ input DateTimePeriod {
 
 scalar Decimal
 
+type EmbedFileRequest implements ProcessingRequest {
+  embeddingModelName: String
+  embeddingModelProvider: ModelProvider
+  extractionMethod: String
+  fileId: String
+  libraryId: String
+  requestType: String
+  settings: [ProcessingRequestSettingItem!]
+  version: Int
+  workspaceId: String
+}
+
 """
 Information about an embedding method used in the workspace
 """
@@ -1009,6 +1014,16 @@ enum EmbeddingStatus {
   Ready
   UnknownModelConfig
   WorkspaceNotFound
+}
+
+type EnrichItemRequest implements ProcessingRequest {
+  fileId: String
+  fragment: Int
+  libraryId: String
+  requestType: String
+  settings: [ProcessingRequestSettingItem!]
+  version: Int
+  workspaceId: String
 }
 
 type EnrichmentQueueResult {
@@ -1079,8 +1094,18 @@ enum EventProcessingStatus {
 }
 
 type EventProcessingStatusResult {
-  actionType: ActionType!
+  requestType: ProcessingRequestType!
   status: EventProcessingStatus!
+}
+
+type ExtractFileRequest implements ProcessingRequest {
+  extractionMethod: String
+  fileId: String
+  libraryId: String
+  requestType: String
+  settings: [ProcessingRequestSettingItem!]
+  version: Int
+  workspaceId: String
 }
 
 type ExtractionAttachment {
@@ -1516,8 +1541,22 @@ type Mutation {
   login(jwtToken: String!): User!
   migrateWorkspace: Boolean
   prepareUpload(data: PrepareUploadInput!): AiLibraryFile!
-  processFile(input: ProcessFileInput!): ProcessFileResult!
-  processFiles(input: ProcessFilesInput!): ProcessFilesResult!
+  processFile(
+    """
+    IDs of the files to process
+    """
+    fileId: String!
+    libraryId: String!
+    requestType: ProcessingRequestType!
+  ): ProcessFileResult!
+  processFiles(
+    """
+    IDs of the files to process
+    """
+    fileIds: [String!]!
+    libraryId: String!
+    requestType: ProcessingRequestType!
+  ): ProcessFilesResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -1532,11 +1571,11 @@ type Mutation {
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startAllQueueWorkers: QueueOperationResult!
-  startEventProcessing(actionType: ActionType!): StartEventProcessingResult!
+  startProcessing(requestType: ProcessingRequestType!): StartProcessingResult!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
-  stopEventProcessing(actionType: ActionType!): StopEventProcessingResult!
+  stopProcessing(requestType: ProcessingRequestType!): StopEventProcessingResult!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels(provider: ModelProvider): SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
@@ -1583,28 +1622,45 @@ input PrepareUploadInput {
   size: Int!
 }
 
-input ProcessFileInput {
-  actionType: ActionType!
-  fileId: String!
-  fragment: Int
-  libraryId: String!
-}
-
 type ProcessFileResult {
   success: Boolean
 }
 
-input ProcessFilesInput {
-  actionType: ActionType!
-  """
-  IDs of the files to process
-  """
-  fileIds: [String!]!
-  libraryId: String!
-}
-
 type ProcessFilesResult {
   success: Boolean
+}
+
+interface ProcessingRequest {
+  requestType: String
+  settings: [ProcessingRequestSettingItem!]
+  version: Int
+  workspaceId: String
+}
+
+type ProcessingRequestItem {
+  deliveryCount: Int
+  error: String
+  id: String
+  rawText: String
+  request: ProcessingRequest
+  subject: String
+}
+
+type ProcessingRequestSettingItem {
+  key: String
+  value: String
+}
+
+enum ProcessingRequestType {
+  embedFile
+  enrichItem
+  extractFile
+}
+
+type ProcessingRequestsResponse {
+  items: [ProcessingRequestItem!]!
+  lastSequence: Int
+  totalCount: Int
 }
 
 type ProviderCapabilityCounts {
@@ -1693,7 +1749,6 @@ type Query {
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
-  eventProcessingStatus: [EventProcessingStatusResult!]!
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionMetadata
   file(fileId: String!, libraryId: String!): AiLibraryFile!
   fileChunks(
@@ -1735,6 +1790,14 @@ type Query {
     take: Int = 20
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
+  processingRequests(
+    fileId: String
+    libraryId: String
+    requestType: ProcessingRequestType
+    startSequence: Int
+    take: Int! = 20
+  ): ProcessingRequestsResponse!
+  processingStatus: [EventProcessingStatusResult!]!
   queryFileChunks(query: String!, selector: FileChunksSelector!, skip: Int, take: Int): FileChunksQueryResult!
   queueSystemStatus: QueueSystemStatus!
   similarChunks(
@@ -1824,7 +1887,7 @@ enum SortOrder {
   desc
 }
 
-type StartEventProcessingResult {
+type StartProcessingResult {
   success: Boolean
 }
 
@@ -2026,9 +2089,9 @@ type WorkspaceMember {
 Statistics about backend events
 """
 type WorkspaceProcessStatistics {
-  actionType: ActionType!
   pendingMessages: Int!
   processedMessages: Int!
+  requestType: ProcessingRequestType!
   totalMessages: Int!
 }
 

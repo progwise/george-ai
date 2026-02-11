@@ -4,7 +4,7 @@ export const useMarkdownDownload = ({
   url,
   chunkSize = 100 * 1024, // 100KB chunks
 }: {
-  url: string | undefined
+  url: string | undefined | null
   chunkSize?: number
 }) => {
   const [content, setContent] = useState<string>('')

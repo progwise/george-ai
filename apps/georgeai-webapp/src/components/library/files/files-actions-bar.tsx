@@ -50,6 +50,7 @@ export const FilesActionsBar = ({
         type: file.type,
         size: file.size,
         lastModified: new Date(file.lastModified),
+        originUri: file.webkitRelativePath || file.name,
       })),
       {
         onError: () => {

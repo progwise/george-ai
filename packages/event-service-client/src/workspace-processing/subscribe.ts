@@ -1,8 +1,8 @@
 import { eventClient } from '../client'
 import { EventType, WORKSPACE_STREAM_NAME, getConsumerGlobPattern, getEventType, logger } from './common'
-import { ActionEvent, EventSchemas, ReplyEvent, StatusEvent } from './schema'
+import { ProcessingEventSchemas, ProcessingReply, ProcessingRequest, ProcessingStatus } from './schema'
 
-export const subscribeEvent = async <E extends ActionEvent | StatusEvent | ReplyEvent>(parameters: {
+export const subscribeEvent = async <E extends ProcessingRequest | ProcessingStatus | ProcessingReply>(parameters: {
   handler: ({ eventType, event }: { eventType: EventType; event: E }) => Promise<void>
 }) => {
   const { handler } = parameters
@@ -14,7 +14,7 @@ export const subscribeEvent = async <E extends ActionEvent | StatusEvent | Reply
       try {
         const decoded = new TextDecoder().decode(payload)
         const eventType = getEventType(subject)
-        const event = EventSchemas[eventType].parse(JSON.parse(decoded)) as E
+        const event = ProcessingEventSchemas[eventType].parse(JSON.parse(decoded)) as E
         await handler({ eventType, event })
       } catch (internalError) {
         logger.error('Error handling trigger event', { error: internalError, subject })

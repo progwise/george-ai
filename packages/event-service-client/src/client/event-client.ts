@@ -65,6 +65,13 @@ export interface EventClient {
     streamName: string
     consumerName: string
   }): Promise<'paused' | 'running'>
+
+  getMessages(params: { streamName: string; subjectFilter: string; startSequence?: number; take?: number }): Promise<{
+    rawMessages: Array<{ id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }>
+    totalCount: number
+    lastSequence: number
+  }>
+
   /**
    * Request/reply pattern for synchronous operations
    */

@@ -1,9 +1,9 @@
-import { EnrichItemAction } from '@george-ai/event-service-client'
+import { EnrichItemRequest } from '@george-ai/event-service-client'
 
 import { logger } from '../../common'
 import { logNoHandler } from '../common'
 
-export async function enrichItem(event: EnrichItemAction) {
+export async function enrichItem(event: EnrichItemRequest) {
   logger.debug('Enrich item for event', { event })
   logNoHandler(event)
 }

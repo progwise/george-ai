@@ -3,8 +3,8 @@ import { builder } from '../builder'
 builder.simpleObject('WorkspaceProcessStatistics', {
   description: 'Statistics about backend events',
   fields: (t) => ({
-    actionType: t.field({
-      type: 'ActionType',
+    requestType: t.field({
+      type: 'ProcessingRequestType',
       nullable: false,
     }),
     totalMessages: t.int({ nullable: false }),

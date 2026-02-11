@@ -1,11 +1,11 @@
-import type { StatusEvent } from '@george-ai/event-service-client'
+import type { ProcessingStatus } from '@george-ai/event-service-client'
 
 import { logger } from '../../common'
 
-export async function handleStatusEvent(event: StatusEvent) {
+export async function handleStatusEvent(event: ProcessingStatus): Promise<void> {
   logger.debug('Handling status event', { event })
   try {
-    switch (event.actionType) {
+    switch (event.requestType) {
       case 'embedFile':
         logger.debug('embedFile status not implemented', { event })
         break

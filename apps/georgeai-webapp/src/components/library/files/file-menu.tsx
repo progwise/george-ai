@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../../gql'
-import { ActionType, FileMenu_FileFragment } from '../../../gql/graphql'
+import { FileMenu_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { useLibraryActions } from '..//use-library-actions'
 import { FileInfoBox } from './file-info-box'
@@ -55,7 +55,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
       <li>
         <button
           {...buttonProps}
-          onClick={() => processFile({ fileId: file.id, actionType: ActionType.EmbedFile, libraryId: file.libraryId })}
+          onClick={() => processFile({ fileId: file.id, requestType: 'embedFile', libraryId: file.libraryId })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -78,9 +78,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
       <li>
         <button
           {...buttonProps}
-          onClick={() =>
-            processFile({ fileId: file.id, actionType: ActionType.ExtractFile, libraryId: file.libraryId })
-          }
+          onClick={() => processFile({ fileId: file.id, requestType: 'extractFile', libraryId: file.libraryId })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -120,13 +118,9 @@ export const FileMenu = ({ file }: FileMenuProps) => {
 
             <span>Info</span>
           </summary>
-          <ul className="right-0">
-            <li className="z-50">
-              <div>
-                <FileInfoBox file={file} />
-              </div>
-            </li>
-          </ul>
+          <div className="absolute right-0 z-50 rounded-box bg-base-200 shadow-lg">
+            <FileInfoBox file={file} />
+          </div>
         </details>
       </li>
       <li>

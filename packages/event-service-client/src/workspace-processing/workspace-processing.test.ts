@@ -1,4 +1,4 @@
-import { ActionEvent, ReplyEvent, StatusEvent, default as workspaceProcessing } from '.'
+import { ProcessingReply, ProcessingRequest, ProcessingStatus, default as workspaceProcessing } from '.'
 import { initializeEventServiceClient } from '..'
 import { EventType } from './common'
 
@@ -15,10 +15,10 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
   })
 
   test('Publishing a workspace processing event', async () => {
-    await workspaceProcessing.publishActionEvent({
+    await workspaceProcessing.publishProcessingRequest({
       version: 1,
       workspaceId: TEST_WORKSPACE_ID,
-      actionType: 'extractFile',
+      requestType: 'extractFile',
       extractionMethod: 'textExtraction',
       fileId: 'test-file-id',
       libraryId: 'test-library-id',
@@ -34,12 +34,12 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
   test('Stopping processing for the workspace', async () => {
     await workspaceProcessing.stopProcessing({
       workspaceId: TEST_WORKSPACE_ID,
-      actionTypes: ['extractFile'],
+      requestTypes: ['extractFile'],
     })
 
     const statusAfterStop = await workspaceProcessing.processingStatus({
       workspaceId: TEST_WORKSPACE_ID,
-      actionType: 'extractFile',
+      requestType: 'extractFile',
     })
     expect(statusAfterStop).toBe('paused')
   })
@@ -48,10 +48,10 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
     const publishPromises = []
     for (let i = 0; i < 10; i++) {
       publishPromises.push(
-        workspaceProcessing.publishActionEvent({
+        workspaceProcessing.publishProcessingRequest({
           version: 1,
           workspaceId: TEST_WORKSPACE_ID,
-          actionType: 'embedFile',
+          requestType: 'embedFile',
           extractionMethod: 'textExtraction',
           fileId: `test-file-id-${i}`,
           libraryId: 'test-library-id',
@@ -64,7 +64,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
   })
 
   test('Subscribing to processing events for the workspace', async () => {
-    const messages: { eventType: EventType; event: ActionEvent | StatusEvent | ReplyEvent }[] = []
+    const messages: { eventType: EventType; event: ProcessingRequest | ProcessingStatus | ProcessingReply }[] = []
 
     const unsubscribe = await workspaceProcessing.subscribeEvent({
       handler: async ({ eventType, event }) => {
@@ -84,7 +84,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
     expect(messages.length).toBe(10)
     expect(messages[0].event.workspaceId).toBe(TEST_WORKSPACE_ID)
     messages.forEach((msg) => {
-      expect(msg.event.actionType).toBe('embedFile')
+      expect(msg.event.requestType).toBe('embedFile')
     })
     await unsubscribe()
   }, 30000)

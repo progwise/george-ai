@@ -1,36 +1,53 @@
 import { createServerFn } from '@tanstack/react-start'
+import z from 'zod'
+
+import { PROCESSING_REQUEST_TYPES, ProcessingRequestType } from '@george-ai/app-commons'
 
 import { graphql } from '../../../gql'
-import { ProcessFileInput, ProcessFilesInput } from '../../../gql/graphql'
-import { ProcessFileInputSchema, ProcessFilesInputSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
 export const processFileFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: ProcessFileInput) => ProcessFileInputSchema().parse(data))
+  .inputValidator((data: { requestType: ProcessingRequestType; libraryId: string; fileId: string }) =>
+    z
+      .object({
+        requestType: z.enum(PROCESSING_REQUEST_TYPES),
+        libraryId: z.string(),
+        fileId: z.string(),
+      })
+      .parse(data),
+  )
   .handler(async ({ data }) => {
     return backendRequest(
       graphql(`
-        mutation processFile($input: ProcessFileInput!) {
-          processFile(input: $input) {
+        mutation processFile($requestType: ProcessingRequestType!, $libraryId: String!, $fileId: String!) {
+          processFile(requestType: $requestType, libraryId: $libraryId, fileId: $fileId) {
             success
           }
         }
       `),
-      { input: data },
+      { requestType: data.requestType, libraryId: data.libraryId, fileId: data.fileId },
     )
   })
 
 export const processFilesFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: ProcessFilesInput) => ProcessFilesInputSchema().parse(data))
+  .inputValidator((data: { requestType: ProcessingRequestType; libraryId: string; fileIds: string[] }) =>
+    z
+      .object({
+        requestType: z.enum(PROCESSING_REQUEST_TYPES),
+        libraryId: z.string(),
+        fileIds: z.array(z.string()),
+      })
+      .parse(data),
+  )
   .handler(async ({ data }) => {
     return backendRequest(
       graphql(`
-        mutation processFiles($input: ProcessFilesInput!) {
-          processFiles(input: $input) {
+        mutation processFiles($requestType: ProcessingRequestType!, $libraryId: String!, $fileIds: [String!]!) {
+          processFiles(requestType: $requestType, libraryId: $libraryId, fileIds: $fileIds) {
             success
           }
         }
       `),
-      { input: data },
+      data,
     )
   })
