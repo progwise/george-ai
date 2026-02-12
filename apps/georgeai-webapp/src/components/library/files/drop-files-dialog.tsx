@@ -24,7 +24,7 @@ export const DropFilesDialog = ({
 
   const { deleteFiles, isPending } = useLibraryActions(libraryId)
 
-  const handleDeleteFoles = async (fileIds: string[]) => {
+  const handleDeleteFiles = async (fileIds: string[]) => {
     deleteFiles(fileIds, {
       onSettled: () => {
         setCheckedFileIds([])
@@ -34,8 +34,6 @@ export const DropFilesDialog = ({
     })
   }
 
-  const textOfDropButton = t('actions.drop')
-
   return (
     <>
       <button
@@ -43,9 +41,9 @@ export const DropFilesDialog = ({
         className="tooltip btn tooltip-bottom btn-xs btn-primary"
         data-tip={t('tooltips.dropDescription')}
         onClick={() => dialogRef.current?.showModal()}
-        disabled={checkedFileIds.length === 0}
+        disabled={checkedFileIds.length === 0 || isPending}
       >
-        {textOfDropButton}
+        {t('actions.drop')}
       </button>
 
       <LoadingSpinner isLoading={isPending} />
@@ -54,8 +52,8 @@ export const DropFilesDialog = ({
         ref={dialogRef}
         title={t('libraries.dropFilesDialog')}
         description={t('texts.dropFilesDialogDescription')}
-        onSubmit={() => handleDeleteFoles(checkedFileIds)}
-        submitButtonText={textOfDropButton}
+        onSubmit={() => handleDeleteFiles(checkedFileIds)}
+        submitButtonText={t('actions.drop')}
       >
         <div className="w-full">
           <div className="mb-4">

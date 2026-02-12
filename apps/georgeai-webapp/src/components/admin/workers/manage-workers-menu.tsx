@@ -25,28 +25,48 @@ export const ManageWorkersMenu = () => {
     <ul className="menu menu-horizontal gap-2 rounded-box bg-base-200/50 p-2">
       <li aria-disabled={pending}>
         {!isProcessing('embedFile') ? (
-          <a className="btn btn-xs btn-primary" onClick={() => startProcessing('embedFile')}>
+          <button
+            type="button"
+            disabled={pending}
+            className="btn btn-xs btn-primary"
+            onClick={() => startProcessing('embedFile')}
+          >
             <PlayIcon className="size-4" />
             {t('admin.workers.startEmbedding')}
-          </a>
+          </button>
         ) : (
-          <a className="btn btn-xs btn-secondary" onClick={() => stopProcessing('embedFile')}>
+          <button
+            type="button"
+            disabled={pending}
+            className="btn btn-xs btn-secondary"
+            onClick={() => stopProcessing('embedFile')}
+          >
             <StopIcon className="size-4" />
             {t('admin.workers.stopEmbedding')}
-          </a>
+          </button>
         )}
       </li>
       <li>
         {!isProcessing('extractFile') ? (
-          <a className="btn btn-xs btn-primary" onClick={() => startProcessing('extractFile')}>
+          <button
+            type="button"
+            disabled={pending}
+            className="btn btn-xs btn-primary"
+            onClick={() => startProcessing('extractFile')}
+          >
             <PlayIcon className="size-4" />
             {t('admin.workers.startExtraction')}
-          </a>
+          </button>
         ) : (
-          <a aria-disabled={pending} className="btn btn-xs btn-secondary" onClick={() => stopProcessing('extractFile')}>
+          <button
+            type="button"
+            disabled={pending}
+            className="btn btn-xs btn-secondary"
+            onClick={() => stopProcessing('extractFile')}
+          >
             <StopIcon className="size-4" />
             {t('admin.workers.stopExtraction')}
-          </a>
+          </button>
         )}
       </li>
     </ul>
