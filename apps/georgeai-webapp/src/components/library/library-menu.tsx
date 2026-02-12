@@ -17,13 +17,6 @@ graphql(`
   }
 `)
 
-graphql(`
-  fragment LibraryMenu_AiLibraries on AiLibrary {
-    id
-    name
-  }
-`)
-
 interface LibraryMenuProps {
   library: LibraryMenu_AiLibraryFragment
 }

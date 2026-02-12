@@ -608,6 +608,8 @@ export default {
     addNewButton: 'Neue Bibliothek',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addSingleFile: 'Füge 1 Datei hinzu',
+    deleteDialogConfirmation: '{name} wird gelöscht. Dies kann nicht rückgängig gemacht werden.',
+    deleteDialogTitle: 'Bibliothek {name} löschen',
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryButton: 'Bibliothek löschen',

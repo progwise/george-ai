@@ -2,7 +2,7 @@ import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { ListMenu_AiListFragment, ListMenu_AiListsFragment } from '../../gql/graphql'
+import { ListMenu_AiListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DownloadIcon } from '../../icons/download-icon'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -18,16 +18,8 @@ graphql(`
   }
 `)
 
-graphql(`
-  fragment ListMenu_AiLists on AiList {
-    id
-    name
-  }
-`)
-
 interface ListMenuProps {
   list: ListMenu_AiListFragment
-  selectableLists: ListMenu_AiListsFragment[]
 }
 
 export const ListMenu = ({ list }: ListMenuProps) => {

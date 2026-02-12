@@ -2,7 +2,7 @@ import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { AutomationMenu_AutomationFragment, AutomationMenu_AutomationsFragment } from '../../gql/graphql'
+import { AutomationMenu_AutomationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlayIcon } from '../../icons/play-icon'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -17,16 +17,8 @@ graphql(`
   }
 `)
 
-graphql(`
-  fragment AutomationMenu_Automations on AiAutomation {
-    id
-    name
-  }
-`)
-
 interface AutomationMenuProps {
   automation: AutomationMenu_AutomationFragment
-  selectableAutomations: AutomationMenu_AutomationsFragment[]
 }
 
 export const AutomationMenu = ({ automation }: AutomationMenuProps) => {

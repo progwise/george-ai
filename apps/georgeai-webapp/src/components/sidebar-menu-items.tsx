@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ReactNode, useRef } from 'react'
+import { Fragment, ReactNode, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -7,6 +7,7 @@ import { PlusIcon } from '../icons/plus-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { NewAutomationDialog } from './automations/new-automation-dialog'
 import { NewLibraryDialog } from './library/new-library-dialog'
+import { ListItemWithDelete } from './list-item-delete'
 import { NewListDialog } from './lists/new-list-dialog'
 
 interface SidebarNavigationLinkProps {
@@ -37,7 +38,7 @@ interface SidebarCollapsibleMenuProps {
   isDrawerOpen: boolean
   to: keyof FileRoutesByTo
   renderItemLink: (item: { id: string; name: string }) => ReactNode
-  groupName: string
+  groupName: 'libraries' | 'lists' | 'automations'
 }
 
 export const ListSidebarCollapsibleMenu = ({
@@ -79,10 +80,10 @@ export const ListSidebarCollapsibleMenu = ({
         {isDrawerOpen ? ( // Opened sidebar
           items.length > 0 ? (
             <details className="rounded-lg">
-              <summary>
+              <summary className="flex h-10">
                 {icon}
                 {label}
-                <li>
+                <li className="ml-auto">
                   <button
                     type="button"
                     onClick={() => createClass?.current?.showModal()}
@@ -95,24 +96,28 @@ export const ListSidebarCollapsibleMenu = ({
               </summary>
               <ul>
                 {items.map((item) => (
-                  <li key={item.id}>{renderItemLink(item)}</li>
+                  <Fragment key={item.id}>
+                    <ListItemWithDelete item={item} renderItemLink={renderItemLink} groupName={groupName} />
+                  </Fragment>
                 ))}
               </ul>
             </details>
           ) : (
             // TODO: considering moving button as optional to SidebarNavigationLink AND cleanup.
-            <Link to={to} className="flex items-center gap-2 pr-6.5">
-              {icon}
-              {label}
+            <>
+              <Link to={to} className="flex items-center gap-2 rounded-lg pr-6.5">
+                {icon}
+                {label}
+              </Link>
               <button
                 type="button"
                 onClick={() => createClass?.current?.showModal()}
-                className="btn ml-auto rounded-lg btn-ghost btn-sm btn-success hover:tooltip max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+                className="btn absolute top-1 right-6.5 rounded-lg btn-ghost btn-sm btn-success hover:tooltip max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
                 data-tip={t('test.test2')}
               >
                 <PlusIcon className="size-4" />
               </button>
-            </Link>
+            </>
           )
         ) : (
           // Closed sidebar
@@ -121,7 +126,11 @@ export const ListSidebarCollapsibleMenu = ({
               <>
                 <SidebarNavigationLink to={to} icon={icon} label="" />
                 <ul
-                  className={`invisible absolute top-0 left-10 min-w-96 rounded-box bg-base-200 p-2 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                  className={`invisible absolute top-0 left-10 min-w-96 cursor-default rounded-box bg-base-200 p-2 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                  }}
                 >
                   {items.map((item) => (
                     <li key={item.id}>{renderItemLink(item)}</li>
@@ -134,6 +143,7 @@ export const ListSidebarCollapsibleMenu = ({
           </>
         )}
       </li>
+
       <NewLibraryDialog ref={newLibraryDialogRef} />
       <NewListDialog ref={newListDialogRef} />
       <NewAutomationDialog ref={newAutomationDialogRef} />

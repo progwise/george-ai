@@ -600,6 +600,8 @@ export default {
     addNewButton: 'Create library',
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
     addSingleFile: 'Add 1 File',
+    deleteDialogConfirmation: '{name} will be deleted. This cannot be undone.',
+    deleteDialogTitle: 'Delete {name} library',
     deleteError: 'Error deleting library: {message}',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryButton: 'Delete library',
