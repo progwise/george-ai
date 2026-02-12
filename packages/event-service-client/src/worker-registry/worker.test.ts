@@ -8,6 +8,10 @@ describe.sequential('event-service-client worker tests', () => {
   beforeAll(async () => {
     // Ensure workspace is clean before tests
     await initializeEventServiceClient()
+
+    const entries = await workerRegistry.getAllWorkerRegistryEntries()
+    console.log('Existing worker registry entries deleted before test', { entries })
+    await Promise.all(entries.map((entry) => workerRegistry.deleteWorker(entry.workerId)))
   })
 
   afterAll(async () => {
@@ -186,7 +190,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('Should not register a worker if no slots are available', async () => {
-    expect(() =>
+    await expect(() =>
       Promise.all(
         Array.from({ length: 3 }, (_, i) =>
           workerRegistry.register({

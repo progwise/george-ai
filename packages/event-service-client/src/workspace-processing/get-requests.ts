@@ -2,7 +2,7 @@ import { ProcessingRequestType } from '@george-ai/app-commons'
 
 import { eventClient } from '../client'
 import { logger } from '../common'
-import { WORKSPACE_STREAM_NAME, getRequestSubjectFilter } from './common'
+import { WORKSPACE_STREAM_NAME, getEventSubjectFilter } from './common'
 import { EmbedFileRequest, EnrichItemRequest, ExtractFileRequest, ProcessingRequestSchema } from './schema'
 
 export async function getRequests(
@@ -22,7 +22,7 @@ export async function getRequests(
   lastSequence: number
 }> {
   const { libraryId, fileId, startSequence, take = 20 } = options || {}
-  const subjectFilter = getRequestSubjectFilter({ workspaceId, requestType, libraryId, fileId })
+  const subjectFilter = getEventSubjectFilter({ workspaceId, requestType, libraryId, fileId })
   const { rawMessages, totalCount, lastSequence } = await eventClient.getMessages({
     streamName: WORKSPACE_STREAM_NAME,
     subjectFilter,

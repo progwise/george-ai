@@ -163,7 +163,7 @@ export class NatsClient implements EventClient {
 
     const { consumerName, streamName, subjectFilters, timeoutMs, maxPendingMessages, maxDeliveryAttempts } = params
 
-    logger.info(`Ensuring consumer ${consumerName} with filters "${subjectFilters.join(', ')}" on stream ${streamName}`)
+    logger.debug('Ensuring consumer', { consumerName, subjectFilters, streamName })
 
     let consumerInfo = await this.jsm.consumers.info(streamName, consumerName).catch(() => null)
     if (!consumerInfo) {
@@ -176,6 +176,11 @@ export class NatsClient implements EventClient {
         max_deliver: maxDeliveryAttempts,
         ack_wait: timeoutMs * 1e6, // convert ms to nanoseconds
       })
+      await this.jsm.consumers.pause(
+        streamName,
+        consumerInfo.name,
+        new Date(Date.now() + 1000 * 365 * 24 * 60 * 60 * 1000), // nats error using undefined - 1000 years should be enough
+      ) // Start paused by default
       logger.debug('Created new consumer', { consumerName, streamName, consumerInfo })
     } else {
       const existingSubjects = consumerInfo.config.filter_subjects?.sort().join(',') || ''
@@ -299,6 +304,7 @@ export class NatsClient implements EventClient {
     handler: ({ subject, payload }: { subject: string; payload: Uint8Array<ArrayBufferLike> }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js || !this.jsm) {
+      logger.error('Cannot start worker loop, not connected to NATS', params)
       throw new Error('Not connected to NATS')
     }
 
@@ -310,7 +316,7 @@ export class NatsClient implements EventClient {
     logger.debug('Starting worker loop', { streamName, consumerGlobPattern })
     const processingLoop = this.processWorkerLoop({ streamName, consumerGlobPattern, handler, signal }).catch(
       (error) => {
-        logger.error('Error in worker processing loop', { error, streamName, consumerGlobPattern })
+        logger.error('Error in worker processing loop', { error, params })
       },
     )
 
@@ -321,33 +327,34 @@ export class NatsClient implements EventClient {
     }
   }
 
-  private async processWorkerLoop(params: {
+  private async processWorkerLoop(parameters: {
     streamName: string
     consumerGlobPattern: string
     signal: AbortSignal
     handler: ({ subject, payload }: { subject: string; payload: Uint8Array<ArrayBufferLike> }) => Promise<void>
   }): Promise<void> {
     if (!this.js || !this.jsm) {
+      logger.error('Cannot process worker loop, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { streamName, consumerGlobPattern, signal, handler } = params
+    const { streamName, consumerGlobPattern, signal, handler } = parameters
     while (true) {
-      logger.debug('Worker loop iteration started', { streamName, consumerGlobPattern })
+      logger.debug('Worker loop iteration started', { parameters })
       if (signal.aborted) {
-        logger.debug('Worker loop aborted', { streamName, consumerGlobPattern })
+        logger.debug('Worker loop aborted', { parameters })
         break
       }
       const consumers = await this.jsm.consumers.list(streamName).next()
-      logger.debug('Fetched consumers', { streamName, consumerGlobPattern, consumersCount: consumers.length })
+      logger.debug('Fetched consumers', { streamName, consumersCount: consumers.length })
       // Filter and randomize to prevent workers from all hitting the same consumer first
       const shuffledConsumers = consumers
         .filter((c) => matchGlobPattern(c.name, consumerGlobPattern))
         .sort(() => Math.random() - 0.5)
 
-      logger.debug('Processing consumers', { streamName, consumerGlobPattern, consumers: shuffledConsumers })
+      logger.debug('Processing consumers', { streamName, consumers: shuffledConsumers })
       for (const consumerInfo of shuffledConsumers) {
         if (signal.aborted) {
-          logger.debug('Worker loop aborted', { consumerInfo, streamName, consumerGlobPattern })
+          logger.debug('Worker loop aborted', { streamName, consumerGlobPattern })
           break
         }
         if (consumerInfo.paused) {
@@ -369,26 +376,40 @@ export class NatsClient implements EventClient {
               logger.info('Worker loop aborted', { streamName, consumerName: consumerInfo.name })
               break
             }
-            logger.debug('Received message for consumer', { streamName, consumerName: consumerInfo.name })
+            logger.debug('Received message for consumer', {
+              streamName,
+              subject: msg.subject,
+              consumerName: consumerInfo.name,
+            })
             try {
               // Call handler
               await handler({ subject: msg.subject, payload: msg.data })
               // Acknowledge message
               msg.ack()
+              logger.debug('Message processed and acknowledged', {
+                streamName,
+                subject: msg.subject,
+                consumerName: consumerInfo.name,
+              })
             } catch (error) {
               if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
                 // Log and drop the message
-                logger.error(`Message reached max delivery attempts, dropping message`, {
+                logger.error('Message reached max delivery attempts, dropping message', {
                   streamName,
                   consumerName: consumerInfo.name,
-                  messageInfo: msg.info,
+                  subject: msg.subject,
                   error,
                 })
 
                 // Acknowledge to drop the message
                 msg.ack()
               }
-              logger.error(`Error processing event`, { error, streamName, consumerName: consumerInfo.name })
+              logger.error('Error processing event - will be redelivered', {
+                streamName,
+                consumerName: consumerInfo.name,
+                subject: msg.subject,
+                error,
+              })
               // Negative acknowledge to retry later
               msg.nak()
             }
@@ -473,7 +494,7 @@ export class NatsClient implements EventClient {
     return stats
   }
 
-  async getMessages(params: {
+  async getMessages(parameters: {
     streamName: string
     subjectFilter: string
     startSequence?: number
@@ -484,9 +505,10 @@ export class NatsClient implements EventClient {
     lastSequence: number
   }> {
     if (!this.js || !this.jsm) {
+      logger.error('Cannot get messages, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { streamName, subjectFilter, startSequence, take = 20 } = params
+    const { streamName, subjectFilter, startSequence, take = 20 } = parameters
 
     // Get accurate total count from stream info
     const streamInfo = await this.jsm.streams.info(streamName, {
@@ -494,6 +516,10 @@ export class NatsClient implements EventClient {
     })
 
     const totalCount = Object.values(streamInfo.state.subjects ?? {}).reduce((sum, count) => sum + count, 0)
+
+    if (totalCount < 1) {
+      return { rawMessages: [], totalCount: 0, lastSequence: startSequence ?? 0 }
+    }
 
     const consumer = await this.js.consumers.get(streamName, {
       filterSubjects: [subjectFilter],
@@ -504,7 +530,7 @@ export class NatsClient implements EventClient {
 
     let lastSequence = startSequence ?? 0
 
-    const fetchBatch = await consumer.fetch({ max_messages: take, expires: 5000 })
+    const fetchBatch = await consumer.fetch({ max_messages: take > totalCount ? totalCount : take, expires: 1000 })
 
     for await (const msg of fetchBatch) {
       lastSequence = msg.info.streamSequence

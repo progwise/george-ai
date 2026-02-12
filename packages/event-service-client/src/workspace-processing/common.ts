@@ -6,7 +6,8 @@ export const WORKSPACE_STREAM_NAME = 'workspace_processing'
 export const WORKSPACE_PROCESSING_SUBJECT_PREFIX = 'processing.workspace'
 export const WORKSPACE_PROCESSING_STREAM_SUBJECTS = [`${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.>`]
 
-export type EventType = 'request' | 'status' | 'reply'
+const EVENT_TYPES = ['request', 'status', 'reply'] as const
+export type EventType = (typeof EVENT_TYPES)[number]
 
 export const getConsumerName = (parameters: { workspaceId: string; requestType: ProcessingRequestType }): string => {
   return `workspace-processing-consumer-${parameters.workspaceId}-${parameters.requestType}`
@@ -27,60 +28,36 @@ export const getConsumerGlobPattern = ({
   return `workspace-processing-consumer-${workspaceId ? workspaceId : '*'}-${requestType ? requestType : '*'}`
 }
 
-export const getRequestSubject = ({
+export const getEventSubject = ({
+  eventType,
   workspaceId,
   requestType,
   libraryId,
   fileId,
 }: {
+  eventType: EventType
   workspaceId: string
   requestType: ProcessingRequestType
   libraryId: string
   fileId: string
 }) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.request.${requestType}.library.${libraryId}.file.${fileId}`
+  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.${eventType}.${requestType}.library.${libraryId}.file.${fileId}`
 }
 
-export const getRequestSubjectFilter = ({
+export const getEventSubjectFilter = ({
+  eventType,
   workspaceId,
   requestType,
   libraryId,
   fileId,
 }: {
+  eventType?: EventType
   workspaceId?: string | null
   requestType?: ProcessingRequestType | null
   libraryId?: string | null
   fileId?: string | null
 }) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId || '*'}.request.${requestType || '*'}.library.${libraryId || '*'}.file.${fileId || '*'}`
-}
-
-export const getStatusSubject = ({
-  workspaceId,
-  requestType,
-  libraryId,
-  fileId,
-}: {
-  workspaceId: string
-  requestType: ProcessingRequestType
-  libraryId: string
-  fileId: string
-}) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.status.${requestType}.library.${libraryId}.file.${fileId}`
-}
-
-export const getReplySubject = ({
-  workspaceId,
-  requestType,
-  libraryId,
-  fileId,
-}: {
-  workspaceId: string
-  requestType: ProcessingRequestType
-  libraryId: string
-  fileId: string
-}) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.reply.${requestType}.library.${libraryId}.file.${fileId}`
+  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId || '*'}.${eventType || '*'}.${requestType || '*'}.library.${libraryId || '*'}.file.${fileId || '*'}`
 }
 
 export const getEventType = (subject: string): EventType => {
@@ -101,9 +78,5 @@ export const getConsumerSubjectFilters = ({
   workspaceId: string
   requestType: ProcessingRequestType
 }) => {
-  return [
-    `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.request.${requestType}.>`,
-    `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.status.${requestType}.>`,
-    `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.reply.${requestType}.>`,
-  ]
+  return EVENT_TYPES.map((eventType) => getEventSubjectFilter({ eventType, workspaceId, requestType }))
 }

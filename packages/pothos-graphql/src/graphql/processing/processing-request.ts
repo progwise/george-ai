@@ -22,6 +22,7 @@ builder.interfaceRef<ProcessingRequest>('ProcessingRequest').implement({
         throw new Error(`Unknown request type: ${JSON.stringify(request)}`)
     }
   },
+  // TODO: add fileId and libraryId to the interface and remove from individual types, since they are common across all types
   fields: (t) => ({
     version: t.exposeInt('version'),
     workspaceId: t.exposeString('workspaceId'),

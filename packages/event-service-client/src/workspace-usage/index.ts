@@ -11,7 +11,7 @@ export const initializeWorkspaceUsageStream = async () => {
     streamName: USAGE_STREAM_NAME,
     description: `Events for usage reportings`,
     subjects: USAGE_STREAM_SUBJECTS,
-    persist: true,
+    persist: false,
   })
   initialized = true
   return USAGE_STREAM_NAME

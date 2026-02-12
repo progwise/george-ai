@@ -12,7 +12,7 @@ export const initializeModelCallsStream = async () => {
     streamName: MODEL_CALLS_STREAM_NAME,
     description: `Events for AI service provider calls`,
     subjects: MODEL_CALLS_STREAM_SUBJECTS,
-    persist: true,
+    persist: false,
   })
   return MODEL_CALLS_STREAM_NAME
 }

@@ -12,4 +12,5 @@ export async function ensureUsageConsumer(workspaceId: string) {
     maxDeliveryAttempts: 3,
     maxPendingMessages: 1000,
   })
+  await eventClient.resumeConsumer({ streamName: USAGE_STREAM_NAME, consumerName }) // Ensure consumer is active
 }

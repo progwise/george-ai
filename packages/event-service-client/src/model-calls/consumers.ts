@@ -22,6 +22,7 @@ export const ensureModelCallConsumer = async (params: {
     maxDeliveryAttempts: 5,
     maxPendingMessages,
   })
+  await eventClient.resumeConsumer({ streamName: MODEL_CALLS_STREAM_NAME, consumerName }) // Ensure consumer is active
 }
 
 export const deleteModelCallConsumer = async (params: {

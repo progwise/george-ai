@@ -2,6 +2,7 @@ import { PROCESSING_REQUEST_TYPES, ProcessingRequestType } from '@george-ai/app-
 
 import { eventClient } from '../client'
 import { WORKSPACE_STREAM_NAME, getConsumerName, logger } from './common'
+import { ensureWorkspaceConsumer } from './consumers'
 
 export const stopProcessing = async ({
   workspaceId,
@@ -15,6 +16,7 @@ export const stopProcessing = async ({
   }
   await Promise.all(
     requestTypes.map(async (requestType) => {
+      await ensureWorkspaceConsumer({ workspaceId, requestType })
       const consumerName = getConsumerName({ workspaceId, requestType })
       await eventClient.pauseConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
     }),
@@ -34,6 +36,7 @@ export const startProcessing = async ({
   }
   await Promise.all(
     requestTypes.map(async (requestType) => {
+      await ensureWorkspaceConsumer({ workspaceId, requestType })
       const consumerName = getConsumerName({ workspaceId, requestType })
       await eventClient.resumeConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
     }),
@@ -52,6 +55,7 @@ export const processingStatus = async ({
   workspaceId: string
   requestType: ProcessingRequestType
 }): Promise<EventProcessingStatus> => {
+  await ensureWorkspaceConsumer({ workspaceId, requestType })
   const consumerName = getConsumerName({ workspaceId, requestType })
   return await eventClient.consumerStatus({ streamName: WORKSPACE_STREAM_NAME, consumerName })
 }

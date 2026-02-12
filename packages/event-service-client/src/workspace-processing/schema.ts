@@ -15,6 +15,7 @@ export const ProcessingRequestSettingsSchema = z.record(z.string().or(z.number()
 
 export type ProcessingRequestSettings = z.infer<typeof ProcessingRequestSettingsSchema>
 
+// TODO: Add libraryId and fileId to the base schema if they are common to all request types, or keep them in the specific schemas if they are not always present.
 export const ProcessingRequestBaseSchema = z.object({
   version: z.literal(1),
   workspaceId: z.string(),

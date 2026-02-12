@@ -49,7 +49,7 @@ export async function extractFileCompleted(event: ExtractFileStatus) {
             }),
           ),
         ).then((paths) => paths.filter((path): path is string => !!path)),
-        replySubject: workspaceProcessing.getReplySubject(event),
+        replySubject: workspaceProcessing.getEventSubject({ ...event, eventType: 'reply' }),
         context: { fileId, libraryId, extractionMethod },
       })
 

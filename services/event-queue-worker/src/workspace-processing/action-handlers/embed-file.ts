@@ -52,7 +52,7 @@ export async function embedFile(event: EmbedFileRequest) {
           modelName: embeddingModelName,
           inputTexts: filteredChunks.map((chunk) => chunk.content!),
           workspaceId,
-          replySubject: workspaceProcessing.getReplySubject(event),
+          replySubject: workspaceProcessing.getEventSubject({ ...event, eventType: 'reply' }),
           context: { chunks: filteredChunks },
         })
       }

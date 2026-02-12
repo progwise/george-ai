@@ -14,7 +14,7 @@ interface TokenProvider {
 export const getUserContextFromExpressRequest = async (request: Request): Promise<Context> => {
   logger.debug('Extracting user context from Express request', {
     headers: request.headers,
-    cookies: JSON.stringify(request.cookies),
+    url: request.url,
   })
   return getUserContext(() => ({
     jwtToken: request.headers['x-user-jwt']?.toString() || request.cookies['keycloak-token'] || null,
@@ -30,11 +30,7 @@ export const getUserContextFromExpressRequest = async (request: Request): Promis
 // Priority: JWT first, then Bearer token
 export const getUserContext = async (getTokens: () => TokenProvider): Promise<Context> => {
   const { jwtToken, bearerToken, workspaceId: requestedWorkspaceId } = getTokens()
-  logger.debug('Getting user context from request', {
-    hasJwtToken: !!jwtToken,
-    hasBearerToken: !!bearerToken,
-    requestedWorkspaceId,
-  })
+
   // Try JWT authentication first
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
