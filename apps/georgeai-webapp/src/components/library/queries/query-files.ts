@@ -2,20 +2,22 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { FileChunksSelector } from '../../../gql/graphql'
+import { FileChunksSelectorSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
 const queryFiles = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
-        libraryId: z.string().nonempty(),
+        selector: FileChunksSelectorSchema(),
         query: z.string().default('*'),
         skip: z.number().int().min(0).default(0),
         take: z.number().int().min(1).default(20),
       })
       .parse(data),
   )
-  .handler(async (ctx) => {
+  .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
         query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {
@@ -34,21 +36,21 @@ const queryFiles = createServerFn({ method: 'GET' })
           }
         }
       `),
-      { ...ctx.data },
+      data,
     )
     return result.queryFileChunks
   })
 
-export const queryFilesQueryOptions = (params: { libraryId: string; query: string; skip: number; take: number }) => ({
-  queryKey: ['queryFiles', params.libraryId, params.query, params.skip, params.take],
+export const queryFilesQueryOptions = (params: {
+  selector: FileChunksSelector
+  query: string
+  skip: number
+  take: number
+}) => ({
+  queryKey: ['queryFiles', { params }],
   queryFn: async () => {
     return await queryFiles({
-      data: {
-        libraryId: params.libraryId,
-        query: params.query,
-        skip: params.skip,
-        take: params.take,
-      },
+      data: params,
     })
   },
 })

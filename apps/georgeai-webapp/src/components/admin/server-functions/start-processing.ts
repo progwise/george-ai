@@ -14,7 +14,6 @@ export const startProcessingFn = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    console.log('Starting processing with data:', data)
     const result = await backendRequest(
       graphql(`
         mutation StartWorkspaceProcessing($requestType: ProcessingRequestType!) {

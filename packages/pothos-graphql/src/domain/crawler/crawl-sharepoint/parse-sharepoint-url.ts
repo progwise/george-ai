@@ -1,6 +1,8 @@
+import { logger } from '../common'
+
 // Reuse the parsing function from crawl-sharepoint.ts
 export function parseSharePointUrl(uri: string) {
-  console.log(`Parsing Sharepoint URI ${uri}`)
+  logger.info('Parsing Sharepoint URI', { uri })
   try {
     const cleanUri = uri.endsWith('/') ? uri.slice(0, -1) : uri
     const fullUrl = new URL(cleanUri)
@@ -10,10 +12,15 @@ export function parseSharePointUrl(uri: string) {
     const apiUrl = new URL(`${fullUrl.protocol}//${fullUrl.host}/_api`)
     const libName = pathParts[pathParts.length - 1]
     const siteName = pathParts.slice(0, -1).join('/')
-    console.log(`Parsed - siteUrl: ${siteUrl}, apiUrl: ${apiUrl}, libName: ${libName}`)
+    logger.info('Parsed SharePoint URL components', {
+      siteUrl: siteUrl.toString(),
+      apiUrl: apiUrl.toString(),
+      libName,
+      siteName,
+    })
     return { siteUrl, apiUrl, siteName, libName }
   } catch (error) {
-    console.error(`Error parsing sharepoint URL ${uri}`, error)
+    logger.error('Error parsing SharePoint URL', { uri, error })
     throw error
   }
 }

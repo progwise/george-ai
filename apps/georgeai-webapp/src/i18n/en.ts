@@ -92,7 +92,7 @@ export default {
     manageWorkersDescription: 'View and manage active workers and their statistics.',
     monitorAiServices: 'Monitor AI Services',
     monitorAiServicesDescription: 'View and manage the status of integrated AI services and models.',
-    welcomeMessage: 'users, AI services, models, queues, and external connectors.',
+    welcomeMessage: 'Manage users, AI services, models, queues, and external connectors.',
     workers: {
       activeSubscriptions: 'Active Subscriptions',
       activeWorkers: 'Active Workers',

@@ -21,7 +21,7 @@ const getWorkspaceEmbeddingStatistics = createServerFn({ method: 'GET' })
       `),
       data,
     )
-    return embeddingStatistics || { extractionMethod: 'unknown', chunkCount: 0 }
+    return embeddingStatistics || []
   })
 
 export const getWorkspaceEmbeddingStatisticsQueryOptions = (parameters: { workspaceId?: string | null }) =>

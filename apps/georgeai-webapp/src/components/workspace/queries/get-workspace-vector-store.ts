@@ -33,6 +33,6 @@ const getWorkspaceVectorStore = createServerFn({ method: 'GET' })
 
 export const getWorkspaceVectorStoreQueryOptions = (parameters: { workspaceId?: string | null }) =>
   queryOptions({
-    queryKey: [queryKeys.EventProcessingStatistics, parameters],
+    queryKey: [queryKeys.WorkspaceVectorStore, parameters],
     queryFn: () => (!parameters.workspaceId ? null : getWorkspaceVectorStore({ data: parameters })),
   })

@@ -4,4 +4,6 @@ import { crawlApiStream } from './crawl'
 // Templates
 import * as templates from './templates'
 
-export { crawlApiStream, ApiCrawlerConfig, ApiCrawlerConfigSchema, templates }
+export { crawlApiStream, ApiCrawlerConfigSchema, templates }
+
+export type { ApiCrawlerConfig }

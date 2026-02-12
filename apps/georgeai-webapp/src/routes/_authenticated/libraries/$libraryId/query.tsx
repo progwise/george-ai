@@ -23,7 +23,9 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/query
       context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId)),
       context.queryClient.ensureQueryData(
         queryFilesQueryOptions({
-          libraryId: params.libraryId,
+          selector: {
+            libraryId: params.libraryId,
+          },
           query: deps.query ?? '*',
           skip: deps.skip,
           take: deps.take,
@@ -40,7 +42,9 @@ function RouteComponent() {
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
   const { data: hits } = useSuspenseQuery(
     queryFilesQueryOptions({
-      libraryId,
+      selector: {
+        libraryId,
+      },
       query: query ?? '*',
       skip,
       take,

@@ -87,8 +87,7 @@ export async function* crawlSharePoint({
   crawlerRunId,
   filterConfig,
 }: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
-  console.log(`Start SharePoint crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
-  console.log(`Using credentials for crawler: ${crawlerId}`)
+  logger.info('Start SharePoint crawling', { crawlerId, uri, maxDepth, maxPages, libraryId })
 
   let processedPages = 0
 
@@ -103,8 +102,7 @@ export async function* crawlSharePoint({
 
   const discoveryResult = await discoverSharePointSiteContent(apiUrl, authCookies)
 
-  console.log(`📚 Found ${discoveryResult.documentLibraries.length} document libraries`)
-  console.log(`🎯 Looking for library: "${libName}"`)
+  logger.debug('📚 Found  document libraries', { discoverSharePointSiteContent, libName })
 
   // Find the matching library
   const targetLibrary = discoveryResult.documentLibraries.find(
@@ -112,8 +110,12 @@ export async function* crawlSharePoint({
   )
 
   if (targetLibrary) {
-    console.log(`✅ Found matching library: "${targetLibrary.title}" (${targetLibrary.itemCount} items)`)
+    logger.debug('✅ Found matching library', { libraryTitle: targetLibrary.title, itemCount: targetLibrary.itemCount })
   } else {
+    logger.error('❌ Target library not found', {
+      libName,
+      availableLibraries: discoveryResult.documentLibraries.map((lib) => lib.title),
+    })
     throw new Error(
       `❌ Library "${libName}" not found. Available libraries: ${discoveryResult.documentLibraries.map((lib) => lib.title).join(', ')}`,
     )
@@ -145,16 +147,18 @@ export async function* crawlSharePoint({
       const startDateISO = weekStart.toISOString()
       const endDateISO = weekEnd.toISOString()
 
-      console.log(
-        `📅 Processing week ${weeksBack + 1}/${WEEKS_TO_SEARCH}: ${weekStart.toLocaleDateString('en-US')} - ${weekEnd.toLocaleDateString('en-US')}`,
-      )
+      logger.debug('📅 Processing week ', { weekStart: weekStart.toISOString(), weekEnd: weekEnd.toISOString() })
 
       // Query this specific week range - fetch all items without $top limit
       let currentUrl = `${apiUrl}/web/lists/getbytitle('${targetLibrary.title}')/items?$select=ID,Title,FileLeafRef,Modified,FileRef,File/ServerRelativeUrl,File/Length&$expand=File&$filter=FSObjType eq 0 and Modified ge datetime'${startDateISO}' and Modified le datetime'${endDateISO}'&$orderby=Modified desc`
 
       // Process all pages for this week
       while (currentUrl && processedPages < maxPages) {
-        console.log(`📦 Fetching files from week ${weeksBack + 1}...`)
+        logger.debug('📦 Fetching files from week', {
+          week: weeksBack + 1,
+          weekStart: weekStart.toISOString(),
+          weekEnd: weekEnd.toISOString(),
+        })
 
         const response = await fetch(currentUrl, {
           method: 'GET',
@@ -179,10 +183,10 @@ export async function* crawlSharePoint({
 
         const data = JSON.parse(responseText)
         const items: SharePointListItem[] = data.d?.results || []
-        console.log(`📋 Found ${items.length} items in week ${weeksBack + 1}`)
+        logger.debug('📋 Found items in week', { week: weeksBack + 1, itemCount: items.length })
 
         if (items.length === 0) {
-          console.log(`📊 No files found in week ${weeksBack + 1}`)
+          logger.debug('📊 No files found in week', { week: weeksBack + 1 })
           break // No more items in this week, move to next week
         }
 
@@ -198,7 +202,12 @@ export async function* crawlSharePoint({
           const fileUri = `${siteUrl.origin}${item.FileRef}`
 
           try {
-            console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
+            logger.debug('Processing file', {
+              fileName,
+              fileUri,
+              modified: item.Modified,
+              fileSize: item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size,
+            })
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
             const modificationDate = new Date(item.Modified)
@@ -216,7 +225,7 @@ export async function* crawlSharePoint({
 
               const filterResult = applyFileFilters(fileInfo, filterConfig)
               if (!filterResult.allowed) {
-                console.log(`SharePoint file filtered out: ${fileUri} - ${filterResult.reason}`)
+                logger.debug('SharePoint file filtered out', { fileName, fileUri, reason: filterResult.reason })
 
                 // Record the omitted file
                 await recordOmittedFile({
@@ -247,12 +256,12 @@ export async function* crawlSharePoint({
             // Download file content from SharePoint
             const content = await downloadSharePointFile(siteUrl, serverRelativeUrl, authCookies)
             if (!sizeCheck.acceptable) {
-              logger.warn(`SharePoint file too large ${fileName}: ${sizeCheck.reason}`)
+              logger.warn('SharePoint file too large', { fileName, fileUri, fileSize, reason: sizeCheck.reason })
               continue
             }
 
             if (sizeCheck.shouldWarn) {
-              console.warn(`SharePoint file ${fileName}: ${sizeCheck.reason}`)
+              logger.warn('SharePoint file size warning', { fileName, fileUri, fileSize, reason: sizeCheck.reason })
             }
 
             const fileInfo = await saveCrawlerFile({
@@ -291,7 +300,7 @@ export async function* crawlSharePoint({
             }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
-            console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
+            logger.error('Error processing SharePoint file', { fileName, errorMessage })
             yield {
               hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`,
               errorMessage: errorMessage,
@@ -306,11 +315,11 @@ export async function* crawlSharePoint({
       }
     }
 
-    console.log(`Finished SharePoint crawling. Processed ${processedPages} files.`)
+    logger.info('Finished SharePoint crawling.', { crawlerId, totalProcessedPages: processedPages })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     const hints = `Error in SharePoint crawler crawling ${crawlerId}`
-    console.error(hints, errorMessage)
+    logger.error(hints, { errorMessage })
     yield { hints, errorMessage }
   }
 }
@@ -319,7 +328,7 @@ async function downloadSharePointFile(siteUrl: URL, serverRelativeUrl: string, a
   // Try primary API first
   let fileUrl = `${siteUrl.origin}/_api/web/getfilebyserverrelativeurl('${encodeURIComponent(serverRelativeUrl)}')/$value`
 
-  console.log(`Downloading SharePoint file from: ${fileUrl}`)
+  logger.debug('Downloading SharePoint file from', { fileUrl })
 
   let response = await fetch(fileUrl, {
     method: 'GET',
@@ -329,19 +338,22 @@ async function downloadSharePointFile(siteUrl: URL, serverRelativeUrl: string, a
     },
   })
 
-  console.log(`Download response status: ${response.status} ${response.statusText}`)
+  logger.debug('Download response status', { status: response.status, statusText: response.statusText })
 
   // If primary API fails with 404 and path contains special characters, try alternative API
   if (!response.ok && response.status === 404) {
     const hasSpecialChars = /[%#]/.test(serverRelativeUrl)
 
     if (hasSpecialChars) {
-      console.log(`Primary API failed with 404 for file with special characters, trying GetFileByServerRelativePath...`)
+      logger.debug(
+        'Primary API failed with 404 for file with special characters, trying GetFileByServerRelativePath...',
+        { fileUrl, serverRelativeUrl },
+      )
 
       // Try alternative API for special characters
       fileUrl = `${siteUrl.origin}/_api/web/GetFileByServerRelativePath(decodedUrl='${encodeURIComponent(serverRelativeUrl)}')/$value`
 
-      console.log(`Retrying with alternative API: ${fileUrl}`)
+      logger.debug('Retrying with alternative API', { fileUrl })
 
       response = await fetch(fileUrl, {
         method: 'GET',
@@ -351,13 +363,13 @@ async function downloadSharePointFile(siteUrl: URL, serverRelativeUrl: string, a
         },
       })
 
-      console.log(`Alternative API response status: ${response.status} ${response.statusText}`)
+      logger.debug('Alternative API response status', { status: response.status, statusText: response.statusText })
     }
   }
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.log(`Download error response:`, errorText.substring(0, 500))
+    logger.error('Download error response', { errorText: errorText.substring(0, 500), fileUrl })
 
     if (response.status === 401 || response.status === 403) {
       throw new Error(`SharePoint file download authentication failed. Please refresh your authentication cookies.`)

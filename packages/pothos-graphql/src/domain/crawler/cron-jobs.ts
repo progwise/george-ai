@@ -2,13 +2,14 @@ import { CronJob } from 'cron'
 
 import { AiLibraryCrawlerCronJob, prisma } from '@george-ai/app-database'
 
+import { logger } from './common'
 import { runCrawler } from './crawler-run'
 import { getCronExpression } from './get-cron-expression'
 
 const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 
 const restoreCronJobsFromDatabase = async () => {
-  console.log('Restoring cron jobs from database...')
+  logger.info('Restoring cron jobs from database...')
   const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({
     where: { active: true },
     include: { crawler: { include: { library: true } } },
@@ -17,7 +18,7 @@ const restoreCronJobsFromDatabase = async () => {
   for (const cronJob of activeCronJobs) {
     await upsertCronJob(cronJob.crawler.library.workspaceId, cronJob)
   }
-  console.log(`Restored ${activeCronJobs.length} active cron job(s)`)
+  logger.info(`Restored ${activeCronJobs.length} active cron job(s)`)
 }
 
 /**
@@ -37,7 +38,7 @@ export const upsertCronJob = async (workspaceId: string, cronJob: AiLibraryCrawl
     cronExpression,
     async () => {
       try {
-        console.log('Running cron job', cronJob.id)
+        logger.info('Running cron job', { cronJobId: cronJob.id })
         // TODO: specify how to run the cron job as a specific user
         await runCrawler({
           workspaceId,
@@ -46,11 +47,11 @@ export const upsertCronJob = async (workspaceId: string, cronJob: AiLibraryCrawl
           userId: 'cronJob',
         })
       } catch (error) {
-        console.log('Error running cron job', cronJob.id, error)
+        logger.error('Error running cron job', { cronJobId: cronJob.id, error })
       }
     },
     () => {
-      console.log('Cron job completed', cronJob.id)
+      logger.info('Cron job completed', { cronJobId: cronJob.id })
     },
     true, // start the job right now
   )
@@ -70,5 +71,5 @@ export const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
 // After the server starts, restore all cron jobs from the database
 // Run in background without blocking server startup
 restoreCronJobsFromDatabase().catch((error) => {
-  console.error('Failed to restore cron jobs:', error)
+  logger.error('Failed to restore cron jobs', { error })
 })

@@ -90,7 +90,6 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.EventProcessingStatistics] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkers] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceNeedsMigration] }),
 
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
@@ -225,7 +224,6 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: async ({ id }) => {
       toastSuccess(t('workspace.createSuccess'))
-      console.log('Switching to new workspace:', id)
       await setWorkspace(id)
     },
     onError: (error) => {

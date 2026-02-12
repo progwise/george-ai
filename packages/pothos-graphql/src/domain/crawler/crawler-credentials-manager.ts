@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import config from '../../config'
+import { logger } from './common'
 
 const CREDENTIALS_DIR = path.resolve(config('CRAWLER_CREDENTIALS_DIR'))
 
@@ -26,7 +27,7 @@ export async function storeCrawlerCredentials(
 
   // Store the cookies in a simple text file
   await fs.promises.writeFile(credFile, JSON.stringify(values, null, 2), { mode: 0o600 })
-  console.log(`Crawler credentials stored for crawler ${crawlerId}`)
+  logger.info('Crawler credentials stored for crawler', { crawlerId })
 
   return credFile
 }
@@ -38,7 +39,7 @@ export async function getCrawlerCredentials(crawlerId: string): Promise<Record<s
     const fileContent = await fs.promises.readFile(credFile, 'utf-8')
     return JSON.parse(fileContent)
   } catch {
-    console.warn(`No Crawler credentials found for crawler ${crawlerId}`)
+    logger.warn('No Crawler credentials found for crawler', { crawlerId })
     return {}
   }
 }
@@ -48,9 +49,9 @@ export async function removeCrawlerCredentials(crawlerId: string): Promise<void>
 
   try {
     await fs.promises.unlink(credFile)
-    console.log(`Crawler credentials removed for crawler ${crawlerId}`)
+    logger.info('Crawler credentials removed for crawler', { crawlerId })
   } catch (error) {
-    console.warn(`Failed to remove Crawler credentials for crawler ${crawlerId}:`, error)
+    logger.warn('Failed to remove Crawler credentials for crawler', { crawlerId, error })
   }
 }
 

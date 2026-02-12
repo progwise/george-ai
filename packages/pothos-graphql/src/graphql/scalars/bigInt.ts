@@ -1,7 +1,5 @@
 import { builder } from '../builder'
 
-console.log('Setting up: BigInt')
-
 export const BigIntScalar = builder.scalarType('BigInt', {
   serialize: (value) => value.toString(),
   parseValue: (value) => {

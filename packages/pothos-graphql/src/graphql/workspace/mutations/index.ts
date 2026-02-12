@@ -1,5 +1,3 @@
-import { logger } from '../../common'
-
 import './accept-workspace-invitation'
 import './change-membership'
 import './create-workspace'
@@ -9,5 +7,3 @@ import './leave-workspace'
 import './migrate-workspace'
 import './remove-workspace-member'
 import './revoke-workspace-invitation'
-
-logger.info('Setting up: Workspace mutations')

@@ -1,4 +1,5 @@
 import { CRAWL4AI_BASE_URL, DEFAULT_FETCH_TIMEOUT_MS } from './client'
+import { logger } from './common'
 import { HtmlCrawlError } from './types'
 
 /**
@@ -24,7 +25,7 @@ interface SinglePageMarkdownResponse {
 export async function fetchPageAsMarkdown(url: string, timeoutMs?: number): Promise<string> {
   const timeout = timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS
 
-  console.log(`[html-crawler] Fetching page as markdown: ${url}`)
+  logger.info('Fetching page as markdown', { url })
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
@@ -52,9 +53,10 @@ export async function fetchPageAsMarkdown(url: string, timeoutMs?: number): Prom
       throw new HtmlCrawlError('Crawl4AI returned empty markdown', url)
     }
 
-    console.log(`[html-crawler] Successfully fetched markdown (${data.markdown.length} chars)`)
+    logger.info('Successfully fetched markdown', { url, title: data.title })
     return data.markdown
   } catch (error) {
+    logger.error('Error fetching page as markdown', { url, error })
     if (error instanceof HtmlCrawlError) {
       throw error
     }

@@ -1,3 +1,4 @@
+import { logger } from '../common'
 import { listFolderItems } from './box-api'
 import { BoxFileToProcess } from './common'
 
@@ -47,7 +48,7 @@ export async function* discoverBoxFilesStreaming(
   }
 
   processedUris.add(folderUri)
-  console.log(`Discovering files in Box folder ID: ${folderId} (depth: ${currentDepth})`)
+  logger.info('Discovering files in Box folder ID', { folderId, currentPath, currentDepth })
 
   try {
     let offset = 0
@@ -96,7 +97,7 @@ export async function* discoverBoxFilesStreaming(
       )
     }
   } catch (error) {
-    console.error(`Error listing Box folder ${folderId}:`, error)
+    logger.error('Error listing Box folder', { folderId, error })
     // Continue with other directories even if this one fails
   }
 }

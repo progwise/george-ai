@@ -46,14 +46,14 @@ export async function* crawlBox(options: CrawlOptions): AsyncGenerator<CrawledFi
     // Process files as they're discovered - yields immediately
     for await (const fileToProcess of discoverBoxFilesStreaming(folderId, '', 0, maxDepth, accessToken)) {
       if (processedPages >= maxPages) {
-        console.log(`Reached maxPages limit (${maxPages}), stopping crawl`)
+        logger.info('Reached maxPages limit', { processedPages, maxPages })
         break
       }
 
       processedPages++
 
       try {
-        console.log(`Processing Box file: ${fileToProcess.name} (ID: ${fileToProcess.id})`)
+        logger.debug('Processing Box file', { name: fileToProcess.name, id: fileToProcess.id })
 
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
         // Use Box web app URL format for browser access
@@ -70,7 +70,7 @@ export async function* crawlBox(options: CrawlOptions): AsyncGenerator<CrawledFi
 
           const filterResult = applyFileFilters(fileInfo, filterConfig)
           if (!filterResult.allowed) {
-            console.log(`Box file filtered out: ${fileUri} - ${filterResult.reason}`)
+            logger.info('Box file filtered out', { fileUri, reason: filterResult.reason })
 
             // Record the omitted file
             await recordOmittedFile({
@@ -102,7 +102,7 @@ export async function* crawlBox(options: CrawlOptions): AsyncGenerator<CrawledFi
         }
 
         if (sizeCheck.shouldWarn) {
-          console.warn(`Box file ${fileUri}: ${sizeCheck.reason}`)
+          logger.warn('Box file', { fileUri, size: fileToProcess.size, reason: sizeCheck.reason })
         }
 
         // Download file content
@@ -121,7 +121,7 @@ export async function* crawlBox(options: CrawlOptions): AsyncGenerator<CrawledFi
 
         // Check if we should skip processing
         if (fileInfo.skipProcessing) {
-          console.log(`Skipping processing for Box file ${fileToProcess.name} - file unchanged`)
+          logger.info('Skipping processing for Box file - file unchanged', { fileName: fileToProcess.name })
 
           const fileSizeMB = (fileToProcess.size / (1024 * 1024)).toFixed(2)
           const skipHints = [
@@ -153,16 +153,16 @@ export async function* crawlBox(options: CrawlOptions): AsyncGenerator<CrawledFi
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         const hints = `Error processing Box file ${fileToProcess.name} (ID: ${fileToProcess.id}) in crawler ${crawlerId}`
-        console.error(hints, errorMessage)
+        logger.error(hints, { errorMessage })
         yield { errorMessage, hints }
       }
     }
 
-    console.log(`Finished Box crawling. Processed ${processedPages} files.`)
+    logger.info('Finished Box crawling', { processedPages })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     const hints = `Error in Box crawler ${crawlerId}`
-    console.error(hints, errorMessage)
+    logger.error(hints, { errorMessage })
     yield { errorMessage, hints }
   }
 }

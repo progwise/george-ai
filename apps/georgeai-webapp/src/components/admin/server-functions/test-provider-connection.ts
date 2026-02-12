@@ -28,9 +28,7 @@ export const testProviderConnectionFn = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler(async (ctx) => {
-    const result = await backendRequest(testProviderConnectionMutationDocument, {
-      data: ctx.data,
-    })
+  .handler(async ({ data }) => {
+    const result = await backendRequest(testProviderConnectionMutationDocument, data)
     return result.testProviderConnection
   })

@@ -4,7 +4,3 @@ import './user-avatar'
 import './ensure-user-profile'
 import './update-user-profile'
 import './toggle-admin-status'
-
-import { logger } from '../../common'
-
-logger.info('Setting up: User Mutations')

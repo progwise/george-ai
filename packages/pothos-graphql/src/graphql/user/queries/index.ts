@@ -1,36 +1,4 @@
-import { prisma } from '@george-ai/app-database'
-
-import { builder } from '../../builder'
-
+import './user'
+import './users'
 import './user-profile'
 import './managed-users'
-
-builder.queryField('user', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'User',
-    args: {
-      email: t.arg.string(),
-    },
-    resolve: (query, _source, { email }) => {
-      return prisma.user.findUnique({
-        ...query,
-        where: { email },
-      })
-    },
-  }),
-)
-
-builder.queryField('users', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: ['User'],
-    nullable: { list: false, items: false },
-    resolve: async (query, _source, _args, context) => {
-      return prisma.user.findMany({
-        ...query,
-        where: {
-          id: { not: context.session.user.id },
-        },
-      })
-    },
-  }),
-)

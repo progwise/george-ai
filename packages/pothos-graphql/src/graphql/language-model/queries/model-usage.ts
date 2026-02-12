@@ -3,8 +3,6 @@ import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
-console.log('Setting up: AiLanguageModel Queries')
-
 // Usage tracking query result types
 const ModelUsageStats = builder.simpleObject('ModelUsageStats', {
   fields: (t) => ({

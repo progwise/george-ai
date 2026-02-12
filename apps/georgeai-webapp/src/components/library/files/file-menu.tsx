@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 import { graphql } from '../../../gql'
 import { FileMenu_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { useLibraryActions } from '..//use-library-actions'
+import { useLibraryActions } from '../use-library-actions'
 import { FileInfoBox } from './file-info-box'
 import { FileInfoFiles } from './file-info-files'
 

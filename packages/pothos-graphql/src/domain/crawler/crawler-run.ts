@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-database'
 
 import { parseFilterConfig } from '../file/file-filter'
+import { logger } from './common'
 import { crawlApi } from './crawl-api'
 import { crawlBox } from './crawl-box'
 import { crawlHttp } from './crawl-http'
@@ -96,7 +97,7 @@ export const runCrawler = async ({ workspaceId, crawlerId, userId, runByCronJob 
   })
 
   startCrawling(workspaceId, crawler, newRun).catch(async (error) => {
-    console.error('Error during crawling:', error)
+    logger.error('Error during crawling:', error)
     await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
@@ -107,7 +108,7 @@ export const runCrawler = async ({ workspaceId, crawlerId, userId, runByCronJob 
     })
   })
 
-  console.log(`Crawler started: ${crawler.id}, Run ID: ${newRun.id}`)
+  logger.info('Crawler started:', { crawler, newRun })
   return newRun
 }
 
@@ -130,14 +131,13 @@ const startCrawling = async (
   },
   newRun: { id: string; startedAt: Date },
 ) => {
-  console.log(
-    `Starting crawl: ${crawler.uriType}://${crawler.uri} (depth: ${crawler.maxDepth}, pages: ${crawler.maxPages})`,
-  )
+  logger.info('Starting crawl:', { crawler })
 
   const filterConfig = parseFilterConfig(crawler)
   const crawl = crawlersByType[crawler.uriType]
 
   if (!crawl) {
+    logger.error('No crawler implementation for type', { uriType: crawler.uriType })
     throw new Error(`Crawler for type ${crawler.uriType} not implemented`)
   }
 
@@ -163,7 +163,7 @@ const startCrawling = async (
       // Check if run was cancelled
       const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
       if (crawlerRun.endedAt) {
-        console.warn(`Crawler run ${newRun.id} was cancelled`)
+        logger.warn('Crawler run was cancelled', { crawlerRunId: newRun.id })
         break
       }
 
@@ -171,7 +171,7 @@ const startCrawling = async (
         await processCrawledPage(crawledPage, crawler, newRun.id)
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`Error processing file ${crawledPage.name}:`, errorMessage)
+        logger.error('Error processing file', { errorMessage, page: crawledPage.name })
         await createLibraryUpdate(
           crawler.libraryId,
           newRun.id,
@@ -194,10 +194,10 @@ const startCrawling = async (
       },
     })
 
-    console.log(`Crawling completed: ${crawler.id}`)
+    logger.info('Crawling completed:', { crawlerId: crawler.id })
     return prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawler.id } })
   } catch (error) {
-    console.error(`Crawling error for ${crawler.id}:`, error)
+    logger.error('Crawling error:', { crawlerId: crawler.id, error })
     await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
@@ -220,7 +220,7 @@ const processCrawledPage = async (
 ) => {
   // Handle error from crawler
   if (crawledPage.errorMessage) {
-    console.warn('Crawling error for page', crawledPage.name)
+    logger.warn('Crawling error for page', { page: crawledPage.name, errorMessage: crawledPage.errorMessage })
     await createLibraryUpdate(
       crawler.libraryId,
       crawlerRunId,
@@ -234,7 +234,7 @@ const processCrawledPage = async (
 
   // Handle missing file ID
   if (!crawledPage.id) {
-    console.warn(`Crawled page had no file id: ${crawledPage.name}`)
+    logger.warn('Crawled page had no file id', { page: crawledPage.name })
     await createLibraryUpdate(
       crawler.libraryId,
       crawlerRunId,
@@ -248,7 +248,7 @@ const processCrawledPage = async (
 
   // Handle skipped files (unchanged content)
   if (crawledPage.skipProcessing) {
-    console.log(`Skipping: ${crawledPage.name} (unchanged)`)
+    logger.info('Skipping file (unchanged)', { page: crawledPage.name })
 
     // Unarchive since file is still active
     await prisma.aiLibraryFile.update({
@@ -277,5 +277,5 @@ const processCrawledPage = async (
     updateType,
     crawledPage.downloadUrl,
   )
-  console.log(`Processed (${updateType}): ${crawledPage.name}`)
+  logger.info('Processed file', { updateType, page: crawledPage.name })
 }
