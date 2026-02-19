@@ -11,9 +11,11 @@ import { ConversationIcon } from '../icons/conversation-icon'
 import { LibraryIcon } from '../icons/library-icon'
 import { LinkIcon } from '../icons/link-icon'
 import { ListViewIcon } from '../icons/list-view-icon'
+import { SidebarToggleIcon } from '../icons/sidebar-toggle-icon'
 import UserIcon from '../icons/user-icon'
 import { UsersIcon } from '../icons/users-icon'
 import { getAutomationsQueryOptions } from './automations/queries'
+import { ItemActionsDropdown } from './item-actions-dropdown'
 import { getLibrariesQueryOptions } from './library/queries/get-libraries'
 import { getListsQueryOptions } from './lists/queries'
 import { ListSidebarCollapsibleMenu, SidebarNavigationLink } from './sidebar-menu-items'
@@ -73,20 +75,7 @@ export function Sidebar({
             className="tooltip btn absolute tooltip-bottom top-1/2 right-0 z-10 btn-square -translate-y-1/2 rounded-lg bg-base-200 btn-ghost is-drawer-close:invisible is-drawer-close:tooltip-right is-drawer-close:right-2 is-drawer-close:group-hover/sidebar:visible is-drawer-open:pointer-events-auto is-drawer-open:hover:cursor-w-resize"
             data-tip={sidebarToggleTooltip}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              strokeWidth="2"
-              fill="none"
-              stroke="currentColor"
-              className="inline-block size-5"
-            >
-              <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-              <path d="M9 4v16" />
-              <path d="M14 10l2 2l-2 2" />
-            </svg>
+            <SidebarToggleIcon className="size-5" />
           </label>
         </div>
 
@@ -104,14 +93,18 @@ export function Sidebar({
             groupName="libraries"
             newItemDialogRef={newLibraryDialogRef}
             renderItemLink={(lib) => (
-              <Link
-                to="/libraries/$libraryId"
-                params={{ libraryId: lib.id }}
-                activeProps={{ className: 'bg-accent/40' }}
-                className="block rounded-lg px-4 py-2 text-sm"
-              >
-                {lib.name}
-              </Link>
+              <div className="flex flex-row items-center rounded-lg py-0 pl-3 has-[a[data-status='active']]:bg-accent/40">
+                <Link
+                  to="/libraries/$libraryId"
+                  params={{ libraryId: lib.id }}
+                  className="block h-8 grow content-center"
+                >
+                  {lib.name}
+                </Link>
+                <div className="is-drawer-close:hidden">
+                  <ItemActionsDropdown item={lib} groupName="libraries" />
+                </div>
+              </div>
             )}
           />
 
@@ -124,14 +117,14 @@ export function Sidebar({
             groupName="lists"
             newItemDialogRef={newListDialogRef}
             renderItemLink={(list) => (
-              <Link
-                to="/lists/$listId"
-                params={{ listId: list.id }}
-                activeProps={{ className: 'bg-accent/40' }} //div to active tailwind
-                className="block rounded-lg px-4 py-2 text-sm"
-              >
-                {list.name}
-              </Link>
+              <div className="flex flex-row items-center rounded-lg py-0 pl-3 has-[a[data-status='active']]:bg-accent/40">
+                <Link to="/lists/$listId" params={{ listId: list.id }} className="block h-8 grow content-center">
+                  {list.name}
+                </Link>
+                <div className="is-drawer-close:hidden">
+                  <ItemActionsDropdown item={list} groupName="lists" />
+                </div>
+              </div>
             )}
           />
 
@@ -144,14 +137,18 @@ export function Sidebar({
             groupName="automations"
             newItemDialogRef={newAutomationDialogRef}
             renderItemLink={(automation) => (
-              <Link
-                to="/automations/$automationId"
-                params={{ automationId: automation.id }}
-                activeProps={{ className: 'bg-accent/40' }}
-                className="block rounded-lg px-4 py-2 text-sm"
-              >
-                {automation.name}
-              </Link>
+              <div className="flex flex-row items-center rounded-lg py-0 pl-3 has-[a[data-status='active']]:bg-accent/40">
+                <Link
+                  to="/automations/$automationId"
+                  params={{ automationId: automation.id }}
+                  className="block h-8 grow content-center"
+                >
+                  {automation.name}
+                </Link>
+                <div className="is-drawer-close:hidden">
+                  <ItemActionsDropdown item={automation} groupName="automations" />
+                </div>
+              </div>
             )}
           />
 
@@ -177,7 +174,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => membersDialogRef.current?.showModal()}
-              className="flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-5 hover:animate-pulse"
+              className="flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-5 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
               data-tip={t('workspace.members.title')}
               aria-label={t('workspace.members.title')}
             >

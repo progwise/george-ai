@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { PlusIcon } from '../icons/plus-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
-import { ListItemWithDelete } from './list-item-delete'
 
 interface CreateNewItemButtonProps {
   newDialogRef: React.RefObject<HTMLDialogElement | null>
@@ -19,7 +18,7 @@ const CreateNewItemButton = ({ newDialogRef, createNewItemTooltip, hoverClass }:
       e.stopPropagation()
       newDialogRef.current?.showModal()
     }}
-    className={`tooltip btn invisible right-2 ml-auto btn-circle shrink-0 opacity-0 btn-ghost transition-opacity btn-xs btn-success [&::before]:text-xs ${hoverClass}`}
+    className={`tooltip btn right-2 ml-auto btn-circle shrink-0 opacity-0 btn-ghost transition-opacity btn-xs [&::before]:text-xs ${hoverClass}`}
     data-tip={createNewItemTooltip}
   >
     <PlusIcon className="size-4" />
@@ -101,18 +100,18 @@ export const ListSidebarCollapsibleMenu = ({
                 {label}
                 <CreateNewItemButton
                   newDialogRef={newDialogRef}
-                  createNewItemTooltip={createNewItemTooltip}
+                  createNewItemTooltip={createNewItemTooltip} // next fix
                   hoverClass={hoverClass}
                 />
               </div>
               <div className="collapse-content p-0">
                 {items.map((item) => (
-                  <ListItemWithDelete key={item.id} item={item} renderItemLink={renderItemLink} groupName={groupName} />
+                  <div key={item.id}>{renderItemLink(item)}</div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="group relative flex h-9 items-center rounded-lg text-sm">
+            <div className="relative flex h-9 items-center rounded-lg text-sm">
               <Link
                 to={to}
                 className="flex h-full flex-1 items-center gap-2 rounded-lg pl-5 before:absolute before:inset-x-1 before:inset-y-0 before:rounded-lg"
@@ -135,10 +134,10 @@ export const ListSidebarCollapsibleMenu = ({
           // Closed sidebar
           <>
             {items.length > 0 ? (
-              <div className="relative">
+              <div className="relative text-sm">
                 <SidebarNavigationLink to={to} icon={icon} label="" />
                 <ul
-                  className={`invisible absolute -top-2 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-2 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                  className={`invisible absolute -top-1.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
                   onClick={(e) => {
                     e.stopPropagation()
                     e.preventDefault()
